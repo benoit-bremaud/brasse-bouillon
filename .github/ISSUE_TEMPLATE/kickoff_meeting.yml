@@ -1,0 +1,41 @@
+name: Kick-off Meeting
+description: Template pour documenter une réunion Kick-off.
+title: "[Réunion] Kick-off - Date"
+labels: ["meeting", "kick-off"]
+body:
+  - type: input
+    id: participants
+    attributes:
+      label: "Participants"
+      description: "Liste des participants avec leurs rôles"
+      placeholder: "Exemple : Alice (Facilitatrice), Bob (Développeur)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: agenda
+    attributes:
+      label: "Ordre du Jour"
+      description: "Liste des sujets à discuter"
+      placeholder: "Sujet 1 : Présentation des objectifs\nSujet 2 : Définition des rôles"
+
+  - type: textarea
+    id: decisions
+    attributes:
+      label: "Décisions"
+      description: "Résumé des décisions prises pendant la réunion"
+      placeholder: "Décision 1 : ...\nDécision 2 : ..."
+
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions à Suivre"
+      description: "Tâches définies avec responsables et échéances"
+      placeholder: "Action 1 : Alice, échéance 2024-01-01\nAction 2 : Bob, échéance 2024-02-01"
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: "Questions en Suspens"
+      description: "Points ouverts nécessitant une action ultérieure"
+      placeholder: "Question 1 : ...\nQuestion 2 : ..."

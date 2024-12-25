@@ -11,7 +11,8 @@ permissions:
 jobs:
   archive-meeting:
     runs-on: ubuntu-latest
-    if: always()
+    if: >
+      contains(join(' ', github.event.issue.labels.*.name), 'meeting')
 
     steps:
       - name: Checkout repository
@@ -19,7 +20,8 @@ jobs:
 
       - name: Debug Labels
         run: |
-          echo "Labels: ${{ toJson(github.event.issue.labels) }}"
+          echo "Labels:"
+          echo "${{ toJson(github.event.issue.labels) }}"
 
       - name: Ensure meeting notes directory exists
         run: mkdir -p docs/meeting_notes
@@ -32,9 +34,7 @@ jobs:
           ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr ' ' '_')
           OUTPUT_FILE="docs/meeting_notes/${MEETING_TYPE}_meeting_${ISSUE_DATE}.md"
 
-          # Créer le fichier Markdown basé sur le template
           cat > $OUTPUT_FILE <<- EOM
-          # Compte-Rendu de Réunion - ${{ github.event.issue.title }}
 
           ## Participants
           (À compléter)

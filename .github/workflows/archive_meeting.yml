@@ -20,10 +20,10 @@ jobs:
       - name: Generate meeting notes
         run: |
           echo "Generating meeting notes..."
-          ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr ' ' '_')
+          MEETING_TYPE=$(echo "${{ github.event.issue.labels.*.name }}" | grep -oE '(kick-off|follow-up|validation)' || echo "meeting")
           ISSUE_DATE=$(date +"%Y_%m_%d")
-          ISSUE_BODY="${{ github.event.issue.body }}"
-          OUTPUT_FILE="docs/meeting_notes/${ISSUE_TITLE}_${ISSUE_DATE}.md"
+          ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr ' ' '_')
+          OUTPUT_FILE="docs/meeting_notes/${MEETING_TYPE}_meeting_${ISSUE_DATE}.md"
 
           # Créer le fichier Markdown basé sur le template
           cat > $OUTPUT_FILE <<- EOM
@@ -43,7 +43,7 @@ jobs:
           - (À compléter)
 
           ## Notes Additionnelles
-          $ISSUE_BODY
+          ${{ github.event.issue.body }}
           EOM
 
           echo "File created: $OUTPUT_FILE"

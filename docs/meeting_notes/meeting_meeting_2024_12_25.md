@@ -1,4 +1,4 @@
-# Compte-Rendu de Réunion - [Réunion] Kick-off - Date 2024-12-24
+# Compte-Rendu de Réunion - [Réunion] Kick-off - 2024-12-21
 
 ## Participants
 (À compléter)
@@ -16,22 +16,26 @@
 ## Notes Additionnelles
 ### Participants
 
-Benoit Bremaud
+Alice Dupont (Facilitatrice), Bob Martin (Développeur Backend), Clara Lopez (Designer UI/UX)
 
 ### Ordre du Jour
 
-Objectifs :
-- Lancer la phase initiale du projet.
-
+1. Présentation des objectifs de la phase initiale.
+2. Définition des rôles et responsabilités.
+3. Validation des jalons pour la phase 1.
 
 ### Décisions
 
-_No response_
+1. Utiliser React Native pour le frontend.
+2. Prioriser les fonctionnalités essentielles pour le MVP.
 
 ### Actions à Suivre
 
-_No response_
+- Alice : Préparer le calendrier détaillé pour la phase 1 (échéance : 2024-12-30).
+- Bob : Prototyper l’architecture backend (échéance : 2024-12-28).
+- Clara : Réaliser les maquettes UI initiales (échéance : 2024-12-29).
 
 ### Questions en Suspens
 
-_No response_
+1. Quels outils utiliser pour la gestion des sprints ?
+2. Comment structurer les tests QA pour le MVP ?

@@ -19,10 +19,24 @@ Ce dossier contient les modèles et les fichiers nécessaires pour organiser et 
 - **Description** : Chaque fichier représente un compte-rendu de réunion, archivé par type et date.
 - **Format de Nommage** :
   - `[type]_[YYYY_MM_DD].md`
+
+### **Description des Composants**
+
+- **`[type]`** : Indique le type de réunion.
   - Exemples :
-    - `kickoff_meeting_2024_12_21.md`
-    - `weekly_meeting_2024_12_28.md`
-    - `phase1_validation_meeting_2025_01_05.md`
+    - `kickoff_meeting`
+    - `weekly_meeting`
+    - `validation_meeting`
+- **`[YYYY_MM_DD]`** : Représente la date de la réunion au format ISO.
+  - `YYYY` : Année (ex. : 2024)
+  - `MM` : Mois (ex. : 12)
+  - `DD` : Jour (ex. : 21)
+
+### **Exemples de Fichiers**
+
+- Réunion Kick-off : `kickoff_meeting_2024_12_21.md`
+- Réunion Hebdomadaire : `weekly_meeting_2024_12_28.md`
+- Réunion de Validation : `phase1_validation_meeting_2025_01_05.md`
 
 ---
 

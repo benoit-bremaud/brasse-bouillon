@@ -42,7 +42,7 @@ jobs:
       - name: Generate meeting notes
         run: |
           echo "Generating meeting notes..."
-          MEETING_TYPE=$(echo "${{ github.event.issue.labels.*.name }}" | grep -oE '(kick-off|follow-up|validation)' || echo "meeting")
+          MEETING_TYPE=$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[] | select(.name == "kick-off" or .name == "follow-up" or .name == "validation") | .name' || echo "meeting")
           ISSUE_DATE=$(date +"%Y_%m_%d")
           ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr ' ' '_')
           OUTPUT_FILE="docs/meeting_notes/${MEETING_TYPE}_meeting_${ISSUE_DATE}.md"

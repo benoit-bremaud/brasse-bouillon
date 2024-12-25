@@ -1,0 +1,58 @@
+name: Archive Meeting Notes
+
+on:
+  issues:
+    types:
+      - closed
+
+jobs:
+  archive-meeting:
+    runs-on: ubuntu-latest
+    if: >
+      contains(join(' ', github.event.issue.labels.*.name), 'meeting')
+
+    steps:
+      # Vérification du dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Créer le fichier Markdown pour le compte-rendu
+      - name: Generate meeting notes
+        run: |
+          echo "Generating meeting notes..."
+          MEETING_TYPE=$(echo "${{ github.event.issue.labels.*.name }}" | grep -oE '(kick-off|follow-up|validation)' || echo "meeting")
+          ISSUE_DATE=$(date +"%Y_%m_%d")
+          ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr ' ' '_')
+          OUTPUT_FILE="docs/meeting_notes/${MEETING_TYPE}_meeting_${ISSUE_DATE}.md"
+
+          # Créer le fichier Markdown basé sur le template
+          cat > $OUTPUT_FILE <<- EOM
+          # Compte-Rendu de Réunion - ${{ github.event.issue.title }}
+
+          ## Participants
+          (À compléter)
+
+          ## Décisions
+          - (À compléter)
+
+          ## Actions à Suivre
+          | **Action**         | **Responsable** | **Échéance**   |
+          |--------------------|-----------------|----------------|
+
+          ## Questions en Suspens
+          - (À compléter)
+
+          ## Notes Additionnelles
+          ${{ github.event.issue.body }}
+          EOM
+
+          echo "File created: $OUTPUT_FILE"
+
+      # Ajouter les modifications au dépôt
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add docs/meeting_notes/
+          git commit -m "chore: archive meeting notes for ${{ github.event.issue.title }}"
+          git push

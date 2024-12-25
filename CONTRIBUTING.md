@@ -4,21 +4,17 @@ Bienvenue sur le projet **Beer to Beer** ! Ce document définit les bonnes prati
 
 ## Structure des Branches
 
-### Branches principales
-
+### Branches principales :
 - **`main`** : Branche de production. Contient le code stable prêt à être déployé.
 - **`develop`** : Branche de développement principal. Les nouvelles fonctionnalités y sont fusionnées avant `main`.
 
-### Branches secondaires
-
+### Branches secondaires :
 Créez une branche pour chaque tâche ou fonctionnalité, en suivant cette convention de nommage :
-
 ```
 <type>/<nom-descriptif>
 ```
 
 #### **Types possibles :**
-
 - **`feat`** : Ajout d'une nouvelle fonctionnalité.
 - **`fix`** : Correction d'un bug.
 - **`docs`** : Modifications dans la documentation.
@@ -28,7 +24,6 @@ Créez une branche pour chaque tâche ou fonctionnalité, en suivant cette conve
 - **`chore`** : Mise à jour des outils ou configurations (CI/CD, dépendances...).
 
 #### **Exemples :**
-
 - `feat/ajout-authentification-utilisateur`
 - `fix/correction-bug-auth`
 - `docs/mise-a-jour-readme`
@@ -44,7 +39,6 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 ```
 
 ### **Types de commit :**
-
 - **`feat`** : Pour une nouvelle fonctionnalité.
 - **`fix`** : Pour une correction de bug.
 - **`docs`** : Pour des modifications dans la documentation.
@@ -54,13 +48,11 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 - **`chore`** : Pour des tâches sans impact fonctionnel.
 
 ### **Structure détaillée :**
-
 1. **`<type>`** : Obligatoire, indique la nature de la modification.
 2. **`(<scope>)`** : Optionnel, décrit la partie impactée (ex. `frontend`, `backend`).
 3. **`<message>`** : Une phrase concise expliquant la modification.
 
 ### **Exemples :**
-
 - `feat(frontend): ajouter le formulaire de connexion`
 - `fix(backend): corriger la validation des tokens`
 - `docs(readme): mise à jour des prérequis`
@@ -72,7 +64,6 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 
 1. **Créer une branche** :
    - Basez votre branche sur `develop` :
-
      ```bash
      git checkout develop
      git checkout -b feat/nom-de-la-feature
@@ -100,7 +91,6 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 1. **Écrire des tests** :
    - Ajoutez des tests unitaires pour chaque fonctionnalité.
    - Exécutez les tests localement avant de soumettre une PR :
-
      ```bash
      npm test
      ```
@@ -125,7 +115,6 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 ---
 
 ## Ressources
-
 - [Angular Commit Guidelines](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)
 - [Conventions Git](https://www.conventionalcommits.org/)
 - [Guide GitHub Workflow](https://docs.github.com/en/get-started/quickstart/hello-world)
@@ -133,5 +122,4 @@ Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le for
 ---
 
 Merci de respecter ces conventions pour une collaboration fluide et efficace. 🚀
-
 ```

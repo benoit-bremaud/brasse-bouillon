@@ -8,7 +8,7 @@ Ce dossier contient des modèles standardisés pour préparer et documenter les 
 
 ### **1. Modèle pour l’Ordre du Jour**
 
-- **Fichier** : `agenda_template.md`
+- **Fichier** : [agenda_template.md](agenda_template.md)
 - **Description** :
   Utilisez ce modèle pour planifier les réunions et définir leur ordre du jour.
 - **Contient les Sections** :
@@ -21,7 +21,7 @@ Ce dossier contient des modèles standardisés pour préparer et documenter les 
 
 ### **2. Modèle pour le Compte-Rendu**
 
-- **Fichier** : `summary_template.md`
+- **Fichier** : [summary_template.md](summary_template.md)
 - **Description** :
   Utilisez ce modèle pour documenter les résultats des réunions.
 - **Contient les Sections** :
@@ -36,35 +36,36 @@ Ce dossier contient des modèles standardisés pour préparer et documenter les 
 ## **Emplacement des Modèles**
 
 - Les fichiers sont situés dans ce dossier :
-
   ```
+
   docs/meeting_notes/templates/
+
   ```
 
 ---
 
-## **Exemples d’Utilisation**
+## **Utilisation des Modèles**
 
-### **1. Avant une Réunion : Ordre du Jour**
+### **1. Réunion Kick-off**
 
-- **Utilisez** : `agenda_template.md`
-- **Étapes** :
-  1. Remplissez la section **Participants** avec les noms et rôles des personnes invitées.
-  2. Définissez les **Objectifs** à atteindre pendant la réunion.
-  3. Planifiez les **Sujets à Discuter** dans la section **Agenda**.
-  4. Ajoutez les liens vers les **Documents Associés** si nécessaire.
+- **Avant la Réunion** :
+  - Remplissez l’ordre du jour avec [agenda_template.md](agenda_template.md).
+- **Après la Réunion** :
+  - Documentez les décisions avec [summary_template.md](summary_template.md).
 
----
+### **2. Réunion de Suivi**
 
-### **2. Après une Réunion : Compte-Rendu**
+- **Avant la Réunion** :
+  - Préparez les sujets à discuter avec [agenda_template.md](agenda_template.md).
+- **Après la Réunion** :
+  - Résumez les progrès réalisés avec [summary_template.md](summary_template.md).
 
-- **Utilisez** : `summary_template.md`
-- **Étapes** :
-  1. Listez les participants présents dans la réunion.
-  2. Documentez les **Décisions** prises pendant la réunion.
-  3. Remplissez le tableau **Actions à Suivre** avec les tâches, responsables et échéances.
-  4. Ajoutez les **Questions en Suspens** qui nécessitent une action ultérieure.
-  5. Ajoutez les liens vers les documents pertinents dans **Documents Associés**.
+### **3. Réunion de Validation**
+
+- **Avant la Réunion** :
+  - Listez les points de validation avec [agenda_template.md](agenda_template.md).
+- **Après la Réunion** :
+  - Capturez les livrables validés avec [summary_template.md](summary_template.md).
 
 ---
 

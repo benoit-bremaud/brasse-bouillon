@@ -11,8 +11,7 @@ permissions:
 jobs:
   archive-meeting:
     runs-on: ubuntu-latest
-    if: >
-      contains(join(' ', github.event.issue.labels.*.name), 'meeting')
+    if: always()
 
     steps:
       - name: Checkout repository

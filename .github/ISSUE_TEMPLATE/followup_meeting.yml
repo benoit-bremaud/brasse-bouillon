@@ -1,28 +1,41 @@
 name: Follow-up Meeting
-description: Utilisez ce modèle pour documenter une réunion de Suivi.
+description: Template pour documenter une réunion de Suivi.
 title: "[Réunion] Suivi - Date"
 labels: ["meeting", "follow-up"]
 body:
-  - type: markdown
+  - type: input
+    id: participants
     attributes:
-      value: |
-        ## Participants
-        - [ ] Nom (Rôle)
-        - [ ] Nom (Rôle)
+      label: "Participants"
+      description: "Liste des participants avec leurs rôles"
+      placeholder: "Exemple : Alice (Chef de Projet), Bob (Développeur)"
+    validations:
+      required: true
 
-        ## Ordre du Jour
-        - [ ] Progrès réalisés depuis la dernière réunion.
-        - [ ] Points bloquants ou risques.
-        - [ ] Ajustements nécessaires.
+  - type: textarea
+    id: progress
+    attributes:
+      label: "Progrès réalisés"
+      description: "Résumé des progrès depuis la dernière réunion"
+      placeholder: "Sujet 1 : ...\nSujet 2 : ..."
 
-        ## Décisions
-        - [ ] Décision 1.
-        - [ ] Décision 2.
+  - type: textarea
+    id: blockers
+    attributes:
+      label: "Points Bloquants"
+      description: "Liste des problèmes ou blocages actuels"
+      placeholder: "Problème 1 : ...\nProblème 2 : ..."
 
-        ## Actions à Suivre
-        - [ ] Action 1 : Responsable, Échéance
-        - [ ] Action 2 : Responsable, Échéance
+  - type: textarea
+    id: decisions
+    attributes:
+      label: "Décisions"
+      description: "Résumé des décisions prises pendant la réunion"
+      placeholder: "Décision 1 : ...\nDécision 2 : ..."
 
-        ## Questions en Suspens
-        - [ ] Question 1.
-        - [ ] Question 2.
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions à Suivre"
+      description: "Tâches définies avec responsables et échéances"
+      placeholder: "Action 1 : Alice, échéance 2024-01-01\nAction 2 : Bob, échéance 2024-02-01"

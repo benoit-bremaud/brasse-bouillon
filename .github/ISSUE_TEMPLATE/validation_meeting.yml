@@ -1,28 +1,41 @@
 name: Validation Meeting
-description: Utilisez ce modèle pour documenter une réunion de Validation.
+description: Template pour documenter une réunion de Validation.
 title: "[Réunion] Validation - Date"
 labels: ["meeting", "validation"]
 body:
-  - type: markdown
+  - type: input
+    id: participants
     attributes:
-      value: |
-        ## Participants
-        - [ ] Nom (Rôle)
-        - [ ] Nom (Rôle)
+      label: "Participants"
+      description: "Liste des participants avec leurs rôles"
+      placeholder: "Exemple : Alice (Validateur), Bob (Développeur)"
+    validations:
+      required: true
 
-        ## Ordre du Jour
-        - [ ] Présentation des livrables.
-        - [ ] Vérification des critères d'acceptation.
-        - [ ] Ajustements nécessaires.
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: "Livrables"
+      description: "Liste des livrables présentés et leur état"
+      placeholder: "Livrable 1 : Conforme\nLivrable 2 : Non conforme"
 
-        ## Décisions
-        - [ ] Décision 1.
-        - [ ] Décision 2.
+  - type: textarea
+    id: decisions
+    attributes:
+      label: "Décisions"
+      description: "Résumé des décisions prises pendant la réunion"
+      placeholder: "Décision 1 : ...\nDécision 2 : ..."
 
-        ## Actions à Suivre
-        - [ ] Action 1 : Responsable, Échéance
-        - [ ] Action 2 : Responsable, Échéance
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions à Suivre"
+      description: "Tâches définies avec responsables et échéances"
+      placeholder: "Action 1 : Alice, échéance 2024-01-01\nAction 2 : Bob, échéance 2024-02-01"
 
-        ## Questions en Suspens
-        - [ ] Question 1.
-        - [ ] Question 2.
+  - type: textarea
+    id: questions
+    attributes:
+      label: "Questions en Suspens"
+      description: "Points ouverts nécessitant une action ultérieure"
+      placeholder: "Question 1 : ...\nQuestion 2 : ..."

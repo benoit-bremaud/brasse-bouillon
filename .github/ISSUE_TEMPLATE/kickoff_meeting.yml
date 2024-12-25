@@ -1,27 +1,41 @@
 name: Kick-off Meeting
-description: Utilisez ce modèle pour documenter une réunion Kick-off.
+description: Template pour documenter une réunion Kick-off.
 title: "[Réunion] Kick-off - Date"
 labels: ["meeting", "kick-off"]
 body:
-  - type: markdown
+  - type: input
+    id: participants
     attributes:
-      value: |
-        ## Participants
-        - [ ] Nom (Rôle)
-        - [ ] Nom (Rôle)
+      label: "Participants"
+      description: "Liste des participants avec leurs rôles"
+      placeholder: "Exemple : Alice (Facilitatrice), Bob (Développeur)"
+    validations:
+      required: true
 
-        ## Ordre du Jour
-        - [ ] Sujet 1 : Description
-        - [ ] Sujet 2 : Description
+  - type: textarea
+    id: agenda
+    attributes:
+      label: "Ordre du Jour"
+      description: "Liste des sujets à discuter"
+      placeholder: "Sujet 1 : Présentation des objectifs\nSujet 2 : Définition des rôles"
 
-        ## Décisions
-        - [ ] Décision 1.
-        - [ ] Décision 2.
+  - type: textarea
+    id: decisions
+    attributes:
+      label: "Décisions"
+      description: "Résumé des décisions prises pendant la réunion"
+      placeholder: "Décision 1 : ...\nDécision 2 : ..."
 
-        ## Actions à Suivre
-        - [ ] Action 1 : Responsable, Échéance
-        - [ ] Action 2 : Responsable, Échéance
+  - type: textarea
+    id: actions
+    attributes:
+      label: "Actions à Suivre"
+      description: "Tâches définies avec responsables et échéances"
+      placeholder: "Action 1 : Alice, échéance 2024-01-01\nAction 2 : Bob, échéance 2024-02-01"
 
-        ## Questions en Suspens
-        - [ ] Question 1.
-        - [ ] Question 2.
+  - type: textarea
+    id: questions
+    attributes:
+      label: "Questions en Suspens"
+      description: "Points ouverts nécessitant une action ultérieure"
+      placeholder: "Question 1 : ...\nQuestion 2 : ..."

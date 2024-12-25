@@ -1,4 +1,4 @@
-# Compte-Rendu de Réunion - [Réunion] Kick-off - 2024-12-25
+# Compte-Rendu de Réunion - [Réunion] Suivi - 2024-12-28
 
 ## Participants
 (À compléter)
@@ -16,25 +16,24 @@
 ## Notes Additionnelles
 ### Participants
 
-Alice Dupont (Facilitatrice), Bob Martin (Développeur Backend) , Clara Lopez (Designer UI/UX)
+Alice Dupont (Chef de Projet), Bob Martin (Développeur Backend)
 
-### Ordre du Jour
+### Progrès réalisés
 
-1. Présentation des objectifs du projet BeerToBeer.
-2. Définition des rôles et responsabilités.
-3. Validation des jalons pour la phase 1.
+1. Finalisation des maquettes UI.
+2. Début de l’implémentation de l’API backend.
+
+### Points Bloquants
+
+1. Retard dans la livraison des dépendances pour la gestion des utilisateurs.
+2. Manque de ressources pour les tests QA.
 
 ### Décisions
 
-1. Utiliser React Native pour le frontend et Node.js pour le backend.
-2. Prioriser les fonctionnalités essentielles pour le MVP.
+1. Réattribuer certaines tâches pour accélérer la livraison.
+2. Planifier un test QA simplifié pour les fonctionnalités critiques.
 
 ### Actions à Suivre
 
-- Alice : Préparer un calendrier détaillé pour la phase 1 (échéance : 2024-12-30).
-- Bob : Prototyper l’architecture backend (échéance : 2024-12-28).
-- Clara : Réaliser les premières maquettes UI (échéance : 2024-12-29).
-
-### Questions en Suspens
-
-- Quels outils utiliser pour le suivi des sprints ?
+- Bob : Valider les endpoints API d’ici le 2024-12-30.
+- Alice : Identifier des outils pour automatiser les tests QA (échéance : 2025-01-03).

@@ -39,3 +39,4 @@ body:
       label: "Actions à Suivre"
       description: "Tâches définies avec responsables et échéances"
       placeholder: "Action 1 : Alice, échéance 2024-01-01\nAction 2 : Bob, échéance 2024-02-01"
+

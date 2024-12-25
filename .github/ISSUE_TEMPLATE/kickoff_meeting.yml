@@ -39,3 +39,4 @@ body:
       label: "Questions en Suspens"
       description: "Points ouverts nécessitant une action ultérieure"
       placeholder: "Question 1 : ...\nQuestion 2 : ..."
+

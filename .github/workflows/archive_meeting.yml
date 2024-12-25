@@ -11,22 +11,28 @@ permissions:
 jobs:
   archive-meeting:
     runs-on: ubuntu-latest
+    
     steps:
       # Vérification du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Installation de jq
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       # Étape de débogage pour afficher les labels
       - name: Debug Labels
         run: |
           echo "Labels:"
-          echo "${{ toJson(github.event.issue.labels) }}"
+          echo '${{ toJson(github.event.issue.labels) }}' | jq
 
       # Vérifier la présence du label "meeting"
       - name: Check for meeting label
         id: check_meeting
         run: |
-          echo "${{ toJson(github.event.issue.labels) }}" | grep -q '"meeting"' && echo "Label meeting found" || exit 1
+          echo '${{ toJson(github.event.issue.labels) }}' | jq -e '.[] | select(.name == "meeting")' > /dev/null \
+            && echo "Label meeting found" || (echo "Label meeting not found" && exit 1)
 
       # Créer le dossier si nécessaire
       - name: Ensure meeting notes directory exists

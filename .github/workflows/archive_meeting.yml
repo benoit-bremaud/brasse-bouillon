@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Vérification du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -34,11 +33,9 @@ jobs:
           echo '${{ toJson(github.event.issue.labels) }}' | jq -e '.[] | select(.name == "meeting")' > /dev/null \
             && echo "Label meeting found" || (echo "Label meeting not found" && exit 1)
 
-      # Créer le dossier si nécessaire
       - name: Ensure meeting notes directory exists
         run: mkdir -p docs/meeting_notes
 
-      # Créer le fichier Markdown pour le compte-rendu
       - name: Generate meeting notes
         run: |
           echo "Generating meeting notes..."
@@ -70,7 +67,6 @@ jobs:
 
           echo "File created: $OUTPUT_FILE"
 
-      # Ajouter les modifications au dépôt
       - name: Commit changes
         run: |
           git config user.name "GitHub Actions"

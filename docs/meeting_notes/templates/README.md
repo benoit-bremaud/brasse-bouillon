@@ -1,114 +1,144 @@
 # Documentation des Notes de Réunion
 
-Ce dossier contient les modèles et les fichiers nécessaires pour organiser et archiver les réunions du projet **BeerToBeer**. La structure mise en place permet une navigation claire et un accès rapide aux informations.
+Ce dossier contient tous les fichiers et modèles nécessaires pour organiser, documenter et archiver les réunions du projet **BeerToBeer**. Il décrit la structure du dossier, les modèles disponibles, et les workflows automatisés pour faciliter la gestion des réunions.
+
+---
+
+## **Objectifs**
+
+1. **Standardisation des Réunions** :
+   - Utilisation de modèles uniformes pour les ordres du jour et les comptes-rendus.
+   - Processus clairement définis pour la création, le suivi, et l'archivage des réunions.
+
+2. **Structuration de la Documentation** :
+   - Organisation des fichiers en dossiers dédiés.
+   - Respect des conventions de nommage pour garantir une navigation facile.
+
+3. **Automatisation des Tâches Répétitives** :
+   - Génération automatique des fichiers d’agenda et des comptes-rendus via GitHub Actions.
+   - Archivage automatique des notes de réunion lors de la fermeture d’une issue.
 
 ---
 
 ## **Structure du Dossier**
 
-### **1. Modèles**
+### **Organisation**
 
-- **Emplacement** : `docs/meeting_notes/templates/`
-- **Description** : Contient les modèles standardisés pour :
-  - **Ordre du Jour** : [agenda_template.md](templates/agenda_template.md)
-  - **Compte-Rendu** : [summary_template.md](templates/summary_template.md)
+Le dossier est structuré comme suit :
 
-### **2. Comptes-Rendus**
+```
 
-- **Emplacement** : Racine du dossier `docs/meeting_notes/`
-- **Description** : Chaque fichier représente un compte-rendu de réunion, archivé par type et date.
-- **Format de Nommage** :
-  - `[type]_[YYYY_MM_DD].md`
+docs/meeting_notes/
+├── templates/
+│   ├── agenda_template.md
+│   ├── summary_template.md
+├── kickoff_meeting_YYYY_MM_DD.md
+├── followup_meeting_YYYY_MM_DD.md
+├── validation_meeting_YYYY_MM_DD.md
 
-### **Description des Composants**
+```
 
-- **`[type]`** : Indique le type de réunion.
-  - Exemples :
-    - `kickoff_meeting`
-    - `weekly_meeting`
-    - `validation_meeting`
-- **`[YYYY_MM_DD]`** : Représente la date de la réunion au format ISO.
-  - `YYYY` : Année (ex. : 2024)
-  - `MM` : Mois (ex. : 12)
-  - `DD` : Jour (ex. : 21)
+### **Description des Sous-Dossiers**
 
-### **Exemples de Fichiers**
+- **`templates/`** : Contient des modèles réutilisables pour les ordres du jour et les comptes-rendus.
+- **Fichiers de Comptes-Rendus** :
+  - Archivés par type (`kick-off`, `follow-up`, `validation`) et date.
+  - Respectent le format :
 
-- Réunion Kick-off : `kickoff_meeting_2024_12_21.md`
-- Réunion Hebdomadaire : `weekly_meeting_2024_12_28.md`
-- Réunion de Validation : `phase1_validation_meeting_2025_01_05.md`
+    ```
+    [type]_[YYYY_MM_DD].md
+    ```
+
+  - **Exemples** :
+    - `kickoff_meeting_2024_12_21.md`
+    - `followup_meeting_2024_12_28.md`
+    - `validation_meeting_2025_01_05.md`
 
 ---
 
-## **Liste des Modèles Disponibles**
+## **Modèles Disponibles**
 
 ### **1. Modèle pour l’Ordre du Jour**
 
-- **Fichier** : [agenda_template.md](templates/agenda_template.md)
+- **Fichier** : [`agenda_template.md`](templates/agenda_template.md)
 - **Description** :
-  Utilisez ce modèle pour planifier les réunions et définir leur ordre du jour.
-- **Contient les Sections** :
-  - **Participants** : Liste des participants à la réunion avec leurs rôles.
-  - **Objectifs** : Liste des objectifs spécifiques de la réunion.
-  - **Agenda** : Liste des sujets à discuter, avec durées et descriptions.
-  - **Documents Associés** : Liens vers les documents nécessaires à la réunion.
-
----
+  Utilisé pour préparer l’agenda des réunions avant leur tenue.
+- **Sections Clés** :
+  - Participants
+  - Objectifs
+  - Documents Associés
 
 ### **2. Modèle pour le Compte-Rendu**
 
-- **Fichier** : [summary_template.md](templates/summary_template.md)
+- **Fichier** : [`summary_template.md`](templates/summary_template.md)
 - **Description** :
-  Utilisez ce modèle pour documenter les résultats des réunions.
-- **Contient les Sections** :
-  - **Participants** : Liste des participants et de leurs rôles.
-  - **Décisions** : Résumé des décisions prises pendant la réunion.
-  - **Actions à Suivre** : Tableau des tâches avec responsables et échéances.
-  - **Questions en Suspens** : Liste des points ouverts nécessitant une action ultérieure.
-  - **Documents Associés** : Liens vers les documents discutés ou validés.
+  Utilisé pour documenter les décisions et actions après la réunion.
+- **Sections Clés** :
+  - Participants
+  - Décisions
+  - Actions à Suivre
+  - Questions en Suspens
 
 ---
 
-## **Utilisation des Modèles**
+## **Processus des Réunions**
 
-### **1. Réunion Kick-off**
+### **Étapes**
 
-- **Avant la Réunion** :
-  - Remplissez l’ordre du jour avec [agenda_template.md](templates/agenda_template.md).
-- **Après la Réunion** :
-  - Documentez les décisions avec [summary_template.md](templates/summary_template.md).
+1. **Création d’une Issue de Réunion** :
+   - Utilisez les modèles GitHub pour initier la réunion.
+   - Exemple : [Modèle Kick-off](../../.github/ISSUE_TEMPLATE/kickoff_meeting.yml).
 
-### **2. Réunion de Suivi**
+2. **Documentation de la Réunion** :
+   - Remplissez l’agenda à l’aide de [`agenda_template.md`](templates/agenda_template.md).
+   - Documentez les résultats avec [`summary_template.md`](templates/summary_template.md).
 
-- **Avant la Réunion** :
-  - Préparez les sujets à discuter avec [agenda_template.md](templates/agenda_template.md).
-- **Après la Réunion** :
-  - Résumez les progrès réalisés avec [summary_template.md](templates/summary_template.md).
+3. **Archivage Automatisé** :
+   - Lorsqu’une issue est fermée, le workflow GitHub génère un fichier Markdown et l’archive dans `docs/meeting_notes/`.
 
-### **3. Réunion de Validation**
+---
 
-- **Avant la Réunion** :
-  - Listez les points de validation avec [agenda_template.md](templates/agenda_template.md).
-- **Après la Réunion** :
-  - Capturez les livrables validés avec [summary_template.md](templates/summary_template.md).
+## **Automatisations**
+
+### **Workflows Disponibles**
+
+1. **Archivage des Comptes-Rendus** :
+   - Workflow : [archive_meeting.yml](../../.github/workflows/archive_meeting.yml)
+   - Déclencheur : Fermeture d’une issue avec le label `meeting`.
+   - Résultat : Un fichier Markdown est généré automatiquement et sauvegardé.
+
+### **Guidelines**
+
+- Respectez le format de nommage des fichiers :
+
+  ```
+
+  [type]_[YYYY_MM_DD].md
+
+  ```
+
+- Revoyez régulièrement la structure des dossiers pour garantir sa clarté.
+
+---
+
+## **FAQ**
+
+### **Comment créer une note de réunion ?**
+
+1. Créez une issue à l’aide du modèle approprié (ex. : Kick-off).
+2. Remplissez les informations de l’agenda.
+3. Documentez les résultats après la réunion avec le modèle de compte-rendu.
+
+### **Que faire si une section reste vide ?**
+
+- Si une section n’est pas applicable, indiquez-le avec `(Non applicable)`.
 
 ---
 
 ## **Liens Utiles**
 
-- [Documentation Générale des Réunions](../README.md)
-- [Types de Réunions](../../meetings/meeting_types.md)
-- [Diagrammes des Réunions](../../meetings/)
+- [Agenda Template](templates/agenda_template.md)
+- [Summary Template](templates/summary_template.md)
+- [Workflow d’Archivage](../../.github/workflows/archive_meeting.yml)
 
 ---
-
-## **Prochaines Étapes**
-
-1. Utilisez ces modèles pour toutes les réunions Kick-off, Suivi, et Validation.
-2. Mettez à jour les modèles si des besoins spécifiques émergent au fil du projet.
-3. Respectez le format de nommage standard pour archiver les comptes-rendus :
-   - `[type]_[YYYY_MM_DD].md`
-   - Exemples :
-     - `kickoff_meeting_2024_12_21.md`
-     - `weekly_meeting_2024_12_28.md`
-     - `phase1_validation_meeting_2025_01_05.md`

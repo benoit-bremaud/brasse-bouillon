@@ -60,7 +60,7 @@ docs/meeting_notes/
 
 ### **1. Modèle pour l’Ordre du Jour**
 
-- **Fichier** : [`agenda_template.md`](templates/agenda_template.md)
+- **Fichier** : [`agenda_template.md`](agenda_template.md)
 - **Description** :
   Utilisé pour préparer l’agenda des réunions avant leur tenue.
 - **Sections Clés** :
@@ -70,7 +70,7 @@ docs/meeting_notes/
 
 ### **2. Modèle pour le Compte-Rendu**
 
-- **Fichier** : [`summary_template.md`](templates/summary_template.md)
+- **Fichier** : [`summary_template.md`](summary_template.md)
 - **Description** :
   Utilisé pour documenter les décisions et actions après la réunion.
 - **Sections Clés** :
@@ -87,11 +87,11 @@ docs/meeting_notes/
 
 1. **Création d’une Issue de Réunion** :
    - Utilisez les modèles GitHub pour initier la réunion.
-   - Exemple : [Modèle Kick-off](../../.github/ISSUE_TEMPLATE/kickoff_meeting.yml).
+   - Exemple : [Modèle Kick-off](../../../.github/ISSUE_TEMPLATE/kickoff_meeting.yml).
 
 2. **Documentation de la Réunion** :
-   - Remplissez l’agenda à l’aide de [`agenda_template.md`](templates/agenda_template.md).
-   - Documentez les résultats avec [`summary_template.md`](templates/summary_template.md).
+   - Remplissez l’agenda à l’aide de [`agenda_template.md`](agenda_template.md).
+   - Documentez les résultats avec [`summary_template.md`](summary_template.md).
 
 3. **Archivage Automatisé** :
    - Lorsqu’une issue est fermée, le workflow GitHub génère un fichier Markdown et l’archive dans `docs/meeting_notes/`.
@@ -103,7 +103,7 @@ docs/meeting_notes/
 ### **Workflows Disponibles**
 
 1. **Archivage des Comptes-Rendus** :
-   - Workflow : [archive_meeting.yml](../../.github/workflows/archive_meeting.yml)
+   - Workflow : [archive_meeting.yml](../../../.github/workflows/archive_meeting.yml)
    - Déclencheur : Fermeture d’une issue avec le label `meeting`.
    - Résultat : Un fichier Markdown est généré automatiquement et sauvegardé.
 
@@ -137,8 +137,8 @@ docs/meeting_notes/
 
 ## **Liens Utiles**
 
-- [Agenda Template](templates/agenda_template.md)
+- [Agenda Template](agenda_template.md)
 - [Summary Template](templates/summary_template.md)
-- [Workflow d’Archivage](../../.github/workflows/archive_meeting.yml)
+- [Workflow d’Archivage](../../../.github/workflows/archive_meeting.yml)
 
 ---

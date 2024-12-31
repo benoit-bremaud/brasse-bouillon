@@ -1,19 +1,24 @@
 # Compte-Rendu de Réunion - [Réunion] Suivi - 2024-12-28
 
 ## Participants
+
 (À compléter)
 
 ## Décisions
+
 - (À compléter)
 
 ## Actions à Suivre
+
 | **Action**         | **Responsable** | **Échéance**   |
 |--------------------|-----------------|----------------|
 
 ## Questions en Suspens
+
 - (À compléter)
 
 ## Notes Additionnelles
+
 ### Participants
 
 Alice Dupont (Chef de Projet), Bob Martin (Développeur Backend), Clara Lopez (Designer UI/UX)
@@ -32,7 +37,6 @@ Alice Dupont (Chef de Projet), Bob Martin (Développeur Backend), Clara Lopez (D
 
 1. Réattribuer des ressources pour accélérer la livraison des dépendances critiques.
 2. Tester des alternatives pour résoudre les problèmes de compatibilité des navigateurs.
-
 
 ### Actions à Suivre
 

@@ -26,7 +26,7 @@ Ce dossier contient tous les fichiers et modèles nécessaires pour organiser, d
 
 Le dossier est structuré comme suit :
 
-```
+```text
 
 docs/meeting_notes/
 ├── templates/
@@ -45,8 +45,8 @@ docs/meeting_notes/
   - Archivés par type (`kick-off`, `follow-up`, `validation`) et date.
   - Respectent le format :
 
-    ```
-    [type]_[YYYY_MM_DD].md
+    ```text
+    [type]_meeting_[YYYY_MM_DD].md
     ```
 
   - **Exemples** :
@@ -86,15 +86,33 @@ docs/meeting_notes/
 ### **Étapes**
 
 1. **Création d’une Issue de Réunion** :
-   - Utilisez les modèles GitHub pour initier la réunion.
+   - Utilisez les modèles GitHub dans `.github/ISSUE_TEMPLATE/`.
    - Exemple : [Modèle Kick-off](../../../.github/ISSUE_TEMPLATE/kickoff_meeting.yml).
 
-2. **Documentation de la Réunion** :
-   - Remplissez l’agenda à l’aide de [`agenda_template.md`](agenda_template.md).
-   - Documentez les résultats avec [`summary_template.md`](summary_template.md).
+2. **Préparation de l’Agenda** :
+   - Remplissez l’ordre du jour à l’aide de [`agenda_template.md`](templates/agenda_template.md).
 
-3. **Archivage Automatisé** :
-   - Lorsqu’une issue est fermée, le workflow GitHub génère un fichier Markdown et l’archive dans `docs/meeting_notes/`.
+3. **Documentation Post-Réunion** :
+   - Documentez les résultats avec [`summary_template.md`](templates/summary_template.md).
+
+4. **Archivage Automatisé** :
+   - Fermeture de l’issue → Génération d’un fichier Markdown au format :
+
+     ```text
+     [type]_meeting_[YYYY_MM_DD].md
+     ```
+
+   - Sauvegarde automatique dans `docs/meeting_notes/`.
+
+### **Schéma du Processus**
+
+```mermaid
+graph TD
+    A[Création d'une Issue de Réunion] --> B[Préparation de l'Agenda]
+    B --> C[Documentation Post-Réunion]
+    C --> D[Archivage Automatisé]
+    D -->|Fichier Markdown| E[docs/meeting_notes/]
+```
 
 ---
 
@@ -111,11 +129,9 @@ docs/meeting_notes/
 
 - Respectez le format de nommage des fichiers :
 
-  ```
-
+```text
   [type]_[YYYY_MM_DD].md
-
-  ```
+```
 
 - Revoyez régulièrement la structure des dossiers pour garantir sa clarté.
 

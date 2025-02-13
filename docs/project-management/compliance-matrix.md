@@ -5,7 +5,9 @@
 ## **Bloc 1 : Développer des interfaces utilisateur**
 
 ### **1. Développer des interfaces ergonomiques**
-#### Critères :
+
+#### Critères
+
 - [ ] Interface conforme au dossier de conception (Essentiel).  
 - [ ] Navigation fluide et intuitive (Essentiel).  
 - [ ] Adaptation à toutes les tailles et types de supports (Essentiel).  
@@ -18,7 +20,9 @@
 ---
 
 ### **2. Tester et documenter**
-#### Critères :
+
+#### Critères
+
 - [ ] Jeux d’essai complets et reproductibles disponibles (Essentiel).  
 - [ ] Tests unitaires couvrant au moins 90% des composants UI (Essentiel).  
 - [ ] Documentation claire des interfaces, en anglais si nécessaire (Recommandé).  
@@ -30,7 +34,9 @@
 ---
 
 ### **3. Respecter la sécurité et la confidentialité**
-#### Critères :
+
+#### Critères
+
 - [ ] Validation de toutes les entrées utilisateur (Essentiel).  
 - [ ] Gestion des erreurs et exceptions implémentée (Essentiel).  
 - [ ] Protection contre les failles XSS et CSRF (Essentiel).  
@@ -41,7 +47,9 @@
 ---
 
 ### **4. Respecter les normes d'accessibilité**
-#### Critères :
+
+#### Critères
+
 - [ ] Interfaces conformes aux normes RGAA et WCAG (Essentiel).  
 - [ ] Tests réussis avec des outils comme axe DevTools ou VoiceOver (Recommandé).  
 - [ ] Fonctionnement fluide avec un clavier et un lecteur d’écran (Essentiel).  
@@ -52,6 +60,7 @@
 ---
 
 ### Conseils pratiques
+
 - Testez l’accessibilité avec axe DevTools ou VoiceOver.
 - Vérifiez la navigation clavier et les interactions sans souris.
 - Documentez vos tests avec Jest ou React Testing Library.
@@ -61,7 +70,9 @@
 ## **Bloc 2 : Concevoir et développer la partie backend**
 
 ### **1. Concevoir une architecture backend**
-#### Critères :
+
+#### Critères
+
 - [ ] Architecture en couches bien définie et documentée (Essentiel).  
 - [ ] Frameworks et ORM adaptés (TypeORM, Sequelize, etc.) (Essentiel).  
 - [ ] Respect des principes REST ou GraphQL (Essentiel).  
@@ -72,7 +83,9 @@
 ---
 
 ### **2. Développer des APIs sécurisées**
-#### Critères :
+
+#### Critères
+
 - [ ] Endpoints CRUD fonctionnels et sécurisés (Essentiel).  
   - Métrique : Temps de réponse des endpoints < 200ms.  
 - [ ] Gestion des erreurs et exceptions mise en place (Essentiel).  
@@ -84,7 +97,9 @@
 ---
 
 ### **3. Mettre en place une base de données relationnelle**
-#### Critères :
+
+#### Critères
+
 - [ ] Schéma entité-association respecté et validé (Essentiel).  
 - [ ] Scripts de création et de migration fonctionnels (Essentiel).  
 - [ ] Jeux d’essai réalistes disponibles dans un environnement de test (Recommandé).  
@@ -95,7 +110,9 @@
 ---
 
 ### **4. Tester et optimiser le backend**
-#### Critères :
+
+#### Critères
+
 - [ ] Tests fonctionnels automatisés réalisés avec succès (Essentiel).  
 - [ ] Couverture de tests ≥ 90% (Essentiel).  
 - [ ] Optimisation des performances via caches ou index (Redis, etc.) (Recommandé).  
@@ -106,6 +123,7 @@
 ---
 
 ### Conseils pratiques
+
 - Utilisez Swagger ou Postman pour documenter les endpoints.
 - Implémentez les tests de sécurité avec OWASP Checklist.
 
@@ -114,7 +132,9 @@
 ## **Bloc 3 : Préparer le déploiement d’une application sécurisée**
 
 ### **1. Préparer un plan de tests complet**
-#### Critères :
+
+#### Critères
+
 - [ ] Plan de tests couvrant toutes les fonctionnalités (Essentiel).  
 - [ ] Environnement de test configuré avec des données réalistes (Recommandé).  
 - [ ] Jeux d’essai reproductibles disponibles (Essentiel).  
@@ -126,7 +146,9 @@
 ---
 
 ### **2. Automatiser les processus DevOps**
-#### Critères :
+
+#### Critères
+
 - [ ] Scripts CI/CD fonctionnels et bien documentés (YAML, Docker Compose, etc.) (Essentiel).  
 - [ ] Automatisation des tests réussie (unitaires, qualité de code, sécurité) (Essentiel).  
 - [ ] Livrables générés automatiquement sans erreur (Essentiel).  
@@ -137,7 +159,9 @@
 ---
 
 ### **3. Documenter le processus de déploiement**
-#### Critères :
+
+#### Critères
+
 - [ ] Procédure de déploiement détaillée et claire (Essentiel).  
 - [ ] Documentation des scripts (installation, migration, configuration) (Essentiel).  
 - [ ] Instructions pour les environnements (test, pré-production, production) (Essentiel).  
@@ -149,7 +173,9 @@
 ## **Bloc 4 : Travailler en mode projet**
 
 ### **1. Planifier et organiser un projet**
-#### Critères :
+
+#### Critères
+
 - [ ] Backlog structuré et priorisé (Essentiel).  
 - [ ] Roadmap détaillée et accessible (Essentiel).  
 - [ ] Objectifs clairs et mesurables (Essentiel).  
@@ -159,7 +185,9 @@
 ---
 
 ### **2. Collaborer efficacement**
-#### Critères :
+
+#### Critères
+
 - [ ] Participation active aux cérémonies agiles (scrum, rétrospectives) (Essentiel).  
 - [ ] Utilisation d’outils de gestion et de communication collaboratifs (Essentiel).  
 - [ ] Historique des décisions et modifications à jour (Recommandé).  
@@ -171,11 +199,15 @@
 ## **Bloc 5 : Soutenance et présentation des livrables**
 
 ### **1. Présenter le projet**
-#### Critères :
+
+#### Critères
+
 - [ ] Diaporama synthétique et structuré (Essentiel).  
 - [ ] Présentation orale fluide et pertinente (Essentiel).  
 
 ### **2. Répondre aux questions du jury**
-#### Critères :
+
+#### Critères
+
 - [ ] Justification des choix techniques et méthodologiques (Essentiel).  
 - [ ] Réponses structurées aux questions (Recommandé).  

@@ -1,4 +1,4 @@
-# Documentation du Projet Beer to Beer
+# Documentation du Projet Brasse-Bouillon
 
 ## Structure
 

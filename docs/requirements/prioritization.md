@@ -1,8 +1,8 @@
-# Prioritization of Needs - Beer to Beer
+# Prioritization of Needs - Brasse-Bouillon
 
 ## Introduction
 
-Ce document regroupe les besoins identifiés pour le projet Beer to Beer, classés par niveau de priorité afin de guider le développement. Cette priorisation repose sur le document vision et les user stories définies pour le MVP.
+Ce document regroupe les besoins identifiés pour le projet Brasse-Bouillon, classés par niveau de priorité afin de guider le développement. Cette priorisation repose sur le document vision et les user stories définies pour le MVP.
 
 ---
 

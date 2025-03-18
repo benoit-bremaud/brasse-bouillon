@@ -1,8 +1,8 @@
-# User Stories - Beer to Beer
+# User Stories - Brasse-Bouillon
 
 ## Introduction
 
-Les user stories suivantes sont basées sur les personas documentés pour l'application Beer to Beer. Elles visent à répondre aux besoins spécifiques des utilisateurs tout en priorisant les fonctionnalités essentielles pour le MVP (Minimum Viable Product).
+Les user stories suivantes sont basées sur les personas documentés pour l'application Brasse-Bouillon. Elles visent à répondre aux besoins spécifiques des utilisateurs tout en priorisant les fonctionnalités essentielles pour le MVP (Minimum Viable Product).
 
 ---
 

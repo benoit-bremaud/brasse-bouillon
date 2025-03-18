@@ -1,8 +1,8 @@
-# 🍺 Document de Vision : Beer to Beer
+# 🍺 Document de Vision : Brasse-Bouillon
 
 ## **📘 Introduction**
 
-Ce document présente la vision du projet **Beer to Beer** 📱, une application mobile dédiée aux brasseurs amateurs. Ce projet vise à résoudre les défis liés à la gestion des recettes 📜, aux calculs techniques 🔢, et à la collaboration entre brasseurs 🤝. Il propose une solution intuitive et centralisée, en définissant des objectifs principaux 🎯, des utilisateurs cibles 👥, et des fonctionnalités prioritaires, tout en fixant des limites claires au périmètre initial.
+Ce document présente la vision du projet **Brasse-Bouillon** 📱, une application mobile dédiée aux brasseurs amateurs. Ce projet vise à résoudre les défis liés à la gestion des recettes 📜, aux calculs techniques 🔢, et à la collaboration entre brasseurs 🤝. Il propose une solution intuitive et centralisée, en définissant des objectifs principaux 🎯, des utilisateurs cibles 👥, et des fonctionnalités prioritaires, tout en fixant des limites claires au périmètre initial.
 
 ---
 
@@ -29,7 +29,7 @@ Le brassage amateur est une activité en pleine expansion 🚀, mais les outils 
 
 ### **🚀 Opportunité**
 
-**Beer to Beer** propose de transformer l’expérience des brasseurs amateurs grâce à une application moderne, complète, et communautaire 🏠. Elle vise à simplifier les processus, renforcer les interactions, et démocratiser le brassage artisanal.
+**Brasse-Bouillon** propose de transformer l’expérience des brasseurs amateurs grâce à une application moderne, complète, et communautaire 🏠. Elle vise à simplifier les processus, renforcer les interactions, et démocratiser le brassage artisanal.
 
 ---
 
@@ -87,7 +87,7 @@ Le brassage amateur est une activité en pleine expansion 🚀, mais les outils 
 
 ### **Définition**
 
-Le MVP (**Minimum Viable Product**) représente la première version fonctionnelle de l'application **Beer to Beer**, focalisée sur les fonctionnalités essentielles pour répondre aux besoins principaux des utilisateurs cibles tout en limitant le périmètre pour garantir un développement rapide et efficace.
+Le MVP (**Minimum Viable Product**) représente la première version fonctionnelle de l'application **Brasse-Bouillon**, focalisée sur les fonctionnalités essentielles pour répondre aux besoins principaux des utilisateurs cibles tout en limitant le périmètre pour garantir un développement rapide et efficace.
 
 ### **Fonctionnalités incluses**
 

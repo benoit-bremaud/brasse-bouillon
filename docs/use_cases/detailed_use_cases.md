@@ -1,8 +1,8 @@
-# Use Case Diagram - Beer to Beer
+# Use Case Diagram - Brass-Bouillon
 
 ## Introduction
 
-Ce document décrit les cas d’utilisation principaux identifiés pour l’application Beer to Beer, en se basant sur les besoins critiques (**Must-Have**) validés dans le document de priorisation et les user stories.
+Ce document décrit les cas d’utilisation principaux identifiés pour l’application Brasse-Bouillon, en se basant sur les besoins critiques (**Must-Have**) validés dans le document de priorisation et les user stories.
 
 ---
 
@@ -88,6 +88,17 @@ Ce document décrit les cas d’utilisation principaux identifiés pour l’appl
      4. Publier et recevoir des retours ou notes.
    - **Lien avec User Stories :** Partage communautaire.
 
+4. **Gérer les ingrédients**  
+   - **Description :** Ajouter, modifier ou supprimer des ingrédients dans l’inventaire personnel.  
+   - **Étapes principales :**
+     1. Accéder à la section "Mes Ingrédients".
+     2. Cliquer sur "Ajouter un ingrédient".
+     3. Sélectionner une catégorie d’ingrédient (houblon, malt, levure, eau, additifs).
+     4. Renseigner les caractéristiques spécifiques (ex. : alpha-acide pour le houblon, EBC pour le malt).
+     5. Valider pour enregistrer l’ingrédient dans l’inventaire.
+     6. Modifier ou supprimer un ingrédient existant si nécessaire.
+   - **Lien avec User Stories :** Personnalisation de l’inventaire des ingrédients.
+
 ---
 
 ### **Brasseur Expérimenté**
@@ -109,6 +120,16 @@ Ce document décrit les cas d’utilisation principaux identifiés pour l’appl
      3. Comparer les résultats avec les objectifs prévus.
      4. Exporter ou sauvegarder le rapport d’analyse.
    - **Lien avec User Stories :** Analyse des brassins.
+
+3. **Optimiser l'utilisation des ingrédients**  
+   - **Description :** Surveiller l’utilisation des ingrédients dans les recettes et suggérer des alternatives.  
+   - **Étapes principales :**
+     1. Accéder au tableau de bord des ingrédients utilisés.
+     2. Sélectionner un ingrédient pour voir son historique d’utilisation dans les recettes.
+     3. Comparer les stocks disponibles avec les quantités consommées.
+     4. Recevoir des suggestions d’ingrédients alternatifs en cas de rupture.
+     5. Ajuster les paramètres d’alerte pour les stocks d’ingrédients critiques.
+   - **Lien avec User Stories :** Optimisation des ressources et gestion intelligente des ingrédients.
 
 ---
 

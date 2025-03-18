@@ -1,8 +1,8 @@
-# Feuille de Route du Projet Beer to Beer
+# Feuille de Route du Projet Brasse-Bouillon
 
 ## **Objectif**
 
-Définir les étapes clés pour guider le développement et le déploiement de l'application Beer to Beer, tout en assurant une progression structurée et cohérente.
+Définir les étapes clés pour guider le développement et le déploiement de l'application Brasse-Bouillon, tout en assurant une progression structurée et cohérente.
 
 ---
 

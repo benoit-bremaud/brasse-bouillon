@@ -1,8 +1,8 @@
-# User Scenarios - Beer to Beer
+# User Scenarios - Brasse-Bouillon
 
 ## Introduction
 
-Ce document décrit les scénarios critiques identifiés pour chaque interaction clé de l'application Beer to Beer. Ces scénarios permettent de mieux comprendre les étapes nécessaires pour répondre aux besoins des utilisateurs et garantir une expérience utilisateur optimale.
+Ce document décrit les scénarios critiques identifiés pour chaque interaction clé de l'application Brasse-Bouillon. Ces scénarios permettent de mieux comprendre les étapes nécessaires pour répondre aux besoins des utilisateurs et garantir une expérience utilisateur optimale.
 
 ---
 

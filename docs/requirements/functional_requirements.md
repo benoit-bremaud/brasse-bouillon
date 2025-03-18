@@ -22,22 +22,103 @@ Les utilisateurs doivent pouvoir **créer, consulter, modifier et supprimer** le
 
 #### ✅ Critères d'acceptation
 
+- L'utilisateur peut **ajouter, modifier, supprimer et consulter** un ingrédient selon sa catégorie.
+- L'application garantit que les quantités saisies sont valides et respectent les unités correspondantes.
+- Les relations entre les ingrédients et les recettes sont correctement gérées pour éviter les suppressions invalides.
+
 - Un utilisateur peut **ajouter une recette** avec un titre, une description, des ingrédients et des instructions.
 - L'application permet de **modifier** et **supprimer** une recette existante.
 - Les recettes peuvent être **classées par catégories** et affichées sous forme de liste.
 - Une recherche et des **filtres avancés** doivent être disponibles.
-- Les ingrédients doivent être **structurés par type** :
-  - **Houblon** : Variétés, acides alpha, quantités.
-  - **Malt** : Type, taux de conversion, couleur.
-  - **Levure** : Type (haute, basse fermentation), atténuation.
-  - **Eau** : pH, minéraux, dureté.
-  - **Additifs** : Épices, fruits, sucres spéciaux.
+- Les ingrédients doivent être **stockés dans des tables distinctes** selon leur catégorie :
+  - **Houblons (hops)** : Nom, alpha-acide, type (amérisant, aromatique), quantité, unité.
+  - **Malts (malts)** : Nom, EBC, type (base, spécial, caramélisé, torréfié), quantité, unité.
+  - **Levures (yeasts)** : Nom, souche, température optimale, atténuation, floculation.
+  - **Eaux (waters)** : Nom, dureté, pH, minéraux.
+  - **Additifs (additives)** : Nom, type, dosage recommandé.
+
+### 🔹 3.1.1 Gestion des Ingrédients Individuels
+
+#### 📌 Fonctionnalités principales
+
+L'application doit permettre aux utilisateurs de gérer les ingrédients par **catégorie distincte** dans la base de données.
+
+#### ✅ Opérations CRUD
+
+##### a) Création d’un nouvel ingrédient
+
+L'utilisateur doit pouvoir ajouter un ingrédient avec les informations spécifiques à sa catégorie :
+
+- **Houblon** : Nom, alpha-acide (%), type, quantité (g), unité.
+- **Malt** : Nom, EBC, type, quantité (kg), unité.
+- **Levure** : Nom, souche, température de fermentation (°C), atténuation (%), floculation.
+- **Eau** : Nom, dureté, pH, minéraux (Ca, Mg, Na, Cl, SO4).
+- **Additifs** : Nom, type (épices, fruits, autres), dosage recommandé.
+
+##### b) Lecture des ingrédients
+
+- L'utilisateur doit pouvoir afficher la liste de tous les ingrédients de chaque catégorie.
+- Filtrage possible par type d’ingrédient.
+- Consultation des détails d’un ingrédient spécifique.
+
+##### c) Modification d’un ingrédient
+
+- L'utilisateur doit pouvoir modifier les informations d’un ingrédient existant.
+- La modification doit être possible uniquement si l’ingrédient n’est pas utilisé dans une recette active.
+
+##### d) Suppression d’un ingrédient
+
+- L'utilisateur doit pouvoir supprimer un ingrédient uniquement s’il n’est pas utilisé dans une recette active.
+- Si l’ingrédient est utilisé dans des recettes archivées, un message d’avertissement doit être affiché.
+
+#### ✅ Contraintes et Validation
+
+- **Données obligatoires** : Chaque ingrédient doit contenir les informations spécifiques à sa catégorie.
+- **Format des données** :
+  - Les valeurs numériques (alpha-acide, EBC, pH) doivent respecter des plages définies.
+  - Les unités doivent être cohérentes avec le type d’ingrédient (ex. : g, kg, L, %).
 
 #### ⚠️ Scénarios d’exception
 
-- Un ingrédient obligatoire est manquant dans la recette.
-- L’utilisateur tente de supprimer un ingrédient utilisé dans plusieurs recettes actives.
-- Une erreur se produit lors de l’enregistrement des modifications.
+- Un utilisateur tente d'ajouter un ingrédient sans renseigner un champ obligatoire (ex. : EBC pour un malt).
+- Suppression d'un ingrédient utilisé dans des recettes actives → Message d'erreur bloquant.
+- Modification d’un ingrédient utilisé dans des recettes archivées → Autorisé mais avec avertissement.
+- **Données obligatoires** : Chaque ingrédient doit contenir les informations spécifiques à sa catégorie.
+- **Format des données** :
+  - Les valeurs numériques (alpha-acide, EBC, pH) doivent respecter des plages définies.
+  - Les unités doivent être cohérentes avec le type d’ingrédient (ex. : g, kg, L, %).
+
+#### 📌 Exemples d’Utilisation
+
+- Après validation, l’ingrédient est listé dans la catégorie correspondante et devient disponible pour l’ajout aux recettes.
+- Lorsqu’un ingrédient est supprimé, une vérification est faite sur son association avec des recettes existantes.
+
+##### Ajout d’un houblon
+
+1. L'utilisateur se rend dans la section "Gestion des ingrédients".
+2. Il clique sur "Ajouter un ingrédient".
+3. Il choisit "Houblon" et renseigne :
+   - Nom : Citra
+   - Alpha-acide : 12%
+   - Type : Aromatique
+   - Quantité : 50 g
+4. Il valide et l’ingrédient est ajouté à la table `hops`.
+
+##### Modification d’une levure
+
+1. L'utilisateur accède à la liste des levures disponibles.
+2. Il sélectionne "Safale US-05" et clique sur "Modifier".
+3. Il ajuste la température de fermentation.
+4. Il enregistre les modifications.
+
+##### Suppression d’un malt
+
+1. L'utilisateur tente de supprimer "Pale Ale Malt".
+2. L’application détecte que ce malt est utilisé dans 3 recettes actives.
+3. Un message d’erreur empêche la suppression.
+4. L’utilisateur doit modifier ou archiver les recettes avant de supprimer l’ingrédient.
+
+---
 
 ### 🔹 3.2 Calcul Automatique des Paramètres Techniques (IBU, ABV, etc.)
 
@@ -136,4 +217,3 @@ L'application doit pouvoir se connecter à des **capteurs de mesure** pour un su
 - **Stockage et sauvegarde** : Implémentation d’un **système de sauvegarde** des données pour éviter toute perte.
 
 📂 **Sources** : `docs/requirements/cahier_des_charges.md`, `docs/use_cases/detailed_use_cases.md`
-

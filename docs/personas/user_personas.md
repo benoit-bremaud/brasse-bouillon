@@ -1,4 +1,4 @@
-# Personas - Beer to Beer
+# Personas - Brasse-Bouillon
 
 ## Brasseurs Expérimentés 👩‍🔬👨‍🔬
 

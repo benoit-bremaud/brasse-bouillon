@@ -86,6 +86,25 @@ graph TD;
 | **GET `/malts/:id`** | Détails d’un malt spécifique | ❌ |
 | **PUT `/malts/:id`** | Modifier un malt existant | ✅ (Admin) |
 | **DELETE `/malts/:id`** | Supprimer un malt | ✅ (Admin) |
+| **GET `/yeasts`** | Liste des levures disponibles | ❌ |
+| **POST `/yeasts`** | Ajouter une nouvelle levure | ✅ (Admin) |
+| **GET `/yeasts/:id`** | Détails d’une levure spécifique | ❌ |
+| **PUT `/yeasts/:id`** | Modifier une levure existante | ✅ (Admin) |
+| **DELETE `/yeasts/:id`** | Supprimer une levure | ✅ (Admin) |
+| **GET `/water`** | Liste des types d’eau disponibles | ❌ |
+| **POST `/water`** | Ajouter une nouvelle eau | ✅ (Admin) |
+| **GET `/water/:id`** | Détails d’un type d’eau spécifique | ❌ |
+| **PUT `/water/:id`** | Modifier un type d’eau existant | ✅ (Admin) |
+| **DELETE `/water/:id`** | Supprimer un type d’eau | ✅ (Admin) |
+| **GET `/additives`** | Liste des additifs disponibles | ❌ |
+| **POST `/additives`** | Ajouter un nouvel additif | ✅ (Admin) |
+| **GET `/additives/:id`** | Détails d’un additif spécifique | ❌ |
+| **PUT `/additives/:id`** | Modifier un additif existant | ✅ (Admin) |
+| **DELETE `/additives/:id`** | Supprimer un additif | ✅ (Admin) |
+| **POST `/malts`** | Ajouter un nouveau malt | ✅ (Admin) |
+| **GET `/malts/:id`** | Détails d’un malt spécifique | ❌ |
+| **PUT `/malts/:id`** | Modifier un malt existant | ✅ (Admin) |
+| **DELETE `/malts/:id`** | Supprimer un malt | ✅ (Admin) |
 
 ---
 

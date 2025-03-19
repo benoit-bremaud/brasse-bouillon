@@ -1,89 +1,95 @@
-# 📱 Architecture du Frontend - Brasse-Bouillon
+# Architecture Frontend - Brasse-Bouillon
 
-## 📌 Introduction
+## 1. Introduction
 
-Ce document décrit **l’architecture du frontend** de l’application **Brasse-Bouillon**. L’application mobile est développée en **React Native**, permettant un déploiement multiplateforme sur **iOS et Android**.
+Ce document décrit la structure de l’architecture frontend du projet **Brasse-Bouillon**, les technologies utilisées et l'organisation des fichiers. Il s’appuie sur les documents suivants pour garantir la cohérence avec l’ensemble du projet :
 
-L’objectif est de détailler **les composants clés**, leur **organisation**, et **leurs interactions** avec les autres modules du projet.
+📌 **Documents de référence :**
+
+- **`architecture_overview.md`** : Vue globale des composants du système.
+- **`api_interactions.md`** : Décrit les interactions API.
+- **`component_diagram.md`** : Décrit les interactions frontend-backend.
+- **`data_model.md`** : Définit les entités manipulées côté client.
+- **`performance_optimization.md`** : Liste les optimisations frontend.
 
 ---
 
-## 📊 **Diagramme de l’Architecture Frontend**
+## 2. Structure des Dossiers
 
-```mermaid
-graph TD;
-    %% Définition du module de niveau 1 (Frontend)
-    subgraph App["📱 Application Mobile (React Native)"]
-        UI["🖥️ Interface Utilisateur"]
-        Navigation["🔄 Gestion de la Navigation"]
-        StateManagement["💾 Gestion de l'État (Redux/Zustand)"]
-        APIClient["🔌 Communication API (Axios/Fetch)"]
-        LocalStorage["💾 Stockage Local (AsyncStorage/MMKV)"]
-        Notifications["📢 Gestion des Notifications"]
-        IoTClient["🌡️ Gestion des Capteurs IoT"]
-        
-        %% Relations internes
-        UI -->|Navigue| Navigation
-        UI -->|Utilise| StateManagement
-        UI -->|Fait des requêtes| APIClient
-        UI -->|Affiche des rappels| Notifications
-        APIClient -->|Requêtes API| Backend
-        LocalStorage -->|Stocke les préférences| UI
-        IoTClient -->|Reçoit les données des capteurs| UI
-    end
+L'architecture frontend suit une organisation modulaire pour assurer **maintenabilité, évolutivité et performance**.
+
+📂 **Organisation recommandée du frontend :**
+```
+/frontend
+ ├── src/
+ │   ├── components/       # Composants React
+ │   ├── screens/          # Écrans de l’application
+ │   ├── navigation/       # Gestion de la navigation
+ │   ├── store/            # Gestion du state (Redux)
+ │   ├── hooks/            # Hooks personnalisés
+ │   ├── assets/           # Images, styles
+ │   ├── services/         # Appels API avec Axios
+ │   ├── utils/            # Fonctions utilitaires
+ │   ├── App.js            # Point d’entrée du frontend
+ │   ├── index.js          # Initialisation de l’application
 ```
 
 ---
 
-## 📖 **Explication du Diagramme**
+## 3. Technologies Utilisées
 
-### **🖥️ Interface Utilisateur (UI)**
-
-📌 Gère **l’affichage des écrans** et **les interactions utilisateur**.
-
-- **Écrans principaux** : Accueil, Recettes, Sessions de Brassage, Profil.
-- **Composants réutilisables** : Boutons, Formulaires, Listes interactives.
-
-### **🔄 Gestion de la Navigation**
-
-📌 Assure **le passage entre les écrans** de manière fluide.
-
-- **Utilisation de React Navigation** : Stack Navigation, Tab Navigation.
-
-### **💾 Gestion de l’État (Redux/Zustand)**
-
-📌 Stocke **les données globales** de l’application (recettes, sessions, utilisateur).
-
-- Permet d’**éviter les appels API répétés** et d’améliorer la réactivité.
-
-### **🔌 Communication API (Axios/Fetch)**
-
-📌 Gère **les requêtes HTTP** vers l’API Backend.
-
-- **Exemples de requêtes** : récupération des recettes, connexion utilisateur, création de sessions de brassage.
-
-### **💾 Stockage Local (AsyncStorage/MMKV)**
-
-📌 Permet de stocker **les préférences utilisateur** et certaines données en cache.
-
-- **Exemples** : Données de session enregistrées localement pour un accès hors ligne.
-
-### **📢 Gestion des Notifications**
-
-📌 Gère **les rappels et notifications push** pour informer l’utilisateur.
-
-- Utilisation de **Firebase Cloud Messaging (FCM)** pour les notifications mobiles.
-
-### **🌡️ Gestion des Capteurs IoT**
-
-📌 Communication avec les **capteurs de température et hydromètre**.
-
-- **Mise à jour des données en temps réel** via Bluetooth ou Wi-Fi.
+| Technologie | Rôle |
+|-------------|----------------|
+| **React Native** | Framework mobile |
+| **Redux** | Gestion d’état |
+| **React Navigation** | Gestion de la navigation |
+| **Axios** | Requêtes API |
+| **Jest / React Testing Library** | Tests |
+| **Styled Components** | Gestion des styles |
+| **AsyncStorage / MMKV** | Stockage local pour persistance des données |
 
 ---
 
-## 📌 **Conclusion**
+## 4. Explication des Composants Frontend
 
-Ce diagramme détaille **l’architecture du frontend** et son interaction avec le backend et les autres composants. Chaque module sera approfondi dans un diagramme spécifique.
+- **Components :** UI réutilisable et modulaire.
+- **Screens :** Pages principales de l’application (Recettes, Sessions, Profil).
+- **Navigation :** Gestion des routes et transitions.
+- **Store :** Stockage des données globales (Redux, Context API).
+- **Services :** Communication avec l’API backend via Axios.
+- **Hooks :** Gestion des états et logique réutilisable.
+- **Optimisation :** Utilisation de MMKV pour améliorer les performances de stockage local.
 
-📂 **Lieu du fichier** : `docs/architecture/frontend/frontend_architecture.md`
+---
+
+## 5. Schéma UML de l'Architecture Frontend
+
+```mermaid
+graph TD;
+    App["📱 Application React Native"] -->|Navigation| Screens["🖥️ Écrans (Screens)"]
+    App -->|Gestion d'État| Store["🗂️ Redux Store"]
+    App -->|Composants UI| Components["🎨 Components"]
+    App -->|Requêtes API| Services["🔗 API Services (Axios)"]
+    Services -->|Connexion| API_Gateway["🌐 API Gateway"]
+    API_Gateway -->|Base de Données| Database["🗄️ MySQL Database"]
+```
+
+---
+
+## 6. Alignement avec l'Architecture Globale
+
+📌 **Références aux autres documents d’architecture :**
+
+| Document | Rôle |
+|------------|------------|
+| **`api_interactions.md`** | Liste des API et de leurs flux |
+| **`component_diagram.md`** | Décrit les interactions entre le frontend et le backend |
+| **`data_model.md`** | Définit les entités et données manipulées côté client |
+| **`performance_optimization.md`** | Optimisation du rendu et gestion de la mémoire |
+
+---
+
+## **Conclusion**
+
+Ce document fournit une **référence claire pour le développement du frontend**, garantissant **modularité, maintenabilité et performance**.
+

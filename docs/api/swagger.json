@@ -1,1 +1,137 @@
-# 🔍 Swagger OpenAPI Documentation
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Brasse-Bouillon API",
+      "description": "Documentation détaillée des endpoints de l'API REST de Brasse-Bouillon.",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.brasse-bouillon.com/v1/",
+        "description": "Serveur de production"
+      }
+    ],
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "summary": "Authentification utilisateur",
+          "description": "Permet aux utilisateurs de se connecter et d'obtenir un token JWT.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": { "type": "string", "example": "user@example.com" },
+                    "password": { "type": "string", "example": "securepassword123" }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Connexion réussie",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "token": "eyJhbGciOiJIUzI1...",
+                    "user": {
+                      "id": 1,
+                      "name": "John Doe",
+                      "email": "user@example.com",
+                      "role": "brasseur"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Identifiants incorrects"
+            }
+          }
+        }
+      },
+      "/recipes": {
+        "get": {
+          "summary": "Lister toutes les recettes",
+          "description": "Récupère la liste de toutes les recettes disponibles.",
+          "responses": {
+            "200": {
+              "description": "Liste des recettes",
+              "content": {
+                "application/json": {
+                  "example": [
+                    {"id": 1, "name": "Pale Ale", "description": "Délicieuse Pale Ale"},
+                    {"id": 2, "name": "Stout", "description": "Bière noire intense"}
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer une nouvelle recette",
+          "description": "Ajoute une nouvelle recette de brassage.",
+          "security": [{"bearerAuth": []}],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "example": "Pale Ale" },
+                    "description": { "type": "string", "example": "Une délicieuse Pale Ale" },
+                    "ingredients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 1 },
+                          "quantity": { "type": "number", "example": 2.5 },
+                          "unit": { "type": "string", "example": "kg" }
+                        }
+                      }
+                    }
+                  },
+                  "required": ["name", "description", "ingredients"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Recette créée avec succès",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "id": 10,
+                    "name": "Pale Ale",
+                    "description": "Une délicieuse Pale Ale",
+                    "createdAt": "2024-03-20T12:00:00Z"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Données invalides"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    }
+  }
+  
+  

@@ -1,150 +1,96 @@
-# 🏗️ **Architecture Backend - Brasse-Bouillon**  
+# Architecture Backend - Brasse-Bouillon
 
-## 📌 **Introduction**  
+## 1. Introduction
 
-Le **backend** de **Brasse-Bouillon** repose sur **Node.js + Express.js** pour gérer l’API REST et interagir avec la base de données.  
+Ce document décrit la structure de l’architecture backend du projet **Brasse-Bouillon**, les technologies utilisées et l'organisation des fichiers. Il s’appuie sur les documents suivants pour garantir la cohérence avec l’ensemble du projet :
 
-📌 **Objectifs du backend :**  
-✅ **Fournir une API REST robuste et sécurisée**.  
-✅ **Gérer l’authentification et les rôles utilisateurs (JWT/OAuth)**.  
-✅ **Stocker et manipuler les données des recettes et sessions de brassage**.  
-✅ **Optimiser les performances via caching et scalabilité**.  
-
-📌 **Technologies utilisées :**  
-
-- **Express.js** (framework web pour Node.js).  
-- **PostgreSQL/MySQL** (base de données relationnelle).  
-- **Redis** (cache pour accélérer les requêtes fréquentes).  
-- **JWT (JSON Web Token)** pour l’authentification.  
-- **NGINX + PM2** pour la gestion de la montée en charge.  
+📌 **Documents de référence :**
+- **`architecture_overview.md`** : Vue globale des composants du système.
+- **`api_interactions.md`** : Décrit les interactions API.
+- **`database_schema.md`** : Implémentation MySQL et ORM Sequelize.
+- **`class_diagram.md`** : Définit les classes utilisées dans le backend.
+- **`component_diagram.md`** : Décrit les interactions backend-frontend.
+- **`performance_optimization.md`** : Liste les optimisations backend.
 
 ---
 
-## 📊 **Schéma de l’Architecture Backend (Niveau 2)**
+## 2. Structure des Dossiers
 
-📌 **Vue simplifiée du backend et ses sous-modules.**  
+L'architecture backend suit une organisation modulaire pour assurer **maintenabilité, évolutivité et performance**.
+
+📂 **Organisation recommandée du backend :**
+```
+/backend
+ ├── src/
+ │   ├── controllers/      # Gestion des requêtes API
+ │   ├── models/           # Modèles de données (ORM Sequelize)
+ │   ├── routes/           # Définition des routes API
+ │   ├── services/         # Logique métier (services)
+ │   ├── middlewares/      # Middleware d’authentification, validation
+ │   ├── config/           # Configuration (env, DB, JWT, Redis)
+ │   ├── utils/            # Fonctions utilitaires
+ │   ├── tests/            # Tests unitaires et d’intégration
+ │   ├── index.js          # Point d’entrée du backend
+```
+
+---
+
+## 3. Technologies Utilisées
+
+| Technologie              | Rôle                         |
+| ------------------------ | ---------------------------- |
+| **Node.js**              | Serveur backend              |
+| **Express.js**           | Framework web                |
+| **MySQL + Sequelize**    | Base de données et ORM       |
+| **JWT (JSON Web Token)** | Authentification             |
+| **Redis**                | Caching et gestion des sessions |
+| **NGINX + PM2**          | Load balancing et gestion des processus |
+| **Jest / Mocha**         | Tests unitaires              |
+| **Docker**               | Conteneurisation (optionnel) |
+
+---
+
+## 4. Explication des Composants Backend
+
+- **Controllers :** Gestion des requêtes API et réponse aux clients.
+- **Models :** Définition des schémas de base de données via ORM.
+- **Routes :** Définition des routes API et validation des requêtes.
+- **Services :** Logique métier, intégration des modèles et gestion des données.
+- **Middlewares :** Sécurité, authentification JWT, gestion des erreurs.
+- **Config :** Gestion des variables d’environnement et de la connexion à la base de données.
+- **Tests :** Stratégie de tests unitaires et d’intégration pour assurer la qualité du code.
+
+---
+
+## 5. Schéma UML de l'Architecture Backend
 
 ```mermaid
 graph TD;
-    subgraph Backend["🖥️ API Backend (Node.js + Express)"]
-        API["🌐 API REST"]
-        
-        subgraph Auth["🔑 Authentification & Sécurité"]
-            AuthService["🔐 Service Auth"]
-        end
-
-        subgraph Services["⚙️ Services Métier"]
-            RecipeService["📖 Service Recettes"]
-            SessionService["🍺 Service Sessions"]
-            NotificationService["📢 Service Notifications"]
-            IoTService["🌡️ Service IoT"]
-        end
-
-        subgraph Database["🗄️ Base de Données"]
-            DB["📂 Gestion des Données"]
-        end
-    end
-
-    Frontend["📱 Application Mobile"] -->|Requêtes API| API
-    API -->|Authentification| Auth
-    API -->|Appelle les services métier| Services
-    Services -->|Stockage des données| Database
+    Client["🌍 Client (Frontend/IoT)"] -->|Requêtes API| API_Gateway["🌐 API Gateway (Express)"]
+    API_Gateway -->|Gestion Authentification| Auth_Service["🔑 Auth Service (JWT/Redis)"]
+    API_Gateway -->|Gestion Recettes| Recipe_Service["📖 Service Recettes"]
+    API_Gateway -->|Gestion Sessions| Brew_Session_Service["🍺 Service Sessions"]
+    API_Gateway -->|Gestion Notifications| Notification_Service["📢 Service Notifications"]
+    API_Gateway -->|Base de Données| Database["🗄️ MySQL Database"]
 ```
 
 ---
 
-## **📁 Organisation des Modules Backend**
+## 6. Alignement avec l'Architecture Globale
 
-📌 **Chaque module est documenté séparément dans des fichiers dédiés.**  
+📌 **Références aux autres documents d’architecture :**
 
-| 📂 **Module** | 📄 **Fichier** | 📌 **Description** |
-|--------------|------------------|----------------|
-| **Architecture Backend** | [`backend_architecture.md`](./backend_architecture.md) | 🏗️ Vue globale du backend et de son organisation. |
-| **API et Routes** | [`api_interactions.md`](./api_interactions.md) | 🌐 Documentation des **endpoints API** et interactions frontend. |
-| **Authentification et Sécurité** | [`authentication_system.md`](./authentication_system.md) | 🔑 Gestion des utilisateurs, JWT et OAuth. |
-| **Base de Données** | [`database_interactions.md`](./database_interactions.md) | 🗄️ Interaction avec la **base de données PostgreSQL/MySQL**. |
-| **Optimisation Backend** | [`performance_optimization.md`](./performance_optimization.md) | ⚡ Optimisations de performance et scalabilité. |
-
----
-
-## **🔑 1️⃣ Authentification & Sécurité**
-
-📌 **Fichier détaillé :** [`authentication_system.md`](./authentication_system.md)  
-
-📌 **Ce module gère :**  
-✅ **Connexion et inscription des utilisateurs**.  
-✅ **Authentification via JWT et OAuth 2.0**.  
-✅ **Gestion des rôles (Admin, Brasseur, Utilisateur)**.  
-
-📌 **Endpoints principaux :**  
-
-| Méthode | Endpoint | Description | Authentification |
-|---------|------------|-------------|----------------|
-| **POST** | `/auth/register` | Création d’un utilisateur | ❌ |
-| **POST** | `/auth/login` | Connexion avec JWT | ❌ |
-| **GET** | `/auth/me` | Profil utilisateur connecté | ✅ Token |
+| Document | Rôle |
+|------------|------------|
+| **`api_interactions.md`** | Liste des API et de leurs flux |
+| **`database_schema.md`** | Décrit l’implémentation MySQL et ORM |
+| **`class_diagram.md`** | Définit les classes et leurs interactions |
+| **`component_diagram.md`** | Décrit les interactions entre le backend et les autres services |
+| **`performance_optimization.md`** | Liste des optimisations backend (Redis, Load Balancing) |
 
 ---
 
-## **🗄️ 2️⃣ Base de Données**
+## **Conclusion**
 
-📌 **Fichier détaillé :** [`database_interactions.md`](./database_interactions.md)  
+Ce document fournit une **référence claire pour le développement du backend**, garantissant **modularité, maintenabilité et évolutivité**.
 
-📌 **Ce module gère :**  
-✅ **Stockage des utilisateurs, recettes et sessions**.  
-✅ **Relations et transactions entre les tables**.  
-
-📌 **Tables principales :**  
-
-- `users` → Informations des utilisateurs.  
-- `recipes` → Gestion des recettes de brassage.  
-- `sessions` → Sessions de brassage en cours.  
-
----
-
-## **⚙️ 3️⃣ Services Métier**
-
-📌 **Fichier détaillé :** [`api_interactions.md`](./api_interactions.md)  
-
-📌 **Ce module gère :**  
-✅ **Gestion des recettes et sessions de brassage**.  
-✅ **Envoi de notifications aux utilisateurs**.  
-✅ **Traitement des données des capteurs IoT**.  
-
-📌 **Endpoints principaux :**  
-
-| Méthode | Endpoint | Description | Authentification |
-|---------|------------|-------------|----------------|
-| **GET** | `/recipes` | Liste des recettes | ❌ |
-| **POST** | `/recipes` | Création d’une recette | ✅ Token |
-| **GET** | `/sessions` | Liste des sessions actives | ✅ Token |
-
----
-
-## **⚡ 4️⃣ Optimisation et Scalabilité**
-
-📌 **Fichier détaillé :** [`performance_optimization.md`](./performance_optimization.md)  
-
-📌 **Ce module gère :**  
-✅ **Caching avec Redis pour optimiser la vitesse des requêtes**.  
-✅ **Rate Limiting et Load Balancing pour gérer la montée en charge**.  
-✅ **Optimisation des requêtes SQL avec indexation et pagination**.  
-
-📌 **Optimisation clé :**  
-
-```javascript
-const redis = require("redis");
-const client = redis.createClient();
-
-const cacheMiddleware = (req, res, next) => {
-    const key = req.originalUrl;
-    client.get(key, (err, data) => {
-        if (data) {
-            return res.json(JSON.parse(data));
-        }
-        next();
-    });
-};
-```
-
----

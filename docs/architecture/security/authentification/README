@@ -1,0 +1,48 @@
+# Introduction aux Méthodes d'Authentification - Brasse-Bouillon
+
+## 1. Objectif du Dossier `authentication/`
+
+Ce dossier regroupe toute la documentation sur les **méthodes d’authentification et de gestion des accès** utilisées dans le projet **Brasse-Bouillon**. L’objectif est de garantir un **contrôle sécurisé des connexions et des permissions utilisateur** en respectant les bonnes pratiques de cybersécurité.
+
+📌 **Documents inclus :**
+
+| Fichier | Description |
+|---------|------------|
+| `authentication_methods.md` | Présente les méthodes d'authentification (JWT, OAuth, 2FA). |
+| `session_management.md` | Explique la gestion des sessions et des tokens sécurisés. |
+| `access_control.md` | Décrit le contrôle des accès (RBAC, ACL, permissions). |
+
+---
+
+## 2. Vue d’Ensemble des Méthodes d'Authentification
+
+Brasse-Bouillon utilise plusieurs **techniques de sécurisation des accès** :
+
+- **JWT (JSON Web Token)** pour une **authentification sans état (stateless)**.
+- **OAuth 2.0** pour la connexion avec des services tiers (Google, GitHub).
+- **Authentification à Deux Facteurs (2FA)** pour renforcer la sécurité.
+- **RBAC (Role-Based Access Control)** pour **contrôler les accès en fonction des rôles**.
+- **Gestion avancée des sessions** pour prévenir le **vol de session et le rejeu de token**.
+
+📌 **Détails complets dans les fichiers correspondants.**
+
+---
+
+## 3. Standards de Sécurité Respectés
+
+📌 **Brasse-Bouillon suit les recommandations suivantes :**
+
+| Standard | Application |
+|----------|------------|
+| **OWASP Top 10** | Protection contre XSS, CSRF, Session Hijacking. |
+| **GDPR (RGPD)** | Sécurisation et gestion des accès aux données utilisateurs. |
+| **ISO 27001** | Normes de gestion des identités et accès sécurisés. |
+
+📌 **Voir `security_standards.md` pour plus de détails.**
+
+---
+
+## **Conclusion**
+
+L’authentification est un **élément clé de la sécurité** du projet **Brasse-Bouillon**. Ce dossier centralise toutes les pratiques de **gestion des accès, des sessions et des permissions**, garantissant un **environnement sécurisé pour les utilisateurs**.
+

@@ -1,137 +1,173 @@
-# Guide de Contribution au Projet Brasse-Bouillon (B2B)
+# Guide de Contribution - Brasse-Bouillon
 
-Bienvenue sur le projet **Brasse-Bouillon** ! Ce document définit les bonnes pratiques pour collaborer efficacement.
+## 1. Introduction
 
-## Structure des Branches
-
-### Branches principales
-
-- **`main`** : Branche de production. Contient le code stable prêt à être déployé.
-- **`develop`** : Branche de développement principal. Les nouvelles fonctionnalités y sont fusionnées avant `main`.
-
-### Branches secondaires
-
-Créez une branche pour chaque tâche ou fonctionnalité, en suivant cette convention de nommage :
-
-```
-<type>/<nom-descriptif>
-```
-
-#### **Types possibles :**
-
-- **`feat`** : Ajout d'une nouvelle fonctionnalité.
-- **`fix`** : Correction d'un bug.
-- **`docs`** : Modifications dans la documentation.
-- **`style`** : Changements de style (indentation, formatage, etc.).
-- **`refactor`** : Refactorisation du code sans ajout de fonctionnalité.
-- **`test`** : Ajout ou correction de tests.
-- **`chore`** : Mise à jour des outils ou configurations (CI/CD, dépendances...).
-
-#### **Exemples :**
-
-- `feat/ajout-authentification-utilisateur`
-- `fix/correction-bug-auth`
-- `docs/mise-a-jour-readme`
+Bienvenue dans **Brasse-Bouillon** ! 🎉 Ce document explique **comment configurer l’environnement de développement** et **contribuer efficacement** au projet. Nous suivons une méthodologie collaborative avec des bonnes pratiques pour garantir un code de qualité et une expérience fluide pour tous les contributeurs.
 
 ---
 
-## Convention de Nommage des Commits
+## 2. Configuration de l’Environnement
 
-Nous utilisons la convention **Angular Commit Message Guidelines**. Voici le format standard :
+### 🔹 **Prérequis**
 
-```
-<type>(<scope>): <message>
+Avant de commencer, assure-toi d’avoir installé :
+
+- **Git** (`>= 2.30`)
+- **Node.js** (`>= 18.x`) et **npm** (`>= 9.x`)
+- **Docker** (optionnel, pour l’environnement de test)
+- **MySQL** (`>= 8.x`) pour la base de données
+
+### 🔹 **Installation du projet**
+
+1️⃣ **Cloner le dépôt :**
+
+```sh
+git clone https://github.com/benoit-bremaud/brasse-bouillon.git
+cd brasse-bouillon
 ```
 
-### **Types de commit :**
+2️⃣ **Installer les dépendances :**
 
-- **`feat`** : Pour une nouvelle fonctionnalité.
-- **`fix`** : Pour une correction de bug.
-- **`docs`** : Pour des modifications dans la documentation.
-- **`style`** : Pour des modifications de style (pas de changement de code).
-- **`refactor`** : Pour une refactorisation du code.
-- **`test`** : Pour des ajouts ou mises à jour de tests.
-- **`chore`** : Pour des tâches sans impact fonctionnel.
+```sh
+npm install
+```
 
-### **Structure détaillée :**
+3️⃣ **Configurer l’environnement :**
 
-1. **`<type>`** : Obligatoire, indique la nature de la modification.
-2. **`(<scope>)`** : Optionnel, décrit la partie impactée (ex. `frontend`, `backend`).
-3. **`<message>`** : Une phrase concise expliquant la modification.
+- Copier le fichier d’exemple `.env.example` en `.env` :
 
-### **Exemples :**
+```sh
+cp .env.example .env
+```
 
-- `feat(frontend): ajouter le formulaire de connexion`
-- `fix(backend): corriger la validation des tokens`
-- `docs(readme): mise à jour des prérequis`
-- `chore(ci): ajouter les tests automatiques dans GitHub Actions`
+- Modifier les variables selon ta configuration locale.
 
----
+4️⃣ **Lancer l’application en mode développement :**
 
-## Workflow de Collaboration
-
-1. **Créer une branche** :
-   - Basez votre branche sur `develop` :
-
-     ```bash
-     git checkout develop
-     git checkout -b feat/nom-de-la-feature
-     ```
-
-2. **Faire des commits** :
-   - Suivez la convention de nommage pour chaque commit.
-
-3. **Ouvrir une Pull Request (PR)** :
-   - Une fois la tâche terminée, ouvrez une PR vers `develop`.
-   - Ajoutez une description claire et des captures d’écran si nécessaire.
-   - Exemple de titre : `[feat] ajout de la gestion des recettes`
-
-4. **Revue de code** :
-   - Chaque PR doit être revue par au moins un autre membre de l’équipe.
-   - Utilisez les commentaires pour poser des questions ou suggérer des améliorations.
-
-5. **Fusionner dans `develop`** :
-   - Une fois la PR approuvée, elle peut être fusionnée.
+```sh
+npm run dev
+```
 
 ---
 
-## Tests et Validation
+## 3. Workflow de Contribution
 
-1. **Écrire des tests** :
-   - Ajoutez des tests unitaires pour chaque fonctionnalité.
-   - Exécutez les tests localement avant de soumettre une PR :
+### 🔹 **Convention de Nommage des Branches**
 
-     ```bash
-     npm test
-     ```
-
-2. **Automatisation CI/CD** :
-   - Les workflows GitHub Actions exécutent automatiquement les tests sur chaque PR.
-   - Les PRs échouant aux tests ne seront pas fusionnées.
-
----
-
-## Bonnes Pratiques
-
-1. **Documentez vos fonctionnalités** :
-   - Si vous ajoutez une fonctionnalité importante, mettez à jour la documentation correspondante dans `/docs`.
-
-2. **Divisez vos commits** :
-   - Faites des commits atomiques et bien séparés pour faciliter la revue.
-
-3. **Communiquez** :
-   - Utilisez les commentaires sur GitHub pour clarifier votre code ou signaler des blocages.
-
----
-
-## Ressources
-
-- [Angular Commit Guidelines](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)
-- [Conventions Git](https://www.conventionalcommits.org/)
-- [Guide GitHub Workflow](https://docs.github.com/en/get-started/quickstart/hello-world)
-
----
-
-Merci de respecter ces conventions pour une collaboration fluide et efficace. 🚀
+Les branches doivent être nommées de manière claire selon le type de travail effectué :
 
 ```
+feature/nom-fonctionnalité  → Pour une nouvelle fonctionnalité
+fix/nom-correction         → Pour une correction de bug
+refactor/nom-refactoring   → Pour une amélioration du code sans modification fonctionnelle
+hotfix/nom-correction      → Pour une correction urgente en production
+```
+
+Exemple :
+
+```sh
+git checkout -b feature/ajout-authentification
+```
+
+### 🔹 **Structure des Branches**
+
+Le projet suit un modèle de branches inspiré de **Git Flow** :
+
+```
+main       → Branche stable et prête pour la production
+
+develop    → Branche principale pour le développement
+
+feature/*  → Branches pour le développement de nouvelles fonctionnalités
+fix/*      → Branches pour les corrections de bugs
+release/*  → Branches de préparation avant un déploiement
+hotfix/*   → Branches pour les corrections urgentes sur `main`
+```
+
+### 🔹 **Convention de Nommage des Commits**
+
+Respecte la structure suivante pour chaque commit :
+
+```
+[Type] (Scope) : Message court et explicite
+
+Description plus détaillée (si nécessaire)
+```
+
+📌 **Types de commits acceptés :**
+
+- **feat** : Ajout d'une nouvelle fonctionnalité
+- **fix** : Correction d'un bug
+- **docs** : Modification de la documentation
+- **style** : Modification du format ou du style (indentation, espaces…)
+- **refactor** : Refactoring du code sans modification fonctionnelle
+- **test** : Ajout/modification de tests
+- **chore** : Mise à jour des dépendances, configuration
+
+Exemple de commit valide :
+
+```sh
+git commit -m "feat(auth): Implémentation de l'authentification JWT"
+```
+
+### 🔹 **Créer une Pull Request (PR)**
+
+1️⃣ **Vérifier son code avant de pousser :**
+
+```sh
+git push origin feature/ajout-authentification
+```
+
+2️⃣ **Créer une PR sur GitHub en respectant ces consignes :**
+
+- La PR doit être assignée à un reviewer.
+- Ajouter une description claire des changements apportés.
+- Lier la PR à une issue si applicable.
+
+Exemple de titre de PR :
+
+```
+[Feature] Ajout de l'authentification JWT
+```
+
+---
+
+## 4. Règles de Code et Style
+
+📌 **Standards suivis :**
+
+- **ESLint + Prettier** pour le formatage automatique.
+- Respect des **principes SOLID** et d’une **architecture modulaire**.
+- Documentation des fonctions et API avec **JSDoc**.
+
+---
+
+## 5. Tests et CI/CD
+
+📌 **Avant de soumettre une PR, vérifie que :**
+
+- Les **tests unitaires passent** (`npm test`).
+- Le code respecte les **règles de linting** (`npm run lint`).
+- La **pipeline CI/CD** s’exécute sans erreur sur GitHub Actions.
+
+---
+
+## 6. Bonnes Pratiques de Développement
+
+📌 **À respecter pour maintenir un projet propre et scalable :**
+
+- Écrire du code **lisible et documenté**.
+- **Éviter les commits volumineux**, privilégier des modifications **petites et cohérentes**.
+- Ne pas pousser directement sur `main` ou `develop`, toujours passer par une **PR**.
+- Tester **localement** avant d’ouvrir une PR.
+
+---
+
+## 7. Communication et Support
+
+📢 **Besoin d’aide ?**
+
+- **Ouvre une issue GitHub** en cas de bug ou de question.
+- **Rejoins notre canal Slack/Discord** pour discuter avec l’équipe.
+
+📌 **Merci pour ta contribution ! 🚀**

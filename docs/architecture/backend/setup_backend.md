@@ -18,16 +18,44 @@ Ce document décrit les étapes pour **installer, configurer et lancer l’envir
 
 ## **2️⃣ Prérequis Techniques**
 
-Avant de commencer, assure-toi d’avoir installé :
+Avant de commencer, assure-toi d’avoir les outils suivants installés sur ta machine :
 
-| Outil         | Version conseillée |
-|---------------|---------------------|
-| Node.js       | >= 18.x             |
-| npm           | >= 9.x              |
-| MySQL Server  | >= 8.x              |
-| Git           | >= 2.x              |
-| Docker        | >= 20.x             |
-| Docker Compose| >= 1.29             |
+| Outil             | Version conseillée | Rôle                                                                 |
+|-------------------|---------------------|----------------------------------------------------------------------|
+| Node.js           | >= 18.x             | Exécution du backend JavaScript                                     |
+| npm               | >= 9.x              | Gestionnaire de paquets Node.js                                     |
+| MySQL Server      | >= 8.x              | Base de données relationnelle utilisée par Sequelize                |
+| Git               | >= 2.x              | Clonage et gestion du code source                                   |
+| Docker            | >= 20.x             | Conteneurisation de l’app et de la base de données                  |
+| Docker Compose    | >= 2.x (plugin)     | Orchestration des conteneurs Docker (via `docker compose`)         |
+
+⚠️ **À noter** :
+
+- Le dossier `backend/` n’inclut pas encore de fichier `package.json` après le clonage. Tu dois donc l’initialiser manuellement :
+
+```bash
+cd backend
+npm init -y
+```
+
+- Ensuite, installe les dépendances nécessaires :
+
+```bash
+npm install express sequelize mysql2 dotenv jsonwebtoken bcryptjs
+npm install --save-dev nodemon eslint prettier
+```
+
+- Pense à ajouter les scripts suivants dans ton `package.json` :
+
+```json
+"scripts": {
+  "dev": "nodemon src/app.js",
+  "start": "node src/app.js",
+  "lint": "eslint . --ext .js",
+  "docker:start": "docker compose up --build",
+  "docker:stop": "docker compose down"
+}
+```
 
 ---
 
@@ -38,7 +66,10 @@ Avant de commencer, assure-toi d’avoir installé :
 git clone https://github.com/benoit-bremaud/brasse-bouillon.git
 cd brasse-bouillon/backend
 
-# Initialiser npm
+# Initialiser npm (si non fait)
+npm init -y
+
+# Installer les dépendances (si non fait)
 npm install
 
 # Copier les variables d’environnement
@@ -118,10 +149,31 @@ mysql -u root -p < ../docs/database/database_init.sql
 ### 🔹 Environnement Docker (recommandé)
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 > Cela lance à la fois **le backend Express** et la **base MySQL** dans des conteneurs isolés.
+
+💡 **Astuce : port déjà utilisé ?**
+Si tu as une instance MySQL déjà active sur ton système (hors Docker), elle peut bloquer l'utilisation du port `3306`.
+
+#### Deux solutions :
+
+**1. Arrêter MySQL localement avant de lancer Docker :**
+```bash
+sudo systemctl stop mysql
+```
+
+**2. Modifier le port exposé dans `docker-compose.yml` :**
+```yaml
+  db:
+    ports:
+      - "3307:3306"
+```
+Et dans `.env` :
+```env
+DB_PORT=3307
+```
 
 ---
 
@@ -141,7 +193,23 @@ GET http://localhost:3000/ping
 }
 ```
 
-📌 Vérifie dans `src/routes/ping.routes.js` ou similaire.
+📌 Ce endpoint est défini directement dans `src/app.js` pour tester rapidement que le backend fonctionne correctement.
+
+Exemple minimal :
+
+```js
+const express = require('express');
+const app = express();
+
+app.get('/ping', (req, res) => {
+  res.status(200).json({ message: 'pong' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});
+```
 
 ---
 
@@ -170,8 +238,32 @@ npm run test
 
 ---
 
+## 🔁 Commandes Docker pratiques
+
+Ajoute ces scripts dans ton `package.json` pour plus de confort :
+
+```json
+"scripts": {
+  "docker:start": "docker compose up --build",
+  "docker:stop": "docker compose down"
+}
+```
+
+### 🔹 Lancer l’ensemble du backend + DB
+```bash
+npm run docker:start
+```
+
+### 🔹 Stopper tous les services
+```bash
+npm run docker:stop
+```
+
+---
+
 ## **📌 Conclusion**
 
 Cette configuration te permet de démarrer rapidement un backend Node.js/Express robuste, connecté à une base de données MySQL, avec ou sans Docker. Elle intègre une structure modulaire, des outils de qualité logicielle et un endpoint de test pour vérification initiale.
 
 🚀 Prochaine étape : Implémenter les vrais endpoints (`auth`, `recipes`, `users`).
+

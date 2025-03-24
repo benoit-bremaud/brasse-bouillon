@@ -82,5 +82,5 @@ Voir le fichier [`setup_backend.md`](./setup_backend.md)
 
 ## 📌 Auteur
 
-Projet développé par **Benoît Brémaud** dans le cadre du Bachelor Développeur Web - La Plateforme_
+Projet développé par **Benoît Brémaud** dans le cadre du Bachelor Développeur Web - La Plateforme
 

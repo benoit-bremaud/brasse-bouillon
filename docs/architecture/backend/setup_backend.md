@@ -239,6 +239,30 @@ Plus tard, tu pourras créer des fichiers `.env.dev`, `.env.prod`, `.env.test` p
 
 ---
 
+## 🛠️ Bonnes pratiques Docker (build)
+
+Dans un `Dockerfile`, il est courant de voir cette séquence :
+
+```dockerfile
+COPY package*.json ./
+RUN npm install
+COPY . .
+```
+
+Cela permet de bénéficier du **cache Docker** pour `npm install`, en ne le relançant que si les dépendances ont changé.
+
+Mais si tu veux garder une version **plus simple** pendant la phase MVP, tu peux utiliser :
+
+```dockerfile
+COPY . .
+RUN npm install
+```
+
+C’est plus lisible, mais chaque modification de code relancera l’installation des dépendances.
+
+Tu pourras toujours revenir à la version optimisée plus tard.
+
+
 ---
 
 ## **7️⃣ Premier Endpoint de Test**

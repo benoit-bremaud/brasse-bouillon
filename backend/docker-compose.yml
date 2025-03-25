@@ -3,13 +3,9 @@ services:
     build: .
     container_name: brasse-backend
     ports:
-      - '3000:3000'
-    environment:
-      - PORT=3000
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=rootpassword
-      - DB_NAME=brasse_bouillon
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
     volumes:
       - .:/app
     depends_on:

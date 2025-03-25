@@ -1,5 +1,5 @@
 # Utilise une image Node officielle comme base
-FROM node:18
+FROM node:20
 
 # Dossier de travail dans le conteneur
 WORKDIR /app

@@ -17,7 +17,7 @@ Ce dossier contient le backend Node.js de l'application **Brasse-Bouillon**, con
 
 ## 📁 Structure du projet
 
-```
+```text
 backend/
 ├── src/
 │   ├── app.js              # Point d’entrée de l'application
@@ -76,11 +76,10 @@ npm run docker:stop   # Arrêter les conteneurs Docker
 
 ## 📄 Documentation complète
 
-Voir le fichier [`setup_backend.md`](./setup_backend.md)
+Voir le fichier [`setup_backend.md`](../docs/architecture/backend/setup_backend.md)
 
 ---
 
 ## 📌 Auteur
 
 Projet développé par **Benoît Brémaud** dans le cadre du Bachelor Développeur Web - La Plateforme
-

@@ -157,23 +157,87 @@ docker compose up --build
 💡 **Astuce : port déjà utilisé ?**
 Si tu as une instance MySQL déjà active sur ton système (hors Docker), elle peut bloquer l'utilisation du port `3306`.
 
-#### Deux solutions :
+#### Deux solutions
 
 **1. Arrêter MySQL localement avant de lancer Docker :**
+
 ```bash
 sudo systemctl stop mysql
 ```
 
 **2. Modifier le port exposé dans `docker-compose.yml` :**
+
 ```yaml
   db:
     ports:
       - "3307:3306"
 ```
+
 Et dans `.env` :
+
 ```env
 DB_PORT=3307
 ```
+
+## 🔐 Utiliser un fichier `.env` avec Docker Compose
+
+Pour éviter d’écrire les variables d’environnement directement dans le fichier `docker-compose.yml`, il est recommandé d’utiliser la directive `env_file:`.
+
+Cela permet de :
+
+- Centraliser les variables sensibles ou modifiables dans un fichier `.env`
+- Réutiliser ce fichier aussi bien pour `docker compose` que pour l’environnement Node.js local
+- Alléger le `docker-compose.yml`
+
+### ✅ Étapes
+
+1. Crée un fichier `.env` dans le dossier `backend/` avec le contenu suivant :
+
+```env
+PORT=3000
+DB_HOST=db
+DB_PORT=3306
+DB_NAME=brasse_bouillon
+DB_USER=root
+DB_PASSWORD=your_password
+JWT_SECRET=supersecretkey
+```
+
+2. Dans `docker-compose.yml`, remplace le bloc `environment:` par :
+
+```yaml
+services:
+  backend:
+    build: .
+    container_name: brasse-backend
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+```
+
+> 📌 Note : `DB_HOST=db` permet au backend de communiquer avec le conteneur `db` (MySQL).
+
+3. **Lancer le projet avec Docker :**
+
+```bash
+npm run docker:start
+```
+
+### ⚠️ Important
+
+- Le fichier `.env` doit se trouver dans le même dossier que le `docker-compose.yml` (ici `backend/`)
+- Le conteneur MySQL ne lit pas le même fichier `.env` que le backend (ses variables sont définies dans `environment:`)
+
+### 💡 Astuce professionnelle (optionnel)
+
+Plus tard, tu pourras créer des fichiers `.env.dev`, `.env.prod`, `.env.test` pour gérer différents environnements. Mais pour ton MVP, un seul `.env` suffit largement.
+
+---
 
 ---
 
@@ -250,11 +314,13 @@ Ajoute ces scripts dans ton `package.json` pour plus de confort :
 ```
 
 ### 🔹 Lancer l’ensemble du backend + DB
+
 ```bash
 npm run docker:start
 ```
 
 ### 🔹 Stopper tous les services
+
 ```bash
 npm run docker:stop
 ```
@@ -266,4 +332,3 @@ npm run docker:stop
 Cette configuration te permet de démarrer rapidement un backend Node.js/Express robuste, connecté à une base de données MySQL, avec ou sans Docker. Elle intègre une structure modulaire, des outils de qualité logicielle et un endpoint de test pour vérification initiale.
 
 🚀 Prochaine étape : Implémenter les vrais endpoints (`auth`, `recipes`, `users`).
-

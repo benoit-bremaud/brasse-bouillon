@@ -5,11 +5,8 @@ FROM node:20
 WORKDIR /app
 
 # Copie les fichiers nécessaires
-COPY package*.json ./
-RUN npm install
-
-# Copie le reste du code
 COPY . .
+RUN npm install
 
 # Expose le port de l’application
 EXPOSE 3000

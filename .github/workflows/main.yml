@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - develop
+      - 22-mettre-en-place-un-pipeline-cicd
   pull_request:
     branches:
       - main

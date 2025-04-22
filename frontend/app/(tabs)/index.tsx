@@ -2,7 +2,16 @@
 
 import { Image, StyleSheet, Text, View } from 'react-native';
 
+import { api } from '@/src/services/api';
+import { useEffect } from 'react';
+
 export default function HomeScreen() {
+  useEffect(() => {
+    api.get('/ping')
+      .then((res) => console.log('✅ Réponse API :', res.data))
+      .catch((err) => console.error('❌ Erreur API :', err.message));
+  }, []);
+  
   return (
     <View style={styles.container}>
       <Image

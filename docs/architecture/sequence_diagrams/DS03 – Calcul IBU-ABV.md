@@ -17,5 +17,4 @@
         Backend-->>Frontend: 400 Bad Request (message d'erreur)
         Frontend->>Utilisateur: Affiche erreur "Données insuffisantes pour le calcul"
     end
-
 ```

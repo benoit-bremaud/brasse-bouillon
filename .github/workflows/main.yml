@@ -1,6 +1,6 @@
 name: Brasse-Bouillon CI/CD
 
-# 🧩 Déclencheurs : à chaque push ou PR sur main ou develop
+# Déclencheurs : à chaque push ou PR sur main ou develop
 on:
   push:
     branches:
@@ -11,19 +11,19 @@ on:
       - main
       - develop
 
-# 🏗️ Jobs à exécuter
+# Jobs à exécuter
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout du code
+      - name: Checkout du code
         uses: actions/checkout@v3
 
-      - name: 🧰 Installer Node.js
+      - name: Installer Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: 📦 Installer les dépendances
+      - name: Installer les dépendances
         run: npm install

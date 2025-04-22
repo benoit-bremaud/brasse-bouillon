@@ -1,18 +1,14 @@
 name: Brasse-Bouillon CI/CD
 
-# Déclencheurs : à chaque push ou PR sur main ou develop
 on:
   push:
     branches:
-      - main
-      - develop
-      - 22-mettre-en-place-un-pipeline-cicd
+      - '**'
   pull_request:
     branches:
       - main
       - develop
 
-# Jobs à exécuter
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,6 +21,3 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
-      - name: Installer les dépendances
-        run: npm install

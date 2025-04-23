@@ -17,6 +17,14 @@ module.exports = [
     }
   },
   {
+    files: ['jest.setup.js'],
+    languageOptions: {
+      globals: {
+        jest: 'readonly'
+      }
+    }
+  },
+  {
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

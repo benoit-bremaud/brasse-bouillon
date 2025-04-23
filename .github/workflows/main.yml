@@ -63,3 +63,7 @@ jobs:
       - name: 🧪 Test frontend
         working-directory: ./frontend
         run: npm run test
+      
+      # - name: 🛠️ Build frontend (désactivé pour MVP)
+      #   working-directory: ./frontend
+      #   run: npm run build

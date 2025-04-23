@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import Hello from '../Hello';
 import React from 'react';
 import { render } from '@testing-library/react-native';

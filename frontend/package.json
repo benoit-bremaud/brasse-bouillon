@@ -11,9 +11,6 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx"
   },
-  "jest": {
-    "preset": "jest-expo"
-  },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",

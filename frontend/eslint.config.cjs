@@ -1,11 +1,10 @@
-// frontend/eslint.config.cjs
 const js = require('@eslint/js');
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 module.exports = [
   js.configs.recommended,
   {
-    files: ['**/*.test.js', '**/*.spec.js'],
+    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.jsx', '**/*.spec.jsx'],
     languageOptions: {
       globals: {
         describe: 'readonly',
@@ -21,6 +20,11 @@ module.exports = [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
       globals: {
         console: 'readonly',
         require: 'readonly',

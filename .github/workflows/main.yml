@@ -67,3 +67,12 @@ jobs:
       # - name: 🛠️ Build frontend (désactivé pour MVP)
       #   working-directory: ./frontend
       #   run: npm run build
+      
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Déploiement simulé
+        run: echo "🚧 Déploiement non actif (en phase de dev)"

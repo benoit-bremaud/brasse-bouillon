@@ -8,7 +8,8 @@
     "lint": "eslint . --ext .js",
     "test": "jest",
     "docker:start": "docker compose up --build",
-    "docker:stop": "docker compose down"
+    "docker:stop": "docker compose down",
+    "docker:test:db": "docker exec brasse-backend node scripts/test_db_connection.js"
   },
   "keywords": [],
   "author": "",

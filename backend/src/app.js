@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 // Load environment variables
 require('dotenv').config();
 
@@ -27,8 +29,8 @@ async function connectWithRetry(retries = 5, delay = 2000) {
       await db.sequelize.sync({ alter: true });
       console.log('🛠️ Models synchronized with the database');
       break;
-    } catch (err) {
-      console.error(`❌ DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`);
+    } catch (error) {
+      console.error(`❌ DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`, error);
       retries--;
       await new Promise(res => setTimeout(res, delay));
     }

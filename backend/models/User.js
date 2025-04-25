@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,   // createdAt & updatedAt activés
   });
 
-  User.associate = function (models) {
+  User.associate = function () {
     // Relations à ajouter ici plus tard (ex: User.hasMany(models.Recipe))
   };
 

@@ -14,6 +14,7 @@ const db = require('../models');
 // Import routes
 const recipeRoutes = require('../routes/recipeRoutes');
 const userRoutes = require('../routes/userRoutes');
+const ingredientRoutes = require('../routes/ingredientRoutes');
 
 // Middleware
 app.use(cors({
@@ -55,6 +56,9 @@ app.use('/users', userRoutes);
 
 // Mount recipe routes
 app.use('/recipes', recipeRoutes);
+
+// Mount ingredient routes
+app.use('/ingredients', ingredientRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

@@ -11,8 +11,8 @@ const app = express();
 // Import Sequelize models
 const db = require('../models');
 
-// Import setTimeout from timers/promises
-const { setTimeout } = require('timers/promises');
+// Import routes
+const recipeRoutes = require('../routes/recipeRoutes');
 
 // Middleware
 app.use(cors({
@@ -33,7 +33,7 @@ async function connectWithRetry(retries = 5, delay = 2000) {
     } catch (error) {
       console.error(`❌ DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`, error);
       retries--;
-      await new Promise(res => setTimeout(res, delay));
+      await new Promise(res => global.setTimeout(res, delay));
     }
   }
 
@@ -42,8 +42,6 @@ async function connectWithRetry(retries = 5, delay = 2000) {
     process.exit(1);
   }
 }
-
-// Call it immediately
 connectWithRetry();
 
 // Test endpoint
@@ -51,7 +49,7 @@ app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'pong' });
 });
 
-// GET /users - Test user retrieval
+// GET /users - Test user retrieval (à migrer plus tard)
 app.get('/users', async (req, res) => {
   try {
     const users = await db.User.findAll();
@@ -62,17 +60,8 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// GET /recipes - Retourne toutes les recettes (test)
-app.get('/recipes', async (req, res) => {
-  try {
-    const recipes = await db.Recipe.findAll(); // SELECT * FROM recipes
-    res.status(200).json(recipes);
-  } catch (error) {
-    console.error('❌ Failed to fetch recipes:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
+// Mount recipe routes
+app.use('/recipes', recipeRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

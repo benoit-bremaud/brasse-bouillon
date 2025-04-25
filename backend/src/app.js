@@ -8,17 +8,55 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 
+// Import Sequelize models
+const db = require('../models');
 
-// Middleware (optionnel à ce stade)
+// Middleware
 app.use(cors({
-  origin: '*', // Remplacez '*' par l'URL de votre frontend si nécessaire
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(express.json());
 
+// Function to retry DB connection
+async function connectWithRetry(retries = 5, delay = 2000) {
+  while (retries > 0) {
+    try {
+      await db.sequelize.authenticate();
+      console.log('✅ Database connection established with Sequelize');
+      await db.sequelize.sync({ alter: true });
+      console.log('🛠️ Models synchronized with the database');
+      break;
+    } catch (err) {
+      console.error(`❌ DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`);
+      retries--;
+      await new Promise(res => setTimeout(res, delay));
+    }
+  }
+
+  if (retries === 0) {
+    console.error('💥 All retries failed. Could not connect to the database.');
+    process.exit(1);
+  }
+}
+
+// Call it immediately
+connectWithRetry();
+
 // Test endpoint
 app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'pong' });
+});
+
+// GET /users - Test user retrieval
+app.get('/users', async (req, res) => {
+  try {
+    const users = await db.User.findAll();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('❌ Failed to fetch users:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // Start server

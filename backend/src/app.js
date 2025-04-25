@@ -62,6 +62,18 @@ app.get('/users', async (req, res) => {
   }
 });
 
+// GET /recipes - Retourne toutes les recettes (test)
+app.get('/recipes', async (req, res) => {
+  try {
+    const recipes = await db.Recipe.findAll(); // SELECT * FROM recipes
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.error('❌ Failed to fetch recipes:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

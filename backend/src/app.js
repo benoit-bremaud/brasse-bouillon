@@ -13,6 +13,7 @@ const db = require('../models');
 
 // Import routes
 const recipeRoutes = require('../routes/recipeRoutes');
+const userRoutes = require('../routes/userRoutes');
 
 // Middleware
 app.use(cors({
@@ -49,16 +50,8 @@ app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'pong' });
 });
 
-// GET /users - Test user retrieval (à migrer plus tard)
-app.get('/users', async (req, res) => {
-  try {
-    const users = await db.User.findAll();
-    res.status(200).json(users);
-  } catch (error) {
-    console.error('❌ Failed to fetch users:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+// Mount user routes
+app.use('/users', userRoutes);
 
 // Mount recipe routes
 app.use('/recipes', recipeRoutes);

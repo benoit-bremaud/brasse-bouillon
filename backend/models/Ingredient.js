@@ -23,8 +23,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
   });
 
-  Ingredient.associate = function () {
-    // ex: Ingredient.belongsToMany(models.Recipe, { through: models.RecipeIngredient });
+  Ingredient.associate = function (models) {
+    Ingredient.belongsToMany(models.Recipe, {
+      through: models.RecipeIngredient,
+      foreignKey: 'ingredientId',
+      otherKey: 'recipeId',
+    });
   };
 
   return Ingredient;

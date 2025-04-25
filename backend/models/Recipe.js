@@ -30,8 +30,13 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
   });
 
-  Recipe.associate = function () {
-    // ex: Recipe.belongsTo(models.User);
+  Recipe.associate = function (models) {
+    Recipe.belongsTo(models.User); // si applicable
+    Recipe.belongsToMany(models.Ingredient, {
+      through: models.RecipeIngredient,
+      foreignKey: 'recipeId',
+      otherKey: 'ingredientId',
+    });
   };
 
   return Recipe;

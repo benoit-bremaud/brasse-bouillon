@@ -22,6 +22,15 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,   // createdAt & updatedAt activés
   });
 
+  /**
+   * Masque le champ password automatiquement à chaque sérialisation JSON
+   */
+  User.prototype.toJSON = function () {
+    const values = { ...this.get() };
+    delete values.password;
+    return values;
+  };
+
   User.associate = function () {
     // Relations à ajouter ici plus tard (ex: User.hasMany(models.Recipe))
   };

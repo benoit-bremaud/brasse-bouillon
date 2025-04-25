@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 // Load environment variables
 require('dotenv').config();
 
@@ -12,6 +10,9 @@ const app = express();
 
 // Import Sequelize models
 const db = require('../models');
+
+// Import setTimeout from timers/promises
+const { setTimeout } = require('timers/promises');
 
 // Middleware
 app.use(cors({

@@ -5,6 +5,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = db.User;
+
+// Vérification si JWT_SECRET est bien défini dans les variables d'environnement
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set. Please configure it in your environment.');
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_placeholder'; // à sécuriser dans .env
 
 /**

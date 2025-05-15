@@ -1,97 +1,99 @@
-# 📍 Roadmap stratégique Brasse-Bouillon – App mobile + Communication
-
-## 🎯 Objectif
-
-Cette feuille de route guide le développement progressif de l'application mobile **Brasse-Bouillon**, tout en structurant la **communication publique** à travers le site web, les réseaux sociaux, et la newsletter.  
-Elle suit une logique en 10 phases claires, avec des jalons publics et des publications régulières.
+# Brasse-Bouillon – Feuille de Route Stratégique
 
 ---
 
-## 🧭 Phases clés
+## Objectif
 
-### 🚀 Phase 1 – Idéation & Positionnement
-
-- Définition du MVP
-- Questionnaire utilisateurs
-- Publication du manifeste
-
-### 📡 Phase 2 – Analyse des canaux de communication
-
-- Étude des réseaux sociaux
-- Ligne éditoriale par canal
-- Résultats partagés publiquement
-
-### 🧠 Phase 3 – Conception & Préparation
-
-- Maquettes UI/UX
-- Architecture technique
-- Roadmap visuelle
-
-### 💻 Phase 4 – Développement du MVP
-
-- Authentification
-- CRUD recettes
-- Calculs ABV / IBU
-- API & base distante
-
-### 🌐 Phase 5 – Mise en ligne du site vitrine
-
-- Publication `brasse-bouillon.com`
-- Roadmap dynamique
-- Journal d’avancement
-- FAQ + recette du moment
-
-### 🔍 Phase 6 – Tests Bêta & Communauté
-
-- Beta publique
-- Retours utilisateurs
-- Discord / espace de discussion
-
-### 🚀 Phase 7 – Lancement officiel
-
-- App Store + Play Store
-- Témoignages & démo
-- Communication de lancement
-
-### 📈 Phase 8 – Améliorations et communauté
-
-- Nouveaux modules (badges, cloud)
-- Newsletter
-- Recettes collaboratives
-
-### 🧱 Phase 9 – Scalabilité technique
-
-- Séparation back/app/admin
-- Monitoring, logs, API publique
-
-### 🤝 Phase 10 – Partenariats & impact
-
-- Microbrasseries & assos
-- Kit Studio B22
-- Bilan open source & KPI
+Ce document décrit les grandes étapes du développement de l’application mobile **Brasse-Bouillon**, en structurant les objectifs techniques, les axes de communication et les livrables finaux. Il suit une progression logique en **10 phases distinctes**, accompagnée d’une stratégie de publication régulière destinée à informer et mobiliser la communauté.
 
 ---
 
-## 🔁 Fréquence de publication recommandée
+## Phases du projet
 
-| Fréquence       | Type de contenu                             |
-|----------------|----------------------------------------------|
-| Hebdomadaire    | Dev log, feature en cours, maquette         |
-| Bi-mensuelle    | Nouveau jalon atteint                       |
-| Mensuelle       | Bilan global + preview des prochaines étapes |
+### Phase 1 — Idéation et positionnement
+
+* Définition du MVP
+* Élaboration d’un questionnaire utilisateur
+* Rédaction du manifeste fondateur
+
+### Phase 2 — Analyse des canaux de communication
+
+* Étude des réseaux sociaux et identification des cibles
+* Définition d’une ligne éditoriale adaptée à chaque canal
+* Partage public des résultats d’analyse
+
+### Phase 3 — Conception et préparation
+
+* Réalisation des maquettes UI/UX
+* Définition de l’architecture technique
+* Production d’une feuille de route visuelle
+
+### Phase 4 — Développement du MVP
+
+* Implémentation de l’authentification
+* Fonctionnalités CRUD pour la gestion des recettes
+* Calculs automatiques des valeurs IBU et ABV
+* Développement de l’API et configuration de la base de données distante
+
+### Phase 5 — Mise en ligne du site vitrine
+
+* Publication du site : [brasse-bouillon.com](https://brasse-bouillon.com)
+* Intégration d’une feuille de route interactive
+* Lancement du journal de développement
+* Mise en place d’une FAQ et d’une recette en vedette
+
+### Phase 6 — Tests bêta et animation communautaire
+
+* Lancement public de la bêta via TestFlight / Play Store
+* Collecte et analyse des retours utilisateurs
+* Création d’un espace communautaire (ex. : Discord)
+
+### Phase 7 — Lancement officiel
+
+* Déploiement sur App Store et Play Store
+* Diffusion de témoignages utilisateurs et démo publique
+* Communication de lancement multi-canal
+
+### Phase 8 — Documentation et écosystème
+
+* Création de fiches de brassage
+* Constitution d’un glossaire collaboratif
+* Mise en place d’un espace d’échange autour des recettes
+
+### Phase 9 — Améliorations et ouverture
+
+* Optimisations UX continues
+* Intégration de modules complémentaires : statistiques, export, PDF
+* Publication d’une API ouverte et dépôt collaboratif de recettes
+
+### Phase 10 — Partenariats et évaluation d’impact
+
+* Collaboration avec des microbrasseries et associations
+* Distribution du kit Studio B22
+* Mise en place d’indicateurs open source pour évaluer l’impact
 
 ---
 
-## 📦 Livrables finaux attendus
+## Fréquence de publication recommandée
 
-- 📱 Application mobile (iOS & Android)
-- 🌍 Site vitrine public
-- 📘 Documentation et journal de dev
-- 📊 Dashboard d’impact (open KPI)
-- 🤝 Kit de présentation partenaires
+| Fréquence    | Type de contenu                              |
+| ------------ | -------------------------------------------- |
+| Hebdomadaire | Dev log, fonctionnalités en cours, maquettes |
+| Bi-mensuelle | Validation de jalons clés                    |
+| Mensuelle    | Bilan global et perspectives à venir         |
 
 ---
 
-## 🗂️ Source
+## Livrables finaux attendus
 
-Ce document est une version markdown issue du Canvas “Roadmap App Mobile + Communication”.
+* Application mobile (iOS & Android)
+* Site vitrine public
+* Documentation technique et journal de développement
+* Tableau de bord d’indicateurs ouverts (KPI)
+* Kit de présentation à destination des partenaires
+
+---
+
+## Source
+
+Ce document est une version markdown dérivée du Canvas “Roadmap App Mobile + Communication”.

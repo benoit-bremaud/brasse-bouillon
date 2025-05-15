@@ -1,5 +1,7 @@
 # Brasse-Bouillon – Feuille de Route Stratégique
 
+*Version : 1.0 – Dernière mise à jour : 16 mai 2025*
+
 ---
 
 ## Objectif
@@ -91,6 +93,14 @@ Ce document décrit les grandes étapes du développement de l’application mob
 * Documentation technique et journal de développement
 * Tableau de bord d’indicateurs ouverts (KPI)
 * Kit de présentation à destination des partenaires
+
+---
+
+## Historique des versions
+
+| Version | Date       | Modifications                |
+| ------- | ---------- | ---------------------------- |
+| 1.0     | 16/05/2025 | Version initiale du document |
 
 ---
 

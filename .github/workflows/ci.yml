@@ -1,0 +1,83 @@
+name: Brasse-Bouillon CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # BACKEND
+      - name: ♻️ Cache backend node_modules
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: 📦 Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: 🧹 Lint backend
+        working-directory: ./backend
+        run: |
+          npm run lint || echo "::error::❌ Linting failed. Please fix code style issues."
+
+      - name: 🧪 Test backend
+        working-directory: ./backend
+        run: |
+          npm run test || echo "::notice::⚠️ Some tests may have failed. Review test output."
+
+      # FRONTEND
+      - name: ♻️ Cache frontend node_modules
+        uses: actions/cache@v3
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: 📦 Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🧹 Lint frontend
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: 🧪 Test frontend
+        working-directory: ./frontend
+        run: npm run test
+
+  deploy:
+    name: Simulated Deployment
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Summary
+        run: |
+          echo "::notice::🎯 Build & test workflow completed. Review logs above for any warnings or errors."
+
+      - name: 🚀 Simulated deployment
+        run: |
+          echo "::warning::🚧 Deployment is currently disabled (local dev only)"

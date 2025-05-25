@@ -29,23 +29,31 @@ async function connectWithRetry(retries = 5, delay = 2000) {
   while (retries > 0) {
     try {
       await db.sequelize.authenticate();
-      console.log('✅ Database connection established with Sequelize');
-      await db.sequelize.sync();
-      console.log('🛠️ Models synchronized with the database');
+      console.log('Database connection established with Sequelize');
+
+      if (process.env.NODE_ENV !== 'production') {
+        await db.sequelize.sync();
+        console.log('Models synchronized with the database (non-production environment)');
+      } else {
+        console.log('Sequelize sync skipped in production. Use migrations instead.');
+      }
+
       break;
     } catch (error) {
-      console.error(`❌ DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`, error);
+      console.error(`DB connection failed. Retrying in ${delay / 1000}s... (${retries} retries left)`, error);
       retries--;
       await new Promise(res => global.setTimeout(res, delay));
     }
   }
 
   if (retries === 0) {
-    console.error('💥 All retries failed. Could not connect to the database.');
+    console.error('All retries failed. Could not connect to the database.');
     process.exit(1);
   }
 }
+
 connectWithRetry();
+
 
 // Test endpoint
 app.get('/ping', (req, res) => {

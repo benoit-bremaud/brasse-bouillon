@@ -7,5 +7,7 @@ const authenticateToken = require('../middleware/authenticateToken');
 
 // GET /recipes
 router.get('/', authenticateToken, recipeController.getAllRecipes);
+// POST /recipes
+router.post('/', authenticateToken, recipeController.createRecipe);
 
 module.exports = router;

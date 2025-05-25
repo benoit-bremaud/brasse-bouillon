@@ -34,7 +34,39 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+/**
+ * PUT /users/me
+ * Update the current user's profile (email, etc.)
+ */
+const updateCurrentUser = async (req, res) => {
+  const { email } = req.body;
+
+  // Vérification minimale
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required to update.' });
+  }
+
+  try {
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Mise à jour des champs autorisés
+    user.email = email;
+    await user.save();
+
+    // Réponse avec les données à jour (sans password grâce au toJSON())
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('❌ Error updating user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getCurrentUser,
+  updateCurrentUser,
 };

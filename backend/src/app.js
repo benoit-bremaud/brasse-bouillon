@@ -30,7 +30,7 @@ async function connectWithRetry(retries = 5, delay = 2000) {
     try {
       await db.sequelize.authenticate();
       console.log('✅ Database connection established with Sequelize');
-      await db.sequelize.sync({ alter: true });
+      await db.sequelize.sync();
       console.log('🛠️ Models synchronized with the database');
       break;
     } catch (error) {

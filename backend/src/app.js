@@ -17,6 +17,8 @@ const userRoutes = require('../routes/userRoutes');
 const ingredientRoutes = require('../routes/ingredientRoutes');
 const authRoutes = require('../routes/authRoutes');
 const favoritesRoutes = require('../routes/favoritesRoutes');
+const adminRoutes = require('../routes/adminRoutes');
+
 
 // Middleware
 app.use(cors({
@@ -60,6 +62,9 @@ connectWithRetry();
 app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'pong' });
 });
+
+// Mount testAdmin routes
+app.use('/admin', adminRoutes);
 
 // Mount user routes
 app.use('/users', userRoutes);

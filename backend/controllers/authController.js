@@ -70,7 +70,7 @@ const login = async (req, res) => {
     }
 
     // Création du JWT
-    const payload = { id: user.id, email: user.email };
+    const payload = { id: user.id, email: user.email, role: user.role || 'user' };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 
     res.status(200).json({ message: 'Login successful.', token });

@@ -18,4 +18,11 @@ router.post('/', authenticateToken, recipeController.createRecipe);
  */
 router.put('/:id', authenticateToken, recipeController.updateRecipe);
 
+/**
+ * @route DELETE /recipes/:id
+ * @desc Delete a recipe (creator or admin only)
+ * @access Private (JWT required)
+ */
+router.delete('/:id', authenticateToken, recipeController.deleteRecipe);
+
 module.exports = router;

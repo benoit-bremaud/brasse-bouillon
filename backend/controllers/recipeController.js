@@ -55,7 +55,9 @@ const createRecipe = async (req, res) => {
       await RecipeIngredient.bulkCreate(ingredientEntries);
     }
 
-    res.status(200).json({
+    res.status(201)
+      .location(`/recipes/${newRecipe.id}`)
+      .json({
       message: '✅ Recipe successfully created.',
       received: newRecipe
     });

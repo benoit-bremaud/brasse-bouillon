@@ -12,7 +12,7 @@ const getAllIngredients = async (req, res) => {
     const ingredients = await Ingredient.findAll();
     res.status(200).json(ingredients);
   } catch (error) {
-    console.error('❌ Error fetching ingredients:', error);
+    console.error('Error fetching ingredients:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

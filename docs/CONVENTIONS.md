@@ -70,6 +70,10 @@ brasse-bouillon · <Project Scope>
 
 > The dot separator (`·`) is stylistic for clarity. Scope should reflect the main domain (use PascalCase or descriptive nouns).
 
+### ✅ Create GitHub Projects with CLI
+
+Although GitHub CLI doesn't directly create *Projects* (currently), you can manage them using the GitHub web interface and link them to repositories as needed. Once created, CLI can still be used for all associated issues and milestones.
+
 ---
 
 ## 🧩 5. Milestone Naming
@@ -87,6 +91,22 @@ Each milestone is prefixed by its project scope for clarity:
 
 > Each milestone must include a concise summary and due date (when applicable). Distinguish between short-term and long-term milestones.
 
+### ✅ Create milestones using GitHub CLI
+
+```bash
+gh milestone create "<milestone-name>" \
+  --description "<description>" \
+  --due "YYYY-MM-DD"
+```
+
+**Example:**
+
+```bash
+gh milestone create "BE4 – JSDoc Setup & Configuration" \
+  --description "Install and configure JSDoc to enable automatic API documentation generation." \
+  --due "2025-05-27"
+```
+
 ---
 
 ## 🏷️ 6. GitHub Labels
@@ -98,6 +118,23 @@ Use clear labels with a consistent style:
 * Type: `type:bug`, `type:feature`, `type:refactor`, `type:task`, `type:docs`
 * Scope: `scope:backend`, `scope:frontend`, `scope:charte`, `scope:devops`, `scope:infra`, `scope:website`
 * UX/UI: `ux`, `design`, `a11y`
+
+### ✅ Create labels using GitHub CLI
+
+```bash
+gh label create "<label-name>" \
+  --description "<description>" \
+  --color <hexcode>
+```
+
+**Examples:**
+
+```bash
+gh label create "priority:high" --description "Critical or urgent task" --color FF0000
+gh label create "status:planned" --description "Planned but not started" --color 007BFF
+gh label create "type:docs" --description "Documentation related task" --color 8E44AD
+gh label create "scope:backend" --description "Backend-related task" --color 2C3E50
+```
 
 ---
 
@@ -116,13 +153,23 @@ type(scope): short but meaningful description
 
 > Use English and include sub-tags if necessary for clarity.
 
+### ✅ Create issues using GitHub CLI
+
+```bash
+gh issue create \
+  --title "type(scope): short description" \
+  --body "Detailed task description\n- [ ] Subtask 1\n- [ ] Subtask 2" \
+  --label "type:docs,scope:backend,status:planned" \
+  --milestone "BE4 – JSDoc Setup & Configuration"
+```
+
 ---
 
 ## 📦 8. Pull Request Conventions
 
 Each pull request must follow this checklist:
 
-**Title format**:
+**Title format:**
 
 ```
 type(scope): concise and meaningful title

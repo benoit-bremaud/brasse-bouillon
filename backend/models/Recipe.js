@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     instructions: {
-      type: DataTypes.TEXT('long'), // texte long pour les étapes
+      type: DataTypes.TEXT('long'),
       allowNull: true,
     },
     abv: {
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Recipe.associate = function (models) {
-    Recipe.belongsTo(models.User); // si applicable
+    Recipe.belongsTo(models.User);
     Recipe.belongsToMany(models.Ingredient, {
       through: models.RecipeIngredient,
       foreignKey: 'recipeId',

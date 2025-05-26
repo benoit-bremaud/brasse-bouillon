@@ -45,7 +45,6 @@ const getRecipeById = async (req, res) => {
   }
 };
 
-
 /**
  * POST /recipes
  * Create a new recipe (requires authentication)
@@ -174,11 +173,44 @@ const updateRecipe = async (req, res) => {
   }
 };
 
+/**
+ * Delete a recipe by its ID (only allowed for the creator or admin).
+ * Route: DELETE /recipes/:id
+ * Access: Private (JWT required)
+ */
+const deleteRecipe = async (req, res) => {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+    // Optional: const userRole = req.user.role;
 
+    // 1. Retrieve the recipe
+    const recipe = await Recipe.findByPk(recipeId);
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    // 2. Ownership check (and admin if applicable)
+    if (recipe.UserId !== userId /* && userRole !== 'admin' */) {
+      return res.status(403).json({ message: 'Forbidden: You are not allowed to delete this recipe' });
+    }
+
+    // 3. Delete the recipe (assumes ON DELETE CASCADE on RecipeIngredient)
+    await recipe.destroy();
+
+    return res.status(200).json({ message: '✅ Recipe successfully deleted.' });
+
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
 
 module.exports = {
   getAllRecipes,
   createRecipe,
   getRecipeById,
-  updateRecipe
+  updateRecipe,
+  deleteRecipe
 };

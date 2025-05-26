@@ -111,13 +111,10 @@ const updateRecipe = async (req, res) => {
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
-    console.log('DEBUG ownership:', {
-      recipeUserId: recipe.userId,
-      reqUserId: userId,
-      typeofRecipeUserId: typeof recipe.userId,
-      typeofReqUserId: typeof userId,
-    });
-    
+    // Note: We intentionally use 'UserId' (capital U) here because Sequelize's default
+    // foreign key mapping for .belongsTo(models.User) is 'UserId'.
+    // The property 'recipe.userId' is undefined in our model.
+    // See PR discussion for details.
     // Ownership check
     if (recipe.userId !== userId) {
       return res.status(403).json({ message: 'Forbidden: You are not the owner of this recipe' });

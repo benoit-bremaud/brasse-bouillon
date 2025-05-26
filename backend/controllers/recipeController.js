@@ -3,7 +3,7 @@
 const db = require('../models');
 const Recipe = db.Recipe; 
 const RecipeIngredient = db.RecipeIngredient;
-
+const Ingredient = db.Ingredient;
 
 /**
  * GET /recipes
@@ -18,6 +18,33 @@ const getAllRecipes = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+/**
+ * GET /recipes/:id
+ * Fetch a specific recipe by ID with its associated ingredients
+ */
+const getRecipeById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const recipe = await Recipe.findByPk(id, {
+      include: {
+        model: Ingredient,
+        through: { attributes: ['quantity', 'unit'] },
+      },
+    });
+
+    if (!recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    res.status(200).json(recipe);
+  } catch (error) {
+    console.error('Error fetching recipe by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 /**
  * POST /recipes
@@ -70,4 +97,5 @@ const createRecipe = async (req, res) => {
 module.exports = {
   getAllRecipes,
   createRecipe,
+  getRecipeById
 };

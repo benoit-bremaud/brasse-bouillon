@@ -23,16 +23,30 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   /**
-   * Masque le champ password automatiquement à chaque sérialisation JSON
+   * Automatically hides password when sending JSON responses
    */
   User.prototype.toJSON = function () {
     const values = { ...this.get() };
     delete values.password;
     return values;
   };
-
-  User.associate = function () {
-    // Relations à ajouter ici plus tard (ex: User.hasMany(models.Recipe))
+  
+  /**
+   * Sequelize associations
+   * - hasMany Recipe (one user can create many recipes)
+   * - belongsToMany Recipe via Favorite (many-to-many favorites)
+   */
+  User.associate = function (models) {
+    // One User can create many Recipes
+    User.hasMany(models.Recipe);
+    
+    // A User can favorite many Recipes
+    User.belongsToMany(models.Recipe, {
+      through: models.Favorite,
+      as: 'favorites',
+      foreignKey: 'userId',
+      otherKey: 'recipeId',
+    });
   };
 
   return User;

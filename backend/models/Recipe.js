@@ -2,7 +2,6 @@
  * Recipe model definition
  * Represents a brewing recipe created by a user
  */
-
 module.exports = (sequelize, DataTypes) => {
   const Recipe = sequelize.define('Recipe', {
     name: {
@@ -30,12 +29,29 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
   });
 
+  /**
+   * Sequelize associations
+   * - belongsTo User (author)
+   * - belongsToMany Ingredient through RecipeIngredient
+   * - belongsToMany User through Favorite (likedBy)
+   */
   Recipe.associate = function (models) {
+    // The recipe is created by a user
     Recipe.belongsTo(models.User);
+
+    // a recipe can have many ingredients
     Recipe.belongsToMany(models.Ingredient, {
       through: models.RecipeIngredient,
       foreignKey: 'recipeId',
       otherKey: 'ingredientId',
+    });
+
+    // A recipe can be favorited by many users
+    Recipe.belongsToMany(models.User, {
+      through: models.Favorite,
+      foreignKey: 'recipeId',
+      otherKey: 'userId',
+      as: 'likedBy', // Alias for clarity
     });
   };
 

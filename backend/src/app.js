@@ -16,6 +16,7 @@ const recipeRoutes = require('../routes/recipeRoutes');
 const userRoutes = require('../routes/userRoutes');
 const ingredientRoutes = require('../routes/ingredientRoutes');
 const authRoutes = require('../routes/authRoutes');
+const favoritesRoutes = require('../routes/favoritesRoutes');
 
 // Middleware
 app.use(cors({
@@ -71,6 +72,9 @@ app.use('/ingredients', ingredientRoutes);
 
 // Mount auth routes
 app.use('/auth', authRoutes);
+
+// Mount favorites routes
+app.use('/favorites', favoritesRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

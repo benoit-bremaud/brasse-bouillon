@@ -119,7 +119,7 @@ const updateRecipe = async (req, res) => {
     });
     
     // Ownership check
-    if (recipe.UserId !== userId) {
+    if (recipe.userId !== userId) {
       return res.status(403).json({ message: 'Forbidden: You are not the owner of this recipe' });
     }
 

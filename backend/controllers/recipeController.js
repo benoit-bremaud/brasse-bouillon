@@ -99,36 +99,89 @@ const createRecipe = async (req, res) => {
  * Route: PUT /recipes/:id
  * Access: Private (JWT required)
  */
-exports.updateRecipe = async (req, res) => {
+const updateRecipe = async (req, res) => {
   try {
     const recipeId = req.params.id;
-    const userId = req.user.id; // Provided by authenticateToken middleware
+    const userId = req.user.id;
 
     // Retrieve the recipe by ID
     const recipe = await Recipe.findByPk(recipeId);
 
     if (!recipe) {
-      // Recipe does not exist
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
-    // Ownership check: only the creator can update the recipe
-    if (recipe.userId !== userId) {
+    console.log('DEBUG ownership:', {
+      recipeUserId: recipe.userId,
+      reqUserId: userId,
+      typeofRecipeUserId: typeof recipe.userId,
+      typeofReqUserId: typeof userId,
+    });
+    
+    // Ownership check
+    if (recipe.UserId !== userId) {
       return res.status(403).json({ message: 'Forbidden: You are not the owner of this recipe' });
     }
 
-    // Update logic will be implemented in the next step
-    return res.status(501).json({ message: 'Update logic not implemented yet.' });
+    // Extract allowed fields from request body
+    const { name, description, instructions, abv, ibu, ingredients } = req.body;
+
+    // Minimal validation: name and description are required if provided
+    if (name !== undefined && name.trim() === "") {
+      return res.status(400).json({ message: 'Name cannot be empty.' });
+    }
+
+    // Update main recipe fields (only if provided)
+    await recipe.update({
+      name: name !== undefined ? name : recipe.name,
+      description: description !== undefined ? description : recipe.description,
+      instructions: instructions !== undefined ? instructions : recipe.instructions,
+      abv: abv !== undefined ? abv : recipe.abv,
+      ibu: ibu !== undefined ? ibu : recipe.ibu,
+    });
+
+    // Optional: Update ingredients if provided
+    if (Array.isArray(ingredients)) {
+      // Remove existing ingredients associations
+      await RecipeIngredient.destroy({ where: { recipeId } });
+
+      // Bulk create new associations
+      const ingredientEntries = ingredients.map((item) => ({
+        recipeId,
+        ingredientId: item.ingredientId,
+        quantity: item.quantity,
+        unit: item.unit,
+      }));
+
+      if (ingredientEntries.length > 0) {
+        await RecipeIngredient.bulkCreate(ingredientEntries);
+      }
+    }
+
+    // Fetch and return updated recipe with ingredients
+    const updatedRecipe = await Recipe.findByPk(recipeId, {
+      include: {
+        model: Ingredient,
+        through: { attributes: ['quantity', 'unit'] },
+      },
+    });
+
+    return res.status(200).json({
+      message: '✅ Recipe successfully updated.',
+      updated: updatedRecipe
+    });
 
   } catch (error) {
-    // Internal server error
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error updating recipe:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
+
 
 
 module.exports = {
   getAllRecipes,
   createRecipe,
-  getRecipeById
+  getRecipeById,
+  updateRecipe
 };

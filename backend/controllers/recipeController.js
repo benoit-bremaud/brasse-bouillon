@@ -62,7 +62,7 @@ const createRecipe = async (req, res) => {
       received: newRecipe
     });
   } catch (error) {
-    console.error('❌ Error in createRecipe:', error);
+    console.error('Error in createRecipe:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

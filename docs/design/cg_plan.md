@@ -60,3 +60,40 @@ Each phase (CG0 to CG6) corresponds to a dedicated milestone in the GitHub Proje
 * Provide implementation guidelines for developers
 * Review, finalize, and validate visual assets and documentation
 * Version and store all deliverables in GitHub
+
+## Deliverables Overview
+
+This section lists the expected design deliverables for the Brasse-Bouillon visual identity. All outputs must be versioned and organized within the appropriate folders of the project.
+
+### 1. Documentation
+
+* `docs/design/cg_plan.md` – Design charter development roadmap
+* `docs/design/charte_graphique.md` – Visual identity guidelines (logo, colors, fonts, tone)
+* `docs/design/styleguide.md` – Component style rules and UI patterns
+
+### 2. Visual Identity Assets
+
+* `logo-primary.svg`, `logo-icon.svg` – Vector logo formats
+* `logo-preview.png` – Raster version for presentation
+* `palette.theme.json`, `colors.md` – Color palette references
+* `typography-guide.md`, `fonts.pdf` – Font families, sizes, weights and usage
+
+### 3. UI Components & System
+
+* `ui-kit.figma` – UI component kit (Figma file or link)
+* `assets/ui_components/` – Exported buttons, inputs, icons, alerts, etc.
+
+### 4. Wireframes
+
+* `wireframes/*.png` – Low-fidelity screen layouts
+* `wireframes/README.md` – Description and user flow mapping
+
+### 5. Mockups
+
+* `mockups/*.fig` or `.png` – High-fidelity application screens
+* `mockups/README.md` – File usage instructions
+
+### 6. Developer-Ready Assets
+
+* `frontend/assets/` – Fonts, images, icons usable by frontend developers
+* `docs/design/assets/` – Full archive of source design materials (optional)

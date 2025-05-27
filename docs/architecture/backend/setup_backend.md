@@ -5,6 +5,7 @@
 This document explains how to install, configure, and run the **Brasse-Bouillon** backend environment, either locally or using Docker.
 
 ### 🔧 Tech Stack
+
 - **Language**: JavaScript (Node.js)
 - **Framework**: Express.js
 - **ORM**: Sequelize
@@ -79,11 +80,11 @@ Runs with Node.js.
 
 ## 5. Backend Folder Structure
 
-> ⚠️ This section has been removed to simplify documentation maintenance during development.
-> The folder structure may evolve frequently. Please refer directly to the repository tree for the most accurate and up-to-date layout.
+⚠️ This section has been removed to simplify documentation maintenance during development.  
+The structure may evolve rapidly.
 
-Browse the GitHub repository structure:
-https://github.com/benoit-bremaud/brasse-bouillon/tree/main/backend
+👉 Please refer directly to the repository tree on GitHub:  
+<https://github.com/benoit-bremaud/brasse-bouillon/tree/main/backend>
 
 ---
 
@@ -111,6 +112,7 @@ npm run docker:start
 This runs both backend and MySQL in containers.
 
 💡 If port `3306` is already in use:
+
 - Stop local MySQL service
 - Or update port mapping in `docker-compose.yml`:
 

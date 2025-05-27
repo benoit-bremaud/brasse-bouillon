@@ -47,17 +47,15 @@ To install and run the project locally:
 # Clone the repository
 git clone https://github.com/benoit-bremaud/brasse-bouillon.git
 cd brasse-bouillon
-
-# Backend setup
-cd api
-cp .env.example .env
-npm install
-
-# Frontend setup
-cd ../mobile
-npm install
-npx expo start
 ```
+
+Next, follow the setup instructions for each component:
+
+* [Backend Installation Guide](./backend/README.md)
+
+* [Frontend Installation Guide](./frontend/README.md)
+
+Each guide contains detailed steps to configure the environment, install dependencies, and run the application.
 
 ---
 
@@ -76,7 +74,7 @@ Once installed, you can:
 
 Contributions are welcome! Please follow the project's conventions:
 
-* Follow our [CONVENTIONS.md](./CONVENTIONS.md) file.
+* Follow our [CONVENTIONS.md](./docs/CONVENTIONS.md) file.
 * Use [Angular-style commit messages](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): short description`
 * Reference issues using `Closes #<issue-number>`.
 * Create PRs with clear checklists and descriptions.

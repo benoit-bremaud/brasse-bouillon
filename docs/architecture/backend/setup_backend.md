@@ -112,22 +112,7 @@ npm start
 
 ## **5️⃣ Structure du Dossier Backend**
 
-```bash
-backend/
-├── src/
-│   ├── config/           # Fichiers de config (DB, JWT...)
-│   ├── controllers/      # Logique métier (recettes, users...)
-│   ├── models/           # Définition des modèles Sequelize
-│   ├── routes/           # Déclarations des endpoints API
-│   ├── services/         # Logique métier entre contrôleurs et modèles
-│   ├── middleware/       # Auth, erreurs, logger...
-│   └── app.js            # Point d’entrée de l’app Express
-├── docker-compose.yml    # Conteneurisation backend + DB
-├── Dockerfile            # Image Node.js personnalisée
-├── .env.example          # Variables d’environnement
-├── package.json          # Dépendances npm
-└── README.md             # Documentation locale
-```
+To be updated
 
 ---
 
@@ -261,7 +246,6 @@ RUN npm install
 C’est plus lisible, mais chaque modification de code relancera l’installation des dépendances.
 
 Tu pourras toujours revenir à la version optimisée plus tard.
-
 
 ---
 

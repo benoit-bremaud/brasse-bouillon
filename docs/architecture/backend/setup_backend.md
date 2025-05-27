@@ -1,84 +1,52 @@
-# ⚙️ Configuration de l’Environnement Backend - Brasse-Bouillon
+# ⚙️ Backend Environment Setup – Brasse-Bouillon
 
-## **1️⃣ Objectif**
+## 1. Purpose
 
-Ce document décrit les étapes pour **installer, configurer et lancer l’environnement backend** du projet **Brasse-Bouillon** en local ou via Docker.
+This document explains how to install, configure, and run the **Brasse-Bouillon** backend environment, either locally or using Docker.
 
-📌 **Stack choisi :**
+### 🔧 Tech Stack
 
-- **Langage** : JavaScript (Node.js)
-- **Framework** : Express.js
-- **ORM** : Sequelize
-- **Base de données** : MySQL (via `database_init.sql`)
-- **Gestion des environnements** : dotenv
-- **Conteneurisation** : Docker + Docker Compose
-- **Contrôle qualité** : ESLint + Prettier
-
----
-
-## **2️⃣ Prérequis Techniques**
-
-Avant de commencer, assure-toi d’avoir les outils suivants installés sur ta machine :
-
-| Outil             | Version conseillée | Rôle                                                                 |
-|-------------------|---------------------|----------------------------------------------------------------------|
-| Node.js           | >= 18.x             | Exécution du backend JavaScript                                     |
-| npm               | >= 9.x              | Gestionnaire de paquets Node.js                                     |
-| MySQL Server      | >= 8.x              | Base de données relationnelle utilisée par Sequelize                |
-| Git               | >= 2.x              | Clonage et gestion du code source                                   |
-| Docker            | >= 20.x             | Conteneurisation de l’app et de la base de données                  |
-| Docker Compose    | >= 2.x (plugin)     | Orchestration des conteneurs Docker (via `docker compose`)         |
-
-⚠️ **À noter** :
-
-- Le dossier `backend/` n’inclut pas encore de fichier `package.json` après le clonage. Tu dois donc l’initialiser manuellement :
-
-```bash
-cd backend
-npm init -y
-```
-
-- Ensuite, installe les dépendances nécessaires :
-
-```bash
-npm install express sequelize mysql2 dotenv jsonwebtoken bcryptjs
-npm install --save-dev nodemon eslint prettier
-```
-
-- Pense à ajouter les scripts suivants dans ton `package.json` :
-
-```json
-"scripts": {
-  "dev": "nodemon src/app.js",
-  "start": "node src/app.js",
-  "lint": "eslint . --ext .js",
-  "docker:start": "docker compose up --build",
-  "docker:stop": "docker compose down"
-}
-```
+- **Language**: JavaScript (Node.js)
+- **Framework**: Express.js
+- **ORM**: Sequelize
+- **Database**: MySQL
+- **Environment Management**: dotenv
+- **Containerization**: Docker + Docker Compose
+- **Quality Tools**: ESLint, Prettier, Jest
 
 ---
 
-## **3️⃣ Installation du Projet**
+## 2. Prerequisites
+
+Make sure you have the following tools installed:
+
+| Tool            | Recommended Version | Purpose                                          |
+|----------------|----------------------|--------------------------------------------------|
+| Node.js         | >= 18.x              | Run the backend application                     |
+| npm             | >= 9.x               | Package manager                                 |
+| Git             | >= 2.x               | Source control                                  |
+| Docker          | >= 20.x              | Container platform                               |
+| Docker Compose  | >= 2.x (plugin)      | Multi-container orchestration                    |
+
+---
+
+## 3. Project Installation
 
 ```bash
-# Cloner le projet
+# Clone the project
 git clone https://github.com/benoit-bremaud/brasse-bouillon.git
 cd brasse-bouillon/backend
 
-# Initialiser npm (si non fait)
-npm init -y
-
-# Installer les dépendances (si non fait)
+# Install dependencies
 npm install
 
-# Copier les variables d’environnement
+# Copy environment variables template
 cp .env.example .env
 ```
 
-📌 **Extrait d’un fichier `.env` typique :**
+### Example `.env` file:
 
-```text
+```env
 PORT=3000
 DB_HOST=localhost
 DB_PORT=3306
@@ -90,82 +58,63 @@ JWT_SECRET=supersecretkey
 
 ---
 
-## **4️⃣ Démarrage de l’Application**
+## 4. Running the Application
 
-### 🔹 Mode développement
+### Development mode
 
 ```bash
 npm run dev
 ```
 
-> Utilise `nodemon` pour le rechargement automatique.
+Runs with `nodemon` for auto-reload.
 
-### 🔹 Mode production
+### Production mode
 
 ```bash
 npm start
 ```
 
-> Lance le serveur Node.js en mode normal.
+Runs with Node.js.
 
 ---
 
-## **5️⃣ Structure du Dossier Backend**
+## 5. Backend Folder Structure
 
-```bash
-backend/
-├── src/
-│   ├── config/           # Fichiers de config (DB, JWT...)
-│   ├── controllers/      # Logique métier (recettes, users...)
-│   ├── models/           # Définition des modèles Sequelize
-│   ├── routes/           # Déclarations des endpoints API
-│   ├── services/         # Logique métier entre contrôleurs et modèles
-│   ├── middleware/       # Auth, erreurs, logger...
-│   └── app.js            # Point d’entrée de l’app Express
-├── docker-compose.yml    # Conteneurisation backend + DB
-├── Dockerfile            # Image Node.js personnalisée
-├── .env.example          # Variables d’environnement
-├── package.json          # Dépendances npm
-└── README.md             # Documentation locale
-```
+⚠️ This section has been removed to simplify documentation maintenance during development.  
+The structure may evolve rapidly.
+
+👉 Please refer directly to the repository tree on GitHub:  
+<https://github.com/benoit-bremaud/brasse-bouillon/tree/main/backend>
 
 ---
 
-## **6️⃣ Lancer la Base de Données**
+## 6. Database Setup
 
-### 🔹 En local (MySQL installé sur l’hôte)
+### Local MySQL instance
 
 ```bash
 sudo systemctl start mysql   # Linux
 brew services start mysql    # macOS
 ```
 
-Puis importe la structure :
+Then import schema:
 
 ```bash
 mysql -u root -p < ../docs/database/database_init.sql
 ```
 
-### 🔹 Environnement Docker (recommandé)
+### Dockerized MySQL (recommended)
 
 ```bash
-docker compose up --build
+npm run docker:start
 ```
 
-> Cela lance à la fois **le backend Express** et la **base MySQL** dans des conteneurs isolés.
+This runs both backend and MySQL in containers.
 
-💡 **Astuce : port déjà utilisé ?**
-Si tu as une instance MySQL déjà active sur ton système (hors Docker), elle peut bloquer l'utilisation du port `3306`.
+💡 If port `3306` is already in use:
 
-#### Deux solutions
-
-**1. Arrêter MySQL localement avant de lancer Docker :**
-
-```bash
-sudo systemctl stop mysql
-```
-
-**2. Modifier le port exposé dans `docker-compose.yml` :**
+- Stop local MySQL service
+- Or update port mapping in `docker-compose.yml`:
 
 ```yaml
   db:
@@ -173,25 +122,17 @@ sudo systemctl stop mysql
       - "3307:3306"
 ```
 
-Et dans `.env` :
+And in `.env`:
 
 ```env
 DB_PORT=3307
 ```
 
-## 🔐 Utiliser un fichier `.env` avec Docker Compose
+---
 
-Pour éviter d’écrire les variables d’environnement directement dans le fichier `docker-compose.yml`, il est recommandé d’utiliser la directive `env_file:`.
+## 7. Docker Environment Variables
 
-Cela permet de :
-
-- Centraliser les variables sensibles ou modifiables dans un fichier `.env`
-- Réutiliser ce fichier aussi bien pour `docker compose` que pour l’environnement Node.js local
-- Alléger le `docker-compose.yml`
-
-### ✅ Étapes
-
-1. Crée un fichier `.env` dans le dossier `backend/` avec le contenu suivant :
+Use `.env` to avoid hardcoding secrets:
 
 ```env
 PORT=3000
@@ -203,7 +144,7 @@ DB_PASSWORD=your_password
 JWT_SECRET=supersecretkey
 ```
 
-2. Dans `docker-compose.yml`, remplace le bloc `environment:` par :
+Update `docker-compose.yml`:
 
 ```yaml
 services:
@@ -220,139 +161,74 @@ services:
       - db
 ```
 
-> 📌 Note : `DB_HOST=db` permet au backend de communiquer avec le conteneur `db` (MySQL).
-
-3. **Lancer le projet avec Docker :**
+Run with Docker:
 
 ```bash
 npm run docker:start
 ```
 
-### ⚠️ Important
-
-- Le fichier `.env` doit se trouver dans le même dossier que le `docker-compose.yml` (ici `backend/`)
-- Le conteneur MySQL ne lit pas le même fichier `.env` que le backend (ses variables sont définies dans `environment:`)
-
-### 💡 Astuce professionnelle (optionnel)
-
-Plus tard, tu pourras créer des fichiers `.env.dev`, `.env.prod`, `.env.test` pour gérer différents environnements. Mais pour ton MVP, un seul `.env` suffit largement.
-
 ---
 
-## 🛠️ Bonnes pratiques Docker (build)
-
-Dans un `Dockerfile`, il est courant de voir cette séquence :
-
-```dockerfile
-COPY package*.json ./
-RUN npm install
-COPY . .
-```
-
-Cela permet de bénéficier du **cache Docker** pour `npm install`, en ne le relançant que si les dépendances ont changé.
-
-Mais si tu veux garder une version **plus simple** pendant la phase MVP, tu peux utiliser :
-
-```dockerfile
-COPY . .
-RUN npm install
-```
-
-C’est plus lisible, mais chaque modification de code relancera l’installation des dépendances.
-
-Tu pourras toujours revenir à la version optimisée plus tard.
-
-
----
-
-## **7️⃣ Premier Endpoint de Test**
-
-Un premier endpoint de test est accessible à l'adresse suivante :
-
-```bash
-GET http://localhost:3000/ping
-```
-
-### Réponse attendue
+## 8. Available Scripts
 
 ```json
-{
-  "message": "pong"
+"scripts": {
+  "dev": "nodemon src/app.js",
+  "start": "node src/app.js",
+  "lint": "eslint . --ext .js",
+  "test": "jest",
+  "docker:start": "docker compose up --build",
+  "docker:stop": "docker compose down",
+  "docker:test:db": "docker exec brasse-backend node scripts/test_db_connection.js"
 }
 ```
 
-📌 Ce endpoint est défini directement dans `src/app.js` pour tester rapidement que le backend fonctionne correctement.
-
-Exemple minimal :
-
-```js
-const express = require('express');
-const app = express();
-
-app.get('/ping', (req, res) => {
-  res.status(200).json({ message: 'pong' });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
-```
-
 ---
 
-## **8️⃣ Tests et Linting**
+## 9. Testing & Linting
 
-### 🔹 Linting (ESLint + Prettier)
+### Linting
 
 ```bash
 npm run lint
 ```
 
-### 🔹 Tests unitaires (à venir)
+### Unit Tests
 
 ```bash
 npm run test
 ```
 
----
+### Test DB connection inside Docker
 
-## **9️⃣ Bonnes pratiques**
-
-- Respecter l’architecture en couches : routes → controller → services → models
-- Garder les fichiers `.env` hors du dépôt Git
-- Documenter les endpoints dans Swagger ou `api_endpoints.md`
-- Utiliser des scripts `npm` pour lancer les conteneurs et vérifier l’état
+```bash
+npm run docker:test:db
+```
 
 ---
 
-## 🔁 Commandes Docker pratiques
+## 10. Health Check Endpoint
 
-Ajoute ces scripts dans ton `package.json` pour plus de confort :
+Test if backend is running:
+
+```bash
+GET http://localhost:3000/ping
+```
+
+Expected response:
 
 ```json
-"scripts": {
-  "docker:start": "docker compose up --build",
-  "docker:stop": "docker compose down"
-}
-```
-
-### 🔹 Lancer l’ensemble du backend + DB
-
-```bash
-npm run docker:start
-```
-
-### 🔹 Stopper tous les services
-
-```bash
-npm run docker:stop
+{ "message": "pong" }
 ```
 
 ---
 
-## **📌 Conclusion**
+## 11. Best Practices
 
-Cette configuration te permet de démarrer rapidement un backend Node.js/Express robuste, connecté à une base de données MySQL, avec ou sans Docker. Elle intègre une structure modulaire, des outils de qualité logicielle et un endpoint de test pour vérification initiale.
+- Never commit `.env` files
+- Follow the route → controller → service → model architecture
+- Use consistent code formatting with ESLint and Prettier
+- Use Swagger or Markdown for documenting APIs
+- Prefer Docker for consistency across environments
 
-🚀 Prochaine étape : Implémenter les vrais endpoints (`auth`, `recipes`, `users`).
+---

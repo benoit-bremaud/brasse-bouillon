@@ -59,16 +59,18 @@ npm run docker:stop
 ### Development
 
 ```bash
-npm run dev         # Start in development mode with nodemon
-npm start           # Start in production mode
-npm run lint        # Run ESLint
+npm run dev           # Start in development mode with nodemon
+npm start             # Start in production mode
+npm run lint          # Run ESLint
+npm test              # Run Jest test suite
 ```
 
 ### Docker
 
 ```bash
-npm run docker:start  # Launch Docker containers
-npm run docker:stop   # Stop Docker containers
+npm run docker:start       # Launch Docker containers
+npm run docker:stop        # Stop Docker containers
+npm run docker:test:db     # Test DB connection inside Docker
 ```
 
 ---

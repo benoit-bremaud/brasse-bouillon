@@ -48,3 +48,19 @@ Brasse-Bouillon is more than a tool – it’s a collaborative, creative adventu
 
 - **Openness**  
   Welcoming all backgrounds, tastes, and skill levels in a spirit of kindness and constructive feedback.
+
+## 1.3 Communication Tone
+
+Brasse-Bouillon communicates with a **friendly, inclusive, and professional** tone, always infused with playful enthusiasm and a strong DIY spirit.  
+We aim to make every interaction welcoming and accessible, supporting both beginners and experienced brewers on their journey.
+
+- **Friendly & Supportive:**  
+  “No question is too basic—every expert was once a beginner. Ready to brew up something amazing together?”
+- **Inclusive:**  
+  “Whether you brew in your kitchen or in your garage, you’re part of the Brasse-Bouillon family.”
+- **Professional (but never boring):**  
+  “Our step-by-step guides make sure you’ll never be lost—if you have a doubt, just ask, and the community will help.”
+- **Playful & DIY-Inspired:**  
+  “Not happy with the recipe? Twist it! Add a pinch of your personality and share your results. Brewing is an adventure!”
+
+*Celebrate experimentation, share knowledge openly, and value every step of the brewing journey—successes and mistakes alike.*

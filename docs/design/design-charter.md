@@ -64,3 +64,42 @@ We aim to make every interaction welcoming and accessible, supporting both begin
   “Not happy with the recipe? Twist it! Add a pinch of your personality and share your results. Brewing is an adventure!”
 
 *Celebrate experimentation, share knowledge openly, and value every step of the brewing journey—successes and mistakes alike.*
+
+## 1.4 Purpose & Vision
+
+### User Needs & Project Motivations
+
+Amateur brewers today face several challenges:
+
+- Recipes are scattered between notebooks, spreadsheets, and various apps, leading to confusion and lost information.
+- Technical calculations (like IBU or ABV) are complex and error-prone, especially for beginners.
+- Brewing knowledge is fragmented across blogs, forums, and PDFs, making it hard to learn or progress.
+- There is no dedicated space to connect, share, and learn as a community of homebrewers.
+
+Brasse-Bouillon was born to address these gaps by creating a central, modern, and collaborative mobile app for amateur brewers.
+Our goal is to simplify every step of recipe management and brewing, empower users to share and grow together, and lay the foundations for a dynamic ecosystem—from guided brewing to social features and (in the future) local supply integration.
+
+---
+
+### Purpose
+
+**Brasse-Bouillon’s mission is to empower amateur brewers by providing a modern, intuitive, and community-driven platform for recipe management, brewing guidance, and knowledge sharing.
+We exist to make homebrewing accessible, enjoyable, and collaborative for everyone—turning each brew into a shared adventure.**
+
+---
+
+### Vision
+
+**Within the next five years, Brasse-Bouillon aims to become the reference hub for homebrewers—first in France, then internationally.
+Our vision is to create a thriving ecosystem where amateur brewers of all backgrounds can:**
+
+- **Share and refine their recipes, techniques, and brewing stories in a vibrant, supportive community.**
+- **Access intelligent tools and resources to automate technical tasks, learn new skills, and experiment with confidence.**
+- **Benefit from a transparent, open-source platform that evolves through collective feedback and contribution.**
+- **Connect with local suppliers, discover events, and unlock new opportunities—making homebrewing both social and sustainable.**
+
+Brasse-Bouillon will continuously expand its features—from advanced analytics and guided brewing to integrated marketplaces and IoT connectivity—always placing user empowerment, collaboration, and the joy of brewing at the heart of the project.
+
+---
+
+*To turn homebrewing into a truly collective, accessible, and ever-evolving adventure—where everyone can brew better, together.*

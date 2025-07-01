@@ -1,146 +1,150 @@
-# Personas - Brasse-Bouillon
+# 🎯 User Personas – Brasse-Bouillon
 
-## Brasseurs Expérimentés 👩‍🔬👨‍🔬
-
-### Description
-
-Passionnés de brassage ayant investi dans du matériel semi-professionnel. Ils cherchent à rationaliser leur processus et à se rapprocher des standards professionnels.
-
-### Profil Général
-
-- **Âge moyen :** 35-50 ans.
-- **Situation professionnelle :** Ingénieurs, artisans, entrepreneurs ou techniciens.
-- **Lieu de résidence :** Zones urbaines ou suburbaines avec accès à des fournisseurs spécialisés.
-
-### Objectifs
-
-- Standardiser leurs procédés pour une qualité constante.
-- Tester et analyser de nouvelles techniques de brassage.
-- Optimiser l’utilisation de leurs équipements avec des outils connectés.
-
-### Frustrations
-
-- Gestion fastidieuse des stocks d’ingrédients et de matériel.
-- Manque d’outils d’analyse pour améliorer les performances des brassins.
-- Difficulté à trouver des recettes avancées adaptées à leurs besoins.
-
-### Motivations
-
-- Être reconnu comme un expert dans leur cercle de brasseurs.
-- Réduire les erreurs humaines grâce à des outils numériques.
-- Explorer des styles de bière rares ou non conventionnels.
-
-### Canaux de Communication Préférés
-
-- Forums spécialisés comme Reddit ou Discord.
-- Vidéos YouTube techniques sur le brassage avancé.
-- Blogs professionnels ou articles scientifiques liés à la bière.
-
-### Outils ou Fonctionnalités Clés Attendus
-
-- Recherche avancée de recettes (style, ABV, ingrédients spécifiques).
-- Gestion intégrée des stocks avec alertes automatiques.
-- Journal numérique des brassins avec analyse de rendement et efficacité.
-- Intégration IoT pour surveiller la température et la pression.
-
-### Citation Exemple
-
-« J’ai besoin d’un outil qui me permette d’automatiser mes calculs et d’optimiser mes brassins pour obtenir des résultats constants. »
+Ce document présente les profils types d'utilisateurs cibles de l'application Brasse-Bouillon. Chaque persona est conçu pour refléter des attentes, comportements, frustrations et besoins spécifiques, et ainsi guider les choix de conception et d’interface.
 
 ---
 
-## Brasseurs Initiés 🍺
+## 👤 Persona 1 – Nicolas le Débutant 🔎
 
 ### Description
 
-Amateurs passionnés brassant pour le plaisir ou pour partager avec leurs proches. Ils utilisent des kits avancés ou du matériel de base.
+Débutant curieux, technophile et motivé, souvent influencé par des amis ou par l’envie de créer quelque chose de tangible à partager.
 
-### Profil Général
+### Profil général
 
-- **Âge moyen :** 25-40 ans.
-- **Situation professionnelle :** Jeunes actifs ou étudiants passionnés.
-- **Lieu de résidence :** Zones urbaines ou rurales avec accès à des boutiques spécialisées ou des services en ligne.
+* **Âge :** 30–35 ans
+* **Situation professionnelle :** Jeune actif dans le numérique
+* **Lieu :** Zone urbaine, proche de communautés brassicoles ou magasins spécialisés
 
 ### Objectifs
 
-- Découvrir de nouvelles recettes et techniques de brassage.
-- Partager leurs créations avec une communauté active.
-- Améliorer leurs recettes existantes grâce à des conseils personnalisés.
+* Réussir son premier brassin sans erreur
+* Comprendre les bases du brassage artisanal
+* Partager sa création avec ses proches
 
 ### Frustrations
 
-- Organisation désordonnée des recettes et journaux de brassage.
-- Calculs techniques fastidieux comme la densité, l’amertume, ou l’ABV.
-- Manque d’inspiration pour tester de nouveaux styles.
+* Difficulté à comprendre les termes techniques
+* Manque de clarté dans les étapes
+* Informations dispersées ou trop complexes
 
 ### Motivations
 
-- Obtenir des retours positifs sur leurs créations.
-- Tester des styles variés (IPA, Stouts, Saisons, etc.).
-- Gagner en confiance pour expérimenter.
+* Expérience DIY enrichissante
+* Découverte d’un nouvel univers artisanal
+* Fierté de faire soi-même
 
-### Canaux de Communication Préférés
+### Canaux utilisés
 
-- Groupes Facebook locaux de brasseurs amateurs.
-- Chaînes YouTube dédiées aux débutants/intermédiaires.
-- Événements de brassage ou ateliers communautaires.
+* Instagram, blogs vulgarisés, recommandations d’amis
 
-### Outils ou Fonctionnalités Clés Attendus
+### Fonctionnalités clés attendues
 
-- Gestion automatisée des recettes et journaux.
-- Suggestions personnalisées basées sur leurs brassins précédents.
-- Outil de recherche intuitif par type de bière, difficulté ou temps requis.
-- Fonctionnalités sociales pour partager et découvrir des recettes.
+Offrir une expérience accessible et rassurante :
 
-### Citation Exemple
-
-« J’aimerais organiser mes recettes et tester de nouveaux styles sans perdre de temps sur des calculs fastidieux. »
+* Tutoriels interactifs et progressifs
+* Recettes guidées pas-à-pas
+* Liste de courses automatique
+* Lexique intégré pour vulgariser les termes techniques
 
 ---
 
-## Brasseurs Non-Initiés 🔎
+## 👩 Persona 2 – Claire l’Amatrice Créative 🍺
 
 ### Description
 
-Débutants curieux, motivés par l’idée de créer quelque chose de nouveau, souvent pour s’amuser ou pour impressionner leur entourage.
+Brasseuse passionnée, créative et méthodique. Elle brasse pour le plaisir, expérimente souvent avec des recettes originales et valorise une interface soignée et intuitive.
 
-### Profil Général
+### Profil général
 
-- **Âge moyen :** 20-35 ans.
-- **Situation professionnelle :** Étudiants, jeunes actifs ou amateurs explorant une nouvelle activité.
-- **Lieu de résidence :** Partout, grâce à un accès en ligne aux outils et tutoriels.
+* **Âge :** 35–45 ans
+* **Situation professionnelle :** Active dans un métier créatif (graphisme, artisanat…)
+* **Lieu :** Urbain ou périurbain
 
 ### Objectifs
 
-- Apprendre les bases du brassage artisanal.
-- Réaliser leur premier brassin avec succès.
-- Découvrir les équipements et ingrédients nécessaires.
+* Tester de nouveaux styles de bière
+* Gérer son historique et ses variantes de recettes
+* Partager ses créations avec son entourage ou en ligne
 
 ### Frustrations
 
-- Manque d’informations claires et accessibles pour débuter.
-- Peur de l’échec ou du gaspillage d’ingrédients.
-- Difficulté à comprendre les termes techniques ou les étapes du processus.
+* Applications existantes trop techniques ou austères
+* Difficile de retrouver ses versions précédentes
+* Peu de recommandations pertinentes
 
 ### Motivations
 
-- Découvrir une activité artisanale créative.
-- Partager une expérience originale avec leurs amis ou leur famille.
-- Comprendre le processus de fabrication de la bière.
+* Développer son style personnel
+* Être fière de ses productions
+* Créer un lien social autour du brassage
 
-### Canaux de Communication Préférés
+### Canaux utilisés
 
-- Publicités Instagram ou Pinterest mettant en avant des kits pour débutants.
-- Blogs ou vidéos de brasseurs amateurs expliquant les bases.
-- Recommandations d’amis ou proches ayant déjà tenté l’expérience.
+* Groupes Facebook, ateliers locaux, chaînes YouTube spécialisées
 
-### Outils ou Fonctionnalités Clés Attendus
+### Fonctionnalités clés attendues
 
-- Tutoriels interactifs adaptés aux débutants.
-- Conseils pour l’achat de matériel et d’ingrédients de base.
-- Fonctionnalité « Trouver une recette simplifiée » par type de bière.
-- Liste de courses automatique pour éviter d’oublier un ingrédient.
+Proposer une interface inspirante et personnalisable :
 
-### Citation Exemple
+* Journal de brassage riche et visuel
+* Suggestions personnalisées
+* Interface claire et fluide
+* Possibilités de partage communautaire
 
-« Faire ma première bière maison, c’est possible, même pour un débutant comme moi ? »
+---
+
+## 👨‍🔬 Persona 3 – Marc le Brasseur Expert
+
+### Description
+
+Brasseur expérimenté, rigoureux et orienté performance. Il cherche à optimiser ses processus et valorise les outils techniques et les données structurées.
+
+### Profil général
+
+* **Âge :** 45+
+* **Situation professionnelle :** Consultant technique ou cadre dans un domaine scientifique
+* **Lieu :** Résidence avec espace de brassage dédié
+
+### Objectifs
+
+* Atteindre une régularité parfaite
+* Suivre ses métriques de fermentation
+* Connecter son matériel (capteurs, thermomètres, balances…)
+
+### Frustrations
+
+* Interfaces trop limitées ou peu techniques
+* Absence d’intégrations API/CSV
+* Manque de précision ou de personnalisation des outils
+
+### Motivations
+
+* Contrôle total sur chaque variable
+* Optimisation du rendement
+* Partage avancé de ses brassins auprès de pairs exigeants
+
+### Canaux utilisés
+
+* Reddit, Discord spécialisés, blogs techniques brassicoles
+
+### Fonctionnalités clés attendues
+
+Répondre aux exigences d’un brassage poussé :
+
+* Intégration avec fichiers CSV et API tierces
+* Courbes de fermentation et historiques de données
+* Calculs avancés et paramétrables
+* Export structuré et sauvegarde automatique
+
+---
+
+## 🧭 Conclusion et impact sur le design
+
+Ces trois personas permettent de structurer la conception de l’application mobile Brasse-Bouillon. Le système devra répondre à une diversité de profils :
+
+* Du novice recherchant un accompagnement visuel et simple,
+* À l’amatrice expérimentale attentive à l’expérience utilisateur,
+* Jusqu’à l’expert technophile exigeant des outils avancés.
+
+L’interface devra être à la fois accessible, adaptable et évolutive, pour répondre à leurs besoins respectifs tout en maintenant une cohérence globale.

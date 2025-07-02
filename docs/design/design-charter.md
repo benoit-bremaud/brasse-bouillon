@@ -103,3 +103,157 @@ Brasse-Bouillon will continuously expand its features—from advanced analytics 
 ---
 
 *To turn homebrewing into a truly collective, accessible, and ever-evolving adventure—where everyone can brew better, together.*
+
+## Technical Constraints
+
+### Multi-Platform Compatibility
+
+To ensure a consistent experience across web, Android, and iOS platforms, the following technical constraints apply:
+
+| UI Element / Asset       | Web (PWA/Desktop)                          | Android                                     | iOS                                         |
+|--------------------------|-------------------------------------------|---------------------------------------------|----------------------------------------------|
+| **Icons**                | `favicon.ico`, `manifest.json`            | Adaptive icons (`192x192`, `512x512`)       | `apple-touch-icon`, `startup-image`          |
+| **Splash screen**        | Not required                              | Handled via `manifest.json`                 | Requires specific meta tags and images       |
+| **Safe zones**           | Standard CSS margins                      | Status bar, notch, gesture zone awareness   | Additional top margin for notch/time bar     |
+| **Back navigation**      | Handled by browser                        | Hardware/software back button               | Must be implemented in UI manually           |
+| **Installability**       | `manifest.json` + Service Worker          | Supported natively (Chrome, Edge)           | Limited support (Safari)                     |
+| **Resolution targets**   | Fluid breakpoints from 360px to 1920px+   | 360–480px (phones), ≥600px (tablets)        | Same, with attention to legacy devices       |
+| **Touch gestures**       | Not applicable                            | May conflict with scroll/swipe              | Same, careful with left/right swipe          |
+| **Storage constraints**  | IndexedDB, LocalStorage (limited)         | Persistent but sandboxed                    | Very limited; prone to system cleanup        |
+
+**Recommendations:**
+
+- Use `responsive`, **mobile-first** layouts with fluid grids and clear breakpoints.
+- Provide **SVG icons** or raster sets at 1x, 2x, 3x resolutions.
+- Avoid relying solely on `:hover` effects.
+- All UI elements must scale properly with native zoom levels.
+
+---
+
+### Legal & Compliance Constraints
+
+#### GDPR Consent & Privacy
+
+- **Explicit opt-in required**: consent must be voluntarily given, specifically, informed, and unambiguous; no pre‑checked boxes, per Article 7 and recital 32 GDPR.
+- **Separate consent choices** for different processing purposes (cookies, newsletter, analytics, etc.).
+- **Easy revocation**: user must be able to withdraw consent as easily as granting it.
+- **Clear privacy policy link**, explaining controller identity, data types, purposes, data retention, third‑parties.
+
+#### Data Retention
+
+- **Explicit mention** of retention duration for each data type in UI copy.
+- **User‑initiated deletion/export feature** available in profile or settings.
+
+#### Age Verification & Parental Consent
+
+- **Age verification required** for restricted content (e.g. alcohol community). 
+- For sites aimed at minors (<15 yo), **parental consent is mandatory**, obtained from at least one guardian.
+- **Systems should respect privacy principles**: proportionality, data minimization, robustness, independence (e.g. via trusted third party).
+- **Double‑blind architecture** advised for sensitive content (e.g. pornographic).
+
+---
+
+#### UX Copy Checklist (Legal)
+
+- [ ] Cookie banner with explicit opt-in and separate consent options
+- [ ] Prominent link to Privacy Settings
+- [ ] Clear mention of retention duration for each data type
+- [ ] Age gate with verification before accessing sensitive content
+- [ ] Parental consent flow for users < 15 yo (one guardian minimum)
+
+---
+
+### Accessibility Constraints (WCAG 2.2 AA + RGAA v4)
+
+#### Standards & References
+
+- Conform with **WCAG 2.2 Level AA** (global) and **RGAA v4** (French national). RGAA v4 is legally binding under Loi 2005‑102 / Article 47 and implements WCAG 2.1 AA + extension v4 criteria.
+- WCAG 2.2 adds **9 new success criteria**, including:
+  - **2.4.11 Focus Not Obscured – Minimum (AA)**: focused elements must remain at least partially visible despite overlays.
+  - **2.5.7 Dragging Movements (AA)**: provide alternative to drag gestures.
+  - **2.5.8 Target Size (AA)**: minimum interactive area of 24x24 px.
+  - **3.3.8 Accessible Authentication (AA)**: support non-visual, memory-free methods.
+
+#### Key Success Criteria to Implement
+
+- **Contrast**: text-to-background ≥ 4.5:1; large text ≥ 3:1.
+- **Semantic HTML**, ARIA roles, landmarks.
+- **Keyboard navigation**: all interactive items reachable and focus visible.
+- **Focus Not Obscured**: avoid sticky/static overlays hiding focused elements (criterion 2.4.11).
+- **Tap targets ≥ 24x24 px** (preferably ≥ 48x48 px).
+- **Alternatives for dragging UI** (e.g. buttons) for touch/motor users.
+- **Accessible forms**: labels, error messages, duplicate entries avoided (3.3.7).
+- **Accessible login**: alternatives to visual-only authentication like password entry (3.3.8).
+- **Help must be findable** (sc. 3.2.6).
+- **Images require alt-text**, complex images have descriptions.
+- **Live region and focus management** for dynamic content.
+
+#### RGAA v4 Specifics
+
+- Publish an **accessibility statement** (Déclaration d’accessibilité).
+- Provide contrast/semantic testing as per RGAA guides.
+- Ensure accessibility extends beyond web to downloadable documents.
+
+---
+
+#### ✅ Accessibilité - Checklist
+
+- [ ] Text contrast ≥ 4.5:1 (normal), ≥ 3:1 (large)
+- [ ] Focus outline visible, not obscured by overlays
+- [ ] Interactive targets ≥ 24x24 px
+- [ ] Alternative controls for drag features
+- [ ] Forms: labels, ARIA roles, no duplicate entry
+- [ ] Accessible authentication (e.g. passkey, email)
+- [ ] Help/support visible throughout UX
+- [ ] Alt-text on all images; description for complex visuals
+- [ ] Accessibility statement published
+
+---
+
+### Design Checklist (derived from Technical Constraints)
+
+Use this checklist to verify that every design respects the technical, legal, and accessibility constraints:
+
+#### Assets & Responsive Layout
+
+- [ ] Icons provided in SVG or raster at **1× / 2× / 3×** resolutions, in platform-specific formats.
+- [ ] Grid system mobile-first, with breakpoints at **360px (sm), 600px (md), 1024px (lg)**.
+- [ ] Avoid hover-only interactions; mobile-friendly touch alternatives are implemented.
+
+#### Contrast & Typography
+
+- [ ] Text-to-background contrast ≥ 4.5:1 (normal) or ≥ 3:1 (large).
+- [ ] Non-text UI elements (buttons, icons) contrast ≥ 3:1.
+- [ ] Font size ≥ 14 px (body), adjustable up to 200% without layout breakage.
+
+#### Touch Targets & Gestures
+
+- [ ] Interactive elements tap target ≥ 24×24 px (preferably ≥ 48×48 px) with adequate spacing.
+- [ ] Provide alternatives for drag or gesture actions (2.5.7) via single-tap controls.
+
+#### Keyboard & Focus Management
+
+- [ ] All interactive elements reachable via keyboard; logical tab order maintained (2.1.1, 2.4.3).
+- [ ] Visible focus outline that remains at least partially visible (2.4.7, 2.4.11).
+
+#### Forms & Authentication
+
+- [ ] Inputs have proper `<label>` or accessible name associations (1.3.1).
+- [ ] Errors are clearly identified and suggestions provided (3.3.1–3.3.3).
+- [ ] Authentication supports non-visual, memory-free alternatives (3.3.8).
+
+#### Media & Dynamic Content
+
+- [ ] Captions (pre‑recorded/live) and transcripts for audio/video.
+- [ ] Pause/stop/hide mechanism for dynamic content > 5 s (2.2.2).
+- [ ] Live status messages use ARIA `role="alert"` to ensure screen reader visibility.
+
+#### Semantic Structure & Alt Text
+
+- [ ] Semantic HTML used: headings, landmarks, navigation tags (1.1.1, 1.3.1).
+- [ ] Alt text provided for all meaningful images; long description for complex visuals.
+
+#### Help & Session Controls
+
+- [ ] Help options (links, support) visible and consistent (3.2.6).
+- [ ] Session timeouts warned and user can adjust or extend (2.2.1).

@@ -12,13 +12,29 @@ Each phase (CG0 to CG6) corresponds to a dedicated milestone in the GitHub Proje
 * Organize milestones and planning scope
 * Validate the plan with the team before execution
 
+---
+
 ## CG1 – Analysis & Preparation
 
 * Define project identity pillars (values, tone, purpose)
 * Identify target audience and user expectations
 * Analyze competing applications and visual trends
-* Gather technical constraints (multi-platform, RGPD, accessibility)
-* Compile inspirational and reference materials
+* Gather legal & compliance constraints:
+  * Define GDPR UI requirements (explicit opt‑in, separate consents, revocation, privacy policy link)
+  * Specify data retention disclosures (duration + user deletion/export)
+  * Identify restrictions requiring age verification and parental consent (<15)
+  * Define criteria for age verification methods (proportionality, data minimization, robustness, independence)
+  * Link summary to `docs/design/design-charter.md` under "Legal & Compliance Constraints"
+* Compile accessibility constraints (WCAG 2.2 AA + RGAA v4):
+  * List WCAG 2.2 AA success criteria and RGAA‑specific obligations
+  * Define measurable metrics: contrast ratios, focus visibility, target sizes, form accessibility, drag alternatives, authentication, help visibility, alt-text
+  * Link checklist to `docs/design/design-charter.md#accessibility-constraints-(wcag 2.2 aa+-+rgaa v4)`
+* Compile inspirational and reference material
+* Compile design checklists from constraints:
+  * Draft measurable rules: contrast, typography, touch target, keyboard, focus, forms, media, semantic HTML, alt-text, help/session
+  * Link checklist to `docs/design/design-charter.md#accessibility-constraints-(wcag 2.2 aa+-+rgaa v4)`
+
+---
 
 ## CG2 – Moodboard & Art Direction
 
@@ -29,6 +45,8 @@ Each phase (CG0 to CG6) corresponds to a dedicated milestone in the GitHub Proje
 * Assemble and present a moodboard using Figma, Canva, or Miro
 * Validate art direction with the team
 
+---
+
 ## CG3 – Identity & Visual Elements
 
 * Design or refine the logo (SVG/PNG formats)
@@ -38,12 +56,16 @@ Each phase (CG0 to CG6) corresponds to a dedicated milestone in the GitHub Proje
 * Define visual system rules (spacing, radius, shadows, layout)
 * Save finalized assets in `/frontend/assets/` and `/docs/design`
 
+---
+
 ## CG4 – Wireframes
 
 * Define the key screens to structure (Home, Dashboard, Recipe Editor, etc.)
 * Sketch low-fidelity wireframes for UX logic and layout
 * Organize screens into meaningful user flows
 * Validate wireframes with internal reviews or early testers
+
+---
 
 ## CG5 – High-Fidelity Mockups
 
@@ -52,6 +74,8 @@ Each phase (CG0 to CG6) corresponds to a dedicated milestone in the GitHub Proje
 * Apply consistent styleguide and identity rules
 * Prepare screen variants (e.g., dark/light mode, mobile/tablet responsiveness)
 * Export mockups and assets for frontend integration
+
+---
 
 ## CG6 – Documentation & Delivery
 

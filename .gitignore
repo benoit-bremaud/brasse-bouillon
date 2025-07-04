@@ -131,3 +131,9 @@ dist
 
 # Structure files
 *_structure.txt
+
+# Design files
+docs/design/02_inspiration/moodboard/colors
+docs/design/02_inspiration/moodboard/icons
+docs/design/02_inspiration/moodboard/typography
+docs/design/02_inspiration/moodboard/layouts

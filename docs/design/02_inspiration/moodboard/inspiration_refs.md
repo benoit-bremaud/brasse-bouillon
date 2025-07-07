@@ -1,0 +1,8 @@
+- **beer_color_srm_value_chart.png** (Colors) – Source: Pinterest – Licence: inspiration only – Notes: “SRM value chart for beer color intensity”
+- **beer_color_palette_fan_wheel.png** (Colors) – Source: Beertime.me – Licence: inspiration only – Notes: “Fan wheel of beer colors by style”
+- **beer_color_srm_chart_1.png** (Colors) – Source: Pinterest – Licence: inspiration only – Notes: “SRM chart variant #1, warm yellow to amber tones”
+- **beer_color_srm_chart_2.png** (Colors) – Source: Pinterest – Licence: inspiration only – Notes: “SRM chart variant #2, condensed bar chart”
+- **beer_hops_hazy_ipa_types.png** (Colors) – Source: VinePair via Pinterest – Licence: inspiration only – Notes: “Common hops in hazy IPAs, green tones”
+- **beer_hops_main_color.png** (Colors) – Source: SoundBrewery – Licence: inspiration only – Notes: “Hops substitution chart, bright green hues”
+- **beer_types_illustration_vintage.png** (Colors) – Source: VectorStock – Licence: inspiration only – Notes: “Vintage-style beer glass illustrations, warm palette”
+- **beer_malt_grain_flavor_wheel.png** (Colors) – Source: Unknown – Licence: inspiration only – Notes: “Malt flavor wheel, grain categories tones”

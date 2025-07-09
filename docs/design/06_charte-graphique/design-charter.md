@@ -127,49 +127,17 @@ Brasse-Bouillon's iconography features a playful, vintage-inspired cartoon aesth
 
 Festive, large-scale scenes for app intros and featured pages.
 
-![Hero Image - Example 1](/docs/design/assets/illustrations/hero-image.png)
-
-![Hero Image - Example 2](/docs/design/assets/illustrations/hero-image-v2.png)
-
 #### Empty States
 
-Visuals for screens without content:
-
-* No Recipes:
-
-![Empty State - No Recipe - Example 1](/docs/design/assets/illustrations/empty-state-no-recipe.png)
-
-![Empty State - No Recipe - Example 2](/docs/design/assets/illustrations/empty-state-no-recipe-v2.png)
-
-* No Ingredients:
-
-![Empty State - No Ingredients - Example 1](/docs/design/assets/illustrations/empty-state-no-ingredients.png)
-
-![Empty State - No Ingredients - Example 2](/docs/design/assets/illustrations/empty-state-no-ingredients-v2.png)
+Visuals for screens without content.
 
 #### Onboarding
 
-Welcoming and instructional visuals:
-
-* Welcome Screen:
-
-![Onboarding - Welcome - Example 1](/docs/design/assets/illustrations/onboarding-welcome.png)
-
-![Onboarding - Welcome - Example 2](/docs/design/assets/illustrations/onboarding-welcome-v2.png)
-
-* Brewing Guide:
-
-![Onboarding - Brewing Guide - Example 1](/docs/design/assets/illustrations/onboarding-brewing-guide.png)
-
-![Onboarding - Brewing Guide - Example 2](/docs/design/assets/illustrations/onboarding-brewing-guide-v2.png)
+Welcoming and instructional visuals.
 
 #### Success & Rewards
 
 Celebratory visuals for user achievements.
-
-![Success & Reward - Example 1](/docs/design/assets/illustrations/success-reward.png)
-
-![Success & Reward - Example 2](/docs/design/assets/illustrations/success-reward-v2.png)
 
 ### Figma Styleguide
 
@@ -194,13 +162,13 @@ The logo is a central element of Brasse-Bouillon's brand identity.
 
 ### Logo Files
 
-* `logo-primary.svg` ➜ Official vector logo (monochrome)
-* `logo-primary.png` ➜ Official raster logo (full color)
-* `logo-primary-64x64.png` ➜ Favicon and small icon export
-* `logo-primary-128x128.png` ➜ Mobile app icon export
-* `logo-primary-256x256.png` ➜ Web header and splash screen export
-* `logo-primary-512x512.png` ➜ High-resolution splash screen export
-* `logo-preview.png` ➜ Quick preview of the logo for documentation and app previews
+* `logo-primary.svg` ➞ Official vector logo (monochrome)
+* `logo-primary.png` ➞ Official raster logo (full color)
+* `logo-primary-64x64.png` ➞ Favicon and small icon export
+* `logo-primary-128x128.png` ➞ Mobile app icon export
+* `logo-primary-256x256.png` ➞ Web header and splash screen export
+* `logo-primary-512x512.png` ➞ High-resolution splash screen export
+* `logo-preview.png` ➞ Quick preview of the logo for documentation and app previews
 
 ### Logo Guidelines
 
@@ -219,6 +187,37 @@ The logo must be used in accordance with these standards across:
 * Mobile application
 * Website and promotional pages
 * Marketing and presentation materials
+
+### Logo Icon & Favicon Guidelines
+
+To ensure visual consistency across platforms, Brasse-Bouillon uses a dedicated square icon derived from its primary logo.
+
+#### Icon Files
+
+* `logo-icon.svg` ➞ Square vector icon, centered on the mascot (without text).
+* `logo-icon-16.png` ➞ PNG icon (16×16 px) for minimal UI elements.
+* `logo-icon-32.png` ➞ PNG icon (32×32 px) for higher-resolution needs.
+* `logo-icon-64.png` ➞ Optional larger PNG icon for specific uses.
+* `favicon.ico` ➞ Multi-resolution web favicon containing 16×16 and 32×32 sizes.
+
+#### Usage Guidelines
+
+* The square icon is intended for:
+
+  * Mobile app icons.
+  * Toolbar icons and compact UI placements.
+  * Favicons for websites and browser tabs.
+
+* Always prefer the SVG version for scalability when supported.
+
+* Do not use the icon as a replacement for the full logo in marketing, branding, or large-scale displays.
+
+#### Technical Notes
+
+* The icon is derived directly from the main logo’s mascot to maintain brand recognition.
+* Ensure sufficient contrast and sizing, especially for small displays.
+
+> 📜 Remember: Only the official exported files should be used to avoid distortions or color mismatches.
 
 ---
 

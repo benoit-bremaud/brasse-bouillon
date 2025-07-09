@@ -1,21 +1,19 @@
-Typography Assets – Brasse-Bouillon
+# 📚 Typography Assets – Brasse-Bouillon
 
-This folder contains all fonts and typographic guidelines for Brasse-Bouillon.
+This folder contains all typography-related assets and documentation for the Brasse-Bouillon project. It includes essential font files, detailed usage guidelines, and visual examples to support consistent and accessible typography throughout the project.
 
-Files
+## 📂 Folder Contents
 
-fonts/ folder  ➜ Contains all font files in .ttf/.woff formats.
+* `typography-guide.md` ➜ A detailed typography guide with usage rules, recommended styles, and font hierarchies.
+* `/inter-font/` ➜ A folder containing the Inter font files in TTF format, suitable for both app and web use.
+* `/specimens/` ➜ Optional folder for typographic specimens, such as sample text images, interface mockups, or other visual references.
 
-typography-guide.md  ➜ Usage documentation (sizes, weights, etc.).
+## 📋 Usage Guidelines
 
-Guidelines
+* Always use the **Inter** font family for all text styles across the Brasse-Bouillon project.
+* Follow the hierarchy, font weights, and size recommendations outlined in `typography-guide.md`.
+* Ensure the provided font files are used consistently to maintain a cohesive visual identity and enhance accessibility across all digital platforms.
 
-Only approved typefaces are allowed.
+---
 
-Ensure web fonts (.woff2) for website compatibility.
-
-Document all styles and their usages in typography-guide.md.
-
-Notes
-
-Typography assets must reflect the latest approved design specifications.
+> For optimal results, consult the typography guide regularly to keep designs aligned with Brasse-Bouillon's brand standards.

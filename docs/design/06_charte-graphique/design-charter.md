@@ -15,7 +15,8 @@ The design charter evolves continuously throughout Brasse-Bouillon's development
 4. Communication Tone
 5. Purpose & Vision
 6. Iconography & Illustration
-7. References & Maintenance
+7. Logo Usage Guidelines
+8. References & Maintenance
 
 ---
 
@@ -187,7 +188,41 @@ All design guidelines must remain aligned with this document and the Figma file.
 
 ---
 
-## 7. References & Maintenance
+## 7. Logo Usage Guidelines
+
+The logo is a central element of Brasse-Bouillon's brand identity.
+
+### Logo Files
+
+* `logo-primary.svg` ➜ Official vector logo (monochrome)
+* `logo-primary.png` ➜ Official raster logo (full color)
+* `logo-primary-64x64.png` ➜ Favicon and small icon export
+* `logo-primary-128x128.png` ➜ Mobile app icon export
+* `logo-primary-256x256.png` ➜ Web header and splash screen export
+* `logo-primary-512x512.png` ➜ High-resolution splash screen export
+* `logo-preview.png` ➜ Quick preview of the logo for documentation and app previews
+
+### Logo Guidelines
+
+* Always use the latest approved version of the logo.
+* Do not manually modify the logo files.
+* Respect minimum clear space and sizing:
+
+  * Minimum size: 64x64 px
+  * Maintain sufficient clear space around the logo equivalent to half of its height.
+* Archive outdated logo versions in `/deprecated/` if necessary.
+
+### Usage Contexts
+
+The logo must be used in accordance with these standards across:
+
+* Mobile application
+* Website and promotional pages
+* Marketing and presentation materials
+
+---
+
+## 8. References & Maintenance
 
 * Figma Design System Link: *(Insert Figma Link Here — This link should point to the latest approved design file containing all icons, illustrations, and components.)*
 * Update Process: This document evolves with the project.

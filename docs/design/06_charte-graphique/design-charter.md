@@ -9,16 +9,16 @@ The design charter evolves continuously throughout Brasse-Bouillon's development
 
 ## 📋 Table of Contents
 
-1. Introduction & Scope
-2. Core Values
-3. Culture & Spirit
-4. Communication Tone
-5. Purpose & Vision
-6. Iconography & Illustration
-7. Logo Usage Guidelines
-8. Color System
-9. Visual System
-10. References & Maintenance
+1. [Introduction & Scope](#1-introduction--scope)
+2. [Core Values](#2-core-values)
+3. [Culture & Spirit](#3-culture--spirit)
+4. [Communication Tone](#4-communication-tone)
+5. [Purpose & Vision](#5-purpose--vision)
+6. [Iconography & Illustration](#6-iconography--illustration)
+7. [Logo Usage Guidelines](#7-logo-usage-guidelines)
+8. [Color System](#8-color-system)
+9. [Visual System](#9-visual-system)
+10. [References & Maintenance](#10-references--maintenance)
 
 ---
 
@@ -254,29 +254,74 @@ This section defines the foundational visual system rules for the Brasse-Bouillo
 
 ### 1. Grid System
 
-The grid system provides a flexible and consistent structure for arranging UI components across all views.
+The grid system defines the structural layout framework for Brasse-Bouillon, following a mobile-first approach to ensure accessibility and simplicity.
 
-> 📝 To be detailed: Define the number of columns (e.g., 12-column grid), gutter sizes (spacing between columns), and outer margins (padding from screen edges).
+#### Grid Specifications (Mobile)
+
+* **Number of Columns:** 4
+* **Gutter (Spacing Between Columns):** 16px
+* **Outer Margins (Horizontal Padding):** 16px on both sides
+
+#### Rationale
+
+This 4-column grid allows flexible and straightforward layouts on small screens while maintaining sufficient breathing space. The 16px gutter and outer margins ensure a balanced and consistent visual rhythm.
+
+#### Note
+
+This grid system can be expanded for larger screens (e.g., tablets, desktops) by increasing the number of columns (e.g., 8 or 12) and adjusting gutters and margins accordingly.
 
 ### 2. Spacing Scale
 
-The spacing scale establishes standardized values for margins and padding throughout the design system.
+The spacing scale defines standardized spacing increments for margins and paddings, ensuring consistent vertical and horizontal rhythm across the interface.
 
-> 📝 To be detailed: Define the spacing increments (e.g., 4px, 8px, 16px, 24px, 32px, 40px) with corresponding usage recommendations.
+#### Spacing Tokens
+
+| Token        | Value (px) | Recommended Usage                         |
+|--------------|------------|------------------------------------------|
+| `spacing-xxs`| 4px        | Minimal gaps (e.g., between icons and text)|
+| `spacing-xs` | 8px        | Small gaps for tight spaces               |
+| `spacing-sm` | 12px       | Small paddings or margins for compact UI elements |
+| `spacing-md` | 16px       | Default spacing for most mobile layouts   |
+| `spacing-lg` | 24px       | Section spacing on mobile                 |
+| `spacing-xl` | 32px       | Large gaps (e.g., section separators)     |
+| `spacing-xxl`| 40px       | Very large gaps, primarily for large screens or feature sections |
+
+#### Note
+
+This scale is designed to support mobile-first layouts but scales effectively for larger screens if needed. All components should adhere to this system to maintain a unified appearance.
 
 ### 3. Corner Radii
 
-Corner radii define the standard border roundness applied to UI components such as buttons, cards, and inputs.
+Corner radii establish the standard levels of border roundness applied to UI components, ensuring visual consistency throughout the Brasse-Bouillon application.
 
-> 📝 To be detailed: List the main corner radius values (e.g., 4px, 8px, 12px) and specify which components use each value.
+#### Radius Tokens
+
+| Token         | Value (px) | Recommended Usage                                    |
+|---------------|------------|------------------------------------------------------|
+| `radius-xs`   | 4px        | Small elements such as badges or small icon containers |
+| `radius-sm`   | 8px        | Default for buttons, input fields, and modal corners   |
+| `radius-md`   | 12px       | Used for cards, larger containers, or main sections    |
+| `radius-full` | 9999px     | Fully circular shapes (e.g., avatars, round buttons)   |
+
+#### Note
+
+All UI components should follow these standardized corner radii to maintain a cohesive design language across screens and devices.
 
 ### 4. Shadow Styles
 
-Shadow styles (or elevation levels) define the depth effect of UI components, contributing to the visual hierarchy.
+Shadow styles define the depth and elevation of UI components, helping to establish visual hierarchy and improve focus on interactive elements.
 
-> 📝 To be detailed: List shadow presets (with RGBA values, offsets, and blurs) and describe the typical usage of each.
+#### Shadow Tokens
 
-> 📝 Note: These sections are placeholders and will be completed in upcoming iterations.
+| Token       | CSS Value                                  | Recommended Usage                          |
+|-------------|-------------------------------------------|-------------------------------------------|
+| `shadow-sm` | 0px 1px 2px rgba(0, 0, 0, 0.1)            | Light shadows for subtle elements like buttons or small containers |
+| `shadow-md` | 0px 4px 8px rgba(0, 0, 0, 0.1)            | Medium elevation for cards or floating panels |
+| `shadow-lg` | 0px 8px 16px rgba(0, 0, 0, 0.15)          | Large elevation for modals, overlays, or important UI layers |
+
+#### Note
+
+Use these shadow styles consistently to ensure a balanced visual hierarchy across the application. Avoid adding custom shadow styles outside of these defined levels.
 
 ---
 

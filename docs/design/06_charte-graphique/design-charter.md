@@ -17,7 +17,8 @@ The design charter evolves continuously throughout Brasse-Bouillon's development
 6. Iconography & Illustration
 7. Logo Usage Guidelines
 8. Color System
-9. References & Maintenance
+9. Visual System
+10. References & Maintenance
 
 ---
 
@@ -247,7 +248,39 @@ The Brasse-Bouillon color system defines the official color palette to ensure a 
 
 ---
 
-## 9. References & Maintenance
+## 9. Visual System
+
+This section defines the foundational visual system rules for the Brasse-Bouillon Design System, ensuring layout consistency and harmonious visual rhythm across all screens.
+
+### 1. Grid System
+
+The grid system provides a flexible and consistent structure for arranging UI components across all views.
+
+> 📝 To be detailed: Define the number of columns (e.g., 12-column grid), gutter sizes (spacing between columns), and outer margins (padding from screen edges).
+
+### 2. Spacing Scale
+
+The spacing scale establishes standardized values for margins and padding throughout the design system.
+
+> 📝 To be detailed: Define the spacing increments (e.g., 4px, 8px, 16px, 24px, 32px, 40px) with corresponding usage recommendations.
+
+### 3. Corner Radii
+
+Corner radii define the standard border roundness applied to UI components such as buttons, cards, and inputs.
+
+> 📝 To be detailed: List the main corner radius values (e.g., 4px, 8px, 12px) and specify which components use each value.
+
+### 4. Shadow Styles
+
+Shadow styles (or elevation levels) define the depth effect of UI components, contributing to the visual hierarchy.
+
+> 📝 To be detailed: List shadow presets (with RGBA values, offsets, and blurs) and describe the typical usage of each.
+
+> 📝 Note: These sections are placeholders and will be completed in upcoming iterations.
+
+---
+
+## 10. References & Maintenance
 
 * Figma Design System Link: [Moodboard Brasse-Bouillon](https://www.figma.com/design/oa9YEpt96DTZ8c05fk5hd4/Moodboard-Brasse-Bouillon?node-id=0-1&m=dev&t=DWWAPUMjSG5C33rG-1)
 * Update Process: This document evolves with the project.

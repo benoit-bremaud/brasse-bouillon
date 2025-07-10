@@ -1,8 +1,10 @@
-# 📝 Tooltip Styles Documentation – Brasse-Bouillon
+# 📈 Tooltip Styles Reference – Brasse-Bouillon
 
-This document outlines the design specifications for the **Tooltip UI components** within the Brasse-Bouillon project.
+This document defines the design specifications for the **Tooltip UI components** within the Brasse-Bouillon project.
 
 It provides detailed guidelines on visual styles, interaction behaviors, and related design tokens. The objective is to promote consistency, clarity, and accessibility across web and mobile platforms.
+
+All tooltip styles must remain synchronized with the Brasse-Bouillon design system (e.g., Figma) and the global UI design tokens.
 
 ---
 
@@ -40,11 +42,11 @@ Shares the same visual style as the Default Tooltip with the following additiona
 Uses the same visual style as the Default Tooltip, with added features:
 
 * **Dismissal:** Requires explicit user action (click outside or press a dismiss button) or loss of focus
-* **Accessibility:** Fully keyboard-navigable and compatible with screen readers
+* **Accessibility:** Fully keyboard-navigable and compatible with screen readers, including ARIA support
 
 ---
 
-## 📋 Design Tokens Reference
+## 📄 Design Tokens Reference
 
 | Token Name         | Purpose                                 |
 | ------------------ | --------------------------------------- |
@@ -63,8 +65,8 @@ Uses the same visual style as the Default Tooltip, with added features:
 * Ensure tooltips are triggered by common interactions: hover, focus, or tap.
 * Provide accessible methods to dismiss persistent tooltips.
 * Ensure sufficient color contrast for readability and compliance with [WCAG AA accessibility standards](https://www.w3.org/WAI/WCAG2AA-Conformance).
-* Synchronize tooltip designs with updates made in the Brasse-Bouillon design system (e.g., Figma revisions).
+* Keep tooltip designs aligned with the Brasse-Bouillon design system and global UI tokens.
 
 ---
 
-*These tooltip styles are an integral part of the Brasse-Bouillon design system and must remain consistent across all interfaces to support usability, accessibility, and cohesive design.*
+*These tooltip styles are an essential part of the Brasse-Bouillon design system and must remain consistent across all interfaces to support usability, accessibility, and cohesive design.*

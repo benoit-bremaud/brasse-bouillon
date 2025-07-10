@@ -1,13 +1,13 @@
-# Brasse-Bouillon – Design Charter
+# 📘 Brasse-Bouillon – Design Charter
 
 > This document defines the visual, identity, and communication foundations of the Brasse-Bouillon project.
 > It provides clear guidelines to maintain visual coherence, strengthen brand identity, and deliver a unique user experience.
 
-The design charter evolves continuously throughout Brasse-Bouillon's development. It serves as a collaborative reference for all contributors: developers, designers, and community members.
+The design charter evolves continuously throughout Brasse-Bouillon's development and should be reviewed at least once per major design milestone or every six months to ensure alignment with evolving project needs. It serves as a collaborative reference for all contributors: developers, designers, and community members.
 
 ---
 
-## Table of Contents
+## 📋 Table of Contents
 
 1. Introduction & Scope
 2. Core Values
@@ -32,6 +32,8 @@ It covers:
 * Cultural identity
 * Communication tone
 * Visual design guidelines
+
+All visual guidelines must stay aligned with the Figma Design System and the global UI design tokens. Regular reviews should occur at least once every design milestone or every six months to ensure alignment.
 
 ---
 
@@ -141,6 +143,7 @@ Includes:
 
 * Icon sets categorized by use
 * Annotated guidelines for size, usage, and spacing
+* Contribution best practices for adding new icons and illustrations
 
 ### Documentation Reference
 
@@ -164,7 +167,7 @@ The logo is a central element of Brasse-Bouillon's brand identity.
 
 ### Logo Guidelines
 
-* Always use the latest approved version of the logo.
+* Always use the latest approved version of the logo, as validated by the design lead or designated design approver.
 * Do not manually modify the logo files.
 * Respect minimum clear space and sizing:
 
@@ -240,7 +243,7 @@ The Brasse-Bouillon color system defines the official color palette to ensure a 
 
 * All colors have been tested against WCAG AA standards for contrast, ensuring compliance with accessibility best practices.
 * Adjustments were applied to Primary, Background, Info, and Success colors to improve readability.
-* Full testing results and contrast ratios are documented in `docs/design/assets/palette/color-contrast-analysis.md`.
+* Full testing results and contrast ratios are documented in `docs/design/assets/palette/color-contrast-analysis.md`. Contrast tests should be reviewed after every major palette update or design milestone.
 
 ---
 

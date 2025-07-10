@@ -1,10 +1,17 @@
-# 🧾 Brasse-Bouillon · Design Documentation
+# 📑 Brasse-Bouillon · Design Documentation Reference
 
-Welcome to the **design documentation** for the Brasse-Bouillon project! This folder centralizes all design-related materials, deliverables, and visual resources. The project aims to deliver an intuitive and user-friendly mobile application tailored to amateur brewers.
+Welcome to the **design documentation** for the Brasse-Bouillon project! This folder serves as the central hub for all design-related materials, visual assets, and deliverables.
+
+The primary objective of this documentation is to ensure a consistent, accessible, and community-driven design foundation for the Brasse-Bouillon mobile application. Here, "community-driven" refers to contributions from both internal team members and the open-source brewing community, fostering collaboration and continuous improvement.
+
+All design assets and documentation must remain synchronized with:
+
+* The **Figma Design System**
+* The project's **global UI design tokens**
 
 ---
 
-## 🏗️ Directory Structure
+## 🏗️ Directory Structure Overview
 
 ```text
 docs/design/
@@ -16,25 +23,24 @@ docs/design/
 ├── 06_charte-graphique/        # Final design charter & guidelines
 ├── 07_tech-constraints/        # Technical, platform, and accessibility constraints
 ├── 08_trends/                  # Market & competitor analysis
-└── assets/                     # Shared visual assets (logos, icons, UI)
-    ├── logo/
-    ├── palette/
-    ├── typography/
-    └── ui/
+└── assets/                     # Shared visual assets (logos, icons, UI components)
 ```
 
 ---
 
-## 📌 Documentation Guidelines
+## 📋 Documentation Guidelines
 
-* Store all **.fig / .psd / .ai** or large design source files inside the `assets/` directory. Use Git LFS to manage large binaries when appropriate.
-* Each subfolder must contain a `README.md` outlining its purpose, organization, and content.
-* All documentation must be written in **English**, and file names must follow the **kebab-case** naming convention (e.g., `logo-primary.svg`).
-* Only finalized or approved materials should be committed. Work-in-progress drafts must be saved under `/assets` using a prefix such as `wip_` or `draft_`.
+* All documentation must be written in **English**.
+* Use **kebab-case** for file and folder names (e.g., `logo-primary.svg`).
+* Store all large design files (Figma exports, Illustrator, PSD) inside the `/assets/` directory.
+* Use Git LFS for managing large binary files if necessary.
+* Each subfolder must contain a `README.md` explaining its purpose, organization, and maintenance responsibilities.
+* Only finalized or validated assets and documentation should be committed.
+* Prefix drafts with `wip_` or `draft_` inside `/assets` to distinguish work-in-progress files.
 
 ---
 
-## 🔗 Reference Links
+## 🔗 Key Reference Links
 
 | Section               | Resource                                                                                         |
 | --------------------- | ------------------------------------------------------------------------------------------------ |
@@ -49,18 +55,29 @@ docs/design/
 
 This documentation supports a structured and iterative design process:
 
-1. Define user personas and capture target needs.
-2. Collect visual inspiration and assemble moodboards.
-3. Establish a unified styleguide with a consistent color palette, typography, and UI components.
-4. Build wireframes to test layout and navigation logic.
-5. Design and refine high-fidelity mockups.
-6. Consolidate design rules and assets into a formal design charter.
-7. Document all technical, platform, and accessibility constraints.
-8. Perform competitive and UX trend analysis.
+1. Define target audience and personas. Update regularly to reflect evolving user needs.
+2. Gather visual inspiration and create moodboards.
+3. Establish a consistent style guide, including colors, typography, and UI components.
+4. Design wireframes to test user flows and layouts, using approved design tools and testing methods.
+5. Develop high-fidelity mockups.
+6. Consolidate design rules and decisions within the design charter.
+7. Document technical, platform, and accessibility constraints.
+8. Analyze competitor products and market trends.
 
 ---
 
-## 📣 Contributions
+## 📢 Contribution Process
 
-For updates, suggestions, or contributions, please refer to the GitHub project board:
+To contribute updates or new design materials:
+
+1. Notify the design team in advance.
+2. Validate assets with the design lead before committing.
+3. Clearly document all additions in the relevant `README.md`.
+4. Ensure all materials comply with the style guide and design charter.
+
+For collaborative updates, refer to the GitHub project board:
 👉 **[Brasse-Bouillon · Charte Graphique](https://github.com/ton-org/brasse-bouillon/projects)**
+
+---
+
+> 🌟 Note: This documentation is a living resource and evolves alongside the project. Regular updates are expected after major design milestones.

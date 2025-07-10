@@ -1,0 +1,20 @@
+{
+    "brand": {
+        "primary": "#b7824b",
+        "secondary": "#8d5832",
+        "background": "#ede2bd"
+    },
+
+    "semantic": {
+        "success": "#7e7e31",
+        "error": "#573921",
+        "warning": "#d9b364",
+        "info": "#f3f3f3"
+    },
+
+    "neutral": {
+        "neutralLight": "#ffffff",
+        "neutralDark": "#000000",
+        "shadow": "#1e1e1e"
+    }
+}

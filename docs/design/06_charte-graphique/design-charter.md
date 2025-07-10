@@ -16,7 +16,8 @@ The design charter evolves continuously throughout Brasse-Bouillon's development
 5. Purpose & Vision
 6. Iconography & Illustration
 7. Logo Usage Guidelines
-8. References & Maintenance
+8. Color System
+9. References & Maintenance
 
 ---
 
@@ -38,20 +39,11 @@ It covers:
 
 Brasse-Bouillon is built upon core values that guide every aspect of the project:
 
-1. **Community**
-   Empowering users to connect, share, and grow together as passionate homebrewers.
-
-2. **Accessibility**
-   Making brewing knowledge and tools available to everyone.
-
-3. **Quality**
-   Ensuring a robust, enjoyable, and reliable experience across all touchpoints.
-
-4. **Transparency**
-   Communicating openly and sharing knowledge through open-source principles.
-
-5. **Innovation**
-   Continuously improving to enrich the brewing experience.
+1. **Community:** Empowering users to connect, share, and grow together as passionate homebrewers.
+2. **Accessibility:** Making brewing knowledge and tools available to everyone.
+3. **Quality:** Ensuring a robust, enjoyable, and reliable experience across all touchpoints.
+4. **Transparency:** Communicating openly and sharing knowledge through open-source principles.
+5. **Innovation:** Continuously improving to enrich the brewing experience.
 
 ---
 
@@ -215,15 +207,46 @@ To ensure visual consistency across platforms, Brasse-Bouillon uses a dedicated 
 #### Technical Notes
 
 * The icon is derived directly from the main logo’s mascot to maintain brand recognition.
-* Ensure sufficient contrast and sizing, especially for small displays.
+* Ensure sufficient contrast and sizing, especially for small displays. Refer to the Color System section for recommended contrast guidelines.
 
 > 📜 Remember: Only the official exported files should be used to avoid distortions or color mismatches.
 
 ---
 
-## 8. References & Maintenance
+## 8. Color System
 
-* Figma Design System Link: *(Insert Figma Link Here — This link should point to the latest approved design file containing all icons, illustrations, and components.)*
+The Brasse-Bouillon color system defines the official color palette to ensure a cohesive, accessible, and consistent user experience.
+
+### Core Palette
+
+* **Primary:** `#a06a3a` (Main brand color for key highlights and primary actions)
+* **Secondary:** `#8d5832` (Secondary accent color)
+* **Background:** `#e0d3aa` (Soft beige for UI backgrounds)
+
+### Semantic Colors
+
+* **Success:** `#6b6b2c` (Indicates positive states and confirmations)
+* **Error:** `#573921` (Denotes errors or critical messages)
+* **Warning:** `#d9b364` (Highlights cautionary information)
+* **Info:** `#e5e5e5` (Used for informational backgrounds and neutral elements)
+
+### Neutral Colors
+
+* **Neutral Light:** `#ffffff` (White for clean backgrounds and high contrast text)
+* **Neutral Dark:** `#000000` (Black for text and strong contrasts)
+* **Shadow:** `#1e1e1e` (Dark grey for shadows and depth effects)
+
+### Accessibility Compliance
+
+* All colors have been tested against WCAG AA standards for contrast, ensuring compliance with accessibility best practices.
+* Adjustments were applied to Primary, Background, Info, and Success colors to improve readability.
+* Full testing results and contrast ratios are documented in `docs/design/assets/palette/color-contrast-analysis.md`.
+
+---
+
+## 9. References & Maintenance
+
+* Figma Design System Link: [Moodboard Brasse-Bouillon](https://www.figma.com/design/oa9YEpt96DTZ8c05fk5hd4/Moodboard-Brasse-Bouillon?node-id=0-1&m=dev&t=DWWAPUMjSG5C33rG-1)
 * Update Process: This document evolves with the project.
 * Contributors: Designers, developers, and community members.
 

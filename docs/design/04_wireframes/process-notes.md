@@ -1,10 +1,10 @@
-# 📝 Brasse-Bouillon – Wireframes Design Process Notes
+# 📋 Wireframes – Design Process Notes
 
 This document records the reasoning, steps, and decisions made during the CG4 – Wireframes milestone of the Brasse-Bouillon project.
 
 ---
 
-## 🎯 Purpose of This Document
+## 🌟 Purpose of This Document
 
 This document captures the complete wireframing process, including:
 
@@ -54,16 +54,30 @@ These screens were selected to address the fundamental needs of home brewers:
 
 ---
 
-## 📋 Next Steps
+## ✅ Step 2 – Identify Secondary/Support Screens
 
-The following tasks will guide the continued wireframing efforts:
+### Screens Selected
 
-1. Identify and define secondary/support screens.
-2. Group all screens by user journey stages.
-3. Document descriptions and key UI components for each screen.
-4. Begin sketching low-fidelity wireframes in Figma.
+The following secondary and support screens have been identified to enhance user experience and provide complementary functionalities:
 
-*Note: These tasks will be completed sequentially, and progress updates will be recorded as milestones are reached.*
+1. **Settings:** Preferences, language options, unit configurations, and security settings.
+2. **Help / FAQ:** Guidance, tutorials, and answers to frequently asked questions.
+3. **Notifications:** Important alerts and updates regarding recipes, sessions, or app status.
+4. **Error Pages (404 / 500):** Screens to handle cases of missing resources or server errors.
+5. **About / Legal Information:** Displays privacy policy, terms of service, and legal notices.
+6. **Feedback / Contact Support:** Allows users to submit feedback or contact the support team.
+7. **Changelog / Updates Log:** Lists new features, improvements, and bug fixes over time.
+
+### Rationale for Selected Screens
+
+These screens support the core experience by providing:
+
+* Better user support and guidance.
+* Clearer communication during errors or unexpected events.
+* Legal compliance and transparency.
+* Opportunities for users to engage with the development team.
+
+They also set the foundation for smoother maintenance and iterative improvements.
 
 ---
 
@@ -75,15 +89,16 @@ The following tasks will guide the continued wireframing efforts:
 
 ---
 
-## 📅 Timeline
+## 🗕️ Timeline
 
 | Date       | Action                                  |
 | ---------- | --------------------------------------- |
 | 2025-07-11 | Core screen list validated (Issue #245) |
+| 2025-07-11 | Secondary/support screens validated     |
 
 ---
 
-## 📂 Related Files
+## 🗂️ Related Files
 
 * Wireframes folder: `docs/design/04_wireframes/`
 * Design Charter documentation: `docs/design/`

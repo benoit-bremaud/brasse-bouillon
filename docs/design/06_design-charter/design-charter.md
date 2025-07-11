@@ -18,7 +18,8 @@ The design charter evolves continuously throughout Brasse-Bouillon's development
 7. [Logo Usage Guidelines](#7-logo-usage-guidelines)
 8. [Color System](#8-color-system)
 9. [Visual System](#9-visual-system)
-10. [References & Maintenance](#10-references--maintenance)
+10. [UI Styleguide Reference](#10-ui-styleguide-reference)
+11. [References & Maintenance](#11-references--maintenance)
 
 ---
 
@@ -325,10 +326,35 @@ Use these shadow styles consistently to ensure a balanced visual hierarchy acros
 
 ---
 
-## 10. References & Maintenance
+## 10. UI Styleguide Reference
+
+For detailed component specifications, visual states, and best practices, refer to the dedicated Styleguide document:
+
+* [`styleguide.md`](../../03_styleguide/styleguide.md)
+
+#### Included Sections in Styleguide
+
+* Color Palette & Typography Overview
+* Form Inputs (Text, Number, Textarea, Select, Checkbox, Radio)
+* Visual States for Inputs
+* Best Practices for UI Consistency
+
+#### Cross-Linking
+
+The styleguide complements this Design Charter by offering:
+
+* Visual component breakdowns
+* Detailed design tokens references
+* Layout and interaction guidelines
+
+All contributors should refer to both documents to ensure alignment between visual identity, UI components, and user experience guidelines.
+
+---
+
+## 11. References & Maintenance
 
 * Figma Design System Link: [Moodboard Brasse-Bouillon](https://www.figma.com/design/oa9YEpt96DTZ8c05fk5hd4/Moodboard-Brasse-Bouillon?node-id=0-1&m=dev&t=DWWAPUMjSG5C33rG-1)
-* Update Process: This document evolves with the project.
+* Update Process: This document is updated regularly as the project evolves.
 * Contributors: Designers, developers, and community members.
 
 **Reminder:** All design updates must respect the project's core visual identity and values.

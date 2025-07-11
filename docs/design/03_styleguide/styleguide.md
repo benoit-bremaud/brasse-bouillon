@@ -1,6 +1,6 @@
-# 📅 Brasse-Bouillon Design System — Styleguide
+# 🖊️ Brasse-Bouillon Design System — Styleguide
 
-This document consolidates the design guidelines for the Brasse-Bouillon project, ensuring a consistent visual identity, optimal accessibility, and intuitive usability throughout the application.
+This document consolidates the design guidelines for the Brasse-Bouillon project, ensuring a consistent visual identity, optimal accessibility, and intuitive usability across the application.
 
 All specifications provided here align with:
 
@@ -9,12 +9,31 @@ All specifications provided here align with:
 
 ---
 
+## 🗒️ Introduction
+
+This styleguide defines the visual design principles, component specifications, interaction patterns, and implementation guidelines for Brasse-Bouillon.
+It aims to ensure a consistent, accessible, and user-friendly interface across all products, serving as a resource for both designers and developers.
+
+---
+
+## 🔍 Table of Contents
+
+* [Introduction](#-introduction)
+* [Color Palette and Typography](#-color-palette-and-typography)
+* [Form Inputs Overview](#-form-inputs-overview)
+* [Form Inputs Visual States](#-form-inputs-visual-states)
+* [Best Practices](#-best-practices)
+
+---
+
+## 🎨 Color Palette and Typography
+
 🎨 The color palette and contrast analysis details are documented in the following files:
 
 * [Color Tokens & Palette](../assets/palette/colors.md)
 * [Contrast Analysis Report](../assets/palette/color-contrast-analysis.md)
 
-📝 Typography guidelines and font specifications are available here:
+📜 Typography guidelines and font specifications are available here:
 
 * [Typography Guide](../assets/typography/typography-guide.md)
 
@@ -116,7 +135,7 @@ Each input type covers the following states:
 
 ---
 
-### 💡 Best Practices
+## 💡 Best Practices
 
 * Maintain a consistent table structure for all input types.
 * Include notes or icons to clarify interactions and visual behaviors.
@@ -124,6 +143,8 @@ Each input type covers the following states:
 * Reference Figma components or provide relevant screenshots where applicable.
 * Update this section whenever input styles are modified or expanded.
 
-These visual references serve as a complete, accessible, and unified design guide for all form inputs within Brasse-Bouillon.
+These visual references serve as a complete, accessible, and unified design guide for all form inputs within Brasse-Bouillon, intended for both designers and developers.
 
 ---
+
+> 📝 Note: Sections for Button Styles, Alert Components, and Tooltip Guidelines will be added in the next update to comprehensively cover all components and design tokens. An estimated timeline for this update will be communicated in the project roadmap.

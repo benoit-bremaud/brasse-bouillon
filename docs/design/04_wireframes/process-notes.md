@@ -22,7 +22,7 @@
 
    * [`01_home` – Welcome / Home](#01_home--welcome--home)
    * [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
-   * [`03_dashboard` – Dashboard](#)  
+   * [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
    * [`04_recipe-editor` – Recipe Editor (CRUD)](#)  
    * [`05_brewing-session-tracker` – Brewing Session Tracker](#)  
    * [`06_user-profile` – User Profile](#)  
@@ -260,6 +260,42 @@ This section documents each core screen of the Brasse-Bouillon MVP, covering use
 
 📄 Wireframe spec to be added: `02_login-signup.md`
 
+---
+
+### `03_dashboard` – User Dashboard
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+* Provide a central overview of the user’s brewing-related activity
+* Enable fast access to key modules: recipes, brewing sessions, calculator
+* Display contextual actions and summaries
+* Anticipate features such as glossary, ingredients, and brewing assistant
+
+**Layout Overview:**
+
+* Header: Logo, title, profile menu with logout
+* Quick actions grid (create recipe, start session, calculator)
+* Preview of last recipes
+* Next brewing session summary or CTA
+* Grayed-out blocks for future features (ingredients, glossary...)
+
+**Notable Behaviors:**
+
+* Redirect to submodules on tap (editor, calculator, etc.)
+* Grayed placeholders are visible but non-interactive
+* Logout triggers session reset and returns to `01_home`
+
+**Visual Constraints:**
+
+* 4-column grid, 16px gutter
+* Card radius: 8px
+* Icons: 24×24px monochrome
+* Accent: Gold `#FFD700`
+* Grayed modules use 40% opacity or `#AAAAAA`
+
+📄 [See full wireframe spec → `03_dashboard_User_Dashboard.md`](./screen-structure/03_dashboard_User_Dashboard.md)
 
 ---
 

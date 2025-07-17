@@ -23,7 +23,7 @@
    * [`01_home` – Welcome / Home](#01_home--welcome--home)
    * [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
    * [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
-   * [`04_recipe-editor` – Recipe Editor (CRUD)](#)  
+   * [`04_recipe-editor` – Recipe Editor (CRUD)](#04_recipe-editor--recipe-editor)  
    * [`05_brewing-session-tracker` – Brewing Session Tracker](#)  
    * [`06_user-profile` – User Profile](#)  
    * [`07_favorites` – Favorites (Favorite Recipes)](#)  
@@ -296,6 +296,46 @@ This section documents each core screen of the Brasse-Bouillon MVP, covering use
 * Grayed modules use 40% opacity or `#AAAAAA`
 
 📄 [See full wireframe spec → `03_dashboard_User_Dashboard.md`](./screen-structure/03_dashboard_User_Dashboard.md)
+
+---
+
+### `04_recipe-editor` – Recipe Editor
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+* Enable users to create and modify their brewing recipes
+* Support core CRUD operations with a structured and intuitive layout
+* Organize content into modular sections (info, ingredients, parameters, steps, metadata)
+* Provide responsive design with clear validation and feedback
+
+**Layout Overview:**
+
+* **Header:** Back button, dynamic screen title (“New” or “Edit”), help icon
+* **Body Sections:**
+  * Recipe Info (title, style, volume)
+  * Ingredients (add/edit malt, hops, yeast, adjuncts)
+  * Brewing Parameters (ABV, IBU, boil time)
+  * Steps (optional, editable text lines)
+  * Metadata (tags, visibility)
+* **Footer:** Sticky bar with “Save” and “Delete” buttons + live feedback (success/error/loading)
+
+**Notable Behaviors:**
+
+* Form validation per field with inline messages
+* Delete button only appears in edit mode
+* ABV/IBU logic present as placeholder only
+* Ingredient suggestions and autosave not available in MVP
+
+**Visual Constraints:**
+
+* 4-column grid with 16px gutter
+* Rounded inputs, clean spacing (24px vertical rhythm)
+* Icons: monochrome, 1.5px stroke
+* Accent color: Gold `#FFD700`
+
+📄 [See full wireframe spec → `04_recipe-editor.md`](./screen-structure/04_recipe-editor.md)
 
 ---
 

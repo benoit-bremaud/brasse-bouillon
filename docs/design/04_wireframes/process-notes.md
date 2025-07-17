@@ -23,11 +23,11 @@
    * [`01_home` – Welcome / Home](#01_home--welcome--home)
    * [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
    * [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
-   * [`04_recipe-editor` – Recipe Editor (CRUD)](#04_recipe-editor--recipe-editor)
-   * [`05_brewing-session-tracker` – Brewing Session Tracker](#05_brewing-session--brewing-session-tracker)
+   * [`04_recipe-editor` – Recipe Editor](#04_recipe-editor--recipe-editor)
+   * [`05_brewing-session` – Brewing Session Tracker](#05_brewing-session--brewing-session-tracker)
    * [`06_user-profile` – User Profile](#06_user-profile--user-profile)
-   * [`07_favorites` – Favorites (Favorite Recipes)](#)
-   * [`08_ibu-abv-calculator` – IBU/ABV Calculator](#)
+   * [`07_favorites` – Favorites (Favorite Recipes)](#07_favorites--favorites-favorite-recipes)
+   * [`08_ibu-abv-calculator` – IBU/ABV Calculator](#08_ibu-abv-calculator--ibuabv-calculator)
 7. [📘 Support Screen Specifications](#-support-screen-specifications)
 8. [📆 Timeline](#-timeline)
 9. [🗂️ Related Files](#-related-files)
@@ -415,6 +415,38 @@ This section documents each core screen of the Brasse-Bouillon MVP, covering use
 
 ---
 
+### `07_favorites` – Favorites (Favorite Recipes)
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+* Display a scrollable list of favorite brewing recipes
+* Let the user open recipe detail views
+* Allow user to remove recipes from favorites
+* Encourage recipe discovery when the list is empty
+
+**Layout Overview:**
+
+* **Header:** Back ← + title “My Favorites” + (optional) count badge
+* **Body:**
+  * Cards with recipe title, beer style, optional author, icon (⭐ or ❤️), and CTA `View Recipe`
+  * (Optional) CTA `Start Brewing` (not in MVP)
+  * Support for swipe-to-remove gestures
+* **Empty State:** Message + subtext + CTA `Discover Recipes` + optional icon
+* **Footer:** Optional tips or app version (not required for MVP)
+
+**Notable Behaviors:**
+
+* Star/heart icons are interactive and toggle favorite state
+* If list becomes empty after removal, empty state is triggered
+* Recipes loaded dynamically from user profile
+* Pagination/lazy loading optional for long lists
+
+📄 [See full wireframe spec → `07_favorites.md`](./screen-structure/07_favorites.md)
+
+---
+
 ## 📘 Support Screen Specifications
 
 This section defines the structure and functional intent of the secondary screens, offering tools for configuration, support, and transparency.
@@ -423,11 +455,15 @@ This section defines the structure and functional intent of the secondary screen
 
 ## 📆 Timeline
 
-| Date       | Milestone                               |
-| ---------- | --------------------------------------- |
-| 2025-07-11 | Core screen list finalized (Issue #245) |
-| 2025-07-11 | Support screen list validated           |
-| 2025-07-11 | User journey mapping completed          |
+| Date       | Milestone                                   |
+| ---------- | ------------------------------------------- |
+| 2025-07-11 | Core screen list finalized ([Issue #245])    |
+| 2025-07-11 | Support screen list validated                |
+| 2025-07-11 | User journey mapping completed               |
+| 2025-07-18 | Core wireframes drafted in Figma             |
+| 2025-07-25 | Support wireframes drafted in Figma          |
+| 2025-08-01 | Visual design rules reviewed and approved    |
+| 2025-08-08 | All wireframes finalized and documented      |
 
 ---
 

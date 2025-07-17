@@ -23,10 +23,10 @@
    * [`01_home` – Welcome / Home](#01_home--welcome--home)
    * [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
    * [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
-   * [`04_recipe-editor` – Recipe Editor (CRUD)](#04_recipe-editor--recipe-editor)  
-   * [`05_brewing-session-tracker` – Brewing Session Tracker](./screen-structure/05_brewing-session.md)  
-   * [`06_user-profile` – User Profile](#)  
-   * [`07_favorites` – Favorites (Favorite Recipes)](#)  
+   * [`04_recipe-editor` – Recipe Editor (CRUD)](#04_recipe-editor--recipe-editor)
+   * [`05_brewing-session-tracker` – Brewing Session Tracker](#05_brewing-session--brewing-session-tracker)
+   * [`06_user-profile` – User Profile](#06_user-profile--user-profile)
+   * [`07_favorites` – Favorites (Favorite Recipes)](#)
    * [`08_ibu-abv-calculator` – IBU/ABV Calculator](#)
 7. [📘 Support Screen Specifications](#-support-screen-specifications)
 8. [📆 Timeline](#-timeline)
@@ -375,6 +375,43 @@ This section documents each core screen of the Brasse-Bouillon MVP, covering use
 * Min button height: 48px
 
 📄 [See full wireframe spec → `05_brewing-session.md`](./screen-structure/05_brewing-session.md)
+
+---
+
+### `06_user-profile` – User Profile
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+* Display the user's name, email, and avatar (non-editable)
+* Let the user switch app language (`FR` / `EN`)
+* Provide a clear logout mechanism (with confirmation)
+* Prepare the UI for future profile editing and GDPR compliance
+
+**Layout Overview:**
+
+* **Header:** Back button ←, title “My Profile” + language badge
+* **Body:**
+  * **User Info Card:** avatar (initial or image), name, email, registration/last login (optional)
+  * **Preferences:** Language switch (toggle/dropdown)
+  * **Actions:** `Logout` (CTA + modal), optional `Back to Dashboard`
+* **Footer:** App version (e.g., `v1.0.0-beta • Brasse-Bouillon`), right-aligned or centered
+
+**Notable Behaviors:**
+
+* No editable fields in MVP
+* Language stored locally (e.g., AsyncStorage)
+* Logout clears session and redirects to `01_home`
+* Designed to support future profile edit modes
+
+**Visual Notes:**
+
+* Avatar fallback = user initial (e.g., “B”)
+* Minimal grayscale cards, line icons (🌐, 🚪)
+* 4-column layout, rounded blocks, clean spacing
+
+📄 [See full wireframe spec → `06_user-profile.md`](./screen-structure/06_user-profile.md)
 
 ---
 

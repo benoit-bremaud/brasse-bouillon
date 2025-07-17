@@ -24,7 +24,7 @@
    * [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
    * [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
    * [`04_recipe-editor` – Recipe Editor (CRUD)](#04_recipe-editor--recipe-editor)  
-   * [`05_brewing-session-tracker` – Brewing Session Tracker](#)  
+   * [`05_brewing-session-tracker` – Brewing Session Tracker](./screen-structure/05_brewing-session.md)  
    * [`06_user-profile` – User Profile](#)  
    * [`07_favorites` – Favorites (Favorite Recipes)](#)  
    * [`08_ibu-abv-calculator` – IBU/ABV Calculator](#)
@@ -336,6 +336,45 @@ This section documents each core screen of the Brasse-Bouillon MVP, covering use
 * Accent color: Gold `#FFD700`
 
 📄 [See full wireframe spec → `04_recipe-editor.md`](./screen-structure/04_recipe-editor.md)
+
+---
+
+### `05_brewing-session` – Brewing Session Tracker
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+* Allow users to follow and track their brewing sessions step by step
+* Enable validation of brewing steps with timestamps
+* Collect manual data like temperature, gravity, and duration
+* Provide a space to record notes throughout the process
+* Archive completed sessions in user history
+
+**Layout Overview:**
+
+* **Header:** Back button ←, title “Brewing Session”, optional recipe name subtitle, session status (Active, Paused, Ended)
+* **Body:**
+  * **Steps List:** Interactive checklist of brewing steps with mark-as-done CTA and optional comments
+  * **Measurements Block (optional):** Input fields for temperature, OG/FG, and duration
+  * **Session Notes:** Textarea with timestamps, scrollable list of entries, floating “+ Add Note” button
+* **Footer:** Sticky bottom bar with “End Session” CTA, “Return to Recipe” (read-only), and space for feedback messages
+
+**Notable Behaviors:**
+
+* Autosave session state after each action
+* Timestamped validation of steps and notes
+* Smooth UI/UX optimized for mobile (touch interactions and animations)
+* Archive complete session at the end
+
+**Visual Constraints:**
+
+* 4-column grid, 16px gutter
+* Rounded cards, minimalist grayscale
+* Icons: Monochrome, 1.5px stroke
+* Min button height: 48px
+
+📄 [See full wireframe spec → `05_brewing-session.md`](./screen-structure/05_brewing-session.md)
 
 ---
 

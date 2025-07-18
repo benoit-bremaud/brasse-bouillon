@@ -1,143 +1,502 @@
 # 📋 Brasse-Bouillon – Wireframes Design Process Notes
 
-This document presents the reasoning, decisions, and processes followed during the CG4 – Wireframes milestone of the Brasse-Bouillon project.
+## 📚 Table of Contents
+
+1. [🌟 Document Purpose](#-document-purpose)
+2. [📂 Core Screens (Minimum Viable Product - MVP)](#-core-screens-minimum-viable-product---mvp)
+   - [MVP Screen List & Rationale](#mvp-screen-list--rationale)
+3. [📂 Secondary and Support Screens](#-secondary-and-support-screens)
+   - [Support Screen List & Rationale](#support-screen-list--rationale)
+   - [Support Screen List](#support-screen-list)
+   - [Support Rationale](#support-rationale)
+4. [🔢 User Journey Mapping](#-user-journey-mapping)
+   - [Grouped by User Flow](#grouped-by-user-flow)
+   - [Why This Matters](#why-this-matters)
+5. [📊 Screen Specifications](#-screen-specifications)
+   - [🔧 Visual Design Rules (from Design Charter)](#-visual-design-rules-from-design-charter)
+6. [🧱 Core Screen Specifications](#-core-screen-specifications)
+   - [`01_home` – Welcome / Home](#01_home--welcome--home)
+   - [`02_login-signup` – Authentication Screen](#02_login-signup--authentication-screen)
+   - [`03_dashboard` – User Dashboard](#03_dashboard--user-dashboard)
+   - [`04_recipe-editor` – Recipe Editor](#04_recipe-editor--recipe-editor)
+   - [`05_brewing-session` – Brewing Session Tracker](#05_brewing-session--brewing-session-tracker)
+   - [`06_user-profile` – User Profile](#06_user-profile--user-profile)
+   - [`07_favorites` – Favorites (Favorite Recipes)](#07_favorites--favorites-favorite-recipes)
+   - [`08_ibu-abv-calculator` – IBU / ABV Calculator](#08_ibu-abv-calculator--ibu--abv-calculator)
+7. [📘 Support Screen Specifications](#-support-screen-specifications)
+8. [📆 Timeline](#-timeline)
+9. [🗂️ Related Files](#-related-files)
+
+---
+
+This document outlines the strategic thinking, structure, and visual logic used throughout the CG4 – Wireframes milestone of the Brasse-Bouillon project.
 
 ---
 
 ## 🌟 Document Purpose
 
-This document provides a complete record of the wireframing process, including:
+This document is a comprehensive guide to the wireframing phase. It captures:
 
-* Key decisions on screen selection
-* Design priorities and justifications
-* Workflow and tools utilized
-* Challenges encountered and lessons learned
+- Strategic decisions on screen structure
+- Design priorities centered on the user journey
+- Tools, processes, and deliverables
+- Challenges encountered and key takeaways
 
-It serves as an essential reference for the design team and supports future updates and iterations.
-
----
-
-## 🔢 Core Screens (Minimum Viable Product - MVP)
-
-### Screen List
-
-The following core screens have been identified as essential for the MVP of the Brasse-Bouillon mobile application:
-
-1. **Welcome / Home**
-2. **Login / Signup**
-3. **Dashboard**
-4. **Recipe Editor (CRUD)**
-5. **Brewing Session Tracker**
-6. **User Profile**
-7. **Favorites (Favorite Recipes)**
-8. **IBU/ABV Calculator**
-
-### Rationale
-
-These screens are fundamental to the core functionality of the application:
-
-* **Welcome / Home:** Introduces the app and guides users to the login page.
-* **Login / Signup:** Manages secure user authentication.
-* **Dashboard:** Central hub for accessing recipes and brewing sessions.
-* **Recipe Editor:** Allows users to create, modify, and delete brewing recipes.
-* **Brewing Session Tracker:** Supports monitoring and documenting brewing sessions.
-* **User Profile:** Enables management of user information and preferences.
-* **Favorites:** Provides quick access to frequently used recipes.
-* **IBU/ABV Calculator:** Offers key brewing calculations for recipe accuracy.
-
-These screens were selected to meet the primary needs of home brewers:
-
-* Recipe management
-* Brewing session monitoring
-* Technical brewing calculations
-* Account and settings management
+It provides a single point of truth for the design team and supports future iterations and enhancements.
 
 ---
 
-## 🔢 Secondary and Support Screens
+## 📂 Core Screens (Minimum Viable Product - MVP)
 
-### Screen List
+### MVP Screen List & Rationale
 
-The following secondary and support screens enhance usability and expand the app’s functionality:
+These screens form the core functionality of the MVP and directly support the primary use cases of Brasse-Bouillon:
 
-1. **Settings:** Options for language, units, preferences, and security.
-2. **Help / FAQ:** Guides, tutorials, and frequently asked questions.
-3. **Notifications:** Displays alerts and important updates.
-4. **Error Pages (404 / 500):** Handles missing content and technical errors.
-5. **About / Legal Information:** Provides legal documents and policies.
-6. **Feedback / Contact Support:** Enables users to share feedback or seek assistance.
-7. **Changelog / Updates Log:** Lists new features, changes, and bug fixes (visible to users).
+1. **Welcome / Home** – Public introduction and feature teaser
+2. **Login / Signup** – Secure user authentication
+3. **Dashboard** – Central access to brewing features
+4. **Recipe Editor (CRUD)** – Manage user-generated brewing recipes
+5. **Brewing Session Tracker** – Log real-time brewing sessions
+6. **User Profile** – Handle preferences and personal information
+7. **Favorites (Favorite Recipes)** – Quick access to saved recipes
+8. **IBU/ABV Calculator** – Essential brewing metric calculator
 
-### Rationale
+---
 
-These screens improve the user experience by:
+## 📂 Secondary and Support Screens
 
-* Offering direct support and accessible guidance
-* Ensuring clear communication during issues
-* Maintaining compliance with legal standards
-* Facilitating engagement between users and developers
+### Support Screen List & Rationale
 
-Additionally, these screens establish a strong base for future maintenance and app improvements.
+These screens provide secondary functionality that enhances the user's overall experience, supporting platform usability, accessibility, and long-term maintainability:
+
+1. **Settings** – Customizes user preferences such as language, units of measure, notifications, and account options.
+2. **Help / FAQ** – Provides brewing guidance, onboarding assistance, and answers to common user questions.
+3. **Notifications** – Displays system alerts, brewing reminders, and community updates.
+4. **Error Pages (404 / 500)** – Handles unavailable resources with consistent and user-friendly fallback views.
+5. **About / Legal Information** – Communicates terms of service, privacy policies, open-source licenses, and app versioning.
+6. **Feedback / Contact Support** – Offers a feedback form and support contact to report bugs or make suggestions.
+7. **Changelog / Updates Log** – Tracks the evolution of the app with visible release notes and improvements.
+
+These screens are not essential for the MVP, but are critical for building user trust, offering transparency, and enabling continuous product development.
+
+### Support Screen List
+
+These screens provide complementary value and platform scalability:
+
+1. **Settings** – Allows users to customize their experience, including language, measurement units, notifications, and privacy preferences.
+2. **Help / FAQ** – Offers support resources such as brewing tips, troubleshooting help, and frequently asked questions tailored to beginner and experienced brewers.
+3. **Notifications** – Displays relevant user alerts including brewing reminders, new recipe suggestions, and event updates.
+4. **Error Pages (404 / 500)** – Provides custom fallback pages to ensure a consistent and user-friendly experience when encountering missing or broken content.
+5. **About / Legal Information** – Presents transparency elements such as terms of service, privacy policy, app version, and credits.
+6. **Feedback / Contact Support** – Enables users to send feedback, report bugs, or reach out for support via a dedicated channel.
+7. **Changelog / Updates Log** – Chronicles feature changes, bug fixes, and enhancements across application versions.
+
+### Support Rationale
+
+These screens enhance the overall UX by:
+
+- Supporting user autonomy and troubleshooting
+- Managing unexpected navigation states gracefully
+- Ensuring compliance and clear communication
+- Encouraging community feedback and transparency
+
+While not required for MVP delivery, they are foundational for long-term trust and scalability.
 
 ---
 
 ## 🔢 User Journey Mapping
 
-### Grouping by User Journey Stages
+This section outlines how screens are organized around the user's interaction with the app. It helps align features with real-world workflows, ensuring usability and clarity. Each phase corresponds to a key moment in the user's lifecycle within Brasse-Bouillon.
 
-To prioritize user experience, the identified screens have been organized according to the main stages of a typical user journey:
+### Grouped by User Flow
+
+The screens are grouped across key stages of the user journey:
 
 #### 1. **Onboarding & Access**
 
-* Welcome / Home
-* Login / Signup
+- Welcome / Home
+- Login / Signup
 
-#### 2. **Core Functionalities**
+#### 2. **Core Usage**
 
-* Dashboard
-* Recipe Editor (CRUD)
-* Brewing Session Tracker
-* IBU/ABV Calculator
-* Favorites (Favorite Recipes)
+- Dashboard
+- Recipe Editor (CRUD)
+- Brewing Session Tracker
+- IBU/ABV Calculator
+- Favorites
 
-#### 3. **Account Management & Support**
+#### 3. **Account & Support**
 
-* User Profile
-* Settings
-* Help / FAQ
-* Notifications
-* Error Pages (404 / 500)
-* Feedback / Contact Support
-* About / Legal Information
-* Changelog / Updates Log
+- User Profile
+- Settings
+- Help / FAQ
+- Notifications
+- Error Pages (404 / 500)
+- Feedback / Contact Support
+- About / Legal Information
+- Changelog / Updates Log
 
-### Purpose of Grouping
+### Why This Matters
 
-This user-centered grouping enables the design team to:
+User-centered grouping supports:
 
-* Visualize and refine user flow through the application
-* Create intuitive and coherent navigation patterns
-* Prioritize screens based on user interaction frequency and importance
+- Smooth, logical flows
+- Better feature prioritization
+- Coherent navigation experience
 
-This structure ensures the wireframing process focuses on delivering seamless, user-friendly interactions that effectively address user needs.
+---
+
+## 📊 Screen Specifications
+
+This section defines the detailed architecture of each screen and user flow, with clear differentiation between authenticated and public states.
+
+Each screen spec includes:
+
+- Purpose and interaction goals
+- Layout and content blocks
+- Expected user behaviors
+- UI constraints derived from the design charter
+
+This structured documentation acts as the master reference for creating wireframes in Figma.
+
+### 🔧 Visual Design Rules (from Design Charter)
+
+**Grid & Layout**
+
+- 4-column grid system
+- Column gutter: 16px
+- Vertical spacing between modules: 24px
+
+**Sizing & Spacing**
+
+- Button height: 48px minimum
+- Icon dimensions: 24×24px
+- Cards: 1px border (`#DDDDDD`), 8px radius
+
+**Typography**
+
+- Headings: 18–24px bold
+- Body text: 14–16px regular
+
+**Theme & Iconography**
+
+- Default: Light theme
+- Accent: Gold (`#FFD700`)
+- Icons: Line-style, monochrome, 1.5px stroke
+
+These visual constraints ensure consistency, clarity, and a pleasant mobile-first experience.
+
+---
+
+## 🧱 Core Screen Specifications
+
+This section documents each core screen of the Brasse-Bouillon MVP, covering user state, interface components, and logic.
+
+### `01_home` – Welcome / Home
+
+**User Access:** Public (unauthenticated)
+
+**Functional Goals:**
+
+- Present Brasse-Bouillon and its mission
+- Allow access to public content (recipes, glossary, brewing tools)
+- Encourage registration or login
+
+**Layout Overview:**
+
+- Header (fixed): Logo (left), app name + tagline (center), language selector (right)
+- Body (scrollable): Series of informational cards introducing key features in brewing order
+- Footer (fixed): Navigation bar with 5 quick links (Home, Recipes, IBU/ABV, Guide, Account)
+
+**Notable Behaviors:**
+
+- Cards are scrollable and informative
+- Click on links opens static read-only views or redirects to sign-up
+- Guest access limited to public data
+
+**Visual Constraints:**
+
+- Grid: 4 columns with 16px horizontal padding
+- Cards: 8px radius, 1px solid `#DDDDDD`, alternating icon alignment
+- Typography: 18–24px headings, 14–16px body
+- Icons: monochrome, 1.5px stroke
+
+📄 [See full wireframe spec → `01_home.md`](./screen-structure/01_home.md)
+
+### `02_login-signup` – Authentication Screen
+
+**User Access:** Public (unauthenticated)
+
+**Functional Goals:**
+
+- Allow new users to create an account (signup)
+- Allow returning users to authenticate securely (login)
+- Provide social auth options (Google/Apple) if scoped in future
+
+**Layout Overview:**
+
+- Header (fixed): App name or back navigation (depending on context)
+- Form area (tabbed): Login ↔ Signup
+- Fields: Email, Password (and Confirm Password on signup)
+- Call-to-action buttons: Submit / Switch Tab / Forgot Password
+- Footer: Link back to home screen, optional legal disclaimer
+
+**Notable Behaviors:**
+
+- Validation with inline error messages
+- Redirects to Dashboard on success
+- Link to reset password (non-MVP)
+
+**Visual Constraints:**
+
+- Form fields aligned on grid with 24px vertical rhythm
+- Buttons: Full-width, 48px height, outlined or filled variant
+- Typography and spacing based on design charter
+
+📄 Wireframe spec to be added: `02_login-signup.md`
+
+---
+
+### `03_dashboard` – User Dashboard
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+- Provide a central overview of the user’s brewing-related activity
+- Enable fast access to key modules: recipes, brewing sessions, calculator
+- Display contextual actions and summaries
+- Anticipate features such as glossary, ingredients, and brewing assistant
+
+**Layout Overview:**
+
+- Header: Logo, title, profile menu with logout
+- Quick actions grid (create recipe, start session, calculator)
+- Preview of last recipes
+- Next brewing session summary or CTA
+- Grayed-out blocks for future features (ingredients, glossary...)
+
+**Notable Behaviors:**
+
+- Redirect to submodules on tap (editor, calculator, etc.)
+- Grayed placeholders are visible but non-interactive
+- Logout triggers session reset and returns to `01_home`
+
+**Visual Constraints:**
+
+- 4-column grid, 16px gutter
+- Card radius: 8px
+- Icons: 24×24px monochrome
+- Accent: Gold `#FFD700`
+- Grayed modules use 40% opacity or `#AAAAAA`
+
+📄 [See full wireframe spec → `03_dashboard_User_Dashboard.md`](./screen-structure/03_dashboard_User_Dashboard.md)
+
+---
+
+### `04_recipe-editor` – Recipe Editor
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+- Enable users to create and modify their brewing recipes
+- Support core CRUD operations with a structured and intuitive layout
+- Organize content into modular sections (info, ingredients, parameters, steps, metadata)
+- Provide responsive design with clear validation and feedback
+
+**Layout Overview:**
+
+- **Header:** Back button, dynamic screen title (“New” or “Edit”), help icon
+- **Body Sections:**
+  - Recipe Info (title, style, volume)
+  - Ingredients (add/edit malt, hops, yeast, adjuncts)
+  - Brewing Parameters (ABV, IBU, boil time)
+  - Steps (optional, editable text lines)
+  - Metadata (tags, visibility)
+- **Footer:** Sticky bar with “Save” and “Delete” buttons + live feedback (success/error/loading)
+
+**Notable Behaviors:**
+
+- Form validation per field with inline messages
+- Delete button only appears in edit mode
+- ABV/IBU logic present as placeholder only
+- Ingredient suggestions and autosave not available in MVP
+
+**Visual Constraints:**
+
+- 4-column grid with 16px gutter
+- Rounded inputs, clean spacing (24px vertical rhythm)
+- Icons: monochrome, 1.5px stroke
+- Accent color: Gold `#FFD700`
+
+📄 [See full wireframe spec → `04_recipe-editor.md`](./screen-structure/04_recipe-editor.md)
+
+---
+
+### `05_brewing-session` – Brewing Session Tracker
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+- Allow users to follow and track their brewing sessions step by step
+- Enable validation of brewing steps with timestamps
+- Collect manual data like temperature, gravity, and duration
+- Provide a space to record notes throughout the process
+- Archive completed sessions in user history
+
+**Layout Overview:**
+
+- **Header:** Back button ←, title “Brewing Session”, optional recipe name subtitle, session status (Active, Paused, Ended)
+- **Body:**
+  - **Steps List:** Interactive checklist of brewing steps with mark-as-done CTA and optional comments
+  - **Measurements Block (optional):** Input fields for temperature, OG/FG, and duration
+  - **Session Notes:** Textarea with timestamps, scrollable list of entries, floating “+ Add Note” button
+- **Footer:** Sticky bottom bar with “End Session” CTA, “Return to Recipe” (read-only), and space for feedback messages
+
+**Notable Behaviors:**
+
+- Autosave session state after each action
+- Timestamped validation of steps and notes
+- Smooth UI/UX optimized for mobile (touch interactions and animations)
+- Archive complete session at the end
+
+**Visual Constraints:**
+
+- 4-column grid, 16px gutter
+- Rounded cards, minimalist grayscale
+- Icons: Monochrome, 1.5px stroke
+- Min button height: 48px
+
+📄 [See full wireframe spec → `05_brewing-session.md`](./screen-structure/05_brewing-session.md)
+
+---
+
+### `06_user-profile` – User Profile
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+- Display the user's name, email, and avatar (non-editable)
+- Let the user switch app language (`FR` / `EN`)
+- Provide a clear logout mechanism (with confirmation)
+- Prepare the UI for future profile editing and GDPR compliance
+
+**Layout Overview:**
+
+- **Header:** Back button ←, title “My Profile” + language badge
+- **Body:**
+  - **User Info Card:** avatar (initial or image), name, email, registration/last login (optional)
+  - **Preferences:** Language switch (toggle/dropdown)
+  - **Actions:** `Logout` (CTA + modal), optional `Back to Dashboard`
+- **Footer:** App version (e.g., `v1.0.0-beta • Brasse-Bouillon`), right-aligned or centered
+
+**Notable Behaviors:**
+
+- No editable fields in MVP
+- Language stored locally (e.g., AsyncStorage)
+- Logout clears session and redirects to `01_home`
+- Designed to support future profile edit modes
+
+**Visual Notes:**
+
+- Avatar fallback = user initial (e.g., “B”)
+- Minimal grayscale cards, line icons (🌐, 🚪)
+- 4-column layout, rounded blocks, clean spacing
+
+📄 [See full wireframe spec → `06_user-profile.md`](./screen-structure/06_user-profile.md)
+
+---
+
+### `07_favorites` – Favorites (Favorite Recipes)
+
+**User Access:** Authenticated only
+
+**Functional Goals:**
+
+- Display a scrollable list of favorite brewing recipes
+- Let the user open recipe detail views
+- Allow user to remove recipes from favorites
+- Encourage recipe discovery when the list is empty
+
+**Layout Overview:**
+
+- **Header:** Back ← + title “My Favorites” + (optional) count badge
+- **Body:**
+  - Cards with recipe title, beer style, optional author, icon (⭐ or ❤️), and CTA `View Recipe`
+  - (Optional) CTA `Start Brewing` (not in MVP)
+  - Support for swipe-to-remove gestures
+- **Empty State:** Message + subtext + CTA `Discover Recipes` + optional icon
+- **Footer:** Optional tips or app version (not required for MVP)
+
+**Notable Behaviors:**
+
+- Star/heart icons are interactive and toggle favorite state
+- If list becomes empty after removal, empty state is triggered
+- Recipes loaded dynamically from user profile
+- Pagination/lazy loading optional for long lists
+
+📄 [See full wireframe spec → `07_favorites.md`](./screen-structure/07_favorites.md)
+
+---
+
+### `08_ibu-abv-calculator` – IBU / ABV Calculator
+
+**User Access:** Anonymous or Authenticated
+
+**Functional Goals:**
+
+- Allow users to estimate IBU and ABV for a brewing recipe
+- Provide clear input fields and visible calculation feedback
+- Optionally allow result saving or recipe linking if user is logged in
+
+**Layout Overview:**
+
+- **Header:** Back ← + title “IBU / ABV Calculator” + optional ❓ icon
+- **Body:**
+  - Section 1: IBU Calculator → volume, hop %, hop weight, boil time
+  - Section 2: ABV Calculator → OG and FG inputs
+  - Each with `Calculate` button and result box
+  - (Optional) result label: “Bitterness: Medium” / “Alcohol: Strong”
+- **Footer / Actions:**
+  - `Reset all fields`
+  - (Optional) `Save result` or `Apply to recipe`
+
+**Notable Behaviors:**
+
+- Only calculates on `Calculate` click (not live)
+- Inputs are validated numerically
+- Authenticated users can store results linked to profile or recipe editor
+
+📄 [See full wireframe spec → `08_ibu-abv-calculator.md`](./screen-structure/08_ibu-abv-calculator.md)
+
+---
+
+## 📘 Support Screen Specifications
+
+This section defines the structure and functional intent of the secondary screens, offering tools for configuration, support, and transparency.
 
 ---
 
 ## 📆 Timeline
 
-| Date       | Action                                  |
-| ---------- | --------------------------------------- |
-| 2025-07-11 | Core screen list validated (Issue #245) |
-| 2025-07-11 | Secondary/support screens validated     |
-| 2025-07-11 | User journey mapping completed          |
+| Date       | Milestone                                   |
+| ---------- | ------------------------------------------- |
+| 2025-07-11 | Core screen list finalized ([Issue #245])    |
+| 2025-07-11 | Support screen list validated                |
+| 2025-07-11 | User journey mapping completed               |
+| 2025-07-18 | Core wireframes drafted in Figma             |
+| 2025-07-25 | Support wireframes drafted in Figma          |
+| 2025-08-01 | Visual design rules reviewed and approved    |
+| 2025-08-08 | All wireframes finalized and documented      |
 
 ---
 
 ## 🗂️ Related Files
 
-* Wireframes folder: `docs/design/04_wireframes/`
-* Design Charter documentation: `docs/design/`
+- Wireframes Directory: `docs/design/04_wireframes/`
+- Design Charter: `docs/design/design-charter.md`
 
----
-
-> This document will be actively maintained throughout the wireframing milestone. Updates should be recorded after the completion of each significant design phase.
+> This document is versioned and maintained actively. Each screen should be checked off once its wireframe is finalized.

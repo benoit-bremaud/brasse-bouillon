@@ -7,6 +7,9 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { IsUniqueEmail } from '../validators/is-unique-email.validator';
+import { IsUniqueUsername } from '../validators/is-unique-username.validator';
+
 /**
  * Update User DTO
  *
@@ -21,8 +24,8 @@ import {
  * Only the fields provided in the request will be updated.
  *
  * Validation rules:
- * - email: Optional, must be valid email format if provided, max 255 chars
- * - username: Optional, 3-20 chars, alphanumeric + underscore only
+ * - email: Optional, must be valid email format if provided, max 255 chars, UNIQUE in DB
+ * - username: Optional, 3-20 chars, alphanumeric + underscore only, UNIQUE in DB
  * - first_name: Optional, max 100 chars
  * - last_name: Optional, max 100 chars
  *
@@ -48,18 +51,25 @@ import {
  *   "email": "invalid-email",  // ❌ Not an email
  *   "username": "ab"           // ❌ Too short (min 3)
  * }
+ *
+ * @example
+ * // Invalid - duplicate email
+ * {
+ *   "email": "existing@example.com"  // ❌ Already used by another user
+ * }
  */
 export class UpdateUserDto {
   /**
    * User's email address (optional)
    *
    * Can be updated if the user changes their email.
-   * Must not already exist in the database.
+   * Must not already exist in the database (for another user).
    *
    * @type {string | undefined}
    * @validation
    * - @IsOptional() - Not required
    * - @IsEmail() - If provided, must be valid email format
+   * - @IsUniqueEmail() - If provided, must not already exist in DB (async)
    * - @MaxLength(255) - Maximum 255 characters
    *
    * @example "newemail@example.com"
@@ -71,6 +81,9 @@ export class UpdateUserDto {
       message: 'Email must be a valid email address',
     },
   )
+  @IsUniqueEmail({
+    message: 'Email already exists. Please use a different email address.',
+  })
   @MaxLength(255, {
     message: 'Email must not be longer than 255 characters',
   })
@@ -80,7 +93,7 @@ export class UpdateUserDto {
    * User's username (optional)
    *
    * Can be updated if the user wants a new username.
-   * Must be unique in the database.
+   * Must be unique in the database (for another user).
    * Only alphanumeric characters and underscores are allowed.
    *
    * @type {string | undefined}
@@ -90,6 +103,7 @@ export class UpdateUserDto {
    * - @MinLength(3) - Minimum 3 characters
    * - @MaxLength(20) - Maximum 20 characters
    * - @Matches(/^[a-zA-Z0-9_]+$/) - Only alphanumeric + underscore
+   * - @IsUniqueUsername() - If provided, must not already exist in DB (async)
    *
    * @example "new_username"
    */
@@ -105,6 +119,9 @@ export class UpdateUserDto {
   })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Username can only contain letters, numbers, and underscores',
+  })
+  @IsUniqueUsername({
+    message: 'Username already exists. Please use a different username.',
   })
   username?: string;
 

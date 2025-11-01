@@ -1,12 +1,16 @@
 import {
   Injectable,
-  ConflictException,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import {
+  EmailAlreadyExistsException,
+  UsernameAlreadyExistsException,
+  UserNotFoundException,
+} from '../../common/exceptions';
 
 /**
  * User Service
@@ -89,9 +93,7 @@ export class UserService {
       where: { email: createUserData.email },
     });
     if (existingEmailUser) {
-      throw new ConflictException(
-        `Email '${createUserData.email}' is already registered`,
-      );
+      throw new EmailAlreadyExistsException();
     }
 
     // Check if username already exists
@@ -99,9 +101,7 @@ export class UserService {
       where: { username: createUserData.username },
     });
     if (existingUsernameUser) {
-      throw new ConflictException(
-        `Username '${createUserData.username}' is already taken`,
-      );
+      throw new UsernameAlreadyExistsException();
     }
 
     // Hash the password before storing
@@ -143,7 +143,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new UserNotFoundException();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -243,9 +243,7 @@ export class UserService {
         where: { email: updateUserData.email },
       });
       if (existingEmailUser) {
-        throw new ConflictException(
-          `Email '${updateUserData.email}' is already in use`,
-        );
+        throw new EmailAlreadyExistsException();
       }
     }
 
@@ -255,9 +253,7 @@ export class UserService {
         where: { username: updateUserData.username },
       });
       if (existingUsernameUser) {
-        throw new ConflictException(
-          `Username '${updateUserData.username}' is already in use`,
-        );
+        throw new UsernameAlreadyExistsException();
       }
     }
 
@@ -298,7 +294,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new UserNotFoundException();
     }
 
     // Remove user from database

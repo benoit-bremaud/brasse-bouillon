@@ -7,11 +7,15 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { IsUniqueEmail } from '../validators/is-unique-email.validator';
+import { IsUniqueUsername } from '../validators/is-unique-username.validator';
+
 /**
  * Create User DTO
  *
  * Data Transfer Object for creating a new user.
  * Validates all required and optional fields for user creation.
+ * Includes uniqueness validation for email and username.
  *
  * @class CreateUserDto
  *
@@ -20,8 +24,8 @@ import {
  * All fields are validated automatically by NestJS using class-validator.
  *
  * Validation rules:
- * - email: Required, must be valid email format, max 255 chars
- * - username: Required, 3-20 chars, alphanumeric + underscore only
+ * - email: Required, must be valid email format, max 255 chars, UNIQUE in DB
+ * - username: Required, 3-20 chars, alphanumeric + underscore only, UNIQUE in DB
  * - password: Required, 8+ chars, must contain uppercase, lowercase, number, and special char
  * - first_name: Optional, max 100 chars
  * - last_name: Optional, max 100 chars
@@ -43,6 +47,14 @@ import {
  *   "username": "ab",          // ❌ Too short (min 3)
  *   "password": "weak"         // ❌ No uppercase, number, or special char
  * }
+ *
+ * @example
+ * // Invalid - duplicate email
+ * {
+ *   "email": "john@example.com",  // ❌ Already exists in DB
+ *   "username": "new_user",
+ *   "password": "SecurePassword123!"
+ * }
  */
 export class CreateUserDto {
   /**
@@ -51,6 +63,7 @@ export class CreateUserDto {
    * @type {string}
    * @validation
    * - @IsEmail() - Must be valid email format
+   * - @IsUniqueEmail() - Must not already exist in database (async)
    * - @MaxLength(255) - Maximum 255 characters
    *
    * @example "john@example.com"
@@ -61,6 +74,9 @@ export class CreateUserDto {
       message: 'Email must be a valid email address',
     },
   )
+  @IsUniqueEmail({
+    message: 'Email already exists. Please use a different email address.',
+  })
   @MaxLength(255, {
     message: 'Email must not be longer than 255 characters',
   })
@@ -78,6 +94,7 @@ export class CreateUserDto {
    * - @MinLength(3) - Minimum 3 characters
    * - @MaxLength(20) - Maximum 20 characters
    * - @Matches(/^[a-zA-Z0-9_]+$/) - Only alphanumeric + underscore
+   * - @IsUniqueUsername() - Must not already exist in database (async)
    *
    * @example "john_doe"
    */
@@ -92,6 +109,9 @@ export class CreateUserDto {
   })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Username can only contain letters, numbers, and underscores',
+  })
+  @IsUniqueUsername({
+    message: 'Username already exists. Please use a different username.',
   })
   username: string;
 

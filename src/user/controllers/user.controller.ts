@@ -11,6 +11,17 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiConflictResponse,
+} from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
@@ -35,6 +46,7 @@ import { UserResponseDto } from '../dtos/user.response.dto';
  * // PUT /users/:id
  * // DELETE /users/:id
  */
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   /**
@@ -82,6 +94,49 @@ export class UserController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Create a new user',
+    description:
+      'Creates a new user with email, username, and password validation',
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'User creation data',
+  })
+  @ApiCreatedResponse({
+    description: 'User created successfully',
+    type: UserResponseDto,
+    example: {
+      success: true,
+      statusCode: 201,
+      message: 'Resource created successfully',
+      data: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: 'john@example.com',
+        username: 'john_doe',
+        first_name: 'John',
+        last_name: 'Doe',
+        is_active: true,
+        created_at: '2025-11-01T23:31:00Z',
+        updated_at: '2025-11-01T23:31:00Z',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed (invalid email, weak password, etc.)',
+    example: {
+      statusCode: 400,
+      message:
+        'Password must contain uppercase, lowercase, number, and special character',
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Email or username already exists',
+    example: {
+      statusCode: 400,
+      message: 'Email already exists. Please use a different email address.',
+    },
+  })
   async create(
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     createUserDto: CreateUserDto,
@@ -117,6 +172,49 @@ export class UserController {
    * }
    */
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a user by ID',
+    description: 'Retrieves a user by their UUID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User UUID (v4 format)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User found',
+    type: UserResponseDto,
+    example: {
+      success: true,
+      statusCode: 200,
+      message: 'Success',
+      data: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: 'john@example.com',
+        username: 'john_doe',
+        first_name: 'John',
+        last_name: 'Doe',
+        is_active: true,
+        created_at: '2025-11-01T23:31:00Z',
+        updated_at: '2025-11-01T23:31:00Z',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid UUID format',
+    example: {
+      statusCode: 400,
+      message: 'Validation failed (uuid v4 expected)',
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    example: {
+      statusCode: 404,
+      message: 'User not found',
+    },
+  })
   async findById(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<UserResponseDto> {
@@ -159,6 +257,60 @@ export class UserController {
    * }
    */
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update a user',
+    description: 'Updates one or more fields of an existing user',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User UUID (v4 format)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+    description: 'User update data (all fields optional)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: UserResponseDto,
+    example: {
+      success: true,
+      statusCode: 200,
+      message: 'Success',
+      data: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: 'john@example.com',
+        username: 'john_doe',
+        first_name: 'Johnny',
+        last_name: 'Smith',
+        is_active: true,
+        created_at: '2025-11-01T23:31:00Z',
+        updated_at: '2025-11-01T23:32:15Z',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed or invalid UUID',
+    example: {
+      statusCode: 400,
+      message: 'Email must be a valid email address',
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    example: {
+      statusCode: 404,
+      message: 'User not found',
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Email or username already in use',
+    example: {
+      statusCode: 400,
+      message: 'Username already exists. Please use a different username.',
+    },
+  })
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
@@ -192,6 +344,40 @@ export class UserController {
    * }
    */
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete a user',
+    description: 'Permanently deletes a user and all associated data',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User UUID (v4 format)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully',
+    example: {
+      success: true,
+      statusCode: 200,
+      message: 'Success',
+      data: { message: 'User deleted successfully' },
+      timestamp: '2025-11-02T20:32:10.873Z',
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid UUID format',
+    example: {
+      statusCode: 400,
+      message: 'Validation failed (uuid v4 expected)',
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    example: {
+      statusCode: 404,
+      message: 'User not found',
+    },
+  })
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<{ message: string }> {

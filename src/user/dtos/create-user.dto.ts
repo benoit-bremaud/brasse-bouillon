@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { ApiProperty } from '@nestjs/swagger';
 import { IsUniqueEmail } from '../validators/is-unique-email.validator';
 import { IsUniqueUsername } from '../validators/is-unique-username.validator';
 
@@ -68,6 +69,11 @@ export class CreateUserDto {
    *
    * @example "john@example.com"
    */
+  @ApiProperty({
+    example: 'john@example.com',
+    description: 'User email address (must be unique)',
+    type: String,
+  })
   @IsEmail(
     {},
     {
@@ -98,6 +104,14 @@ export class CreateUserDto {
    *
    * @example "john_doe"
    */
+  @ApiProperty({
+    example: 'john_doe',
+    description:
+      'User username (3-20 chars, alphanumeric + underscore, must be unique)',
+    type: String,
+    minLength: 3,
+    maxLength: 20,
+  })
   @IsString({
     message: 'Username must be a string',
   })
@@ -134,6 +148,13 @@ export class CreateUserDto {
    *
    * @example "SecurePassword123!"
    */
+  @ApiProperty({
+    example: 'SecurePassword123!',
+    description:
+      'Password (min 8 chars, uppercase, lowercase, number, special char)',
+    type: String,
+    minLength: 8,
+  })
   @IsString({
     message: 'Password must be a string',
   })
@@ -160,6 +181,13 @@ export class CreateUserDto {
    *
    * @example "John"
    */
+  @ApiProperty({
+    example: 'John',
+    description: 'User first name (optional)',
+    type: String,
+    maxLength: 100,
+    required: false,
+  })
   @IsOptional()
   @IsString({
     message: 'First name must be a string',
@@ -180,6 +208,13 @@ export class CreateUserDto {
    *
    * @example "Doe"
    */
+  @ApiProperty({
+    example: 'Doe',
+    description: 'User last name (optional)',
+    type: String,
+    maxLength: 100,
+    required: false,
+  })
   @IsOptional()
   @IsString({
     message: 'Last name must be a string',

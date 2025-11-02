@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from 'src/common/enums/role.enum';
 
 /**
  * Auth Response DTO
@@ -17,6 +18,7 @@ import { ApiProperty } from '@nestjs/swagger';
  *     "username": "john_doe",
  *     "first_name": "John",
  *     "last_name": "Doe",
+ *     "role": "user",
  *     "is_active": true,
  *     "created_at": "2025-11-01T23:31:00Z",
  *     "updated_at": "2025-11-01T23:31:00Z"
@@ -50,6 +52,7 @@ export class AuthResponseDto {
    * - username: User username
    * - first_name: User first name
    * - last_name: User last name
+   * - role: User role
    * - is_active: Account status
    * - created_at: Account creation date
    * - updated_at: Last update date
@@ -62,6 +65,7 @@ export class AuthResponseDto {
       username: 'john_doe',
       first_name: 'John',
       last_name: 'Doe',
+      role: UserRole,
       is_active: true,
       created_at: '2025-11-01T23:31:00Z',
       updated_at: '2025-11-01T23:31:00Z',
@@ -73,6 +77,7 @@ export class AuthResponseDto {
     username: string;
     first_name?: string;
     last_name?: string;
+    role: UserRole;
     is_active: boolean;
     created_at: Date;
     updated_at: Date;

@@ -38,6 +38,7 @@ import { User } from '../entities/user.entity';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRole } from 'src/common/enums/role.enum';
+import { plainToInstance } from 'class-transformer';
 
 /**
  * User Controller
@@ -535,7 +536,9 @@ export class UserController {
   })
   async getAllUsers(): Promise<UserResponseDto[]> {
     console.log(`ADMIN route accessed`);
-    return this.userService.findAll();
+    const users = await this.userService.findAll();
+
+    return plainToInstance(UserResponseDto, users);
   }
 
   /**

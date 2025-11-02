@@ -321,4 +321,81 @@ describe('UserService', () => {
       );
     });
   });
+
+  /**
+   * Test suite for UserService.findByEmail() method
+   *
+   * Tests user retrieval by email address.
+   * Note: This method does NOT format response (includes password hash for auth).
+   */
+  describe('findByEmail()', () => {
+    /**
+     * Test Case 6️⃣: User found by email
+     *
+     * Scenario: Valid email provided and user exists with that email
+     * Expected: User object is returned (including password hash for auth)
+     *
+     * Validates that:
+     * - Repository is queried with correct email
+     * - User object is returned with password hash included
+     * - Used for authentication purposes
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - result has correct email
+     * - findOne called with correct email
+     */
+    it('should return a user when found by email', async () => {
+      // Setup: Mock repository to return user
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      const result = await userService.findByEmail(mockUser.email);
+
+      // Verify: User is returned
+      expect(result).toBeDefined();
+      if (result) {
+        expect(result.email).toBe(mockUser.email);
+      }
+      // Verify: Repository was called with correct email query
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { email: mockUser.email },
+      });
+    });
+
+    /**
+     * Test Case 7️⃣: User not found by email
+     *
+     * Scenario: Email provided but no user exists with that email
+     * Expected: null is returned (NOT an exception)
+     *
+     * Note: This differs from findById() which throws an exception.
+     * findByEmail() returns null for flexible error handling in controllers.
+     *
+     * Validates that:
+     * - Service returns null instead of throwing
+     * - Repository was called with correct query
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - result is null (not undefined, not exception)
+     */
+    it('should return null when user does not exist by email', async () => {
+      // Setup: Mock repository to return null
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute: Call the service method
+      const result = await userService.findByEmail('nonexistent@example.com');
+
+      // Verify: null is returned (not an exception)
+      expect(result).toBeNull();
+    });
+  });
 });

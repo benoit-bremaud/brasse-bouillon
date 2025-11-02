@@ -10,6 +10,8 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   ValidationPipe,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -21,11 +23,15 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiConflictResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { UserResponseDto } from '../dtos/user.response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from '../entities/user.entity';
 
 /**
  * User Controller
@@ -36,15 +42,23 @@ import { UserResponseDto } from '../dtos/user.response.dto';
  *
  * Base route: /users
  *
+ * Protected routes (require JWT token):
+ * - GET /users/:id
+ * - PUT /users/:id
+ * - DELETE /users/:id
+ *
+ * Public routes:
+ * - POST /users (registration)
+ *
  * @class UserController
  * @decorator @Controller('users')
  *
  * @example
  * // Access the controller at:
- * // GET /users/:id
- * // POST /users
- * // PUT /users/:id
- * // DELETE /users/:id
+ * // GET /users/:id - Protected
+ * // POST /users - Public (registration)
+ * // PUT /users/:id - Protected
+ * // DELETE /users/:id - Protected
  */
 @ApiTags('Users')
 @Controller('users')
@@ -57,9 +71,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * Create a new user
+   * Create a new user (Register)
    *
    * POST /users
+   *
+   * Public endpoint - No authentication required
    *
    * @param {CreateUserDto} createUserDto - User creation data (validated)
    *
@@ -97,7 +113,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Create a new user',
     description:
-      'Creates a new user with email, username, and password validation',
+      'Creates a new user with email, username, and password validation. No authentication required.',
   })
   @ApiBody({
     type: CreateUserDto,
@@ -149,15 +165,20 @@ export class UserController {
    *
    * GET /users/:id
    *
+   * Protected endpoint - Requires valid JWT token
+   *
+   * @param {User} currentUser - Currently authenticated user (from JWT)
    * @param {string} id - User's UUID (must be valid UUID v4)
    *
    * @returns {Promise<UserResponseDto>} User object (without password)
    *
    * @throws {BadRequestException} If ID is not a valid UUID
    * @throws {NotFoundException} If user does not exist
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
    *
    * @example
    * GET /users/550e8400-e29b-41d4-a716-446655440000
+   * Authorization: Bearer <JWT_TOKEN>
    *
    * Response (200 OK):
    * {
@@ -172,9 +193,10 @@ export class UserController {
    * }
    */
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Get a user by ID',
-    description: 'Retrieves a user by their UUID',
+    description: 'Retrieves a user by their UUID. Requires authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -216,8 +238,12 @@ export class UserController {
     },
   })
   async findById(
+    @CurrentUser() currentUser: User,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<UserResponseDto> {
+    console.log(
+      `User ${currentUser.email} (${currentUser.id}) is fetching user ${id}`,
+    );
     return this.userService.findById(id);
   }
 
@@ -226,6 +252,10 @@ export class UserController {
    *
    * PUT /users/:id
    *
+   * Protected endpoint - Requires valid JWT token
+   * Users can only update their own profile
+   *
+   * @param {User} currentUser - Currently authenticated user (from JWT)
    * @param {string} id - User's UUID (must be valid UUID v4)
    * @param {UpdateUserDto} updateUserDto - User update data (validated, all optional)
    *
@@ -233,10 +263,13 @@ export class UserController {
    *
    * @throws {BadRequestException} If ID is not valid UUID or validation fails
    * @throws {NotFoundException} If user does not exist
+   * @throws {ForbiddenException} If user tries to update another user's profile
    * @throws {ConflictException} If email/username already in use
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
    *
    * @example
    * PUT /users/550e8400-e29b-41d4-a716-446655440000
+   * Authorization: Bearer <JWT_TOKEN>
    * Content-Type: application/json
    *
    * {
@@ -257,9 +290,11 @@ export class UserController {
    * }
    */
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Update a user',
-    description: 'Updates one or more fields of an existing user',
+    description:
+      'Updates one or more fields of an existing user. Users can only update their own profile. Requires authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -304,6 +339,13 @@ export class UserController {
       message: 'User not found',
     },
   })
+  @ApiForbiddenResponse({
+    description: 'User tries to update another user profile',
+    example: {
+      statusCode: 403,
+      message: 'You can only update your own profile',
+    },
+  })
   @ApiConflictResponse({
     description: 'Email or username already in use',
     example: {
@@ -312,10 +354,22 @@ export class UserController {
     },
   })
   async update(
+    @CurrentUser() currentUser: User,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
+    // ✅ Ownership verification: User can only update their own profile
+    if (currentUser.id !== id) {
+      console.warn(
+        `⚠️ User ${currentUser.email} attempted to update user ${id}`,
+      );
+      throw new ForbiddenException('You can only update your own profile');
+    }
+
+    console.log(
+      `User ${currentUser.email} (${currentUser.id}) is updating their profile`,
+    );
     return this.userService.update(id, updateUserDto);
   }
 
@@ -324,29 +378,38 @@ export class UserController {
    *
    * DELETE /users/:id
    *
+   * Protected endpoint - Requires valid JWT token
+   * Users can only delete their own account
+   *
+   * @param {User} currentUser - Currently authenticated user (from JWT)
    * @param {string} id - User's UUID (must be valid UUID v4)
    *
    * @returns {Promise<{ message: string }>} Success message
    *
    * @throws {BadRequestException} If ID is not a valid UUID
    * @throws {NotFoundException} If user does not exist
+   * @throws {ForbiddenException} If user tries to delete another user's account
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
    *
    * @example
    * DELETE /users/550e8400-e29b-41d4-a716-446655440000
+   * Authorization: Bearer <JWT_TOKEN>
    *
    * Response (200 OK):
    * {
    *   "success": true,
    *   "statusCode": 200,
-   *   "message": "User deleted successfully",
+   *   "message": "Success",
    *   "data": { "message": "User deleted successfully" },
    *   "timestamp": "2025-11-02T20:32:10.873Z"
    * }
    */
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Delete a user',
-    description: 'Permanently deletes a user and all associated data',
+    description:
+      'Permanently deletes a user and all associated data. Users can only delete their own account. Requires authentication.',
   })
   @ApiParam({
     name: 'id',
@@ -378,9 +441,28 @@ export class UserController {
       message: 'User not found',
     },
   })
+  @ApiForbiddenResponse({
+    description: 'User tries to delete another user account',
+    example: {
+      statusCode: 403,
+      message: 'You can only delete your own account',
+    },
+  })
   async delete(
+    @CurrentUser() currentUser: User,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<{ message: string }> {
+    // ✅ Ownership verification: User can only delete their own account
+    if (currentUser.id !== id) {
+      console.warn(
+        `⚠️ User ${currentUser.email} attempted to delete user ${id}`,
+      );
+      throw new ForbiddenException('You can only delete your own account');
+    }
+
+    console.log(
+      `User ${currentUser.email} (${currentUser.id}) is deleting their account`,
+    );
     await this.userService.delete(id);
     return {
       message: 'User deleted successfully',

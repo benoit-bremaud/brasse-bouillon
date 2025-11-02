@@ -1,5 +1,6 @@
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { Module } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UserModule } from './user/user.module';
  * - Global configuration management (ConfigModule)
  * - Database connection (DatabaseModule)
  * - User feature (UserModule)
+ * - Authentication feature (AuthModule)
  * - Root controller and service
  *
  * Module dependency order matters:
@@ -40,6 +42,9 @@ import { UserModule } from './user/user.module';
 
     // User feature module - User entity, service, and controller
     UserModule,
+
+    // Authentication module - JWT, login, registration
+    AuthModule,
   ],
 
   // Controllers that handle HTTP requests at root level

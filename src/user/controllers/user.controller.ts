@@ -607,4 +607,67 @@ export class UserController {
       updated_at: admin.updated_at,
     };
   }
+
+  /**
+   * Create Moderator User (DEV ONLY)
+   *
+   * Creates a moderator user for development and testing.
+   * This endpoint should only be called ONCE.
+   *
+   * ⚠️ WARNING: This is for development only!
+   *
+   * @returns {Promise<UserResponseDto>} Created moderator user
+   *
+   * @throws {ConflictException} If moderator already exists
+   *
+   * @example
+   * POST /users/dev/seed-moderator
+   * Response: { ..., role: "moderator" }
+   */
+  @Post('dev/seed-moderator')
+  @ApiOperation({
+    summary: 'Create Moderator User (DEV ONLY)',
+    description:
+      'Creates a moderator user. Call this ONCE at startup. ⚠️ Remove in production!',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Moderator created',
+    type: UserResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Moderator already exists',
+  })
+  async seedModerator(): Promise<UserResponseDto> {
+    console.log('🌱 Seeding Moderator User...');
+
+    // Check if moderator already exists
+    const existingModerator = await this.userService.findByEmail(
+      'moderator@example.com',
+    );
+    if (existingModerator) {
+      throw new ConflictException(
+        'Moderator already exists! Remove this endpoint.',
+      );
+    }
+
+    // Create moderator user
+    const moderator = await this.userService.createAdmin(
+      'moderator@example.com',
+      'moderator',
+      'ModeratorPassword123!',
+      'Moderator',
+      'User',
+    );
+
+    // Update role to MODERATOR
+    const updatedModerator = await this.userService.updateUserRole(
+      moderator.id,
+      UserRole.MODERATOR,
+    );
+
+    console.log(`✅ Moderator created with ID: ${updatedModerator.id}`);
+
+    return plainToInstance(UserResponseDto, updatedModerator);
+  }
 }

@@ -422,4 +422,38 @@ export class UserService {
     console.log(`✅ Genesis Admin created: ${email}`);
     return this.userRepository.save(admin);
   }
+
+  /**
+   * Update user role
+   *
+   * Changes a user's role to a specific value.
+   * Useful for promoting/demoting users.
+   *
+   * @async
+   * @param {string} userId - User ID
+   * @param {UserRole} role - New role to assign
+   * @returns {Promise<User>} Updated user
+   * @throws {NotFoundException} If user not found
+   *
+   * @example
+   * const updatedUser = await userService.updateUserRole(
+   *   'user-id',
+   *   UserRole.MODERATOR
+   * );
+   */
+  async updateUserRole(userId: string, role: UserRole): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    user.role = role;
+    const updatedUser = await this.userRepository.save(user);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.formatUserResponse(updatedUser);
+  }
 }

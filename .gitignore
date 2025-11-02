@@ -23,3 +23,4 @@ lerna-debug.log*
 .temp
 .tmp
 data/
+data/brasse-bouillon.db

@@ -566,4 +566,74 @@ describe('UserService', () => {
       ).rejects.toThrow(UsernameAlreadyExistsException);
     });
   });
+
+  /**
+   * Test suite for UserService.delete() method
+   *
+   * Tests user deletion with existence validation.
+   */
+  describe('delete()', () => {
+    /**
+     * Test Case 1️⃣2️⃣: Successfully delete user
+     *
+     * Scenario: Valid user ID provided and user exists
+     * Expected: User is deleted from database
+     *
+     * Validates that:
+     * - User exists before deletion
+     * - User is removed from database
+     * - Method returns void (no value)
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     * - Mock remove to resolve (user deleted)
+     *
+     * Assertions:
+     * - remove is called with mockUser
+     * - No error is thrown
+     */
+    it('should delete a user successfully', async () => {
+      // Setup: Mock repository
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      const removeSpy = jest
+        .spyOn(userRepository, 'remove')
+        .mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      await userService.delete(mockUser.id);
+
+      // Verify: Remove was called with user
+      expect(removeSpy).toHaveBeenCalledWith(mockUser);
+    });
+
+    /**
+     * Test Case 1️⃣3️⃣: Delete non-existent user
+     *
+     * Scenario: Delete is called with non-existent user ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service checks if user exists first
+     * - Throws correct exception for missing user
+     * - No removal operation occurs
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when deleting non-existent user', async () => {
+      // Setup: Mock repository to return null
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException
+      await expect(userService.delete('non-existent-id')).rejects.toThrow(
+        UserNotFoundException,
+      );
+    });
+  });
 });

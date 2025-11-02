@@ -12,6 +12,7 @@ import {
   ValidationPipe,
   UseGuards,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -34,6 +35,9 @@ import { UserResponseDto } from '../dtos/user.response.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from '../entities/user.entity';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from 'src/common/enums/role.enum';
 
 /**
  * User Controller
@@ -492,6 +496,112 @@ export class UserController {
     await this.userService.delete(id);
     return {
       message: 'User deleted successfully',
+    };
+  }
+
+  /**
+   * Get all users (ADMIN ONLY)
+   *
+   * Retrieves a list of all users in the system.
+   * Only accessible to users with ADMIN role.
+   *
+   * @returns {Promise<User[]>} Array of all users
+   *
+   * @throws {ForbiddenException} If user is not admin
+   *
+   * @example
+   * GET /users/admin/list
+   * Authorization: Bearer <ADMIN_TOKEN>
+   * Response: [{ id: "...", email: "...", role: "admin" }, ...]
+   */
+  @Get('admin/list')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get all users (ADMIN ONLY)',
+    description: 'Retrieve all users. Requires ADMIN role.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all users',
+    type: [UserResponseDto],
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or missing JWT token',
+  })
+  @ApiForbiddenResponse({
+    description: 'User is not admin',
+  })
+  async getAllUsers(): Promise<UserResponseDto[]> {
+    console.log(`ADMIN route accessed`);
+    return this.userService.findAll();
+  }
+
+  /**
+   * Create Genesis Admin User (DEV ONLY)
+   *
+   * Creates the first admin user for development and testing.
+   * This endpoint should only be called ONCE and then removed.
+   *
+   * ⚠️ WARNING: This is for development only!
+   * Remove in production!
+   *
+   * @returns {Promise<UserResponseDto>} Created admin user
+   *
+   * @throws {ConflictException} If admin already exists
+   *
+   * @example
+   * POST /users/dev/seed-admin
+   * Response: { ..., role: "admin" }
+   */
+  @Post('dev/seed-admin')
+  @ApiOperation({
+    summary: 'Create Genesis Admin User (DEV ONLY)',
+    description:
+      'Creates the first admin user. Call this ONCE at startup. ⚠️ Remove in production!',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Genesis admin created',
+    type: UserResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Admin already exists',
+  })
+  async seedAdmin(): Promise<UserResponseDto> {
+    console.log('🌱 Seeding Genesis Admin...');
+
+    // Check if admin already exists
+    const existingAdmin =
+      await this.userService.findByEmail('admin@example.com');
+    if (existingAdmin) {
+      throw new ConflictException(
+        'Genesis Admin already exists! Remove this endpoint.',
+      );
+    }
+
+    // Create genesis admin
+    const admin = await this.userService.createAdmin(
+      'admin@example.com',
+      'admin',
+      'AdminPassword123!',
+      'Admin',
+      'User',
+    );
+
+    console.log(`✅ Genesis Admin created with ID: ${admin.id}`);
+
+    return {
+      id: admin.id,
+      email: admin.email,
+      username: admin.username,
+      first_name: admin.first_name,
+      last_name: admin.last_name,
+      role: admin.role,
+      is_active: admin.is_active,
+      created_at: admin.created_at,
+      updated_at: admin.updated_at,
     };
   }
 }

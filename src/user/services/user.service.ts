@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -7,6 +11,7 @@ import {
   UsernameAlreadyExistsException,
   UserNotFoundException,
 } from '../../common/exceptions';
+import { UserRole } from 'src/common/enums/role.enum';
 
 /**
  * User Service
@@ -331,5 +336,90 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password_hash, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  /**
+   * Get all users
+   *
+   * Retrieves all active users from the database.
+   *
+   * @async
+   * @returns {Promise<User[]>} Array of all users
+   *
+   * @example
+   * const allUsers = await userService.findAll();
+   */
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { is_active: true },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  /**
+   * Create an admin user (Genesis Admin)
+   *
+   * Creates the first admin user with ADMIN role.
+   * Used only once at application startup.
+   *
+   * @async
+   * @param {string} email - Admin email
+   * @param {string} username - Admin username
+   * @param {string} password - Admin password (will be hashed)
+   * @param {string} firstName - Admin first name
+   * @param {string} lastName - Admin last name
+   *
+   * @returns {Promise<User>} Created admin user
+   *
+   * @throws {ConflictException} If email or username already exists
+   *
+   * @example
+   * const admin = await userService.createAdmin(
+   *   'admin@example.com',
+   *   'admin',
+   *   'AdminPassword123!',
+   *   'Admin',
+   *   'User'
+   * );
+   */
+  async createAdmin(
+    email: string,
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<User> {
+    // Check if email already exists
+    const existingEmail = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingEmail) {
+      throw new ConflictException('Email already exists');
+    }
+
+    // Check if username already exists
+    const existingUsername = await this.userRepository.findOne({
+      where: { username },
+    });
+    if (existingUsername) {
+      throw new ConflictException('Username already exists');
+    }
+
+    // Hash password
+    const password_hash = await User.hashPassword(password);
+
+    // Create admin user with ADMIN role
+    const admin = this.userRepository.create({
+      email,
+      username,
+      password_hash,
+      first_name: firstName,
+      last_name: lastName,
+      role: UserRole.ADMIN,
+      is_active: true,
+    });
+
+    console.log(`✅ Genesis Admin created: ${email}`);
+    return this.userRepository.save(admin);
   }
 }

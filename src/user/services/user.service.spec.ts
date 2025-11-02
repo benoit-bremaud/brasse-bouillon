@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { EmailAlreadyExistsException } from '../../common/exceptions';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserService } from './user.service';
@@ -123,6 +124,15 @@ describe('UserService', () => {
       );
       // Verify: Check that user was saved to database
       expect(saveSpy).toHaveBeenCalledWith(mockUser);
+    });
+    it('should throw EmailAlreadyExistsException when email already exists', async () => {
+      // Setup: Mock findOne to return existing user for email check
+      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(mockUser);
+
+      // Execute & Verify: Expect EmailAlreadyExistsException to be thrown
+      await expect(userService.create(mockCreateUserData)).rejects.toThrow(
+        EmailAlreadyExistsException,
+      );
     });
   });
 });

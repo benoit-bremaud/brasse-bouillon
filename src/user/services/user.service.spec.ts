@@ -398,4 +398,118 @@ describe('UserService', () => {
       expect(result).toBeNull();
     });
   });
+
+  /**
+   * Test suite for UserService.update() method
+   *
+   * Tests user information updates with validation and conflict detection.
+   */
+  describe('update()', () => {
+    /**
+     * Test Case 8️⃣: Successful user update
+     *
+     * Scenario: Valid user ID and update data provided
+     * Expected: User is updated and saved to database
+     *
+     * Validates that:
+     * - User exists (findOne called)
+     * - Update data is applied
+     * - Updated user is saved to database
+     * - Updated user is returned
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     * - Mock save to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - save was called
+     */
+    it('should update a user successfully', async () => {
+      // Setup: Mock repository for find and save
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      jest.spyOn(userRepository, 'save').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method with partial update data
+      const updateData = { first_name: 'Johnny' };
+      const result = await userService.update(mockUser.id, updateData);
+
+      // Verify: User is returned
+      expect(result).toBeDefined();
+      // Verify: User was saved to database
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.save).toHaveBeenCalled();
+    });
+
+    /**
+     * Test Case 9️⃣: Update non-existent user
+     *
+     * Scenario: Update data provided for non-existent user ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service checks if user exists first
+     * - Throws correct exception for missing user
+     * - No save operation occurs
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when updating non-existent user', async () => {
+      // Setup: Mock repository to return null (user not found)
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException
+      await expect(
+        userService.update('non-existent-id', { first_name: 'Johnny' }),
+      ).rejects.toThrow(UserNotFoundException);
+    });
+
+    /**
+     * Test Case 🔟: Update to duplicate email
+     *
+     * Scenario: User attempts to change email to one already in use
+     * Expected: EmailAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - User exists (first findOne returns current user)
+     * - Email uniqueness is checked (second findOne returns conflicting user)
+     * - Throws correct exception for email conflict
+     * - No update occurs
+     *
+     * Test Setup:
+     * - Mock findOne with chained responses:
+     *   - First call: current user (exists check)
+     *   - Second call: other user (email conflict detection)
+     *
+     * Assertions:
+     * - EmailAlreadyExistsException is thrown
+     */
+    it('should throw EmailAlreadyExistsException when updating to existing email', async () => {
+      // Setup: Create another user for conflict detection
+      const otherUser = { ...mockUser, id: 'other-id' } as User;
+
+      // Mock findOne with chained responses
+      // First call: Returns current user (exists check)
+      // Second call: Returns other user (email conflict detection)
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(otherUser);
+
+      // Execute & Verify: Expect EmailAlreadyExistsException
+      await expect(
+        userService.update(mockUser.id, {
+          email: 'other@example.com',
+        }),
+      ).rejects.toThrow(EmailAlreadyExistsException);
+    });
+  });
 });

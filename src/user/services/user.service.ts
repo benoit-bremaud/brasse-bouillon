@@ -234,7 +234,7 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new UserNotFoundException();
     }
 
     // If email is being updated, check for duplicates

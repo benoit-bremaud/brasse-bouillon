@@ -511,5 +511,59 @@ describe('UserService', () => {
         }),
       ).rejects.toThrow(EmailAlreadyExistsException);
     });
+
+    /**
+     * Test Case 1️⃣1️⃣: Update to duplicate username
+     *
+     * Scenario: User attempts to change username to one already in use
+     * Expected: UsernameAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - User exists (first findOne)
+     * - Email uniqueness passes (second findOne returns null)
+     * - Username uniqueness check detects conflict (third findOne returns conflicting user)
+     * - Throws correct exception for username conflict
+     *
+     * Test Setup:
+     * - Mock findOne with chained responses:
+     *   - First call: current user (exists check)
+     *   - Second call: null (email is unique)
+     *   - Third call: other user (username conflict detection)
+     *
+     * Assertions:
+     * - UsernameAlreadyExistsException is thrown
+     */
+    it('should throw UsernameAlreadyExistsException when updating to existing username', async () => {
+      // Setup: Create another user for conflict detection
+      const otherUser = {
+        ...mockUser,
+        id: 'other-id',
+        username: 'other_username',
+      } as User;
+
+      // Mock findOne - returns different values based on query parameter
+
+      jest.spyOn(userRepository, 'findOne').mockImplementation((options) => {
+        const where = Array.isArray(options?.where)
+          ? options.where[0]
+          : options?.where;
+        if (where?.id === mockUser.id) {
+          return Promise.resolve(mockUser); // User exists check
+        }
+        if (where?.email === mockUser.email) {
+          return Promise.resolve(null); // Email is unique
+        }
+        if (where?.username === 'other_username') {
+          return Promise.resolve(otherUser); // Username conflict
+        }
+        return Promise.resolve(null);
+      });
+      // Execute & Verify: Expect UsernameAlreadyExistsException
+      await expect(
+        userService.update(mockUser.id, {
+          username: 'other_username',
+        }),
+      ).rejects.toThrow(UsernameAlreadyExistsException);
+    });
   });
 });

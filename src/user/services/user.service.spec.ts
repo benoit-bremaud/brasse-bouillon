@@ -1,5 +1,6 @@
 import {
   EmailAlreadyExistsException,
+  UserNotFoundException,
   UsernameAlreadyExistsException,
 } from '../../common/exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -247,6 +248,76 @@ describe('UserService', () => {
       // The service should detect the duplicate username and throw
       await expect(userService.create(mockCreateUserData)).rejects.toThrow(
         UsernameAlreadyExistsException,
+      );
+    });
+  });
+
+  /**
+   * Test suite for UserService.findById() method
+   *
+   * Tests user retrieval by unique identifier with exception handling.
+   */
+  describe('findById()', () => {
+    /**
+     * Test Case 4️⃣: User found by ID
+     *
+     * Scenario: Valid user ID provided and user exists in database
+     * Expected: User object is returned
+     *
+     * Validates that:
+     * - Repository is queried with correct ID
+     * - User object is returned with all properties
+     * - Password hash is excluded from response
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - result contains correct email
+     * - findOne called with correct ID
+     */
+    it('should return a user when found by ID', async () => {
+      // Setup: Mock repository to return user
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      const result = await userService.findById(mockUser.id);
+
+      // Verify: User is returned with correct data
+      expect(result).toBeDefined();
+      expect(result.email).toBe(mockUser.email);
+      // Verify: Repository was called with correct query
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+      });
+    });
+
+    /**
+     * Test Case 5️⃣: User not found by ID
+     *
+     * Scenario: User ID provided but no user exists with that ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service detects missing user
+     * - Throws the correct custom exception (UserNotFoundException)
+     * - Error message is descriptive
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when user does not exist', async () => {
+      // Setup: Mock repository to return null (user not found)
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException to be thrown
+      await expect(userService.findById('non-existent-id')).rejects.toThrow(
+        UserNotFoundException,
       );
     });
   });

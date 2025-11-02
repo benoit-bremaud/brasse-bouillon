@@ -52,6 +52,17 @@ async function bootstrap(): Promise<void> {
     .addServer('https://api.brasse-bouillon.com', 'Production')
     .addTag('Users', 'User management endpoints')
     .addTag('Auth', 'Authentication endpoints')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token for protected routes',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

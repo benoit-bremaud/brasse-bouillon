@@ -24,6 +24,8 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
   ApiForbiddenResponse,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -194,6 +196,14 @@ export class UserController {
    */
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-Auth')
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - Invalid or missing JWT token',
+    example: {
+      statusCode: 401,
+      message: 'Unauthorized',
+    },
+  })
   @ApiOperation({
     summary: 'Get a user by ID',
     description: 'Retrieves a user by their UUID. Requires authentication.',
@@ -291,6 +301,14 @@ export class UserController {
    */
   @Put(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-Auth')
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - Invalid or missing JWT token',
+    example: {
+      statusCode: 401,
+      message: 'Unauthorized',
+    },
+  })
   @ApiOperation({
     summary: 'Update a user',
     description:
@@ -406,6 +424,14 @@ export class UserController {
    */
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-Auth')
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - Invalid or missing JWT token',
+    example: {
+      statusCode: 401,
+      message: 'Unauthorized',
+    },
+  })
   @ApiOperation({
     summary: 'Delete a user',
     description:

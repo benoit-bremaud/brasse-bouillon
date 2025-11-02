@@ -4,6 +4,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { NestFactory } from '@nestjs/core';
 import { TransformResponseInterceptor } from './common/interceptors';
 import { ValidationPipe } from '@nestjs/common';
+import { useContainer } from 'class-validator';
 
 /**
  * Bootstrap function - Entry point of the NestJS application
@@ -18,6 +19,11 @@ import { ValidationPipe } from '@nestjs/common';
  */
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
+  // AJOUTE CES DEUX LIGNES ↓
+  // Register NestJS container with class-validator
+  // This allows custom validators to inject dependencies properly
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   // Global ValidationPipe - validates all incoming requests
   app.useGlobalPipes(new ValidationPipe());

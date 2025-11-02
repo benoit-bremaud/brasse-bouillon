@@ -1,3 +1,5 @@
+import { IsUniqueEmailConstraint } from './validators/is-unique-email.validator';
+import { IsUniqueUsernameConstraint } from './validators/is-unique-username.validator';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -17,6 +19,7 @@ import { UserService } from './services/user.service';
  * This module is responsible for:
  * - Registering the User entity with TypeORM
  * - Providing the UserService to handle business logic
+ * - Registering custom validators for DTO validation
  * - Defining the UserController to handle HTTP requests
  * - Setting up dependency injection for all user-related operations
  *
@@ -42,7 +45,8 @@ import { UserService } from './services/user.service';
 
   // Services (providers) that contain business logic
   // These are automatically instantiated and injected where needed
-  providers: [UserService],
+  // IMPORTANT: Custom validators MUST be registered here for dependency injection!
+  providers: [UserService, IsUniqueEmailConstraint, IsUniqueUsernameConstraint],
 
   // Export services that can be used by other modules
   // By exporting UserService, other modules can import this module

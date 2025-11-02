@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -252,7 +248,7 @@ export class UserService {
       const existingUsernameUser = await this.userRepository.findOne({
         where: { username: updateUserData.username },
       });
-      if (existingUsernameUser) {
+      if (existingUsernameUser && existingUsernameUser.id !== id) {
         throw new UsernameAlreadyExistsException();
       }
     }

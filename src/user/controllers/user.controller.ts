@@ -86,7 +86,6 @@ export class UserController {
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.userService.create(createUserDto);
   }
 
@@ -121,7 +120,6 @@ export class UserController {
   async findById(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<UserResponseDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.userService.findById(id);
   }
 
@@ -166,7 +164,6 @@ export class UserController {
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.userService.update(id, updateUserDto);
   }
 
@@ -177,7 +174,7 @@ export class UserController {
    *
    * @param {string} id - User's UUID (must be valid UUID v4)
    *
-   * @returns {Promise<void>} No content
+   * @returns {Promise<{ message: string }>} Success message
    *
    * @throws {BadRequestException} If ID is not a valid UUID
    * @throws {NotFoundException} If user does not exist
@@ -185,12 +182,22 @@ export class UserController {
    * @example
    * DELETE /users/550e8400-e29b-41d4-a716-446655440000
    *
-   * Response (204 No Content):
-   * (empty body)
+   * Response (200 OK):
+   * {
+   *   "success": true,
+   *   "statusCode": 200,
+   *   "message": "User deleted successfully",
+   *   "data": { "message": "User deleted successfully" },
+   *   "timestamp": "2025-11-02T20:32:10.873Z"
+   * }
    */
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
-    return this.userService.delete(id);
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<{ message: string }> {
+    await this.userService.delete(id);
+    return {
+      message: 'User deleted successfully',
+    };
   }
 }

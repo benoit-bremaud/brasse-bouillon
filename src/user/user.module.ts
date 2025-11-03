@@ -1,6 +1,7 @@
 import { IsUniqueEmailConstraint } from './validators/is-unique-email.validator';
 import { IsUniqueUsernameConstraint } from './validators/is-unique-username.validator';
 import { Module } from '@nestjs/common';
+import { PasswordService } from '../auth/services/password.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserController } from './controllers/user.controller';
@@ -9,48 +10,160 @@ import { UserService } from './services/user.service';
 /**
  * User Module
  *
- * Encapsulates all user-related functionality.
- * Registers the User entity, provides the UserService,
- * and defines the UserController for HTTP requests.
+ * Encapsulates all user-related functionality including authentication,
+ * profile management, and custom validation.
  *
- * @module UserModule
+ * Features:
+ * - User entity registration with TypeORM
+ * - Complete CRUD operations via UserService
+ * - HTTP request handling via UserController
+ * - Custom async validators for email/username uniqueness
+ * - Password hashing and verification via PasswordService
+ * - Dependency injection configuration
  *
- * @description
- * This module is responsible for:
- * - Registering the User entity with TypeORM
- * - Providing the UserService to handle business logic
- * - Registering custom validators for DTO validation
- * - Defining the UserController to handle HTTP requests
- * - Setting up dependency injection for all user-related operations
+ * Responsibilities:
+ * - Register User entity with TypeORM (database access)
+ * - Provide UserService for business logic
+ * - Register custom validators for DTO validation
+ * - Register PasswordService for secure password operations
+ * - Define UserController for HTTP request handling
+ * - Export services to other modules that need them
  *
- * @example
- * // In AppModule
- * import { UserModule } from './user/user.module';
+ * Dependencies:
+ * - PasswordService: Injected into UserService for password hashing/verification
+ * - TypeORM: Database abstraction layer
+ * - class-validator: DTO validation
  *
+ * Exports:
+ * - UserService: Can be imported by other modules
+ *
+ * Usage:
+ * ```
+ * // In AppModule or other modules
  * @Module({
  *   imports: [UserModule],
  * })
- * export class AppModule {}
+ * export class SomeModule {}
  *
- * @exports {UserService} The user service can be injected in other modules
+ * // Then inject UserService in any service/controller in that module
+ * constructor(private readonly userService: UserService) {}
+ * ```
+ *
+ * @module UserModule
+ * @decorator @Module() Defines a NestJS module
+ *
+ * @example
+ * // Module is automatically imported in AppModule
+ * // Services are injected via constructor dependency injection
  */
 @Module({
-  // Import the TypeORM User entity repository
-  // This allows UserService to use @InjectRepository(User)
+  // ============================================================================
+  // 📦 IMPORTS
+  // ============================================================================
+
+  /**
+   * TypeORM Feature Module Registration
+   *
+   * Registers the User entity with TypeORM.
+   * This allows:
+   * - Automatic repository creation (@InjectRepository(User))
+   * - Database table schema management
+   * - Query builder access
+   * - Entity relationships
+   *
+   * Note: TypeORM global config is in DatabaseModule
+   */
   imports: [TypeOrmModule.forFeature([User])],
 
-  // Controllers that handle HTTP requests
-  // UserController will be automatically instantiated and available
+  // ============================================================================
+  // 🎮 CONTROLLERS
+  // ============================================================================
+
+  /**
+   * HTTP Request Handlers
+   *
+   * UserController:
+   * - Handles all user-related HTTP requests
+   * - Routes to appropriate UserService methods
+   * - Validates input using DTOs
+   * - Transforms responses using interceptors
+   *
+   * Automatically instantiated and registered by NestJS
+   */
   controllers: [UserController],
 
-  // Services (providers) that contain business logic
-  // These are automatically instantiated and injected where needed
-  // IMPORTANT: Custom validators MUST be registered here for dependency injection!
-  providers: [UserService, IsUniqueEmailConstraint, IsUniqueUsernameConstraint],
+  // ============================================================================
+  // 🔧 PROVIDERS (Services & Constraints)
+  // ============================================================================
 
-  // Export services that can be used by other modules
-  // By exporting UserService, other modules can import this module
-  // and inject UserService into their own services/controllers
+  /**
+   * Application Services & Validators
+   *
+   * Providers registered here are:
+   * - Instantiated as singletons by NestJS
+   * - Available for dependency injection in this module
+   * - Can be exported for use in other modules
+   *
+   * Providers:
+   *
+   * 1. UserService
+   *    - Core business logic for user operations
+   *    - CRUD operations (create, read, update, delete)
+   *    - Password management
+   *    - Depends on: PasswordService, TypeORM User repository
+   *
+   * 2. PasswordService
+   *    - Password hashing with bcrypt
+   *    - Password verification
+   *    - Injected into UserService for secure password handling
+   *    - Security: Never returns plain-text passwords
+   *
+   * 3. IsUniqueEmailConstraint
+   *    - Custom validator for @IsUniqueEmail() decorator
+   *    - Checks if email is unique in database
+   *    - Used in: CreateUserDto, UpdateUserDto
+   *    - Async: Queries database
+   *
+   * 4. IsUniqueUsernameConstraint
+   *    - Custom validator for @IsUniqueUsername() decorator
+   *    - Checks if username is unique in database
+   *    - Used in: CreateUserDto, UpdateUserDto
+   *    - Async: Queries database
+   *
+   * IMPORTANT: All custom validators must be registered here
+   * so they can use dependency injection
+   */
+  providers: [
+    UserService, // Core service
+    PasswordService, // ✅ Password hashing/verification
+    IsUniqueEmailConstraint, // Custom validator
+    IsUniqueUsernameConstraint, // Custom validator
+  ],
+
+  // ============================================================================
+  // 📤 EXPORTS
+  // ============================================================================
+
+  /**
+   * Module Exports - Available to Other Modules
+   *
+   * When a module imports UserModule, it can inject:
+   * - UserService: For user operations
+   *
+   * Example:
+   * ```
+   * @Module({
+   *   imports: [UserModule],
+   * })
+   * export class RecipesModule {
+   *   // UserService is now available for injection
+   *   constructor(private readonly userService: UserService) {}
+   * }
+   * ```
+   *
+   * Note: PasswordService is NOT exported because it's internal to UserModule
+   * Custom validators are NOT exported because they're only used here
+   */
   exports: [UserService],
 })
 export class UserModule {}

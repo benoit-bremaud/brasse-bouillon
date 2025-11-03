@@ -168,6 +168,78 @@ export class UserController {
   }
 
   /**
+   * Get current user profile
+   *
+   * GET /users/me
+   *
+   * Returns the complete profile of the authenticated user.
+   * Requires valid JWT token.
+   *
+   * @param {User} user - Current user from JWT (@CurrentUser decorator)
+   *
+   * @returns {Promise<any>} User profile data
+   *
+   * @example
+   * GET /users/me
+   * Authorization: Bearer <jwt_token>
+   *
+   * Response (200 OK):
+   * {
+   *   "success": true,
+   *   "statusCode": 200,
+   *   "message": "Success",
+   *   "data": {
+   *     "id": "user-id",
+   *     "email": "user@example.com",
+   *     "username": "username",
+   *     "first_name": "John",
+   *     "last_name": "Doe",
+   *     "role": "user",
+   *     "is_active": true,
+   *     "created_at": "2025-11-02T23:20:19.000Z",
+   *     "updated_at": "2025-11-02T23:20:19.000Z"
+   *   }
+   * }
+   */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get current user profile',
+    description: 'Returns the complete profile of authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+    example: {
+      success: true,
+      statusCode: 200,
+      message: 'Success',
+      data: {
+        id: 'user-id',
+        email: 'user@example.com',
+        username: 'username',
+        first_name: 'John',
+        last_name: 'Doe',
+        role: 'user',
+        is_active: true,
+        created_at: '2025-11-02T23:20:19.000Z',
+        updated_at: '2025-11-02T23:20:19.000Z',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid JWT token',
+  })
+  async getMe(@CurrentUser() user: User): Promise<any> {
+    // Récupère le profil complet de l'utilisateur
+    const completeUser = await this.userService.findById(user.id);
+
+    // Retourne le profil transformé en DTO (sans password_hash)
+    return plainToInstance(UserResponseDto, completeUser);
+  }
+
+  /**
    * Get a user by ID
    *
    * GET /users/:id

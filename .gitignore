@@ -24,3 +24,32 @@ lerna-debug.log*
 .tmp
 data/
 data/brasse-bouillon.db
+
+# Project specific
+tree.txt
+data/brasse-bouillon.db
+data/*.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Tests
+coverage/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

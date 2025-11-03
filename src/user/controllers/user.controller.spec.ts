@@ -96,7 +96,7 @@ describe('UserController', () => {
      */
     it('should create a new user and return it', async () => {
       // Setup: Mock service
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       jest.spyOn(service, 'create').mockResolvedValue(mockUser);
 
       // Execute: Call controller

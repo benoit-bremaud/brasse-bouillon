@@ -21,7 +21,9 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => {
   const isDevelopment = process.env.NODE_ENV !== 'production';
 
   // Define database file path - can be overridden with DATABASE_PATH env var
-  const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'brasse-bouillon.db');
+  const dbPath =
+    process.env.DATABASE_PATH ||
+    path.join(process.cwd(), 'data', 'brasse-bouillon.db');
 
   return {
     // Use SQLite as the database type

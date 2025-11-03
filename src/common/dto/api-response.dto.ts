@@ -1,6 +1,6 @@
 /**
  * Generic API Response DTO
- * 
+ *
  * Standardizes all API responses across the application
  * @template T The data payload type
  */

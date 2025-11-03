@@ -13,6 +13,7 @@ import {
   UseGuards,
   ForbiddenException,
   ConflictException,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -332,6 +333,82 @@ export class UserController {
       `User ${currentUser.email} (${currentUser.id}) is fetching user ${id}`,
     );
     return this.userService.findById(id);
+  }
+
+  /**
+   * Update current user profile
+   *
+   * PATCH /users/me
+   *
+   * Updates the authenticated user's profile information.
+   * Only the provided fields will be updated (partial update).
+   *
+   * @param {User} user - Current user from JWT
+   * @param {UpdateUserDto} updateUserDto - Fields to update
+   *
+   * @returns {Promise<UserResponseDto>} Updated user profile
+   *
+   * @throws {BadRequestException} If validation fails
+   * @throws {ConflictException} If email/username already exists
+   *
+   * @example
+   * PATCH /users/me
+   * Authorization: Bearer <jwt_token>
+   * Content-Type: application/json
+   *
+   * {
+   *   "first_name": "Johnny",
+   *   "last_name": "Smith"
+   * }
+   *
+   * Response (200 OK):
+   * {
+   *   "success": true,
+   *   "statusCode": 200,
+   *   "message": "Success",
+   *   "data": {
+   *     "id": "c1b1c947-1f2a-4e15-aa64-28f4656904f7",
+   *     "email": "charlie@example.com",
+   *     "username": "charlie",
+   *     "first_name": "Johnny",
+   *     "last_name": "Smith",
+   *     "role": "user",
+   *     "is_active": true,
+   *     "created_at": "2025-11-02T23:03:26.000Z",
+   *     "updated_at": "2025-11-03T16:35:00.000Z"
+   *   }
+   * }
+   */
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update current user profile',
+    description:
+      'Updates authenticated user profile. Only provided fields are updated.',
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+    description: 'User profile fields to update (all optional)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully',
+    type: UserResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed or email/username already exists',
+  })
+  async updateMe(
+    @CurrentUser() user: User,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    // Appelle le service pour mettre à jour l'utilisateur
+    const updatedUser = await this.userService.update(user.id, updateUserDto);
+
+    // Retourne le profil transformé en DTO
+    return plainToInstance(UserResponseDto, updatedUser);
   }
 
   /**

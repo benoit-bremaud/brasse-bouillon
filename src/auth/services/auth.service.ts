@@ -59,7 +59,7 @@ export class AuthService {
 
     // Find user by email
     const user = await this.userService.findByEmail(email);
-    if (!user) {
+    if (!user || !user.is_active) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -126,7 +126,7 @@ export class AuthService {
    */
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
-    if (!user) {
+    if (!user || !user.is_active) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

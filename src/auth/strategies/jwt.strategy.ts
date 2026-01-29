@@ -81,11 +81,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token payload');
     }
 
-    const user = await this.userService.findById(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+    const user = await this.userService.findByIdRaw(payload.sub);
+    if (!user || !user.is_active) {
+      throw new UnauthorizedException('Invalid token');
     }
 
-    return user;
+    // Remove password hash before attaching user to request
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password_hash: _, ...safeUser } = user;
+    return safeUser;
   }
 }

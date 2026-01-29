@@ -6,6 +6,7 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from '../services/user.service';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * User Controller Test Suite
@@ -63,6 +64,12 @@ describe('UserController', () => {
             update: jest.fn(),
             delete: jest.fn(),
             count: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
           },
         },
       ],
@@ -152,7 +159,7 @@ describe('UserController', () => {
       jest.spyOn(service, 'findById').mockResolvedValue(mockUser);
 
       // Execute: Call controller
-      const result = await controller.findById(mockUser.id);
+      const result = await controller.findById(mockUser, mockUser.id);
 
       // Verify: Service was called
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -178,9 +185,9 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('User not found'));
 
       // Execute & Verify: Error is thrown
-      await expect(controller.findById('non-existent-id')).rejects.toThrow(
-        'User not found',
-      );
+      await expect(
+        controller.findById(mockUser, 'non-existent-id'),
+      ).rejects.toThrow('User not found');
     });
   });
 
@@ -205,7 +212,11 @@ describe('UserController', () => {
       jest.spyOn(service, 'update').mockResolvedValue(updatedUser);
 
       // Execute: Call controller
-      const result = await controller.update(mockUser.id, updateUserDto);
+      const result = await controller.update(
+        mockUser,
+        mockUser.id,
+        updateUserDto,
+      );
 
       // Verify: Service was called with correct params
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -234,13 +245,13 @@ describe('UserController', () => {
       jest.spyOn(service, 'delete').mockResolvedValue(undefined);
 
       // Execute: Call controller
-      const result = await controller.delete(mockUser.id);
+      const result = await controller.delete(mockUser, mockUser.id);
 
       // Verify: Service was called
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.delete).toHaveBeenCalledWith(mockUser.id);
-      // Verify: No value returned (void)
-      expect(result).toBeUndefined();
+      // Verify: Confirmation message returned
+      expect(result).toEqual({ message: 'User deleted successfully' });
     });
   });
 });

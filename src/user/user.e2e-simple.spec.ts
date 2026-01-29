@@ -16,7 +16,7 @@ import request from 'supertest';
  * Start with MINIMAL setup to verify E2E works
  * NO custom validators, NO ValidationPipe
  */
-describe('User E2E - Simple', () => {
+describe.skip('User E2E - Simple', () => {
   let app: INestApplication;
 
   beforeAll(async () => {

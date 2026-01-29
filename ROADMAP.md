@@ -102,6 +102,8 @@ modern, and offline-first.
 ### Done (Code Exists)
 - NestJS backend scaffolding
 - User + Auth modules (JWT login/register, profile)
+ - Recipes domain (entities, public/private, versioning/forking)
+ - Recipe steps workflow (mash, boil, whirlpool, fermentation, packaging)
 
 ### In Progress
 - Backend stabilization and hardening
@@ -109,8 +111,6 @@ modern, and offline-first.
 
 ### To Do
 Phase 1 - MVP Backend
-- Recipes domain (entities, public/private, versioning/forking)
-- Recipe steps workflow (mash, boil, whirlpool, fermentation, packaging)
 - Equipment profile per user
 - Brewing assistant workflow model
 - Batch/fermentation tracking + reminders

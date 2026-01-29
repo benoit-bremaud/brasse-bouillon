@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { PasswordService } from '../../auth/services/password.service';
 
 /**
  * User Service Test Suite
@@ -30,6 +31,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 describe('UserService', () => {
   let userService: UserService;
   let userRepository: Repository<User>;
+  let passwordService: PasswordService;
 
   /**
    * Mock user object for testing
@@ -86,6 +88,11 @@ describe('UserService', () => {
       count: jest.fn(),
     };
 
+    const mockPasswordService = {
+      hashPassword: jest.fn(),
+      comparePassword: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -93,11 +100,16 @@ describe('UserService', () => {
           provide: getRepositoryToken(User),
           useValue: mockRepository,
         },
+        {
+          provide: PasswordService,
+          useValue: mockPasswordService,
+        },
       ],
     }).compile();
 
     userService = module.get<UserService>(UserService);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    passwordService = module.get<PasswordService>(PasswordService);
   });
 
   /**
@@ -164,8 +176,10 @@ describe('UserService', () => {
         .spyOn(userRepository, 'save')
         .mockResolvedValue(mockUser);
 
-      // Mock the static password hashing method on User entity
-      jest.spyOn(User, 'hashPassword').mockResolvedValue('hashedPassword123');
+      // Mock password hashing
+      jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedPassword123');
 
       // Execute: Call the service method with valid user data
       const result = await userService.create(mockCreateUserData);

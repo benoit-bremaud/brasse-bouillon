@@ -8,8 +8,6 @@ import {
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUniqueEmail } from '../validators/is-unique-email.validator';
-import { IsUniqueUsername } from '../validators/is-unique-username.validator';
 
 /**
  * Update User DTO
@@ -25,8 +23,8 @@ import { IsUniqueUsername } from '../validators/is-unique-username.validator';
  * Only the fields provided in the request will be updated.
  *
  * Validation rules:
- * - email: Optional, must be valid email format if provided, max 255 chars, UNIQUE in DB
- * - username: Optional, 3-20 chars, alphanumeric + underscore only, UNIQUE in DB
+ * - email: Optional, must be valid email format if provided, max 255 chars (uniqueness enforced server-side)
+ * - username: Optional, 3-20 chars, alphanumeric + underscore only (uniqueness enforced server-side)
  * - first_name: Optional, max 100 chars
  * - last_name: Optional, max 100 chars
  *
@@ -70,7 +68,7 @@ export class UpdateUserDto {
    * @validation
    * - @IsOptional() - Not required
    * - @IsEmail() - If provided, must be valid email format
-   * - @IsUniqueEmail() - If provided, must not already exist in DB (async)
+   * - Uniqueness is enforced server-side during update
    * - @MaxLength(255) - Maximum 255 characters
    *
    * @example "newemail@example.com"
@@ -88,9 +86,6 @@ export class UpdateUserDto {
       message: 'Email must be a valid email address',
     },
   )
-  @IsUniqueEmail({
-    message: 'Email already exists. Please use a different email address.',
-  })
   @MaxLength(255, {
     message: 'Email must not be longer than 255 characters',
   })
@@ -110,7 +105,7 @@ export class UpdateUserDto {
    * - @MinLength(3) - Minimum 3 characters
    * - @MaxLength(20) - Maximum 20 characters
    * - @Matches(/^[a-zA-Z0-9_]+$/) - Only alphanumeric + underscore
-   * - @IsUniqueUsername() - If provided, must not already exist in DB (async)
+   * - Uniqueness is enforced server-side during update
    *
    * @example "new_username"
    */
@@ -135,9 +130,6 @@ export class UpdateUserDto {
   })
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Username can only contain letters, numbers, and underscores',
-  })
-  @IsUniqueUsername({
-    message: 'Username already exists. Please use a different username.',
   })
   username?: string;
 

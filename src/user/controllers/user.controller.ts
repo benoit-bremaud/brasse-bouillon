@@ -14,6 +14,8 @@ import {
   ForbiddenException,
   ConflictException,
   Patch,
+  Headers,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -43,6 +45,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { User } from '../entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * User Controller
@@ -94,7 +97,10 @@ export class UserController {
    *
    * @param {UserService} userService - Service for user operations (CRUD, auth, etc.)
    */
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // ============================================================================
   // 📝 PUBLIC ROUTES - No Authentication Required
@@ -891,6 +897,8 @@ export class UserController {
    * - MUST be removed before production
    * - Use proper admin provisioning for production
    * - Consider environment variables if keeping in non-prod
+   * - Requires SEED_ENDPOINTS_ENABLED=true
+   * - If SEED_ENDPOINTS_TOKEN is set, pass it via x-seed-token header
    *
    * @returns {Promise<UserResponseDto>} Created admin user
    *
@@ -931,7 +939,10 @@ export class UserController {
   @ApiConflictResponse({
     description: 'Admin already exists',
   })
-  async seedAdmin(): Promise<UserResponseDto> {
+  async seedAdmin(
+    @Headers('x-seed-token') seedToken?: string,
+  ): Promise<UserResponseDto> {
+    this.ensureSeedAccess(seedToken);
     console.log('🌱 Seeding Genesis Admin...');
 
     // Check if admin already exists (idempotent)
@@ -985,6 +996,8 @@ export class UserController {
    * - Credentials are hardcoded for dev convenience only
    * - MUST be removed before production
    * - Use proper role provisioning for production
+   * - Requires SEED_ENDPOINTS_ENABLED=true
+   * - If SEED_ENDPOINTS_TOKEN is set, pass it via x-seed-token header
    *
    * @returns {Promise<UserResponseDto>} Created moderator user
    *
@@ -1025,7 +1038,10 @@ export class UserController {
   @ApiConflictResponse({
     description: 'Moderator already exists',
   })
-  async seedModerator(): Promise<UserResponseDto> {
+  async seedModerator(
+    @Headers('x-seed-token') seedToken?: string,
+  ): Promise<UserResponseDto> {
+    this.ensureSeedAccess(seedToken);
     console.log('🌱 Seeding Moderator User...');
 
     // Check if moderator already exists (idempotent)
@@ -1058,5 +1074,20 @@ export class UserController {
     );
 
     return plainToInstance(UserResponseDto, updatedModerator);
+  }
+
+  private ensureSeedAccess(seedToken?: string): void {
+    const enabled =
+      this.configService.get<string>('SEED_ENDPOINTS_ENABLED') === 'true';
+    if (!enabled) {
+      throw new NotFoundException();
+    }
+
+    const requiredToken = this.configService.get<string>(
+      'SEED_ENDPOINTS_TOKEN',
+    );
+    if (requiredToken && seedToken !== requiredToken) {
+      throw new NotFoundException();
+    }
   }
 }

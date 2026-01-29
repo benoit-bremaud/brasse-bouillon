@@ -228,7 +228,7 @@ export class UserService {
    * @param {string} firstName - Admin's first name
    * @param {string} lastName - Admin's last name
    *
-   * @returns {Promise<User>} Created admin user (with password_hash)
+   * @returns {Promise<User>} Created admin user (password_hash removed)
    *
    * @throws {ConflictException} If email or username already exists
    *
@@ -298,7 +298,7 @@ export class UserService {
 
     console.log(`✅ Admin created: ${email} (ID: ${savedAdmin.id})`);
 
-    return savedAdmin;
+    return this.formatUserResponse(savedAdmin);
   }
 
   // ============================================================================
@@ -350,6 +350,18 @@ export class UserService {
 
     // ✅ SECURITY: Remove password hash before returning
     return this.formatUserResponse(user);
+  }
+
+  /**
+   * Find a user by ID without throwing (internal/auth use)
+   *
+   * Returns the raw user entity or null if not found.
+   * Intended for authentication flows where a 401 is preferred over 404.
+   */
+  async findByIdRaw(id: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
   }
 
   /**

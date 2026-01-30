@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { EquipmentProfileController } from './controllers/equipment-profile.controller';
 import { EquipmentProfileService } from './services/equipment-profile.service';
+import { EquipmentProfileOrmEntity } from './entities/equipment-profile.orm.entity';
 
 /**
  * EquipmentModule
@@ -16,7 +18,7 @@ import { EquipmentProfileService } from './services/equipment-profile.service';
  * to validate routing and authentication integration.
  */
 @Module({
-  imports: [],
+  imports: [TypeOrmModule.forFeature([EquipmentProfileOrmEntity])],
   controllers: [EquipmentProfileController],
   providers: [EquipmentProfileService],
   exports: [EquipmentProfileService],

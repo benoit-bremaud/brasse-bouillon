@@ -69,7 +69,16 @@ export class EquipmentProfileDomainService {
   }
 
   private validateProfileInput(input: CreateEquipmentProfileInput): void {
-    const nonNegativeFields: Array<keyof CreateEquipmentProfileInput> = [
+    type NonNegativeField =
+      | 'mashTunVolumeL'
+      | 'boilKettleVolumeL'
+      | 'fermenterVolumeL'
+      | 'trubLossL'
+      | 'deadSpaceLossL'
+      | 'transferLossL'
+      | 'evaporationRateLPerHour';
+
+    const nonNegativeFields: NonNegativeField[] = [
       'mashTunVolumeL',
       'boilKettleVolumeL',
       'fermenterVolumeL',

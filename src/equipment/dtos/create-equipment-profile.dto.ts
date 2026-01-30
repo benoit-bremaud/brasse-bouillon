@@ -88,7 +88,7 @@ export class CreateEquipmentProfileDto {
   @ApiPropertyOptional({ example: 20 })
   @Type(() => Number)
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(0)
   cooling_time_minutes?: number;
 

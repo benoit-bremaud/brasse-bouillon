@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
+import { EquipmentModule } from './equipment/equipment.module';
 
 /**
  * App Module
@@ -45,6 +46,9 @@ import { UserModule } from './user/user.module';
 
     // Authentication module - JWT, login, registration
     AuthModule,
+
+    // Equipment feature module - user equipment profiles
+    EquipmentModule,
   ],
 
   // Controllers that handle HTTP requests at root level

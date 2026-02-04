@@ -21,6 +21,30 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const issue_number = context.payload.pull_request.number;
+            const pull_number = issue_number;
+
+            const prBody = context.payload.pull_request.body || "";
+
+            // If the PR already mentions Copilot, don't add noise.
+            if (prBody.toLowerCase().includes("@copilot")) {
+              core.info("PR already mentions @copilot (body).");
+              return;
+            }
+
+            // If Copilot already reviewed, do nothing.
+            const existingReviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              { owner, repo, pull_number, per_page: 100 },
+            );
+
+            const alreadyReviewed = existingReviews.some((r) => {
+              return r.user?.login === "copilot-pull-request-reviewer";
+            });
+
+            if (alreadyReviewed) {
+              core.info("Copilot already reviewed this PR.");
+              return;
+            }
 
             // Idempotence: do not spam if we already asked.
             const existingComments = await github.paginate(
@@ -30,9 +54,8 @@ jobs:
 
             const alreadyAsked = existingComments.some((c) => {
               return (
-                c.user?.login === "github-actions[bot]" &&
                 typeof c.body === "string" &&
-                c.body.includes("@copilot please review")
+                c.body.toLowerCase().includes("@copilot please review")
               );
             });
 
@@ -47,4 +70,3 @@ jobs:
               issue_number,
               body: "@copilot please review.",
             });
-

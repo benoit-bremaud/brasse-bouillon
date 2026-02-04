@@ -3,13 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 
-import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
+import { RecipeDomainService } from '../domain/services/recipe-domain.service';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
 
 @Injectable()
 export class RecipeService {
+  private readonly domain = new RecipeDomainService();
+
   constructor(
     @InjectRepository(RecipeOrmEntity)
     private readonly repo: Repository<RecipeOrmEntity>,
@@ -21,15 +23,23 @@ export class RecipeService {
   ): Promise<RecipeOrmEntity> {
     const id = randomUUID();
 
-    const entity = this.repo.create({
+    const recipe = this.domain.createRecipe({
       id,
-      owner_id: ownerId,
+      ownerId,
       name: dto.name,
-      description: dto.description ?? null,
-      visibility: dto.visibility ?? RecipeVisibility.PRIVATE,
-      version: 1,
-      root_recipe_id: id,
-      parent_recipe_id: null,
+      description: dto.description ?? undefined,
+      visibility: dto.visibility,
+    });
+
+    const entity = this.repo.create({
+      id: recipe.id,
+      owner_id: recipe.ownerId,
+      name: recipe.name,
+      description: recipe.description ?? null,
+      visibility: recipe.visibility,
+      version: recipe.version,
+      root_recipe_id: recipe.rootRecipeId,
+      parent_recipe_id: recipe.parentRecipeId ?? null,
     });
 
     return this.repo.save(entity);

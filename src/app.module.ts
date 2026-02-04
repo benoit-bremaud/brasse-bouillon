@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { RecipeModule } from './recipe/recipe.module';
 
 /**
  * App Module
@@ -49,6 +50,9 @@ import { EquipmentModule } from './equipment/equipment.module';
 
     // Equipment feature module - user equipment profiles
     EquipmentModule,
+
+    // Recipe feature module - user recipes
+    RecipeModule,
   ],
 
   // Controllers that handle HTTP requests at root level

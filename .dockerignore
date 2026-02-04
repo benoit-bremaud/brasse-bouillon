@@ -1,0 +1,17 @@
+.git
+.github
+.idea
+.vscode
+
+node_modules
+dist
+coverage
+
+data
+*.db
+
+.env
+.env.*
+*.log
+npm-debug.log*
+

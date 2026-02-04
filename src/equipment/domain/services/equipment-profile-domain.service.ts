@@ -95,13 +95,22 @@ export class EquipmentProfileDomainService {
       }
     }
 
-    this.ensurePercentInRange('efficiencyEstimatedPercent', input.efficiencyEstimatedPercent);
+    this.ensurePercentInRange(
+      'efficiencyEstimatedPercent',
+      input.efficiencyEstimatedPercent,
+    );
 
     if (typeof input.efficiencyMeasuredPercent === 'number') {
-      this.ensurePercentInRange('efficiencyMeasuredPercent', input.efficiencyMeasuredPercent);
+      this.ensurePercentInRange(
+        'efficiencyMeasuredPercent',
+        input.efficiencyMeasuredPercent,
+      );
     }
 
-    if (typeof input.coolingTimeMinutes === 'number' && input.coolingTimeMinutes < 0) {
+    if (
+      typeof input.coolingTimeMinutes === 'number' &&
+      input.coolingTimeMinutes < 0
+    ) {
       throw new Error('Field "coolingTimeMinutes" must be >= 0');
     }
 

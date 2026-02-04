@@ -29,6 +29,7 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
+  ApiExcludeEndpoint,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
@@ -559,7 +560,7 @@ export class UserController {
    *
    * Security:
    * - Requires valid JWT token
-   * - No ownership check: any authenticated user can view any user's profile
+   * - Ownership: users can only view their own profile (ADMIN can view any user)
    * - Excludes password from response via UserResponseDto
    *
    * Use cases:
@@ -631,10 +632,20 @@ export class UserController {
   @ApiUnauthorizedResponse({
     description: 'Missing or invalid JWT token',
   })
+  @ApiForbiddenResponse({
+    description: 'User tries to access another user profile',
+  })
   async findById(
     @CurrentUser() currentUser: User,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<UserResponseDto> {
+    if (currentUser.id !== id && currentUser.role !== UserRole.ADMIN) {
+      console.warn(
+        `⚠️ SECURITY: User ${currentUser.email} (${currentUser.id}) attempted to access user ${id}`,
+      );
+      throw new ForbiddenException('You can only access your own profile');
+    }
+
     console.log(
       `👤 User ${currentUser.email} (${currentUser.id}) fetching user ${id}`,
     );
@@ -927,6 +938,7 @@ export class UserController {
    *   }
    * }
    */
+  @ApiExcludeEndpoint()
   @Post('dev/seed-admin')
   @ApiOperation({
     summary: 'Create Genesis Admin User (DEV ONLY)',
@@ -1026,6 +1038,7 @@ export class UserController {
    *   }
    * }
    */
+  @ApiExcludeEndpoint()
   @Post('dev/seed-moderator')
   @ApiOperation({
     summary: 'Create Moderator User (DEV ONLY)',
@@ -1077,6 +1090,12 @@ export class UserController {
   }
 
   private ensureSeedAccess(seedToken?: string): void {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+    if (isProduction) {
+      throw new NotFoundException();
+    }
+
     const enabled =
       this.configService.get<string>('SEED_ENDPOINTS_ENABLED') === 'true';
     if (!enabled) {

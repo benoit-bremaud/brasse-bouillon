@@ -67,7 +67,7 @@ export class EquipmentProfileController {
   @ApiOkResponse({ type: EquipmentProfileDto, isArray: true })
   async listMine(@CurrentUser() user: User): Promise<EquipmentProfileDto[]> {
     const rows = await this.service.listMine(user.id);
-    return rows.map(EquipmentProfileDto.fromEntity);
+    return rows.map((row) => EquipmentProfileDto.fromEntity(row));
   }
 
   @Get(':id')

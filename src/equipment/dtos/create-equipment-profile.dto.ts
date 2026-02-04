@@ -99,7 +99,10 @@ export class CreateEquipmentProfileDto {
   @Min(0)
   cooling_flow_rate_l_per_minute?: number;
 
-  @ApiProperty({ enum: EquipmentSystemType, example: EquipmentSystemType.ALL_GRAIN })
+  @ApiProperty({
+    enum: EquipmentSystemType,
+    example: EquipmentSystemType.ALL_GRAIN,
+  })
   @IsEnum(EquipmentSystemType)
   system_type: EquipmentSystemType;
 }

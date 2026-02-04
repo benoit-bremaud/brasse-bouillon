@@ -1,6 +1,6 @@
 # Brasse-Bouillon Roadmap
 
-Last updated: 2026-01-29
+Last updated: 2026-02-04
 
 ## Vision
 Mobile-first assistant for homebrewers and craft brewers to design, brew, and
@@ -28,6 +28,7 @@ modern, and offline-first.
 - Base branch: `main` (trunk-based).
 - PR policy: 2 PRs (baseline fixes/docs, then features).
 - Copilot review: auto-review via repo/org config; mention `@copilot` in PRs.
+- Reviewers: CODEOWNERS configured to request review from `@vitalikevin`.
 - Clean Architecture inside feature modules (domain/application/infrastructure/presentation).
 
 ## MVP Scope (Mobile)
@@ -101,9 +102,13 @@ modern, and offline-first.
 
 ### Done (Code Exists)
 - NestJS backend scaffolding
-- User + Auth modules (JWT login/register, profile)
- - Recipes domain (entities, public/private, versioning/forking)
- - Recipe steps workflow (mash, boil, whirlpool, fermentation, packaging)
+- Global API hardening (validation, standardized responses, exception filters, Swagger gated in prod)
+- User + Auth modules (email/password, JWT login/register, /auth/me, profile endpoints, roles/guards)
+- Equipment profiles (CRUD scoped to current user)
+- Recipes domain (visibility, versioning/forking) — domain only (no API/persistence yet)
+- Recipe steps workflow (default mash/boil/whirlpool/fermentation/packaging) — domain only
+- CI: GitHub Actions build + test
+- Repo: CODEOWNERS auto-requests review from `@vitalikevin`
 
 ### In Progress
 - Backend stabilization and hardening
@@ -111,7 +116,8 @@ modern, and offline-first.
 
 ### To Do
 Phase 1 - MVP Backend
-- Equipment profile per user
+- Recipes module (persistence + CRUD API, visibility rules)
+- Recipe steps persistence + editing
 - Brewing assistant workflow model
 - Batch/fermentation tracking + reminders
 - Calculators service (ABV/IBU first)
@@ -136,6 +142,7 @@ Phase 3 - Post-MVP
 
 ## Open Questions (Need Decisions)
 - Exact required vs optional recipe fields (MVP).
+- Default visibility for user-created recipes (public vs private).
 - Default values for equipment fields (per system type).
 - Offline conflict UI beyond last-write-wins (V1+).
 - Legal requirements for France + EU (disclaimers, data retention).
@@ -145,3 +152,4 @@ Phase 3 - Post-MVP
 - 2026-01-29: Initial roadmap created from user requirements.
 - 2026-01-29: Added detailed MVP/V1 decisions (recipes, sharing, calc, offline, legal, roles, DB).
 - 2026-01-29: Added engineering workflow + clean architecture decision.
+- 2026-02-04: Updated status based on current backend (equipment profiles + hardening + CODEOWNERS) and clarified next backend priorities.

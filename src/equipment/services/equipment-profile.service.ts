@@ -29,7 +29,10 @@ export class EquipmentProfileService {
     return { ok: true };
   }
 
-  async create(ownerId: string, dto: CreateEquipmentProfileDto): Promise<EquipmentProfileOrmEntity> {
+  async create(
+    ownerId: string,
+    dto: CreateEquipmentProfileDto,
+  ): Promise<EquipmentProfileOrmEntity> {
     const id = randomUUID();
 
     const entity = this.repo.create({
@@ -50,7 +53,8 @@ export class EquipmentProfileService {
       efficiency_measured_percent: dto.efficiency_measured_percent ?? null,
 
       cooling_time_minutes: dto.cooling_time_minutes ?? null,
-      cooling_flow_rate_l_per_minute: dto.cooling_flow_rate_l_per_minute ?? null,
+      cooling_flow_rate_l_per_minute:
+        dto.cooling_flow_rate_l_per_minute ?? null,
 
       system_type: dto.system_type,
     });
@@ -66,8 +70,13 @@ export class EquipmentProfileService {
     });
   }
 
-  async getMineById(ownerId: string, id: string): Promise<EquipmentProfileOrmEntity> {
-    const entity = await this.repo.findOne({ where: { id, owner_id: ownerId } });
+  async getMineById(
+    ownerId: string,
+    id: string,
+  ): Promise<EquipmentProfileOrmEntity> {
+    const entity = await this.repo.findOne({
+      where: { id, owner_id: ownerId },
+    });
     if (!entity) {
       throw new NotFoundException('Equipment profile not found');
     }
@@ -83,13 +92,18 @@ export class EquipmentProfileService {
 
     if (dto.name !== undefined) entity.name = dto.name;
 
-    if (dto.mash_tun_volume_l !== undefined) entity.mash_tun_volume_l = dto.mash_tun_volume_l;
-    if (dto.boil_kettle_volume_l !== undefined) entity.boil_kettle_volume_l = dto.boil_kettle_volume_l;
-    if (dto.fermenter_volume_l !== undefined) entity.fermenter_volume_l = dto.fermenter_volume_l;
+    if (dto.mash_tun_volume_l !== undefined)
+      entity.mash_tun_volume_l = dto.mash_tun_volume_l;
+    if (dto.boil_kettle_volume_l !== undefined)
+      entity.boil_kettle_volume_l = dto.boil_kettle_volume_l;
+    if (dto.fermenter_volume_l !== undefined)
+      entity.fermenter_volume_l = dto.fermenter_volume_l;
 
     if (dto.trub_loss_l !== undefined) entity.trub_loss_l = dto.trub_loss_l;
-    if (dto.dead_space_loss_l !== undefined) entity.dead_space_loss_l = dto.dead_space_loss_l;
-    if (dto.transfer_loss_l !== undefined) entity.transfer_loss_l = dto.transfer_loss_l;
+    if (dto.dead_space_loss_l !== undefined)
+      entity.dead_space_loss_l = dto.dead_space_loss_l;
+    if (dto.transfer_loss_l !== undefined)
+      entity.transfer_loss_l = dto.transfer_loss_l;
 
     if (dto.evaporation_rate_l_per_hour !== undefined)
       entity.evaporation_rate_l_per_hour = dto.evaporation_rate_l_per_hour;
@@ -104,7 +118,8 @@ export class EquipmentProfileService {
       entity.cooling_time_minutes = dto.cooling_time_minutes;
 
     if (dto.cooling_flow_rate_l_per_minute !== undefined)
-      entity.cooling_flow_rate_l_per_minute = dto.cooling_flow_rate_l_per_minute;
+      entity.cooling_flow_rate_l_per_minute =
+        dto.cooling_flow_rate_l_per_minute;
 
     if (dto.system_type !== undefined) entity.system_type = dto.system_type;
 

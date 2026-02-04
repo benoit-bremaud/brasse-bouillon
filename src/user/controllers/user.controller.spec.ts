@@ -7,6 +7,7 @@ import { User } from '../entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from '../services/user.service';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from '../../common/enums/role.enum';
 
 /**
  * User Controller Test Suite
@@ -185,8 +186,9 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('User not found'));
 
       // Execute & Verify: Error is thrown
+      const adminUser = { ...mockUser, role: UserRole.ADMIN } as User;
       await expect(
-        controller.findById(mockUser, 'non-existent-id'),
+        controller.findById(adminUser, '550e8400-e29b-41d4-a716-446655440999'),
       ).rejects.toThrow('User not found');
     });
   });

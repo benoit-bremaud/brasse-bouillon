@@ -143,19 +143,12 @@ async function bootstrap(): Promise<void> {
   /**
    * Global Exception Filters (Order matters!)
    *
-   * Two-layer exception handling for different error types:
+   * Nest selects the FIRST matching filter. Because AllExceptionsFilter uses
+   * @Catch() (no metatypes), it matches everything — including HttpException.
    *
-   * 1. AllExceptionsFilter - CATCHES FIRST (most specific)
-   *    - Catches ANY exception that bubbles up
-   *    - Handles unexpected errors gracefully
-   *    - Transforms them to standardized error format
-   *    - Logs errors for debugging
-   *
-   * 2. HttpExceptionFilter - CATCHES SECOND (catch-all)
-   *    - Handles NestJS built-in HTTP exceptions
-   *    - BadRequestException, NotFoundException, etc.
-   *    - Returns standardized HTTP error responses
-   *    - Preserves status codes and error messages
+   * Therefore we must register:
+   * 1) HttpExceptionFilter first (handles HttpException with correct status codes)
+   * 2) AllExceptionsFilter last (fallback for unexpected errors)
    *
    * Error response format:
    * {
@@ -164,19 +157,13 @@ async function bootstrap(): Promise<void> {
    *   "timestamp": "2025-11-03T17:00:00.000Z"
    * }
    *
-   * Order is critical:
-   * - AllExceptionsFilter first: catches unexpected errors
-   * - HttpExceptionFilter second: handles HTTP-specific errors
-   * - If order reversed: HTTP errors bypass AllExceptions
-   *
    * Security:
-   * - Prevents sensitive stack traces from leaking to clients
+   * - Prevents stack traces from leaking to clients
    * - Logs detailed errors server-side for debugging
-   * - Returns generic error messages to clients
    */
   app.useGlobalFilters(
-    new AllExceptionsFilter(), // Catches all exceptions (layer 1)
-    new HttpExceptionFilter(), // Catches HTTP exceptions (layer 2)
+    new HttpExceptionFilter(), // Handles HttpException with proper status codes
+    new AllExceptionsFilter(), // Fallback for unexpected errors
   );
 
   // ============================================================================
@@ -197,79 +184,68 @@ async function bootstrap(): Promise<void> {
    * - /api (Swagger UI)
    * - /api-json (OpenAPI JSON specification)
    */
-  const swaggerConfig = new DocumentBuilder()
-    // Basic metadata
-    .setTitle('🍺 Brasse-Bouillon API')
-    .setDescription(
-      'RESTful API for managing artisanal brewing recipes, ingredients, and brewing processes. ' +
-        'Complete user management, authentication, and recipe documentation system.',
-    )
-    .setVersion('1.0.0')
-    .setContact(
-      'Brasse-Bouillon Team',
-      'https://brasse-bouillon.com',
-      'support@brasse-bouillon.com',
-    )
-    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+  const swaggerEnabled =
+    process.env.SWAGGER_ENABLED === 'true' ||
+    process.env.NODE_ENV !== 'production';
 
-    // Servers
-    .addServer('http://localhost:3000', 'Development - Local')
-    .addServer('https://api-dev.brasse-bouillon.com', 'Development - Staging')
-    .addServer('https://api.brasse-bouillon.com', 'Production')
+  if (swaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      // Basic metadata
+      .setTitle('🍺 Brasse-Bouillon API')
+      .setDescription(
+        'RESTful API for managing artisanal brewing recipes, ingredients, and brewing processes. ' +
+          'Complete user management, authentication, and recipe documentation system.',
+      )
+      .setVersion('1.0.0')
+      .setContact(
+        'Brasse-Bouillon Team',
+        'https://brasse-bouillon.com',
+        'support@brasse-bouillon.com',
+      )
+      .setLicense('MIT', 'https://opensource.org/licenses/MIT')
 
-    // Tags (for grouping endpoints)
-    .addTag('Users', 'User management and profile operations', {
-      description:
-        'Endpoints for creating users, managing profiles, and authentication',
-      url: '',
-    })
-    .addTag('Auth', 'Authentication and authorization', {
-      description: 'Login, logout, and JWT token management',
-      url: '',
-    })
+      // Servers
+      .addServer('http://localhost:3000', 'Development - Local')
+      .addServer('https://api-dev.brasse-bouillon.com', 'Development - Staging')
+      .addServer('https://api.brasse-bouillon.com', 'Production')
 
-    // Security schemes
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
+      // Tags (for grouping endpoints)
+      .addTag('Users', 'User management and profile operations', {
         description:
-          'Enter JWT token obtained from login endpoint. Token format: Bearer [jwt_token]',
-        in: 'header',
-      },
-      'JWT-auth', // Reference name for use in endpoint decorators
-    )
-    .build();
+          'Endpoints for creating users, managing profiles, and authentication',
+        url: '',
+      })
+      .addTag('Auth', 'Authentication and authorization', {
+        description: 'Login, logout, and JWT token management',
+        url: '',
+      })
 
-  /**
-   * Create Swagger/OpenAPI document
-   *
-   * Generates OpenAPI specification based on:
-   * - Swagger config (title, description, etc.)
-   * - NestJS route metadata
-   * - Swagger decorators (@ApiOperation, @ApiResponse, etc.)
-   * - DTO class definitions
-   */
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+      // Security schemes
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description:
+            'Enter JWT token obtained from login endpoint. Token format: Bearer [jwt_token]',
+          in: 'header',
+        },
+        'JWT-auth', // Reference name for use in endpoint decorators
+      )
+      .build();
 
-  /**
-   * Setup Swagger UI
-   *
-   * Makes documentation available at:
-   * - /api (Swagger UI interactive interface)
-   * - /api-json (Raw OpenAPI JSON specification)
-   * - /api-yaml (Raw OpenAPI YAML specification)
-   */
-  SwaggerModule.setup('api', app, swaggerDocument);
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+
+    SwaggerModule.setup('api', app, swaggerDocument);
+  }
 
   // ============================================================================
   // 🌐 SERVER STARTUP
   // ============================================================================
 
   /**
-   * Start listening on port 3000
+   * Start listening on configured port
    *
    * After this line:
    * - Server begins accepting HTTP requests
@@ -277,7 +253,13 @@ async function bootstrap(): Promise<void> {
    * - Swagger documentation is available
    * - Database connections are initialized
    */
-  const port = 3000;
+  const port = (() => {
+    const raw = process.env.PORT;
+    if (!raw) return 3000;
+    const parsed = Number(raw);
+    if (!Number.isInteger(parsed) || parsed <= 0) return 3000;
+    return parsed;
+  })();
   await app.listen(port);
 
   // ============================================================================
@@ -291,12 +273,14 @@ async function bootstrap(): Promise<void> {
   console.log(
     `║  🌐 API Server:     http://localhost:${port}                  ║`,
   );
-  console.log(
-    `║  📚 Swagger UI:     http://localhost:${port}/api              ║`,
-  );
-  console.log(
-    `║  📄 OpenAPI JSON:   http://localhost:${port}/api-json         ║`,
-  );
+  if (swaggerEnabled) {
+    console.log(
+      `║  📚 Swagger UI:     http://localhost:${port}/api              ║`,
+    );
+    console.log(
+      `║  📄 OpenAPI JSON:   http://localhost:${port}/api-json         ║`,
+    );
+  }
   console.log('║                                                            ║');
   console.log('║  Ready to receive requests!                                ║');
   console.log('╚════════════════════════════════════════════════════════════╝');

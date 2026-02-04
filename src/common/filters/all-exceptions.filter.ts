@@ -27,11 +27,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
+    const isProduction = process.env.NODE_ENV === 'production';
     let message = 'Internal server error';
 
     // Extract details based on exception type
     if (exception instanceof Error) {
-      message = exception.message;
+      if (!isProduction) {
+        message = exception.message;
+      }
       this.logger.error(
         `Unhandled Error: ${exception.message}`,
         exception.stack,

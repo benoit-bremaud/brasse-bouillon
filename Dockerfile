@@ -38,4 +38,7 @@ USER node
 
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e 'const port = process.env.PORT || 3000; const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 2000); fetch(`http://127.0.0.1:${port}/`, { signal: controller.signal }).then((r) => { clearTimeout(timer); process.exit(r.ok ? 0 : 1); }).catch(() => process.exit(1));'
+
 CMD ["node", "dist/main"]

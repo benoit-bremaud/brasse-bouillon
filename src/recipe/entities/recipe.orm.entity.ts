@@ -4,7 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -13,7 +13,7 @@ import {
 @Index(['visibility'])
 @Index(['root_recipe_id'])
 export class RecipeOrmEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', length: 36, nullable: false })

@@ -26,6 +26,7 @@ FROM node:20-bookworm-slim AS runtime
 WORKDIR /app
 
 ENV PORT=3000
+ENV NODE_ENV=production
 
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist

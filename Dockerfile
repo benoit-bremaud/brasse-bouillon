@@ -34,6 +34,10 @@ COPY package.json ./
 
 RUN mkdir -p data && chown -R node:node data
 
+# Persist application data (SQLite DB by default lives under /app/data).
+# Mount a named volume at /app/data in production to avoid losing the DB on container recreation.
+VOLUME ["/app/data"]
+
 USER node
 
 EXPOSE 3000

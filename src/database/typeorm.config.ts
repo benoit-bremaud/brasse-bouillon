@@ -3,6 +3,8 @@ import * as path from 'path';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { BatchOrmEntity } from '../batch/entities/batch.orm.entity';
+import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
 
@@ -40,6 +42,8 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => {
     entities: [
       User,
       EquipmentProfileOrmEntity,
+      BatchOrmEntity,
+      BatchStepOrmEntity,
       RecipeOrmEntity,
       RecipeStepOrmEntity,
     ],

@@ -101,18 +101,9 @@ describe('BatchService', () => {
     expect(updated.steps[0].status).toBe(BatchStepStatus.COMPLETED);
     expect(updated.steps[1].status).toBe(BatchStepStatus.IN_PROGRESS);
 
-    updated = await batchService.completeMineCurrentStep(
-      ownerId,
-      started.batch.id,
-    );
-    updated = await batchService.completeMineCurrentStep(
-      ownerId,
-      started.batch.id,
-    );
-    updated = await batchService.completeMineCurrentStep(
-      ownerId,
-      started.batch.id,
-    );
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
 
     updated = await batchService.completeMineCurrentStep(
       ownerId,
@@ -146,6 +137,49 @@ describe('BatchService', () => {
     await expect(
       batchService.completeMineCurrentStep('user-2', started.batch.id),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('listMine() should filter by owner and order by updated_at desc', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+
+    const recipeA = await recipeService.create(ownerId, { name: 'Batch A' });
+    const recipeB = await recipeService.create(ownerId, { name: 'Batch B' });
+    const recipeOther = await recipeService.create(otherOwner, {
+      name: 'Other batch',
+    });
+
+    const batchA = await batchService.startMine(ownerId, recipeA.id);
+    const batchB = await batchService.startMine(ownerId, recipeB.id);
+    await batchService.startMine(otherOwner, recipeOther.id);
+
+    await batchRepo
+      .createQueryBuilder()
+      .update(BatchOrmEntity)
+      .set({ updated_at: new Date('2024-01-01T00:00:00.000Z') })
+      .where('id = :id', { id: batchA.batch.id })
+      .execute();
+    await batchRepo
+      .createQueryBuilder()
+      .update(BatchOrmEntity)
+      .set({ updated_at: new Date('2024-01-02T00:00:00.000Z') })
+      .where('id = :id', { id: batchB.batch.id })
+      .execute();
+
+    let list = await batchService.listMine(ownerId);
+    expect(list).toHaveLength(2);
+    expect(list.every((batch) => batch.owner_id === ownerId)).toBe(true);
+    expect(list.map((b) => b.id)).toEqual([batchB.batch.id, batchA.batch.id]);
+
+    await batchService.completeMineCurrentStep(ownerId, batchA.batch.id);
+
+    list = await batchService.listMine(ownerId);
+    expect(list.map((b) => b.id)).toEqual([batchA.batch.id, batchB.batch.id]);
+  });
+
+  it('listMine() should return empty array when no batches', async () => {
+    const list = await batchService.listMine('user-1');
+    expect(list).toEqual([]);
   });
 
   it('startMine() should backfill steps for legacy recipes', async () => {

@@ -4,6 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
+import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
 
 /**
  * TypeORM Configuration
@@ -36,7 +37,12 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => {
 
     // List of entities (tables) that TypeORM should manage
     // When a new entity is created, add it here
-    entities: [User, EquipmentProfileOrmEntity, RecipeOrmEntity],
+    entities: [
+      User,
+      EquipmentProfileOrmEntity,
+      RecipeOrmEntity,
+      RecipeStepOrmEntity,
+    ],
 
     // Automatically create/update database schema on application startup
     // WARNING: Only use in development! Use migrations in production.

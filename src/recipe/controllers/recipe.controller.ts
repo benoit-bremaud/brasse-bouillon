@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -26,7 +27,9 @@ import { User } from '../../user/entities/user.entity';
 
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
+import { RecipeStepDto } from '../dtos/recipe-step.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
+import { UpdateRecipeStepDto } from '../dtos/update-recipe-step.dto';
 import { RecipeService } from '../services/recipe.service';
 
 /**
@@ -96,5 +99,30 @@ export class RecipeController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<{ deleted: true }> {
     return this.service.deleteMine(user.id, id);
+  }
+
+  @Get(':id/steps')
+  @ApiOperation({ summary: 'List steps for one of my recipes' })
+  @ApiOkResponse({ type: RecipeStepDto, isArray: true })
+  async listMineSteps(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<RecipeStepDto[]> {
+    const rows = await this.service.listMineSteps(user.id, id);
+    return rows.map((row) => RecipeStepDto.fromEntity(row));
+  }
+
+  @Patch(':id/steps/:order')
+  @ApiOperation({ summary: 'Update one step of one of my recipes' })
+  @ApiOkResponse({ type: RecipeStepDto })
+  async updateMineStep(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('order', ParseIntPipe) order: number,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: UpdateRecipeStepDto,
+  ): Promise<RecipeStepDto> {
+    const saved = await this.service.updateMineStep(user.id, id, order, dto);
+    return RecipeStepDto.fromEntity(saved);
   }
 }

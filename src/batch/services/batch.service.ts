@@ -131,12 +131,8 @@ export class BatchService {
         }),
       );
 
-      await stepRepo.save(stepPayloads);
-
-      const savedSteps = await stepRepo.find({
-        where: { batch_id: savedBatch.id },
-        order: { step_order: 'ASC' },
-      });
+      const savedSteps = await stepRepo.save(stepPayloads);
+      savedSteps.sort((a, b) => a.step_order - b.step_order);
 
       return { batch: savedBatch, steps: savedSteps };
     });
@@ -174,14 +170,10 @@ export class BatchService {
       }),
     );
 
-    await stepRepo.save(stepEntities);
+    const savedSteps = await stepRepo.save(stepEntities);
+    savedSteps.sort((a, b) => a.step_order - b.step_order);
 
-    const steps = await stepRepo.find({
-      where: { batch_id: savedBatch.id },
-      order: { step_order: 'ASC' },
-    });
-
-    return { batch: savedBatch, steps };
+    return { batch: savedBatch, steps: savedSteps };
   }
 
   private toDomain(batch: BatchOrmEntity, steps: BatchStepOrmEntity[]): Batch {

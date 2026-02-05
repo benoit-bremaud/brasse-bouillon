@@ -1,6 +1,6 @@
 # Brasse-Bouillon Roadmap
 
-Last updated: 2026-02-04
+Last updated: 2026-02-05
 
 ## Vision
 Mobile-first assistant for homebrewers and craft brewers to design, brew, and
@@ -8,10 +8,10 @@ track beer batches with minimal equipment. The app must be beginner-friendly,
 modern, and offline-first.
 
 ## Product Decisions (Confirmed)
-- Recipes: public by default; can be private or shared.
+- Recipes: private by default; the owner can switch to UNLISTED or PUBLIC.
 - Sharing: unlisted read-only link + opt-in public.
 - Recipe versioning: allow duplication/forking.
-- Recipe steps: specific per recipe, based on generic style templates.
+- Recipe steps: per recipe; fixed 5-step workflow for MVP (templating later).
 - Content sources: MVP content written in-house only (no imports).
 - Units: metric and imperial; user-selectable with automatic conversion.
 - Equipment profiles: multiple per user (not a single profile).
@@ -105,20 +105,22 @@ modern, and offline-first.
 - Global API hardening (validation, standardized responses, exception filters, Swagger gated in prod)
 - User + Auth modules (email/password, JWT login/register, /auth/me, profile endpoints, roles/guards)
 - Equipment profiles (CRUD scoped to current user)
-- Recipes domain (visibility, versioning/forking) — domain only (no API/persistence yet)
-- Recipe steps workflow (default mash/boil/whirlpool/fermentation/packaging) — domain only
-- CI: GitHub Actions build + test
+- Recipes module (CRUD + persistence scoped to current user)
+- Recipe steps workflow (default mash/boil/whirlpool/fermentation/packaging)
+- Recipe steps persistence + minimal editing API (label/description) + lazy backfill
+- Brewing assistant workflow model: Batch domain (domain-only)
+- CI: GitHub Actions build + test + lint:check
+- CI: auto-request Copilot review on new PRs
+- CD: build and push Docker image to GHCR on merges to main
 - Repo: CODEOWNERS auto-requests review from `@vitalikevin`
 
 ### In Progress
 - Backend stabilization and hardening
-- Roadmap definition (this document)
+- Roadmap maintenance (this document)
 
 ### To Do
 Phase 1 - MVP Backend
-- Recipes module (persistence + CRUD API, visibility rules)
-- Recipe steps persistence + editing
-- Brewing assistant workflow model
+- Brewing assistant: Batch API + persistence + auth integration
 - Batch/fermentation tracking + reminders
 - Calculators service (ABV/IBU first)
 - Offline sync API design (last-write-wins)
@@ -142,7 +144,6 @@ Phase 3 - Post-MVP
 
 ## Open Questions (Need Decisions)
 - Exact required vs optional recipe fields (MVP).
-- Default visibility for user-created recipes (public vs private).
 - Default values for equipment fields (per system type).
 - Offline conflict UI beyond last-write-wins (V1+).
 - Legal requirements for France + EU (disclaimers, data retention).
@@ -153,3 +154,4 @@ Phase 3 - Post-MVP
 - 2026-01-29: Added detailed MVP/V1 decisions (recipes, sharing, calc, offline, legal, roles, DB).
 - 2026-01-29: Added engineering workflow + clean architecture decision.
 - 2026-02-04: Updated status based on current backend (equipment profiles + hardening + CODEOWNERS) and clarified next backend priorities.
+- 2026-02-05: Marked recipes/steps persistence as done and added batch domain workflow; clarified default recipe visibility = PRIVATE.

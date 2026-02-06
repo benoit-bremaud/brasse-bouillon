@@ -1,6 +1,6 @@
 # Brasse-Bouillon Roadmap
 
-Last updated: 2026-02-05
+Last updated: 2026-02-06
 
 ## Vision
 Mobile-first assistant for homebrewers and craft brewers to design, brew, and
@@ -110,6 +110,7 @@ modern, and offline-first.
 - Recipe steps persistence + minimal editing API (label/description) + lazy backfill
 - Brewing assistant workflow model: Batch domain (domain-only)
 - Brewing assistant: Batch persistence + service (no HTTP yet)
+- Brewing assistant: Batch API + auth integration
 - CI: GitHub Actions build + test + lint:check
 - CI: auto-request Copilot review on new PRs
 - CD: build and push Docker image to GHCR on merges to main
@@ -121,7 +122,6 @@ modern, and offline-first.
 
 ### To Do
 Phase 1 - MVP Backend
-- Brewing assistant: Batch API + auth integration
 - Batch/fermentation tracking + reminders
 - Calculators service (ABV/IBU first)
 - Offline sync API design (last-write-wins)
@@ -157,3 +157,4 @@ Phase 3 - Post-MVP
 - 2026-02-04: Updated status based on current backend (equipment profiles + hardening + CODEOWNERS) and clarified next backend priorities.
 - 2026-02-05: Marked recipes/steps persistence as done and added batch domain workflow; clarified default recipe visibility = PRIVATE.
 - 2026-02-05: Added batch persistence + service (PR #19).
+- 2026-02-06: Added batch API endpoints + auth integration (PR #21).

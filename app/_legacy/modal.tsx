@@ -1,3 +1,4 @@
+// Legacy template from create-expo-app (kept for reference).
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet } from 'react-native';
 

@@ -1,3 +1,4 @@
+// Legacy template from create-expo-app (kept for reference).
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';

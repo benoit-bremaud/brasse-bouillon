@@ -111,6 +111,7 @@ modern, and offline-first.
 - Brewing assistant workflow model: Batch domain (domain-only)
 - Brewing assistant: Batch persistence + service (no HTTP yet)
 - Brewing assistant: Batch API + auth integration
+- Brewing assistant: Fermentation + reminders API
 - CI: GitHub Actions build + test + lint:check
 - CI: auto-request Copilot review on new PRs
 - CD: build and push Docker image to GHCR on merges to main
@@ -122,7 +123,6 @@ modern, and offline-first.
 
 ### To Do
 Phase 1 - MVP Backend
-- Batch/fermentation tracking + reminders
 - Calculators service (ABV/IBU first)
 - Offline sync API design (last-write-wins)
 - Role model expansion (beyond ADMIN/MODERATOR/USER)
@@ -158,3 +158,4 @@ Phase 3 - Post-MVP
 - 2026-02-05: Marked recipes/steps persistence as done and added batch domain workflow; clarified default recipe visibility = PRIVATE.
 - 2026-02-05: Added batch persistence + service (PR #19).
 - 2026-02-06: Added batch API endpoints + auth integration (PR #21).
+- 2026-02-06: Added fermentation + reminders API (PR #24).

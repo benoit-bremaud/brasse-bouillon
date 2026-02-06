@@ -27,6 +27,12 @@ import { BatchSummaryDto } from '../dtos/batch-summary.dto';
 import { StartBatchDto } from '../dtos/start-batch.dto';
 import { BatchService } from '../services/batch.service';
 
+/**
+ * BatchController
+ *
+ * Route prefix: /batches
+ * Ownership: current user only (owner_id = user.id)
+ */
 @ApiTags('Batches')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

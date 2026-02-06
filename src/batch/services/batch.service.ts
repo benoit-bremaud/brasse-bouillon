@@ -285,6 +285,8 @@ export class BatchService {
       createdAt: batch.created_at,
       updatedAt: batch.updated_at,
       startedAt: batch.started_at,
+      fermentationStartedAt: batch.fermentation_started_at ?? undefined,
+      fermentationCompletedAt: batch.fermentation_completed_at ?? undefined,
       completedAt: batch.completed_at ?? undefined,
     };
   }

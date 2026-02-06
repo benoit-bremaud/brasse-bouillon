@@ -40,9 +40,6 @@ export class BatchOrmEntity {
   fermentation_started_at?: Date | null;
 
   @Column({ type: 'datetime', nullable: true })
-  fermentation_target_end_at?: Date | null;
-
-  @Column({ type: 'datetime', nullable: true })
   fermentation_completed_at?: Date | null;
 
   @Column({ type: 'datetime', nullable: true })

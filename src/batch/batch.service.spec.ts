@@ -231,6 +231,10 @@ describe('BatchService', () => {
     await expect(
       batchService.startFermentationMine(ownerId, started.batch.id),
     ).rejects.toThrow(BadRequestException);
+
+    await expect(
+      batchService.startFermentationMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('completeFermentationMine() should require start and set completed_at', async () => {
@@ -252,6 +256,10 @@ describe('BatchService', () => {
     await expect(
       batchService.completeFermentationMine(ownerId, started.batch.id),
     ).rejects.toThrow(BadRequestException);
+
+    await expect(
+      batchService.completeFermentationMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('reminders should create, list, update, and enforce ownership', async () => {
@@ -291,6 +299,21 @@ describe('BatchService', () => {
     );
     expect(updated.status).toBe(BatchReminderStatus.DONE);
     expect(updated.label).toBe('Gravity check done');
+
+    await expect(
+      batchService.updateMineReminder(ownerId, started.batch.id, 'missing-id', {
+        status: BatchReminderStatus.DONE,
+      }),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      batchService.updateMineReminder(
+        otherOwner,
+        started.batch.id,
+        reminder.id,
+        { status: BatchReminderStatus.DONE },
+      ),
+    ).rejects.toThrow(NotFoundException);
 
     await expect(
       batchService.listMineReminders(otherOwner, started.batch.id),

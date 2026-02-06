@@ -47,6 +47,12 @@ export interface Batch {
   /** Start timestamp for the batch. */
   readonly startedAt: Date;
 
+  /** Timestamp when fermentation was started. */
+  readonly fermentationStartedAt?: Date;
+
+  /** Timestamp when fermentation was completed. */
+  readonly fermentationCompletedAt?: Date;
+
   /** Completion timestamp when the batch finishes. */
   readonly completedAt?: Date;
 }

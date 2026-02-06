@@ -37,6 +37,12 @@ export class BatchOrmEntity {
   started_at: Date;
 
   @Column({ type: 'datetime', nullable: true })
+  fermentation_started_at?: Date | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  fermentation_completed_at?: Date | null;
+
+  @Column({ type: 'datetime', nullable: true })
   completed_at?: Date | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })

@@ -13,13 +13,26 @@ import { RecipeService } from '../../recipe/services/recipe.service';
 import { BatchDomainService } from '../domain/services/batch-domain.service';
 import { BatchStep } from '../domain/entities/batch-step.entity';
 import { Batch } from '../domain/entities/batch.entity';
+import { BatchReminderStatus } from '../domain/enums/batch-reminder-status.enum';
 import { BatchStatus } from '../domain/enums/batch-status.enum';
+import { BatchReminderOrmEntity } from '../entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
 
 export interface BatchWithSteps {
   batch: BatchOrmEntity;
   steps: BatchStepOrmEntity[];
+}
+
+export interface CreateBatchReminderInput {
+  label: string;
+  dueAt: Date;
+}
+
+export interface UpdateBatchReminderInput {
+  label?: string;
+  dueAt?: Date;
+  status?: BatchReminderStatus;
 }
 
 @Injectable()
@@ -31,6 +44,8 @@ export class BatchService {
     private readonly batchRepo: Repository<BatchOrmEntity>,
     @InjectRepository(BatchStepOrmEntity)
     private readonly stepRepo: Repository<BatchStepOrmEntity>,
+    @InjectRepository(BatchReminderOrmEntity)
+    private readonly reminderRepo: Repository<BatchReminderOrmEntity>,
     private readonly recipeService: RecipeService,
   ) {}
 
@@ -84,6 +99,89 @@ export class BatchService {
     });
 
     return { batch, steps };
+  }
+
+  async startFermentationMine(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.status === BatchStatus.COMPLETED) {
+      throw new BadRequestException('Batch already completed');
+    }
+    if (batch.fermentation_started_at) {
+      throw new BadRequestException('Fermentation already started');
+    }
+
+    batch.fermentation_started_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
+  async completeFermentationMine(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.status === BatchStatus.COMPLETED) {
+      throw new BadRequestException('Batch already completed');
+    }
+    if (!batch.fermentation_started_at) {
+      throw new BadRequestException('Fermentation not started');
+    }
+    if (batch.fermentation_completed_at) {
+      throw new BadRequestException('Fermentation already completed');
+    }
+
+    batch.fermentation_completed_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
+  async listMineReminders(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchReminderOrmEntity[]> {
+    await this.getMineBatch(ownerId, batchId);
+    return this.reminderRepo.find({
+      where: { batch_id: batchId },
+      order: { due_at: 'ASC' },
+    });
+  }
+
+  async createMineReminder(
+    ownerId: string,
+    batchId: string,
+    input: CreateBatchReminderInput,
+  ): Promise<BatchReminderOrmEntity> {
+    await this.getMineBatch(ownerId, batchId);
+    const reminder = this.reminderRepo.create({
+      id: randomUUID(),
+      batch_id: batchId,
+      label: input.label,
+      due_at: input.dueAt,
+      status: BatchReminderStatus.PENDING,
+    });
+    return this.reminderRepo.save(reminder);
+  }
+
+  async updateMineReminder(
+    ownerId: string,
+    batchId: string,
+    reminderId: string,
+    input: UpdateBatchReminderInput,
+  ): Promise<BatchReminderOrmEntity> {
+    await this.getMineBatch(ownerId, batchId);
+    const reminder = await this.reminderRepo.findOne({
+      where: { id: reminderId, batch_id: batchId },
+    });
+    if (!reminder) {
+      throw new NotFoundException('Reminder not found');
+    }
+
+    if (input.label !== undefined) reminder.label = input.label;
+    if (input.dueAt !== undefined) reminder.due_at = input.dueAt;
+    if (input.status !== undefined) reminder.status = input.status;
+
+    return this.reminderRepo.save(reminder);
   }
 
   async completeMineCurrentStep(
@@ -187,6 +285,8 @@ export class BatchService {
       createdAt: batch.created_at,
       updatedAt: batch.updated_at,
       startedAt: batch.started_at,
+      fermentationStartedAt: batch.fermentation_started_at ?? undefined,
+      fermentationCompletedAt: batch.fermentation_completed_at ?? undefined,
       completedAt: batch.completed_at ?? undefined,
     };
   }
@@ -201,5 +301,18 @@ export class BatchService {
       startedAt: step.started_at ?? undefined,
       completedAt: step.completed_at ?? undefined,
     };
+  }
+
+  private async getMineBatch(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchOrmEntity> {
+    const batch = await this.batchRepo.findOne({
+      where: { id: batchId, owner_id: ownerId },
+    });
+    if (!batch) {
+      throw new NotFoundException('Batch not found');
+    }
+    return batch;
   }
 }

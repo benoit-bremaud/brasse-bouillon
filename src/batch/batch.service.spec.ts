@@ -12,7 +12,9 @@ import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
 
 import { BatchStatus } from './domain/enums/batch-status.enum';
+import { BatchReminderStatus } from './domain/enums/batch-reminder-status.enum';
 import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
+import { BatchReminderOrmEntity } from './entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from './entities/batch.orm.entity';
 import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { BatchService } from './services/batch.service';
@@ -23,6 +25,7 @@ describe('BatchService', () => {
   let recipeService: RecipeService;
   let batchRepo: Repository<BatchOrmEntity>;
   let batchStepRepo: Repository<BatchStepOrmEntity>;
+  let batchReminderRepo: Repository<BatchReminderOrmEntity>;
   let recipeRepo: Repository<RecipeOrmEntity>;
   let recipeStepRepo: Repository<RecipeStepOrmEntity>;
 
@@ -37,6 +40,7 @@ describe('BatchService', () => {
             RecipeStepOrmEntity,
             BatchOrmEntity,
             BatchStepOrmEntity,
+            BatchReminderOrmEntity,
           ],
           synchronize: true,
           logging: false,
@@ -46,6 +50,7 @@ describe('BatchService', () => {
           RecipeStepOrmEntity,
           BatchOrmEntity,
           BatchStepOrmEntity,
+          BatchReminderOrmEntity,
         ]),
       ],
       providers: [RecipeService, BatchService],
@@ -55,6 +60,7 @@ describe('BatchService', () => {
     recipeService = module.get(RecipeService);
     batchRepo = module.get(getRepositoryToken(BatchOrmEntity));
     batchStepRepo = module.get(getRepositoryToken(BatchStepOrmEntity));
+    batchReminderRepo = module.get(getRepositoryToken(BatchReminderOrmEntity));
     recipeRepo = module.get(getRepositoryToken(RecipeOrmEntity));
     recipeStepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
   });
@@ -66,6 +72,7 @@ describe('BatchService', () => {
   beforeEach(async () => {
     await batchStepRepo.clear();
     await batchRepo.clear();
+    await batchReminderRepo.clear();
     await recipeStepRepo.clear();
     await recipeRepo.clear();
   });
@@ -208,5 +215,108 @@ describe('BatchService', () => {
     expect(await recipeStepRepo.count({ where: { recipe_id: recipeId } })).toBe(
       5,
     );
+  });
+
+  it('startFermentationMine() should set fermentation_started_at', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    const updated = await batchService.startFermentationMine(
+      ownerId,
+      started.batch.id,
+    );
+
+    expect(updated.fermentation_started_at).toBeTruthy();
+    await expect(
+      batchService.startFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    await expect(
+      batchService.startFermentationMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('completeFermentationMine() should require start and set completed_at', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.completeFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    await batchService.startFermentationMine(ownerId, started.batch.id);
+    const completed = await batchService.completeFermentationMine(
+      ownerId,
+      started.batch.id,
+    );
+
+    expect(completed.fermentation_completed_at).toBeTruthy();
+    await expect(
+      batchService.completeFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    await expect(
+      batchService.completeFermentationMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('reminders should create, list, update, and enforce ownership', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    const dueAt = new Date('2026-02-01T10:00:00.000Z');
+    const dueAtLater = new Date('2026-02-02T10:00:00.000Z');
+
+    const reminder = await batchService.createMineReminder(
+      ownerId,
+      started.batch.id,
+      { label: 'Check gravity', dueAt },
+    );
+
+    expect(reminder.status).toBe(BatchReminderStatus.PENDING);
+    expect(reminder.due_at.toISOString()).toBe(dueAt.toISOString());
+
+    await batchService.createMineReminder(ownerId, started.batch.id, {
+      label: 'Dry hop',
+      dueAt: dueAtLater,
+    });
+
+    const list = await batchService.listMineReminders(
+      ownerId,
+      started.batch.id,
+    );
+    expect(list.map((row) => row.label)).toEqual(['Check gravity', 'Dry hop']);
+
+    const updated = await batchService.updateMineReminder(
+      ownerId,
+      started.batch.id,
+      reminder.id,
+      { status: BatchReminderStatus.DONE, label: 'Gravity check done' },
+    );
+    expect(updated.status).toBe(BatchReminderStatus.DONE);
+    expect(updated.label).toBe('Gravity check done');
+
+    await expect(
+      batchService.updateMineReminder(ownerId, started.batch.id, 'missing-id', {
+        status: BatchReminderStatus.DONE,
+      }),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      batchService.updateMineReminder(
+        otherOwner,
+        started.batch.id,
+        reminder.id,
+        { status: BatchReminderStatus.DONE },
+      ),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      batchService.listMineReminders(otherOwner, started.batch.id),
+    ).rejects.toThrow(NotFoundException);
   });
 });

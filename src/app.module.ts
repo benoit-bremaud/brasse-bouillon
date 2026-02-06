@@ -7,6 +7,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { RecipeModule } from './recipe/recipe.module';
+import { BatchModule } from './batch/batch.module';
 
 /**
  * App Module
@@ -53,6 +54,7 @@ import { RecipeModule } from './recipe/recipe.module';
 
     // Recipe feature module - user recipes
     RecipeModule,
+    BatchModule,
   ],
 
   // Controllers that handle HTTP requests at root level

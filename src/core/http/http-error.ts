@@ -8,3 +8,22 @@ export class HttpError extends Error {
     this.details = details;
   }
 }
+
+export function getErrorMessage(
+  error: unknown,
+  fallback = "Une erreur est survenue",
+): string {
+  if (error instanceof HttpError) {
+    return error.message || fallback;
+  }
+
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  return fallback;
+}

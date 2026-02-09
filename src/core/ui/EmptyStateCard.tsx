@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-import { Card } from '@/core/ui/Card';
-import React from 'react';
+import { Card } from "@/core/ui/Card";
+import React from "react";
 
 type Props = {
   title: string;
@@ -26,15 +26,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    color: '#111827',
-    fontWeight: '700',
+    color: "#111827",
+    fontWeight: "700",
     marginBottom: 6,
   },
   description: {
-    color: '#6b7280',
+    color: "#6b7280",
   },
   action: {
     marginTop: 12,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
 });

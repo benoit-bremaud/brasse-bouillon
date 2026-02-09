@@ -1,16 +1,16 @@
 import {
   completeCurrentBatchStep,
   getBatchDetails,
-} from '@/features/batches/application/batches.use-cases';
-import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+} from "@/features/batches/application/batches.use-cases";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
-import { getErrorMessage } from '@/core/http/http-error';
-import { Badge } from '@/core/ui/Badge';
-import { Card } from '@/core/ui/Card';
-import { PrimaryButton } from '@/core/ui/PrimaryButton';
-import { Screen } from '@/core/ui/Screen';
-import { Batch } from '@/features/batches/domain/batch.types';
+import { getErrorMessage } from "@/core/http/http-error";
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { Screen } from "@/core/ui/Screen";
+import { Batch } from "@/features/batches/domain/batch.types";
 
 type Props = {
   batchId: string;
@@ -24,7 +24,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const fetchBatch = async () => {
     if (!batchId) {
-      setError('Missing batch id.');
+      setError("Missing batch id.");
       return;
     }
     setIsLoading(true);
@@ -33,7 +33,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       const data = await getBatchDetails(batchId);
       setBatch(data);
     } catch (err) {
-      setError(getErrorMessage(err, 'Failed to load batch'));
+      setError(getErrorMessage(err, "Failed to load batch"));
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +50,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
         setBatch(data);
       }
     } catch (err) {
-      setError(getErrorMessage(err, 'Failed to complete step'));
+      setError(getErrorMessage(err, "Failed to complete step"));
     } finally {
       setIsCompleting(false);
     }
@@ -60,7 +60,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
     fetchBatch();
   }, [batchId]);
 
-  const isCompleted = batch?.status === 'completed';
+  const isCompleted = batch?.status === "completed";
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchBatch}>
@@ -69,7 +69,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
           <Text style={styles.title}>Batch {batch.id.slice(0, 8)}</Text>
           <Text style={styles.meta}>Status: {batch.status}</Text>
           <Text style={styles.meta}>
-            Current step: {batch.currentStepOrder ?? '-'}
+            Current step: {batch.currentStepOrder ?? "-"}
           </Text>
         </Card>
       ) : null}
@@ -77,10 +77,10 @@ export function BatchDetailsScreen({ batchId }: Props) {
       <PrimaryButton
         label={
           isCompleted
-            ? 'Batch completed'
+            ? "Batch completed"
             : isCompleting
-              ? 'Completing...'
-              : 'Complete current step'
+              ? "Completing..."
+              : "Complete current step"
         }
         onPress={handleComplete}
         disabled={isCompleting || isCompleted || isLoading}
@@ -100,11 +100,11 @@ export function BatchDetailsScreen({ batchId }: Props) {
               <Badge
                 label={item.status}
                 variant={
-                  item.status === 'completed'
-                    ? 'success'
-                    : item.status === 'in_progress'
-                      ? 'info'
-                      : 'neutral'
+                  item.status === "completed"
+                    ? "success"
+                    : item.status === "in_progress"
+                      ? "info"
+                      : "neutral"
                 }
               />
             </View>
@@ -126,18 +126,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
   meta: {
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 4,
   },
   sectionTitle: {
     marginTop: 16,
     marginBottom: 8,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
   list: {
     paddingBottom: 24,
@@ -146,24 +146,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   stepTitle: {
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     flex: 1,
     marginRight: 8,
   },
   stepMeta: {
-    color: '#6b7280',
+    color: "#6b7280",
     fontSize: 12,
     marginTop: 8,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   stepDescription: {
     marginTop: 10,
-    color: '#4b5563',
+    color: "#4b5563",
   },
 });

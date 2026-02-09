@@ -1,11 +1,11 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
-import { Badge } from '@/core/ui/Badge';
-import { Card } from '@/core/ui/Card';
-import { ListHeader } from '@/core/ui/ListHeader';
-import { Screen } from '@/core/ui/Screen';
-import { demoUsers } from '@/mocks/demo-data';
-import React from 'react';
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { Screen } from "@/core/ui/Screen";
+import { demoUsers } from "@/mocks/demo-data";
+import React from "react";
 
 export function UsersScreen() {
   return (
@@ -27,7 +27,7 @@ export function UsersScreen() {
             <Text style={styles.meta}>@{item.username}</Text>
             <Text style={styles.meta}>{item.email}</Text>
             <Text style={styles.meta}>
-              Statut: {item.isActive ? 'Actif' : 'Inactif'}
+              Statut: {item.isActive ? "Actif" : "Inactif"}
             </Text>
           </Card>
         )}
@@ -44,17 +44,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
   meta: {
     marginTop: 6,
-    color: '#6b7280',
+    color: "#6b7280",
   },
 });

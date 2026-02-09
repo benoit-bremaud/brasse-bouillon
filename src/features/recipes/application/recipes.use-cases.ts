@@ -2,11 +2,11 @@ import {
   getMineById,
   listMine,
   listSteps,
-} from '@/features/recipes/data/recipes.api';
-import { Recipe, RecipeStep } from '@/features/recipes/domain/recipe.types';
-import { demoRecipeSteps, demoRecipes } from '@/mocks/demo-data';
+} from "@/features/recipes/data/recipes.api";
+import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
+import { demoRecipeSteps, demoRecipes } from "@/mocks/demo-data";
 
-import { dataSource } from '@/core/data/data-source';
+import { dataSource } from "@/core/data/data-source";
 
 export async function listRecipes(): Promise<Recipe[]> {
   return dataSource.useDemoData ? demoRecipes : listMine();

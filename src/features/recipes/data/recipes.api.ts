@@ -1,13 +1,13 @@
-import { request } from '@/core/http/http-client';
+import { request } from "@/core/http/http-client";
 
-import { Recipe, RecipeStep } from '../domain/recipe.types';
+import { Recipe, RecipeStep } from "../domain/recipe.types";
 
 type RecipeDto = {
   id: string;
   owner_id: string;
   name: string;
   description?: string | null;
-  visibility: Recipe['visibility'];
+  visibility: Recipe["visibility"];
   version: number;
   root_recipe_id: string;
   parent_recipe_id?: string | null;
@@ -18,7 +18,7 @@ type RecipeDto = {
 type RecipeStepDto = {
   recipe_id: string;
   step_order: number;
-  type: RecipeStep['type'];
+  type: RecipeStep["type"];
   label: string;
   description?: string | null;
   created_at: string;
@@ -53,7 +53,7 @@ function mapRecipeStep(dto: RecipeStepDto): RecipeStep {
 }
 
 export async function listMine(): Promise<Recipe[]> {
-  const rows = await request<RecipeDto[]>('/recipes');
+  const rows = await request<RecipeDto[]>("/recipes");
   return rows.map(mapRecipe);
 }
 

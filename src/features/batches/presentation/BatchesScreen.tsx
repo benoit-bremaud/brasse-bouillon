@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -6,18 +6,18 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { getErrorMessage } from '@/core/http/http-error';
-import { Badge } from '@/core/ui/Badge';
-import { Card } from '@/core/ui/Card';
-import { EmptyStateCard } from '@/core/ui/EmptyStateCard';
-import { ListHeader } from '@/core/ui/ListHeader';
-import { PrimaryButton } from '@/core/ui/PrimaryButton';
-import { Screen } from '@/core/ui/Screen';
-import { listBatches } from '@/features/batches/application/batches.use-cases';
-import { BatchSummary } from '@/features/batches/domain/batch.types';
-import { useRouter } from 'expo-router';
+import { getErrorMessage } from "@/core/http/http-error";
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { Screen } from "@/core/ui/Screen";
+import { listBatches } from "@/features/batches/application/batches.use-cases";
+import { BatchSummary } from "@/features/batches/domain/batch.types";
+import { useRouter } from "expo-router";
 
 export function BatchesScreen() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export function BatchesScreen() {
       const data = await listBatches();
       setBatches(data);
     } catch (err) {
-      setError(getErrorMessage(err, 'Failed to load batches'));
+      setError(getErrorMessage(err, "Failed to load batches"));
     } finally {
       setIsLoading(false);
     }
@@ -86,11 +86,11 @@ export function BatchesScreen() {
                 </Text>
                 <Badge
                   label={item.status}
-                  variant={item.status === 'completed' ? 'success' : 'info'}
+                  variant={item.status === "completed" ? "success" : "info"}
                 />
               </View>
               <Text style={styles.cardMeta}>
-                Étape courante: {item.currentStepOrder ?? '-'}
+                Étape courante: {item.currentStepOrder ?? "-"}
               </Text>
               <Text style={styles.cardMetaSecondary}>Ouvrir le détail →</Text>
             </Card>
@@ -106,12 +106,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: '#111827',
+    backgroundColor: "#111827",
   },
   refreshText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   list: {
     paddingBottom: 16,
@@ -120,22 +120,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
   cardMeta: {
     marginTop: 10,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   cardMetaSecondary: {
     marginTop: 6,
-    color: '#9ca3af',
+    color: "#9ca3af",
     fontSize: 13,
   },
 });

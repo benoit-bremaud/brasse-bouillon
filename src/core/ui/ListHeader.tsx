@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-import React from 'react';
+import React from "react";
 
 type Props = {
   title: string;
@@ -22,18 +22,18 @@ export function ListHeader({ title, subtitle, action }: Props) {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
   subtitle: {
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 2,
   },
 });

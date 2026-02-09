@@ -1,8 +1,8 @@
-import { RecipeStepType } from '@/features/recipes/domain/recipe.types';
+import { RecipeStepType } from "@/features/recipes/domain/recipe.types";
 
-export type BatchStatus = 'in_progress' | 'completed';
+export type BatchStatus = "in_progress" | "completed";
 
-export type BatchStepStatus = 'pending' | 'in_progress' | 'completed';
+export type BatchStepStatus = "pending" | "in_progress" | "completed";
 
 export type BatchSummary = {
   id: string;

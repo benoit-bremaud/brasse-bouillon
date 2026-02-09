@@ -1,11 +1,11 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
-import { Badge } from '@/core/ui/Badge';
-import { Card } from '@/core/ui/Card';
-import { ListHeader } from '@/core/ui/ListHeader';
-import { Screen } from '@/core/ui/Screen';
-import { demoEquipments } from '@/mocks/demo-data';
-import React from 'react';
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { Screen } from "@/core/ui/Screen";
+import { demoEquipments } from "@/mocks/demo-data";
+import React from "react";
 
 export function EquipmentScreen() {
   return (
@@ -47,21 +47,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
   meta: {
     marginTop: 8,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   notes: {
     marginTop: 8,
-    color: '#4b5563',
+    color: "#4b5563",
   },
 });

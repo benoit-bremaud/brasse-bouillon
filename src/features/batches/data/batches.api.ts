@@ -1,16 +1,12 @@
-import { request } from '@/core/http/http-client';
+import { request } from "@/core/http/http-client";
 
-import {
-  Batch,
-  BatchStep,
-  BatchSummary,
-} from '../domain/batch.types';
+import { Batch, BatchStep, BatchSummary } from "../domain/batch.types";
 
 type BatchSummaryDto = {
   id: string;
   owner_id: string;
   recipe_id: string;
-  status: BatchSummary['status'];
+  status: BatchSummary["status"];
   current_step_order?: number | null;
   started_at: string;
   fermentation_started_at?: string | null;
@@ -23,10 +19,10 @@ type BatchSummaryDto = {
 type BatchStepDto = {
   batch_id: string;
   step_order: number;
-  type: BatchStep['type'];
+  type: BatchStep["type"];
   label: string;
   description?: string | null;
-  status: BatchStep['status'];
+  status: BatchStep["status"];
   started_at?: string | null;
   completed_at?: string | null;
   created_at: string;
@@ -78,7 +74,7 @@ function mapBatch(dto: BatchDto): Batch {
 }
 
 export async function listMine(): Promise<BatchSummary[]> {
-  const rows = await request<BatchSummaryDto[]>('/batches');
+  const rows = await request<BatchSummaryDto[]>("/batches");
   return rows.map(mapBatchSummary);
 }
 
@@ -89,14 +85,14 @@ export async function getMineById(id: string): Promise<Batch> {
 
 export async function completeCurrentStep(id: string): Promise<Batch> {
   const row = await request<BatchDto>(`/batches/${id}/steps/current/complete`, {
-    method: 'POST',
+    method: "POST",
   });
   return mapBatch(row);
 }
 
 export async function startBatch(recipeId: string): Promise<Batch> {
-  const row = await request<StartBatchResponse>('/batches', {
-    method: 'POST',
+  const row = await request<StartBatchResponse>("/batches", {
+    method: "POST",
     body: { recipeId },
   });
   return mapBatch(row);

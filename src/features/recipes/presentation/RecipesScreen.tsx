@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -6,18 +6,18 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { getErrorMessage } from '@/core/http/http-error';
-import { Badge } from '@/core/ui/Badge';
-import { Card } from '@/core/ui/Card';
-import { EmptyStateCard } from '@/core/ui/EmptyStateCard';
-import { ListHeader } from '@/core/ui/ListHeader';
-import { PrimaryButton } from '@/core/ui/PrimaryButton';
-import { Screen } from '@/core/ui/Screen';
-import { listRecipes } from '@/features/recipes/application/recipes.use-cases';
-import { Recipe } from '@/features/recipes/domain/recipe.types';
-import { useRouter } from 'expo-router';
+import { getErrorMessage } from "@/core/http/http-error";
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { Screen } from "@/core/ui/Screen";
+import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { useRouter } from "expo-router";
 
 export function RecipesScreen() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export function RecipesScreen() {
       const data = await listRecipes();
       setRecipes(data);
     } catch (err) {
-      setError(getErrorMessage(err, 'Failed to load recipes'));
+      setError(getErrorMessage(err, "Failed to load recipes"));
     } finally {
       setIsLoading(false);
     }
@@ -101,12 +101,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: '#111827',
+    backgroundColor: "#111827",
   },
   refreshText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   list: {
     paddingBottom: 16,
@@ -115,22 +115,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
   cardSubtitle: {
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 8,
   },
   cardMeta: {
     marginTop: 10,
-    color: '#9ca3af',
+    color: "#9ca3af",
     fontSize: 13,
   },
 });

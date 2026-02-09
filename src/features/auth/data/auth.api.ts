@@ -1,6 +1,6 @@
-import { request } from '@/core/http/http-client';
+import { request } from "@/core/http/http-client";
 
-import { AuthSession, User } from '../domain/auth.types';
+import { AuthSession, User } from "../domain/auth.types";
 
 type LoginResponse = {
   access_token: string;
@@ -17,7 +17,7 @@ type LoginResponse = {
   };
 };
 
-function mapUser(dto: LoginResponse['user']): User {
+function mapUser(dto: LoginResponse["user"]): User {
   return {
     id: dto.id,
     email: dto.email,
@@ -35,8 +35,8 @@ export async function login(
   email: string,
   password: string,
 ): Promise<AuthSession> {
-  const data = await request<LoginResponse>('/auth/login', {
-    method: 'POST',
+  const data = await request<LoginResponse>("/auth/login", {
+    method: "POST",
     body: { email, password },
     auth: false,
   });

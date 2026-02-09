@@ -1,4 +1,4 @@
-import { LoginScreen } from '@/features/auth/presentation/LoginScreen';
+import { LoginScreen } from "@/features/auth/presentation/LoginScreen";
 
 export default function LoginRoute() {
   return <LoginScreen />;

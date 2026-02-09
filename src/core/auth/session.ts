@@ -1,6 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
-const ACCESS_TOKEN_KEY = 'brassebouillon.access_token';
+const ACCESS_TOKEN_KEY = "brassebouillon.access_token";
 
 let accessToken: string | null = null;
 

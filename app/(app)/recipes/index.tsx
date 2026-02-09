@@ -1,4 +1,4 @@
-import { RecipesScreen } from '@/features/recipes/presentation/RecipesScreen';
+import { RecipesScreen } from "@/features/recipes/presentation/RecipesScreen";
 
 export default function RecipesRoute() {
   return <RecipesScreen />;

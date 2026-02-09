@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -6,20 +6,20 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { useAuth } from '@/core/auth/auth-context';
-import { Screen } from '@/core/ui/Screen';
+import { useAuth } from "@/core/auth/auth-context";
+import { Screen } from "@/core/ui/Screen";
 
 export function LoginScreen() {
   const { login, isLoading, error } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const onSubmit = async () => {
     if (!email.trim() || !password.trim()) {
-      setLocalError('Email and password are required.');
+      setLocalError("Email and password are required.");
       return;
     }
     setLocalError(null);
@@ -58,7 +58,8 @@ export function LoginScreen() {
             pressed && styles.buttonPressed,
           ]}
           onPress={onSubmit}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           {isLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -73,41 +74,41 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 4,
   },
   subtitle: {
-    color: '#6b7280',
+    color: "#6b7280",
     marginBottom: 24,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
   },
   button: {
-    backgroundColor: '#111827',
+    backgroundColor: "#111827",
     paddingVertical: 12,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonPressed: {
     opacity: 0.8,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   error: {
-    color: '#dc2626',
+    color: "#dc2626",
     marginBottom: 8,
   },
 });

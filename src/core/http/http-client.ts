@@ -1,10 +1,10 @@
-import { authSession } from '@/core/auth/session';
-import { env } from '@/core/config/env';
+import { authSession } from "@/core/auth/session";
+import { env } from "@/core/config/env";
 
-import { HttpError } from './http-error';
+import { HttpError } from "./http-error";
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   body?: unknown;
   auth?: boolean;
   headers?: Record<string, string>;
@@ -29,12 +29,12 @@ async function parseBody(response: Response) {
 
 export async function request<T>(
   path: string,
-  { method = 'GET', body, auth = true, headers = {} }: RequestOptions = {},
+  { method = "GET", body, auth = true, headers = {} }: RequestOptions = {},
 ): Promise<T> {
-  const url = `${env.apiUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  const url = `${env.apiUrl}${path.startsWith("/") ? path : `/${path}`}`;
 
   const mergedHeaders: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...headers,
   };
 
@@ -55,17 +55,13 @@ export async function request<T>(
 
   if (!response.ok) {
     const message =
-      typeof payload === 'object' && payload && 'message' in payload
+      typeof payload === "object" && payload && "message" in payload
         ? String(payload.message)
         : response.statusText;
     throw new HttpError(response.status, message, payload);
   }
 
-  if (
-    typeof payload === 'object' &&
-    payload !== null &&
-    'data' in payload
-  ) {
+  if (typeof payload === "object" && payload !== null && "data" in payload) {
     return (payload as { data: T }).data;
   }
 

@@ -1,22 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import { useRouter } from 'expo-router';
+} from "react-native";
 
-import { useAuth } from '@/core/auth/auth-context';
-import { Screen } from '@/core/ui/Screen';
-import { listMine } from '@/features/recipes/data/recipes.api';
-import { Recipe } from '@/features/recipes/domain/recipe.types';
+import { getErrorMessage } from "@/core/http/http-error";
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { Screen } from "@/core/ui/Screen";
+import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { useRouter } from "expo-router";
 
 export function RecipesScreen() {
   const router = useRouter();
-  const { session } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,50 +29,66 @@ export function RecipesScreen() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await listMine();
+      const data = await listRecipes();
       setRecipes(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load recipes');
+      setError(getErrorMessage(err, "Failed to load recipes"));
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (session) {
-      fetchRecipes();
-    }
-  }, [session]);
+    fetchRecipes();
+  }, []);
+
+  const showEmptyState = !isLoading && recipes.length === 0;
 
   return (
-    <Screen>
-      <View style={styles.header}>
-        <Text style={styles.title}>My Recipes</Text>
-        <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
-          <Text style={styles.refreshText}>Refresh</Text>
-        </Pressable>
-      </View>
+    <Screen
+      isLoading={isLoading && recipes.length === 0}
+      error={error}
+      onRetry={fetchRecipes}
+    >
+      <ListHeader
+        title="My Recipes"
+        subtitle="Tes recettes de brassage"
+        action={
+          <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
+            <Text style={styles.refreshText}>Refresh</Text>
+          </Pressable>
+        }
+      />
 
-      {isLoading ? <ActivityIndicator /> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      {!isLoading && recipes.length === 0 ? (
-        <Text style={styles.empty}>No recipes yet.</Text>
+      {showEmptyState ? (
+        <EmptyStateCard
+          title="Aucune recette pour le moment"
+          description="Ajoute une recette côté API pour démarrer."
+          action={
+            <PrimaryButton label="Recharger la liste" onPress={fetchRecipes} />
+          }
+        />
       ) : null}
 
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={fetchRecipes} />
+        }
         renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() => router.push(`/(app)/recipes/${item.id}`)}>
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            {item.description ? (
-              <Text style={styles.cardSubtitle}>{item.description}</Text>
-            ) : null}
-            <Text style={styles.cardMeta}>Visibility: {item.visibility}</Text>
+          <Pressable onPress={() => router.push(`/(app)/recipes/${item.id}`)}>
+            <Card style={styles.card}>
+              <View style={styles.cardTopRow}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Badge label={item.visibility} variant="info" />
+              </View>
+              {item.description ? (
+                <Text style={styles.cardSubtitle}>{item.description}</Text>
+              ) : null}
+              <Text style={styles.cardMeta}>Voir les étapes →</Text>
+            </Card>
           </Pressable>
         )}
       />
@@ -77,55 +97,40 @@ export function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
   refreshButton: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: '#111827',
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: "#111827",
   },
   refreshText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
+    fontWeight: "600",
   },
   list: {
     paddingBottom: 16,
   },
   card: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 12,
     marginBottom: 12,
+  },
+  cardTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
+    color: "#111827",
   },
   cardSubtitle: {
-    color: '#6b7280',
-    marginTop: 4,
+    color: "#6b7280",
+    marginTop: 8,
   },
   cardMeta: {
-    marginTop: 6,
-    color: '#9ca3af',
-    fontSize: 12,
-  },
-  empty: {
-    color: '#6b7280',
-    marginTop: 12,
-  },
-  error: {
-    color: '#dc2626',
-    marginBottom: 8,
+    marginTop: 10,
+    color: "#9ca3af",
+    fontSize: 13,
   },
 });

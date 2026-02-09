@@ -1,4 +1,4 @@
-export type RecipeVisibility = 'private' | 'unlisted' | 'public';
+export type RecipeVisibility = "private" | "unlisted" | "public";
 
 export type Recipe = {
   id: string;
@@ -14,11 +14,11 @@ export type Recipe = {
 };
 
 export type RecipeStepType =
-  | 'mash'
-  | 'boil'
-  | 'whirlpool'
-  | 'fermentation'
-  | 'packaging';
+  | "mash"
+  | "boil"
+  | "whirlpool"
+  | "fermentation"
+  | "packaging";
 
 export type RecipeStep = {
   recipeId: string;

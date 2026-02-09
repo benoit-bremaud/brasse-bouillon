@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-
-import { Screen } from '@/core/ui/Screen';
-import { listSteps, getMineById } from '@/features/recipes/data/recipes.api';
+  getRecipeDetails,
+  listRecipeSteps,
+} from '@/features/recipes/application/recipes.use-cases';
 import { Recipe, RecipeStep } from '@/features/recipes/domain/recipe.types';
-import { startBatch } from '@/features/batches/data/batches.api';
+import React, { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+
+import { getErrorMessage } from '@/core/http/http-error';
+import { Card } from '@/core/ui/Card';
+import { PrimaryButton } from '@/core/ui/PrimaryButton';
+import { Screen } from '@/core/ui/Screen';
+import { startBatch } from '@/features/batches/application/batches.use-cases';
+import { useRouter } from 'expo-router';
 
 type Props = {
   recipeId: string;
@@ -35,13 +34,13 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     setError(null);
     try {
       const [recipeData, stepData] = await Promise.all([
-        getMineById(recipeId),
-        listSteps(recipeId),
+        getRecipeDetails(recipeId),
+        listRecipeSteps(recipeId),
       ]);
       setRecipe(recipeData);
       setSteps(stepData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load recipe');
+      setError(getErrorMessage(err, 'Failed to load recipe'));
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +55,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       const batch = await startBatch(recipeId);
       router.push(`/(app)/batches/${batch.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start batch');
+      setError(getErrorMessage(err, 'Failed to start batch'));
     } finally {
       setIsStarting(false);
     }
@@ -67,30 +66,21 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   }, [recipeId]);
 
   return (
-    <Screen>
-      {isLoading ? <ActivityIndicator /> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
+    <Screen isLoading={isLoading} error={error} onRetry={fetchRecipe}>
       {recipe ? (
-        <View style={styles.header}>
+        <Card style={styles.headerCard}>
           <Text style={styles.title}>{recipe.name}</Text>
           {recipe.description ? (
             <Text style={styles.subtitle}>{recipe.description}</Text>
           ) : null}
-        </View>
+        </Card>
       ) : null}
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.primaryButton,
-          pressed && styles.primaryButtonPressed,
-        ]}
+      <PrimaryButton
+        label={isStarting ? 'Starting...' : 'Start batch'}
         onPress={handleStartBatch}
-        disabled={isStarting || isLoading}>
-        <Text style={styles.primaryButtonText}>
-          {isStarting ? 'Starting...' : 'Start batch'}
-        </Text>
-      </Pressable>
+        disabled={isStarting || isLoading}
+      />
 
       <Text style={styles.sectionTitle}>Steps</Text>
       <FlatList
@@ -98,15 +88,17 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
         keyExtractor={(item) => `${item.recipeId}-${item.stepOrder}`}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <View style={styles.stepCard}>
-            <Text style={styles.stepTitle}>
-              {item.stepOrder + 1}. {item.label}
-            </Text>
-            <Text style={styles.stepType}>{item.type}</Text>
+          <Card style={styles.stepCard}>
+            <View style={styles.stepHeader}>
+              <Text style={styles.stepTitle}>
+                {item.stepOrder + 1}. {item.label}
+              </Text>
+              <Text style={styles.stepType}>{item.type}</Text>
+            </View>
             {item.description ? (
               <Text style={styles.stepDescription}>{item.description}</Text>
             ) : null}
-          </View>
+          </Card>
         )}
       />
     </Screen>
@@ -114,12 +106,14 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  header: {
+  headerCard: {
+    padding: 16,
     marginBottom: 12,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
+    color: '#111827',
   },
   subtitle: {
     color: '#6b7280',
@@ -128,44 +122,38 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: 16,
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#111827',
   },
   list: {
     paddingBottom: 24,
   },
   stepCard: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 12,
     marginBottom: 10,
+  },
+  stepHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   stepTitle: {
     fontWeight: '600',
+    color: '#111827',
+    flex: 1,
+    marginRight: 8,
   },
   stepType: {
-    color: '#6b7280',
-    fontSize: 12,
-    marginTop: 2,
+    color: '#4b5563',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    fontWeight: '700',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   stepDescription: {
-    marginTop: 6,
-  },
-  primaryButton: {
-    backgroundColor: '#111827',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  primaryButtonPressed: {
-    opacity: 0.8,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: '#dc2626',
-    marginBottom: 8,
+    marginTop: 10,
+    color: '#4b5563',
   },
 });

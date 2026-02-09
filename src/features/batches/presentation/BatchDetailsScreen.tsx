@@ -1,18 +1,15 @@
+import {
+  completeCurrentBatchStep,
+  getBatchDetails,
+} from '@/features/batches/application/batches.use-cases';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
+import { getErrorMessage } from '@/core/http/http-error';
+import { Badge } from '@/core/ui/Badge';
+import { Card } from '@/core/ui/Card';
+import { PrimaryButton } from '@/core/ui/PrimaryButton';
 import { Screen } from '@/core/ui/Screen';
-import {
-  completeCurrentStep,
-  getMineById,
-} from '@/features/batches/data/batches.api';
 import { Batch } from '@/features/batches/domain/batch.types';
 
 type Props = {
@@ -33,10 +30,10 @@ export function BatchDetailsScreen({ batchId }: Props) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getMineById(batchId);
+      const data = await getBatchDetails(batchId);
       setBatch(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load batch');
+      setError(getErrorMessage(err, 'Failed to load batch'));
     } finally {
       setIsLoading(false);
     }
@@ -48,12 +45,12 @@ export function BatchDetailsScreen({ batchId }: Props) {
     }
     setIsCompleting(true);
     try {
-      const data = await completeCurrentStep(batchId);
-      setBatch(data);
+      const data = await completeCurrentBatchStep(batchId);
+      if (data) {
+        setBatch(data);
+      }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to complete step',
-      );
+      setError(getErrorMessage(err, 'Failed to complete step'));
     } finally {
       setIsCompleting(false);
     }
@@ -66,36 +63,28 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const isCompleted = batch?.status === 'completed';
 
   return (
-    <Screen>
-      {isLoading ? <ActivityIndicator /> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
+    <Screen isLoading={isLoading} error={error} onRetry={fetchBatch}>
       {batch ? (
-        <View style={styles.header}>
+        <Card style={styles.headerCard}>
           <Text style={styles.title}>Batch {batch.id.slice(0, 8)}</Text>
           <Text style={styles.meta}>Status: {batch.status}</Text>
           <Text style={styles.meta}>
             Current step: {batch.currentStepOrder ?? '-'}
           </Text>
-        </View>
+        </Card>
       ) : null}
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.primaryButton,
-          pressed && styles.primaryButtonPressed,
-          isCompleted && styles.primaryButtonDisabled,
-        ]}
-        onPress={handleComplete}
-        disabled={isCompleting || isCompleted || isLoading}>
-        <Text style={styles.primaryButtonText}>
-          {isCompleted
+      <PrimaryButton
+        label={
+          isCompleted
             ? 'Batch completed'
             : isCompleting
-            ? 'Completing...'
-            : 'Complete current step'}
-        </Text>
-      </Pressable>
+              ? 'Completing...'
+              : 'Complete current step'
+        }
+        onPress={handleComplete}
+        disabled={isCompleting || isCompleted || isLoading}
+      />
 
       <Text style={styles.sectionTitle}>Steps</Text>
       <FlatList
@@ -103,17 +92,27 @@ export function BatchDetailsScreen({ batchId }: Props) {
         keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <View style={styles.stepCard}>
-            <Text style={styles.stepTitle}>
-              {item.stepOrder + 1}. {item.label}
-            </Text>
-            <Text style={styles.stepMeta}>
-              {item.type} · {item.status}
-            </Text>
+          <Card style={styles.stepCard}>
+            <View style={styles.stepHeader}>
+              <Text style={styles.stepTitle}>
+                {item.stepOrder + 1}. {item.label}
+              </Text>
+              <Badge
+                label={item.status}
+                variant={
+                  item.status === 'completed'
+                    ? 'success'
+                    : item.status === 'in_progress'
+                      ? 'info'
+                      : 'neutral'
+                }
+              />
+            </View>
+            <Text style={styles.stepMeta}>{item.type}</Text>
             {item.description ? (
               <Text style={styles.stepDescription}>{item.description}</Text>
             ) : null}
-          </View>
+          </Card>
         )}
       />
     </Screen>
@@ -121,12 +120,14 @@ export function BatchDetailsScreen({ batchId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  header: {
+  headerCard: {
+    padding: 16,
     marginBottom: 12,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
+    color: '#111827',
   },
   meta: {
     color: '#6b7280',
@@ -135,47 +136,34 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: 16,
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#111827',
   },
   list: {
     paddingBottom: 24,
   },
   stepCard: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 12,
     marginBottom: 10,
+  },
+  stepHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   stepTitle: {
     fontWeight: '600',
+    color: '#111827',
+    flex: 1,
+    marginRight: 8,
   },
   stepMeta: {
     color: '#6b7280',
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 8,
+    textTransform: 'uppercase',
   },
   stepDescription: {
-    marginTop: 6,
-  },
-  primaryButton: {
-    backgroundColor: '#111827',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  primaryButtonPressed: {
-    opacity: 0.8,
-  },
-  primaryButtonDisabled: {
-    backgroundColor: '#9ca3af',
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: '#dc2626',
-    marginBottom: 8,
+    marginTop: 10,
+    color: '#4b5563',
   },
 });

@@ -1,5 +1,6 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
+  LayoutChangeEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,12 +9,13 @@ import {
 } from "react-native";
 
 import { BatchStep } from "@/features/batches/domain/batch.types";
+import React from "react";
 
 type Props = {
   steps: BatchStep[];
 };
 
-const MIN_TIMELINE_STEP_WIDTH = 84;
+export const MIN_TIMELINE_STEP_WIDTH = 84;
 
 type TimelineLayout = {
   timelineWidth: number;
@@ -54,13 +56,13 @@ export function getProgressPercent(sortedSteps: BatchStep[]): number {
 
 export function getTimelineLayout(
   stepCount: number,
-  viewportWidth: number,
+  availableWidth: number,
 ): TimelineLayout {
   if (stepCount <= 0) {
     return { timelineWidth: 0, stepWidth: 0, trackWidth: 0 };
   }
 
-  const usableViewportWidth = Math.max(0, viewportWidth - spacing.lg * 2);
+  const usableViewportWidth = Math.max(0, availableWidth);
   const timelineWidth = Math.max(
     usableViewportWidth,
     stepCount * MIN_TIMELINE_STEP_WIDTH,
@@ -77,6 +79,8 @@ export function getTimelineLayout(
 
 export function BatchTimeline({ steps }: Props) {
   const { width: viewportWidth } = useWindowDimensions();
+  const [containerWidth, setContainerWidth] = React.useState(0);
+
   const sortedSteps = [...steps].sort((a, b) => a.stepOrder - b.stepOrder);
   const clampedProgressPercent = Math.min(
     100,
@@ -87,91 +91,98 @@ export function BatchTimeline({ steps }: Props) {
     return null;
   }
 
+  const layoutWidth = containerWidth > 0 ? containerWidth : viewportWidth;
   const { timelineWidth, stepWidth, trackWidth } = getTimelineLayout(
     sortedSteps.length,
-    viewportWidth,
+    layoutWidth,
   );
   const isSingleStep = sortedSteps.length === 1;
   const trackOffset = stepWidth / 2;
   const filledWidth = (trackWidth * clampedProgressPercent) / 100;
 
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Progression du brassin</Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={[styles.timelineContent, { width: timelineWidth }]}>
-          <View style={styles.trackContainer}>
-            {!isSingleStep ? (
-              <>
-                <View
-                  style={[
-                    styles.track,
-                    { left: trackOffset, width: trackWidth },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.trackFilled,
-                    { left: trackOffset, width: filledWidth },
-                  ]}
-                />
-              </>
-            ) : null}
+      <View onLayout={handleLayout} style={styles.layoutMeasure}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={[styles.timelineContent, { width: timelineWidth }]}>
+            <View style={styles.trackContainer}>
+              {!isSingleStep ? (
+                <>
+                  <View
+                    style={[
+                      styles.track,
+                      { left: trackOffset, width: trackWidth },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.trackFilled,
+                      { left: trackOffset, width: filledWidth },
+                    ]}
+                  />
+                </>
+              ) : null}
+
+              <View
+                style={[
+                  styles.markersRow,
+                  isSingleStep && styles.markersRowSingle,
+                ]}
+              >
+                {sortedSteps.map((step) => {
+                  const isDone = step.status === "completed";
+                  const isCurrent = step.status === "in_progress";
+
+                  return (
+                    <View
+                      key={`${step.batchId}-${step.stepOrder}`}
+                      style={[styles.markerWrap, { width: stepWidth }]}
+                    >
+                      <View
+                        style={[
+                          styles.marker,
+                          isDone && styles.markerDone,
+                          isCurrent && styles.markerCurrent,
+                        ]}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
 
             <View
-              style={[
-                styles.markersRow,
-                isSingleStep && styles.markersRowSingle,
-              ]}
+              style={[styles.labelsRow, isSingleStep && styles.labelsRowSingle]}
             >
-              {sortedSteps.map((step) => {
-                const isDone = step.status === "completed";
-                const isCurrent = step.status === "in_progress";
-
-                return (
-                  <View
-                    key={`${step.batchId}-${step.stepOrder}`}
-                    style={[styles.markerWrap, { width: stepWidth }]}
+              {sortedSteps.map((step) => (
+                <View
+                  key={`${step.batchId}-${step.stepOrder}-label-wrap`}
+                  style={[styles.labelWrap, { width: stepWidth }]}
+                >
+                  <Text
+                    key={`${step.batchId}-${step.stepOrder}-label`}
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                    style={styles.label}
                   >
-                    <View
-                      style={[
-                        styles.marker,
-                        isDone && styles.markerDone,
-                        isCurrent && styles.markerCurrent,
-                      ]}
-                    />
-                  </View>
-                );
-              })}
+                    {step.label}
+                  </Text>
+                </View>
+              ))}
             </View>
           </View>
-
-          <View
-            style={[styles.labelsRow, isSingleStep && styles.labelsRowSingle]}
-          >
-            {sortedSteps.map((step) => (
-              <View
-                key={`${step.batchId}-${step.stepOrder}-label-wrap`}
-                style={[styles.labelWrap, { width: stepWidth }]}
-              >
-                <Text
-                  key={`${step.batchId}-${step.stepOrder}-label`}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={styles.label}
-                >
-                  {step.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -194,6 +205,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     minWidth: "100%",
+  },
+  layoutMeasure: {
+    width: "100%",
   },
   timelineContent: {
     alignSelf: "center",

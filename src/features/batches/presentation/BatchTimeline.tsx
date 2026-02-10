@@ -7,7 +7,7 @@ type Props = {
   steps: BatchStep[];
 };
 
-function getProgressPercent(sortedSteps: BatchStep[]): number {
+export function getProgressPercent(sortedSteps: BatchStep[]): number {
   if (sortedSteps.length === 0) {
     return 0;
   }
@@ -23,10 +23,19 @@ function getProgressPercent(sortedSteps: BatchStep[]): number {
     return (currentIndex / (sortedSteps.length - 1)) * 100;
   }
 
-  const completedCount = sortedSteps.filter(
-    (step) => step.status === "completed",
-  ).length;
-  return Math.min(100, (completedCount / (sortedSteps.length - 1)) * 100);
+  let lastCompletedIndex = -1;
+  for (let i = sortedSteps.length - 1; i >= 0; i -= 1) {
+    if (sortedSteps[i].status === "completed") {
+      lastCompletedIndex = i;
+      break;
+    }
+  }
+
+  if (lastCompletedIndex >= 0) {
+    return (lastCompletedIndex / (sortedSteps.length - 1)) * 100;
+  }
+
+  return 0;
 }
 
 export function BatchTimeline({ steps }: Props) {

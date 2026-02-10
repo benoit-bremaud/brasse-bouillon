@@ -1,3 +1,4 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -103,21 +104,22 @@ export function BatchesScreen() {
 
 const styles = StyleSheet.create({
   refreshButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: "#111827",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.neutral.textPrimary,
   },
   refreshText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
   },
   list: {
-    paddingBottom: 16,
+    paddingBottom: spacing.md,
   },
   card: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -125,17 +127,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.medium,
+    color: colors.neutral.textPrimary,
   },
   cardMeta: {
-    marginTop: 10,
-    color: "#6b7280",
+    marginTop: spacing.sm,
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   cardMetaSecondary: {
-    marginTop: 6,
-    color: "#9ca3af",
-    fontSize: 13,
+    marginTop: spacing.xs,
+    color: colors.neutral.muted,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
 });

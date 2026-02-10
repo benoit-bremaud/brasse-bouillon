@@ -1,3 +1,4 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
 import { StyleSheet, Text, TextProps } from "react-native";
 
 import React from "react";
@@ -12,24 +13,24 @@ type Props = TextProps & {
 const variantStyles: Record<Variant, { container: object; text: object }> = {
   neutral: {
     container: {
-      backgroundColor: "#f3f4f6",
-      borderColor: "#e5e7eb",
+      backgroundColor: colors.semantic.info,
+      borderColor: colors.neutral.border,
     },
-    text: { color: "#4b5563" },
+    text: { color: colors.neutral.textSecondary },
   },
   info: {
     container: {
-      backgroundColor: "#ecfeff",
-      borderColor: "#a5f3fc",
+      backgroundColor: colors.state.infoBackground,
+      borderColor: colors.brand.secondary,
     },
-    text: { color: "#155e75" },
+    text: { color: colors.brand.secondary },
   },
   success: {
     container: {
-      backgroundColor: "#dcfce7",
-      borderColor: "#86efac",
+      backgroundColor: colors.state.successBackground,
+      borderColor: colors.semantic.success,
     },
-    text: { color: "#166534" },
+    text: { color: colors.semantic.success },
   },
 };
 
@@ -47,12 +48,13 @@ export function Badge({ label, variant = "neutral", style, ...rest }: Props) {
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 999,
+    borderRadius: radius.full,
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    fontSize: 11,
-    fontWeight: "700",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
     textTransform: "uppercase",
   },
 });

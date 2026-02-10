@@ -1,3 +1,4 @@
+import { colors, spacing, typography } from "@/core/theme";
 import {
   completeCurrentBatchStep,
   getBatchDetails,
@@ -11,6 +12,7 @@ import { Card } from "@/core/ui/Card";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { Batch } from "@/features/batches/domain/batch.types";
+import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 
 type Props = {
   batchId: string;
@@ -67,6 +69,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       {batch ? (
         <Card style={styles.headerCard}>
           <Text style={styles.title}>Batch {batch.id.slice(0, 8)}</Text>
+          <BatchTimeline steps={batch.steps} />
           <Text style={styles.meta}>Status: {batch.status}</Text>
           <Text style={styles.meta}>
             Current step: {batch.currentStepOrder ?? "-"}
@@ -121,29 +124,34 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
 const styles = StyleSheet.create({
   headerCard: {
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
   },
   meta: {
-    color: "#6b7280",
-    marginTop: 4,
+    color: colors.neutral.textSecondary,
+    marginTop: spacing.xxs,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   sectionTitle: {
-    marginTop: 16,
-    marginBottom: 8,
-    fontWeight: "700",
-    color: "#111827",
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
   },
   list: {
-    paddingBottom: 24,
+    paddingBottom: spacing.lg,
   },
   stepCard: {
-    marginBottom: 10,
+    marginBottom: spacing.xs,
   },
   stepHeader: {
     flexDirection: "row",
@@ -151,19 +159,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   stepTitle: {
-    fontWeight: "600",
-    color: "#111827",
+    fontWeight: typography.weight.medium,
+    color: colors.neutral.textPrimary,
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.xs,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
   },
   stepMeta: {
-    color: "#6b7280",
-    fontSize: 12,
-    marginTop: 8,
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: spacing.xs,
     textTransform: "uppercase",
   },
   stepDescription: {
-    marginTop: 10,
-    color: "#4b5563",
+    marginTop: spacing.sm,
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
 });

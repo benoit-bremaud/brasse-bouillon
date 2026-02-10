@@ -1,3 +1,4 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   ActivityIndicator,
   Pressable,
@@ -26,7 +27,7 @@ export function Screen({
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, styles.center]}>
-          <ActivityIndicator color="#111827" />
+          <ActivityIndicator color={colors.brand.secondary} />
         </View>
       </SafeAreaView>
     );
@@ -54,38 +55,42 @@ export function Screen({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.brand.background,
   },
   container: {
     flex: 1,
-    padding: 16,
+    padding: spacing.md,
   },
   center: {
     alignItems: "center",
     justifyContent: "center",
   },
   errorCard: {
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 10,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#fecaca",
-    backgroundColor: "#fef2f2",
+    borderColor: colors.semantic.error,
+    backgroundColor: colors.state.errorBackground,
   },
   errorText: {
-    color: "#991b1b",
+    color: colors.semantic.error,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
   },
   retryButton: {
-    marginTop: 10,
+    marginTop: spacing.xs,
     alignSelf: "flex-start",
-    backgroundColor: "#991b1b",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    backgroundColor: colors.semantic.error,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
   },
   retryButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 12,
+    color: colors.neutral.white,
+    fontWeight: typography.weight.medium,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
 });

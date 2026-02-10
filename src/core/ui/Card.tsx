@@ -1,3 +1,4 @@
+import { colors, radius, shadows, spacing } from "@/core/theme";
 import { StyleSheet, View, ViewProps } from "react-native";
 
 import React from "react";
@@ -17,19 +18,15 @@ export function Card({ style, variant = "default", ...rest }: Props) {
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 14,
+    backgroundColor: colors.neutral.white,
+    borderRadius: radius.lg,
+    padding: spacing.sm,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    borderColor: colors.neutral.border,
+    ...shadows.md,
   },
   subtle: {
-    backgroundColor: "#f9fafb",
-    borderColor: "#e5e7eb",
+    backgroundColor: colors.semantic.info,
+    borderColor: colors.neutral.border,
   },
 });

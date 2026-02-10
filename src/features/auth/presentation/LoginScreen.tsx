@@ -1,3 +1,4 @@
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -37,12 +38,14 @@ export function LoginScreen() {
           autoCorrect={false}
           keyboardType="email-address"
           placeholder="Email"
+          placeholderTextColor={colors.neutral.muted}
           style={styles.input}
           value={email}
           onChangeText={setEmail}
         />
         <TextInput
           placeholder="Password"
+          placeholderTextColor={colors.neutral.muted}
           secureTextEntry
           style={styles.input}
           value={password}
@@ -61,7 +64,7 @@ export function LoginScreen() {
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.neutral.white} />
           ) : (
             <Text style={styles.buttonText}>Login</Text>
           )}
@@ -77,38 +80,54 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 4,
+    fontSize: typography.size.h1,
+    lineHeight: typography.lineHeight.h1,
+    color: colors.neutral.textPrimary,
+    fontWeight: typography.weight.bold,
+    marginBottom: spacing.xxs,
   },
   subtitle: {
-    color: "#6b7280",
-    marginBottom: 24,
+    color: colors.neutral.textSecondary,
+    marginBottom: spacing.lg,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.regular,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
+    borderColor: colors.neutral.border,
+    color: colors.neutral.textPrimary,
+    backgroundColor: colors.neutral.white,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.regular,
   },
   button: {
-    backgroundColor: "#111827",
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.brand.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.xs,
+    ...shadows.sm,
   },
   buttonPressed: {
-    opacity: 0.8,
+    opacity: 0.9,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: colors.neutral.white,
+    fontWeight: typography.weight.medium,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   error: {
-    color: "#dc2626",
-    marginBottom: 8,
+    color: colors.semantic.error,
+    marginBottom: spacing.xs,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
   },
 });

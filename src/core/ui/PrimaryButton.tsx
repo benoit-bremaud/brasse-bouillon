@@ -1,3 +1,4 @@
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import {
   Pressable,
   PressableProps,
@@ -33,24 +34,22 @@ export function PrimaryButton({ label, style, disabled, ...rest }: Props) {
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: "#111827",
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: colors.brand.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 2,
+    ...shadows.sm,
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.9,
   },
   disabled: {
-    backgroundColor: "#9ca3af",
+    backgroundColor: colors.neutral.muted,
   },
   text: {
-    color: "#fff",
-    fontWeight: "600",
+    color: colors.neutral.white,
+    fontWeight: typography.weight.medium,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
 });

@@ -1,3 +1,4 @@
+import { colors, spacing, typography } from "@/core/theme";
 import { StyleSheet, Text, View } from "react-native";
 
 import React from "react";
@@ -25,15 +26,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
   },
   subtitle: {
-    color: "#6b7280",
-    marginTop: 2,
+    color: colors.neutral.textSecondary,
+    marginTop: spacing.xxs,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.regular,
   },
 });

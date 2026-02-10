@@ -1,5 +1,10 @@
+import {
+  MIN_TIMELINE_STEP_WIDTH,
+  getProgressPercent,
+  getTimelineLayout,
+} from "@/features/batches/presentation/BatchTimeline";
+
 import { BatchStep } from "@/features/batches/domain/batch.types";
-import { getProgressPercent } from "@/features/batches/presentation/BatchTimeline";
 
 const makeStep = (
   stepOrder: number,
@@ -59,5 +64,67 @@ describe("getProgressPercent", () => {
     ];
 
     expect(getProgressPercent(steps)).toBe(0);
+  });
+});
+
+describe("getTimelineLayout", () => {
+  it("returns zeroed layout for empty timeline", () => {
+    expect(getTimelineLayout(0, 360)).toEqual({
+      timelineWidth: 0,
+      stepWidth: 0,
+      trackWidth: 0,
+    });
+  });
+
+  it("keeps one-step timeline centered with no track", () => {
+    const stepCount = 1;
+    const availableWidth = 360;
+    const layout = getTimelineLayout(stepCount, availableWidth);
+
+    const expectedTimelineWidth = Math.max(
+      availableWidth,
+      stepCount * MIN_TIMELINE_STEP_WIDTH,
+    );
+
+    expect(layout.trackWidth).toBe(0);
+    expect(layout.timelineWidth).toBe(expectedTimelineWidth);
+    expect(layout.stepWidth).toBeCloseTo(layout.timelineWidth / stepCount);
+  });
+
+  it("uses minimum step width when screen is narrow", () => {
+    const stepCount = 6;
+    const availableWidth = 320;
+    const layout = getTimelineLayout(stepCount, availableWidth);
+
+    const expectedTimelineWidth = Math.max(
+      availableWidth,
+      stepCount * MIN_TIMELINE_STEP_WIDTH,
+    );
+
+    expect(layout.timelineWidth).toBe(expectedTimelineWidth);
+    expect(layout.timelineWidth).toBeGreaterThan(availableWidth);
+
+    expect(layout.stepWidth).toBeCloseTo(layout.timelineWidth / stepCount);
+    expect(layout.trackWidth).toBeCloseTo(
+      layout.timelineWidth - layout.stepWidth,
+    );
+  });
+
+  it("fills available viewport when enough horizontal space exists", () => {
+    const stepCount = 3;
+    const availableWidth = 390;
+    const layout = getTimelineLayout(stepCount, availableWidth);
+
+    const expectedTimelineWidth = Math.max(
+      availableWidth,
+      stepCount * MIN_TIMELINE_STEP_WIDTH,
+    );
+
+    expect(layout.timelineWidth).toBe(expectedTimelineWidth);
+    expect(layout.timelineWidth).toBeLessThanOrEqual(availableWidth);
+    expect(layout.stepWidth).toBeCloseTo(layout.timelineWidth / stepCount);
+    expect(layout.trackWidth).toBeCloseTo(
+      layout.timelineWidth - layout.stepWidth,
+    );
   });
 });

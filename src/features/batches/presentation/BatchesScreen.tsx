@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   list: {
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.md,
   },
   card: {
     marginBottom: spacing.sm,

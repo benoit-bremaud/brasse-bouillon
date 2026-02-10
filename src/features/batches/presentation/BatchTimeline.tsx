@@ -1,10 +1,24 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import { BatchStep } from "@/features/batches/domain/batch.types";
 
 type Props = {
   steps: BatchStep[];
+};
+
+const MIN_TIMELINE_STEP_WIDTH = 84;
+
+type TimelineLayout = {
+  timelineWidth: number;
+  stepWidth: number;
+  trackWidth: number;
 };
 
 export function getProgressPercent(sortedSteps: BatchStep[]): number {
@@ -38,55 +52,126 @@ export function getProgressPercent(sortedSteps: BatchStep[]): number {
   return 0;
 }
 
+export function getTimelineLayout(
+  stepCount: number,
+  viewportWidth: number,
+): TimelineLayout {
+  if (stepCount <= 0) {
+    return { timelineWidth: 0, stepWidth: 0, trackWidth: 0 };
+  }
+
+  const usableViewportWidth = Math.max(0, viewportWidth - spacing.lg * 2);
+  const timelineWidth = Math.max(
+    usableViewportWidth,
+    stepCount * MIN_TIMELINE_STEP_WIDTH,
+  );
+  const stepWidth = timelineWidth / stepCount;
+  const trackWidth = stepCount > 1 ? timelineWidth - stepWidth : 0;
+
+  return {
+    timelineWidth,
+    stepWidth,
+    trackWidth,
+  };
+}
+
 export function BatchTimeline({ steps }: Props) {
+  const { width: viewportWidth } = useWindowDimensions();
   const sortedSteps = [...steps].sort((a, b) => a.stepOrder - b.stepOrder);
-  const progressPercent = getProgressPercent(sortedSteps);
+  const clampedProgressPercent = Math.min(
+    100,
+    Math.max(0, getProgressPercent(sortedSteps)),
+  );
 
   if (sortedSteps.length === 0) {
     return null;
   }
 
+  const { timelineWidth, stepWidth, trackWidth } = getTimelineLayout(
+    sortedSteps.length,
+    viewportWidth,
+  );
+  const isSingleStep = sortedSteps.length === 1;
+  const trackOffset = stepWidth / 2;
+  const filledWidth = (trackWidth * clampedProgressPercent) / 100;
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Progression du brassin</Text>
 
-      <View style={styles.trackContainer}>
-        <View style={styles.track} />
-        <View style={[styles.trackFilled, { width: `${progressPercent}%` }]} />
-        <View style={styles.markersRow}>
-          {sortedSteps.map((step) => {
-            const isDone = step.status === "completed";
-            const isCurrent = step.status === "in_progress";
-
-            return (
-              <View
-                key={`${step.batchId}-${step.stepOrder}`}
-                style={styles.markerWrap}
-              >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={[styles.timelineContent, { width: timelineWidth }]}>
+          <View style={styles.trackContainer}>
+            {!isSingleStep ? (
+              <>
                 <View
                   style={[
-                    styles.marker,
-                    isDone && styles.markerDone,
-                    isCurrent && styles.markerCurrent,
+                    styles.track,
+                    { left: trackOffset, width: trackWidth },
                   ]}
                 />
-              </View>
-            );
-          })}
-        </View>
-      </View>
+                <View
+                  style={[
+                    styles.trackFilled,
+                    { left: trackOffset, width: filledWidth },
+                  ]}
+                />
+              </>
+            ) : null}
 
-      <View style={styles.labelsRow}>
-        {sortedSteps.map((step) => (
-          <Text
-            key={`${step.batchId}-${step.stepOrder}-label`}
-            numberOfLines={1}
-            style={styles.label}
+            <View
+              style={[
+                styles.markersRow,
+                isSingleStep && styles.markersRowSingle,
+              ]}
+            >
+              {sortedSteps.map((step) => {
+                const isDone = step.status === "completed";
+                const isCurrent = step.status === "in_progress";
+
+                return (
+                  <View
+                    key={`${step.batchId}-${step.stepOrder}`}
+                    style={[styles.markerWrap, { width: stepWidth }]}
+                  >
+                    <View
+                      style={[
+                        styles.marker,
+                        isDone && styles.markerDone,
+                        isCurrent && styles.markerCurrent,
+                      ]}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+
+          <View
+            style={[styles.labelsRow, isSingleStep && styles.labelsRowSingle]}
           >
-            {step.label}
-          </Text>
-        ))}
-      </View>
+            {sortedSteps.map((step) => (
+              <View
+                key={`${step.batchId}-${step.stepOrder}-label-wrap`}
+                style={[styles.labelWrap, { width: stepWidth }]}
+              >
+                <Text
+                  key={`${step.batchId}-${step.stepOrder}-label`}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                  style={styles.label}
+                >
+                  {step.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -107,28 +192,32 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: "center",
   },
+  scrollContent: {
+    minWidth: "100%",
+  },
+  timelineContent: {
+    alignSelf: "center",
+  },
   track: {
     position: "absolute",
-    left: 0,
-    right: 0,
     height: 4,
     borderRadius: radius.full,
     backgroundColor: colors.neutral.border,
   },
   trackFilled: {
     position: "absolute",
-    left: 0,
     height: 4,
     borderRadius: radius.full,
     backgroundColor: colors.brand.primary,
   },
   markersRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
   },
+  markersRowSingle: {
+    justifyContent: "center",
+  },
   markerWrap: {
-    width: 16,
     alignItems: "center",
   },
   marker: {
@@ -151,8 +240,14 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     flexDirection: "row",
   },
+  labelsRowSingle: {
+    justifyContent: "center",
+  },
+  labelWrap: {
+    paddingHorizontal: spacing.xxs,
+    alignItems: "center",
+  },
   label: {
-    flex: 1,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     color: colors.neutral.textSecondary,

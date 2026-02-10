@@ -1,5 +1,9 @@
+import {
+  getProgressPercent,
+  getTimelineLayout,
+} from "@/features/batches/presentation/BatchTimeline";
+
 import { BatchStep } from "@/features/batches/domain/batch.types";
-import { getProgressPercent } from "@/features/batches/presentation/BatchTimeline";
 
 const makeStep = (
   stepOrder: number,
@@ -59,5 +63,39 @@ describe("getProgressPercent", () => {
     ];
 
     expect(getProgressPercent(steps)).toBe(0);
+  });
+});
+
+describe("getTimelineLayout", () => {
+  it("returns zeroed layout for empty timeline", () => {
+    expect(getTimelineLayout(0, 360)).toEqual({
+      timelineWidth: 0,
+      stepWidth: 0,
+      trackWidth: 0,
+    });
+  });
+
+  it("keeps one-step timeline centered with no track", () => {
+    const layout = getTimelineLayout(1, 360);
+
+    expect(layout.trackWidth).toBe(0);
+    expect(layout.timelineWidth).toBeGreaterThan(0);
+    expect(layout.stepWidth).toBe(layout.timelineWidth);
+  });
+
+  it("uses minimum step width when screen is narrow", () => {
+    const layout = getTimelineLayout(6, 320);
+
+    expect(layout.timelineWidth).toBe(504);
+    expect(layout.stepWidth).toBe(84);
+    expect(layout.trackWidth).toBe(420);
+  });
+
+  it("fills available viewport when enough horizontal space exists", () => {
+    const layout = getTimelineLayout(3, 390);
+
+    expect(layout.timelineWidth).toBe(342);
+    expect(layout.stepWidth).toBe(114);
+    expect(layout.trackWidth).toBe(228);
   });
 });

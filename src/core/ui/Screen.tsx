@@ -2,13 +2,13 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
 import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type ScreenProps = {
   children: React.ReactNode;

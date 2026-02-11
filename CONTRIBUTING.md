@@ -1,44 +1,80 @@
-# 🧭 Contributing to Brasse-Bouillon Website
+# 🧭 Contribuer au website Brasse-Bouillon
 
-Welcome, and thank you for your interest in improving Brasse-Bouillon!  
-This document outlines the process and conventions for contributing to the **website** that supports the Brasse-Bouillon mobile application.
+Merci pour votre contribution.
 
----
-
-## 🧩 Git Workflow
-
-We use a structured and minimal Git flow:
-
-| Branch        | Purpose                              |
-|---------------|--------------------------------------|
-| `main`        | Production-ready code (deployed live)|
-| `develop`     | Active integration and QA branch     |
-| `feature/*`   | Short-lived branches for development |
-| `docs/*`      | Documentation-only branches          |
-| `bugfix/*`    | Targeted fixes for existing code     |
-
-➡️ **Never commit directly to `main`**.  
-➡️ All changes go through a Pull Request (PR) to `develop`.
+Ce document décrit le workflow Git, les conventions de branches/commits et les règles de qualité applicables au site vitrine.
 
 ---
 
-## 🔠 Naming Conventions
+## 🌱 Branches et flux de travail
 
-| Type        | Pattern example                  |
-|-------------|----------------------------------|
-| Feature     | `feature/landing-hero-animation` |
-| Documentation | `docs/contributing-guidelines` |
-| Fix         | `bugfix/footer-overlap`          |
+| Branche | Rôle |
+|---|---|
+| `main` | Production (déploiement GitHub Pages) |
+| `develop` | Intégration continue |
+| `feature/*` | Évolutions fonctionnelles |
+| `docs/*` | Documentation et gouvernance |
+| `bugfix/*` | Correctifs ciblés |
 
-Use lowercase `kebab-case` (no accents, no spaces).
+Règles :
+1. Ne pas pousser directement sur `main`.
+2. Ouvrir une PR vers `develop`.
+3. Lier la PR à son issue (ex: `Refs #52`).
+4. Attendre les checks CI verts avant merge.
 
 ---
 
-## ✍️ Commit Message Format
+## 🔠 Nommage des branches
 
-Follow the `conventional commits` style:
+Utiliser `kebab-case` sans accents :
+
+- `feature/epic-c-website-ci-cd`
+- `docs/epic-d-governance`
+- `bugfix/fix-french-cta-spacing`
+
+---
+
+## ✍️ Convention de commits (Conventional Commits)
+
+Format :
+
+```text
+type(scope): résumé impératif
+```
+
+Exemples :
+
+- `feat(ci): add website pipeline with quality gates`
+- `docs(governance): align readme and contribution guide`
+- `fix(a11y): restore aria-current on language switch`
+
+Types recommandés : `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
+
+---
+
+## ✅ Quality gates
+
+La CI vérifie notamment :
+- présence des fichiers critiques,
+- structure HTML minimale FR/EN,
+- absence de marqueurs de conflit.
+
+Localement :
 
 ```bash
-feat: add roadmap section to homepage
-fix: correct padding on hero section
-docs: add README and CONTRIBUTING files
+python3 scripts/quality_gate.py
+python3 -m py_compile scripts/quality_gate.py
+```
+
+---
+
+## 🧾 Bonnes pratiques PR
+
+Chaque PR doit inclure :
+- contexte,
+- changements livrés,
+- validations effectuées,
+- impact,
+- lien vers l’issue.
+
+Garder un Markdown clair, lisible, orienté revue.

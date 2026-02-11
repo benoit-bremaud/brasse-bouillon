@@ -43,7 +43,7 @@ function getIngredientMeta(item: Ingredient): string {
   if (item.category === "hop") {
     return `Usage: ${item.hopUse} • Alpha: ${item.alphaAcid}%`;
   }
-  return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
+  return `Type: ${item.yeastType} • Attenuation: ${item.attenuationMin}-${item.attenuationMax}%`;
 }
 
 export function IngredientCategoryScreen({ categoryParam }: Props) {
@@ -119,8 +119,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     return (
       <Screen>
         <EmptyStateCard
-          title="Catégorie inconnue"
-          description="Cette catégorie d’ingrédients n’existe pas."
+          title="Unknown category"
+          description="This ingredient category does not exist."
         />
       </Screen>
     );
@@ -141,15 +141,15 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     >
       <ListHeader
         title={ingredientCategoryLabels[category]}
-        subtitle="Recherche et filtres rapides"
+        subtitle="Search and quick filters"
       />
 
       <Card style={styles.filtersCard}>
-        <Text style={styles.filterLabel}>Recherche</Text>
+        <Text style={styles.filterLabel}>Search</Text>
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Nom de l’ingrédient"
+          placeholder="Ingredient name"
           placeholderTextColor={colors.neutral.muted}
           style={styles.input}
           autoCorrect={false}
@@ -181,7 +181,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
         {category === "hop" ? (
           <View style={styles.field}>
-            <Text style={styles.filterLabel}>Alpha acide min (%)</Text>
+            <Text style={styles.filterLabel}>Min alpha acid (%)</Text>
             <TextInput
               value={alphaMin}
               onChangeText={setAlphaMin}
@@ -193,7 +193,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
         {category === "yeast" ? (
           <View style={styles.field}>
-            <Text style={styles.filterLabel}>Atténuation min (%)</Text>
+            <Text style={styles.filterLabel}>Min attenuation (%)</Text>
             <TextInput
               value={attenuationMin}
               onChangeText={setAttenuationMin}
@@ -206,8 +206,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
       {showEmptyState ? (
         <EmptyStateCard
-          title="Aucun ingrédient trouvé"
-          description="Ajuste la recherche ou les filtres pour élargir les résultats."
+          title="No ingredients found"
+          description="Adjust search or filters to broaden results."
         />
       ) : null}
 
@@ -216,12 +216,19 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`./${item.id}`)}>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/(app)/ingredients/[category]/[id]",
+                params: { category, id: item.id },
+              })
+            }
+          >
             <Card style={styles.itemCard}>
               <Text style={styles.itemTitle}>{item.name}</Text>
               <Text style={styles.itemMeta}>{getIngredientMeta(item)}</Text>
               {item.origin ? (
-                <Text style={styles.itemSecondary}>Origine: {item.origin}</Text>
+                <Text style={styles.itemSecondary}>Origin: {item.origin}</Text>
               ) : null}
             </Card>
           </Pressable>

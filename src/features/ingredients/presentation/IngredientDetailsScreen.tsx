@@ -1,9 +1,9 @@
 import { colors, spacing, typography } from "@/core/theme";
 import {
-    Ingredient,
-    IngredientCategory,
-    ingredientCategoryLabels,
-    isIngredientCategory,
+  Ingredient,
+  IngredientCategory,
+  ingredientCategoryLabels,
+  isIngredientCategory,
 } from "@/features/ingredients/domain/ingredient.types";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
@@ -35,10 +35,10 @@ function renderTechnicalSheet(item: Ingredient) {
   if (item.category === "hop") {
     return (
       <>
-        <Text style={styles.meta}>Forme: {item.form}</Text>
+        <Text style={styles.meta}>Form: {item.form}</Text>
         <Text style={styles.meta}>Usage: {item.hopUse}</Text>
-        <Text style={styles.meta}>Alpha acides: {item.alphaAcid}%</Text>
-        <Text style={styles.meta}>Bêta acides: {item.betaAcid}%</Text>
+        <Text style={styles.meta}>Alpha acids: {item.alphaAcid}%</Text>
+        <Text style={styles.meta}>Beta acids: {item.betaAcid}%</Text>
       </>
     );
   }
@@ -47,11 +47,11 @@ function renderTechnicalSheet(item: Ingredient) {
     <>
       <Text style={styles.meta}>Type: {item.yeastType}</Text>
       <Text style={styles.meta}>
-        Atténuation: {item.attenuationMin}-{item.attenuationMax}%
+        Attenuation: {item.attenuationMin}-{item.attenuationMax}%
       </Text>
-      <Text style={styles.meta}>Floculation: {item.flocculation}</Text>
+      <Text style={styles.meta}>Flocculation: {item.flocculation}</Text>
       <Text style={styles.meta}>
-        Temp. fermentation: {item.fermentationMinC}-{item.fermentationMaxC}°C
+        Fermentation temp: {item.fermentationMinC}-{item.fermentationMaxC}°C
       </Text>
     </>
   );
@@ -97,8 +97,8 @@ export function IngredientDetailsScreen({
     return (
       <Screen>
         <EmptyStateCard
-          title="Fiche indisponible"
-          description="Les paramètres de navigation sont incomplets."
+          title="Unavailable sheet"
+          description="Navigation parameters are incomplete."
         />
       </Screen>
     );
@@ -108,8 +108,8 @@ export function IngredientDetailsScreen({
     return (
       <Screen>
         <EmptyStateCard
-          title="Ingrédient introuvable"
-          description="Cet ingrédient n’existe pas dans cette catégorie."
+          title="Ingredient not found"
+          description="This ingredient does not exist in this category."
         />
       </Screen>
     );
@@ -126,12 +126,10 @@ export function IngredientDetailsScreen({
 
           <Card style={styles.card}>
             {ingredient.origin ? (
-              <Text style={styles.meta}>Origine: {ingredient.origin}</Text>
+              <Text style={styles.meta}>Origin: {ingredient.origin}</Text>
             ) : null}
             {ingredient.supplier ? (
-              <Text style={styles.meta}>
-                Fournisseur: {ingredient.supplier}
-              </Text>
+              <Text style={styles.meta}>Supplier: {ingredient.supplier}</Text>
             ) : null}
             {renderTechnicalSheet(ingredient)}
             {ingredient.notes ? (

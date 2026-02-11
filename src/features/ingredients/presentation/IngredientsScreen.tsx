@@ -46,14 +46,14 @@ export function IngredientsScreen() {
       onRetry={fetchCategories}
     >
       <ListHeader
-        title="Ingrédients"
-        subtitle="Choisis une catégorie pour explorer le catalogue"
+        title="Ingredients"
+        subtitle="Choose a category to explore the catalog"
       />
 
       {showEmptyState ? (
         <EmptyStateCard
-          title="Aucune catégorie disponible"
-          description="Vérifie la source de données puis recharge."
+          title="No categories available"
+          description="Check the data source and try again."
         />
       ) : null}
 
@@ -65,7 +65,7 @@ export function IngredientsScreen() {
           <Pressable
             onPress={() =>
               router.push({
-                pathname: "./[category]",
+                pathname: "/(app)/ingredients/[category]",
                 params: { category: item.category },
               })
             }
@@ -77,7 +77,7 @@ export function IngredientsScreen() {
                 </Text>
                 <Text style={styles.count}>{item.count}</Text>
               </View>
-              <Text style={styles.meta}>Voir la liste et les filtres →</Text>
+              <Text style={styles.meta}>Open list and filters →</Text>
             </Card>
           </Pressable>
         )}

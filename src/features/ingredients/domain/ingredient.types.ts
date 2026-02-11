@@ -54,8 +54,8 @@ export type IngredientCategorySummary = {
 
 export const ingredientCategoryLabels: Record<IngredientCategory, string> = {
   malt: "Malts",
-  hop: "Houblons",
-  yeast: "Levures",
+  hop: "Hops",
+  yeast: "Yeasts",
 };
 
 export function isIngredientCategory(

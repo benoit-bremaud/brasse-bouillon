@@ -6,6 +6,7 @@ import {
 import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
 
 import { User } from "@/features/auth/domain/auth.types";
+import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
 
 export type Equipment = {
   id: string;
@@ -14,14 +15,6 @@ export type Equipment = {
   volumeLiters: number;
   efficiencyPercent: number;
   notes?: string;
-};
-
-export type Ingredient = {
-  id: string;
-  name: string;
-  category: "grain" | "hop" | "yeast" | "misc";
-  origin?: string;
-  usage: "mash" | "boil" | "fermentation" | "packaging";
 };
 
 export const demoUsers: User[] = [
@@ -88,39 +81,144 @@ export const demoEquipments: Equipment[] = [
 
 export const demoIngredients: Ingredient[] = [
   {
-    id: "ing-1",
+    id: "malt-1",
     name: "Pale Ale Malt",
-    category: "grain",
+    category: "malt",
     origin: "France",
-    usage: "mash",
+    supplier: "Malterie du Château",
+    maltType: "base",
+    ebc: 6,
+    potentialSg: 1.037,
+    maxPercent: 100,
   },
   {
-    id: "ing-2",
+    id: "malt-2",
     name: "Munich Malt",
-    category: "grain",
+    category: "malt",
     origin: "Germany",
-    usage: "mash",
+    supplier: "Weyermann",
+    maltType: "specialty",
+    ebc: 20,
+    potentialSg: 1.035,
+    maxPercent: 60,
   },
   {
-    id: "ing-3",
+    id: "malt-3",
+    name: "Caramunich II",
+    category: "malt",
+    origin: "Germany",
+    supplier: "Weyermann",
+    maltType: "caramel",
+    ebc: 120,
+    potentialSg: 1.034,
+    maxPercent: 20,
+  },
+  {
+    id: "malt-4",
+    name: "Chocolate Malt",
+    category: "malt",
+    origin: "UK",
+    supplier: "Crisp",
+    maltType: "roasted",
+    ebc: 900,
+    potentialSg: 1.028,
+    maxPercent: 10,
+  },
+  {
+    id: "hop-1",
     name: "Citra",
     category: "hop",
     origin: "USA",
-    usage: "boil",
+    supplier: "Yakima Chief",
+    form: "pellet",
+    hopUse: "dual",
+    alphaAcid: 13,
+    betaAcid: 4.5,
   },
   {
-    id: "ing-4",
+    id: "hop-2",
+    name: "Saaz",
+    category: "hop",
+    origin: "Czech Republic",
+    supplier: "Bohemia Hop",
+    form: "whole",
+    hopUse: "aroma",
+    alphaAcid: 3.8,
+    betaAcid: 4.2,
+  },
+  {
+    id: "hop-3",
+    name: "Magnum",
+    category: "hop",
+    origin: "Germany",
+    supplier: "Hopsteiner",
+    form: "pellet",
+    hopUse: "bittering",
+    alphaAcid: 12,
+    betaAcid: 6.5,
+  },
+  {
+    id: "hop-4",
+    name: "Mosaic",
+    category: "hop",
+    origin: "USA",
+    supplier: "Yakima Chief",
+    form: "pellet",
+    hopUse: "dual",
+    alphaAcid: 11.5,
+    betaAcid: 3.7,
+  },
+  {
+    id: "yeast-1",
     name: "SafAle US-05",
     category: "yeast",
     origin: "France",
-    usage: "fermentation",
+    supplier: "Fermentis",
+    yeastType: "ale",
+    attenuationMin: 78,
+    attenuationMax: 82,
+    flocculation: "medium",
+    fermentationMinC: 18,
+    fermentationMaxC: 26,
   },
   {
-    id: "ing-5",
-    name: "Zeste d’orange",
-    category: "misc",
-    origin: "Espagne",
-    usage: "boil",
+    id: "yeast-2",
+    name: "WLP001 California Ale",
+    category: "yeast",
+    origin: "USA",
+    supplier: "White Labs",
+    yeastType: "ale",
+    attenuationMin: 73,
+    attenuationMax: 80,
+    flocculation: "medium",
+    fermentationMinC: 19,
+    fermentationMaxC: 22,
+  },
+  {
+    id: "yeast-3",
+    name: "W-34/70",
+    category: "yeast",
+    origin: "Germany",
+    supplier: "Fermentis",
+    yeastType: "lager",
+    attenuationMin: 80,
+    attenuationMax: 84,
+    flocculation: "high",
+    fermentationMinC: 9,
+    fermentationMaxC: 15,
+  },
+  {
+    id: "yeast-4",
+    name: "BE-256",
+    category: "yeast",
+    origin: "Belgium",
+    supplier: "Fermentis",
+    yeastType: "belgian",
+    attenuationMin: 82,
+    attenuationMax: 86,
+    flocculation: "high",
+    fermentationMinC: 18,
+    fermentationMaxC: 26,
   },
 ];
 

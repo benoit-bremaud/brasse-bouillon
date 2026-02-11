@@ -1,11 +1,11 @@
 import {
-    HopAddition,
-    calculateAbv,
-    calculateIbuTinseth,
-    gallonsToLiters,
-    litersToGallons,
-    platoToSg,
-    sgToPlato,
+  HopAddition,
+  calculateAbv,
+  calculateIbuTinseth,
+  gallonsToLiters,
+  litersToGallons,
+  platoToSg,
+  sgToPlato,
 } from "@/core/brewing-calculations";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import React, { useMemo, useState } from "react";
@@ -30,6 +30,12 @@ function round(value: number, decimals: number) {
   const factor = Math.pow(10, decimals);
   return Math.round(value * factor) / factor;
 }
+
+const numericInputProps = {
+  keyboardType: "decimal-pad" as const,
+  autoCorrect: false,
+  autoCapitalize: "none" as const,
+};
 
 export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
   const [og, setOg] = useState("1.050");
@@ -83,11 +89,21 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
           <View style={styles.row}>
             <View style={styles.field}>
               <Text style={styles.label}>OG (SG)</Text>
-              <TextInput value={og} onChangeText={setOg} style={styles.input} />
+              <TextInput
+                value={og}
+                onChangeText={setOg}
+                style={styles.input}
+                {...numericInputProps}
+              />
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>FG (SG)</Text>
-              <TextInput value={fg} onChangeText={setFg} style={styles.input} />
+              <TextInput
+                value={fg}
+                onChangeText={setFg}
+                style={styles.input}
+                {...numericInputProps}
+              />
             </View>
           </View>
           <Text style={styles.result}>ABV estimé: {round(abv, 1)}%</Text>
@@ -102,6 +118,7 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
                 value={volumeLiters}
                 onChangeText={setVolumeLiters}
                 style={styles.input}
+                {...numericInputProps}
               />
             </View>
             <View style={styles.field}>
@@ -110,6 +127,7 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
                 value={boilGravity}
                 onChangeText={setBoilGravity}
                 style={styles.input}
+                {...numericInputProps}
               />
             </View>
           </View>
@@ -122,6 +140,7 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
                 value={hopWeight}
                 onChangeText={setHopWeight}
                 style={styles.input}
+                {...numericInputProps}
               />
             </View>
             <View style={styles.field}>
@@ -130,6 +149,7 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
                 value={hopAlpha}
                 onChangeText={setHopAlpha}
                 style={styles.input}
+                {...numericInputProps}
               />
             </View>
           </View>
@@ -140,6 +160,7 @@ export function BrewingToolsScreen({ sourceType, sourceId }: Props) {
               value={hopTime}
               onChangeText={setHopTime}
               style={styles.input}
+              {...numericInputProps}
             />
           </View>
 

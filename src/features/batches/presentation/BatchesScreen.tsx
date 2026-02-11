@@ -1,4 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -18,8 +19,6 @@ import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { useRouter } from "expo-router";
-
 export function BatchesScreen() {
   const router = useRouter();
   const [batches, setBatches] = useState<BatchSummary[]>([]);
@@ -57,12 +56,7 @@ export function BatchesScreen() {
         action={
           <View style={styles.headerActions}>
             <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/tools",
-                  params: { sourceType: "batch" },
-                } as never)
-              }
+              onPress={() => router.push("../tools?sourceType=batch")}
               style={styles.toolsButton}
             >
               <Text style={styles.toolsText}>Calculatrice</Text>

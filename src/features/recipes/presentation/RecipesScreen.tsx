@@ -57,12 +57,7 @@ export function RecipesScreen() {
         action={
           <View style={styles.headerActions}>
             <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/tools",
-                  params: { sourceType: "recipe" },
-                } as never)
-              }
+              onPress={() => router.push("../tools?sourceType=recipe")}
               style={styles.toolsButton}
             >
               <Text style={styles.toolsText}>Calculatrice</Text>

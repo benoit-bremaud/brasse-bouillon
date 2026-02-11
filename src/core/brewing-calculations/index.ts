@@ -76,8 +76,8 @@ export function calculateIbuTinseth(
     const boilTimeFactor = (1 - Math.exp(-0.04 * time)) / 4.15;
     const utilization = bignessFactor * boilTimeFactor;
 
-    const mgPerLiterAlpha = (alpha / 100) * weight * 1000;
-    const ibu = (mgPerLiterAlpha * utilization) / volumeLiters;
+    const mgAlphaAcids = (alpha / 100) * weight * 1000;
+    const ibu = (mgAlphaAcids * utilization) / volumeLiters;
 
     return sum + ibu;
   }, 0);

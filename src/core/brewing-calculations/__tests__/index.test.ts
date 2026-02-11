@@ -1,10 +1,10 @@
 import {
-    calculateAbv,
-    calculateIbuTinseth,
-    gallonsToLiters,
-    litersToGallons,
-    platoToSg,
-    sgToPlato,
+  calculateAbv,
+  calculateIbuTinseth,
+  gallonsToLiters,
+  litersToGallons,
+  platoToSg,
+  sgToPlato,
 } from "@/core/brewing-calculations";
 
 describe("brewing calculations", () => {

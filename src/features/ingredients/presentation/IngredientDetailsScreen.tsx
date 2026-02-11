@@ -26,8 +26,8 @@ function renderTechnicalSheet(item: Ingredient) {
       <>
         <Text style={styles.meta}>Type: {item.maltType}</Text>
         <Text style={styles.meta}>EBC: {item.ebc}</Text>
-        <Text style={styles.meta}>Potentiel SG: {item.potentialSg}</Text>
-        <Text style={styles.meta}>Usage max: {item.maxPercent}%</Text>
+        <Text style={styles.meta}>Potential SG: {item.potentialSg}</Text>
+        <Text style={styles.meta}>Max usage: {item.maxPercent}%</Text>
       </>
     );
   }
@@ -70,6 +70,7 @@ export function IngredientDetailsScreen({
 
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchIngredient = async () => {
@@ -83,9 +84,10 @@ export function IngredientDetailsScreen({
       const data = await getIngredientDetails(category, ingredientIdParam);
       setIngredient(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Impossible de charger la fiche"));
+      setError(getErrorMessage(err, "Unable to load ingredient sheet"));
     } finally {
       setIsLoading(false);
+      setHasFetched(true);
     }
   };
 
@@ -104,7 +106,7 @@ export function IngredientDetailsScreen({
     );
   }
 
-  if (!isLoading && !ingredient && !error) {
+  if (hasFetched && !isLoading && !ingredient && !error) {
     return (
       <Screen>
         <EmptyStateCard

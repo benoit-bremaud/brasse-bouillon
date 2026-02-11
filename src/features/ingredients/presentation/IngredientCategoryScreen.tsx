@@ -62,6 +62,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   const [alphaMin, setAlphaMin] = useState("");
   const [attenuationMin, setAttenuationMin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const filters = useMemo<IngredientFilters>(() => {
@@ -105,9 +106,10 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
       const data = await listIngredientsByCategory(category, filters);
       setIngredients(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Impossible de charger les ingrédients"));
+      setError(getErrorMessage(err, "Unable to load ingredients"));
     } finally {
       setIsLoading(false);
+      setHasFetched(true);
     }
   };
 
@@ -126,7 +128,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     );
   }
 
-  const showEmptyState = !isLoading && ingredients.length === 0;
+  const showEmptyState = hasFetched && !isLoading && ingredients.length === 0;
   const numericInputProps = {
     keyboardType: "decimal-pad" as const,
     autoCorrect: false,

@@ -18,6 +18,7 @@ export function IngredientsScreen() {
   const router = useRouter();
   const [categories, setCategories] = useState<IngredientCategorySummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = async () => {
@@ -27,9 +28,10 @@ export function IngredientsScreen() {
       const data = await listIngredientCategoriesSummary();
       setCategories(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Impossible de charger les catégories"));
+      setError(getErrorMessage(err, "Unable to load categories"));
     } finally {
       setIsLoading(false);
+      setHasFetched(true);
     }
   };
 
@@ -37,7 +39,7 @@ export function IngredientsScreen() {
     fetchCategories();
   }, []);
 
-  const showEmptyState = !isLoading && categories.length === 0;
+  const showEmptyState = hasFetched && !isLoading && categories.length === 0;
 
   return (
     <Screen

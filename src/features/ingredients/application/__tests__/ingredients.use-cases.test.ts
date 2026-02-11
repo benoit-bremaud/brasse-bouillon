@@ -1,7 +1,7 @@
 import {
-    getIngredientDetails,
-    listIngredientCategoriesSummary,
-    listIngredientsByCategory,
+  getIngredientDetails,
+  listIngredientCategoriesSummary,
+  listIngredientsByCategory,
 } from "@/features/ingredients/application/ingredients.use-cases";
 
 jest.mock("@/core/data/data-source", () => ({

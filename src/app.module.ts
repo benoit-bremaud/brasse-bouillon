@@ -1,13 +1,13 @@
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { BatchModule } from './batch/batch.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
-import { BatchModule } from './batch/batch.module';
+import { UserModule } from './user/user.module';
 
 /**
  * App Module
@@ -37,7 +37,10 @@ import { BatchModule } from './batch/batch.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath:
+        process.env.NODE_ENV === 'test'
+          ? ['.env.test', '.env.local', '.env']
+          : ['.env.local', '.env'],
     }),
 
     // Database module - TypeORM configuration and connection

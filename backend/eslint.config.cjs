@@ -8,6 +8,7 @@ module.exports = [
     files: ['**/*.test.js', '**/*.spec.js'],
     languageOptions: {
       globals: {
+        beforeAll: 'readonly',
         describe: 'readonly',
         test: 'readonly',
         expect: 'readonly',

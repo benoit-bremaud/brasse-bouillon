@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -7,6 +10,8 @@ on:
 
 jobs:
   build_and_test:
+    name: Build, Lint & Test
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,3 +34,23 @@ jobs:
 
       - name: Test
         run: npm test
+
+  security_audit:
+    name: Security Audit (prod deps)
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit production dependencies (high/critical)
+        run: npm audit --omit=dev --production --audit-level=high

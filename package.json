@@ -1,6 +1,9 @@
 {
   "name": "brasse-bouillon-backend",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "description": "",
   "author": "",
   "private": true,

@@ -57,6 +57,48 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## CI (GitHub Actions)
+
+La pipeline CI exécute deux jobs complémentaires :
+
+- **Build, Lint & Test**
+  - `npm ci`
+  - `npm run lint:check`
+  - `npm run build --if-present`
+  - `npm test`
+- **Security Audit (prod deps)**
+  - `npm ci`
+  - `npm audit --omit=dev --production --audit-level=high`
+
+### Pourquoi une PR peut échouer
+
+- Une erreur de lint, de build ou de tests.
+- Une vulnérabilité **high** ou **critical** détectée dans les dépendances de production.
+
+### Comment corriger un échec `npm audit`
+
+1. Reproduire localement :
+
+```bash
+npm audit --omit=dev --production --audit-level=high
+```
+
+2. Mettre à jour la/les dépendance(s) concernée(s) :
+
+```bash
+npm update
+# puis, si nécessaire et validé par l'équipe :
+npm audit fix
+```
+
+3. Relancer les vérifications locales :
+
+```bash
+npm run lint:check
+npm run build
+npm test
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

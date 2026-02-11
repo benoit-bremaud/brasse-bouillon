@@ -59,7 +59,7 @@ $ npm run test:cov
 
 ## CI (GitHub Actions)
 
-La pipeline CI exécute deux jobs complémentaires :
+The CI pipeline runs two complementary jobs:
 
 - **Build, Lint & Test**
   - `npm ci`
@@ -67,34 +67,31 @@ La pipeline CI exécute deux jobs complémentaires :
   - `npm run build --if-present`
   - `npm test`
 - **Security Audit (prod deps)**
-  - `npm ci`
+  - `npm ci --omit=dev`
   - `npm audit --omit=dev --audit-level=critical`
 
-### Pourquoi une PR peut échouer
+### Why a PR can fail
 
-- Une erreur de lint, de build ou de tests.
-- Une vulnérabilité **critical** détectée dans les dépendances de production.
+- A lint, build, or test failure.
+- A **critical** vulnerability detected in production dependencies.
 
-### Comment corriger un échec `npm audit`
+### How to fix an `npm audit` failure
 
-1. Reproduire localement :
+1. Reproduce locally:
 
 ```bash
-npm audit --omit=dev --production --audit-level=high
-
-# même comportement que la CI :
 npm audit --omit=dev --audit-level=critical
 ```
 
-2. Mettre à jour la/les dépendance(s) concernée(s) :
+2. Update the impacted dependency(ies):
 
 ```bash
 npm update
-# puis, si nécessaire et validé par l'équipe :
+# then, if needed and validated by the team:
 npm audit fix
 ```
 
-3. Relancer les vérifications locales :
+3. Re-run local checks:
 
 ```bash
 npm run lint:check

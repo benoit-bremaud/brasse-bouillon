@@ -132,6 +132,13 @@
             margin-top: 14px;
         }
 
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
         .feature {
             background: #ffffff;
             border: 1px solid #f1e0d1;
@@ -139,6 +146,32 @@
             padding: 12px;
             font-size: 0.98rem;
             color: #4a403a;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 14px;
+            color: #4a403a;
+            line-height: 1.55;
+        }
+
+        .mini-card h3 {
+            margin: 0 0 8px;
+            font-size: 1.02rem;
+            color: var(--primary);
+        }
+
+        .tag {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #fff3e9;
+            color: #a44a0b;
+            font-weight: 700;
         }
 
         .cta {
@@ -293,6 +326,68 @@
                     <div class="feature">✅ Plan and track each brewing session</div>
                     <div class="feature">✅ Keep a clear history of every batch</div>
                     <div class="feature">✅ Share your creations with the community</div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🗺️ Project roadmap</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Current phase</h3>
+                        Mobile MVP + continuous improvements on the public website.
+                        <div class="tag">In progress</div>
+                    </div>
+                    <div class="mini-card">
+                        <h3>Next step</h3>
+                        Public devlog, richer FAQ, and a more interactive roadmap section.
+                        <div class="tag">Next</div>
+                    </div>
+                    <div class="mini-card">
+                        <h3>Long-term vision</h3>
+                        A useful platform to brew better, learn faster, and share recipes with others.
+                        <div class="tag">Vision</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🧪 Development log</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>February 2026</h3>
+                        FR/EN visual refresh, backlog cleanup, and a clearer execution baseline.
+                    </div>
+                    <div class="mini-card">
+                        <h3>What’s coming</h3>
+                        Regular progress notes (features, UX decisions, and user feedback).
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>❓ Quick FAQ</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>When will the app be available?</h3>
+                        We ship in phases. A beta will be shared as soon as the core is stable.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Can I contribute?</h3>
+                        Yes—through the survey, UX feedback, and direct contact.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Who is it for?</h3>
+                        Beginners and experienced homebrewers alike.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🍺 Featured recipe</h2>
+                <div class="mini-card">
+                    <h3>Session IPA “Citrus Bloom” (sample)</h3>
+                    Light, aromatic, and perfect to discover recipe tracking in Brasse-Bouillon.
+                    More detailed recipes and brew sheets are coming soon.
                 </div>
             </section>
 

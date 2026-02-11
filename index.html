@@ -132,6 +132,13 @@
             margin-top: 14px;
         }
 
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
         .feature {
             background: #ffffff;
             border: 1px solid #f1e0d1;
@@ -139,6 +146,32 @@
             padding: 12px;
             font-size: 0.98rem;
             color: #4a403a;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 14px;
+            color: #4a403a;
+            line-height: 1.55;
+        }
+
+        .mini-card h3 {
+            margin: 0 0 8px;
+            font-size: 1.02rem;
+            color: var(--primary);
+        }
+
+        .tag {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #fff3e9;
+            color: #a44a0b;
+            font-weight: 700;
         }
 
         .cta {
@@ -293,6 +326,68 @@
                     <div class="feature">✅ Planifier et suivre tes brassins</div>
                     <div class="feature">✅ Garder un historique clair de tes sessions</div>
                     <div class="feature">✅ Partager tes créations avec la communauté</div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🗺️ Roadmap du projet</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Phase actuelle</h3>
+                        MVP mobile + amélioration continue du site vitrine.
+                        <div class="tag">En cours</div>
+                    </div>
+                    <div class="mini-card">
+                        <h3>Prochaine étape</h3>
+                        Dévlog public, FAQ enrichie et section roadmap plus interactive.
+                        <div class="tag">À venir</div>
+                    </div>
+                    <div class="mini-card">
+                        <h3>Objectif long terme</h3>
+                        Une plateforme utile pour piloter, apprendre et partager le brassage maison.
+                        <div class="tag">Vision</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🧪 Journal de développement</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Février 2026</h3>
+                        Refonte visuelle FR/EN, simplification du backlog, base de travail claire pour itérer plus vite.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Ce qui arrive</h3>
+                        Publication régulière de notes d’avancement (fonctionnalités, choix UX, retours utilisateurs).
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>❓ FAQ rapide</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Quand l’app sera disponible ?</h3>
+                        Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Puis-je participer ?</h3>
+                        Oui : via le questionnaire, les retours UX et le contact direct.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Pour quel niveau ?</h3>
+                        Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🍺 Recette mise en avant</h2>
+                <div class="mini-card">
+                    <h3>Session IPA “Citrus Bloom” (exemple)</h3>
+                    Légère, aromatique, parfaite pour découvrir le suivi de recette dans Brasse-Bouillon.
+                    Plus de recettes et de fiches détaillées arrivent bientôt.
                 </div>
             </section>
 

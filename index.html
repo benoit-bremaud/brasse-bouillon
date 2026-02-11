@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brasse-Bouillon - Bientôt disponible !</title>
+    <title>Brasse-Bouillon — L’app de brassage qui arrive bientôt</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
     <script>
@@ -13,155 +13,558 @@
       gtag('config', 'G-RVCT6NGFVG');
     </script>
     <style>
+        :root {
+            --bg: #f7f2ed;
+            --card: rgba(255, 255, 255, 0.86);
+            --card-border: rgba(211, 84, 0, 0.15);
+            --text: #2d2622;
+            --muted: #6c625c;
+            --primary: #d35400;
+            --primary-dark: #a84300;
+            --primary-soft: #fff1e5;
+            --shadow: 0 14px 38px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f5f2;
-            color: #333;
+            font-family: Inter, Arial, sans-serif;
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% -20%, #ffe6d3 0%, transparent 45%),
+                radial-gradient(circle at 90% 0%, #f8d9bd 0%, transparent 35%),
+                var(--bg);
+        }
+
+        .language-switch {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .language-switch a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .language-switch a:hover {
+            color: var(--primary);
+        }
+
+        .page {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 20px;
-            padding: 0 20px;
+            padding: 72px 20px 32px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 920px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 28px;
+            backdrop-filter: blur(5px);
+        }
+
+        .hero {
             text-align: center;
         }
-        .container {
-            max-width: 800px;
-        }
+
         img.logo {
-            width: 200px;
+            width: 110px;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
+
+        .pill {
+            display: inline-block;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
         h1 {
-            font-size: 2em;
-            color: #d35400;
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--primary);
         }
+
+        .intro {
+            margin: 14px auto 0;
+            max-width: 740px;
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: var(--muted);
+        }
+
         h2 {
-            margin-top: 40px;
-            font-size: 1.5em;
-            color: #d35400;
+            margin: 36px 0 12px;
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.45rem;
         }
-        p {
-            font-size: 1.1em;
-            margin-top: 15px;
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .feature {
+            background: #ffffff;
+            border: 1px solid #f1e0d1;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.98rem;
+            color: #4a403a;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 14px;
+            color: #4a403a;
+            line-height: 1.55;
+        }
+
+        .mini-card h3 {
+            margin: 0 0 8px;
+            font-size: 1.02rem;
+            color: var(--primary);
+        }
+
+        .roadmap-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 8px 0 14px;
+        }
+
+        .chip {
+            border: 1px solid #e5d6c9;
+            background: #fff;
+            color: #5f4f43;
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fff3e9;
+        }
+
+        .roadmap-track {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .phase-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .phase-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .phase-title {
+            margin: 0;
+            font-size: 1rem;
+            color: #3b312b;
+        }
+
+        .phase-state {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #f5f0ec;
+            color: #75675e;
+        }
+
+        .phase-state.done {
+            background: #e8f7ee;
+            color: #1f7a40;
+        }
+
+        .phase-state.current {
+            background: #fff3e9;
+            color: #a44a0b;
+        }
+
+        .phase-state.next {
+            background: #edf4ff;
+            color: #315d99;
+        }
+
+        .phase-body {
+            margin: 8px 0 0;
+            color: #5f534c;
+            line-height: 1.55;
+            font-size: 0.93rem;
+        }
+
+        .phase-body ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+
+        .tag {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #fff3e9;
+            color: #a44a0b;
+            font-weight: 700;
+        }
+
+        .cta {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--muted);
             line-height: 1.6;
         }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(211, 84, 0, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            text-decoration: none;
+            background: #fff;
+            color: #4b3c31;
+            border: 1px solid #e3d3c4;
+        }
+
+        .questionnaire {
+            display: none;
+            opacity: 0;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #f0e0d0;
+            padding: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        iframe {
+            width: 100%;
+            height: 760px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .contact {
+            margin-top: 28px;
+        }
+
         form {
-            margin-top: 30px;
+            margin: 0 auto;
+            max-width: 700px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            width: 100%;
-            align-self: center;
         }
-        input, textarea {
+
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #dfd0c2;
+            border-radius: 10px;
             padding: 12px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
+            font-size: 1rem;
+            background: #fff;
         }
-        button {
-            padding: 10px;
-            background-color: #d35400;
-            color: white;
-            border: none;
-            font-size: 1em;
-            border-radius: 4px;
-            cursor: pointer;
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
         }
-        button:hover {
-            background-color: #a84300;
-        }
+
         .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
+            margin-top: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
         }
+
         .badge {
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: #aaa;
-            font-style: italic;
-            transition: all 0.3s ease;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #8f837a;
         }
+
         .badge a {
             text-decoration: none;
-            color: #aaa;
+            color: inherit;
+            font-weight: 700;
         }
+
         .badge a:hover {
-            color: #d35400;
+            color: var(--primary);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                border-radius: 18px;
+                padding: 22px 16px;
+            }
+
+            iframe {
+                height: 640px;
+            }
         }
     </style>
 </head>
 <body>
-    <div style="position: absolute; top: 20px; right: 20px;">
+    <div class="language-switch">
         <a href="index.html">🇫🇷</a> | <a href="index-en.html">🇬🇧</a>
     </div>
-    <div class="container">
-        <img class="logo" src="logo.png" alt="Logo Brasse-Bouillon">
-        <h1>Brasse-Bouillon</h1>
-        <p>
-            Une application mobile conçue pour les brasseurs amateurs passionnés, débutants ou confirmés. Gère, optimise, archive et partage toutes tes recettes de brassage, en toute simplicité 📱🍺
-        </p>
+    <main class="page">
+        <div class="container">
+            <section class="hero">
+                <img class="logo" src="logo.png" alt="Logo Brasse-Bouillon">
+                <span class="pill">Bientôt disponible</span>
+                <h1>Brasse-Bouillon</h1>
+                <p class="intro">
+                    L’application mobile pensée pour les brasseurs amateurs, du premier brassin aux recettes avancées.
+                    Conçois, optimise, archive et partage tes créations en toute simplicité 📱🍺
+                </p>
+            </section>
 
-        <h2>À quoi servira Brasse-Bouillon ?</h2>
-        <p>
-            ✅ Créer et gérer ses recettes<br>
-            ✅ Calculer IBU, ABV, rendement<br>
-            ✅ Planifier ses brassins<br>
-            ✅ Sauvegarder son historique<br>
-            ✅ Partager ses créations avec la communauté
-        </p>
+            <section>
+                <h2>🍻 Ce que tu pourras faire</h2>
+                <div class="features">
+                    <div class="feature">✅ Créer et gérer facilement tes recettes</div>
+                    <div class="feature">✅ Calculer IBU, ABV et rendement</div>
+                    <div class="feature">✅ Planifier et suivre tes brassins</div>
+                    <div class="feature">✅ Garder un historique clair de tes sessions</div>
+                    <div class="feature">✅ Partager tes créations avec la communauté</div>
+                </div>
+            </section>
 
-        <h2>💬 Tu veux participer au projet ?</h2>
-        <p>
-            L'application est en cours de conception. <br>
-            Et si tu nous aidais à construire la meilleure expérience possible ?
-        </p>
+            <section>
+                <h2>🗺️ Roadmap du projet</h2>
+                <div class="roadmap-controls" id="roadmapControlsFr">
+                    <button class="chip active" data-filter="all" onclick="filterRoadmap('fr','all', this)">Toutes</button>
+                    <button class="chip" data-filter="current" onclick="filterRoadmap('fr','current', this)">En cours</button>
+                    <button class="chip" data-filter="next" onclick="filterRoadmap('fr','next', this)">À venir</button>
+                    <button class="chip" data-filter="done" onclick="filterRoadmap('fr','done', this)">Terminées</button>
+                </div>
+                <div id="roadmapTrackFr" class="roadmap-track"></div>
+            </section>
 
-        <button onclick="toggleForm()" style="margin-top: 10px; padding: 10px 20px; font-size: 1em; background-color: #d35400; color: white; border: none; border-radius: 4px; cursor: pointer;">Répondre au questionnaire</button>
+            <section>
+                <h2>🧪 Journal de développement</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Février 2026</h3>
+                        Refonte visuelle FR/EN, simplification du backlog, base de travail claire pour itérer plus vite.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Ce qui arrive</h3>
+                        Publication régulière de notes d’avancement (fonctionnalités, choix UX, retours utilisateurs).
+                    </div>
+                </div>
+            </section>
 
-        <div class="questionnaire" id="questionnaireBlock" style="display:none; opacity:0; margin-top: 20px; background: #fff8f2; padding: 20px; border-radius: 8px; border: 1px solid #f0e0d0;">
-            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc3-afLtXWuF31J-diG8iNRgKiF90AgYe4tjp9NcGqz003T7g/viewform?embedded=true" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="border: none;">Chargement…</iframe>
+            <section>
+                <h2>❓ FAQ rapide</h2>
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h3>Quand l’app sera disponible ?</h3>
+                        Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Puis-je participer ?</h3>
+                        Oui : via le questionnaire, les retours UX et le contact direct.
+                    </div>
+                    <div class="mini-card">
+                        <h3>Pour quel niveau ?</h3>
+                        Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>🍺 Recette mise en avant</h2>
+                <div class="mini-card">
+                    <h3>Session IPA “Citrus Bloom” (exemple)</h3>
+                    Légère, aromatique, parfaite pour découvrir le suivi de recette dans Brasse-Bouillon.
+                    Plus de recettes et de fiches détaillées arrivent bientôt.
+                </div>
+            </section>
+
+            <section class="cta">
+                <h2>💬 Tu veux contribuer au projet ?</h2>
+                <p>
+                    L’application est en cours de construction. Tes retours nous aident à créer
+                    une expérience vraiment utile pour les brasseurs.
+                </p>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="toggleForm()">Répondre au questionnaire</button>
+                    <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Nous contacter</a>
+                </div>
+
+                <div class="questionnaire" id="questionnaireBlock">
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc3-afLtXWuF31J-diG8iNRgKiF90AgYe4tjp9NcGqz003T7g/viewform?embedded=true" title="Questionnaire Brasse-Bouillon">Chargement…</iframe>
+                </div>
+            </section>
+
+            <section class="contact">
+                <h2>📬 Contact direct</h2>
+                <form action="https://formspree.io/f/mqaqqvab" method="POST">
+                    <input type="email" name="email" placeholder="Ton email" required>
+                    <textarea name="message" placeholder="Ton message" required></textarea>
+                    <button class="btn btn-primary" type="submit">Envoyer</button>
+                </form>
+            </section>
+
+            <div class="footer">
+                Reste connecté(e) ! Tu peux aussi nous écrire à : <strong>contact@brasse-bouillon.com</strong>
+                <div class="badge">
+                    Made with ❤️ by <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <script>
-        function toggleForm() {
-            const block = document.getElementById('questionnaireBlock');
-            if (block.style.display === 'none') {
-                block.style.display = 'block';
-                block.style.opacity = 0;
-                setTimeout(() => {
-                    block.style.transition = 'opacity 0.5s ease';
-                    block.style.opacity = 1;
-                }, 10);
-            } else {
-                block.style.transition = 'opacity 0.5s ease';
-                block.style.opacity = 0;
-                setTimeout(() => {
-                    block.style.display = 'none';
-                }, 500);
-            }
+    <script>
+    const roadmapFr = [
+      { phase: 1, title: "Idéation & positionnement", state: "done", points: ["MVP défini", "Questionnaire utilisateur", "Manifeste fondateur"] },
+      { phase: 2, title: "Analyse des canaux de communication", state: "done", points: ["Cibles identifiées", "Ligne éditoriale", "Partage des résultats"] },
+      { phase: 3, title: "Conception & préparation", state: "done", points: ["Maquettes UI/UX", "Architecture technique", "Feuille de route visuelle"] },
+      { phase: 4, title: "Développement du MVP", state: "current", points: ["Auth", "Gestion recettes", "Calcul IBU/ABV", "API + DB"] },
+      { phase: 5, title: "Site vitrine public", state: "current", points: ["Roadmap interactive", "Devlog", "FAQ", "Recette vedette"] },
+      { phase: 6, title: "Tests bêta & communauté", state: "next", points: ["Bêta publique", "Collecte feedback", "Espace communautaire"] },
+      { phase: 7, title: "Lancement officiel", state: "next", points: ["Stores iOS/Android", "Démo publique", "Communication multi-canal"] },
+      { phase: 8, title: "Documentation & écosystème", state: "next", points: ["Fiches de brassage", "Glossaire", "Échange recettes"] },
+      { phase: 9, title: "Améliorations & ouverture", state: "next", points: ["Optimisations UX", "Modules complémentaires", "API ouverte"] },
+      { phase: 10, title: "Partenariats & impact", state: "next", points: ["Microbrasseries", "Kit Studio B22", "Indicateurs open source"] }
+    ];
+
+    function stateLabelFr(state) {
+      if (state === 'done') return 'Terminé';
+      if (state === 'current') return 'En cours';
+      return 'À venir';
+    }
+
+    function renderRoadmapFr(filter = 'all') {
+      const root = document.getElementById('roadmapTrackFr');
+      const list = filter === 'all' ? roadmapFr : roadmapFr.filter(p => p.state === filter);
+      root.innerHTML = list.map(p => `
+        <article class="phase-card">
+          <div class="phase-head">
+            <h3 class="phase-title">Phase ${p.phase} — ${p.title}</h3>
+            <span class="phase-state ${p.state}">${stateLabelFr(p.state)}</span>
+          </div>
+          <div class="phase-body">
+            <ul>${p.points.map(point => `<li>${point}</li>`).join('')}</ul>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterRoadmap(lang, filter, el) {
+      const controls = document.querySelectorAll('#roadmapControlsFr .chip');
+      controls.forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderRoadmapFr(filter);
+    }
+
+    function toggleForm() {
+        const block = document.getElementById('questionnaireBlock');
+        if (block.style.display === 'none' || block.style.display === '') {
+            block.style.display = 'block';
+            block.style.opacity = 0;
+            setTimeout(() => {
+                block.style.transition = 'opacity 0.4s ease';
+                block.style.opacity = 1;
+            }, 10);
+        } else {
+            block.style.transition = 'opacity 0.35s ease';
+            block.style.opacity = 0;
+            setTimeout(() => {
+                block.style.display = 'none';
+            }, 350);
         }
-        </script>
+    }
 
-        <h2>📬 Contacte-nous directement</h2>
-        <form action="https://formspree.io/f/mqaqqvab" method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <textarea name="message" placeholder="Message" required></textarea>
-            <button type="submit">Envoyer</button>
-        </form>
-
-        <div class="footer">
-            Reste connecté(e) ! Tu peux aussi nous écrire à : contact@brasse-bouillon.com
-        </div>
-        <div class="badge">
-            Made with ❤️ by <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank">Brasse-Bouillon</a>
-        </div>
-    </div>
+    renderRoadmapFr();
+    </script>
 </body>
 </html>

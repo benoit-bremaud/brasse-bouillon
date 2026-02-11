@@ -1,0 +1,7 @@
+# IDE / local metadata
+.project
+docs/.project
+
+# Python cache (quality gate script)
+__pycache__/
+scripts/__pycache__/

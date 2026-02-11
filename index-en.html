@@ -163,6 +163,94 @@
             color: var(--primary);
         }
 
+        .roadmap-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 8px 0 14px;
+        }
+
+        .chip {
+            border: 1px solid #e5d6c9;
+            background: #fff;
+            color: #5f4f43;
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fff3e9;
+        }
+
+        .roadmap-track {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .phase-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .phase-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .phase-title {
+            margin: 0;
+            font-size: 1rem;
+            color: #3b312b;
+        }
+
+        .phase-state {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #f5f0ec;
+            color: #75675e;
+        }
+
+        .phase-state.done {
+            background: #e8f7ee;
+            color: #1f7a40;
+        }
+
+        .phase-state.current {
+            background: #fff3e9;
+            color: #a44a0b;
+        }
+
+        .phase-state.next {
+            background: #edf4ff;
+            color: #315d99;
+        }
+
+        .phase-body {
+            margin: 8px 0 0;
+            color: #5f534c;
+            line-height: 1.55;
+            font-size: 0.93rem;
+        }
+
+        .phase-body ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+
         .tag {
             display: inline-block;
             margin-top: 8px;
@@ -331,23 +419,13 @@
 
             <section>
                 <h2>🗺️ Project roadmap</h2>
-                <div class="section-grid">
-                    <div class="mini-card">
-                        <h3>Current phase</h3>
-                        Mobile MVP + continuous improvements on the public website.
-                        <div class="tag">In progress</div>
-                    </div>
-                    <div class="mini-card">
-                        <h3>Next step</h3>
-                        Public devlog, richer FAQ, and a more interactive roadmap section.
-                        <div class="tag">Next</div>
-                    </div>
-                    <div class="mini-card">
-                        <h3>Long-term vision</h3>
-                        A useful platform to brew better, learn faster, and share recipes with others.
-                        <div class="tag">Vision</div>
-                    </div>
+                <div class="roadmap-controls" id="roadmapControlsEn">
+                    <button class="chip active" data-filter="all" onclick="filterRoadmapEn('all', this)">All</button>
+                    <button class="chip" data-filter="current" onclick="filterRoadmapEn('current', this)">In progress</button>
+                    <button class="chip" data-filter="next" onclick="filterRoadmapEn('next', this)">Next</button>
+                    <button class="chip" data-filter="done" onclick="filterRoadmapEn('done', this)">Done</button>
                 </div>
+                <div id="roadmapTrackEn" class="roadmap-track"></div>
             </section>
 
             <section>
@@ -426,6 +504,48 @@
     </main>
 
     <script>
+    const roadmapEn = [
+      { phase: 1, title: "Ideation & positioning", state: "done", points: ["MVP definition", "User survey", "Founding manifesto"] },
+      { phase: 2, title: "Communication channels analysis", state: "done", points: ["Target audiences", "Editorial strategy", "Public summary"] },
+      { phase: 3, title: "Design & preparation", state: "done", points: ["UI/UX mockups", "Technical architecture", "Visual roadmap"] },
+      { phase: 4, title: "MVP development", state: "current", points: ["Auth", "Recipe management", "IBU/ABV calculations", "API + DB"] },
+      { phase: 5, title: "Public website", state: "current", points: ["Interactive roadmap", "Devlog", "FAQ", "Featured recipe"] },
+      { phase: 6, title: "Beta tests & community", state: "next", points: ["Public beta", "Feedback loop", "Community space"] },
+      { phase: 7, title: "Official launch", state: "next", points: ["App stores", "Public demo", "Multi-channel communication"] },
+      { phase: 8, title: "Documentation & ecosystem", state: "next", points: ["Brew sheets", "Glossary", "Recipe sharing space"] },
+      { phase: 9, title: "Improvements & openness", state: "next", points: ["UX optimizations", "Extra modules", "Open API"] },
+      { phase: 10, title: "Partnerships & impact", state: "next", points: ["Microbreweries", "Studio B22 kit", "Open impact indicators"] }
+    ];
+
+    function stateLabelEn(state) {
+      if (state === 'done') return 'Done';
+      if (state === 'current') return 'In progress';
+      return 'Next';
+    }
+
+    function renderRoadmapEn(filter = 'all') {
+      const root = document.getElementById('roadmapTrackEn');
+      const list = filter === 'all' ? roadmapEn : roadmapEn.filter(p => p.state === filter);
+      root.innerHTML = list.map(p => `
+        <article class="phase-card">
+          <div class="phase-head">
+            <h3 class="phase-title">Phase ${p.phase} — ${p.title}</h3>
+            <span class="phase-state ${p.state}">${stateLabelEn(p.state)}</span>
+          </div>
+          <div class="phase-body">
+            <ul>${p.points.map(point => `<li>${point}</li>`).join('')}</ul>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterRoadmapEn(filter, el) {
+      const controls = document.querySelectorAll('#roadmapControlsEn .chip');
+      controls.forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderRoadmapEn(filter);
+    }
+
     function toggleForm() {
         const block = document.getElementById('questionnaireBlock');
         if (block.style.display === 'none' || block.style.display === '') {
@@ -443,6 +563,8 @@
             }, 350);
         }
     }
+
+    renderRoadmapEn();
     </script>
 </body>
 </html>

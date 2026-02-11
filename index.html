@@ -163,6 +163,94 @@
             color: var(--primary);
         }
 
+        .roadmap-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 8px 0 14px;
+        }
+
+        .chip {
+            border: 1px solid #e5d6c9;
+            background: #fff;
+            color: #5f4f43;
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .chip.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fff3e9;
+        }
+
+        .roadmap-track {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .phase-card {
+            background: #fff;
+            border: 1px solid #ecd8c9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .phase-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .phase-title {
+            margin: 0;
+            font-size: 1rem;
+            color: #3b312b;
+        }
+
+        .phase-state {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #f5f0ec;
+            color: #75675e;
+        }
+
+        .phase-state.done {
+            background: #e8f7ee;
+            color: #1f7a40;
+        }
+
+        .phase-state.current {
+            background: #fff3e9;
+            color: #a44a0b;
+        }
+
+        .phase-state.next {
+            background: #edf4ff;
+            color: #315d99;
+        }
+
+        .phase-body {
+            margin: 8px 0 0;
+            color: #5f534c;
+            line-height: 1.55;
+            font-size: 0.93rem;
+        }
+
+        .phase-body ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+
         .tag {
             display: inline-block;
             margin-top: 8px;
@@ -331,23 +419,13 @@
 
             <section>
                 <h2>🗺️ Roadmap du projet</h2>
-                <div class="section-grid">
-                    <div class="mini-card">
-                        <h3>Phase actuelle</h3>
-                        MVP mobile + amélioration continue du site vitrine.
-                        <div class="tag">En cours</div>
-                    </div>
-                    <div class="mini-card">
-                        <h3>Prochaine étape</h3>
-                        Dévlog public, FAQ enrichie et section roadmap plus interactive.
-                        <div class="tag">À venir</div>
-                    </div>
-                    <div class="mini-card">
-                        <h3>Objectif long terme</h3>
-                        Une plateforme utile pour piloter, apprendre et partager le brassage maison.
-                        <div class="tag">Vision</div>
-                    </div>
+                <div class="roadmap-controls" id="roadmapControlsFr">
+                    <button class="chip active" data-filter="all" onclick="filterRoadmap('fr','all', this)">Toutes</button>
+                    <button class="chip" data-filter="current" onclick="filterRoadmap('fr','current', this)">En cours</button>
+                    <button class="chip" data-filter="next" onclick="filterRoadmap('fr','next', this)">À venir</button>
+                    <button class="chip" data-filter="done" onclick="filterRoadmap('fr','done', this)">Terminées</button>
                 </div>
+                <div id="roadmapTrackFr" class="roadmap-track"></div>
             </section>
 
             <section>
@@ -426,6 +504,48 @@
     </main>
 
     <script>
+    const roadmapFr = [
+      { phase: 1, title: "Idéation & positionnement", state: "done", points: ["MVP défini", "Questionnaire utilisateur", "Manifeste fondateur"] },
+      { phase: 2, title: "Analyse des canaux de communication", state: "done", points: ["Cibles identifiées", "Ligne éditoriale", "Partage des résultats"] },
+      { phase: 3, title: "Conception & préparation", state: "done", points: ["Maquettes UI/UX", "Architecture technique", "Feuille de route visuelle"] },
+      { phase: 4, title: "Développement du MVP", state: "current", points: ["Auth", "Gestion recettes", "Calcul IBU/ABV", "API + DB"] },
+      { phase: 5, title: "Site vitrine public", state: "current", points: ["Roadmap interactive", "Devlog", "FAQ", "Recette vedette"] },
+      { phase: 6, title: "Tests bêta & communauté", state: "next", points: ["Bêta publique", "Collecte feedback", "Espace communautaire"] },
+      { phase: 7, title: "Lancement officiel", state: "next", points: ["Stores iOS/Android", "Démo publique", "Communication multi-canal"] },
+      { phase: 8, title: "Documentation & écosystème", state: "next", points: ["Fiches de brassage", "Glossaire", "Échange recettes"] },
+      { phase: 9, title: "Améliorations & ouverture", state: "next", points: ["Optimisations UX", "Modules complémentaires", "API ouverte"] },
+      { phase: 10, title: "Partenariats & impact", state: "next", points: ["Microbrasseries", "Kit Studio B22", "Indicateurs open source"] }
+    ];
+
+    function stateLabelFr(state) {
+      if (state === 'done') return 'Terminé';
+      if (state === 'current') return 'En cours';
+      return 'À venir';
+    }
+
+    function renderRoadmapFr(filter = 'all') {
+      const root = document.getElementById('roadmapTrackFr');
+      const list = filter === 'all' ? roadmapFr : roadmapFr.filter(p => p.state === filter);
+      root.innerHTML = list.map(p => `
+        <article class="phase-card">
+          <div class="phase-head">
+            <h3 class="phase-title">Phase ${p.phase} — ${p.title}</h3>
+            <span class="phase-state ${p.state}">${stateLabelFr(p.state)}</span>
+          </div>
+          <div class="phase-body">
+            <ul>${p.points.map(point => `<li>${point}</li>`).join('')}</ul>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterRoadmap(lang, filter, el) {
+      const controls = document.querySelectorAll('#roadmapControlsFr .chip');
+      controls.forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderRoadmapFr(filter);
+    }
+
     function toggleForm() {
         const block = document.getElementById('questionnaireBlock');
         if (block.style.display === 'none' || block.style.display === '') {
@@ -443,6 +563,8 @@
             }, 350);
         }
     }
+
+    renderRoadmapFr();
     </script>
 </body>
 </html>

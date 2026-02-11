@@ -55,9 +55,17 @@ export function RecipesScreen() {
         title="My Recipes"
         subtitle="Tes recettes de brassage"
         action={
-          <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
-            <Text style={styles.refreshText}>Refresh</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={() => router.push("../tools?sourceType=recipe")}
+              style={styles.toolsButton}
+            >
+              <Text style={styles.toolsText}>Calculatrice</Text>
+            </Pressable>
+            <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
+              <Text style={styles.refreshText}>Refresh</Text>
+            </Pressable>
+          </View>
         }
       />
 
@@ -98,6 +106,22 @@ export function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    alignItems: "flex-end",
+    gap: spacing.xs,
+  },
+  toolsButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.brand.primary,
+  },
+  toolsText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   refreshButton: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,

@@ -1,4 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -18,8 +19,6 @@ import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { useRouter } from "expo-router";
-
 export function BatchesScreen() {
   const router = useRouter();
   const [batches, setBatches] = useState<BatchSummary[]>([]);
@@ -55,9 +54,17 @@ export function BatchesScreen() {
         title="My Batches"
         subtitle="Suivi de tes brassins en cours"
         action={
-          <Pressable onPress={fetchBatches} style={styles.refreshButton}>
-            <Text style={styles.refreshText}>Refresh</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={() => router.push("../tools?sourceType=batch")}
+              style={styles.toolsButton}
+            >
+              <Text style={styles.toolsText}>Calculatrice</Text>
+            </Pressable>
+            <Pressable onPress={fetchBatches} style={styles.refreshButton}>
+              <Text style={styles.refreshText}>Refresh</Text>
+            </Pressable>
+          </View>
         }
       />
 
@@ -103,6 +110,22 @@ export function BatchesScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    alignItems: "flex-end",
+    gap: spacing.xs,
+  },
+  toolsButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.brand.primary,
+  },
+  toolsText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   refreshButton: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,

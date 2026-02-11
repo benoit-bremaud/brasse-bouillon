@@ -55,9 +55,22 @@ export function BatchesScreen() {
         title="My Batches"
         subtitle="Suivi de tes brassins en cours"
         action={
-          <Pressable onPress={fetchBatches} style={styles.refreshButton}>
-            <Text style={styles.refreshText}>Refresh</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/tools",
+                  params: { sourceType: "batch" },
+                } as never)
+              }
+              style={styles.toolsButton}
+            >
+              <Text style={styles.toolsText}>Calculatrice</Text>
+            </Pressable>
+            <Pressable onPress={fetchBatches} style={styles.refreshButton}>
+              <Text style={styles.refreshText}>Refresh</Text>
+            </Pressable>
+          </View>
         }
       />
 
@@ -103,6 +116,22 @@ export function BatchesScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    alignItems: "flex-end",
+    gap: spacing.xs,
+  },
+  toolsButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.brand.primary,
+  },
+  toolsText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   refreshButton: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,

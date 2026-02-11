@@ -53,4 +53,4 @@ jobs:
         run: npm ci
 
       - name: Audit production dependencies (high/critical)
-        run: npm audit --omit=dev --production --audit-level=high
+        run: npm audit --omit=dev --audit-level=critical

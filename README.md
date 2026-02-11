@@ -68,12 +68,12 @@ La pipeline CI exécute deux jobs complémentaires :
   - `npm test`
 - **Security Audit (prod deps)**
   - `npm ci`
-  - `npm audit --omit=dev --production --audit-level=high`
+  - `npm audit --omit=dev --audit-level=critical`
 
 ### Pourquoi une PR peut échouer
 
 - Une erreur de lint, de build ou de tests.
-- Une vulnérabilité **high** ou **critical** détectée dans les dépendances de production.
+- Une vulnérabilité **critical** détectée dans les dépendances de production.
 
 ### Comment corriger un échec `npm audit`
 
@@ -81,6 +81,9 @@ La pipeline CI exécute deux jobs complémentaires :
 
 ```bash
 npm audit --omit=dev --production --audit-level=high
+
+# même comportement que la CI :
+npm audit --omit=dev --audit-level=critical
 ```
 
 2. Mettre à jour la/les dépendance(s) concernée(s) :

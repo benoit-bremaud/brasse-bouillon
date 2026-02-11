@@ -210,7 +210,7 @@
             font-size: 0.82rem;
             font-weight: 700;
             cursor: pointer;
-            min-height: 40px;
+            min-height: 44px;
         }
 
         .chip.active {
@@ -459,9 +459,9 @@
 <body>
     <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
     <div class="language-switch" role="navigation" aria-label="Choix de langue">
-        <a href="index.html" aria-label="Version française">🇫🇷</a> | <a href="index-en.html" aria-label="Version anglaise">🇬🇧</a>
+        <a href="index.html" aria-label="Version française" aria-current="page">🇫🇷</a> | <a href="index-en.html" aria-label="Version anglaise">🇬🇧</a>
     </div>
-    <main class="page" id="mainContentFr">
+    <main class="page" id="mainContentFr" tabindex="-1">
         <div class="container">
             <section class="hero">
                 <img class="logo" src="logo.png" alt="Logo Brasse-Bouillon">
@@ -487,10 +487,10 @@
             <section>
                 <h2 id="roadmapHeadingFr">🗺️ Roadmap du projet</h2>
                 <div class="roadmap-controls" id="roadmapControlsFr" role="toolbar" aria-label="Filtres de la roadmap">
-                    <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmap('fr','all', this)">Toutes</button>
-                    <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmap('fr','current', this)">En cours</button>
-                    <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmap('fr','next', this)">À venir</button>
-                    <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmap('fr','done', this)">Terminées</button>
+                    <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmap('all', this)">Toutes</button>
+                    <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmap('current', this)">En cours</button>
+                    <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmap('next', this)">À venir</button>
+                    <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmap('done', this)">Terminées</button>
                 </div>
                 <div id="roadmapTrackFr" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingFr"></div>
             </section>
@@ -608,7 +608,7 @@
       `).join('');
     }
 
-    function filterRoadmap(lang, filter, el) {
+    function filterRoadmap(filter, el) {
       const controls = document.querySelectorAll('#roadmapControlsFr .chip');
       controls.forEach(c => {
         c.classList.remove('active');
@@ -618,6 +618,11 @@
       el.setAttribute('aria-pressed', 'true');
       renderRoadmapFr(filter);
     }
+
+    document.querySelector('.skip-link')?.addEventListener('click', () => {
+      const main = document.getElementById('mainContentFr');
+      if (main) setTimeout(() => main.focus(), 0);
+    });
 
     function toggleForm() {
         const block = document.getElementById('questionnaireBlock');

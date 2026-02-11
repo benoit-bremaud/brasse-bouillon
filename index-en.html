@@ -210,7 +210,7 @@
             font-size: 0.82rem;
             font-weight: 700;
             cursor: pointer;
-            min-height: 40px;
+            min-height: 44px;
         }
 
         .chip.active {
@@ -459,9 +459,9 @@
 <body>
     <a class="skip-link" href="#mainContentEn">Skip to main content</a>
     <div class="language-switch" role="navigation" aria-label="Language selection">
-        <a href="index.html" aria-label="French version">🇫🇷</a> | <a href="index-en.html" aria-label="English version">🇬🇧</a>
+        <a href="index.html" aria-label="French version">🇫🇷</a> | <a href="index-en.html" aria-label="English version" aria-current="page">🇬🇧</a>
     </div>
-    <main class="page" id="mainContentEn">
+    <main class="page" id="mainContentEn" tabindex="-1">
         <div class="container">
             <section class="hero">
                 <img class="logo" src="logo.png" alt="Brasse-Bouillon Logo">
@@ -618,6 +618,11 @@
       el.setAttribute('aria-pressed', 'true');
       renderRoadmapEn(filter);
     }
+
+    document.querySelector('.skip-link')?.addEventListener('click', () => {
+      const main = document.getElementById('mainContentEn');
+      if (main) setTimeout(() => main.focus(), 0);
+    });
 
     function toggleForm() {
         const block = document.getElementById('questionnaireBlock');

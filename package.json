@@ -88,5 +88,10 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "overrides": {
+    "sqlite3": {
+      "tar": "7.5.7"
+    }
   }
 }

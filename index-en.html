@@ -62,6 +62,36 @@
             color: var(--primary);
         }
 
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: #ffffff;
+            color: #2d2622;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            left: 12px;
+            top: 12px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         .page {
             min-height: 100vh;
             display: flex;
@@ -180,6 +210,7 @@
             font-size: 0.82rem;
             font-weight: 700;
             cursor: pointer;
+            min-height: 44px;
         }
 
         .chip.active {
@@ -284,6 +315,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            min-height: 44px;
         }
 
         .btn:hover {
@@ -378,10 +410,44 @@
             color: var(--primary);
         }
 
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #2f6fdd;
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
         @media (max-width: 640px) {
+            .page {
+                padding: 92px 14px 22px;
+            }
+
             .container {
                 border-radius: 18px;
                 padding: 22px 16px;
+            }
+
+            .language-switch {
+                top: 10px;
+                right: 10px;
+                padding: 7px 10px;
+                font-size: 0.88rem;
+            }
+
+            .actions .btn {
+                width: 100%;
+                max-width: 340px;
             }
 
             iframe {
@@ -391,10 +457,11 @@
     </style>
 </head>
 <body>
-    <div class="language-switch">
-        <a href="index.html">🇫🇷</a> | <a href="index-en.html">🇬🇧</a>
+    <a class="skip-link" href="#mainContentEn">Skip to main content</a>
+    <div class="language-switch" role="navigation" aria-label="Language selection">
+        <a href="index.html" aria-label="French version">🇫🇷</a> | <a href="index-en.html" aria-label="English version" aria-current="page">🇬🇧</a>
     </div>
-    <main class="page">
+    <main class="page" id="mainContentEn" tabindex="-1">
         <div class="container">
             <section class="hero">
                 <img class="logo" src="logo.png" alt="Brasse-Bouillon Logo">
@@ -418,14 +485,14 @@
             </section>
 
             <section>
-                <h2>🗺️ Project roadmap</h2>
-                <div class="roadmap-controls" id="roadmapControlsEn">
-                    <button class="chip active" data-filter="all" onclick="filterRoadmapEn('all', this)">All</button>
-                    <button class="chip" data-filter="current" onclick="filterRoadmapEn('current', this)">In progress</button>
-                    <button class="chip" data-filter="next" onclick="filterRoadmapEn('next', this)">Next</button>
-                    <button class="chip" data-filter="done" onclick="filterRoadmapEn('done', this)">Done</button>
+                <h2 id="roadmapHeadingEn">🗺️ Project roadmap</h2>
+                <div class="roadmap-controls" id="roadmapControlsEn" role="toolbar" aria-label="Roadmap filters">
+                    <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmapEn('all', this)">All</button>
+                    <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmapEn('current', this)">In progress</button>
+                    <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmapEn('next', this)">Next</button>
+                    <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapEn('done', this)">Done</button>
                 </div>
-                <div id="roadmapTrackEn" class="roadmap-track"></div>
+                <div id="roadmapTrackEn" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingEn"></div>
             </section>
 
             <section>
@@ -481,15 +548,17 @@
                 </div>
 
                 <div class="questionnaire" id="questionnaireBlock">
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScMcXYshLn-D1H_piEspHuU8ru5s3ZkyeIZWNC5cU--ZzI1jg/viewform?embedded=true" title="Brasse-Bouillon questionnaire">Loading…</iframe>
+                    <iframe loading="lazy" src="https://docs.google.com/forms/d/e/1FAIpQLScMcXYshLn-D1H_piEspHuU8ru5s3ZkyeIZWNC5cU--ZzI1jg/viewform?embedded=true" title="Brasse-Bouillon questionnaire">Loading…</iframe>
                 </div>
             </section>
 
             <section class="contact">
                 <h2>📬 Contact us directly</h2>
                 <form action="https://formspree.io/f/mqaqqvab" method="POST">
-                    <input type="email" name="email" placeholder="Your email" required>
-                    <textarea name="message" placeholder="Your message" required></textarea>
+                    <label class="sr-only" for="emailEn">Email address</label>
+                    <input id="emailEn" type="email" name="email" placeholder="Your email" required>
+                    <label class="sr-only" for="messageEn">Message</label>
+                    <textarea id="messageEn" name="message" placeholder="Your message" required></textarea>
                     <button class="btn btn-primary" type="submit">Send</button>
                 </form>
             </section>
@@ -541,10 +610,19 @@
 
     function filterRoadmapEn(filter, el) {
       const controls = document.querySelectorAll('#roadmapControlsEn .chip');
-      controls.forEach(c => c.classList.remove('active'));
+      controls.forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-pressed', 'false');
+      });
       el.classList.add('active');
+      el.setAttribute('aria-pressed', 'true');
       renderRoadmapEn(filter);
     }
+
+    document.querySelector('.skip-link')?.addEventListener('click', () => {
+      const main = document.getElementById('mainContentEn');
+      if (main) setTimeout(() => main.focus(), 0);
+    });
 
     function toggleForm() {
         const block = document.getElementById('questionnaireBlock');

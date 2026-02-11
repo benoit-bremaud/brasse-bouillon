@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brasse-Bouillon - Coming Soon!</title>
+    <title>Brasse-Bouillon — The homebrewing app coming soon</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
     <script>
@@ -13,156 +13,341 @@
       gtag('config', 'G-RVCT6NGFVG');
     </script>
     <style>
+        :root {
+            --bg: #f7f2ed;
+            --card: rgba(255, 255, 255, 0.86);
+            --card-border: rgba(211, 84, 0, 0.15);
+            --text: #2d2622;
+            --muted: #6c625c;
+            --primary: #d35400;
+            --primary-dark: #a84300;
+            --primary-soft: #fff1e5;
+            --shadow: 0 14px 38px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f5f2;
-            color: #333;
+            font-family: Inter, Arial, sans-serif;
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% -20%, #ffe6d3 0%, transparent 45%),
+                radial-gradient(circle at 90% 0%, #f8d9bd 0%, transparent 35%),
+                var(--bg);
+        }
+
+        .language-switch {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .language-switch a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .language-switch a:hover {
+            color: var(--primary);
+        }
+
+        .page {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 20px;
-            padding: 0 20px;
+            padding: 72px 20px 32px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 920px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 28px;
+            backdrop-filter: blur(5px);
+        }
+
+        .hero {
             text-align: center;
         }
-        .container {
-            max-width: 700px;
-        }
+
         img.logo {
-            width: 200px;
+            width: 110px;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
+
+        .pill {
+            display: inline-block;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
         h1 {
-            font-size: 2em;
-            color: #d35400;
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--primary);
         }
+
+        .intro {
+            margin: 14px auto 0;
+            max-width: 740px;
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: var(--muted);
+        }
+
         h2 {
-            margin-top: 40px;
-            font-size: 1.5em;
-            color: #d35400;
+            margin: 36px 0 12px;
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.45rem;
         }
-        p {
-            font-size: 1.1em;
-            margin-top: 15px;
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .feature {
+            background: #ffffff;
+            border: 1px solid #f1e0d1;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.98rem;
+            color: #4a403a;
+        }
+
+        .cta {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--muted);
             line-height: 1.6;
         }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(211, 84, 0, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            text-decoration: none;
+            background: #fff;
+            color: #4b3c31;
+            border: 1px solid #e3d3c4;
+        }
+
+        .questionnaire {
+            display: none;
+            opacity: 0;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #f0e0d0;
+            padding: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        iframe {
+            width: 100%;
+            height: 760px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .contact {
+            margin-top: 28px;
+        }
+
         form {
-            margin-top: 30px;
+            margin: 0 auto;
+            max-width: 700px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            width: 100%;
-            max-width: 700px;
-            align-self: center;
         }
-        input, textarea {
+
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #dfd0c2;
+            border-radius: 10px;
             padding: 12px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
+            font-size: 1rem;
+            background: #fff;
         }
-        button {
-            padding: 10px;
-            background-color: #d35400;
-            color: white;
-            border: none;
-            font-size: 1em;
-            border-radius: 4px;
-            cursor: pointer;
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
         }
-        button:hover {
-            background-color: #a84300;
-        }
+
         .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
+            margin-top: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
         }
+
         .badge {
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: #aaa;
-            font-style: italic;
-            transition: all 0.3s ease;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #8f837a;
         }
+
         .badge a {
             text-decoration: none;
-            color: #aaa;
+            color: inherit;
+            font-weight: 700;
         }
+
         .badge a:hover {
-            color: #d35400;
+            color: var(--primary);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                border-radius: 18px;
+                padding: 22px 16px;
+            }
+
+            iframe {
+                height: 640px;
+            }
         }
     </style>
 </head>
 <body>
-    <div style="position: absolute; top: 20px; right: 20px;">
+    <div class="language-switch">
         <a href="index.html">🇫🇷</a> | <a href="index-en.html">🇬🇧</a>
     </div>
-    <div class="container">
-        <img class="logo" src="logo.png" alt="Brasse-Bouillon Logo">
-        <h1>Brasse-Bouillon</h1>
-        <p>
-            A mobile app designed for passionate homebrewers — whether you're a beginner or an expert. Manage, optimize, archive, and share your recipes with ease 📱🍺
-        </p>
+    <main class="page">
+        <div class="container">
+            <section class="hero">
+                <img class="logo" src="logo.png" alt="Brasse-Bouillon Logo">
+                <span class="pill">Coming soon</span>
+                <h1>Brasse-Bouillon</h1>
+                <p class="intro">
+                    A mobile app built for homebrewers—from first batches to advanced recipes.
+                    Design, optimize, archive, and share your creations with ease 📱🍺
+                </p>
+            </section>
 
-        <h2>📲 What will Brasse-Bouillon do?</h2>
-        <p>
-            ✅ Create and manage brewing recipes<br>
-            ✅ Calculate IBU, ABV, yield<br>
-            ✅ Plan your brewing sessions<br>
-            ✅ Keep brewing history<br>
-            ✅ Share your creations with the community
-        </p>
+            <section>
+                <h2>🍻 What you’ll be able to do</h2>
+                <div class="features">
+                    <div class="feature">✅ Create and manage your recipes easily</div>
+                    <div class="feature">✅ Calculate IBU, ABV, and yield</div>
+                    <div class="feature">✅ Plan and track each brewing session</div>
+                    <div class="feature">✅ Keep a clear history of every batch</div>
+                    <div class="feature">✅ Share your creations with the community</div>
+                </div>
+            </section>
 
-        <h2>💬 Want to contribute?</h2>
-        <p>
-            The app is under active development. <br>
-            Help us build the best experience by sharing your needs and ideas!
-        </p>
+            <section class="cta">
+                <h2>💬 Want to contribute?</h2>
+                <p>
+                    The app is currently being built. Your feedback helps us create
+                    a truly useful experience for homebrewers.
+                </p>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="toggleForm()">Answer the questionnaire</button>
+                    <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Contact us</a>
+                </div>
 
-        <button onclick="toggleForm()" style="margin-top: 10px; padding: 10px 20px; font-size: 1em; background-color: #d35400; color: white; border: none; border-radius: 4px; cursor: pointer;">Answer the questionnaire</button>
+                <div class="questionnaire" id="questionnaireBlock">
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScMcXYshLn-D1H_piEspHuU8ru5s3ZkyeIZWNC5cU--ZzI1jg/viewform?embedded=true" title="Brasse-Bouillon questionnaire">Loading…</iframe>
+                </div>
+            </section>
 
-        <div class="questionnaire" id="questionnaireBlock" style="display:none; opacity:0; margin-top: 20px; background: #fff8f2; padding: 20px; border-radius: 8px; border: 1px solid #f0e0d0;">
-            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScMcXYshLn-D1H_piEspHuU8ru5s3ZkyeIZWNC5cU--ZzI1jg/viewform?embedded=true" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="border: none;">Loading…</iframe>
+            <section class="contact">
+                <h2>📬 Contact us directly</h2>
+                <form action="https://formspree.io/f/mqaqqvab" method="POST">
+                    <input type="email" name="email" placeholder="Your email" required>
+                    <textarea name="message" placeholder="Your message" required></textarea>
+                    <button class="btn btn-primary" type="submit">Send</button>
+                </form>
+            </section>
+
+            <div class="footer">
+                Stay connected! You can also reach us at: <strong>contact@brasse-bouillon.com</strong>
+                <div class="badge">
+                    Made with ❤️ by <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <script>
-        function toggleForm() {
-            const block = document.getElementById('questionnaireBlock');
-            if (block.style.display === 'none') {
-                block.style.display = 'block';
-                block.style.opacity = 0;
-                setTimeout(() => {
-                    block.style.transition = 'opacity 0.5s ease';
-                    block.style.opacity = 1;
-                }, 10);
-            } else {
-                block.style.transition = 'opacity 0.5s ease';
-                block.style.opacity = 0;
-                setTimeout(() => {
-                    block.style.display = 'none';
-                }, 500);
-            }
+    <script>
+    function toggleForm() {
+        const block = document.getElementById('questionnaireBlock');
+        if (block.style.display === 'none' || block.style.display === '') {
+            block.style.display = 'block';
+            block.style.opacity = 0;
+            setTimeout(() => {
+                block.style.transition = 'opacity 0.4s ease';
+                block.style.opacity = 1;
+            }, 10);
+        } else {
+            block.style.transition = 'opacity 0.35s ease';
+            block.style.opacity = 0;
+            setTimeout(() => {
+                block.style.display = 'none';
+            }, 350);
         }
-        </script>
-
-        <h2>📬 Contact us directly</h2>
-        <form action="https://formspree.io/f/mqaqqvab" method="POST">
-            <input type="email" name="email" placeholder="Your email" required>
-            <textarea name="message" placeholder="Your message" required></textarea>
-            <button type="submit">Send</button>
-        </form>
-
-        <div class="footer">
-            Stay connected! You can also email us at: contact@brasse-bouillon.com
-        </div>
-        <div class="badge">
-            Made with ❤️ by <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank">Brasse-Bouillon</a>
-        </div>
-    </div>
+    }
+    </script>
 </body>
 </html>

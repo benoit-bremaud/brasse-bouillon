@@ -33,6 +33,15 @@ export default function AppLayout() {
       }}
     >
       <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="recipes"
         options={{
           title: "Recipes",
@@ -51,39 +60,39 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="tools"
-        options={{
-          title: "Outils",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calculator-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="equipment"
         options={{
-          title: "Équipements",
+          title: "Equipment",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="construct-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
+        name="explore"
+        options={{
+          title: "Explore",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="compass-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ingredients"
         options={{
-          title: "Ingrédients",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="leaf-outline" size={size} color={color} />
-          ),
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tools"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
         name="users"
         options={{
-          title: "Profils",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
     </Tabs>

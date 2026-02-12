@@ -142,9 +142,9 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
           </Card>
         ) : (
           <Card style={styles.sectionCard}>
-            {ingredients.map((item) => (
+            {ingredients.map((item, index) => (
               <Pressable
-                key={item.ingredientId}
+                key={`${item.ingredientId}-${item.timing ?? "no-timing"}-${item.amount}-${item.unit}-${index}`}
                 style={styles.listItem}
                 disabled={!item.ingredient}
                 onPress={() => {

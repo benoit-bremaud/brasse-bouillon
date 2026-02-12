@@ -80,6 +80,16 @@ export async function getRecipeDetailsViewModel(
     return null;
   }
 
+  if (
+    !dataSource.useDemoData &&
+    ((recipe.ingredients?.length ?? 0) > 0 ||
+      (recipe.equipment?.length ?? 0) > 0)
+  ) {
+    throw new Error(
+      "Ingredient and equipment catalogs are not available when useDemoData is false. Ensure the catalog API is available before calling getRecipeDetailsViewModel.",
+    );
+  }
+
   const steps = [...rawSteps].sort((a, b) => a.stepOrder - b.stepOrder);
 
   const ingredientCatalog = dataSource.useDemoData ? demoIngredients : [];

@@ -39,7 +39,7 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
       envFilePath:
         process.env.NODE_ENV === 'test'
-          ? ['.env.test', '.env.local', '.env']
+          ? ['.env.test', '.env.test.example', '.env.local', '.env']
           : ['.env.local', '.env'],
     }),
 

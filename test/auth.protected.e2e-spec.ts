@@ -7,6 +7,15 @@ import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
 import { useContainer } from 'class-validator';
 
+/**
+ * Safely narrows an unknown value to an object-like record.
+ *
+ * This helper is used in tests to read properties from HTTP response bodies
+ * while preserving strict type safety and avoiding unsafe member access.
+ *
+ * @param value - Value to narrow.
+ * @returns A record when the value is an object, otherwise `null`.
+ */
 const toRecord = (value: unknown): Record<string, unknown> | null => {
   if (typeof value !== 'object' || value === null) {
     return null;
@@ -26,6 +35,11 @@ describe('GET /auth/me (JWT protected)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    // NOTE:
+    // This e2e test intentionally does not apply global interceptors/filters/pipes
+    // configured in main.ts (including response wrapping interceptors). Assertions
+    // are therefore made against raw controller responses, consistent with the
+    // convention used in test/app.e2e-spec.ts.
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
     await app.init();
 
@@ -44,7 +58,7 @@ describe('GET /auth/me (JWT protected)', () => {
     await app.close();
   });
 
-  it('✅ should allow access with a valid token', async () => {
+  it('should allow access with a valid token', async () => {
     const suffix = Date.now().toString().slice(-6);
     const email = `protected-valid-${Date.now()}@example.com`;
     const password = 'SecurePassword123!';
@@ -80,7 +94,7 @@ describe('GET /auth/me (JWT protected)', () => {
     );
   });
 
-  it('❌ should deny access with an invalid token', async () => {
+  it('should deny access with an invalid token', async () => {
     const response = await request(app.getHttpServer())
       .get('/auth/me')
       .set('Authorization', 'Bearer invalid.token.value')
@@ -93,7 +107,7 @@ describe('GET /auth/me (JWT protected)', () => {
     );
   });
 
-  it('❌ should deny access with an expired token', async () => {
+  it('should deny access with an expired token', async () => {
     const suffix = Date.now().toString().slice(-6);
     const email = `protected-expired-${Date.now()}@example.com`;
 
@@ -130,7 +144,7 @@ describe('GET /auth/me (JWT protected)', () => {
     );
   });
 
-  it('❌ should deny access when token is missing', async () => {
+  it('should deny access when token is missing', async () => {
     const response = await request(app.getHttpServer())
       .get('/auth/me')
       .expect(401);

@@ -4,9 +4,39 @@ import {
   listSteps,
 } from "@/features/recipes/data/recipes.api";
 import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
-import { demoRecipeSteps, demoRecipes } from "@/mocks/demo-data";
+import {
+  Equipment,
+  demoEquipments,
+  demoIngredients,
+  demoRecipeSteps,
+  demoRecipes,
+} from "@/mocks/demo-data";
 
 import { dataSource } from "@/core/data/data-source";
+import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
+
+export type RecipeDetailsIngredientItem = {
+  ingredientId: string;
+  amount: number;
+  unit: string;
+  timing?: string | null;
+  notes?: string | null;
+  ingredient: Ingredient | null;
+};
+
+export type RecipeDetailsEquipmentItem = {
+  equipmentId: string;
+  role?: string | null;
+  notes?: string | null;
+  equipment: Equipment | null;
+};
+
+export type RecipeDetailsViewModel = {
+  recipe: Recipe;
+  steps: RecipeStep[];
+  ingredients: RecipeDetailsIngredientItem[];
+  equipment: RecipeDetailsEquipmentItem[];
+};
 
 export async function listRecipes(): Promise<Recipe[]> {
   return dataSource.useDemoData ? demoRecipes : listMine();
@@ -32,4 +62,61 @@ export async function listRecipeSteps(recipeId: string): Promise<RecipeStep[]> {
     return demoRecipeSteps.filter((step) => step.recipeId === recipeId);
   }
   return listSteps(recipeId);
+}
+
+export async function getRecipeDetailsViewModel(
+  recipeId: string,
+): Promise<RecipeDetailsViewModel | null> {
+  if (!recipeId) {
+    return null;
+  }
+
+  const [recipe, rawSteps] = await Promise.all([
+    getRecipeDetails(recipeId),
+    listRecipeSteps(recipeId),
+  ]);
+
+  if (!recipe) {
+    return null;
+  }
+
+  if (
+    !dataSource.useDemoData &&
+    ((recipe.ingredients?.length ?? 0) > 0 ||
+      (recipe.equipment?.length ?? 0) > 0)
+  ) {
+    throw new Error(
+      "Ingredient and equipment catalogs are not available when useDemoData is false. Ensure the catalog API is available before calling getRecipeDetailsViewModel.",
+    );
+  }
+
+  const steps = [...rawSteps].sort((a, b) => a.stepOrder - b.stepOrder);
+
+  const ingredientCatalog = dataSource.useDemoData ? demoIngredients : [];
+  const equipmentCatalog = dataSource.useDemoData ? demoEquipments : [];
+
+  const ingredients = (recipe.ingredients ?? []).map((ref) => ({
+    ingredientId: ref.ingredientId,
+    amount: ref.amount,
+    unit: ref.unit,
+    timing: ref.timing,
+    notes: ref.notes,
+    ingredient:
+      ingredientCatalog.find((item) => item.id === ref.ingredientId) ?? null,
+  }));
+
+  const equipment = (recipe.equipment ?? []).map((ref) => ({
+    equipmentId: ref.equipmentId,
+    role: ref.role,
+    notes: ref.notes,
+    equipment:
+      equipmentCatalog.find((item) => item.id === ref.equipmentId) ?? null,
+  }));
+
+  return {
+    recipe,
+    steps,
+    ingredients,
+    equipment,
+  };
 }

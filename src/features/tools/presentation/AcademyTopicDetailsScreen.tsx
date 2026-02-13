@@ -30,6 +30,8 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isHoublons = topic?.slug === "houblons";
   const isEau = topic?.slug === "eau";
   const isRendement = topic?.slug === "rendement";
+  const isLevures = topic?.slug === "levures";
+  const isCarbonatation = topic?.slug === "carbonatation";
 
   if (!topic) {
     return (
@@ -808,6 +810,326 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
             </Card>
           </>
+        ) : isLevures ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi la levure est critique
+              </Text>
+              <Text style={styles.paragraph}>
+                La levure transforme le moût sucré en alcool, CO₂ et composés
+                aromatiques. C'est elle qui fait passer une recette correcte à
+                une bière propre, expressive et stable.
+              </Text>
+              <Text style={styles.bullet}>
+                • Elle pilote FG, ABV et sensation de sécheresse
+              </Text>
+              <Text style={styles.bullet}>
+                • Elle définit le profil style (Ale fruitée vs Lager propre)
+              </Text>
+              <Text style={styles.bullet}>
+                • Une levure mal gérée = off-flavors ou fermentation bloquée
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Les 4 piliers d'une fermentation réussie
+              </Text>
+              <Text style={styles.bullet}>
+                1) Quantité (pitch rate) : assez de cellules dès le départ
+              </Text>
+              <Text style={styles.bullet}>
+                2) Viabilité : levure fraîche et active
+              </Text>
+              <Text style={styles.bullet}>
+                3) Température : plage adaptée à la souche
+              </Text>
+              <Text style={styles.bullet}>
+                4) Nutrition/oxygène : bon départ de multiplication cellulaire
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides</Text>
+              <Text style={styles.bullet}>
+                • Pitch rate Ale : ~0,75 M cellules / mL / °Plato
+              </Text>
+              <Text style={styles.bullet}>
+                • Pitch rate Lager : ~1,5 M cellules / mL / °Plato
+              </Text>
+              <Text style={styles.bullet}>
+                • Atténuation : % des sucres fermentés (impact direct sur FG)
+              </Text>
+              <Text style={styles.bullet}>
+                • Floculence : vitesse de sédimentation de la levure
+              </Text>
+              <Text style={styles.bullet}>
+                • Température = levier majeur sur esters/phénols
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Formules clés</Text>
+              <Text style={styles.formula}>
+                Cellules = Pitch rate × °Plato × Volume (mL)
+              </Text>
+              <Text style={styles.formula}>
+                FG = OG - (OG - 1) × Atténuation
+              </Text>
+              <Text style={styles.formula}>ABV ≈ (OG - FG) × 131,25</Text>
+              <Text style={styles.paragraph}>
+                Avec ces 3 formules, tu peux prévoir la dose de levure,
+                l'atterrissage de fermentation et l'alcool final attendu.
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple concret (IPA 20L)</Text>
+              <Text style={styles.bullet}>• OG 1,065 ≈ 16,25 °Plato</Text>
+              <Text style={styles.bullet}>
+                • Besoin cellules (Ale) : 0,75 × 16,25 × 20 000 ≈ 244 milliards
+              </Text>
+              <Text style={styles.bullet}>
+                • En pratique : ~2 sachets de levure sèche moderne
+              </Text>
+              <Text style={styles.bullet}>
+                • Avec atténuation 80% : FG ≈ 1,013 ; ABV ≈ 6,8%
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Choisir la levure selon le style
+              </Text>
+              <Text style={styles.bullet}>
+                • US-05 : neutre et polyvalente (IPA/Pale Ale)
+              </Text>
+              <Text style={styles.bullet}>
+                • S-04 : plus britannique, fruité léger, floculente
+              </Text>
+              <Text style={styles.bullet}>
+                • WB-06 : profil Weizen (banane/clou girofle)
+              </Text>
+              <Text style={styles.bullet}>
+                • BE-134 : Saison sèche, épicée, très atténuante
+              </Text>
+              <Text style={styles.bullet}>
+                • W-34/70 : référence Lager propre et nette
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Température et impact aromatique
+              </Text>
+              <Text style={styles.bullet}>
+                • Plus bas = profil plus propre, moins d'esters
+              </Text>
+              <Text style={styles.bullet}>
+                • Plus haut = plus fruité/épicé (selon la souche)
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop chaud = risque solvants/alcools fusel
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop froid = fermentation lente ou incomplète
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Pièges fréquents à éviter</Text>
+              <Text style={styles.bullet}>
+                • Sous-pitch : fermentation lente, FG trop haute
+              </Text>
+              <Text style={styles.bullet}>
+                • Levure trop vieille : viabilité insuffisante
+              </Text>
+              <Text style={styles.bullet}>
+                • Mauvais contrôle de température : off-flavors
+              </Text>
+              <Text style={styles.bullet}>
+                • Oxygénation insuffisante du moût avant ensemencement
+              </Text>
+              <Text style={styles.bullet}>
+                • Oublier un diacetyl rest sur certaines Lagers
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Checklist pré-pitch</Text>
+              <Text style={styles.bullet}>
+                □ Vérifier date et état de la levure
+              </Text>
+              <Text style={styles.bullet}>
+                □ Calculer les cellules nécessaires (volume + OG)
+              </Text>
+              <Text style={styles.bullet}>
+                □ Réhydrater (levure sèche) ou starter (levure liquide) si
+                besoin
+              </Text>
+              <Text style={styles.bullet}>
+                □ Oxygéner le moût puis ensemencer à la bonne température
+              </Text>
+            </Card>
+          </>
+        ) : isCarbonatation ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi la carbonatation est critique
+              </Text>
+              <Text style={styles.paragraph}>
+                La carbonatation ne sert pas qu'à faire des bulles : elle
+                influence la mousse, la perception des arômes et la sensation en
+                bouche. Une cible bien choisie renforce le style ; une cible mal
+                ajustée peut déséquilibrer toute la bière.
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop faible : bière plate, mousse fragile
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop élevée : gushing, sensation agressive
+              </Text>
+              <Text style={styles.bullet}>
+                • Bonne cible = style respecté + service plus propre
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides</Text>
+              <Text style={styles.bullet}>
+                • Volumes de CO₂ : 1 volume = 1 L de CO₂ dissous par litre de
+                bière
+              </Text>
+              <Text style={styles.bullet}>
+                • CO₂ résiduel : déjà présent après fermentation, dépend de la
+                température
+              </Text>
+              <Text style={styles.bullet}>
+                • Plus la bière est froide, plus elle retient naturellement le
+                CO₂
+              </Text>
+              <Text style={styles.bullet}>
+                • Priming : ajout de sucre avant embouteillage pour générer le
+                CO₂ manquant
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Formule de priming (glucose)
+              </Text>
+              <Text style={styles.formula}>
+                Sucre (g) ≈ (CO₂ cible - CO₂ résiduel) × Volume (L) × 4,0
+              </Text>
+              <Text style={styles.paragraph}>
+                La constante 4,0 est un repère pratique pour le glucose
+                (dextrose). Pour du sucre de table (saccharose), la quantité est
+                légèrement plus faible à objectif identique.
+              </Text>
+              <Text style={styles.formula}>
+                Saccharose (g) ≈ (CO₂ cible - CO₂ résiduel) × Volume (L) × 3,8
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                CO₂ résiduel selon température (ordre de grandeur)
+              </Text>
+              <Text style={styles.bullet}>• 0°C : ~1,7 vol</Text>
+              <Text style={styles.bullet}>• 10°C : ~1,2 vol</Text>
+              <Text style={styles.bullet}>• 20°C : ~0,85 vol</Text>
+              <Text style={styles.bullet}>
+                • Toujours prendre la température la plus haute atteinte avant
+                conditionnement
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple concret</Text>
+              <Text style={styles.bullet}>
+                • Lot : 20 L à 20°C, cible 2,4 vol de CO₂
+              </Text>
+              <Text style={styles.bullet}>
+                • CO₂ résiduel estimé : 0,85 vol
+              </Text>
+              <Text style={styles.bullet}>• ΔCO₂ = 2,4 - 0,85 = 1,55 vol</Text>
+              <Text style={styles.bullet}>
+                • Dextrose ≈ 1,55 × 20 × 4,0 ≈ 124 g
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Cibles utiles par style</Text>
+              <Text style={styles.bullet}>
+                • Bitter / Stout anglaise : ~1,8 à 2,2 vol
+              </Text>
+              <Text style={styles.bullet}>
+                • Pale Ale / IPA : ~2,2 à 2,6 vol
+              </Text>
+              <Text style={styles.bullet}>
+                • Belgian Ale / Wheat : ~2,6 à 3,2 vol
+              </Text>
+              <Text style={styles.bullet}>
+                • Saison / Weizen : ~3,0 à 4,0 vol (bouteilles adaptées
+                indispensables)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Priming bouteille vs force carbonation (fût)
+              </Text>
+              <Text style={styles.bullet}>
+                • Priming : simple, autonome, style traditionnel bouteille
+              </Text>
+              <Text style={styles.bullet}>
+                • Force carb : rapide, précis, idéal service en fût
+              </Text>
+              <Text style={styles.bullet}>
+                • En fût, pression cible dépend de la température de service
+              </Text>
+              <Text style={styles.bullet}>
+                • En bouteille, homogénéiser le sirop de sucre est essentiel
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Pièges et sécurité</Text>
+              <Text style={styles.bullet}>
+                • Embouteiller trop tôt (FG non stable) = surpression dangereuse
+              </Text>
+              <Text style={styles.bullet}>
+                • Dosage approximatif du sucre = carbonatation incohérente
+              </Text>
+              <Text style={styles.bullet}>
+                • Mauvaise homogénéisation = bouteilles sous/sur-carbonatées
+              </Text>
+              <Text style={styles.bullet}>
+                • Utiliser uniquement des bouteilles compatibles pression
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Checklist conditionnement</Text>
+              <Text style={styles.bullet}>
+                □ Vérifier la stabilité FG sur 2-3 jours
+              </Text>
+              <Text style={styles.bullet}>
+                □ Mesurer la température max atteinte avant packaging
+              </Text>
+              <Text style={styles.bullet}>
+                □ Calculer et peser précisément le sucre de priming
+              </Text>
+              <Text style={styles.bullet}>
+                □ Mélanger doucement et uniformément avant soutirage
+              </Text>
+              <Text style={styles.bullet}>
+                □ Contrôler une bouteille test après 7-10 jours
+              </Text>
+            </Card>
+          </>
         ) : (
           <>
             <Card style={styles.sectionCard}>
@@ -841,7 +1163,9 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               isCouleur ||
               isHoublons ||
               isEau ||
-              isRendement
+              isRendement ||
+              isLevures ||
+              isCarbonatation
                 ? "Accéder au futur calculateur"
                 : "Accéder au calcul"
             }

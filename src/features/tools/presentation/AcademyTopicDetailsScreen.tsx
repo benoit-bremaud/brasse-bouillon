@@ -341,17 +341,15 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               <Text style={styles.bullet}>• Pont vers calculateur dédié</Text>
             </Card>
 
-            {!(isFermentescibles || isCouleur) ? (
-              <PrimaryButton
-                label="En savoir plus"
-                onPress={() =>
-                  router.push({
-                    pathname: "/tools/[slug]/learn",
-                    params: { slug: topic.slug },
-                  })
-                }
-              />
-            ) : null}
+            <PrimaryButton
+              label="En savoir plus"
+              onPress={() =>
+                router.push({
+                  pathname: "/tools/[slug]/learn",
+                  params: { slug: topic.slug },
+                })
+              }
+            />
           </>
         )}
 

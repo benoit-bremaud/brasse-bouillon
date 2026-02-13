@@ -33,6 +33,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isLevures = topic?.slug === "levures";
   const isCarbonatation = topic?.slug === "carbonatation";
   const isAvances = topic?.slug === "avances";
+  const isGlossaire = topic?.slug === "glossaire";
 
   if (!topic) {
     return (
@@ -1317,6 +1318,155 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
               <Text style={styles.bullet}>
                 □ Appliquer correction altitude pour IBU/CO₂ si nécessaire
+              </Text>
+            </Card>
+          </>
+        ) : isGlossaire ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi un glossaire brassicole
+              </Text>
+              <Text style={styles.paragraph}>
+                En brassage, les décisions dépendent souvent d'un mot technique
+                bien compris : OG, atténuation, IBU, FAN, etc. Ce glossaire est
+                pensé comme une base de référence rapide pour fiabiliser tes
+                recettes et mieux lire les fiches techniques.
+              </Text>
+              <Text style={styles.bullet}>
+                • Objectif : parler le même langage à chaque brassin
+              </Text>
+              <Text style={styles.bullet}>
+                • Référence utile du débutant au niveau avancé
+              </Text>
+              <Text style={styles.bullet}>
+                • Complément direct des fiches Fermentescibles, Eau, Levures,
+                etc.
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Comment lire une entrée</Text>
+              <Text style={styles.bullet}>• Définition simple du terme</Text>
+              <Text style={styles.bullet}>
+                • Unité associée (si applicable)
+              </Text>
+              <Text style={styles.bullet}>
+                • Impact pratique sur ton process (empâtage, fermentation,
+                conditionnement)
+              </Text>
+              <Text style={styles.bullet}>
+                • Erreur fréquente à éviter ou confusion courante
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Familles de termes couvertes
+              </Text>
+              <Text style={styles.bullet}>
+                • Densité & alcool : OG, FG, ABV, atténuation, °Plato
+              </Text>
+              <Text style={styles.bullet}>
+                • Amertume & couleur : IBU, BU:GU, MCU, SRM, EBC
+              </Text>
+              <Text style={styles.bullet}>
+                • Eau & chimie : pH, RA, sulfates, chlorures, bicarbonates
+              </Text>
+              <Text style={styles.bullet}>
+                • Fermentation : pitch rate, floculation, diacetyl rest, FAN
+              </Text>
+              <Text style={styles.bullet}>
+                • Process avancé : WKU, Kolbach, β-glucanes, extractibilité
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                10 repères incontournables
+              </Text>
+              <Text style={styles.bullet}>
+                • OG : densité du moût avant fermentation
+              </Text>
+              <Text style={styles.bullet}>
+                • FG : densité finale après fermentation
+              </Text>
+              <Text style={styles.bullet}>
+                • ABV : pourcentage d'alcool final (% vol)
+              </Text>
+              <Text style={styles.bullet}>
+                • IBU : intensité d'amertume perçue
+              </Text>
+              <Text style={styles.bullet}>• EBC/SRM : échelles de couleur</Text>
+              <Text style={styles.bullet}>
+                • pH : acidité du milieu (clé en empâtage)
+              </Text>
+              <Text style={styles.bullet}>
+                • Atténuation : part des sucres fermentés
+              </Text>
+              <Text style={styles.bullet}>
+                • Pitch rate : dose de levure nécessaire
+              </Text>
+              <Text style={styles.bullet}>
+                • RA : capacité tampon de l'eau (impact pH)
+              </Text>
+              <Text style={styles.bullet}>
+                • Volumes CO₂ : niveau de carbonatation
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Confusions fréquentes</Text>
+              <Text style={styles.bullet}>
+                • OG/FG (mesures) vs ABV (résultat calculé)
+              </Text>
+              <Text style={styles.bullet}>
+                • EBC du malt vs EBC final de la bière
+              </Text>
+              <Text style={styles.bullet}>
+                • IBU théoriques vs amertume réellement perçue
+              </Text>
+              <Text style={styles.bullet}>
+                • SG, points et °Plato mélangés sans conversion
+              </Text>
+              <Text style={styles.bullet}>
+                • pH cible d'empâtage vs pH mesuré à chaud non corrigé
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Méthode d'apprentissage rapide
+              </Text>
+              <Text style={styles.bullet}>
+                1) Mémoriser d'abord les 10 repères incontournables
+              </Text>
+              <Text style={styles.bullet}>
+                2) Associer chaque terme à une décision concrète de brassage
+              </Text>
+              <Text style={styles.bullet}>
+                3) Noter les unités à côté de tes mesures dans ton carnet
+              </Text>
+              <Text style={styles.bullet}>
+                4) Revenir au glossaire après chaque brassin pour consolider
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Checklist de lecture technique
+              </Text>
+              <Text style={styles.bullet}>
+                □ Je comprends les unités des valeurs annoncées
+              </Text>
+              <Text style={styles.bullet}>
+                □ Je distingue bien mesures, calculs et cibles
+              </Text>
+              <Text style={styles.bullet}>
+                □ Je sais quel levier process agit sur chaque terme
+              </Text>
+              <Text style={styles.bullet}>
+                □ Je peux expliquer simplement les principaux acronymes
               </Text>
             </Card>
           </>

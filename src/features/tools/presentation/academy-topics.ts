@@ -1,5 +1,5 @@
 import { ImageSourcePropType } from "react-native";
-import mascotDefault from "../../../../assets/images/brasse-bouillon-logo-icon-64.png";
+import mascotDefault from "../../../../assets/images/icon.png";
 
 export type AcademyTopicStatus = "ready" | "coming-soon";
 export type AcademyMascotVariant =

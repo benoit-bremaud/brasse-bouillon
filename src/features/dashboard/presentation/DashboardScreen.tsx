@@ -72,6 +72,11 @@ export function DashboardScreen() {
       <ListHeader title="Dashboard" subtitle={`Welcome back, ${displayName}`} />
 
       <ScrollView contentContainerStyle={styles.content}>
+        <Card style={styles.brandCard}>
+          <Text style={styles.brandTitle}>Brasse Bouillon</Text>
+          <Text style={styles.brandSubtitle}>Your brewing workspace</Text>
+        </Card>
+
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Profile</Text>
           <Text style={styles.meta}>Email: {session?.user.email ?? "-"}</Text>
@@ -188,7 +193,7 @@ export function DashboardScreen() {
               style={styles.actionButton}
               onPress={() => router.push("/(app)/tools")}
             >
-              <Text style={styles.actionText}>Calculator</Text>
+              <Text style={styles.actionText}>Académie</Text>
             </Pressable>
             <Pressable
               style={styles.actionButton}
@@ -214,6 +219,22 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
+  },
+  brandCard: {
+    marginBottom: spacing.sm,
+    alignItems: "center",
+  },
+  brandTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  brandSubtitle: {
+    marginTop: spacing.xxs,
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
   sectionHeader: {
     flexDirection: "row",

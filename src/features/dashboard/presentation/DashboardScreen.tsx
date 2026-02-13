@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
+import { BrandLogo } from "@/core/ui/BrandLogo";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -72,6 +73,12 @@ export function DashboardScreen() {
       <ListHeader title="Dashboard" subtitle={`Welcome back, ${displayName}`} />
 
       <ScrollView contentContainerStyle={styles.content}>
+        <Card style={styles.brandCard}>
+          <BrandLogo size={64} style={styles.brandLogo} />
+          <Text style={styles.brandTitle}>Brasse Bouillon</Text>
+          <Text style={styles.brandSubtitle}>Your brewing workspace</Text>
+        </Card>
+
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Profile</Text>
           <Text style={styles.meta}>Email: {session?.user.email ?? "-"}</Text>
@@ -188,7 +195,7 @@ export function DashboardScreen() {
               style={styles.actionButton}
               onPress={() => router.push("/(app)/tools")}
             >
-              <Text style={styles.actionText}>Calculator</Text>
+              <Text style={styles.actionText}>Académie</Text>
             </Pressable>
             <Pressable
               style={styles.actionButton}
@@ -214,6 +221,25 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
+  },
+  brandCard: {
+    marginBottom: spacing.sm,
+    alignItems: "center",
+  },
+  brandLogo: {
+    marginBottom: spacing.xs,
+  },
+  brandTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  brandSubtitle: {
+    marginTop: spacing.xxs,
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
   sectionHeader: {
     flexDirection: "row",

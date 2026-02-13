@@ -57,10 +57,10 @@ export function RecipesScreen() {
         action={
           <View style={styles.headerActions}>
             <Pressable
-              onPress={() => router.push("../tools?sourceType=recipe")}
+              onPress={() => router.push("/tools")}
               style={styles.toolsButton}
             >
-              <Text style={styles.toolsText}>Calculatrice</Text>
+              <Text style={styles.toolsText}>Académie</Text>
             </Pressable>
             <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
               <Text style={styles.refreshText}>Refresh</Text>

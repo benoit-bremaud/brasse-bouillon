@@ -14,7 +14,7 @@ export function ExploreScreen() {
     <Screen>
       <ListHeader
         title="Explore"
-        subtitle="Public recipes, ingredients and brewing tools"
+        subtitle="Recettes, ingrédients et académie brassicole"
       />
 
       <Card style={styles.card}>
@@ -43,14 +43,14 @@ export function ExploreScreen() {
 
       <Card style={styles.card}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.title}>Brewing tools</Text>
+          <Text style={styles.title}>Académie brassicole</Text>
           <Pressable onPress={() => router.push("/(app)/tools")}>
             <Text style={styles.link}>Open</Text>
           </Pressable>
         </View>
         <Text style={styles.description}>
-          Use calculators (ABV, IBU, conversions) while preparing recipes or
-          batches.
+          Accède au référentiel théorique et aux futurs calculateurs par thème
+          brassicole.
         </Text>
       </Card>
     </Screen>

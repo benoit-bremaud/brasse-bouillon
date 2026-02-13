@@ -28,16 +28,12 @@ export function AcademyHubScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {academyTopics.map((topic, index) => (
+        {academyTopics.map((topic) => (
           <Card key={topic.slug} style={styles.card}>
-            <View
-              style={[
-                styles.cardTopRow,
-                index % 2 === 1 && styles.cardTopRowReversed,
-              ]}
-            >
+            <Text style={styles.cardTitle}>{topic.title}</Text>
+
+            <View style={styles.cardTopRow}>
               <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{topic.title}</Text>
                 <Text style={styles.cardDescription}>
                   {topic.shortDescription}
                 </Text>
@@ -108,9 +104,7 @@ const styles = StyleSheet.create({
   cardTopRow: {
     flexDirection: "row",
     gap: spacing.sm,
-  },
-  cardTopRowReversed: {
-    flexDirection: "row-reverse",
+    alignItems: "center",
   },
   mascot: {
     width: 72,
@@ -123,10 +117,10 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: colors.neutral.textPrimary,
-    fontSize: typography.size.body,
-    lineHeight: typography.lineHeight.body,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: typography.weight.bold,
-    marginBottom: spacing.xxs,
+    marginBottom: spacing.xs,
   },
   cardDescription: {
     color: colors.neutral.textSecondary,

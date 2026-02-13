@@ -13,31 +13,31 @@ export function ExploreScreen() {
   return (
     <Screen>
       <ListHeader
-        title="Explore"
+        title="Explorer"
         subtitle="Recettes, ingrédients et académie brassicole"
       />
 
       <Card style={styles.card}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.title}>Public recipes</Text>
+          <Text style={styles.title}>Recettes publiques</Text>
           <Pressable onPress={() => router.push("/(app)/recipes")}>
-            <Text style={styles.link}>Open</Text>
+            <Text style={styles.link}>Ouvrir</Text>
           </Pressable>
         </View>
         <Text style={styles.description}>
-          Browse and discover community recipes, then save your favorites.
+          Parcours les recettes de la communauté et enregistre tes favorites.
         </Text>
       </Card>
 
       <Card style={styles.card}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.title}>Ingredients catalog</Text>
+          <Text style={styles.title}>Catalogue ingrédients</Text>
           <Pressable onPress={() => router.push("/(app)/ingredients")}>
-            <Text style={styles.link}>Open</Text>
+            <Text style={styles.link}>Ouvrir</Text>
           </Pressable>
         </View>
         <Text style={styles.description}>
-          Access technical sheets for malts, hops and yeasts.
+          Accède aux fiches techniques des malts, houblons et levures.
         </Text>
       </Card>
 
@@ -45,7 +45,7 @@ export function ExploreScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.title}>Académie brassicole</Text>
           <Pressable onPress={() => router.push("/(app)/tools")}>
-            <Text style={styles.link}>Open</Text>
+            <Text style={styles.link}>Ouvrir</Text>
           </Pressable>
         </View>
         <Text style={styles.description}>

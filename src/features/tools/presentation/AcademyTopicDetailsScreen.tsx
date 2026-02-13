@@ -103,16 +103,18 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           }
         />
 
-        <PrimaryButton
-          label="Accéder au calcul"
-          onPress={() =>
-            router.push({
-              pathname: "/tools/[slug]/calculator",
-              params: { slug: topic.slug },
-            })
-          }
-          style={styles.secondaryButtonSpacing}
-        />
+        {topic.hasCalculator ? (
+          <PrimaryButton
+            label="Accéder au calcul"
+            onPress={() =>
+              router.push({
+                pathname: "/tools/[slug]/calculator",
+                params: { slug: topic.slug },
+              })
+            }
+            style={styles.secondaryButtonSpacing}
+          />
+        ) : null}
       </ScrollView>
     </Screen>
   );

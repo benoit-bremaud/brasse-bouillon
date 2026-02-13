@@ -29,6 +29,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isCouleur = topic?.slug === "couleur";
   const isHoublons = topic?.slug === "houblons";
   const isEau = topic?.slug === "eau";
+  const isRendement = topic?.slug === "rendement";
 
   if (!topic) {
     return (
@@ -641,6 +642,172 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
             </Card>
           </>
+        ) : isRendement ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi le rendement est critique
+              </Text>
+              <Text style={styles.paragraph}>
+                Le rendement mesure l'efficacité d'extraction des sucres du
+                malt. C'est un levier direct sur le coût matière, l'OG atteinte
+                et la reproductibilité de tes brassins.
+              </Text>
+              <Text style={styles.bullet}>
+                • Rendement faible = OG trop basse et ABV plus faible que prévu
+              </Text>
+              <Text style={styles.bullet}>
+                • +10 points de rendement = moins de malt pour même résultat
+              </Text>
+              <Text style={styles.bullet}>
+                • Un objectif réaliste amateur expert : 75-80%
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides</Text>
+              <Text style={styles.bullet}>
+                • Points de densité : (OG - 1) × 1000 (ex: 1,060 = 60 points)
+              </Text>
+              <Text style={styles.bullet}>
+                • PPG : potentiel théorique d'extraction d'un malt
+              </Text>
+              <Text style={styles.bullet}>
+                • EFM : extractibilité labo (base théorique)
+              </Text>
+              <Text style={styles.bullet}>
+                • Rendement brassin : % réel extrait vs potentiel
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Formule simple du rendement
+              </Text>
+              <Text style={styles.formula}>
+                Rendement % = (Points réels / Points théoriques) × 100
+              </Text>
+              <Text style={styles.paragraph}>
+                Les points réels viennent de la mesure OG et du volume. Les
+                points théoriques viennent du potentiel des malts (PPG/EFM).
+              </Text>
+              <Text style={styles.bullet}>
+                • Exemple : 67% = tu extrais 67% du potentiel de ta recette
+              </Text>
+              <Text style={styles.bullet}>
+                • 70-78% : zone courante sur installations amateurs bien réglées
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Calculer le malt pour une OG cible
+              </Text>
+              <Text style={styles.formula}>
+                Kg malt = (Points cible × Volume) / (Rendement × Facteur malt)
+              </Text>
+              <Text style={styles.paragraph}>
+                Le facteur malt est lié au PPG moyen du grain bill (souvent
+                autour de 3,4 à 3,7 points/kg/L à 100%).
+              </Text>
+              <Text style={styles.bullet}>
+                • Si ton rendement réel baisse, il faut augmenter la masse de
+                malt
+              </Text>
+              <Text style={styles.bullet}>
+                • Toujours baser le calcul sur ton historique, pas sur une
+                valeur idéale
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Rendements réalistes par équipement
+              </Text>
+              <Text style={styles.bullet}>
+                • BIAB : ~60-70% (optimisé jusqu'à ~72%)
+              </Text>
+              <Text style={styles.bullet}>
+                • 3 cuves amateur : ~70-78% (optimisé jusqu'à ~82%)
+              </Text>
+              <Text style={styles.bullet}>• RIMS/HERMS amateur : ~75-82%</Text>
+              <Text style={styles.bullet}>
+                • Pro artisanal : ~78-84% | industriel : ~85%+
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Où se perd le rendement ?</Text>
+              <Text style={styles.bullet}>
+                • Concassage (écarture non adaptée) : pertes importantes
+              </Text>
+              <Text style={styles.bullet}>
+                • Empâtage (pH/temperature hors cible) : enzymes moins actives
+              </Text>
+              <Text style={styles.bullet}>
+                • Filtration/rinçage : principal gisement de pertes en amateur
+              </Text>
+              <Text style={styles.bullet}>
+                • Transferts/conditionnement : pertes de volume et de sucres
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Méthode pas-à-pas pour progresser
+              </Text>
+              <Text style={styles.bullet}>
+                1) Mesurer OG et volume final à chaque brassin
+              </Text>
+              <Text style={styles.bullet}>
+                2) Calculer le rendement réel et le noter systématiquement
+              </Text>
+              <Text style={styles.bullet}>
+                3) Ajuster une seule variable à la fois (concassage, rinçage,
+                pH...)
+              </Text>
+              <Text style={styles.bullet}>
+                4) Re-mesurer pour vérifier le gain réel
+              </Text>
+              <Text style={styles.bullet}>
+                5) Recalibrer les recettes sur le rendement stabilisé
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple concret (IPA 20L)</Text>
+              <Text style={styles.paragraph}>
+                Grain bill de 5 kg, OG mesurée à 1,062 : rendement constaté
+                autour de 67% sur l'installation.
+              </Text>
+              <Text style={styles.bullet}>
+                • Objectif : atteindre 75% via concassage + rinçage
+              </Text>
+              <Text style={styles.bullet}>
+                • Gain attendu : même OG avec moins de malt à terme
+              </Text>
+              <Text style={styles.bullet}>
+                • Bénéfice : coût réduit + brassins plus prévisibles
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Pièges fréquents à éviter</Text>
+              <Text style={styles.bullet}>
+                • Utiliser un rendement “théorique” jamais vérifié
+              </Text>
+              <Text style={styles.bullet}>
+                • Changer 3 paramètres en même temps (impossible à
+                diagnostiquer)
+              </Text>
+              <Text style={styles.bullet}>
+                • Oublier la correction de température sur la densité
+              </Text>
+              <Text style={styles.bullet}>
+                • Confondre rendement extraction et rendement global packaging
+              </Text>
+            </Card>
+          </>
         ) : (
           <>
             <Card style={styles.sectionCard}>
@@ -670,7 +837,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         {topic.hasCalculator ? (
           <PrimaryButton
             label={
-              isFermentescibles || isCouleur || isHoublons || isEau
+              isFermentescibles ||
+              isCouleur ||
+              isHoublons ||
+              isEau ||
+              isRendement
                 ? "Accéder au futur calculateur"
                 : "Accéder au calcul"
             }

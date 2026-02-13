@@ -1,4 +1,3 @@
-import { colors, spacing, typography } from "@/core/theme";
 import {
   Image,
   Pressable,
@@ -7,16 +6,17 @@ import {
   Text,
   View,
 } from "react-native";
+import { colors, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { Screen } from "@/core/ui/Screen";
-import { useRouter } from "expo-router";
 import React from "react";
+import { Screen } from "@/core/ui/Screen";
 import { getAcademyTopicBySlug } from "./academy-topics";
+import { useRouter } from "expo-router";
 
 type Props = {
   slugParam?: string;
@@ -28,6 +28,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isFermentescibles = topic?.slug === "fermentescibles";
   const isCouleur = topic?.slug === "couleur";
   const isHoublons = topic?.slug === "houblons";
+  const isEau = topic?.slug === "eau";
 
   if (!topic) {
     return (
@@ -447,6 +448,199 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
             </Card>
           </>
+        ) : isEau ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi l'eau est un thème critique
+              </Text>
+              <Text style={styles.paragraph}>
+                L'eau représente la très grande majorité du volume final d'une
+                bière. C'est aussi l'un des leviers les plus puissants pour
+                piloter le pH, l'extraction des sucres et l'équilibre gustatif.
+              </Text>
+              <Text style={styles.bullet}>
+                • Un pH mal réglé peut réduire l'efficacité d'extraction
+              </Text>
+              <Text style={styles.bullet}>
+                • Les minéraux influencent directement sec/houblonné vs
+                rond/malté
+              </Text>
+              <Text style={styles.bullet}>
+                • Le profil d'eau aide à coller au style (Pilsner, IPA, Stout)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides : 6 ions</Text>
+              <Text style={styles.bullet}>
+                • Calcium (Ca²⁺) : aide le pH, la clarté et la floculation
+                levure
+              </Text>
+              <Text style={styles.bullet}>
+                • Magnésium (Mg²⁺) : nutriment levure (à garder modéré)
+              </Text>
+              <Text style={styles.bullet}>
+                • Sodium (Na⁺) : apporte rondeur à petite dose
+              </Text>
+              <Text style={styles.bullet}>
+                • Sulfates (SO₄²⁻) : accentuent sécheresse et perception de
+                l'amertume
+              </Text>
+              <Text style={styles.bullet}>
+                • Chlorures (Cl⁻) : soutiennent rondeur et expression maltée
+              </Text>
+              <Text style={styles.bullet}>
+                • Bicarbonates (HCO₃⁻) : tamponnent le pH (souvent trop élevés
+                en eau calcaire)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Le pH à chaque étape</Text>
+              <Text style={styles.paragraph}>
+                Le repère principal pendant l'empâtage reste une zone autour de
+                5,2 à 5,6. En dehors de cette zone, les enzymes travaillent
+                moins bien et la bière perd en précision.
+              </Text>
+              <Text style={styles.bullet}>
+                • Empâtage : pH cible 5,2-5,6 (zone optimale)
+              </Text>
+              <Text style={styles.bullet}>
+                • Rinçage : pH 5,5-5,8 pour limiter l'extraction de tannins
+              </Text>
+              <Text style={styles.bullet}>
+                • pH trop haut (&gt;5,8) : extraction plus faible, risque
+                d'astringence
+              </Text>
+              <Text style={styles.bullet}>
+                • pH trop bas (&lt;5,0) : acidité excessive et profil agressif
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Alcalinité résiduelle (RA) : l'indicateur clé
+              </Text>
+              <Text style={styles.paragraph}>
+                La RA résume la capacité de l'eau à résister à l'acidification
+                des malts. Plus elle est élevée, plus le pH a tendance à monter.
+              </Text>
+              <Text style={styles.formula}>
+                RA (ppm) ≈ HCO₃⁻ − (Ca²⁺ / 3,5 + Mg²⁺ / 7)
+              </Text>
+              <Text style={styles.bullet}>
+                • RA faible (−50 à +25) : adaptée aux bières pâles
+              </Text>
+              <Text style={styles.bullet}>
+                • RA moyenne (0 à +75) : profils ambrés/maltés
+              </Text>
+              <Text style={styles.bullet}>
+                • RA élevée (&gt;+100) : utile surtout pour bières très foncées
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Ratio sulfates/chlorures : sec ou rond ?
+              </Text>
+              <Text style={styles.formula}>Ratio SO₄/Cl = SO₄²⁻ / Cl⁻</Text>
+              <Text style={styles.bullet}>
+                • 0,5:1 à 1,5:1 : profil plus malté, doux et rond
+              </Text>
+              <Text style={styles.bullet}>
+                • 1,5:1 à 3:1 : compromis équilibré
+              </Text>
+              <Text style={styles.bullet}>
+                • 3:1 à 8:1 : profil plus sec, houblon mis en avant
+              </Text>
+              <Text style={styles.bullet}>
+                • Toujours vérifier aussi les valeurs absolues (pas uniquement
+                le ratio)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Cibles utiles pour débuter
+              </Text>
+              <Text style={styles.bullet}>• Calcium : 50-150 ppm</Text>
+              <Text style={styles.bullet}>• Magnésium : 10-30 ppm</Text>
+              <Text style={styles.bullet}>• Sodium : 10-75 ppm</Text>
+              <Text style={styles.bullet}>
+                • Sulfates : 50-400 ppm selon le style
+              </Text>
+              <Text style={styles.bullet}>
+                • Chlorures : 50-150 ppm selon le style
+              </Text>
+              <Text style={styles.bullet}>
+                • Bicarbonates : plutôt bas pour styles pâles, plus élevés pour
+                styles foncés
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Méthode pas-à-pas (simple et fiable)
+              </Text>
+              <Text style={styles.bullet}>
+                1) Lire ton analyse d'eau (Ca, Mg, Na, SO₄, Cl, HCO₃)
+              </Text>
+              <Text style={styles.bullet}>
+                2) Fixer une cible style (ex: IPA, Lager, Stout)
+              </Text>
+              <Text style={styles.bullet}>
+                3) Réduire d'abord les bicarbonates (dilution eau osmosée)
+              </Text>
+              <Text style={styles.bullet}>
+                4) Ajuster ensuite avec sels (gypse, CaCl₂, etc.)
+              </Text>
+              <Text style={styles.bullet}>
+                5) Contrôler le pH de maische, puis corriger finement si besoin
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple pédagogique : IPA</Text>
+              <Text style={styles.paragraph}>
+                Eau de départ très calcaire (HCO₃ élevé) : on dilue d'abord,
+                puis on remonte les ions utiles au style.
+              </Text>
+              <Text style={styles.bullet}>
+                • Étape 1 : dilution pour rapprocher HCO₃ de ~50 ppm
+              </Text>
+              <Text style={styles.bullet}>
+                • Étape 2 : gypse pour augmenter Ca et SO₄ (profil plus sec)
+              </Text>
+              <Text style={styles.bullet}>
+                • Étape 3 : CaCl₂ pour remonter Cl et garder de la rondeur
+              </Text>
+              <Text style={styles.bullet}>
+                • Cible finale type IPA : SO₄/Cl autour de 3:1 à 5:1
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Erreurs fréquentes à éviter
+              </Text>
+              <Text style={styles.bullet}>
+                • Ajuster les sels sans mesurer le pH de maische
+              </Text>
+              <Text style={styles.bullet}>
+                • Se focaliser sur le ratio SO₄/Cl sans regarder les ppm réels
+              </Text>
+              <Text style={styles.bullet}>
+                • Surdoser les sels (goût minéral, chimique ou métallique)
+              </Text>
+              <Text style={styles.bullet}>
+                • Oublier la déchloration de l'eau du robinet
+              </Text>
+              <Text style={styles.bullet}>
+                • Utiliser un pH-mètre non calibré (mesures trompeuses)
+              </Text>
+            </Card>
+          </>
         ) : (
           <>
             <Card style={styles.sectionCard}>
@@ -476,7 +670,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         {topic.hasCalculator ? (
           <PrimaryButton
             label={
-              isFermentescibles || isCouleur || isHoublons
+              isFermentescibles || isCouleur || isHoublons || isEau
                 ? "Accéder au futur calculateur"
                 : "Accéder au calcul"
             }

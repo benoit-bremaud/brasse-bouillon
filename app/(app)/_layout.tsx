@@ -1,7 +1,9 @@
+import { colors, spacing, typography } from "@/core/theme";
 import { Redirect, Tabs } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
+import { BrandLogo } from "@/core/ui/BrandLogo";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function AppLayout() {
@@ -30,6 +32,12 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: true,
+        headerTitle: () => (
+          <View style={styles.headerTitleContainer}>
+            <BrandLogo variant="icon" size={24} />
+            <Text style={styles.headerTitleText}>Brasse Bouillon</Text>
+          </View>
+        ),
       }}
     >
       <Tabs.Screen
@@ -98,3 +106,17 @@ export default function AppLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  headerTitleText: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+});

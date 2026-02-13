@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
+import { BrandLogo } from "@/core/ui/BrandLogo";
 import { Screen } from "@/core/ui/Screen";
 
 export function LoginScreen() {
@@ -30,6 +31,7 @@ export function LoginScreen() {
   return (
     <Screen>
       <View style={styles.container}>
+        <BrandLogo size={84} style={styles.logo} />
         <Text style={styles.title}>Brasse Bouillon</Text>
         <Text style={styles.subtitle}>Sign in to continue</Text>
 
@@ -78,6 +80,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+  },
+  logo: {
+    marginBottom: spacing.sm,
   },
   title: {
     fontSize: typography.size.h1,

@@ -285,11 +285,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                 • Tu obtiens MCU = 10,3 avec ta recette
               </Text>
               <Text style={styles.bullet}>
-                • SRM ≈ 1,4922 × (10,3^0,6859) ≈ 8,8
+                • SRM ≈ 1,4922 × (10,3^0,6859) ≈ 7,4
               </Text>
-              <Text style={styles.bullet}>• EBC ≈ 8,8 × 1,97 ≈ 17</Text>
+              <Text style={styles.bullet}>• EBC ≈ 7,4 × 1,97 ≈ 14,6</Text>
               <Text style={styles.bullet}>
-                • Lecture visuelle : doré soutenu / ambré clair
+                • Lecture visuelle : doré soutenu
               </Text>
             </Card>
 

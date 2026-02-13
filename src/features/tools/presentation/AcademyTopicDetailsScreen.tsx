@@ -26,6 +26,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const router = useRouter();
   const topic = getAcademyTopicBySlug(slugParam);
   const isFermentescibles = topic?.slug === "fermentescibles";
+  const isCouleur = topic?.slug === "couleur";
 
   if (!topic) {
     return (
@@ -224,6 +225,108 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
             </Card>
           </>
+        ) : isCouleur ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi la couleur est un repère clé
+              </Text>
+              <Text style={styles.paragraph}>
+                La couleur n'est pas juste esthétique : elle annonce déjà le
+                profil de la bière (légère, caramel, torréfiée) et aide à
+                vérifier que ta recette est cohérente avec le style visé.
+              </Text>
+              <Text style={styles.bullet}>
+                • Pilsner : teinte très claire, profil léger
+              </Text>
+              <Text style={styles.bullet}>
+                • IPA ambrée : plus de malts caramels
+              </Text>
+              <Text style={styles.bullet}>
+                • Stout : malts très torréfiés, teinte foncée à noire
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides</Text>
+              <Text style={styles.bullet}>
+                • MCU : unité intermédiaire calculée depuis les malts
+              </Text>
+              <Text style={styles.bullet}>
+                • SRM : échelle de couleur utilisée côté US
+              </Text>
+              <Text style={styles.bullet}>
+                • EBC : échelle de couleur utilisée en Europe
+              </Text>
+              <Text style={styles.bullet}>• Conversion : EBC ≈ SRM × 1,97</Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Calculer la couleur (méthode Morey)
+              </Text>
+              <Text style={styles.paragraph}>
+                La méthode la plus utilisée en brassage amateur est : calcul
+                MCU, puis conversion en SRM avec Morey, puis conversion en EBC.
+              </Text>
+              <Text style={styles.formula}>SRM = 1,4922 × (MCU ^ 0,6859)</Text>
+              <Text style={styles.formula}>EBC ≈ SRM × 1,97</Text>
+              <Text style={styles.paragraph}>
+                La constante 1,4922 et l'exposant 0,6859 viennent d'un
+                ajustement empirique : ils reflètent la façon non linéaire dont
+                on perçoit la couleur. Le facteur 1,97 sert à passer de SRM vers
+                EBC.
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple simple</Text>
+              <Text style={styles.bullet}>
+                • Tu obtiens MCU = 10,3 avec ta recette
+              </Text>
+              <Text style={styles.bullet}>
+                • SRM ≈ 1,4922 × (10,3^0,6859) ≈ 7,4
+              </Text>
+              <Text style={styles.bullet}>• EBC ≈ 7,4 × 1,97 ≈ 14,6</Text>
+              <Text style={styles.bullet}>
+                • Lecture visuelle : doré soutenu
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Plages utiles pour se situer
+              </Text>
+              <Text style={styles.bullet}>
+                • 4-8 EBC : paille à doré très clair
+              </Text>
+              <Text style={styles.bullet}>
+                • 12-20 EBC : doré intense à ambré
+              </Text>
+              <Text style={styles.bullet}>
+                • 28-40 EBC : cuivre à brun clair
+              </Text>
+              <Text style={styles.bullet}>• 60+ EBC : brun foncé à noir</Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Erreurs fréquentes à éviter
+              </Text>
+              <Text style={styles.bullet}>
+                • Confondre EBC du malt et EBC final de la bière
+              </Text>
+              <Text style={styles.bullet}>
+                • Oublier l'impact du volume final sur la couleur perçue
+              </Text>
+              <Text style={styles.bullet}>
+                • Croire que MCU = SRM (la relation n'est pas linéaire)
+              </Text>
+              <Text style={styles.bullet}>
+                • Surdoser les malts torréfiés (couleur ok, goût trop agressif)
+              </Text>
+            </Card>
+          </>
         ) : (
           <>
             <Card style={styles.sectionCard}>
@@ -253,7 +356,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         {topic.hasCalculator ? (
           <PrimaryButton
             label={
-              isFermentescibles
+              isFermentescibles || isCouleur
                 ? "Accéder au futur calculateur"
                 : "Accéder au calcul"
             }

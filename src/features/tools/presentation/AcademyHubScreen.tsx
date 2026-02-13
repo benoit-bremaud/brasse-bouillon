@@ -1,12 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -30,32 +23,25 @@ export function AcademyHubScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {academyTopics.map((topic) => (
           <Card key={topic.slug} style={styles.card}>
-            <Text style={styles.cardTitle}>{topic.title}</Text>
-
-            <View style={styles.cardTopRow}>
-              <View style={styles.cardBody}>
-                <Text style={styles.cardDescription}>
-                  {topic.shortDescription}
-                </Text>
-
-                <View style={styles.badgesRow}>
-                  <Badge label={topic.focus} />
-                  <Badge label={topic.estimatedReadTime} />
-                  <Badge
-                    label={
-                      topic.status === "ready" ? "Prêt" : "Bientôt disponible"
-                    }
-                    variant={topic.status === "ready" ? "success" : "neutral"}
-                  />
-                </View>
-              </View>
-
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{topic.title}</Text>
               <Image
                 source={topic.mascotImage}
                 style={styles.mascot}
                 resizeMode="cover"
                 accessibilityRole="image"
                 accessibilityLabel={topic.mascotAlt}
+              />
+            </View>
+
+            <Text style={styles.cardDescription}>{topic.shortDescription}</Text>
+
+            <View style={styles.badgesRow}>
+              <Badge label={topic.focus} />
+              <Badge label={topic.estimatedReadTime} />
+              <Badge
+                label={topic.status === "ready" ? "Prêt" : "Bientôt disponible"}
+                variant={topic.status === "ready" ? "success" : "neutral"}
               />
             </View>
 
@@ -70,22 +56,6 @@ export function AcademyHubScreen() {
                 }
                 style={styles.primaryAction}
               />
-
-              {topic.hasCalculator ? (
-                <Pressable
-                  onPress={() =>
-                    router.push({
-                      pathname: "/tools/[slug]/calculator",
-                      params: { slug: topic.slug },
-                    })
-                  }
-                  style={styles.secondaryAction}
-                >
-                  <Text style={styles.secondaryActionLabel}>
-                    Accéder au calcul
-                  </Text>
-                </Pressable>
-              ) : null}
             </View>
           </Card>
         ))}
@@ -101,31 +71,33 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.sm,
   },
-  cardTopRow: {
+  cardHeader: {
     flexDirection: "row",
     gap: spacing.sm,
-    alignItems: "center",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
   },
   mascot: {
     width: 72,
     height: 72,
     borderRadius: radius.md,
     backgroundColor: colors.semantic.info,
-  },
-  cardBody: {
-    flex: 1,
+    marginTop: spacing.xxs,
   },
   cardTitle: {
     color: colors.neutral.textPrimary,
     fontSize: 18,
     lineHeight: 24,
     fontWeight: typography.weight.bold,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
+    flex: 1,
+    paddingRight: spacing.xs,
   },
   cardDescription: {
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xs,
   },
   badgesRow: {
     marginTop: spacing.xs,
@@ -139,20 +111,5 @@ const styles = StyleSheet.create({
   },
   primaryAction: {
     width: "100%",
-  },
-  secondaryAction: {
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    alignItems: "center",
-    backgroundColor: colors.neutral.white,
-  },
-  secondaryActionLabel: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.label,
-    lineHeight: typography.lineHeight.label,
-    fontWeight: typography.weight.medium,
   },
 });

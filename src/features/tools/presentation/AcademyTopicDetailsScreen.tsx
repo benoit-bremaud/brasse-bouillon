@@ -27,6 +27,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const topic = getAcademyTopicBySlug(slugParam);
   const isFermentescibles = topic?.slug === "fermentescibles";
   const isCouleur = topic?.slug === "couleur";
+  const isHoublons = topic?.slug === "houblons";
 
   if (!topic) {
     return (
@@ -327,6 +328,125 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               </Text>
             </Card>
           </>
+        ) : isHoublons ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi les houblons sont un repère clé
+              </Text>
+              <Text style={styles.paragraph}>
+                Le houblon structure l'équilibre entre douceur du malt et
+                amertume. Bien dosé, il apporte aussi la signature aromatique
+                (agrumes, floral, résine, tropical) du style que tu vises.
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop peu d'IBU : bière plate ou trop sucrée
+              </Text>
+              <Text style={styles.bullet}>
+                • Trop d'IBU : amertume agressive et déséquilibre
+              </Text>
+              <Text style={styles.bullet}>
+                • Timing des ajouts = impact direct sur amer, saveur et arôme
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Repères rapides</Text>
+              <Text style={styles.bullet}>
+                • IBU : intensité d'amertume (1 IBU = 1 mg/L d'iso-alpha-acides)
+              </Text>
+              <Text style={styles.bullet}>
+                • %AA : pourcentage d'acides alpha du houblon (pouvoir
+                amérisant)
+              </Text>
+              <Text style={styles.bullet}>
+                • Utilisation : rendement réel selon temps d'ébullition
+              </Text>
+              <Text style={styles.bullet}>
+                • BU:GU : ratio amer/sucré pour juger l'équilibre global
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Calculer l'IBU (Tinseth)</Text>
+              <Text style={styles.paragraph}>
+                En pratique, la méthode Tinseth est la référence en brassage
+                amateur pour estimer l'amertume avant brassin.
+              </Text>
+              <Text style={styles.formula}>
+                IBU = (AA% × g × U × 10) / (Volume L × G)
+              </Text>
+              <Text style={styles.paragraph}>
+                U dépend surtout du temps d'ébullition (plus c'est long, plus
+                l'amertume monte), et G corrige l'effet de densité du moût (OG
+                élevée = extraction un peu moins efficace).
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Exemple simple</Text>
+              <Text style={styles.bullet}>
+                • Recette : 20 L, OG 1,065, Cascade 6% AA
+              </Text>
+              <Text style={styles.bullet}>• Ajout : 30 g à 60 min</Text>
+              <Text style={styles.bullet}>
+                • Avec U corrigé ≈ 0,26 → IBU ≈ 23,4
+              </Text>
+              <Text style={styles.bullet}>
+                • Lecture : amertume modérée, base IPA légère ou Pale Ale
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Piloter l'équilibre (BU:GU)
+              </Text>
+              <Text style={styles.formula}>
+                BU:GU = IBU / ((OG - 1) × 1000)
+              </Text>
+              <Text style={styles.bullet}>
+                • Exemple : OG 1,065 (65 GU) et 60 IBU → BU:GU ≈ 0,92
+              </Text>
+              <Text style={styles.bullet}>
+                • 0,6-0,8 : équilibré | 0,8-1,0 : bien houblonné | 1,0+ : très
+                amer
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Plages utiles par style</Text>
+              <Text style={styles.bullet}>
+                • 15-25 IBU : Blonde, Kölsch, bières légères
+              </Text>
+              <Text style={styles.bullet}>
+                • 30-45 IBU : Pilsner, Pale Ale, bières équilibrées
+              </Text>
+              <Text style={styles.bullet}>
+                • 45-70 IBU : IPA classiques, amertume prononcée
+              </Text>
+              <Text style={styles.bullet}>
+                • 70+ IBU : Double/Imperial IPA (intense)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Erreurs fréquentes à éviter
+              </Text>
+              <Text style={styles.bullet}>
+                • Oublier que le whirlpool chaud (80-90°C) ajoute des IBU
+              </Text>
+              <Text style={styles.bullet}>
+                • Ignorer la correction liée à l'OG sur les bières fortes
+              </Text>
+              <Text style={styles.bullet}>
+                • Confondre dry hop (arôme) et ajout amérisant (IBU)
+              </Text>
+              <Text style={styles.bullet}>
+                • Mélanger plusieurs formules sans cohérence (Tinseth/Rager)
+              </Text>
+            </Card>
+          </>
         ) : (
           <>
             <Card style={styles.sectionCard}>
@@ -356,7 +476,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         {topic.hasCalculator ? (
           <PrimaryButton
             label={
-              isFermentescibles || isCouleur
+              isFermentescibles || isCouleur || isHoublons
                 ? "Accéder au futur calculateur"
                 : "Accéder au calcul"
             }

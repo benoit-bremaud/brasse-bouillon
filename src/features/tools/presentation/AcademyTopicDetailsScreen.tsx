@@ -34,6 +34,10 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isCarbonatation = topic?.slug === "carbonatation";
   const isAvances = topic?.slug === "avances";
   const isGlossaire = topic?.slug === "glossaire";
+  const calculatorLabel =
+    topic?.status === "ready"
+      ? "Accéder au calcul"
+      : "Accéder au futur calculateur";
 
   if (!topic) {
     return (
@@ -746,7 +750,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                 • Concassage (écarture non adaptée) : pertes importantes
               </Text>
               <Text style={styles.bullet}>
-                • Empâtage (pH/temperature hors cible) : enzymes moins actives
+                • Empâtage (pH/température hors cible) : enzymes moins actives
               </Text>
               <Text style={styles.bullet}>
                 • Filtration/rinçage : principal gisement de pertes en amateur
@@ -864,7 +868,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                 • Atténuation : % des sucres fermentés (impact direct sur FG)
               </Text>
               <Text style={styles.bullet}>
-                • Floculence : vitesse de sédimentation de la levure
+                • Floculation : vitesse de sédimentation de la levure
               </Text>
               <Text style={styles.bullet}>
                 • Température = levier majeur sur esters/phénols
@@ -1498,18 +1502,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
 
         {topic.hasCalculator ? (
           <PrimaryButton
-            label={
-              isFermentescibles ||
-              isCouleur ||
-              isHoublons ||
-              isEau ||
-              isRendement ||
-              isLevures ||
-              isCarbonatation ||
-              isAvances
-                ? "Accéder au futur calculateur"
-                : "Accéder au calcul"
-            }
+            label={calculatorLabel}
             onPress={() =>
               router.push({
                 pathname: "/tools/[slug]/calculator",

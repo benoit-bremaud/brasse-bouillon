@@ -25,6 +25,7 @@ type Props = {
 export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const router = useRouter();
   const topic = getAcademyTopicBySlug(slugParam);
+  const isIntroduction = topic?.slug === "introduction";
   const isFermentescibles = topic?.slug === "fermentescibles";
   const isCouleur = topic?.slug === "couleur";
   const isHoublons = topic?.slug === "houblons";
@@ -96,7 +97,125 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           </View>
         </Card>
 
-        {isFermentescibles ? (
+        {isIntroduction ? (
+          <>
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Pourquoi commencer par l'introduction
+              </Text>
+              <Text style={styles.paragraph}>
+                Cette fiche te donne la carte d'ensemble du brassage : les
+                ingrédients, les étapes clés et les indicateurs à suivre.
+                L'objectif est d'avoir une base solide avant d'entrer dans les
+                chapitres techniques.
+              </Text>
+              <Text style={styles.bullet}>
+                • Comprendre la logique globale avant d'optimiser les détails
+              </Text>
+              <Text style={styles.bullet}>
+                • Éviter les erreurs de débutant liées au process
+              </Text>
+              <Text style={styles.bullet}>
+                • Construire des recettes plus cohérentes dès les premiers
+                brassins
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Les 4 ingrédients fondamentaux
+              </Text>
+              <Text style={styles.bullet}>
+                • Eau : base du volume et levier majeur sur pH et profil
+                gustatif
+              </Text>
+              <Text style={styles.bullet}>
+                • Malt : apporte sucres fermentescibles, couleur et structure
+              </Text>
+              <Text style={styles.bullet}>
+                • Houblon : équilibre l'amertume et construit l'aromatique
+              </Text>
+              <Text style={styles.bullet}>
+                • Levure : transforme les sucres en alcool et CO₂
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Vue d'ensemble du process</Text>
+              <Text style={styles.bullet}>
+                1) Empâtage : conversion de l'amidon en sucres fermentescibles
+              </Text>
+              <Text style={styles.bullet}>
+                2) Filtration / rinçage : extraction des sucres du grain bill
+              </Text>
+              <Text style={styles.bullet}>
+                3) Ébullition : stérilisation + ajouts de houblon
+              </Text>
+              <Text style={styles.bullet}>
+                4) Refroidissement puis ensemencement de la levure
+              </Text>
+              <Text style={styles.bullet}>
+                5) Fermentation et conditionnement (bouteille ou fût)
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Repères à suivre sur chaque brassin
+              </Text>
+              <Text style={styles.bullet}>
+                • OG / FG : indicateurs de fermentation et d'alcool final
+              </Text>
+              <Text style={styles.bullet}>
+                • ABV : estimation du taux d'alcool
+              </Text>
+              <Text style={styles.bullet}>
+                • IBU / EBC : équilibre amertume et couleur
+              </Text>
+              <Text style={styles.bullet}>
+                • pH d'empâtage : clé d'une bonne extraction
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Hygiène : règle non négociable
+              </Text>
+              <Text style={styles.paragraph}>
+                Tout ce qui touche le moût refroidi ou la bière doit être
+                nettoyé puis désinfecté. Une contamination peut ruiner un
+                brassin même avec une recette parfaitement calculée.
+              </Text>
+              <Text style={styles.bullet}>
+                • Nettoyer d'abord, désinfecter ensuite
+              </Text>
+              <Text style={styles.bullet}>
+                • Limiter les manipulations après refroidissement
+              </Text>
+              <Text style={styles.bullet}>
+                • Privilégier la régularité et la traçabilité dans ton carnet
+              </Text>
+            </Card>
+
+            <Card style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>
+                Par où continuer ensuite ?
+              </Text>
+              <Text style={styles.bullet}>
+                • Fermentescibles : pour maîtriser OG, FG et ABV
+              </Text>
+              <Text style={styles.bullet}>
+                • Eau : pour stabiliser pH et profil minéral
+              </Text>
+              <Text style={styles.bullet}>
+                • Levures : pour fiabiliser la fermentation
+              </Text>
+              <Text style={styles.bullet}>
+                • Glossaire : pour sécuriser le vocabulaire technique
+              </Text>
+            </Card>
+          </>
+        ) : isFermentescibles ? (
           <>
             <Card style={styles.sectionCard}>
               <Text style={styles.sectionTitle}>

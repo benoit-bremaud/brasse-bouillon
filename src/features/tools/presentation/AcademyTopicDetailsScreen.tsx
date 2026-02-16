@@ -1,3 +1,4 @@
+import { colors, spacing, typography } from "@/core/theme";
 import {
   Image,
   Pressable,
@@ -6,17 +7,16 @@ import {
   Text,
   View,
 } from "react-native";
-import { colors, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import React from "react";
 import { Screen } from "@/core/ui/Screen";
-import { getAcademyTopicBySlug } from "./academy-topics";
 import { useRouter } from "expo-router";
+import React from "react";
+import { getAcademyTopicBySlug } from "./academy-topics";
 
 type Props = {
   slugParam?: string;
@@ -877,7 +877,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                 Cellules = Pitch rate × °Plato × Volume (mL)
               </Text>
               <Text style={styles.formula}>
-                FG = OG - (OG - 1) × Atténuation
+                FG = OG - (OG - 1) × (Atténuation / 100)
               </Text>
               <Text style={styles.formula}>ABV ≈ (OG - FG) × 131,25</Text>
               <Text style={styles.paragraph}>

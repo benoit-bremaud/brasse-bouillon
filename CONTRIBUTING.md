@@ -1,32 +1,32 @@
-# 🧭 Contribuer au website Brasse-Bouillon
+# 🧭 Contributing to the Brasse-Bouillon Website
 
-Merci pour votre contribution.
+Thank you for your contribution.
 
-Ce document décrit le workflow Git, les conventions de branches/commits et les règles de qualité applicables au site vitrine.
+This document describes the Git workflow, branch/commit conventions, and quality rules for the public website.
 
 ---
 
-## 🌱 Branches et flux de travail
+## 🌱 Branches and workflow
 
-| Branche | Rôle |
+| Branch | Role |
 |---|---|
-| `main` | Production (déploiement GitHub Pages) |
-| `develop` | Intégration continue |
-| `feature/*` | Évolutions fonctionnelles |
-| `docs/*` | Documentation et gouvernance |
-| `bugfix/*` | Correctifs ciblés |
+| `main` | Production (GitHub Pages deployment) |
+| `develop` | Continuous integration |
+| `feature/*` | Feature work |
+| `docs/*` | Documentation and governance |
+| `bugfix/*` | Targeted fixes |
 
-Règles :
-1. Ne pas pousser directement sur `main`.
-2. Ouvrir une PR vers `develop`.
-3. Lier la PR à son issue (ex: `Refs #52`).
-4. Attendre les checks CI verts avant merge.
+Rules:
+1. Do not push directly to `main`.
+2. Open a PR to `develop`.
+3. Link the PR to its issue (example: `Refs #52`).
+4. Wait for green CI checks before merge.
 
 ---
 
-## 🔠 Nommage des branches
+## 🔠 Branch naming
 
-Utiliser `kebab-case` sans accents :
+Use `kebab-case`:
 
 - `feature/epic-c-website-ci-cd`
 - `docs/epic-d-governance`
@@ -34,32 +34,32 @@ Utiliser `kebab-case` sans accents :
 
 ---
 
-## ✍️ Convention de commits (Conventional Commits)
+## ✍️ Commit convention (Conventional Commits)
 
-Format :
+Format:
 
 ```text
-type(scope): résumé impératif
+type(scope): imperative summary
 ```
 
-Exemples :
+Examples:
 
 - `feat(ci): add website pipeline with quality gates`
 - `docs(governance): align readme and contribution guide`
 - `fix(a11y): restore aria-current on language switch`
 
-Types recommandés : `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
+Recommended types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
 
 ---
 
 ## ✅ Quality gates
 
-La CI vérifie notamment :
-- présence des fichiers critiques,
-- structure HTML minimale FR/EN,
-- absence de marqueurs de conflit.
+CI checks include:
+- critical files presence,
+- minimal FR/EN HTML structure,
+- no conflict markers.
 
-Localement :
+Local commands:
 
 ```bash
 python3 scripts/quality_gate.py
@@ -68,13 +68,13 @@ python3 -m py_compile scripts/quality_gate.py
 
 ---
 
-## 🧾 Bonnes pratiques PR
+## 🧾 PR best practices
 
-Chaque PR doit inclure :
-- contexte,
-- changements livrés,
-- validations effectuées,
+Each PR should include:
+- context,
+- delivered changes,
+- validations performed,
 - impact,
-- lien vers l’issue.
+- linked issue.
 
-Garder un Markdown clair, lisible, orienté revue.
+Keep Markdown clear, readable, and review-oriented.

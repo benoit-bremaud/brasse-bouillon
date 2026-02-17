@@ -1,6 +1,6 @@
 # Brasse-Bouillon – Feuille de Route Stratégique
 
-*Version : 1.0 – Dernière mise à jour : 16 mai 2025*
+*Version : 1.2 – Dernière mise à jour : 17 février 2026*
 
 ---
 
@@ -32,17 +32,22 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 ### Phase 4 — Développement du MVP
 
-* Implémentation de l’authentification
-* Fonctionnalités CRUD pour la gestion des recettes
-* Calculs automatiques des valeurs IBU et ABV
-* Développement de l’API et configuration de la base de données distante
+**Statut : terminé**
+
+* Authentification/JWT et base API sécurisée
+* CRUD recettes + persistance des étapes de brassage
+* Module brassins (workflow, persistance et endpoints API)
+* Calculateur de brassage v1 (IBU/ABV/conversions)
 
 ### Phase 5 — Mise en ligne du site vitrine
 
+**Statut : en cours (consolidation produit + visibilité publique)**
+
 * Publication du site : [brasse-bouillon.com](https://brasse-bouillon.com)
-* Intégration d’une feuille de route interactive
-* Lancement du journal de développement
+* Intégration d’une feuille de route interactive FR/EN
+* Synchronisation du journal de développement avec les livraisons produit
 * Mise en place d’une FAQ et d’une recette en vedette
+* Intégration des avancées backend/frontend récentes (rappels de fermentation, navigation ingrédients, Académie brassicole)
 
 ### Phase 6 — Tests bêta et animation communautaire
 
@@ -76,6 +81,27 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 ---
 
+## ✅ Actions réalisées (Done) — Historique traçable
+
+Source : PR fusionnées sur `main` des dépôts frontend/backend + PR website de synchronisation.
+
+| Date       | Domaine  | Action réalisée (synthèse) | Références |
+| ---------- | -------- | -------------------------- | ---------- |
+| 2026-02-17 | Website  | Synchronisation roadmap FR/EN + documentation avec les merges frontend/backend | [website PR #58](https://github.com/benoit-bremaud/brasse-bouillon-website/pull/58), [commit 66c169c](https://github.com/benoit-bremaud/brasse-bouillon-website/commit/66c169c34463b9495af60de8b2922c30223ea6e9) |
+| 2026-02-13 | Frontend | Refonte de l’Académie brassicole (hub + fiches Fermentescibles/Couleur/Houblons) | [frontend PR #19](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/19), [#20](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/20), [#21](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/21), [#22](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/22) |
+| 2026-02-12 | Frontend | Détail recette enrichi + correction navigation catégories ingrédients et libellés EN | [frontend PR #18](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/18), [#17](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/17) |
+| 2026-02-11 | Frontend | Calculateur de brassage v1 (IBU/ABV/conversions) | [frontend PR #16](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/16) |
+| 2026-02-10 | Frontend | Renforcement de la timeline des brassins sur petits écrans | [frontend PR #12](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/12) |
+| 2026-02-06 | Backend  | Module brassins : workflow, service, persistance et endpoints API | [backend PR #17](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/17), [#19](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/19), [#21](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/21), [#23](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/23) |
+| 2026-02-06 | Backend  | API rappels de fermentation | [backend PR #24](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/24) |
+| 2026-02-11 | Backend  | Durcissement sécurité (audit dépendances, auth/JWT, tests d’intégration) | [backend PR #27](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/27), [#28](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/28), [#29](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/29), [#9](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/9) |
+
+### Notes de filtrage éditorial
+
+Les éléments purement CI/CD, workflow, gouvernance interne, ou maintenance sans impact visible utilisateur ne sont pas détaillés dans le tableau ci-dessus.
+
+---
+
 ## Fréquence de publication recommandée
 
 | Fréquence    | Type de contenu                              |
@@ -100,6 +126,8 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 | Version | Date       | Modifications                |
 | ------- | ---------- | ---------------------------- |
+| 1.2     | 17/02/2026 | Ajout d’une section Done traçable avec références PR/commit |
+| 1.1     | 17/02/2026 | Mise à jour roadmap selon PR frontend/backend fusionnées sur main |
 | 1.0     | 16/05/2025 | Version initiale du document |
 
 ---

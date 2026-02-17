@@ -493,18 +493,19 @@
                     <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapEn('done', this)">Done</button>
                 </div>
                 <div id="roadmapTrackEn" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingEn"></div>
+                <p class="badge">Detailed history of completed actions: <a href="docs/ROADMAP.md" target="_blank" rel="noopener noreferrer">roadmap “Done” section</a>.</p>
             </section>
 
             <section>
                 <h2>🧪 Development log</h2>
                 <div class="section-grid">
                     <div class="mini-card">
-                        <h3>February 2026</h3>
-                        FR/EN visual refresh, backlog cleanup, and a clearer execution baseline.
+                        <h3>February 2026 · Product</h3>
+                        Brewing calculator v1 (IBU/ABV/conversions), richer recipe detail view, and batch timeline hardening for small screens.
                     </div>
                     <div class="mini-card">
-                        <h3>What’s coming</h3>
-                        Regular progress notes (features, UX decisions, and user feedback).
+                        <h3>February 2026 · Platform</h3>
+                        Batch API (workflow + persistence + endpoints), fermentation reminders, and ongoing hardening (JWT/auth tests + security audit).
                     </div>
                 </div>
             </section>
@@ -577,8 +578,8 @@
       { phase: 1, title: "Ideation & positioning", state: "done", points: ["MVP definition", "User survey", "Founding manifesto"] },
       { phase: 2, title: "Communication channels analysis", state: "done", points: ["Target audiences", "Editorial strategy", "Public summary"] },
       { phase: 3, title: "Design & preparation", state: "done", points: ["UI/UX mockups", "Technical architecture", "Visual roadmap"] },
-      { phase: 4, title: "MVP development", state: "current", points: ["Auth", "Recipe management", "IBU/ABV calculations", "API + DB"] },
-      { phase: 5, title: "Public website", state: "current", points: ["Interactive roadmap", "Devlog", "FAQ", "Featured recipe"] },
+      { phase: 4, title: "MVP development", state: "done", points: ["Auth/JWT + secure API baseline", "Recipe CRUD + persisted recipe steps", "Batch module (workflow + persistence + endpoints)", "Brewing calculator v1 (IBU/ABV/conversions)"] },
+      { phase: 5, title: "Product consolidation & public website", state: "current", points: ["Fermentation reminders (service + API)", "Recipe detail revamp + ingredient navigation fixes", "Brewing Academy (hub + Fermentables/Color/Hops guides)", "Roadmap and devlog kept in sync"] },
       { phase: 6, title: "Beta tests & community", state: "next", points: ["Public beta", "Feedback loop", "Community space"] },
       { phase: 7, title: "Official launch", state: "next", points: ["App stores", "Public demo", "Multi-channel communication"] },
       { phase: 8, title: "Documentation & ecosystem", state: "next", points: ["Brew sheets", "Glossary", "Recipe sharing space"] },

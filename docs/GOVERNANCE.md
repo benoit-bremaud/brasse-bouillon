@@ -1,65 +1,72 @@
-# Gouvernance repository — Brasse-Bouillon Website
+# Repository Governance — Brasse-Bouillon Website
 
-Ce document formalise la gouvernance opérationnelle du repo website.
-
----
-
-## 1) Source de vérité backlog
-
-- Les epics/issues GitHub font foi.
-- L’ordre de traitement suit l’ordre de priorité défini dans les issues ouvertes.
-- Une issue est clôturée uniquement après merge de la PR associée.
+This document defines the operational governance of the website repository.
 
 ---
 
-## 2) Cycle standard issue → branche → PR → merge
+## 1) Backlog source of truth
 
-1. Créer une branche dédiée (`feature/*`, `docs/*`, `bugfix/*`).
-2. Implémenter le périmètre de l’issue uniquement.
-3. Committer avec Conventional Commits.
-4. Push + ouverture PR vers `develop`.
-5. Vérifier CI verte + retours review pertinents.
-6. Merge PR vers `develop`.
-7. Commenter puis fermer l’issue avec traçabilité (numéro PR + merge commit).
-
-## 2bis) Promotion `develop` → `main` et déploiement GitHub Pages
-
-1. `develop` est la branche d’intégration continue ; `main` est la branche de production déployée par GitHub Pages.
-2. À la fin d’une epic (ou lorsqu’un incrément est prêt), ouvrir une PR de release de `develop` vers `main`.
-3. Vérifier que la CI est verte sur la PR de release.
-4. Faire relire et approuver la PR de release selon les mêmes règles que les PR vers `develop`.
-5. Merger la PR de release vers `main` avec une stratégie de merge explicite (merge commit recommandé pour la traçabilité).
-6. Lier la PR de release aux issues/epics concernées pour assurer la traçabilité `issue` → `PR develop` → `PR main`.
-7. Le déploiement GitHub Pages est déclenché automatiquement sur push vers `main`; vérifier ensuite que la production est à jour.
+- GitHub epics/issues are the source of truth.
+- Processing order follows the priority defined in open issues.
+- An issue is closed only after the related PR is merged.
 
 ---
 
-## 3) Politique de qualité
+## 2) Standard issue → branch → PR → merge cycle
 
-- Les checks CI doivent être verts avant merge.
-- Aucun marqueur de conflit ne doit subsister.
-- Les changements docs doivent rester cohérents avec la structure réelle du repo.
+1. Create a dedicated branch (`feature/*`, `docs/*`, `bugfix/*`).
+2. Implement only the issue scope.
+3. Commit using Conventional Commits.
+4. Push and open a PR to `develop`.
+5. Ensure green CI and address relevant review feedback.
+6. Merge PR into `develop`.
+7. Comment and close the issue with traceability (PR number + merge commit).
+
+## 2bis) `develop` → `main` promotion and GitHub Pages deployment
+
+1. `develop` is the integration branch; `main` is the production branch deployed by GitHub Pages.
+2. At the end of an epic (or when an increment is ready), open a release PR from `develop` to `main`.
+3. Ensure CI is green on the release PR.
+4. Review and approve the release PR with the same standards as PRs to `develop`.
+5. Merge the release PR into `main` with an explicit merge strategy (merge commit recommended for traceability).
+6. Link the release PR to related issues/epics to preserve traceability `issue` → `PR develop` → `PR main`.
+7. GitHub Pages deployment is triggered automatically on push to `main`; then verify production is up to date.
 
 ---
 
-## 4) Politique de documentation
+## 3) Quality policy
 
-À maintenir à jour en priorité :
+- CI checks must be green before merge.
+- No conflict markers should remain.
+- Documentation changes must stay consistent with the actual repository structure.
+
+---
+
+## 4) Documentation policy
+
+High-priority files to keep up to date:
 - `README.md`
 - `CONTRIBUTING.md`
 - `docs/ROADMAP.md`
 - `docs/GOVERNANCE.md`
 
-Critère d’acceptation : pas de référence à des fichiers inexistants ni à des workflows obsolètes.
+Acceptance criterion: no references to non-existent files or obsolete workflows.
+
+### Language policy (GitHub-facing content)
+
+- All GitHub-facing repository content must be written in English:
+  - documentation files,
+  - PR titles and PR descriptions,
+  - issue titles and issue descriptions.
 
 ---
 
-## 5) Runbook de fin d’epic
+## 5) End-of-epic runbook
 
-Après merge :
-1. Vérifier que la PR est bien en état `MERGED`.
-2. Commenter l’issue avec le lien PR et le merge commit.
-3. Fermer l’issue.
-4. Nettoyer la branche locale et distante.
-5. Revenir sur `develop` à jour.
-6. Confirmer l’issue suivante à traiter.
+After merge:
+1. Confirm the PR status is `MERGED`.
+2. Comment on the issue with the PR link and merge commit.
+3. Close the issue.
+4. Clean local and remote branches.
+5. Return to an up-to-date `develop`.
+6. Confirm the next issue to work on.

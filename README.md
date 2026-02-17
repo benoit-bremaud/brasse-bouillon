@@ -1,61 +1,61 @@
 # Brasse-Bouillon Website
 
-Site vitrine officiel du projet **Brasse-Bouillon**.
+Official website repository for the **Brasse-Bouillon** project.
 
-Ce repository contient une landing page statique bilingue (FR/EN) et sa chaîne CI/CD (quality gates + déploiement GitHub Pages).
+This repository contains a bilingual static landing page (FR/EN) and its CI/CD pipeline (quality gates + GitHub Pages deployment).
 
 ---
 
-## 🎯 Objectif
+## 🎯 Goal
 
-Le site présente :
-- la proposition de valeur du projet,
-- la roadmap publique,
-- les entrées de contact (questionnaire + email).
+The website presents:
+- the project value proposition,
+- the public roadmap,
+- contact entry points (questionnaire + email).
 
-Il est maintenu avec une logique **build in public** et un backlog simplifié par epics.
+It is maintained with a **build-in-public** approach and an epic-based simplified backlog.
 
 ---
 
 ## 🌐 Production
 
-- Domaine : [https://brasse-bouillon.com](https://brasse-bouillon.com)
-- Déploiement : GitHub Pages (branche `main`)
+- Domain: [https://brasse-bouillon.com](https://brasse-bouillon.com)
+- Deployment: GitHub Pages (branch `main`)
 
 ---
 
-## 📁 Structure actuelle
+## 📁 Current structure
 
-- `index.html` : page FR
-- `index-en.html` : page EN
-- `favicon.ico`, `logo.png`, `logo-removebg-preview.png`, `CNAME` : assets statiques
-- `docs/ROADMAP.md` : feuille de route produit
-- `docs/GOVERNANCE.md` : conventions backlog, runbook et gouvernance repo
-- `.github/workflows/website-ci-cd.yml` : pipeline CI/CD
-- `scripts/quality_gate.py` : quality gate local/CI sans dépendance
-- `CONTRIBUTING.md` : conventions de contribution
+- `index.html`: FR page
+- `index-en.html`: EN page
+- `favicon.ico`, `logo.png`, `logo-removebg-preview.png`, `CNAME`: static assets
+- `docs/ROADMAP.md`: product roadmap
+- `docs/GOVERNANCE.md`: backlog conventions, runbook, and repository governance
+- `.github/workflows/website-ci-cd.yml`: CI/CD pipeline
+- `scripts/quality_gate.py`: dependency-free local/CI quality gate
+- `CONTRIBUTING.md`: contribution conventions
 
 ---
 
 ## ⚙️ CI/CD (Epic C)
 
-Workflow : `.github/workflows/website-ci-cd.yml`
+Workflow: `.github/workflows/website-ci-cd.yml`
 
 ### Quality gates
 
-Exécutés sur `push` (`develop`, `main`) et `pull_request` (`develop`, `main`) :
-- présence des fichiers critiques,
-- structure HTML minimale FR/EN,
-- absence de marqueurs de conflit Git.
+Executed on `push` (`develop`, `main`) and `pull_request` (`develop`, `main`):
+- presence of critical files,
+- minimal FR/EN HTML structure,
+- no Git conflict markers.
 
-### Déploiement
+### Deployment
 
-Le job de déploiement GitHub Pages s’exécute uniquement sur :
-- `push` vers `main`.
+The GitHub Pages deployment job runs only on:
+- `push` to `main`.
 
 ---
 
-## 🧪 Vérifications locales
+## 🧪 Local checks
 
 ```bash
 python3 scripts/quality_gate.py
@@ -66,16 +66,16 @@ python3 -m py_compile scripts/quality_gate.py
 
 ## 🔀 Workflow Git
 
-- `main` : production
-- `develop` : intégration
-- `feature/*`, `docs/*`, `bugfix/*` : branches de travail
+- `main`: production
+- `develop`: integration
+- `feature/*`, `docs/*`, `bugfix/*`: working branches
 
-Toutes les contributions passent par PR vers `develop` (sauf exception explicitement décidée).
+All contributions go through a PR to `develop` (unless an explicit exception is decided).
 
 ---
 
-## 🗺️ Références
+## 🗺️ References
 
-- Roadmap : [docs/ROADMAP.md](./docs/ROADMAP.md)
-- Contribution : [CONTRIBUTING.md](./CONTRIBUTING.md)
-- Gouvernance : [docs/GOVERNANCE.md](./docs/GOVERNANCE.md)
+- Roadmap: [docs/ROADMAP.md](./docs/ROADMAP.md)
+- Contribution guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Governance: [docs/GOVERNANCE.md](./docs/GOVERNANCE.md)

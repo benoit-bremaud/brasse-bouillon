@@ -1,6 +1,6 @@
 # Brasse-Bouillon — Strategic Product Roadmap
 
-*Version: 1.3 — Last updated: February 17, 2026*
+*Version: 1.3 — Last updated: 2026-02-17*
 
 ---
 

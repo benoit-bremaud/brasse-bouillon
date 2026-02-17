@@ -5,7 +5,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
-import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
@@ -16,13 +15,8 @@ import { demoEquipments } from "@/mocks/demo-data";
 import { useRouter } from "expo-router";
 
 const dashboardNavigationLinks = [
-  { label: "Recettes", href: "/(app)/recipes" },
-  { label: "Brassins", href: "/(app)/batches" },
-  { label: "Équipement", href: "/(app)/equipment" },
-  { label: "Explorer", href: "/(app)/explore" },
   { label: "Ingrédients", href: "/(app)/ingredients" },
   { label: "Académie", href: "/(app)/tools" },
-  { label: "Utilisateurs", href: "/(app)/users" },
 ] as const;
 
 export function DashboardScreen() {
@@ -95,7 +89,7 @@ export function DashboardScreen() {
     session?.user.firstName ||
     session?.user.username ||
     session?.user.email ||
-    "Brewer";
+    "Brasseur";
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchData}>
@@ -104,7 +98,10 @@ export function DashboardScreen() {
         subtitle={`Bon retour, ${displayName}`}
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <Card style={styles.brandCard}>
           <Text style={styles.brandTitle}>Brasse Bouillon</Text>
           <Text style={styles.brandSubtitle}>Ton cockpit de brassage</Text>
@@ -134,20 +131,37 @@ export function DashboardScreen() {
 
         <Card style={styles.card}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Profil</Text>
+            <Text style={styles.sectionTitle}>Brassins en cours</Text>
             <Pressable
-              onPress={handleLogout}
+              onPress={() => router.push("/(app)/batches")}
               accessibilityRole="button"
-              accessibilityLabel="Se déconnecter"
+              accessibilityLabel="Voir tous les brassins"
             >
-              <Text style={styles.logoutLink}>Se déconnecter</Text>
+              <Text style={styles.link}>Voir tout</Text>
             </Pressable>
           </View>
-          <Text style={styles.meta}>Email : {session?.user.email ?? "-"}</Text>
-          <Text style={styles.meta}>Rôle : {session?.user.role ?? "user"}</Text>
-          <Text style={styles.meta}>
-            Statut du compte : {session?.user.isActive ? "Actif" : "Inactif"}
-          </Text>
+          {activeBatches.length === 0 ? (
+            <Text style={styles.emptyText}>
+              Aucun brassin actif actuellement.
+            </Text>
+          ) : (
+            activeBatches.map((batch) => (
+              <Pressable
+                key={batch.id}
+                style={styles.row}
+                onPress={() => router.push(`/(app)/batches/${batch.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`Ouvrir le brassin ${batch.id.slice(0, 6)}`}
+              >
+                <Text style={styles.rowTitle}>
+                  Brassin #{batch.id.slice(0, 6)}
+                </Text>
+                <Text style={styles.rowMeta}>
+                  Étape active : {batch.currentStepOrder ?? "à venir"}
+                </Text>
+              </Pressable>
+            ))
+          )}
         </Card>
 
         <Card style={styles.card}>
@@ -191,7 +205,7 @@ export function DashboardScreen() {
               accessibilityRole="button"
               accessibilityLabel="Explorer les recettes publiques"
             >
-              <Text style={styles.link}>Explore</Text>
+              <Text style={styles.link}>Explorer</Text>
             </Pressable>
           </View>
           {publicFavorites.length === 0 ? (
@@ -209,41 +223,6 @@ export function DashboardScreen() {
               >
                 <Text style={styles.rowTitle}>{recipe.name}</Text>
                 <Text style={styles.rowMeta}>Publique</Text>
-              </Pressable>
-            ))
-          )}
-        </Card>
-
-        <Card style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Brassins en cours</Text>
-            <Pressable
-              onPress={() => router.push("/(app)/batches")}
-              accessibilityRole="button"
-              accessibilityLabel="Voir tous les brassins"
-            >
-              <Text style={styles.link}>Voir tout</Text>
-            </Pressable>
-          </View>
-          {activeBatches.length === 0 ? (
-            <Text style={styles.emptyText}>
-              Aucun brassin actif actuellement.
-            </Text>
-          ) : (
-            activeBatches.map((batch) => (
-              <Pressable
-                key={batch.id}
-                style={styles.row}
-                onPress={() => router.push(`/(app)/batches/${batch.id}`)}
-                accessibilityRole="button"
-                accessibilityLabel={`Ouvrir le brassin ${batch.id.slice(0, 8)}`}
-              >
-                <Text style={styles.rowTitle}>
-                  Brassin {batch.id.slice(0, 8)}
-                </Text>
-                <Text style={styles.rowMeta}>
-                  Étape {batch.currentStepOrder ?? "-"}
-                </Text>
               </Pressable>
             ))
           )}
@@ -269,9 +248,25 @@ export function DashboardScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>
-            Accès rapide à tous les écrans
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Profil</Text>
+            <Pressable
+              onPress={handleLogout}
+              accessibilityRole="button"
+              accessibilityLabel="Se déconnecter"
+            >
+              <Text style={styles.logoutLink}>Se déconnecter</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.meta}>Email : {session?.user.email ?? "-"}</Text>
+          <Text style={styles.meta}>Rôle : {session?.user.role ?? "user"}</Text>
+          <Text style={styles.meta}>
+            Statut du compte : {session?.user.isActive ? "Actif" : "Inactif"}
           </Text>
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Accès complémentaires</Text>
           <View style={styles.quickActions}>
             {dashboardNavigationLinks.map((destination) => (
               <Pressable
@@ -286,11 +281,6 @@ export function DashboardScreen() {
             ))}
           </View>
         </Card>
-
-        <EmptyStateCard
-          title="Centre de notifications (bientôt)"
-          description="Les alertes prioritaires de brassins seront regroupées dans un écran dédié lors d'une prochaine itération."
-        />
       </ScrollView>
     </Screen>
   );

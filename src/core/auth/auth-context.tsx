@@ -1,3 +1,9 @@
+import {
+  SignupInput,
+  login,
+  requestPasswordReset,
+  signup,
+} from "@/features/auth/data/auth.api";
 import React, {
   createContext,
   useContext,
@@ -7,19 +13,45 @@ import React, {
 } from "react";
 
 import { authSession } from "@/core/auth/session";
+import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
-import { login } from "@/features/auth/data/auth.api";
 import { AuthSession } from "@/features/auth/domain/auth.types";
+import { demoUsers } from "@/mocks/demo-data";
 
 type AuthContextValue = {
   session: AuthSession | null;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  signup: (input: SignupInput) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  loginWithDemoAccount: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const DEMO_ACCESS_TOKEN = "demo-access-token";
+
+function createDemoSession(): AuthSession {
+  const fallbackNow = new Date().toISOString();
+  const user = demoUsers[0];
+
+  return {
+    accessToken: DEMO_ACCESS_TOKEN,
+    user: {
+      id: user?.id ?? "u-demo-local",
+      email: user?.email ?? "demo@brasse-bouillon.local",
+      username: user?.username ?? "demo",
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      role: user?.role ?? "user",
+      isActive: user?.isActive ?? true,
+      createdAt: user?.createdAt ?? fallbackNow,
+      updatedAt: user?.updatedAt ?? fallbackNow,
+    },
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
@@ -33,19 +65,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         const token = await authSession.load();
         if (token) {
-          const now = new Date().toISOString();
-          setSession({
-            accessToken: token,
-            user: {
-              id: "cached",
-              email: "cached@local",
-              username: "cached",
-              role: "user",
-              isActive: true,
-              createdAt: now,
-              updatedAt: now,
-            },
-          });
+          if (dataSource.useDemoData && token === DEMO_ACCESS_TOKEN) {
+            setSession(createDemoSession());
+          } else {
+            const now = new Date().toISOString();
+            setSession({
+              accessToken: token,
+              user: {
+                id: "cached",
+                email: "cached@local",
+                username: "cached",
+                role: "user",
+                isActive: true,
+                createdAt: now,
+                updatedAt: now,
+              },
+            });
+          }
         }
       } catch (err) {
         setError(getErrorMessage(err, "Failed to restore session"));
@@ -74,6 +110,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleSignup = async (input: SignupInput) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const nextSession = await signup(input);
+      await authSession.setAccessToken(nextSession.accessToken);
+      setSession(nextSession);
+    } catch (err) {
+      const message = getErrorMessage(err, "Signup failed");
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRequestPasswordReset = async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await requestPasswordReset(email);
+    } catch (err) {
+      const message = getErrorMessage(err, "Password reset failed");
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (!dataSource.useDemoData) {
+        throw new Error(
+          "La connexion démo est disponible uniquement en mode démo (EXPO_PUBLIC_USE_DEMO_DATA=true).",
+        );
+      }
+
+      const demoSession = createDemoSession();
+      await authSession.setAccessToken(demoSession.accessToken);
+      setSession(demoSession);
+    } catch (err) {
+      const message = getErrorMessage(err, "Demo login failed");
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await authSession.clear();
     setSession(null);
@@ -85,6 +173,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       error,
       login: handleLogin,
+      signup: handleSignup,
+      requestPasswordReset: handleRequestPasswordReset,
+      loginWithDemoAccount: handleDemoLogin,
       logout: handleLogout,
     }),
     [session, isLoading, error, isBootstrapped],

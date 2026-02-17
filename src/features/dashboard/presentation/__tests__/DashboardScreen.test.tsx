@@ -52,8 +52,7 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Mes recettes privées")).toBeTruthy();
     expect(screen.getByText("Recettes publiques favorites")).toBeTruthy();
     expect(screen.getAllByText("Brassins en cours").length).toBeGreaterThan(0);
-    expect(screen.getByText("Accès rapide à tous les écrans")).toBeTruthy();
-    expect(screen.getByText("Utilisateurs")).toBeTruthy();
+    expect(screen.getByText("Accès complémentaires")).toBeTruthy();
     expect(screen.getByText("Private IPA")).toBeTruthy();
   });
 });

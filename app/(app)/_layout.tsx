@@ -97,12 +97,6 @@ export default function AppLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="users"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

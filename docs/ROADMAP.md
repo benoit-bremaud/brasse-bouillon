@@ -1,6 +1,6 @@
 # Brasse-Bouillon – Feuille de Route Stratégique
 
-*Version : 1.0 – Dernière mise à jour : 16 mai 2025*
+*Version : 1.1 – Dernière mise à jour : 17 février 2026*
 
 ---
 
@@ -32,17 +32,22 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 ### Phase 4 — Développement du MVP
 
-* Implémentation de l’authentification
-* Fonctionnalités CRUD pour la gestion des recettes
-* Calculs automatiques des valeurs IBU et ABV
-* Développement de l’API et configuration de la base de données distante
+**Statut : terminé**
+
+* Authentification/JWT et base API sécurisée
+* CRUD recettes + persistance des étapes de brassage
+* Module brassins (workflow, persistance et endpoints API)
+* Calculateur de brassage v1 (IBU/ABV/conversions)
 
 ### Phase 5 — Mise en ligne du site vitrine
 
+**Statut : en cours (consolidation produit + visibilité publique)**
+
 * Publication du site : [brasse-bouillon.com](https://brasse-bouillon.com)
-* Intégration d’une feuille de route interactive
-* Lancement du journal de développement
+* Intégration d’une feuille de route interactive FR/EN
+* Synchronisation du journal de développement avec les livraisons produit
 * Mise en place d’une FAQ et d’une recette en vedette
+* Intégration des avancées backend/frontend récentes (rappels de fermentation, navigation ingrédients, Académie brassicole)
 
 ### Phase 6 — Tests bêta et animation communautaire
 
@@ -76,6 +81,31 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 ---
 
+## Historique récent retenu pour la roadmap publique
+
+Source : PR fusionnées sur `main` des dépôts frontend/backend, filtrées selon leur pertinence produit/communication.
+
+### Frontend (sélection)
+
+* Refonte de l’écran **Académie brassicole** + fiches thématiques (Fermentescibles, Couleur, Houblons)
+* Amélioration du détail recette (view model enrichi)
+* Correctifs navigation catégories ingrédients et libellés EN
+* Calculateur de brassage v1 (IBU/ABV/conversions)
+* Renforcement de la timeline des brassins sur petits écrans
+
+### Backend (sélection)
+
+* Module brassins : workflow, service, persistance et endpoints API
+* API de fermentation et rappels
+* Persistance et édition des étapes de recette
+* Durcissement sécurité (JWT, tests d’intégration auth, remédiations audit)
+
+### Non retenu en communication publique (exemples)
+
+* PR purement CI/CD, workflow, gouvernance interne, maintenance sans impact visible utilisateur.
+
+---
+
 ## Fréquence de publication recommandée
 
 | Fréquence    | Type de contenu                              |
@@ -100,6 +130,7 @@ Ce document décrit les grandes étapes du développement de l’application mob
 
 | Version | Date       | Modifications                |
 | ------- | ---------- | ---------------------------- |
+| 1.1     | 17/02/2026 | Mise à jour roadmap selon PR frontend/backend fusionnées sur main |
 | 1.0     | 16/05/2025 | Version initiale du document |
 
 ---

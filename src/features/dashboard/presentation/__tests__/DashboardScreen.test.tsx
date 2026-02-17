@@ -17,6 +17,7 @@ jest.mock("@/core/auth/auth-context", () => ({
         updatedAt: "2026-01-01T00:00:00.000Z",
       },
     },
+    logout: jest.fn(),
   }),
 }));
 
@@ -46,11 +47,12 @@ describe("DashboardScreen", () => {
   it("renders key dashboard sections", async () => {
     render(<DashboardScreen />);
 
-    expect(await screen.findByText("Dashboard")).toBeTruthy();
-    expect(screen.getByText("Profile")).toBeTruthy();
-    expect(screen.getByText("My private recipes")).toBeTruthy();
-    expect(screen.getByText("Favorite public recipes")).toBeTruthy();
-    expect(screen.getByText("Active batches")).toBeTruthy();
+    expect(await screen.findByText("Tableau de bord")).toBeTruthy();
+    expect(screen.getByText("Profil")).toBeTruthy();
+    expect(screen.getByText("Mes recettes privées")).toBeTruthy();
+    expect(screen.getByText("Recettes publiques favorites")).toBeTruthy();
+    expect(screen.getAllByText("Brassins en cours").length).toBeGreaterThan(0);
+    expect(screen.getByText("Accès complémentaires")).toBeTruthy();
     expect(screen.getByText("Private IPA")).toBeTruthy();
   });
 });

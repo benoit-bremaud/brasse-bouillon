@@ -1,9 +1,23 @@
-import { request } from "@/core/http/http-client";
-
 import { AuthSession, User } from "../domain/auth.types";
 
-type LoginResponse = {
-  access_token: string;
+import { request } from "@/core/http/http-client";
+import { HttpError } from "@/core/http/http-error";
+
+type AuthUserDto = {
+  id: string;
+  email: string;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+type AuthResponse = {
+  access_token?: string;
+  token?: string;
   user: {
     id: string;
     email: string;
@@ -17,7 +31,15 @@ type LoginResponse = {
   };
 };
 
-function mapUser(dto: LoginResponse["user"]): User {
+export type SignupInput = {
+  email: string;
+  password: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+};
+
+function mapUser(dto: AuthUserDto): User {
   return {
     id: dto.id,
     email: dto.email,
@@ -31,18 +53,82 @@ function mapUser(dto: LoginResponse["user"]): User {
   };
 }
 
+function mapAuthSession(response: AuthResponse): AuthSession {
+  const accessToken = response.access_token ?? response.token;
+
+  if (!accessToken) {
+    throw new Error("Réponse d’authentification invalide: token manquant.");
+  }
+
+  return {
+    accessToken,
+    user: mapUser(response.user),
+  };
+}
+
 export async function login(
   email: string,
   password: string,
 ): Promise<AuthSession> {
-  const data = await request<LoginResponse>("/auth/login", {
+  const data = await request<AuthResponse>("/auth/login", {
     method: "POST",
     body: { email, password },
     auth: false,
   });
 
-  return {
-    accessToken: data.access_token,
-    user: mapUser(data.user),
+  return mapAuthSession(data);
+}
+
+export async function signup(input: SignupInput): Promise<AuthSession> {
+  const body = {
+    email: input.email,
+    password: input.password,
+    username: input.username,
+    first_name: input.firstName,
+    last_name: input.lastName,
   };
+
+  try {
+    const data = await request<AuthResponse>("/auth/signup", {
+      method: "POST",
+      body,
+      auth: false,
+    });
+
+    return mapAuthSession(data);
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) {
+      const data = await request<AuthResponse>("/auth/register", {
+        method: "POST",
+        body,
+        auth: false,
+      });
+
+      return mapAuthSession(data);
+    }
+
+    throw error;
+  }
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  try {
+    await request<unknown>("/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+    return;
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) {
+      await request<unknown>("/auth/password/forgot", {
+        method: "POST",
+        body: { email },
+        auth: false,
+      });
+      return;
+    }
+
+    throw error;
+  }
 }

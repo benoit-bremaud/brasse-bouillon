@@ -34,6 +34,10 @@ yarn-error.*
 .env*.local
 .env
 
+# local working docs (AI/notes)
+Guide_Complet_Calculs_Brassage_*.md
+Chapitre*_*.md
+
 # typescript
 *.tsbuildinfo
 

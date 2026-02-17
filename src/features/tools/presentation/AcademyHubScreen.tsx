@@ -1,14 +1,20 @@
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { Screen } from "@/core/ui/Screen";
-import { useRouter } from "expo-router";
 import React from "react";
+import { Screen } from "@/core/ui/Screen";
 import { academyTopics } from "./academy-topics";
+import { useRouter } from "expo-router";
 
 export function AcademyHubScreen() {
   const router = useRouter();
@@ -22,42 +28,54 @@ export function AcademyHubScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {academyTopics.map((topic) => (
-          <Card key={topic.slug} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{topic.title}</Text>
-              <Image
-                source={topic.mascotImage}
-                style={styles.mascot}
-                resizeMode="cover"
-                accessibilityRole="image"
-                accessibilityLabel={topic.mascotAlt}
-              />
-            </View>
+          <Pressable
+            key={topic.slug}
+            accessibilityRole="button"
+            accessibilityLabel={`Ouvrir le thème ${topic.title}`}
+            onPress={() =>
+              router.push({
+                pathname: "/tools/[slug]",
+                params: { slug: topic.slug },
+              })
+            }
+            style={({ pressed }) => [
+              styles.cardPressable,
+              pressed && styles.cardPressablePressed,
+            ]}
+          >
+            <Card style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>{topic.title}</Text>
+                <Image
+                  source={topic.mascotImage}
+                  style={styles.mascot}
+                  resizeMode="cover"
+                  accessibilityRole="image"
+                  accessibilityLabel={topic.mascotAlt}
+                />
+              </View>
 
-            <Text style={styles.cardDescription}>{topic.shortDescription}</Text>
+              <Text style={styles.cardDescription}>
+                {topic.shortDescription}
+              </Text>
 
-            <View style={styles.badgesRow}>
-              <Badge label={topic.focus} />
-              <Badge label={topic.estimatedReadTime} />
-              <Badge
-                label={topic.status === "ready" ? "Prêt" : "Bientôt disponible"}
-                variant={topic.status === "ready" ? "success" : "neutral"}
-              />
-            </View>
+              <View style={styles.badgesRow}>
+                <Badge label={topic.focus} />
+                <Badge label={topic.estimatedReadTime} />
+                <Badge
+                  label={
+                    topic.status === "ready" ? "Prêt" : "Bientôt disponible"
+                  }
+                  variant={topic.status === "ready" ? "success" : "neutral"}
+                />
+              </View>
 
-            <View style={styles.actions}>
-              <PrimaryButton
-                label="Explorer le thème"
-                onPress={() =>
-                  router.push({
-                    pathname: "/tools/[slug]",
-                    params: { slug: topic.slug },
-                  })
-                }
-                style={styles.primaryAction}
-              />
-            </View>
-          </Card>
+              <View style={styles.cardFooter}>
+                <Text style={styles.cardFooterText}>Ouvrir le thème</Text>
+                <Text style={styles.cardFooterArrow}>→</Text>
+              </View>
+            </Card>
+          </Pressable>
         ))}
       </ScrollView>
     </Screen>
@@ -68,21 +86,28 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.lg,
   },
-  card: {
+  cardPressable: {
+    borderRadius: radius.lg,
     marginBottom: spacing.sm,
+  },
+  cardPressablePressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.995 }],
+  },
+  card: {
+    padding: spacing.md,
   },
   cardHeader: {
     flexDirection: "row",
     gap: spacing.sm,
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   mascot: {
-    width: 72,
-    height: 72,
+    width: 64,
+    height: 64,
     borderRadius: radius.md,
     backgroundColor: colors.semantic.info,
-    marginTop: spacing.xxs,
   },
   cardTitle: {
     color: colors.neutral.textPrimary,
@@ -97,19 +122,33 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
   badgesRow: {
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.xs,
   },
-  actions: {
+  cardFooter: {
     marginTop: spacing.sm,
-    gap: spacing.xs,
+    paddingTop: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  primaryAction: {
-    width: "100%",
+  cardFooterText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
+  cardFooterArrow: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
   },
 });

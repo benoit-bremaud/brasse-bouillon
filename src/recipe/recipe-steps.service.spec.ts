@@ -1,20 +1,21 @@
 jest.setTimeout(20000);
 
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { RecipeOrmEntity } from './entities/recipe.orm.entity';
+import { RecipeService } from './services/recipe.service';
+import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
 import { RecipeStepType } from './domain/enums/recipe-step-type.enum';
 import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
-import { RecipeOrmEntity } from './entities/recipe.orm.entity';
-import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
-import { RecipeService } from './services/recipe.service';
+import { randomUUID } from 'crypto';
 
 describe('RecipeService (steps)', () => {
   let module: TestingModule;
   let service: RecipeService;
+  let dataSource: DataSource;
   let recipeRepo: Repository<RecipeOrmEntity>;
   let stepRepo: Repository<RecipeStepOrmEntity>;
 
@@ -34,8 +35,18 @@ describe('RecipeService (steps)', () => {
     }).compile();
 
     service = module.get(RecipeService);
+    dataSource = module.get(DataSource);
     recipeRepo = module.get(getRepositoryToken(RecipeOrmEntity));
     stepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
+
+    await dataSource.query('PRAGMA foreign_keys = ON');
+    await dataSource.query(`
+      CREATE TABLE IF NOT EXISTS "batches_test" (
+        "id" varchar PRIMARY KEY NOT NULL,
+        "recipe_id" varchar NOT NULL,
+        CONSTRAINT "FK_batches_test_recipe_id" FOREIGN KEY ("recipe_id") REFERENCES "recipes" ("id") ON DELETE RESTRICT ON UPDATE NO ACTION
+      )
+    `);
   });
 
   afterAll(async () => {
@@ -43,6 +54,7 @@ describe('RecipeService (steps)', () => {
   });
 
   beforeEach(async () => {
+    await dataSource.query('DELETE FROM "batches_test"');
     await stepRepo.clear();
     await recipeRepo.clear();
   });
@@ -140,6 +152,22 @@ describe('RecipeService (steps)', () => {
     await service.deleteMine(ownerId, recipe.id);
 
     expect(await stepRepo.count({ where: { recipe_id: recipe.id } })).toBe(0);
+  });
+
+  it('deleteMine() should throw BadRequestException when recipe is referenced by a batch', async () => {
+    const ownerId = 'user-1';
+    const recipe = await service.create(ownerId, { name: 'Protected recipe' });
+
+    await dataSource.query(
+      'INSERT INTO "batches_test" ("id", "recipe_id") VALUES (?, ?)',
+      [randomUUID(), recipe.id],
+    );
+
+    await expect(service.deleteMine(ownerId, recipe.id)).rejects.toThrow(
+      new BadRequestException(
+        'Recipe cannot be deleted because it is referenced by at least one batch',
+      ),
+    );
   });
 
   it('updateMineStep() should reject negative order values', async () => {

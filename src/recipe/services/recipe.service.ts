@@ -108,30 +108,13 @@ export class RecipeService {
       try {
         await recipeRepo.delete({ id, owner_id: ownerId });
       } catch (error) {
-        if (error instanceof QueryFailedError) {
-          const driverError = error.driverError as {
-            code?: string | number;
-            message?: string;
-          };
-          const code =
-            typeof driverError.code === 'string'
-              ? driverError.code
-              : typeof driverError.code === 'number'
-                ? String(driverError.code)
-                : '';
-          const message = (driverError.message ?? error.message).toLowerCase();
-
-          const isForeignKeyViolation =
-            code === '23503' ||
-            code === 'ER_ROW_IS_REFERENCED_2' ||
-            code === 'SQLITE_CONSTRAINT_FOREIGNKEY' ||
-            message.includes('foreign key constraint failed');
-
-          if (isForeignKeyViolation) {
-            throw new BadRequestException(
-              'Recipe cannot be deleted because it is referenced by at least one batch',
-            );
-          }
+        if (
+          error instanceof QueryFailedError &&
+          this.isForeignKeyViolation(error)
+        ) {
+          throw new BadRequestException(
+            'Recipe cannot be deleted because it is referenced by at least one batch',
+          );
         }
         throw error;
       }
@@ -212,27 +195,8 @@ export class RecipeService {
       await stepsRepo.save(defaults);
     } catch (error) {
       if (error instanceof QueryFailedError) {
-        const driverError = error.driverError as {
-          code?: string | number;
-          message?: string;
-        };
-        const code =
-          typeof driverError.code === 'string'
-            ? driverError.code
-            : typeof driverError.code === 'number'
-              ? String(driverError.code)
-              : '';
-        const message = driverError.message ?? error.message;
-
-        const isUniqueViolation =
-          code === '23505' ||
-          code === 'ER_DUP_ENTRY' ||
-          code === 'SQLITE_CONSTRAINT_PRIMARYKEY' ||
-          code === 'SQLITE_CONSTRAINT_UNIQUE' ||
-          message.toLowerCase().includes('unique constraint failed');
-
         // If concurrent calls created steps at the same time, simply re-fetch.
-        if (!isUniqueViolation) {
+        if (!this.isUniqueConstraintViolation(error)) {
           throw error;
         }
       } else {
@@ -244,5 +208,49 @@ export class RecipeService {
       where: { recipe_id: recipeId },
       order: { step_order: 'ASC' },
     });
+  }
+
+  private getDriverErrorMetadata(error: QueryFailedError<any>): {
+    code: string;
+    message: string;
+  } {
+    const driverError = error.driverError as {
+      code?: string | number;
+      message?: string;
+    };
+
+    const code =
+      typeof driverError.code === 'string'
+        ? driverError.code
+        : typeof driverError.code === 'number'
+          ? String(driverError.code)
+          : '';
+
+    const message = (driverError.message ?? error.message).toLowerCase();
+
+    return { code, message };
+  }
+
+  private isForeignKeyViolation(error: QueryFailedError<any>): boolean {
+    const { code, message } = this.getDriverErrorMetadata(error);
+
+    return (
+      code === '23503' ||
+      code === 'ER_ROW_IS_REFERENCED_2' ||
+      code === 'SQLITE_CONSTRAINT_FOREIGNKEY' ||
+      message.includes('foreign key constraint failed')
+    );
+  }
+
+  private isUniqueConstraintViolation(error: QueryFailedError<any>): boolean {
+    const { code, message } = this.getDriverErrorMetadata(error);
+
+    return (
+      code === '23505' ||
+      code === 'ER_DUP_ENTRY' ||
+      code === 'SQLITE_CONSTRAINT_PRIMARYKEY' ||
+      code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+      message.includes('unique constraint failed')
+    );
   }
 }

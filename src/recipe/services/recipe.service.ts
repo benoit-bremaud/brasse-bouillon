@@ -105,7 +105,36 @@ export class RecipeService {
       }
 
       await stepsRepo.delete({ recipe_id: id });
-      await recipeRepo.delete({ id, owner_id: ownerId });
+      try {
+        await recipeRepo.delete({ id, owner_id: ownerId });
+      } catch (error) {
+        if (error instanceof QueryFailedError) {
+          const driverError = error.driverError as {
+            code?: string | number;
+            message?: string;
+          };
+          const code =
+            typeof driverError.code === 'string'
+              ? driverError.code
+              : typeof driverError.code === 'number'
+                ? String(driverError.code)
+                : '';
+          const message = (driverError.message ?? error.message).toLowerCase();
+
+          const isForeignKeyViolation =
+            code === '23503' ||
+            code === 'ER_ROW_IS_REFERENCED_2' ||
+            code === 'SQLITE_CONSTRAINT_FOREIGNKEY' ||
+            message.includes('foreign key constraint failed');
+
+          if (isForeignKeyViolation) {
+            throw new BadRequestException(
+              'Recipe cannot be deleted because it is referenced by at least one batch',
+            );
+          }
+        }
+        throw error;
+      }
 
       return { deleted: true };
     });

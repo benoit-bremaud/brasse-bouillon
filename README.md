@@ -1,140 +1,142 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Brasse-Bouillon Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API NestJS pour l'application **Brasse-Bouillon** (assistant de brassage), avec authentification JWT, gestion des utilisateurs, profils d'équipement, recettes, lots de brassage et rappels de fermentation.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Fonctionnalités principales
 
-## Description
+- Authentification (`/auth`): login, register, profil courant
+- Utilisateurs (`/users`): profil, changement de mot de passe, rôles
+- Équipements (`/equipment-profiles`): CRUD par utilisateur
+- Recettes (`/recipes`): CRUD + étapes de workflow
+- Batches (`/batches`): démarrage de brassin, progression d'étapes, fermentation, rappels
+- Documentation Swagger (activée hors prod, ou via variable dédiée)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Stack technique
 
-## Project setup
+- **Node.js 20** + **NestJS 11**
+- **TypeScript**
+- **TypeORM**
+- **SQLite (better-sqlite3)** par défaut
+- **JWT / Passport** pour la sécurité
+- **Docker** (image multi-stage)
+
+## Prérequis
+
+- Node.js `>=20 <21`
+- npm
+- Docker (si exécution conteneurisée)
+
+## Variables d'environnement
+
+Variables importantes utilisées par l'API :
+
+| Variable | Obligatoire | Défaut | Description |
+|---|---|---|---|
+| `JWT_SECRET` | ✅ Oui | - | Secret de signature JWT (obligatoire au démarrage) |
+| `JWT_EXPIRATION` | Non | `86400s` | Durée de validité des tokens |
+| `PORT` | Non | `3000` | Port HTTP de l'API |
+| `NODE_ENV` | Non | `development` (local) / `production` (Docker) | Environnement d'exécution |
+| `DATABASE_PATH` | Non | `./data/brasse-bouillon.db` (selon cwd) | Chemin de la base SQLite |
+| `TYPEORM_MIGRATIONS_RUN` | Non | `false` | Exécuter les migrations au démarrage |
+| `TYPEORM_SYNCHRONIZE` | Non | `false` | Synchronisation auto du schéma (à éviter en prod) |
+| `TYPEORM_LOGGING` | Non | auto selon env | Niveau de logs TypeORM |
+| `SWAGGER_ENABLED` | Non | auto selon env | Force l'activation Swagger (`true`/`false`) |
+| `SEED_ENDPOINTS_ENABLED` | Non | `false` | Active les endpoints de seed dev |
+| `SEED_ENDPOINTS_TOKEN` | Non | vide | Token optionnel pour protéger les endpoints de seed |
+
+## Lancer le projet en local (sans Docker)
+
+1. Installer les dépendances :
 
 ```bash
-$ npm install
+npm ci
 ```
 
-## Compile and run the project
+2. Créer un fichier `.env.local` (exemple minimal) :
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```env
+JWT_SECRET=change-me-in-local
+JWT_EXPIRATION=86400s
+PORT=3000
+DATABASE_PATH=./data/brasse-bouillon.db
+TYPEORM_MIGRATIONS_RUN=true
+TYPEORM_SYNCHRONIZE=false
+SWAGGER_ENABLED=true
 ```
 
-## Run tests
+3. Démarrer en mode dev :
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
 
-## CI (GitHub Actions)
+4. Vérifier :
 
-The CI pipeline runs two complementary jobs:
+- API: `http://localhost:3000/`
+- Swagger UI: `http://localhost:3000/api`
 
-- **Build, Lint & Test**
-  - `npm ci`
-  - `npm run lint:check`
-  - `npm run build --if-present`
-  - `npm test`
-- **Security Audit (prod deps)**
-  - `npm ci --omit=dev`
-  - `npm audit --omit=dev --audit-level=critical`
+## Lancer le serveur avec Docker
 
-### Why a PR can fail
-
-- A lint, build, or test failure.
-- A **critical** vulnerability detected in production dependencies.
-
-### How to fix an `npm audit` failure
-
-1. Reproduce locally:
+### 1) Build de l'image
 
 ```bash
-npm audit --omit=dev --audit-level=critical
+docker build -t brasse-bouillon-backend:local .
 ```
 
-2. Update the impacted dependency(ies):
+### 2) Run du conteneur
 
 ```bash
-npm update
-# then, if needed and validated by the team:
-npm audit fix
+docker run --rm \
+  --name brasse-bouillon-api \
+  -p 3000:3000 \
+  -e JWT_SECRET=change-me-in-prod \
+  -e JWT_EXPIRATION=86400s \
+  -e TYPEORM_MIGRATIONS_RUN=true \
+  -e SWAGGER_ENABLED=true \
+  -v brasse-bouillon-data:/app/data \
+  brasse-bouillon-backend:local
 ```
 
-3. Re-run local checks:
+### Notes Docker importantes
+
+- `JWT_SECRET` est **obligatoire**, sinon l'app ne démarre pas.
+- Le volume `brasse-bouillon-data` persiste la base SQLite (`/app/data`).
+- En image Docker, `NODE_ENV=production` par défaut (défini dans le `Dockerfile`).
+- Swagger est désactivé en production sauf si `SWAGGER_ENABLED=true`.
+
+## Commandes utiles
 
 ```bash
-npm run lint:check
+# Build TypeScript
 npm run build
-npm test
+
+# Lint
+npm run lint:check
+
+# Tests unitaires
+npm run test
+
+# Tests e2e
+npm run test:e2e
+
+# Migrations
+npm run migration:run
+npm run migration:revert
 ```
 
-## Deployment
+## Structure du projet (vue rapide)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```text
+src/
+  auth/         # Auth JWT, guards, stratégies
+  user/         # Utilisateurs, profil, rôles
+  equipment/    # Profils d'équipement
+  recipe/       # Recettes et étapes
+  batch/        # Batches, fermentation, reminders
+  database/     # Config TypeORM + migrations
+  common/       # Filtres, interceptors, DTO communs
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Roadmap
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Voir [`ROADMAP.md`](./ROADMAP.md) pour la vision produit et les prochaines étapes.

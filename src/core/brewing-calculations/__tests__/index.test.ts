@@ -4,9 +4,11 @@ import {
   calculateIbuTinseth,
   calculateMCU,
   calculateOgFromFermentables,
+  calculateRequiredHopGramsForTargetIbu,
   calculateRequiredMaltForTargetSRM,
   calculateRequiredMaltKgForTargetOg,
   calculateSRMFromMalts,
+  calculateTinsethUtilization,
   calculateWeightedEfmPercent,
   correctSgForTemperature,
   gallonsToLiters,
@@ -109,6 +111,117 @@ describe("brewing calculations", () => {
 
     expect(corrected).toBeGreaterThan(1.065);
     expect(corrected).toBeLessThan(1.067);
+  });
+
+  describe("hop calculations (Tinseth)", () => {
+    // Reference: OG 1.050, 60 min
+    // bignessFactor = 1.65 × 0.000125^(1.05-1) = 1.65 × 0.000125^0.05 ≈ 1.053
+    // boilTimeFactor = (1 - e^(-2.4)) / 4.15 ≈ 0.219 → utilization ≈ 1.053 × 0.219 ≈ 0.231
+    const testOg = 1.05;
+    const testVolume = 20;
+
+    it("calculates Tinseth utilization for 60 min at OG 1.050", () => {
+      const u = calculateTinsethUtilization(60, testOg);
+
+      expect(u).toBeGreaterThan(0.2);
+      expect(u).toBeLessThan(0.27);
+    });
+
+    it("returns 0 utilization for 0 boil minutes", () => {
+      expect(calculateTinsethUtilization(0, testOg)).toBe(0);
+    });
+
+    it("returns 0 utilization for invalid gravity", () => {
+      expect(calculateTinsethUtilization(60, 0)).toBe(0);
+      expect(calculateTinsethUtilization(60, -1)).toBe(0);
+    });
+
+    it("higher OG reduces utilization", () => {
+      const uLow = calculateTinsethUtilization(60, 1.04);
+      const uHigh = calculateTinsethUtilization(60, 1.08);
+
+      expect(uLow).toBeGreaterThan(uHigh);
+    });
+
+    it("longer boil increases utilization", () => {
+      const u30 = calculateTinsethUtilization(30, testOg);
+      const u60 = calculateTinsethUtilization(60, testOg);
+
+      expect(u60).toBeGreaterThan(u30);
+    });
+
+    it("calculates required hop grams for a target IBU", () => {
+      // 30 IBU, 20 L, OG 1.050, AA 10%, 60 min
+      const grams = calculateRequiredHopGramsForTargetIbu(
+        30,
+        testVolume,
+        testOg,
+        10,
+        60,
+      );
+
+      expect(grams).toBeGreaterThan(0);
+      expect(grams).toBeLessThan(100);
+    });
+
+    it("returns 0 grams for zero target IBU", () => {
+      expect(
+        calculateRequiredHopGramsForTargetIbu(0, testVolume, testOg, 10, 60),
+      ).toBe(0);
+    });
+
+    it("returns 0 grams for zero volume", () => {
+      expect(calculateRequiredHopGramsForTargetIbu(30, 0, testOg, 10, 60)).toBe(
+        0,
+      );
+    });
+
+    it("returns 0 grams for zero alpha acid", () => {
+      expect(
+        calculateRequiredHopGramsForTargetIbu(30, testVolume, testOg, 0, 60),
+      ).toBe(0);
+    });
+
+    it("returns 0 grams for zero boil time (no utilization)", () => {
+      expect(
+        calculateRequiredHopGramsForTargetIbu(30, testVolume, testOg, 10, 0),
+      ).toBe(0);
+    });
+
+    it("more grams needed for larger volume at same IBU target", () => {
+      const grams20L = calculateRequiredHopGramsForTargetIbu(
+        30,
+        20,
+        testOg,
+        10,
+        60,
+      );
+      const grams40L = calculateRequiredHopGramsForTargetIbu(
+        30,
+        40,
+        testOg,
+        10,
+        60,
+      );
+
+      expect(grams40L).toBeCloseTo(grams20L * 2, 1);
+    });
+
+    it("round-trips: IBU from calculated grams matches target", () => {
+      const targetIbu = 40;
+      const grams = calculateRequiredHopGramsForTargetIbu(
+        targetIbu,
+        testVolume,
+        testOg,
+        12,
+        60,
+      );
+      const ibu = calculateIbuTinseth(testVolume, testOg, [
+        { weightGrams: grams, alphaAcidPercent: 12, boilTimeMinutes: 60 },
+      ]);
+
+      expect(ibu).toBeCloseTo(targetIbu, 0);
+    });
   });
 
   describe("color calculations", () => {

@@ -25,12 +25,6 @@ jest.mock("@react-native-community/slider", () => {
   };
 });
 
-// Mock Alert
-const mockAlert = jest.fn();
-jest.mock("react-native/Libraries/Alert/Alert", () => ({
-  alert: mockAlert,
-}));
-
 describe("FermentesciblesCalculatorScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -182,14 +176,21 @@ describe("FermentesciblesCalculatorScreen", () => {
 
     fireEvent.press(screen.getByText("Expert"));
 
-    const sgInput = screen.getByDisplayValue("1.065");
-    fireEvent.changeText(sgInput, "1.050");
+    // Both sgToConvert and measuredSg start at 1.065, take the first one
+    const sgInputs = screen.getAllByDisplayValue("1.065");
+    fireEvent.changeText(sgInputs[0], "1.050");
 
     // Should show updated conversions
     expect(screen.getByText(/\d+\.\d°P/)).toBeTruthy();
   });
 
   it("shows copy results button in rapide mode", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Alert } = require("react-native");
+    const alertSpy = jest
+      .spyOn(Alert, "alert")
+      .mockImplementation(() => undefined);
+
     render(<FermentesciblesCalculatorScreen />);
 
     const copyButton = screen.getByText("Copier les résultats");
@@ -197,12 +198,11 @@ describe("FermentesciblesCalculatorScreen", () => {
 
     fireEvent.press(copyButton);
 
-    // Should trigger alert (mocked)
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Alert = require("react-native/Libraries/Alert/Alert");
-    expect(Alert.alert).toHaveBeenCalledWith(
+    expect(alertSpy).toHaveBeenCalledWith(
       "Résultats copiés",
       "Les calculs sont maintenant dans votre presse-papier.",
     );
+
+    alertSpy.mockRestore();
   });
 });

@@ -118,6 +118,19 @@ describe("CouleurCalculatorScreen", () => {
     expect(lovibondSpecs).toHaveLength(2);
   });
 
+  it("allows changing malt type in rapide tab", () => {
+    render(<CouleurCalculatorScreen />);
+
+    // Initially shows Pilsner (maltIndex 0)
+    expect(screen.getByText("Pilsner")).toBeTruthy();
+
+    // Press › on the first malt row (Pilsner → Pale Ale, index 1)
+    const nextButtons = screen.getAllByText("›");
+    fireEvent.press(nextButtons[0]);
+
+    expect(screen.getByText("Pale Ale")).toBeTruthy();
+  });
+
   it("handles weight input changes without crashing", () => {
     render(<CouleurCalculatorScreen />);
 
@@ -146,12 +159,15 @@ describe("CouleurCalculatorScreen", () => {
       ).toBeTruthy();
     });
 
-    it("shows target SRM and volume inputs in inverse tab", () => {
+    it("shows target SRM slider and volume input in inverse tab", () => {
       render(<CouleurCalculatorScreen />);
 
       fireEvent.press(screen.getByText("Inversé"));
 
-      expect(screen.getByText("SRM cible")).toBeTruthy();
+      // SRM cible is now a slider with label "SRM cible : <value>"
+      expect(screen.getByText(/SRM cible : \d+/)).toBeTruthy();
+      // The mock renders Slider as a View keeping the original testID prop
+      expect(screen.getByTestId("srm-cible")).toBeTruthy();
       expect(screen.getByText("Volume (L)")).toBeTruthy();
     });
 
@@ -210,14 +226,18 @@ describe("CouleurCalculatorScreen", () => {
       expect(screen.getByText("Carapils")).toBeTruthy();
     });
 
-    it("updates result when target SRM input changes", () => {
+    it("updates result when target SRM slider changes", () => {
       render(<CouleurCalculatorScreen />);
 
       fireEvent.press(screen.getByText("Inversé"));
 
-      const srmInput = screen.getByDisplayValue("15");
-      fireEvent.changeText(srmInput, "25");
+      // SRM cible is now a Slider — trigger onValueChange with a new value
+      // The mock keeps the original testID prop ("srm-cible")
+      const srmSlider = screen.getByTestId("srm-cible");
+      fireEvent(srmSlider, "onValueChange", 25);
 
+      // Label updates to show new SRM value
+      expect(screen.getByText("SRM cible : 25")).toBeTruthy();
       expect(screen.getByText(/\d+\.\d{2} kg/)).toBeTruthy();
     });
   });

@@ -15,10 +15,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {
-  fermentableMaltCatalog,
-  type FermentableMalt,
-} from "./fermentables-catalog";
+import { fermentableMaltCatalog } from "./fermentables-catalog";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -31,7 +28,7 @@ type TabName = "rapide" | "inverse" | "palette";
 
 type RecipeColorMalt = {
   id: string;
-  malt: FermentableMalt;
+  maltIndex: number;
   weightKg: number;
 };
 
@@ -52,8 +49,8 @@ export function CouleurCalculatorScreen() {
 
   // Rapide tab state
   const [recipeMalts, setRecipeMalts] = useState<RecipeColorMalt[]>([
-    { id: "1", malt: fermentableMaltCatalog[0], weightKg: 4 }, // Pilsner
-    { id: "2", malt: fermentableMaltCatalog[7], weightKg: 0.5 }, // Cara 50
+    { id: "1", maltIndex: 0, weightKg: 4 }, // Pilsner
+    { id: "2", maltIndex: 7, weightKg: 0.5 }, // Cara 50
   ]);
   const [volumeLiters, setVolumeLiters] = useState(INITIAL_VOLUME_LITERS);
 
@@ -72,7 +69,7 @@ export function CouleurCalculatorScreen() {
   const handleAddMalt = useCallback(() => {
     const newMalt: RecipeColorMalt = {
       id: Date.now().toString(),
-      malt: fermentableMaltCatalog[6], // Cara 20 as default
+      maltIndex: 6, // Cara 20 as default
       weightKg: 0.3,
     };
     setRecipeMalts((prev) => [...prev, newMalt]);
@@ -88,6 +85,23 @@ export function CouleurCalculatorScreen() {
     setRecipeMalts((prev) =>
       prev.map((m) => (m.id === id ? { ...m, weightKg: weight } : m)),
     );
+  }, []);
+
+  const handleMaltIndexChange = useCallback((id: string, delta: 1 | -1) => {
+    setRecipeMalts((prev) =>
+      prev.map((m) => {
+        if (m.id !== id) return m;
+        const next = m.maltIndex + delta;
+        const newIndex =
+          next < 0
+            ? fermentableMaltCatalog.length - 1
+            : next >= fermentableMaltCatalog.length
+              ? 0
+              : next;
+        return { ...m, maltIndex: newIndex };
+      }),
+    );
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
   const handlePrimaryMaltPrev = useCallback(() => {
@@ -107,7 +121,7 @@ export function CouleurCalculatorScreen() {
   // Rapide calculations
   const colorMaltInputs: ColorMaltInput[] = recipeMalts.map((rm) => ({
     weightKg: rm.weightKg,
-    lovibond: rm.malt.lovibond,
+    lovibond: fermentableMaltCatalog[rm.maltIndex].lovibond,
   }));
   const calculatedMcu = calculateMCU(colorMaltInputs, volumeLiters);
   const calculatedSrm = calculateSRMFromMalts(colorMaltInputs, volumeLiters);
@@ -207,39 +221,58 @@ export function CouleurCalculatorScreen() {
                 </Pressable>
               </View>
 
-              {recipeMalts.map((recipeMalt) => (
-                <View key={recipeMalt.id} style={styles.maltRow}>
-                  <View style={styles.maltInfo}>
-                    <Text style={styles.maltName}>{recipeMalt.malt.name}</Text>
-                    <Text style={styles.maltSpecs}>
-                      Lovibond : {recipeMalt.malt.lovibond}°L
-                    </Text>
-                  </View>
-
-                  <View style={styles.maltControls}>
-                    <TextInput
-                      style={styles.weightInput}
-                      value={recipeMalt.weightKg.toString()}
-                      onChangeText={(text) => {
-                        const weight = parseFloat(text) || 0;
-                        handleMaltWeightChange(recipeMalt.id, weight);
-                      }}
-                      keyboardType="numeric"
-                      placeholder="0"
-                    />
-                    <Text style={styles.weightUnit}>kg</Text>
-
-                    {recipeMalts.length > 1 && (
+              {recipeMalts.map((recipeMalt) => {
+                const malt = fermentableMaltCatalog[recipeMalt.maltIndex];
+                return (
+                  <View key={recipeMalt.id} style={styles.maltRow}>
+                    <View style={styles.maltSelectorCompact}>
                       <Pressable
-                        style={styles.removeButton}
-                        onPress={() => handleRemoveMalt(recipeMalt.id)}
+                        style={styles.maltArrowCompact}
+                        onPress={() => handleMaltIndexChange(recipeMalt.id, -1)}
                       >
-                        <Text style={styles.removeButtonText}>×</Text>
+                        <Text style={styles.maltArrowCompactText}>‹</Text>
                       </Pressable>
-                    )}
+
+                      <View style={styles.maltInfoCompact}>
+                        <Text style={styles.maltName}>{malt.name}</Text>
+                        <Text style={styles.maltSpecs}>
+                          Lovibond : {malt.lovibond}°L
+                        </Text>
+                      </View>
+
+                      <Pressable
+                        style={styles.maltArrowCompact}
+                        onPress={() => handleMaltIndexChange(recipeMalt.id, 1)}
+                      >
+                        <Text style={styles.maltArrowCompactText}>›</Text>
+                      </Pressable>
+                    </View>
+
+                    <View style={styles.maltControls}>
+                      <TextInput
+                        style={styles.weightInput}
+                        value={recipeMalt.weightKg.toString()}
+                        onChangeText={(text) => {
+                          const weight = parseFloat(text) || 0;
+                          handleMaltWeightChange(recipeMalt.id, weight);
+                        }}
+                        keyboardType="numeric"
+                        placeholder="0"
+                      />
+                      <Text style={styles.weightUnit}>kg</Text>
+
+                      {recipeMalts.length > 1 && (
+                        <Pressable
+                          style={styles.removeButton}
+                          onPress={() => handleRemoveMalt(recipeMalt.id)}
+                        >
+                          <Text style={styles.removeButtonText}>×</Text>
+                        </Pressable>
+                      )}
+                    </View>
                   </View>
-                </View>
-              ))}
+                );
+              })}
             </Card>
 
             {/* Color preview */}
@@ -290,16 +323,19 @@ export function CouleurCalculatorScreen() {
                 Quelle quantité de malt pour atteindre une couleur cible ?
               </Text>
 
-              <View style={styles.inputRow}>
-                <Text style={styles.inputLabel}>SRM cible</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={targetSrm.toString()}
-                  onChangeText={(text) =>
-                    setTargetSrm(Math.max(1, parseFloat(text) || 1))
-                  }
-                  keyboardType="numeric"
-                  placeholder="15"
+              <View style={styles.paramRow}>
+                <Text style={styles.paramLabel}>SRM cible : {targetSrm}</Text>
+                <Slider
+                  testID="srm-cible"
+                  style={styles.slider}
+                  minimumValue={1}
+                  maximumValue={40}
+                  value={targetSrm}
+                  onValueChange={(val) => setTargetSrm(Math.round(val))}
+                  step={1}
+                  minimumTrackTintColor={colors.brand.primary}
+                  maximumTrackTintColor={colors.neutral.border}
+                  thumbTintColor={colors.brand.primary}
                 />
               </View>
 
@@ -496,8 +532,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral.border,
   },
-  maltInfo: {
+  maltSelectorCompact: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  maltArrowCompact: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.brand.background,
+    borderRadius: radius.sm,
+  },
+  maltArrowCompactText: {
+    fontSize: 18,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.primary,
+  },
+  maltInfoCompact: {
+    flex: 1,
+    alignItems: "center",
   },
   maltName: {
     fontSize: typography.size.label,

@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters=lcov,text",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "typecheck": "tsc --noEmit",

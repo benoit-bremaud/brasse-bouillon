@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
-import { FermentesciblesCalculatorScreen } from "../FermentesciblesCalculatorScreen";
 import React from "react";
+import { FermentesciblesCalculatorScreen } from "../FermentesciblesCalculatorScreen";
 
 // Mock expo-haptics
 jest.mock("expo-haptics", () => ({
@@ -13,10 +13,12 @@ jest.mock("expo-haptics", () => ({
 
 // Mock @react-native-community/slider
 jest.mock("@react-native-community/slider", () => {
-  const React = require("react");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const MockReact = require("react");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require("react-native");
   return function MockSlider(props: { testID?: string }) {
-    return React.createElement(View, {
+    return MockReact.createElement(View, {
       testID: `slider-${props.testID || "default"}`,
       ...props,
     });
@@ -196,6 +198,7 @@ describe("FermentesciblesCalculatorScreen", () => {
     fireEvent.press(copyButton);
 
     // Should trigger alert (mocked)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Alert = require("react-native/Libraries/Alert/Alert");
     expect(Alert.alert).toHaveBeenCalledWith(
       "Résultats copiés",

@@ -8,6 +8,12 @@ export type FermentableInput = {
   weightKg: number;
   ppg: number;
   efmPercent?: number;
+  lovibond?: number;
+};
+
+export type ColorMaltInput = {
+  weightKg: number;
+  lovibond: number;
 };
 
 const LITERS_REFERENCE_FOR_PPG = 10;
@@ -238,4 +244,80 @@ export function calculateIbuTinseth(
   }, 0);
 
   return Math.max(0, totalIbu);
+}
+
+export function calculateMCU(
+  malts: ColorMaltInput[],
+  volumeLiters: number,
+): number {
+  const volume = clampPositive(volumeLiters);
+  if (!volume) {
+    return 0;
+  }
+
+  const volumeGallons = litersToGallons(volume);
+  if (!volumeGallons) {
+    return 0;
+  }
+
+  const totalMCU = malts.reduce((sum, malt) => {
+    const weight = clampPositive(malt.weightKg);
+    const lovibond = clampPositive(malt.lovibond);
+    const weightPounds = weight * 2.2046226218;
+    return sum + weightPounds * lovibond;
+  }, 0);
+
+  return totalMCU / volumeGallons;
+}
+
+export function mcuToSRM(mcu: number): number {
+  if (!Number.isFinite(mcu) || mcu <= 0) {
+    return 0;
+  }
+
+  // Morey equation: SRM = 1.4922 × MCU^0.6859
+  return 1.4922 * Math.pow(mcu, 0.6859);
+}
+
+export function srmToEBC(srm: number): number {
+  if (!Number.isFinite(srm) || srm <= 0) {
+    return 0;
+  }
+
+  return srm * 1.97;
+}
+
+export function calculateSRMFromMalts(
+  malts: ColorMaltInput[],
+  volumeLiters: number,
+): number {
+  const mcu = calculateMCU(malts, volumeLiters);
+  return mcuToSRM(mcu);
+}
+
+export function calculateRequiredMaltForTargetSRM(
+  targetSRM: number,
+  volumeLiters: number,
+  maltLovibond: number,
+): number {
+  const volume = clampPositive(volumeLiters);
+  const lovibond = clampPositive(maltLovibond);
+  const srm = clampPositive(targetSRM);
+
+  if (!volume || !lovibond || !srm) {
+    return 0;
+  }
+
+  // Reverse Morey: MCU = (SRM / 1.4922)^(1/0.6859)
+  const targetMCU = Math.pow(srm / 1.4922, 1 / 0.6859);
+  const volumeGallons = litersToGallons(volume);
+
+  if (!volumeGallons) {
+    return 0;
+  }
+
+  // MCU = (weight_lbs * lovibond) / volume_gallons
+  // weight_lbs = (MCU * volume_gallons) / lovibond
+  const weightPounds = (targetMCU * volumeGallons) / lovibond;
+  return weightPounds / 2.2046226218; // Convert to kg
 }

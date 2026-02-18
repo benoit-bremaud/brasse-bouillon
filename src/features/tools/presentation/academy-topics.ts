@@ -98,7 +98,7 @@ const academyTopicsData: AcademyTopic[] = [
     order: 5,
     estimatedReadTime: "11 min",
     hasCalculator: true,
-    status: "coming-soon",
+    status: "ready",
     mascotVariant: "chemist",
     mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon en chimiste de l'eau",

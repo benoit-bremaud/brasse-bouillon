@@ -246,6 +246,60 @@ export function calculateIbuTinseth(
   return Math.max(0, totalIbu);
 }
 
+/**
+ * Returns the Tinseth utilization factor for a given boil time and gravity.
+ * utilization = bignessFactor × boilTimeFactor
+ *   bignessFactor = 1.65 × 0.000125^(OG - 1)
+ *   boilTimeFactor = (1 - e^(-0.04 × t)) / 4.15
+ */
+export function calculateTinsethUtilization(
+  boilTimeMinutes: number,
+  boilGravitySg: number,
+): number {
+  if (
+    !Number.isFinite(boilTimeMinutes) ||
+    boilTimeMinutes < 0 ||
+    !Number.isFinite(boilGravitySg) ||
+    boilGravitySg <= 0
+  ) {
+    return 0;
+  }
+
+  const bignessFactor = 1.65 * Math.pow(0.000125, boilGravitySg - 1);
+  const boilTimeFactor = (1 - Math.exp(-0.04 * boilTimeMinutes)) / 4.15;
+  return bignessFactor * boilTimeFactor;
+}
+
+/**
+ * Returns the hop weight (grams) required to reach a target IBU.
+ * Derived from Tinseth: weight_g = (targetIbu × volume) / ((alpha/100) × 1000 × utilization)
+ */
+export function calculateRequiredHopGramsForTargetIbu(
+  targetIbu: number,
+  volumeLiters: number,
+  boilGravitySg: number,
+  alphaAcidPercent: number,
+  boilTimeMinutes: number,
+): number {
+  const volume = clampPositive(volumeLiters);
+  const alpha = clampPositive(alphaAcidPercent);
+  const ibu = clampPositive(targetIbu);
+
+  if (!volume || !alpha || !ibu) {
+    return 0;
+  }
+
+  const utilization = calculateTinsethUtilization(
+    boilTimeMinutes,
+    boilGravitySg,
+  );
+  if (!utilization) {
+    return 0;
+  }
+
+  return (ibu * volume) / ((alpha / 100) * 1000 * utilization);
+}
+
 export function calculateMCU(
   malts: ColorMaltInput[],
   volumeLiters: number,

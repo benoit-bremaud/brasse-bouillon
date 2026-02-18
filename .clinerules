@@ -34,7 +34,54 @@ src/
 
 ---
 
-## 3. Workflow — Always follow this order
+## 3. Git Workflow — Branch per task, no exceptions
+
+### Branch creation
+
+- **Every task requires a new dedicated branch** — including new features, improvements, refactors, bug fixes, and chores.
+- Always branch from `main` (or the current default integration branch).
+- **Never commit directly to `main`.**
+- **Never reuse an existing branch for a separate, unrelated task.**
+
+| Type     | Pattern            | Example                        |
+| -------- | ------------------ | ------------------------------ |
+| Feature  | `feat/<scope>`     | `feat/color-calculator`        |
+| Bug fix  | `fix/<scope>`      | `fix/srm-edge-case`            |
+| Refactor | `refactor/<scope>` | `refactor/color-calculator-ux` |
+| Chore    | `chore/<scope>`    | `chore/update-clinerules`      |
+| Docs     | `docs/<scope>`     | `docs/readme-setup`            |
+
+```bash
+git checkout main
+git checkout -b <branch-name>
+```
+
+### Commits
+
+- Use **Conventional Commits** format: `<type>(<scope>): <short description>`
+- Group logically related file changes in the same commit.
+- After `npm run ci:check` passes, push automatically:
+
+  ```bash
+  git push -u origin <branch-name>
+  ```
+
+### Pull Request flow
+
+1. Create branch from `main` → implement → test → `npm run ci:check`
+2. Commit (conventional format) + `git push -u origin <branch-name>`
+3. **Ask the user for explicit validation before creating the PR**
+4. Only after user approval, create the PR:
+
+   ```bash
+   gh pr create --title "<type>(<scope>): <description>" --body "<summary of changes>"
+   ```
+
+5. **Never merge** — always wait for user review and approval.
+
+---
+
+## 4. Workflow — Always follow this order
 
 **Before any code change:**
 
@@ -47,12 +94,13 @@ src/
 
 **After implementing:**
 
-- Remind the user to run `npm run ci:check` to validate the changes.
-- Remind the user to run `npm test` to ensure no regression.
+- Run `npm run ci:check` to validate the changes.
+- Run `npm test` to ensure no regression.
+- Push the branch and ask for user validation before creating the PR.
 
 ---
 
-## 4. Architecture Rules
+## 5. Architecture Rules
 
 ### Clean Architecture — strictly layered (no cross-layer shortcuts)
 
@@ -89,7 +137,7 @@ Available at runtime (Expo public):
 
 ---
 
-## 5. Code Style & Naming Conventions
+## 6. Code Style & Naming Conventions
 
 ### TypeScript
 
@@ -126,7 +174,7 @@ Available at runtime (Expo public):
 
 ---
 
-## 6. Testing
+## 7. Testing
 
 Tests are **mandatory for every new feature**.
 
@@ -149,7 +197,7 @@ npm test -- <path>     # run a specific test file
 
 ---
 
-## 7. CI Check
+## 8. CI Check
 
 Always ensure the following passes before considering a task done:
 
@@ -160,7 +208,7 @@ npm test           # all tests green
 
 ---
 
-## 8. Forbidden — Off-limits without explicit user request
+## 9. Forbidden — Off-limits without explicit user request
 
 ### Config files — DO NOT modify without being explicitly asked
 

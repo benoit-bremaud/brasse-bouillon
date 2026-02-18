@@ -50,7 +50,7 @@ describe("HoublonsCalculatorScreen", () => {
     it("displays initial hop additions from catalog", () => {
       render(<HoublonsCalculatorScreen />);
 
-      // Cascade (index 4) and Citra (index 5) are initial hops
+      // Cascade (index 2) and Citra (index 5) are initial hops
       expect(screen.getByText("Cascade")).toBeTruthy();
       expect(screen.getByText("Citra")).toBeTruthy();
     });
@@ -125,8 +125,8 @@ describe("HoublonsCalculatorScreen", () => {
       const nextButtons = screen.getAllByText("›");
       fireEvent.press(nextButtons[0]);
 
-      // Cascade (index 4) → Centennial (index 5) … but Citra is already at 5
-      // The first hop moves from index 4 to 5 = Citra; second was already Citra → now Citra appears twice
+      // Cascade (index 2) → Centennial (index 3) … but Citra is already at 5
+      // The first hop moves from index 2 to 3 = Centennial; second was already Citra → check Cascade is gone
       // or Centennial, depending on catalog ordering — just check Cascade is gone from first position
       // and a different variety name appears alongside
       const hopNames = screen.getAllByText(/[A-Z][a-z]/);
@@ -200,7 +200,7 @@ describe("HoublonsCalculatorScreen", () => {
       fireEvent.press(screen.getByText("Inversé"));
 
       expect(screen.getByText("Variété de houblon")).toBeTruthy();
-      // Cascade is initial variety (index 4)
+      // Cascade is initial variety (index 2)
       expect(screen.getByText("Cascade")).toBeTruthy();
       expect(screen.getByText(/AA moyen : 5\.8% · USA/)).toBeTruthy();
     });
@@ -232,7 +232,7 @@ describe("HoublonsCalculatorScreen", () => {
       const nextButton = screen.getByText("›");
       fireEvent.press(nextButton);
 
-      // After pressing next from Cascade (index 4), goes to Centennial (index 5)
+      // After pressing next from Cascade (index 2), goes to Centennial (index 3)
       expect(screen.getByText("Centennial")).toBeTruthy();
     });
 

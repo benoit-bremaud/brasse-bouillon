@@ -43,3 +43,4 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           retention-days: 7
+          if-no-files-found: warn

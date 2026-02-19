@@ -124,9 +124,46 @@ src/<feature>/
 - Conventional Commits : `<type>(<scope>): <description>`
 - Types : `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `ci`
 - Exemples : `feat(recipe): add ingredients CRUD API`, `test(batch): cover fermentation edge cases`
+- Nouvelle branche obligatoire pour chaque tâche/feature/fix/docs/ci : `<type>/<scope>` créée depuis `main`
+- Interdiction de travailler directement sur `main` pour une nouvelle tâche
 - PR template disponible : `.github/pull_request_template.md`
 - Copilot review automatique sur chaque PR
 - Review humaine requise par `@vitalikevin` (CODEOWNERS)
+
+## Routine PR & Copilot (OBLIGATOIRE)
+
+### 1) Gate de qualité avant revue finale/merge
+- Après chaque push PR, vérifier les checks via `gh pr checks <pr_number>` (ou mode watch)
+- Tous les checks requis doivent être **au vert** avant toute proposition de merge
+- Aucune étape CI ne doit rester en `pending` / `in_progress` au moment de clôture de la revue
+
+### 2) Traitement systématique des commentaires Copilot
+- Tous les commentaires/threads Copilot doivent être lus et traités
+- Chaque suggestion est classée explicitement :
+  - `MUST_HAVE` : sécurité, bug fonctionnel, intégrité des données, régression API/contrat, violation des règles d'architecture, échec tests/build/lint
+  - `SHOULD_HAVE` : amélioration importante mais non bloquante
+  - `NICE_TO_HAVE` : amélioration de confort/maintenabilité non urgente
+  - `REJECT` : suggestion non pertinente dans le contexte
+- Chaque commentaire Copilot doit recevoir une réponse explicite avec : classification, décision, justification concise
+
+### 3) Politique d'implémentation des suggestions
+- Implémenter en PR uniquement les suggestions `MUST_HAVE` pertinentes
+- Pour chaque suggestion `SHOULD_HAVE` ou `NICE_TO_HAVE`, poser une question **une par une** à l'utilisateur :
+  - « Souhaitez-vous que je crée une issue backlog pour cette suggestion ? »
+- Si accord utilisateur : créer une issue backlog avec titre en convention Angular/Conventional :
+  - `type(scope): description`
+- Tracer le lien de l'issue (ou le refus utilisateur) dans la réponse du thread concerné
+
+### 4) Clôture des conversations Copilot
+- Une fois la réponse postée et la décision tracée, fermer immédiatement la conversation correspondante
+- Aucune conversation Copilot ne doit rester ouverte en fin de traitement PR
+
+### 5) Définition de terminé (Done) pour une PR
+- Checks CI requis : ✅
+- Tous les commentaires Copilot : réponse + décision tracée : ✅
+- Tous les threads traités : fermés : ✅
+- Toutes les suggestions `MUST_HAVE` pertinentes : implémentées : ✅
+- Toutes les suggestions `SHOULD_HAVE`/`NICE_TO_HAVE` : décision backlog demandée à l'utilisateur, une par une : ✅
 
 ## Ce que Cline NE doit PAS faire
 

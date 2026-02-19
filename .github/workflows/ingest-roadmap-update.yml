@@ -61,6 +61,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -87,7 +89,9 @@ jobs:
           import json
           import os
           import pathlib
+          import re
           import sys
+          import uuid
 
           event_name = os.environ["GITHUB_EVENT_NAME"]
           event_path = pathlib.Path(os.environ["GITHUB_EVENT_PATH"])
@@ -126,17 +130,47 @@ jobs:
               print(f"Missing required payload keys: {', '.join(missing)}")
               sys.exit(1)
 
-          repo_short = str(payload["source_repo"]).split("/")[-1]
+          source_repo = str(payload["source_repo"]).strip()
+          pr_number = str(payload["pr_number"]).strip()
+          pr_url = str(payload["pr_url"]).strip()
+
+          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source_repo):
+              print("Invalid source_repo format")
+              sys.exit(1)
+
+          if not re.fullmatch(r"[0-9]+", pr_number):
+              print("Invalid pr_number format")
+              sys.exit(1)
+
+          if not re.fullmatch(r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+", pr_url):
+              print("Invalid pr_url format")
+              sys.exit(1)
+
+          repo_short = source_repo.split("/")[-1]
           payload_path = pathlib.Path("tmp-roadmap-payload.json")
           payload_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
-          with pathlib.Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as fh:
+          github_output = os.environ.get("GITHUB_OUTPUT", "")
+          if not github_output:
+              print("GITHUB_OUTPUT is not set")
+              sys.exit(1)
+
+          summary_fr = str(payload["summary_fr"]).replace("\r\n", "\n")
+          summary_en = str(payload["summary_en"]).replace("\r\n", "\n")
+          summary_fr_delimiter = f"EOF_SUMMARY_FR_{uuid.uuid4().hex}"
+          summary_en_delimiter = f"EOF_SUMMARY_EN_{uuid.uuid4().hex}"
+
+          with pathlib.Path(github_output).open("a", encoding="utf-8") as fh:
               fh.write(f"payload_file={payload_path.as_posix()}\n")
               fh.write(f"repo_short={repo_short}\n")
-              fh.write(f"pr_number={payload['pr_number']}\n")
-              fh.write(f"pr_url={payload['pr_url']}\n")
-              fh.write(f"summary_fr={payload['summary_fr']}\n")
-              fh.write(f"summary_en={payload['summary_en']}\n")
+              fh.write(f"pr_number={pr_number}\n")
+              fh.write(f"pr_url={pr_url}\n")
+              fh.write(f"summary_fr<<{summary_fr_delimiter}\n")
+              fh.write(summary_fr)
+              fh.write(f"\n{summary_fr_delimiter}\n")
+              fh.write(f"summary_en<<{summary_en_delimiter}\n")
+              fh.write(summary_en)
+              fh.write(f"\n{summary_en_delimiter}\n")
           PY
 
       - name: Sync roadmap feed and markdown

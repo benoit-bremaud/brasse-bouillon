@@ -316,12 +316,11 @@ def main() -> int:
             raise ValueError("Feed entries are invalid after update")
 
         update_roadmap_markdown(entries, ROADMAP_PATH)
+        print(f"✅ Roadmap sync completed for {payload.key}")
+        return 0
     except Exception as exc:  # pragma: no cover - explicit CLI failure path
         print(f"❌ Roadmap sync failed: {exc}")
         return 1
-
-    print(f"✅ Roadmap sync completed for {payload.key}")
-    return 0
 
 
 if __name__ == "__main__":

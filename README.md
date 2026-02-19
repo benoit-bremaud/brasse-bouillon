@@ -1,6 +1,6 @@
 # Brasse-Bouillon Backend
 
-API NestJS pour l'application **Brasse-Bouillon** (assistant de brassage), avec authentification JWT, gestion des utilisateurs, profils d'équipement, recettes, lots de brassage, rappels de fermentation et agrégation de la qualité de l'eau via Hub'Eau.
+API NestJS pour l'application **Brasse-Bouillon** (assistant de brassage), avec authentification JWT, gestion des utilisateurs, profils d'équipement, recettes, lots de brassage et rappels de fermentation.
 
 ## Fonctionnalités principales
 
@@ -9,7 +9,6 @@ API NestJS pour l'application **Brasse-Bouillon** (assistant de brassage), avec 
 - Équipements (`/equipment-profiles`): CRUD par utilisateur
 - Recettes (`/recipes`): CRUD + étapes de workflow
 - Batches (`/batches`): démarrage de brassin, progression d'étapes, fermentation, rappels
-- Eau (`/eau`): profil d'eau agrégé par commune/année via Hub'Eau
 - Documentation Swagger (activée hors prod, ou via variable dédiée)
 
 ## Stack technique
@@ -42,13 +41,6 @@ Variables importantes utilisées par l'API :
 | `TYPEORM_SYNCHRONIZE` | Non | `false` | Synchronisation auto du schéma (à éviter en prod) |
 | `TYPEORM_LOGGING` | Non | auto selon env | Niveau de logs TypeORM |
 | `SWAGGER_ENABLED` | Non | auto selon env | Force l'activation Swagger (`true`/`false`) |
-| `WATER_PROVIDER_DEFAULT` | Non | `hubeau` | Provider eau par défaut (`hubeau`) |
-| `HUBEAU_BASE_URL` | Non | API Hub'Eau publique | URL de base du provider Hub'Eau |
-| `HUBEAU_TIMEOUT_MS` | Non | `8000` | Timeout des appels HTTP Hub'Eau (ms) |
-| `HUBEAU_CACHE_TTL_SECONDS` | Non | `3600` | TTL du cache mémoire des réponses eau |
-| `HUBEAU_MAX_SAMPLES` | Non | `50` | Nombre max d'échantillons utilisés pour l'agrégation |
-| `HUBEAU_COMMUNES_UDI_SIZE` | Non | `10` | Taille de page Hub'Eau pour la recherche de réseau (communes_udi) |
-| `HUBEAU_RESULTATS_DIS_SIZE` | Non | `100` | Taille de page Hub'Eau pour les prélèvements (resultats_dis) |
 | `SEED_ENDPOINTS_ENABLED` | Non | `false` | Active les endpoints de seed dev |
 | `SEED_ENDPOINTS_TOKEN` | Non | vide | Token optionnel pour protéger les endpoints de seed |
 
@@ -141,51 +133,9 @@ src/
   equipment/    # Profils d'équipement
   recipe/       # Recettes et étapes
   batch/        # Batches, fermentation, reminders
-  eau/          # Agrégation qualité de l'eau (Hub'Eau)
   database/     # Config TypeORM + migrations
   common/       # Filtres, interceptors, DTO communs
 ```
-
-## Endpoint Eau (Hub'Eau)
-
-Endpoint unique pour le frontend :
-
-- **GET** `/eau`
-- **Sécurité** : `Authorization: Bearer <jwt>` (guard JWT)
-- **But** : récupérer un profil d'eau agrégé (réseau dominant, minéraux, dureté) pour une commune et une année.
-
-Paramètres de query :
-
-| Paramètre | Type | Obligatoire | Exemple | Description |
-|---|---|---|---|---|
-| `codeInsee` | `string` | ✅ | `44109` | Code INSEE commune (5 chiffres) |
-| `annee` | `number` | ✅ | `2024` | Année des prélèvements (min 2000) |
-| `provider` | `string` | Non | `hubeau` | Provider externe (par défaut: config serveur) |
-
-Réponse 200 (extrait) :
-
-```json
-{
-  "provider": "hubeau",
-  "codeInsee": "44109",
-  "annee": 2024,
-  "nomReseau": "NANTES NORD",
-  "nbPrelevements": 24,
-  "conformite": "C",
-  "minerauxMgL": {
-    "ca": 80.3,
-    "mg": 11.2,
-    "cl": 22.1,
-    "so4": 31.4,
-    "hco3": 210.6
-  },
-  "dureteFrancais": 24.7
-}
-```
-
-`conformite` peut valoir `C`, `N`, `D`, `S` ou `INCONNU`.
-
-Codes d'erreur documentés : `400`, `401`, `404`, `502`.
 
 ## Roadmap
 

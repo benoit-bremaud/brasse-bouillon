@@ -24,7 +24,7 @@
 | Conteneurisation | Docker multi-stage (node:20-bookworm-slim) |
 | CI | GitHub Actions |
 | CD | GHCR (GitHub Container Registry) |
-| Qualité code | SonarCloud (ajouté le 2026-02-18) |
+| Qualité code | Lint + tests + security audit en CI (SonarCloud planifié) |
 
 ### Architecture par module
 Le projet suit une **Clean Architecture** par module feature :
@@ -34,7 +34,7 @@ src/
   auth/          ← Auth JWT, guards, strategies, decorators
   user/          ← Utilisateurs, profil, rôles, seed dev
   equipment/     ← Profils d'équipement (CRUD owner-scoped)
-  recipe/        ← Recettes + étapes + ingrédients (ORM seult.)
+  recipe/        ← Recettes + étapes (ingrédients à implémenter)
   batch/         ← Brassins, étapes, fermentation, rappels
   database/      ← Config TypeORM + migrations
   common/        ← Filtres, interceptors, DTOs communs, enums
@@ -116,8 +116,8 @@ Chaque module respecte (en grande partie) la structure :
 | `PATCH /recipes/:id/steps/:order` | ✅ Ownership enforced |
 
 **Observations :**
-- Les ingrédients (fermentables, hops, yeasts, water, additives) existent en **DB et ORM entities** mais **aucun endpoint HTTP** n'est exposé ❌ — **lacune majeure à combler**
-- `RecipeOrmEntity` n'a pas de `@OneToMany` vers les entités ingrédients ❌ — les FK existent uniquement dans la migration SQL
+- Les ingrédients (fermentables, hops, yeasts, water, additives) ne sont **pas encore implémentés** : pas de migration dédiée, pas d'ORM entities, pas d'API HTTP ❌
+- `RecipeOrmEntity` n'a pas de `@OneToMany` vers des entités ingrédients ❌
 - La suppression de recette est correctement protégée par un FK guard (erreur si batch référence la recette) ✅
 - Aucun test de controller ⚠️
 
@@ -148,12 +148,12 @@ Chaque module respecte (en grande partie) la structure :
 | Migration | Contenu |
 |---|---|
 | `1739439600000-InitialSchema` | Tables users, equipment_profiles, recipes, recipe_steps, batches, batch_steps, batch_reminders |
-| `1771345553838-AddIngredientsAndMetrics` | Tables recipe_fermentables, recipe_hops, recipe_yeasts, recipe_water, recipe_additives + colonnes métriques sur recipes |
 
 **Observations :**
 - Les migrations utilisent `PRAGMA foreign_keys = OFF/ON` — correct pour SQLite ✅
-- Les index sont bien nommés (`IDX_<table>_<colonne>`) ✅
-- Les FK sont bien nommées (`FK_<table>_<colonne>`) dans InitialSchema ✅, mais la migration `AddIngredientsAndMetrics` (générée auto) utilise des noms hachés pour les index ⚠️ (cosmétique uniquement)
+- Les index sont bien nommés (`IDX_<table>_<colonne>`) dans `InitialSchema` ✅
+- Les FK sont bien nommées (`FK_<table>_<colonne>`) dans `InitialSchema` ✅
+- Aucune migration ingrédients/métriques n'est présente à ce stade ❌
 - Les colonnes `updated_at` ne sont pas auto-mises à jour par trigger DB (uniquement via TypeORM `@UpdateDateColumn`) — acceptable ✅
 - **Pas de migration PostgreSQL** — toujours sur SQLite ❌ (décision produit connue, à faire)
 
@@ -208,7 +208,9 @@ Tests:       2 skipped, 54 passed, 56 total
 |---|---|
 | Build + Lint + Test | ✅ Opérationnel |
 | Security Audit (prod, critical only) | ✅ Opérationnel |
-| SonarCloud Analysis | ✅ **Ajouté le 2026-02-18** |
+
+**Observation CI :**
+- Aucune étape SonarCloud/SonarQube n'est actuellement configurée dans `ci.yml` ⚠️
 
 ### Pipeline CD (`.github/workflows/cd-docker.yml`)
 | Job | Statut |
@@ -264,12 +266,12 @@ Tests:       2 skipped, 54 passed, 56 total
 ## 8. Priorités recommandées
 
 ### 🔴 Critique (bloquer MVP)
-1. **Ingredients CRUD API** — Les tables et ORM entities existent ; implémenter controllers + services + DTOs pour fermentables, hops, yeasts, water, additives sous `/recipes/:id/fermentables`, `/recipes/:id/hops`, etc.
-2. **TypeORM relations** — Ajouter `@OneToMany` dans `RecipeOrmEntity` vers toutes les entités ingrédients.
+1. **Ingredients foundation + CRUD API** — Créer la migration DB, les ORM entities et l'API HTTP (controllers/services/DTOs) pour fermentables, hops, yeasts, water, additives sous `/recipes/:id/fermentables`, `/recipes/:id/hops`, etc.
+2. **TypeORM relations** — Ajouter `@OneToMany` dans `RecipeOrmEntity` vers les entités ingrédients une fois ces entités créées.
 
 ### 🟠 Important (qualité et robustesse)
 3. **Couverture tests** — Atteindre ≥60% (ajouter tests controllers recipe, equipment, batch + AuthService)
-4. **SonarCloud** — Finaliser la configuration (créer le projet SonarCloud, ajouter le secret `SONAR_TOKEN`)
+4. **SonarCloud** — Ajouter l'intégration CI (coverage upload + analyse) puis configurer le projet/secret `SONAR_TOKEN`
 5. **Batch DELETE** — Ajouter `DELETE /batches/:id` (soft ou hard delete, scoped owner)
 6. **Rate limiting** — Ajouter `@nestjs/throttler` sur les endpoints `/auth/login` et `/auth/register`
 
@@ -297,9 +299,9 @@ Tests:       2 skipped, 54 passed, 56 total
 | Vulnérabilités critiques npm | 0 | 0 |
 | Modules feature | 5 (auth, user, equipment, recipe, batch) | - |
 | Endpoints HTTP | ~30 | - |
-| Migrations | 2 | - |
+| Migrations | 1 | - |
 | PR mergées | 30 | - |
 
 ---
 
-*Prochain audit recommandé après implémentation des ingrédients CRUD et mise en place de SonarCloud.*
+*Prochain audit recommandé après implémentation de la fondation ingrédients (migration + ORM + API) et ajout de l'étape SonarCloud en CI.*

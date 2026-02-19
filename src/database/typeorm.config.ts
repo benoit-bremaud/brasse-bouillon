@@ -5,8 +5,13 @@ import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.ent
 import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
 import { DataSourceOptions } from 'typeorm';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
+import { RecipeFermentableOrmEntity } from '../recipe/entities/recipe-fermentable.orm.entity';
+import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
+import { RecipeWaterOrmEntity } from '../recipe/entities/recipe-water.orm.entity';
+import { RecipeYeastOrmEntity } from '../recipe/entities/recipe-yeast.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 
@@ -21,6 +26,11 @@ export const ormEntities = [
   BatchReminderOrmEntity,
   RecipeOrmEntity,
   RecipeStepOrmEntity,
+  RecipeFermentableOrmEntity,
+  RecipeHopOrmEntity,
+  RecipeYeastOrmEntity,
+  RecipeAdditiveOrmEntity,
+  RecipeWaterOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

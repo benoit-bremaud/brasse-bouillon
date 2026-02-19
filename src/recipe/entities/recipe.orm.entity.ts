@@ -1,4 +1,3 @@
-import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +6,8 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
 @Entity('recipes')
 @Index(['owner_id'])
@@ -42,6 +43,31 @@ export class RecipeOrmEntity {
 
   @Column({ type: 'varchar', length: 36, nullable: true })
   parent_recipe_id?: string | null;
+
+  // Brewing metrics and targets
+  @Column({ type: 'real', nullable: true })
+  batch_size_l?: number | null;
+
+  @Column({ type: 'integer', nullable: true })
+  boil_time_min?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  og_target?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  fg_target?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  abv_estimated?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  ibu_target?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  ebc_target?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  efficiency_target?: number | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

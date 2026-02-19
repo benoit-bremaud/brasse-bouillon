@@ -53,6 +53,14 @@ export class RecipeService {
         version: recipe.version,
         root_recipe_id: recipe.rootRecipeId,
         parent_recipe_id: recipe.parentRecipeId ?? null,
+        batch_size_l: dto.batch_size_l ?? null,
+        boil_time_min: dto.boil_time_min ?? null,
+        og_target: dto.og_target ?? null,
+        fg_target: dto.fg_target ?? null,
+        abv_estimated: dto.abv_estimated ?? null,
+        ibu_target: dto.ibu_target ?? null,
+        ebc_target: dto.ebc_target ?? null,
+        efficiency_target: dto.efficiency_target ?? null,
       });
 
       const saved = await recipeRepo.save(entity);
@@ -88,6 +96,19 @@ export class RecipeService {
     if (dto.name !== undefined) entity.name = dto.name;
     if (dto.description !== undefined) entity.description = dto.description;
     if (dto.visibility !== undefined) entity.visibility = dto.visibility;
+
+    // Update brewing metrics
+    if (dto.batch_size_l !== undefined) entity.batch_size_l = dto.batch_size_l;
+    if (dto.boil_time_min !== undefined)
+      entity.boil_time_min = dto.boil_time_min;
+    if (dto.og_target !== undefined) entity.og_target = dto.og_target;
+    if (dto.fg_target !== undefined) entity.fg_target = dto.fg_target;
+    if (dto.abv_estimated !== undefined)
+      entity.abv_estimated = dto.abv_estimated;
+    if (dto.ibu_target !== undefined) entity.ibu_target = dto.ibu_target;
+    if (dto.ebc_target !== undefined) entity.ebc_target = dto.ebc_target;
+    if (dto.efficiency_target !== undefined)
+      entity.efficiency_target = dto.efficiency_target;
 
     return this.repo.save(entity);
   }

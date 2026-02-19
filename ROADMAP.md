@@ -1,6 +1,6 @@
 # Brasse-Bouillon Roadmap
 
-Last updated: 2026-02-06
+Last updated: 2026-02-19 (session 4)
 
 ## Vision
 Mobile-first assistant for homebrewers and craft brewers to design, brew, and
@@ -30,6 +30,7 @@ modern, and offline-first.
 - Copilot review: auto-review via repo/org config; mention `@copilot` in PRs.
 - Reviewers: CODEOWNERS configured to request review from `@vitalikevin`.
 - Clean Architecture inside feature modules (domain/application/infrastructure/presentation).
+- Code quality gates in CI: lint + tests + security audit (SonarCloud planned).
 
 ## MVP Scope (Mobile)
 1) Authentication
@@ -108,26 +109,36 @@ modern, and offline-first.
 - Recipes module (CRUD + persistence scoped to current user)
 - Recipe steps workflow (default mash/boil/whirlpool/fermentation/packaging)
 - Recipe steps persistence + minimal editing API (label/description) + lazy backfill
+- Recipe brewing metrics fields (batch_size_l, boil_time_min, og_target, fg_target, abv_estimated, ibu_target, ebc_target, efficiency_target)
 - Brewing assistant workflow model: Batch domain (domain-only)
 - Brewing assistant: Batch persistence + service (no HTTP yet)
 - Brewing assistant: Batch API + auth integration
 - Brewing assistant: Fermentation + reminders API
+- JWT integration tests (auth.protected.e2e-spec.ts — valid/invalid/expired/missing token)
+- Security: npm audit pipeline hardening (critical-only gate + tar override for sqlite3 chain)
+- DB config alignment with migrations (typeorm.config.ts + data-source.ts synchronized)
 - CI: GitHub Actions build + test + lint:check
+- CI: Security audit job (production deps, critical-only)
 - CI: auto-request Copilot review on new PRs
 - CD: build and push Docker image to GHCR on merges to main
 - Repo: CODEOWNERS auto-requests review from `@vitalikevin`
 
 ### In Progress
-- Backend stabilization and hardening
-- Roadmap maintenance (this document)
+- Test coverage improvement (currently ~33% — target ≥60%)
+- SonarCloud setup planning (project onboarding + CI integration still pending)
 
 ### To Do
 Phase 1 - MVP Backend
-- Calculators service (ABV/IBU first)
+- Ingredients foundation: DB migration + ORM entities + CRUD API (fermentables/hops/yeasts/water/additives)
+- TypeORM `@OneToMany` relations between `RecipeOrmEntity` and ingredient entities
+- Swagger `@ApiBearerAuth()` alignment (reference name `'JWT-auth'` vs default)
+- Calculators service (ABV/IBU first, Tinseth)
 - Offline sync API design (last-write-wins)
 - Role model expansion (beyond ADMIN/MODERATOR/USER)
 - Legal compliance checks (age, country gating)
-- PostgreSQL migrations (baseline schema)
+- PostgreSQL migrations (baseline schema migration from SQLite)
+- Test coverage improvement — unit tests for recipe/equipment/batch controllers (target ≥60%)
+- Batch DELETE endpoint (no soft-delete, scoped to owner)
 
 Phase 2 - MVP Mobile
 - Recipe browsing + favorites
@@ -144,11 +155,14 @@ Phase 3 - Post-MVP
 - Multi-batch analytics and insights
 
 ## Open Questions (Need Decisions)
-- Exact required vs optional recipe fields (MVP).
+- Exact required vs optional recipe fields (MVP) — especially for ingredients.
+- Which ingredient fields are mandatory at creation vs optional?
 - Default values for equipment fields (per system type).
 - Offline conflict UI beyond last-write-wins (V1+).
 - Legal requirements for France + EU (disclaimers, data retention).
 - Expanded roles and permissions beyond user/admin (scope + permissions).
+- SonarCloud organization/project key — self-hosted SonarQube vs SonarCloud (free tier)?
+- PostgreSQL target version and migration strategy from SQLite.
 
 ## Changelog
 - 2026-01-29: Initial roadmap created from user requirements.
@@ -159,3 +173,5 @@ Phase 3 - Post-MVP
 - 2026-02-05: Added batch persistence + service (PR #19).
 - 2026-02-06: Added batch API endpoints + auth integration (PR #21).
 - 2026-02-06: Added fermentation + reminders API (PR #24).
+- 2026-02-18: Full repo audit. Confirmed JWT protected e2e tests and CI security audit hardening; refined backend priorities and open questions.
+- 2026-02-19 (session 4): Documentation consistency pass after Copilot review; removed unimplemented items from "Done" and aligned statuses with the current codebase.

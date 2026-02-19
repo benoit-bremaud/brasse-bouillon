@@ -1,0 +1,177 @@
+# Brasse-Bouillon Backend — Cline Rules
+
+## Contexte du projet
+
+Application backend NestJS pour **Brasse-Bouillon**, un assistant de brassage artisanal.
+- **Stack** : Node.js 20, NestJS 11, TypeScript strict, TypeORM, SQLite (dev) / PostgreSQL (prod), JWT/Passport, Docker multi-stage.
+- **Architecture** : Clean Architecture par module feature (`domain/` → `services/` → `controllers/` + `entities/` ORM séparées du domaine).
+- **Base de données** : migrations TypeORM obligatoires (`src/database/migrations/`), jamais de `synchronize: true` en production.
+- **Référentiel GitHub** : `benoit-bremaud/brasse-bouillon-backend`
+
+## Fichiers de référence
+
+- `ROADMAP.md` — vision produit, décisions, état d'avancement, changelog
+- `AUDIT.md` — rapport d'audit technique daté (mis à jour à chaque audit)
+- `.github/copilot-instructions.md` — règles pour GitHub Copilot
+- `src/database/migrations/` — toutes les migrations de schéma
+
+## Conventions de code
+
+### Nommage
+- **Fichiers** : kebab-case (`recipe-step.orm.entity.ts`, `batch-domain.service.ts`)
+- **Classes/Interfaces** : PascalCase (`RecipeOrmEntity`, `BatchDomainService`)
+- **Méthodes/Variables** : camelCase
+- **Colonnes DB / champs ORM** : snake_case (`owner_id`, `batch_size_l`, `created_at`)
+- **Champs domaine (domain entities)** : camelCase (`ownerId`, `batchSizeL`, `createdAt`)
+- **Enums** : PascalCase + valeurs SCREAMING_SNAKE_CASE (`BatchStatus.IN_PROGRESS`)
+
+### TypeScript
+- Toujours utiliser le typage strict (`"strict": true` dans `tsconfig.json`)
+- Éviter `any` — utiliser `unknown` + narrowing ou des types précis
+- Préférer `readonly` pour les propriétés immuables dans le domaine
+- Utiliser `class-validator` + `class-transformer` pour tous les DTOs HTTP
+- Décorer tous les DTOs avec `@ApiProperty()` / `@ApiPropertyOptional()` pour Swagger
+
+## Architecture — Règles strictes
+
+### Structure par module
+Chaque module feature doit respecter :
+```
+src/<feature>/
+  <feature>.module.ts
+  controllers/           ← thin controllers, orchestration HTTP only
+  services/              ← application services (use-case layer)
+  dtos/                  ← DTOs d'entrée/sortie HTTP (class-validator)
+  entities/              ← ORM entities TypeORM (infrastructure)
+  domain/
+    entities/            ← domain entities (pure TypeScript, no NestJS/ORM)
+    enums/               ← domain enums
+    services/            ← domain services (pure business logic, no NestJS)
+```
+
+### Règles domaine
+- Le **domaine** (`domain/`) NE DOIT PAS importer NestJS, TypeORM ou tout framework
+- Le domaine contient uniquement la logique métier pure et testable unitairement
+- Les **entités ORM** (`entities/*.orm.entity.ts`) sont distinctes des entités domaine (`domain/entities/*.entity.ts`)
+- Les **services applicatifs** (`services/`) orchestrent le domaine + les repos TypeORM
+- Les **controllers** sont fins : pas de logique métier, uniquement parsing HTTP → appel service → mapping DTO
+
+### Ownership et sécurité
+- Toutes les routes protégées utilisent `@UseGuards(JwtAuthGuard)`
+- La propriété des ressources est toujours vérifiée via `owner_id = user.id` (jamais de trust sur un paramètre client)
+- Les endpoints admin utilisent en plus `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles(UserRole.ADMIN)`
+- Les endpoints seed dev sont gated via `SEED_ENDPOINTS_ENABLED` et `SEED_ENDPOINTS_TOKEN`
+
+### Swagger
+- Utiliser `@ApiBearerAuth('JWT-auth')` (avec le nom explicite) sur tous les controllers protégés
+- Taguer chaque controller avec `@ApiTags('...')`
+- Documenter toutes les réponses possibles (`@ApiOkResponse`, `@ApiCreatedResponse`, `@ApiBadRequestResponse`, etc.)
+
+## Base de données
+
+### Migrations
+- **Toujours** créer une migration pour tout changement de schéma : `npm run migration:generate`
+- Nommer les migrations explicitement : `<timestamp>-<PascalCaseName>.ts`
+- Le `down()` doit annuler proprement le `up()`
+- Ne jamais modifier une migration déjà mergée sur `main`
+- Pas de `TYPEORM_SYNCHRONIZE=true` en production ni en staging
+
+### Conventions de schéma
+- IDs : `varchar UUID` generé côté applicatif avec `randomUUID()`
+- Timestamps : `created_at` et `updated_at` sur toutes les tables (`datetime NOT NULL DEFAULT CURRENT_TIMESTAMP`)
+- Foreign keys : toujours nommées (`FK_<table>_<colonne>`)
+- Index : toujours nommés (`IDX_<table>_<colonne>`)
+- Contraintes CHECK pour les enums en DB (pas seulement en application)
+
+## Tests
+
+### Structure
+- **Tests unitaires** (`*.spec.ts`) dans `src/` : domaine + services applicatifs + controllers
+- **Tests e2e** (`*.e2e-spec.ts`) dans `test/` et `src/<module>/` : flux HTTP complets
+- Les tests de domaine n'ont **aucune dépendance** NestJS ou TypeORM
+- Les tests de service utilisent SQLite `:memory:` avec `synchronize: true` (uniquement pour les tests)
+
+### Couverture
+- Objectif de couverture : **≥60%** statements et branches
+- Rapport de couverture généré en LCOV pour SonarCloud : `npm run test:cov`
+- Rapport disponible dans `coverage/lcov.info`
+
+### Conventions
+- Nommer les suites `describe('<ClassName>')` et les cas `it('should <behavior>')`
+- Tester les cas d'erreur autant que les cas nominaux
+- Les tests e2e doivent isoler la DB (`:memory:` ou DB de test séparée)
+- Supprimer les données entre chaque test (`beforeEach` clean)
+
+## CI/CD
+
+### Pipeline CI (`.github/workflows/ci.yml`)
+1. Build TypeScript
+2. Lint (`eslint`)
+3. Tests unitaires (`npm test`)
+4. Rapport de couverture LCOV → SonarCloud analysis
+5. Security audit (production deps, niveau `critical`)
+
+### Pipeline CD (`.github/workflows/cd-docker.yml`)
+- Déclenché après CI réussi sur `main`
+- Build + push image Docker vers GHCR (`ghcr.io/<repo>:latest` + `sha-<short>`)
+
+### Secrets requis
+- `SONAR_TOKEN` — token SonarCloud pour l'analyse qualité
+- `GITHUB_TOKEN` — automatique GitHub Actions (push GHCR)
+
+## Conventions de commits et PRs
+
+- Conventional Commits : `<type>(<scope>): <description>`
+- Types : `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `ci`
+- Exemples : `feat(recipe): add ingredients CRUD API`, `test(batch): cover fermentation edge cases`
+- Nouvelle branche obligatoire pour chaque tâche/feature/fix/docs/ci : `<type>/<scope>` créée depuis `main`
+- Interdiction de travailler directement sur `main` pour une nouvelle tâche
+- PR template disponible : `.github/pull_request_template.md`
+- Copilot review automatique sur chaque PR
+- Review humaine requise par `@vitalikevin` (CODEOWNERS)
+
+## Routine PR & Copilot (OBLIGATOIRE)
+
+### 1) Gate de qualité avant revue finale/merge
+- Après chaque push PR, vérifier les checks via `gh pr checks <pr_number>` (ou mode watch)
+- Tous les checks requis doivent être **au vert** avant toute proposition de merge
+- Aucune étape CI ne doit rester en `pending` / `in_progress` au moment de clôture de la revue
+
+### 2) Traitement systématique des commentaires Copilot
+- Tous les commentaires/threads Copilot doivent être lus et traités
+- Chaque suggestion est classée explicitement :
+  - `MUST_HAVE` : sécurité, bug fonctionnel, intégrité des données, régression API/contrat, violation des règles d'architecture, échec tests/build/lint
+  - `SHOULD_HAVE` : amélioration importante mais non bloquante
+  - `NICE_TO_HAVE` : amélioration de confort/maintenabilité non urgente
+  - `REJECT` : suggestion non pertinente dans le contexte
+- Chaque commentaire Copilot doit recevoir une réponse explicite avec : classification, décision, justification concise
+
+### 3) Politique d'implémentation des suggestions
+- Implémenter en PR uniquement les suggestions `MUST_HAVE` pertinentes
+- Pour chaque suggestion `SHOULD_HAVE` ou `NICE_TO_HAVE`, poser une question **une par une** à l'utilisateur :
+  - « Souhaitez-vous que je crée une issue backlog pour cette suggestion ? »
+- Si accord utilisateur : créer une issue backlog avec titre en convention Angular/Conventional :
+  - `type(scope): description`
+- Tracer le lien de l'issue (ou le refus utilisateur) dans la réponse du thread concerné
+
+### 4) Clôture des conversations Copilot
+- Une fois la réponse postée et la décision tracée, fermer immédiatement la conversation correspondante
+- Aucune conversation Copilot ne doit rester ouverte en fin de traitement PR
+
+### 5) Définition de terminé (Done) pour une PR
+- Checks CI requis : ✅
+- Tous les commentaires Copilot : réponse + décision tracée : ✅
+- Tous les threads traités : fermés : ✅
+- Toutes les suggestions `MUST_HAVE` pertinentes : implémentées : ✅
+- Toutes les suggestions `SHOULD_HAVE`/`NICE_TO_HAVE` : décision backlog demandée à l'utilisateur, une par une : ✅
+
+## Ce que Cline NE doit PAS faire
+
+- Modifier des migrations déjà mergées sur `main`
+- Mettre `synchronize: true` dans la config de prod ou staging
+- Ajouter de la logique métier dans les controllers
+- Importer NestJS ou TypeORM dans les fichiers `domain/`
+- Utiliser `console.log` dans le code de production (sauf bootstrap et admin logs explicites)
+- Créer des fichiers sans tests associés pour les nouvelles features
+- Utiliser `any` sans justification documentée
+- Outrepasser les guards de propriété (`owner_id`) en faisant confiance aux paramètres HTTP

@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -42,7 +43,7 @@ export class UpdateRecipeDto {
 
   @ApiPropertyOptional({ example: 60, description: 'Boil time in minutes' })
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @IsPositive()
   @Max(240)
   boil_time_min?: number;

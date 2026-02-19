@@ -17,7 +17,6 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -331,7 +330,7 @@ export class RecipeIngredientsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove the water profile from a recipe' })
   @ApiOkResponse({ description: 'Deleted' })
-  @ApiNoContentResponse({ description: 'Water profile not found' })
+  @ApiNotFoundResponse({ description: 'Water profile not found' })
   async removeWater(
     @CurrentUser() user: User,
     @Param('recipeId', new ParseUUIDPipe()) recipeId: string,

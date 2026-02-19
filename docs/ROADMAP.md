@@ -85,16 +85,18 @@ This document outlines the major stages of the **Brasse-Bouillon** mobile app de
 
 Source: PRs merged on `main` in frontend/backend repositories + website synchronization PR.
 
+<!-- ROADMAP_DONE_TABLE_START -->
 | Date       | Domain   | Completed action (summary) | References |
 | ---------- | -------- | -------------------------- | ---------- |
-| 2026-02-17 | Website  | FR/EN roadmap + documentation synchronized with frontend/backend merges | [website PR #58](https://github.com/benoit-bremaud/brasse-bouillon-website/pull/58), [commit 66c169c](https://github.com/benoit-bremaud/brasse-bouillon-website/commit/66c169c34463b9495af60de8b2922c30223ea6e9) |
-| 2026-02-13 | Frontend | Brewing Academy revamp (hub + Fermentables/Color/Hops learning sheets) | [frontend PR #19](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/19), [#20](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/20), [#21](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/21), [#22](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/22) |
-| 2026-02-12 | Frontend | Recipe detail enhancement + ingredient category navigation and EN label fixes | [frontend PR #18](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/18), [#17](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/17) |
-| 2026-02-11 | Frontend | Brewing calculator v1 (IBU/ABV/conversions) | [frontend PR #16](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/16) |
-| 2026-02-10 | Frontend | Batch timeline hardening for small screens | [frontend PR #12](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/12) |
-| 2026-02-06 | Backend  | Batch module: workflow, service, persistence, and API endpoints | [backend PR #17](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/17), [#19](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/19), [#21](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/21), [#23](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/23) |
-| 2026-02-06 | Backend  | Fermentation reminders API | [backend PR #24](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/24) |
-| 2026-02-11 | Backend  | Security hardening (dependency audits, auth/JWT, integration tests) | [backend PR #27](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/27), [#28](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/28), [#29](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/29), [#9](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/9) |
+| 2026-02-17 | Website | FR/EN roadmap and documentation synchronized with frontend/backend merges. | [website PR #58](https://github.com/benoit-bremaud/brasse-bouillon-website/pull/58), [commit 66c169c](https://github.com/benoit-bremaud/brasse-bouillon-website/commit/66c169c34463b9495af60de8b2922c30223ea6e9) |
+| 2026-02-13 | Frontend | Brewing Academy revamp (hub + Fermentables/Color/Hops learning sheets). | [frontend PR #19](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/19), [frontend PR #20](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/20), [frontend PR #21](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/21), [frontend PR #22](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/22) |
+| 2026-02-12 | Frontend | Recipe detail enhancement + ingredient category navigation and EN label fixes. | [frontend PR #18](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/18), [frontend PR #17](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/17) |
+| 2026-02-11 | Frontend | Brewing calculator v1 (IBU/ABV/conversions). | [frontend PR #16](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/16) |
+| 2026-02-11 | Backend | Security hardening (dependency audits, auth/JWT, integration tests). | [backend PR #27](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/27), [backend PR #28](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/28), [backend PR #29](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/29), [backend PR #9](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/9) |
+| 2026-02-10 | Frontend | Batch timeline hardening for small screens. | [frontend PR #12](https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/12) |
+| 2026-02-06 | Backend | Batch module: workflow, service, persistence, and API endpoints. | [backend PR #17](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/17), [backend PR #19](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/19), [backend PR #21](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/21), [backend PR #23](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/23) |
+| 2026-02-06 | Backend | Fermentation reminders API. | [backend PR #24](https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/24) |
+<!-- ROADMAP_DONE_TABLE_END -->
 
 ### Editorial filtering notes
 

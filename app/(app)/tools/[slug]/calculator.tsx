@@ -1,5 +1,6 @@
 import { AcademyTopicPlaceholderScreen } from "@/features/tools/presentation/AcademyTopicPlaceholderScreen";
 import { CouleurCalculatorScreen } from "@/features/tools/presentation/CouleurCalculatorScreen";
+import { EauCalculatorScreen } from "@/features/tools/presentation/EauCalculatorScreen";
 import { FermentesciblesCalculatorScreen } from "@/features/tools/presentation/FermentesciblesCalculatorScreen";
 import { HoublonsCalculatorScreen } from "@/features/tools/presentation/HoublonsCalculatorScreen";
 import { useLocalSearchParams } from "expo-router";
@@ -18,6 +19,10 @@ export default function AcademyTopicCalculatorRoute() {
 
   if (normalizedSlug === "houblons") {
     return <HoublonsCalculatorScreen />;
+  }
+
+  if (normalizedSlug === "eau") {
+    return <EauCalculatorScreen />;
   }
 
   return (

@@ -7,7 +7,9 @@ import {
   calculateRequiredHopGramsForTargetIbu,
   calculateRequiredMaltForTargetSRM,
   calculateRequiredMaltKgForTargetOg,
+  calculateResidualAlkalinity,
   calculateSRMFromMalts,
+  calculateSulfateChlorideRatio,
   calculateTinsethUtilization,
   calculateWeightedEfmPercent,
   correctSgForTemperature,
@@ -330,6 +332,93 @@ describe("brewing calculations", () => {
       );
 
       expect(darkSrm).toBeGreaterThan(lightSrm);
+    });
+  });
+
+  describe("water calculations", () => {
+    describe("calculateResidualAlkalinity", () => {
+      // RA = HCO₃⁻ − (Ca²⁺ / 3.5 + Mg²⁺ / 7)
+      // Example: HCO₃=50, Ca=75, Mg=10 → RA = 50 − (21.43 + 1.43) ≈ 27.14
+
+      it("calculates RA for a typical Pale Ale profile", () => {
+        const ra = calculateResidualAlkalinity(50, 75, 10);
+
+        expect(ra).toBeCloseTo(27.14, 1);
+      });
+
+      it("returns negative RA for soft water (suited for pale beers)", () => {
+        // RA = 20 − (150/3.5 + 5/7) = 20 − 43.57 ≈ −23.57
+        const ra = calculateResidualAlkalinity(20, 150, 5);
+
+        expect(ra).toBeLessThan(0);
+      });
+
+      it("returns positive RA for high bicarbonate water (suited for dark beers)", () => {
+        // RA = 200 − (50/3.5 + 10/7) = 200 − 15.71 ≈ 184.3
+        const ra = calculateResidualAlkalinity(200, 50, 10);
+
+        expect(ra).toBeGreaterThan(100);
+      });
+
+      it("treats negative Ca/Mg as 0 in the denominator correction", () => {
+        // Negative ions are clamped to 0 → RA = HCO₃
+        const ra = calculateResidualAlkalinity(100, -10, -5);
+
+        expect(ra).toBe(100);
+      });
+
+      it("treats negative HCO₃ as 0 in the alkalinity term", () => {
+        const raWithNegativeHco3 = calculateResidualAlkalinity(-50, 75, 10);
+        const raWithZeroHco3 = calculateResidualAlkalinity(0, 75, 10);
+
+        expect(raWithNegativeHco3).toBeCloseTo(raWithZeroHco3, 5);
+      });
+
+      it("returns 0 for NaN inputs", () => {
+        expect(calculateResidualAlkalinity(NaN, 75, 10)).toBe(0);
+        expect(calculateResidualAlkalinity(50, NaN, 10)).toBe(0);
+        expect(calculateResidualAlkalinity(50, 75, NaN)).toBe(0);
+      });
+
+      it("higher Ca reduces RA (Ca acidifies mash)", () => {
+        const raLowCa = calculateResidualAlkalinity(100, 50, 10);
+        const raHighCa = calculateResidualAlkalinity(100, 200, 10);
+
+        expect(raHighCa).toBeLessThan(raLowCa);
+      });
+    });
+
+    describe("calculateSulfateChlorideRatio", () => {
+      it("returns 1.0 for equal SO₄ and Cl", () => {
+        expect(calculateSulfateChlorideRatio(100, 100)).toBeCloseTo(1.0, 5);
+      });
+
+      it("returns high ratio for IPA-style water (SO₄-heavy)", () => {
+        expect(calculateSulfateChlorideRatio(250, 50)).toBeCloseTo(5.0, 5);
+      });
+
+      it("returns ratio below 1 for malt-forward profile (Cl-heavy)", () => {
+        expect(calculateSulfateChlorideRatio(50, 150)).toBeCloseTo(0.333, 2);
+      });
+
+      it("returns 0 when chloride is 0", () => {
+        expect(calculateSulfateChlorideRatio(100, 0)).toBe(0);
+      });
+
+      it("returns 0 when both SO₄ and Cl are 0", () => {
+        expect(calculateSulfateChlorideRatio(0, 0)).toBe(0);
+      });
+
+      it("returns 0 when SO₄ is 0 (no sulfate)", () => {
+        expect(calculateSulfateChlorideRatio(0, 100)).toBe(0);
+      });
+
+      it("higher SO₄ increases ratio", () => {
+        const ratioLow = calculateSulfateChlorideRatio(100, 100);
+        const ratioHigh = calculateSulfateChlorideRatio(300, 100);
+
+        expect(ratioHigh).toBeGreaterThan(ratioLow);
+      });
     });
   });
 });

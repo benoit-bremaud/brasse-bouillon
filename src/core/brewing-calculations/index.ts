@@ -349,6 +349,51 @@ export function calculateSRMFromMalts(
   return mcuToSRM(mcu);
 }
 
+// ─── Water calculations ──────────────────────────────────────────────────────
+
+export type WaterProfile = {
+  ca: number; // Calcium (ppm)
+  mg: number; // Magnesium (ppm)
+  na: number; // Sodium (ppm)
+  so4: number; // Sulfates (ppm)
+  cl: number; // Chlorides (ppm)
+  hco3: number; // Bicarbonates (ppm)
+};
+
+/**
+ * Calculates Residual Alkalinity (RA) in ppm.
+ * RA = HCO₃⁻ − (Ca²⁺ / 3.5 + Mg²⁺ / 7)
+ * A high RA raises mash pH; a low RA lowers it.
+ */
+export function calculateResidualAlkalinity(
+  hco3: number,
+  ca: number,
+  mg: number,
+): number {
+  if (!Number.isFinite(hco3) || !Number.isFinite(ca) || !Number.isFinite(mg)) {
+    return 0;
+  }
+
+  const safeHco3 = clampPositive(hco3);
+  const safeCa = clampPositive(ca);
+  const safeMg = clampPositive(mg);
+
+  return safeHco3 - (safeCa / 3.5 + safeMg / 7);
+}
+
+/**
+ * Calculates the sulfate-to-chloride ratio.
+ * High ratio (> 3) → drier, hop-forward profile.
+ * Low ratio (< 1) → rounder, malt-forward profile.
+ * Returns 0 when chloride is zero.
+ */
+export function calculateSulfateChlorideRatio(so4: number, cl: number): number {
+  const safeSo4 = clampPositive(so4);
+  const safeCl = clampPositive(cl);
+  if (!safeCl) return 0;
+  return safeSo4 / safeCl;
+}
+
 export function calculateRequiredMaltForTargetSRM(
   targetSRM: number,
   volumeLiters: number,

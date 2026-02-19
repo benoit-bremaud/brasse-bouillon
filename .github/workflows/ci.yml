@@ -13,9 +13,14 @@ jobs:
     name: Build, Lint & Test
     timeout-minutes: 15
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # SonarCloud requires full git history for blame annotations
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -32,8 +37,23 @@ jobs:
       - name: Build
         run: npm run build --if-present
 
-      - name: Test
-        run: npm test
+      - name: Test with coverage
+        run: npm run test:cov
+
+      - name: SonarCloud Analysis
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=benoit-bremaud_brasse-bouillon-backend
+            -Dsonar.organization=benoit-bremaud
+
+      - name: SonarCloud Analysis (skipped)
+        if: env.SONAR_TOKEN == ''
+        run: echo "Skipping SonarCloud analysis because SONAR_TOKEN is not configured"
 
   security_audit:
     name: Security Audit (prod deps)

@@ -52,6 +52,14 @@ const normalizeConformity = (
   return WaterConformity.INCONNU;
 };
 
+const CONFORMITY_SEVERITY: Record<WaterConformity, number> = {
+  [WaterConformity.C]: 0,
+  [WaterConformity.S]: 1,
+  [WaterConformity.D]: 2,
+  [WaterConformity.N]: 3,
+  [WaterConformity.INCONNU]: -1,
+};
+
 export class WaterAggregationDomainService {
   aggregate(input: {
     provider: WaterProviderKey;
@@ -84,6 +92,7 @@ export class WaterAggregationDomainService {
     const cl = this.computeAverage(aggregate.cl);
     const so4 = this.computeAverage(aggregate.so4);
     const hco3 = this.computeAverage(aggregate.hco3);
+    const conformite = this.resolveConformity(samples);
 
     return new WaterProfileEntity({
       provider: input.provider,
@@ -91,7 +100,7 @@ export class WaterAggregationDomainService {
       annee: input.annee,
       nomReseau: input.networkName,
       nbPrelevements: input.samples.length,
-      conformite: normalizeConformity(input.samples[0]?.conformity),
+      conformite,
       minerauxMgL: {
         ca,
         mg,
@@ -122,5 +131,25 @@ export class WaterAggregationDomainService {
     const caValue = ca ?? 0;
     const mgValue = mg ?? 0;
     return round1((caValue * 10 + mgValue * 4.1) / 10);
+  }
+
+  private resolveConformity(samples: WaterSample[]): WaterConformity {
+    let worst: WaterConformity | null = null;
+
+    for (const sample of samples) {
+      const normalized = normalizeConformity(sample.conformity);
+      if (normalized === WaterConformity.INCONNU) {
+        continue;
+      }
+
+      if (
+        !worst ||
+        CONFORMITY_SEVERITY[normalized] > CONFORMITY_SEVERITY[worst]
+      ) {
+        worst = normalized;
+      }
+    }
+
+    return worst ?? WaterConformity.INCONNU;
   }
 }

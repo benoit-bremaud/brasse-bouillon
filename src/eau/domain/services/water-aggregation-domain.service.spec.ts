@@ -111,4 +111,33 @@ describe('WaterAggregationDomainService', () => {
     expect(profile.nbPrelevements).toBe(2);
     expect(profile.minerauxMgL.ca).toBe(10);
   });
+
+  it('should keep the worst conformity across retained samples', () => {
+    const profile = service.aggregate({
+      provider: WaterProviderKey.HUBEAU,
+      codeInsee: '33063',
+      annee: 2024,
+      networkName: 'BORDEAUX',
+      maxSamples: 10,
+      samples: [
+        {
+          parameterLabel: 'Calcium',
+          numericResult: 40,
+          conformity: 'C',
+        },
+        {
+          parameterLabel: 'Magnésium',
+          numericResult: 6,
+          conformity: 'D',
+        },
+        {
+          parameterLabel: 'Sulfates',
+          numericResult: 20,
+          conformity: 'N',
+        },
+      ],
+    });
+
+    expect(profile.conformite).toBe(WaterConformity.N);
+  });
 });

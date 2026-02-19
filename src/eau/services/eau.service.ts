@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import type { EauConfig } from '../../config/eau.config';
 import { EAU_CONFIG, WATER_PROVIDERS } from '../eau.constants';
@@ -26,6 +25,8 @@ export interface GetWaterProfileInput {
 
 @Injectable()
 export class EauService {
+  private static readonly MAX_CACHE_ENTRIES = 500;
+
   private readonly domainService = new WaterAggregationDomainService();
   private readonly cache = new Map<string, CacheEntry>();
 
@@ -34,13 +35,14 @@ export class EauService {
     private readonly providers: WaterQualityProviderPort[],
     @Inject(EAU_CONFIG)
     private readonly eauConfig: EauConfig,
-    private readonly configService: ConfigService,
   ) {}
 
   async getWaterProfile(
     input: GetWaterProfileInput,
   ): Promise<WaterProfileEntity> {
     const providerKey = input.provider ?? this.eauConfig.defaultProvider;
+    this.pruneExpiredEntries();
+
     const cacheKey = this.buildCacheKey(
       input.codeInsee,
       input.annee,
@@ -123,22 +125,25 @@ export class EauService {
   }
 
   private setCached(cacheKey: string, value: WaterProfileEntity): void {
-    const ttlSeconds = this.resolveCacheTtlSeconds();
+    this.pruneExpiredEntries();
+
+    if (this.cache.size >= EauService.MAX_CACHE_ENTRIES) {
+      const oldestKey = this.cache.keys().next().value as string | undefined;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
+
+    const ttlSeconds = this.eauConfig.hubeauCacheTtlSeconds;
     const expiresAt = Date.now() + ttlSeconds * 1000;
     this.cache.set(cacheKey, { value, expiresAt });
   }
 
-  private resolveCacheTtlSeconds(): number {
-    const raw = this.configService.get<string>('HUBEAU_CACHE_TTL_SECONDS');
-    if (!raw) {
-      return this.eauConfig.hubeauCacheTtlSeconds;
+  private pruneExpiredEntries(now = Date.now()): void {
+    for (const [key, entry] of this.cache.entries()) {
+      if (now >= entry.expiresAt) {
+        this.cache.delete(key);
+      }
     }
-
-    const parsed = Number.parseInt(raw, 10);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-      return this.eauConfig.hubeauCacheTtlSeconds;
-    }
-
-    return parsed;
   }
 }

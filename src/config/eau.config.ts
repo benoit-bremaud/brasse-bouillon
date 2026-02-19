@@ -1,14 +1,13 @@
-import {
-  DEFAULT_HUBEAU_BASE_URL,
-  DEFAULT_HUBEAU_CACHE_TTL_SECONDS,
-  DEFAULT_HUBEAU_COMMUNES_UDI_SIZE,
-  DEFAULT_HUBEAU_MAX_SAMPLES,
-  DEFAULT_HUBEAU_RESULTATS_DIS_SIZE,
-  DEFAULT_HUBEAU_TIMEOUT_MS,
-  DEFAULT_WATER_PROVIDER,
-} from '../eau/eau.constants';
-
 import { WaterProviderKey } from '../eau/domain/enums/water-provider-key.enum';
+
+const DEFAULT_WATER_PROVIDER = WaterProviderKey.HUBEAU;
+const DEFAULT_HUBEAU_BASE_URL =
+  'https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable';
+const DEFAULT_HUBEAU_TIMEOUT_MS = 8000;
+const DEFAULT_HUBEAU_CACHE_TTL_SECONDS = 3600;
+const DEFAULT_HUBEAU_MAX_SAMPLES = 50;
+const DEFAULT_HUBEAU_COMMUNES_UDI_SIZE = 10;
+const DEFAULT_HUBEAU_RESULTATS_DIS_SIZE = 100;
 
 export interface EauConfig {
   readonly defaultProvider: WaterProviderKey;

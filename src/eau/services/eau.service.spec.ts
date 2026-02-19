@@ -2,7 +2,6 @@ import { BadGatewayException, NotFoundException } from '@nestjs/common';
 import { EAU_CONFIG, WATER_PROVIDERS } from '../eau.constants';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ConfigService } from '@nestjs/config';
 import type { EauConfig } from '../../config/eau.config';
 import { EauService } from './eau.service';
 import { WaterConformity } from '../domain/enums/water-conformity.enum';
@@ -39,12 +38,6 @@ describe('EauService', () => {
     module = await Test.createTestingModule({
       providers: [
         EauService,
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn().mockReturnValue(undefined),
-          },
-        },
         {
           provide: EAU_CONFIG,
           useValue: eauConfigFixture,

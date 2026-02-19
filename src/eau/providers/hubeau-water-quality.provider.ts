@@ -51,11 +51,14 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
       return null;
     }
 
-    const dominant = [...response.data].sort((a, b) => {
-      const left = this.toSafeNumber(a.nb_prelevements);
-      const right = this.toSafeNumber(b.nb_prelevements);
-      return right - left;
-    })[0];
+    const dominant = response.data.reduce<HubEauCommuneUdiRecord>(
+      (currentDominant, record) => {
+        const currentMax = this.toSafeNumber(currentDominant.nb_prelevements);
+        const value = this.toSafeNumber(record.nb_prelevements);
+        return value > currentMax ? record : currentDominant;
+      },
+      response.data[0],
+    );
 
     return {
       code: dominant.code_udi,
@@ -124,6 +127,10 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
 
       if (this.isTimeoutError(error)) {
         throw new BadGatewayException("Hub'Eau request timed out");
+      }
+
+      if (error instanceof SyntaxError) {
+        throw new BadGatewayException("Hub'Eau returned invalid JSON");
       }
 
       throw new BadGatewayException("Hub'Eau request failed");

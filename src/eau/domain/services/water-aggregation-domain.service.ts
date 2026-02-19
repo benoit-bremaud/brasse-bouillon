@@ -1,0 +1,126 @@
+import { WaterConformity } from '../enums/water-conformity.enum';
+import { WaterProfileEntity } from '../entities/water-profile.entity';
+import { WaterProviderKey } from '../enums/water-provider-key.enum';
+import { WaterSample } from '../ports/water-quality-provider.port';
+
+type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
+
+const PARAMETER_MAP: Record<string, MineralKey> = {
+  Calcium: 'ca',
+  Magnésium: 'mg',
+  Chlorures: 'cl',
+  Sulfates: 'so4',
+  'Bicarbonates totaux': 'hco3',
+};
+
+interface AggregateBucket {
+  sum: number;
+  count: number;
+}
+
+interface MineralAggregate {
+  ca: AggregateBucket;
+  mg: AggregateBucket;
+  cl: AggregateBucket;
+  so4: AggregateBucket;
+  hco3: AggregateBucket;
+}
+
+const createEmptyAggregate = (): MineralAggregate => ({
+  ca: { sum: 0, count: 0 },
+  mg: { sum: 0, count: 0 },
+  cl: { sum: 0, count: 0 },
+  so4: { sum: 0, count: 0 },
+  hco3: { sum: 0, count: 0 },
+});
+
+const round1 = (value: number): number => Math.round(value * 10) / 10;
+
+const normalizeConformity = (
+  value: string | null | undefined,
+): WaterConformity => {
+  if (!value) {
+    return WaterConformity.INCONNU;
+  }
+
+  const trimmed = value.trim().toUpperCase();
+  if (trimmed === 'C') return WaterConformity.C;
+  if (trimmed === 'N') return WaterConformity.N;
+  if (trimmed === 'D') return WaterConformity.D;
+  if (trimmed === 'S') return WaterConformity.S;
+
+  return WaterConformity.INCONNU;
+};
+
+export class WaterAggregationDomainService {
+  aggregate(input: {
+    provider: WaterProviderKey;
+    codeInsee: string;
+    annee: number;
+    networkName: string | null;
+    samples: WaterSample[];
+    maxSamples: number;
+  }): WaterProfileEntity {
+    const samples = input.samples.slice(0, input.maxSamples);
+
+    const aggregate = createEmptyAggregate();
+    for (const sample of samples) {
+      const key = PARAMETER_MAP[sample.parameterLabel];
+      if (!key) {
+        continue;
+      }
+
+      const numeric = sample.numericResult;
+      if (numeric === null || !Number.isFinite(numeric)) {
+        continue;
+      }
+
+      aggregate[key].sum += numeric;
+      aggregate[key].count += 1;
+    }
+
+    const ca = this.computeAverage(aggregate.ca);
+    const mg = this.computeAverage(aggregate.mg);
+    const cl = this.computeAverage(aggregate.cl);
+    const so4 = this.computeAverage(aggregate.so4);
+    const hco3 = this.computeAverage(aggregate.hco3);
+
+    return new WaterProfileEntity({
+      provider: input.provider,
+      codeInsee: input.codeInsee,
+      annee: input.annee,
+      nomReseau: input.networkName,
+      nbPrelevements: input.samples.length,
+      conformite: normalizeConformity(input.samples[0]?.conformity),
+      minerauxMgL: {
+        ca,
+        mg,
+        cl,
+        so4,
+        hco3,
+      },
+      dureteFrancais: this.computeHardnessFrench(ca, mg),
+    });
+  }
+
+  private computeAverage(bucket: AggregateBucket): number | null {
+    if (!bucket.count) {
+      return null;
+    }
+
+    return round1(bucket.sum / bucket.count);
+  }
+
+  private computeHardnessFrench(
+    ca: number | null,
+    mg: number | null,
+  ): number | null {
+    if (ca === null && mg === null) {
+      return null;
+    }
+
+    const caValue = ca ?? 0;
+    const mgValue = mg ?? 0;
+    return round1((caValue * 10 + mgValue * 4.1) / 10);
+  }
+}

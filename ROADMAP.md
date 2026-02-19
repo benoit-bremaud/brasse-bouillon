@@ -1,6 +1,6 @@
 # Brasse-Bouillon Roadmap
 
-Last updated: 2026-02-06
+Last updated: 2026-02-19 (session 3)
 
 ## Vision
 Mobile-first assistant for homebrewers and craft brewers to design, brew, and
@@ -30,6 +30,7 @@ modern, and offline-first.
 - Copilot review: auto-review via repo/org config; mention `@copilot` in PRs.
 - Reviewers: CODEOWNERS configured to request review from `@vitalikevin`.
 - Clean Architecture inside feature modules (domain/application/infrastructure/presentation).
+- Code quality: SonarQube/SonarCloud analysis on every CI run.
 
 ## MVP Scope (Mobile)
 1) Authentication
@@ -108,26 +109,40 @@ modern, and offline-first.
 - Recipes module (CRUD + persistence scoped to current user)
 - Recipe steps workflow (default mash/boil/whirlpool/fermentation/packaging)
 - Recipe steps persistence + minimal editing API (label/description) + lazy backfill
+- Recipe brewing metrics fields (batch_size_l, boil_time_min, og_target, fg_target, abv_estimated, ibu_target, ebc_target, efficiency_target)
+- Ingredients DB schema + ORM entities (recipe_fermentables, recipe_hops, recipe_yeasts, recipe_water, recipe_additives) via migration AddIngredientsAndMetrics
+- Ingredients CRUD API — full HTTP layer: DTOs (14 classes), RecipeIngredientsService, RecipeIngredientsController; ownership enforced via assertOwnership(); water profile as 1:1 upsert; 15 integration tests covering CRUD + ownership + edge cases; lint 0 errors
 - Brewing assistant workflow model: Batch domain (domain-only)
 - Brewing assistant: Batch persistence + service (no HTTP yet)
 - Brewing assistant: Batch API + auth integration
 - Brewing assistant: Fermentation + reminders API
+- Eau (Hub'Eau): endpoint backend unique `GET /eau` (JWT), agrégation domaine des prélèvements, provider Hub'Eau (fetch natif + timeout), cache mémoire TTL, Swagger 200/400/401/404/502
+- Eau: tests unitaires dédiés (domain/service/controller) — 9 tests verts
+- JWT integration tests (auth.protected.e2e-spec.ts — valid/invalid/expired/missing token)
+- Security: npm audit pipeline hardening (critical-only gate + tar override for sqlite3 chain)
+- DB config alignment with migrations (typeorm.config.ts + data-source.ts synchronized)
 - CI: GitHub Actions build + test + lint:check
+- CI: Security audit job (production deps, critical-only)
+- CI: SonarCloud code quality analysis (LCOV coverage report)
 - CI: auto-request Copilot review on new PRs
 - CD: build and push Docker image to GHCR on merges to main
 - Repo: CODEOWNERS auto-requests review from `@vitalikevin`
 
 ### In Progress
-- Backend stabilization and hardening
-- Roadmap maintenance (this document)
+- Test coverage improvement (currently ~38% — target ≥60%)
+- SonarCloud project setup (sonar-project.properties + CI step done; manual project creation at sonarcloud.io + SONAR_TOKEN secret required)
 
 ### To Do
 Phase 1 - MVP Backend
-- Calculators service (ABV/IBU first)
+- TypeORM `@OneToMany` relations between `RecipeOrmEntity` and ingredient entities (deferred — requires ManyToOne refactor on all ingredient entities)
+- Swagger `@ApiBearerAuth()` alignment (reference name `'JWT-auth'` vs default)
+- Calculators service (ABV/IBU first, Tinseth)
 - Offline sync API design (last-write-wins)
 - Role model expansion (beyond ADMIN/MODERATOR/USER)
 - Legal compliance checks (age, country gating)
-- PostgreSQL migrations (baseline schema)
+- PostgreSQL migrations (baseline schema migration from SQLite)
+- Test coverage improvement — unit tests for recipe/equipment/batch controllers (target ≥60%)
+- Batch DELETE endpoint (no soft-delete, scoped to owner)
 
 Phase 2 - MVP Mobile
 - Recipe browsing + favorites
@@ -144,11 +159,14 @@ Phase 3 - Post-MVP
 - Multi-batch analytics and insights
 
 ## Open Questions (Need Decisions)
-- Exact required vs optional recipe fields (MVP).
+- Exact required vs optional recipe fields (MVP) — especially for ingredients.
+- Which ingredient fields are mandatory at creation vs optional?
 - Default values for equipment fields (per system type).
 - Offline conflict UI beyond last-write-wins (V1+).
 - Legal requirements for France + EU (disclaimers, data retention).
 - Expanded roles and permissions beyond user/admin (scope + permissions).
+- SonarCloud organization/project key — self-hosted SonarQube vs SonarCloud (free tier)?
+- PostgreSQL target version and migration strategy from SQLite.
 
 ## Changelog
 - 2026-01-29: Initial roadmap created from user requirements.
@@ -159,3 +177,6 @@ Phase 3 - Post-MVP
 - 2026-02-05: Added batch persistence + service (PR #19).
 - 2026-02-06: Added batch API endpoints + auth integration (PR #21).
 - 2026-02-06: Added fermentation + reminders API (PR #24).
+- 2026-02-18: Full repo audit. Added ingredients DB schema + ORM entities as done (PR #30). Added JWT integration tests as done (PR #28-30). Added security audit hardening as done (PR #27-28). Added missing To Do items: ingredients CRUD API, TypeORM relations, Swagger bearer fix, batch DELETE, test coverage target. Added SonarCloud CI integration. Updated engineering workflow with SonarQube mention. Updated Open Questions.
+- 2026-02-18 (session 2): Implemented Ingredients CRUD API — 14 DTOs, RecipeIngredientsService (fermentables/hops/yeasts/additives CRUD + water 1:1 upsert), RecipeIngredientsController (15 routes), 15 integration tests (all green). Lint 0 errors. Full test suite: 69/71 passing (2 pre-existing skips). ESLint Prettier alignment on migration + entity + enum files.
+- 2026-02-19 (session 3): Implemented Hub'Eau backend feature in `eau/` module: secure `GET /eau` endpoint, provider abstraction + Hub'Eau adapter (native fetch), domain aggregation service, in-memory TTL cache, dedicated Swagger docs, and targeted unit tests (3 suites, 9 tests passing). Updated README and roadmap documentation.

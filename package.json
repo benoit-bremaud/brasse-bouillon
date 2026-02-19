@@ -91,9 +91,18 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.spec.(t|j)s",
+      "!**/*.e2e-spec.(t|j)s",
+      "!**/main.(t|j)s",
+      "!**/database/migrations/**"
     ],
     "coverageDirectory": "../coverage",
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "text-summary"
+    ],
     "testEnvironment": "node"
   },
   "overrides": {

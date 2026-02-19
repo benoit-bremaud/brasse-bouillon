@@ -171,18 +171,19 @@ Réponse 200 (extrait) :
   "annee": 2024,
   "nomReseau": "NANTES NORD",
   "nbPrelevements": 24,
-  "conformite": "CONFORME",
+  "conformite": "C",
   "minerauxMgL": {
-    "calcium": 80.3,
-    "magnesium": 11.2,
-    "sodium": 14.8,
-    "chlorures": 22.1,
-    "sulfates": 31.4,
-    "bicarbonates": 210.6
+    "ca": 80.3,
+    "mg": 11.2,
+    "cl": 22.1,
+    "so4": 31.4,
+    "hco3": 210.6
   },
   "dureteFrancais": 24.7
 }
 ```
+
+`conformite` peut valoir `C`, `N`, `D`, `S` ou `INCONNU`.
 
 Codes d'erreur documentés : `400`, `401`, `404`, `502`.
 

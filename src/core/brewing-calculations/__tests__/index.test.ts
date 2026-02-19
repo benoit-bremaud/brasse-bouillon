@@ -367,6 +367,13 @@ describe("brewing calculations", () => {
         expect(ra).toBe(100);
       });
 
+      it("treats negative HCO₃ as 0 in the alkalinity term", () => {
+        const raWithNegativeHco3 = calculateResidualAlkalinity(-50, 75, 10);
+        const raWithZeroHco3 = calculateResidualAlkalinity(0, 75, 10);
+
+        expect(raWithNegativeHco3).toBeCloseTo(raWithZeroHco3, 5);
+      });
+
       it("returns 0 for NaN inputs", () => {
         expect(calculateResidualAlkalinity(NaN, 75, 10)).toBe(0);
         expect(calculateResidualAlkalinity(50, NaN, 10)).toBe(0);

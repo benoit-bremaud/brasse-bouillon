@@ -373,7 +373,12 @@ export function calculateResidualAlkalinity(
   if (!Number.isFinite(hco3) || !Number.isFinite(ca) || !Number.isFinite(mg)) {
     return 0;
   }
-  return hco3 - (clampPositive(ca) / 3.5 + clampPositive(mg) / 7);
+
+  const safeHco3 = clampPositive(hco3);
+  const safeCa = clampPositive(ca);
+  const safeMg = clampPositive(mg);
+
+  return safeHco3 - (safeCa / 3.5 + safeMg / 7);
 }
 
 /**

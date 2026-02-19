@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
-import React from "react";
 import { EauCalculatorScreen } from "../EauCalculatorScreen";
+import React from "react";
 
 // Mock expo-haptics
 jest.mock("expo-haptics", () => ({
@@ -84,13 +84,23 @@ describe("EauCalculatorScreen", () => {
   it("shows ratio as '—' when Cl is zero", () => {
     render(<EauCalculatorScreen />);
 
-    // Set Cl to 0
-    // cl input has initial value "75" — get all "75" inputs and change the second one
-    const allSeventyFiveInputs = screen.getAllByDisplayValue("75");
-    // There are 2 inputs with value 75 (Ca and Cl)
-    fireEvent.changeText(allSeventyFiveInputs[1], "0");
+    const chloridesInput = screen.getByLabelText("Chlorures en ppm");
+    fireEvent.changeText(chloridesInput, "0");
 
     expect(screen.getByText("—")).toBeTruthy();
+  });
+
+  it("shows a 0.00 ratio when SO4 is zero and Cl is above zero", () => {
+    render(<EauCalculatorScreen />);
+
+    const sulfatesInput = screen.getByLabelText("Sulfates en ppm");
+    const chloridesInput = screen.getByLabelText("Chlorures en ppm");
+
+    fireEvent.changeText(sulfatesInput, "0");
+    fireEvent.changeText(chloridesInput, "75");
+
+    expect(screen.getByText("0.00")).toBeTruthy();
+    expect(screen.getByText("Très rond")).toBeTruthy();
   });
 
   // ── STYLE TAB ───────────────────────────────────────────────────────────────

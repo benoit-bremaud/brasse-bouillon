@@ -8,12 +8,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
 import {
   calculateResidualAlkalinity,
   calculateSulfateChlorideRatio,
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
+import { useCallback, useState } from "react";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -186,8 +186,8 @@ function getRaRating(ra: number): WaterRating {
   };
 }
 
-function getRatioRating(ratio: number): WaterRating {
-  if (ratio === 0) {
+function getRatioRating(ratio: number, hasNoChloride: boolean): WaterRating {
+  if (hasNoChloride) {
     return {
       label: "Indéfini",
       description: "Chlorures nuls",
@@ -269,11 +269,12 @@ export function EauCalculatorScreen() {
   const so4 = parseIon(so4Text);
   const cl = parseIon(clText);
   const hco3 = parseIon(hco3Text);
+  const hasNoChloride = cl === 0;
 
   const ra = calculateResidualAlkalinity(hco3, ca, mg);
   const ratio = calculateSulfateChlorideRatio(so4, cl);
   const raRating = getRaRating(ra);
-  const ratioRating = getRatioRating(ratio);
+  const ratioRating = getRatioRating(ratio, hasNoChloride);
 
   const currentPreset = STYLE_PRESETS[styleIndex];
   const ionRows = [
@@ -484,7 +485,7 @@ export function EauCalculatorScreen() {
                 ]}
               >
                 <Text style={styles.ratingValue}>
-                  {ratio === 0 ? "—" : ratio.toFixed(2)}
+                  {hasNoChloride ? "—" : ratio.toFixed(2)}
                 </Text>
               </View>
               <View style={styles.ratingInfo}>

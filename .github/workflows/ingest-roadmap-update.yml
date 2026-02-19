@@ -125,10 +125,40 @@ jobs:
               "summary_en",
           ]
 
+          def has_disallowed_control_chars(value: str, *, allow_newline: bool = False) -> bool:
+              for char in value:
+                  code = ord(char)
+                  if code == 127:
+                      return True
+                  if code < 32 and not (allow_newline and char == "\n"):
+                      return True
+              return False
+
           missing = [key for key in required if not str(payload.get(key, "")).strip()]
           if missing:
               print(f"Missing required payload keys: {', '.join(missing)}")
               sys.exit(1)
+
+          for key in (
+              "source_repo",
+              "pr_number",
+              "pr_url",
+              "pr_title",
+              "merged_at",
+              "phase",
+              "impact_type",
+          ):
+              value = str(payload.get(key, "")).strip()
+              if has_disallowed_control_chars(value):
+                  print(f"Invalid control character in {key}")
+                  sys.exit(1)
+
+          for key in ("summary_fr", "summary_en"):
+              value = str(payload.get(key, "")).replace("\r\n", "\n").replace("\r", "\n").strip()
+              if has_disallowed_control_chars(value, allow_newline=True):
+                  print(f"Invalid control character in {key}")
+                  sys.exit(1)
+              payload[key] = value
 
           source_repo = str(payload["source_repo"]).strip()
           pr_number = str(payload["pr_number"]).strip()
@@ -155,8 +185,8 @@ jobs:
               print("GITHUB_OUTPUT is not set")
               sys.exit(1)
 
-          summary_fr = str(payload["summary_fr"]).replace("\r\n", "\n")
-          summary_en = str(payload["summary_en"]).replace("\r\n", "\n")
+          summary_fr = str(payload["summary_fr"])
+          summary_en = str(payload["summary_en"])
           summary_fr_delimiter = f"EOF_SUMMARY_FR_{uuid.uuid4().hex}"
           summary_en_delimiter = f"EOF_SUMMARY_EN_{uuid.uuid4().hex}"
 

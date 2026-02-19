@@ -1,0 +1,165 @@
+name: Ingest Roadmap Update
+
+on:
+  repository_dispatch:
+    types:
+      - roadmap_user_facing_update
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: "Source repository (owner/name)"
+        required: true
+        type: string
+      pr_number:
+        description: "Pull request number"
+        required: true
+        type: string
+      pr_url:
+        description: "Pull request URL"
+        required: true
+        type: string
+      pr_title:
+        description: "Pull request title"
+        required: true
+        type: string
+      merged_at:
+        description: "Merge timestamp (ISO-8601)"
+        required: true
+        type: string
+      phase:
+        description: "Roadmap phase (1-10)"
+        required: true
+        type: string
+      impact_type:
+        description: "Impact type (feature|fix|security)"
+        required: true
+        type: string
+      summary_fr:
+        description: "Public summary (FR)"
+        required: true
+        type: string
+      summary_en:
+        description: "Public summary (EN)"
+        required: true
+        type: string
+      evidence_links:
+        description: "Optional evidence links (comma-separated)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    name: Ingest roadmap payload and open sync PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build payload file
+        id: payload
+        env:
+          INPUT_SOURCE_REPO: ${{ github.event.inputs.source_repo || '' }}
+          INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number || '' }}
+          INPUT_PR_URL: ${{ github.event.inputs.pr_url || '' }}
+          INPUT_PR_TITLE: ${{ github.event.inputs.pr_title || '' }}
+          INPUT_MERGED_AT: ${{ github.event.inputs.merged_at || '' }}
+          INPUT_PHASE: ${{ github.event.inputs.phase || '' }}
+          INPUT_IMPACT_TYPE: ${{ github.event.inputs.impact_type || '' }}
+          INPUT_SUMMARY_FR: ${{ github.event.inputs.summary_fr || '' }}
+          INPUT_SUMMARY_EN: ${{ github.event.inputs.summary_en || '' }}
+          INPUT_EVIDENCE_LINKS: ${{ github.event.inputs.evidence_links || '' }}
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import pathlib
+          import sys
+
+          event_name = os.environ["GITHUB_EVENT_NAME"]
+          event_path = pathlib.Path(os.environ["GITHUB_EVENT_PATH"])
+
+          if event_name == "repository_dispatch":
+              event_data = json.loads(event_path.read_text(encoding="utf-8"))
+              payload = event_data.get("client_payload", {})
+          else:
+              payload = {
+                  "source_repo": os.environ.get("INPUT_SOURCE_REPO", "").strip(),
+                  "pr_number": os.environ.get("INPUT_PR_NUMBER", "").strip(),
+                  "pr_url": os.environ.get("INPUT_PR_URL", "").strip(),
+                  "pr_title": os.environ.get("INPUT_PR_TITLE", "").strip(),
+                  "merged_at": os.environ.get("INPUT_MERGED_AT", "").strip(),
+                  "phase": os.environ.get("INPUT_PHASE", "").strip(),
+                  "impact_type": os.environ.get("INPUT_IMPACT_TYPE", "").strip(),
+                  "summary_fr": os.environ.get("INPUT_SUMMARY_FR", "").strip(),
+                  "summary_en": os.environ.get("INPUT_SUMMARY_EN", "").strip(),
+                  "evidence_links": os.environ.get("INPUT_EVIDENCE_LINKS", "").strip(),
+              }
+
+          required = [
+              "source_repo",
+              "pr_number",
+              "pr_url",
+              "pr_title",
+              "merged_at",
+              "phase",
+              "impact_type",
+              "summary_fr",
+              "summary_en",
+          ]
+
+          missing = [key for key in required if not str(payload.get(key, "")).strip()]
+          if missing:
+              print(f"Missing required payload keys: {', '.join(missing)}")
+              sys.exit(1)
+
+          repo_short = str(payload["source_repo"]).split("/")[-1]
+          payload_path = pathlib.Path("tmp-roadmap-payload.json")
+          payload_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+          with pathlib.Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as fh:
+              fh.write(f"payload_file={payload_path.as_posix()}\n")
+              fh.write(f"repo_short={repo_short}\n")
+              fh.write(f"pr_number={payload['pr_number']}\n")
+              fh.write(f"pr_url={payload['pr_url']}\n")
+              fh.write(f"summary_fr={payload['summary_fr']}\n")
+              fh.write(f"summary_en={payload['summary_en']}\n")
+          PY
+
+      - name: Sync roadmap feed and markdown
+        run: |
+          python3 scripts/roadmap_sync.py --payload-file "${{ steps.payload.outputs.payload_file }}"
+
+      - name: Open or update roadmap sync PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: >-
+            docs(roadmap): sync ${{ steps.payload.outputs.repo_short }}#${{ steps.payload.outputs.pr_number }}
+          title: >-
+            docs(roadmap): sync ${{ steps.payload.outputs.repo_short }}#${{ steps.payload.outputs.pr_number }}
+          body: |
+            Automated roadmap synchronization from `${{ steps.payload.outputs.repo_short }}#${{ steps.payload.outputs.pr_number }}`.
+
+            - Source PR: ${{ steps.payload.outputs.pr_url }}
+            - Public summary (FR): ${{ steps.payload.outputs.summary_fr }}
+            - Public summary (EN): ${{ steps.payload.outputs.summary_en }}
+
+            Generated by `.github/workflows/ingest-roadmap-update.yml`.
+          branch: auto/roadmap-sync-${{ steps.payload.outputs.repo_short }}-pr-${{ steps.payload.outputs.pr_number }}
+          base: develop
+          add-paths: |
+            docs/ROADMAP.md
+            docs/roadmap-feed.json

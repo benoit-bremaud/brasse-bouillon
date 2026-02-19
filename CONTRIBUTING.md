@@ -78,3 +78,31 @@ Each PR should include:
 - linked issue.
 
 Keep Markdown clear, readable, and review-oriented.
+
+---
+
+## 🔁 Roadmap auto-sync contract (website)
+
+This repository can ingest user-facing roadmap updates from related repositories (`backend`/`frontend`) through `repository_dispatch` events.
+
+### Ingestion pipeline
+
+- Workflow: `.github/workflows/ingest-roadmap-update.yml`
+- Script: `scripts/roadmap_sync.py`
+- Feed source of truth: `docs/roadmap-feed.json`
+- Generated Done table section in: `docs/ROADMAP.md`
+
+### Manual run (for testing)
+
+You can trigger the ingestion workflow manually with `workflow_dispatch` inputs:
+- `source_repo`, `pr_number`, `pr_url`, `pr_title`, `merged_at`,
+- `phase`, `impact_type`, `summary_fr`, `summary_en`,
+- `evidence_links` (optional, comma-separated).
+
+### Editing rules
+
+- Keep `docs/ROADMAP.md` markers in place:
+  - `<!-- ROADMAP_DONE_TABLE_START -->`
+  - `<!-- ROADMAP_DONE_TABLE_END -->`
+- Avoid manual edits inside this marker block unless strictly necessary.
+- If a manual correction is required, document why in the PR description.

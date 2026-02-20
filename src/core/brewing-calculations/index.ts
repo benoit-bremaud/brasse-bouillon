@@ -16,8 +16,18 @@ export type ColorMaltInput = {
   lovibond: number;
 };
 
+export type DiastaticMaltInput = {
+  weightKg: number;
+  diastaticPowerWk: number;
+};
+
+export type PrimingSugarType = "dextrose" | "sucrose";
+
 const LITERS_REFERENCE_FOR_PPG = 10;
 const HYDROMETER_CALIBRATION_C = 20;
+const DEXTROSE_PRIMING_FACTOR = 4.0;
+const SUCROSE_PRIMING_FACTOR = 3.8;
+const DEFAULT_CO2_SHRINKAGE_PERCENT = 4;
 
 function clampPositive(value: number) {
   if (!Number.isFinite(value) || value < 0) {
@@ -46,6 +56,10 @@ function hydrometerCorrectionFactor(tempFahrenheit: number) {
     0.00000204052596 * Math.pow(tempFahrenheit, 2) -
     0.00000000232820948 * Math.pow(tempFahrenheit, 3)
   );
+}
+
+function toBoundedPercentFraction(value: number) {
+  return Math.min(1, toPercentFraction(value));
 }
 
 export function ogToPoints(og: number): number {
@@ -419,4 +433,305 @@ export function calculateRequiredMaltForTargetSRM(
   // weight_lbs = (MCU * volume_gallons) / lovibond
   const weightPounds = (targetMCU * volumeGallons) / lovibond;
   return weightPounds / 2.2046226218; // Convert to kg
+}
+
+// ─── Brewhouse efficiency / process yields ─────────────────────────────────
+
+export function calculateBrewhouseEfficiencyPercent(
+  actualOg: number,
+  volumeLiters: number,
+  fermentables: FermentableInput[],
+): number {
+  const volume = clampPositive(volumeLiters);
+  const actualOgPoints = ogToPoints(actualOg);
+
+  if (!volume || !actualOgPoints || fermentables.length === 0) {
+    return 0;
+  }
+
+  const theoreticalPointsAt100Percent = fermentables.reduce(
+    (sum, fermentable) =>
+      sum +
+      clampPositive(fermentable.weightKg) * clampPositive(fermentable.ppg),
+    0,
+  );
+
+  if (!theoreticalPointsAt100Percent) {
+    return 0;
+  }
+
+  const actualNormalizedPoints =
+    (actualOgPoints * volume) / LITERS_REFERENCE_FOR_PPG;
+
+  return (actualNormalizedPoints / theoreticalPointsAt100Percent) * 100;
+}
+
+export function calculateTargetPreBoilVolumeLiters(
+  targetColdVolumeLiters: number,
+  boilOffLiters: number,
+  trubLossLiters: number,
+  shrinkagePercent = DEFAULT_CO2_SHRINKAGE_PERCENT,
+): number {
+  const coldVolume = clampPositive(targetColdVolumeLiters);
+  const boilOff = clampPositive(boilOffLiters);
+  const trubLoss = clampPositive(trubLossLiters);
+  const shrinkage = toBoundedPercentFraction(shrinkagePercent);
+  const safeDivider = Math.max(0.01, 1 - shrinkage);
+
+  if (!coldVolume) {
+    return 0;
+  }
+
+  const hotPostBoilVolume = (coldVolume + trubLoss) / safeDivider;
+  return hotPostBoilVolume + boilOff;
+}
+
+export type WaterPlanVolumes = {
+  mashWaterLiters: number;
+  spargeWaterLiters: number;
+  preBoilVolumeLiters: number;
+  totalWaterLiters: number;
+};
+
+export function calculateWaterPlanVolumes(
+  totalGrainKg: number,
+  mashRatioLitersPerKg: number,
+  targetColdVolumeLiters: number,
+  boilOffLiters: number,
+  trubLossLiters: number,
+  grainAbsorptionLitersPerKg = 0.8,
+  shrinkagePercent = DEFAULT_CO2_SHRINKAGE_PERCENT,
+): WaterPlanVolumes {
+  const grainKg = clampPositive(totalGrainKg);
+  const mashRatio = clampPositive(mashRatioLitersPerKg);
+  const absorption = clampPositive(grainAbsorptionLitersPerKg);
+
+  const mashWaterLiters = grainKg * mashRatio;
+  const preBoilVolumeLiters = calculateTargetPreBoilVolumeLiters(
+    targetColdVolumeLiters,
+    boilOffLiters,
+    trubLossLiters,
+    shrinkagePercent,
+  );
+  const absorptionLossLiters = grainKg * absorption;
+  const totalWaterLiters = preBoilVolumeLiters + absorptionLossLiters;
+  const spargeWaterLiters = Math.max(0, totalWaterLiters - mashWaterLiters);
+
+  return {
+    mashWaterLiters,
+    spargeWaterLiters,
+    preBoilVolumeLiters,
+    totalWaterLiters,
+  };
+}
+
+// ─── Yeast / fermentation planning ──────────────────────────────────────────
+
+export const ALE_PITCH_RATE_M_PER_ML_PLATO = 0.75;
+export const LAGER_PITCH_RATE_M_PER_ML_PLATO = 1.5;
+
+export function calculateRequiredYeastCellsBillions(
+  og: number,
+  volumeLiters: number,
+  pitchRateMillionCellsPerMlPlato = ALE_PITCH_RATE_M_PER_ML_PLATO,
+): number {
+  const plato = clampPositive(sgToPlato(og));
+  const volumeMl = clampPositive(volumeLiters) * 1000;
+  const pitchRate = clampPositive(pitchRateMillionCellsPerMlPlato);
+
+  if (!plato || !volumeMl || !pitchRate) {
+    return 0;
+  }
+
+  const requiredMillionCells = pitchRate * plato * volumeMl;
+  return requiredMillionCells / 1000;
+}
+
+export function calculateEstimatedFgFromAttenuation(
+  og: number,
+  attenuationPercent: number,
+): number {
+  if (!Number.isFinite(og) || og <= 0) {
+    return 1;
+  }
+
+  const attenuation = toBoundedPercentFraction(attenuationPercent);
+  const fg = og - (og - 1) * attenuation;
+
+  return Math.max(1, fg);
+}
+
+export function calculateDryYeastPacketsNeeded(
+  requiredCellsBillions: number,
+  cellsPerPacketBillions = 200,
+  viabilityPercent = 100,
+): number {
+  const requiredCells = clampPositive(requiredCellsBillions);
+  const cellsPerPacket = clampPositive(cellsPerPacketBillions);
+  const viability = toBoundedPercentFraction(viabilityPercent);
+
+  if (!requiredCells || !cellsPerPacket || !viability) {
+    return 0;
+  }
+
+  return requiredCells / (cellsPerPacket * viability);
+}
+
+// ─── Carbonation / packaging ────────────────────────────────────────────────
+
+export function estimateResidualCo2Volumes(
+  beerTemperatureCelsius: number,
+): number {
+  if (!Number.isFinite(beerTemperatureCelsius)) {
+    return 0;
+  }
+
+  const tempF = celsiusToFahrenheit(beerTemperatureCelsius);
+  const volumes = 3.0378 - 0.050062 * tempF + 0.00026555 * Math.pow(tempF, 2);
+
+  return Math.max(0, volumes);
+}
+
+export function calculatePrimingSugarGrams(
+  targetCo2Volumes: number,
+  batchVolumeLiters: number,
+  beerTemperatureCelsius: number,
+  sugarType: PrimingSugarType = "dextrose",
+): number {
+  const target = clampPositive(targetCo2Volumes);
+  const volume = clampPositive(batchVolumeLiters);
+
+  if (!target || !volume) {
+    return 0;
+  }
+
+  const residual = estimateResidualCo2Volumes(beerTemperatureCelsius);
+  const additionalVolumes = Math.max(0, target - residual);
+  const sugarFactor =
+    sugarType === "sucrose" ? SUCROSE_PRIMING_FACTOR : DEXTROSE_PRIMING_FACTOR;
+
+  return additionalVolumes * volume * sugarFactor;
+}
+
+/**
+ * Empirical pressure estimation for force carbonation in kegs.
+ * Formula uses temperature in °F and target CO₂ in volumes.
+ */
+export function calculateKegPressurePsiForTargetCo2(
+  targetCo2Volumes: number,
+  beerTemperatureCelsius: number,
+): number {
+  const target = clampPositive(targetCo2Volumes);
+
+  if (!target || !Number.isFinite(beerTemperatureCelsius)) {
+    return 0;
+  }
+
+  const tempF = celsiusToFahrenheit(beerTemperatureCelsius);
+
+  const psi =
+    -16.6999 -
+    0.0101059 * tempF +
+    0.00116512 * Math.pow(tempF, 2) +
+    0.173354 * tempF * target +
+    4.24267 * target -
+    0.0684226 * Math.pow(target, 2);
+
+  return Math.max(0, psi);
+}
+
+// ─── Advanced diagnostics ───────────────────────────────────────────────────
+
+export function calculateTotalDiastaticPowerWk(
+  malts: DiastaticMaltInput[],
+): number {
+  return malts.reduce(
+    (sum, malt) =>
+      sum + clampPositive(malt.weightKg) * clampPositive(malt.diastaticPowerWk),
+    0,
+  );
+}
+
+export function calculateAverageDiastaticPowerWkPerKg(
+  malts: DiastaticMaltInput[],
+): number {
+  const totalWeight = malts.reduce(
+    (sum, malt) => sum + clampPositive(malt.weightKg),
+    0,
+  );
+
+  if (!totalWeight) {
+    return 0;
+  }
+
+  return calculateTotalDiastaticPowerWk(malts) / totalWeight;
+}
+
+export function calculateKolbachIndexPercent(
+  solubleNitrogenPercent: number,
+  totalNitrogenPercent: number,
+): number {
+  const soluble = clampPositive(solubleNitrogenPercent);
+  const total = clampPositive(totalNitrogenPercent);
+
+  if (!soluble || !total) {
+    return 0;
+  }
+
+  return (soluble / total) * 100;
+}
+
+export function estimateMashViscosityCp(betaGlucansMgPerL: number): number {
+  const betaGlucans = clampPositive(betaGlucansMgPerL);
+  return 1.2 + 0.015 * betaGlucans;
+}
+
+export function estimateFanFromKolbachAndOg(
+  kolbachPercent: number,
+  og: number,
+): number {
+  const kolbach = clampPositive(kolbachPercent);
+  const ogPoints = clampPositive(ogToPoints(og));
+
+  if (!kolbach || !ogPoints) {
+    return 0;
+  }
+
+  return 0.2 * kolbach * ogPoints;
+}
+
+export function estimateBoilingPointAtAltitudeC(
+  altitudeMeters: number,
+): number {
+  const altitude = clampPositive(altitudeMeters);
+  return Math.max(0, 100 - altitude / 300);
+}
+
+export function estimateAtmosphericPressureHpa(altitudeMeters: number): number {
+  const altitude = clampPositive(altitudeMeters);
+  return Math.max(0, 1013 - altitude / 8.5);
+}
+
+/**
+ * Practical correction factor for IBU targets in altitude.
+ * Around +12.5% at 1500m, capped to +30%.
+ */
+export function calculateAltitudeIbuCorrectionFactor(
+  altitudeMeters: number,
+): number {
+  const altitude = clampPositive(altitudeMeters);
+  const normalizedGain = (altitude / 1500) * 0.125;
+  return 1 + Math.min(0.3, normalizedGain);
+}
+
+export function calculateAltitudeAdjustedIbuTarget(
+  targetIbuAtSeaLevel: number,
+  altitudeMeters: number,
+): number {
+  const target = clampPositive(targetIbuAtSeaLevel);
+  if (!target) {
+    return 0;
+  }
+
+  return target * calculateAltitudeIbuCorrectionFactor(altitudeMeters);
 }

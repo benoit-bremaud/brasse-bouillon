@@ -1,6 +1,12 @@
 import * as Haptics from "expo-haptics";
 
 import {
+  calculateResidualAlkalinity,
+  calculateSulfateChlorideRatio,
+} from "@/core/brewing-calculations";
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
+import { useCallback, useState } from "react";
+import {
   Pressable,
   ScrollView,
   StyleSheet,
@@ -8,12 +14,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {
-  calculateResidualAlkalinity,
-  calculateSulfateChlorideRatio,
-} from "@/core/brewing-calculations";
-import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import { useCallback, useState } from "react";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -51,6 +51,110 @@ type SaltReference = {
   hco3?: number;
   note: string;
 };
+
+// Water profile by city/region (ion concentrations in ppm)
+type WaterProfile = {
+  name: string;
+  region: string;
+  ca: number;
+  mg: number;
+  na: number;
+  so4: number;
+  cl: number;
+  hco3: number;
+  description: string;
+};
+
+const WATER_PROFILES: WaterProfile[] = [
+  {
+    name: "Paris",
+    region: "France",
+    ca: 112,
+    mg: 6,
+    na: 15,
+    so4: 22,
+    cl: 17,
+    hco3: 306,
+    description: "Eau moyennement dure, traditionnelle pour les bières blondes",
+  },
+  {
+    name: "Munich",
+    region: "Allemagne",
+    ca: 78,
+    mg: 17,
+    na: 2,
+    so4: 10,
+    cl: 3,
+    hco3: 242,
+    description: "Eau douce, idéale pour les Weissbier et Dunkel",
+  },
+  {
+    name: "Dortmund",
+    region: "Allemagne",
+    ca: 146,
+    mg: 23,
+    na: 45,
+    so4: 33,
+    cl: 52,
+    hco3: 298,
+    description: "Eau dure, traditionnelle pour les Export/Dortmunder",
+  },
+  {
+    name: "Burton-on-Trent",
+    region: "Angleterre",
+    ca: 275,
+    mg: 42,
+    na: 25,
+    so4: 600,
+    cl: 35,
+    hco3: 380,
+    description: "Eau très sulfatée, incontourn for IPA anglaise",
+  },
+  {
+    name: "Dublin",
+    region: "Irlande",
+    ca: 118,
+    mg: 4,
+    na: 12,
+    so4: 53,
+    cl: 19,
+    hco3: 319,
+    description: "Eau moyennement dure, parfaite pour Stout/Porter",
+  },
+  {
+    name: "London",
+    region: "Angleterre",
+    ca: 100,
+    mg: 5,
+    na: 40,
+    so4: 65,
+    cl: 60,
+    hco3: 240,
+    description: "Eau polyvalente, bonne pour les Bitter et Porter",
+  },
+  {
+    name: "Edinburgh",
+    region: "Écosse",
+    ca: 78,
+    mg: 19,
+    na: 70,
+    so4: 130,
+    cl: 95,
+    hco3: 280,
+    description: "Eau saline, traditionnelle pour les Scotch Ale",
+  },
+  {
+    name: "Pilsen",
+    region: "République Tchèque",
+    ca: 7,
+    mg: 2,
+    na: 2,
+    so4: 5,
+    cl: 3,
+    hco3: 16,
+    description: "Eau très douce, indispensable pour Pilsner authentique",
+  },
+];
 
 const STYLE_PRESETS: StylePreset[] = [
   {
@@ -238,6 +342,102 @@ function parseIon(text: string): number {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
+// Calculate salt corrections to reach target profile
+function calculateSaltCorrections(
+  currentProfile: {
+    ca: number;
+    mg: number;
+    na: number;
+    so4: number;
+    cl: number;
+    hco3: number;
+  },
+  targetProfile: {
+    ca: number;
+    mg: number;
+    na: number;
+    so4: number;
+    cl: number;
+    hco3: number;
+  },
+  salts: SaltReference[],
+  volumeLiters: number,
+): { salt: SaltReference; gramsNeeded: number }[] {
+  const corrections: { salt: SaltReference; gramsNeeded: number }[] = [];
+
+  // Calculate deltas needed for each ion
+  const caDelta = Math.max(0, targetProfile.ca - currentProfile.ca);
+  const mgDelta = Math.max(0, targetProfile.mg - currentProfile.mg);
+  const naDelta = Math.max(0, targetProfile.na - currentProfile.na);
+  const so4Delta = Math.max(0, targetProfile.so4 - currentProfile.so4);
+  const clDelta = Math.max(0, targetProfile.cl - currentProfile.cl);
+  const hco3Delta = Math.max(0, targetProfile.hco3 - currentProfile.hco3);
+
+  // Simple heuristic: prioritize most impactful salts
+  // This is a simplified calculation - real brewing software uses linear programming
+
+  // For each ion deficit, find best salt
+  if (caDelta > 0) {
+    // Use CaCl2 or Gypite
+    const bestSalt = salts.find((s) => s.ca && s.ca > 0);
+    if (bestSalt && bestSalt.ca) {
+      const gramsNeeded = (caDelta / bestSalt.ca) * volumeLiters;
+      corrections.push({ salt: bestSalt, gramsNeeded });
+    }
+  }
+
+  if (so4Delta > 0) {
+    // Use Gypite
+    const gypite = salts.find((s) => s.name === "Gypite" && s.so4);
+    if (gypite && gypite.so4) {
+      const gramsNeeded = (so4Delta / gypite.so4) * volumeLiters;
+      corrections.push({ salt: gypite, gramsNeeded });
+    }
+  }
+
+  if (clDelta > 0) {
+    // Use CaCl2
+    const cacl2 = salts.find(
+      (s) => s.name.includes("Chlorure de calcium") && s.cl,
+    );
+    if (cacl2 && cacl2.cl) {
+      const gramsNeeded = (clDelta / cacl2.cl) * volumeLiters;
+      corrections.push({ salt: cacl2, gramsNeeded });
+    }
+  }
+
+  if (hco3Delta > 0) {
+    // Use Bicarbonate de soude or Craie
+    const bicarbonate = salts.find(
+      (s) => s.name.includes("Bicarbonate") && s.hco3,
+    );
+    if (bicarbonate && bicarbonate.hco3) {
+      const gramsNeeded = (hco3Delta / bicarbonate.hco3) * volumeLiters;
+      corrections.push({ salt: bicarbonate, gramsNeeded });
+    }
+  }
+
+  if (naDelta > 0) {
+    // Use Sel de table
+    const sel = salts.find((s) => s.name === "Sel de table" && s.na);
+    if (sel && sel.na) {
+      const gramsNeeded = (naDelta / sel.na) * volumeLiters;
+      corrections.push({ salt: sel, gramsNeeded });
+    }
+  }
+
+  if (mgDelta > 0) {
+    // Use Sel d'Epsom
+    const epsom = salts.find((s) => s.name === "Sel d'Epsom" && s.mg);
+    if (epsom && epsom.mg) {
+      const gramsNeeded = (mgDelta / epsom.mg) * volumeLiters;
+      corrections.push({ salt: epsom, gramsNeeded });
+    }
+  }
+
+  return corrections;
+}
+
 export function EauCalculatorScreen() {
   const [activeTab, setActiveTab] = useState<TabName>("profil");
 
@@ -249,6 +449,9 @@ export function EauCalculatorScreen() {
   const [clText, setClText] = useState("75");
   const [hco3Text, setHco3Text] = useState("50");
 
+  // City/water profile selection
+  const [selectedProfileIndex, setSelectedProfileIndex] = useState(0);
+
   // Style tab
   const [styleIndex, setStyleIndex] = useState(0);
 
@@ -259,6 +462,18 @@ export function EauCalculatorScreen() {
 
   const handleStyleChange = useCallback((index: number) => {
     setStyleIndex(index);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
+  const handleProfileChange = useCallback((index: number) => {
+    const profile = WATER_PROFILES[index];
+    setCaText(profile.ca.toString());
+    setMgText(profile.mg.toString());
+    setNaText(profile.na.toString());
+    setSo4Text(profile.so4.toString());
+    setClText(profile.cl.toString());
+    setHco3Text(profile.hco3.toString());
+    setSelectedProfileIndex(index);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
@@ -310,6 +525,24 @@ export function EauCalculatorScreen() {
       range: currentPreset.hco3,
     },
   ];
+
+  // Calculate target profile from style preset (use midpoint of range)
+  const targetProfile = {
+    ca: (currentPreset.ca.min + currentPreset.ca.max) / 2,
+    mg: (currentPreset.mg.min + currentPreset.mg.max) / 2,
+    na: (currentPreset.na.min + currentPreset.na.max) / 2,
+    so4: (currentPreset.so4.min + currentPreset.so4.max) / 2,
+    cl: (currentPreset.cl.min + currentPreset.cl.max) / 2,
+    hco3: (currentPreset.hco3.min + currentPreset.hco3.max) / 2,
+  };
+
+  const currentProfile = { ca, mg, na, so4, cl, hco3 };
+  const saltCorrections = calculateSaltCorrections(
+    currentProfile,
+    targetProfile,
+    SALT_REFERENCES,
+    20, // Default 20L batch
+  );
 
   return (
     <Screen>
@@ -452,6 +685,49 @@ export function EauCalculatorScreen() {
               </View>
             </Card>
 
+            {/* Water profile by city selector */}
+            <Card style={styles.card}>
+              <Text style={styles.cardTitle}>Profil d'eau par ville</Text>
+              <Text style={styles.cardSubtitle}>
+                Sélectionnez une ville pour pré-remplir les valeurs
+              </Text>
+              <View style={styles.profileList}>
+                {WATER_PROFILES.map((profile, index) => (
+                  <Pressable
+                    key={profile.name}
+                    style={[
+                      styles.profileItem,
+                      selectedProfileIndex === index &&
+                        styles.profileItemActive,
+                    ]}
+                    onPress={() => handleProfileChange(index)}
+                  >
+                    <View style={styles.profileHeader}>
+                      <Text
+                        style={[
+                          styles.profileName,
+                          selectedProfileIndex === index &&
+                            styles.profileNameActive,
+                        ]}
+                      >
+                        {profile.name}
+                      </Text>
+                      <Text style={styles.profileRegion}>{profile.region}</Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.profileDescription,
+                        selectedProfileIndex === index &&
+                          styles.profileDescriptionActive,
+                      ]}
+                    >
+                      {profile.description}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </Card>
+
             {/* RA Result */}
             <Card style={styles.card}>
               <Text style={styles.cardTitle}>Alkalinité résiduelle (RA)</Text>
@@ -574,6 +850,38 @@ export function EauCalculatorScreen() {
                 );
               })}
             </Card>
+
+            {/* Salt corrections recommendations */}
+            {saltCorrections.length > 0 && (
+              <Card style={styles.card}>
+                <Text style={styles.cardTitle}>Corrections recommandées</Text>
+                <Text style={styles.cardSubtitle}>
+                  Sels à ajouter pour atteindre le profil cible (pour 20L)
+                </Text>
+
+                {saltCorrections.map((correction, index) => (
+                  <View key={index} style={styles.correctionRow}>
+                    <View style={styles.correctionInfo}>
+                      <Text style={styles.correctionSaltName}>
+                        {correction.salt.name}
+                      </Text>
+                      <Text style={styles.correctionFormula}>
+                        {correction.salt.formula}
+                      </Text>
+                    </View>
+                    <View style={styles.correctionAmount}>
+                      <Text style={styles.correctionGrams}>
+                        {correction.gramsNeeded.toFixed(1)} g
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+
+                <Text style={styles.correctionNote}>
+                  Ajustez selon votre volume de brassin
+                </Text>
+              </Card>
+            )}
           </>
         )}
 
@@ -876,5 +1184,83 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
     fontStyle: "italic",
+  },
+  // Water profile by city selector
+  profileList: {
+    gap: spacing.xs,
+  },
+  profileItem: {
+    padding: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    backgroundColor: colors.neutral.white,
+  },
+  profileItemActive: {
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
+  },
+  profileHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.xxs,
+  },
+  profileName: {
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  profileNameActive: {
+    color: colors.neutral.white,
+  },
+  profileRegion: {
+    fontSize: typography.size.caption,
+    color: colors.brand.secondary,
+    fontWeight: typography.weight.medium,
+  },
+  profileDescription: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  profileDescriptionActive: {
+    color: colors.neutral.white,
+  },
+  // Salt corrections recommendations
+  correctionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral.border,
+  },
+  correctionInfo: {
+    flex: 1,
+  },
+  correctionSaltName: {
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  correctionFormula: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+    fontStyle: "italic",
+  },
+  correctionAmount: {
+    alignItems: "flex-end",
+  },
+  correctionGrams: {
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.primary,
+  },
+  correctionNote: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.muted,
+    fontStyle: "italic",
+    marginTop: spacing.sm,
+    textAlign: "center",
   },
 });

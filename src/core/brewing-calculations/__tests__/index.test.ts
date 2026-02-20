@@ -1,18 +1,37 @@
 import {
+  ALE_PITCH_RATE_M_PER_ML_PLATO,
   calculateAbv,
+  calculateAltitudeAdjustedIbuTarget,
+  calculateAltitudeIbuCorrectionFactor,
+  calculateAverageDiastaticPowerWkPerKg,
   calculateBatchGravityPointsFromFermentables,
+  calculateBrewhouseEfficiencyPercent,
+  calculateDryYeastPacketsNeeded,
+  calculateEstimatedFgFromAttenuation,
   calculateIbuTinseth,
+  calculateKegPressurePsiForTargetCo2,
+  calculateKolbachIndexPercent,
   calculateMCU,
   calculateOgFromFermentables,
+  calculatePrimingSugarGrams,
   calculateRequiredHopGramsForTargetIbu,
   calculateRequiredMaltForTargetSRM,
   calculateRequiredMaltKgForTargetOg,
+  calculateRequiredYeastCellsBillions,
   calculateResidualAlkalinity,
   calculateSRMFromMalts,
   calculateSulfateChlorideRatio,
+  calculateTargetPreBoilVolumeLiters,
   calculateTinsethUtilization,
+  calculateTotalDiastaticPowerWk,
+  calculateWaterPlanVolumes,
   calculateWeightedEfmPercent,
   correctSgForTemperature,
+  estimateAtmosphericPressureHpa,
+  estimateBoilingPointAtAltitudeC,
+  estimateFanFromKolbachAndOg,
+  estimateMashViscosityCp,
+  estimateResidualCo2Volumes,
   gallonsToLiters,
   litersToGallons,
   mcuToSRM,
@@ -419,6 +438,127 @@ describe("brewing calculations", () => {
 
         expect(ratioHigh).toBeGreaterThan(ratioLow);
       });
+    });
+  });
+
+  describe("rendement calculations", () => {
+    it("calculates brewhouse efficiency from measured OG and volume", () => {
+      const efficiency = calculateBrewhouseEfficiencyPercent(1.06, 20, [
+        { weightKg: 4, ppg: 37.5 },
+        { weightKg: 0.3, ppg: 33 },
+      ]);
+
+      expect(efficiency).toBeCloseTo(75.0, 1);
+    });
+
+    it("calculates target pre-boil volume from process losses", () => {
+      const preBoil = calculateTargetPreBoilVolumeLiters(20, 4, 1, 4);
+
+      expect(preBoil).toBeCloseTo(25.88, 2);
+    });
+
+    it("calculates mash/sparge/total water plan volumes", () => {
+      const plan = calculateWaterPlanVolumes(5, 3, 20, 4, 1, 0.8, 4);
+
+      expect(plan.mashWaterLiters).toBeCloseTo(15, 2);
+      expect(plan.preBoilVolumeLiters).toBeCloseTo(25.88, 2);
+      expect(plan.totalWaterLiters).toBeCloseTo(29.88, 2);
+      expect(plan.spargeWaterLiters).toBeCloseTo(14.875, 3);
+    });
+  });
+
+  describe("yeast calculations", () => {
+    it("calculates required yeast cells in billions", () => {
+      const cells = calculateRequiredYeastCellsBillions(
+        1.065,
+        20,
+        ALE_PITCH_RATE_M_PER_ML_PLATO,
+      );
+
+      expect(cells).toBeGreaterThan(230);
+      expect(cells).toBeLessThan(250);
+    });
+
+    it("estimates FG from attenuation", () => {
+      const fg = calculateEstimatedFgFromAttenuation(1.065, 80);
+
+      expect(fg).toBeCloseTo(1.013, 3);
+    });
+
+    it("calculates dry yeast packets needed with viability", () => {
+      const packets = calculateDryYeastPacketsNeeded(240, 200, 95);
+
+      expect(packets).toBeCloseTo(1.26, 2);
+    });
+  });
+
+  describe("carbonation calculations", () => {
+    it("estimates residual CO2 from beer temperature", () => {
+      const residual = estimateResidualCo2Volumes(20);
+
+      expect(residual).toBeGreaterThan(0.8);
+      expect(residual).toBeLessThan(0.9);
+    });
+
+    it("calculates dextrose priming sugar from target and residual CO2", () => {
+      const sugar = calculatePrimingSugarGrams(2.4, 20, 20, "dextrose");
+
+      expect(sugar).toBeGreaterThan(120);
+      expect(sugar).toBeLessThan(126);
+    });
+
+    it("requires less sucrose than dextrose for the same target", () => {
+      const dextrose = calculatePrimingSugarGrams(2.4, 20, 20, "dextrose");
+      const sucrose = calculatePrimingSugarGrams(2.4, 20, 20, "sucrose");
+
+      expect(sucrose).toBeLessThan(dextrose);
+    });
+
+    it("calculates keg pressure for target carbonation", () => {
+      const psi = calculateKegPressurePsiForTargetCo2(2.4, 4);
+
+      expect(psi).toBeGreaterThan(8);
+      expect(psi).toBeLessThan(14);
+    });
+  });
+
+  describe("advanced calculations", () => {
+    it("calculates total and average diastatic power", () => {
+      const malts = [
+        { weightKg: 4, diastaticPowerWk: 250 },
+        { weightKg: 1, diastaticPowerWk: 0 },
+      ];
+
+      expect(calculateTotalDiastaticPowerWk(malts)).toBeCloseTo(1000, 5);
+      expect(calculateAverageDiastaticPowerWkPerKg(malts)).toBeCloseTo(200, 5);
+    });
+
+    it("calculates Kolbach index", () => {
+      const kolbach = calculateKolbachIndexPercent(0.72, 1.8);
+
+      expect(kolbach).toBeCloseTo(40, 5);
+    });
+
+    it("estimates mash viscosity from beta-glucans", () => {
+      const viscosity = estimateMashViscosityCp(200);
+
+      expect(viscosity).toBeCloseTo(4.2, 2);
+    });
+
+    it("estimates FAN from Kolbach and OG", () => {
+      const fan = estimateFanFromKolbachAndOg(40, 1.06);
+
+      expect(fan).toBeCloseTo(480, 1);
+    });
+
+    it("estimates boiling point and atmospheric pressure with altitude", () => {
+      expect(estimateBoilingPointAtAltitudeC(1500)).toBeCloseTo(95, 5);
+      expect(estimateAtmosphericPressureHpa(1500)).toBeCloseTo(836.5, 1);
+    });
+
+    it("applies IBU correction for altitude", () => {
+      expect(calculateAltitudeIbuCorrectionFactor(1500)).toBeCloseTo(1.125, 5);
+      expect(calculateAltitudeAdjustedIbuTarget(40, 1500)).toBeCloseTo(45, 5);
     });
   });
 });

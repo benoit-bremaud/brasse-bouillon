@@ -1,0 +1,13 @@
+# Robots.txt pour Brasse-Bouillon
+# https://brasse-bouillon.com
+
+User-agent: *
+Allow: /
+
+# Ne pas indexer ces fichiers/dossiers
+Disallow: /scripts/
+Disallow: /docs/GOVERNANCE.md
+Disallow: /docs/roadmap-feed.json
+
+# sitemap
+Sitemap: https://brasse-bouillon.com/sitemap.xml

@@ -108,7 +108,7 @@ const WATER_PROFILES: WaterProfile[] = [
     so4: 600,
     cl: 35,
     hco3: 380,
-    description: "Eau très sulfatée, incontourn for IPA anglaise",
+    description: "Eau très sulfatée, incontournable pour IPA anglaise",
   },
   {
     name: "Dublin",
@@ -387,11 +387,11 @@ function calculateSaltCorrections(
   }
 
   if (so4Delta > 0) {
-    // Use Gypite
-    const gypite = salts.find((s) => s.name === "Gypite" && s.so4);
-    if (gypite && gypite.so4) {
-      const gramsNeeded = (so4Delta / gypite.so4) * volumeLiters;
-      corrections.push({ salt: gypite, gramsNeeded });
+    // Use Gypse (French for gypsum)
+    const gypse = salts.find((s) => s.name === "Gypse" && s.so4);
+    if (gypse && gypse.so4) {
+      const gramsNeeded = (so4Delta / gypse.so4) * volumeLiters;
+      corrections.push({ salt: gypse, gramsNeeded });
     }
   }
 
@@ -712,7 +712,15 @@ export function EauCalculatorScreen() {
                       >
                         {profile.name}
                       </Text>
-                      <Text style={styles.profileRegion}>{profile.region}</Text>
+                      <Text
+                        style={[
+                          styles.profileRegion,
+                          selectedProfileIndex === index &&
+                            styles.profileRegionActive,
+                        ]}
+                      >
+                        {profile.region}
+                      </Text>
                     </View>
                     <Text
                       style={[
@@ -1218,6 +1226,9 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     color: colors.brand.secondary,
     fontWeight: typography.weight.medium,
+  },
+  profileRegionActive: {
+    color: colors.neutral.white,
   },
   profileDescription: {
     fontSize: typography.size.caption,

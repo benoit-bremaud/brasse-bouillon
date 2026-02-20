@@ -1,8 +1,12 @@
 import { AcademyTopicPlaceholderScreen } from "@/features/tools/presentation/AcademyTopicPlaceholderScreen";
+import { AvancesCalculatorScreen } from "@/features/tools/presentation/AvancesCalculatorScreen";
+import { CarbonatationCalculatorScreen } from "@/features/tools/presentation/CarbonatationCalculatorScreen";
 import { CouleurCalculatorScreen } from "@/features/tools/presentation/CouleurCalculatorScreen";
 import { EauCalculatorScreen } from "@/features/tools/presentation/EauCalculatorScreen";
 import { FermentesciblesCalculatorScreen } from "@/features/tools/presentation/FermentesciblesCalculatorScreen";
 import { HoublonsCalculatorScreen } from "@/features/tools/presentation/HoublonsCalculatorScreen";
+import { LevuresCalculatorScreen } from "@/features/tools/presentation/LevuresCalculatorScreen";
+import { RendementCalculatorScreen } from "@/features/tools/presentation/RendementCalculatorScreen";
 import { useLocalSearchParams } from "expo-router";
 
 export default function AcademyTopicCalculatorRoute() {
@@ -23,6 +27,22 @@ export default function AcademyTopicCalculatorRoute() {
 
   if (normalizedSlug === "eau") {
     return <EauCalculatorScreen />;
+  }
+
+  if (normalizedSlug === "rendement") {
+    return <RendementCalculatorScreen />;
+  }
+
+  if (normalizedSlug === "levures") {
+    return <LevuresCalculatorScreen />;
+  }
+
+  if (normalizedSlug === "carbonatation") {
+    return <CarbonatationCalculatorScreen />;
+  }
+
+  if (normalizedSlug === "avances") {
+    return <AvancesCalculatorScreen />;
   }
 
   return (

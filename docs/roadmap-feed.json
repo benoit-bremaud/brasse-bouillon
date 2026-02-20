@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "benoit-bremaud/brasse-bouillon-website#58",
+      "date": "2026-02-17",
+      "merged_at": "2026-02-17T12:00:00Z",
+      "domain": "Website",
+      "source_repo": "benoit-bremaud/brasse-bouillon-website",
+      "pr_number": 58,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-website/pull/58",
+      "pr_title": "docs(roadmap): sync website roadmap with frontend/backend progress",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Roadmap FR/EN et documentation synchronisées avec les merges frontend/backend.",
+      "summary_en": "FR/EN roadmap and documentation synchronized with frontend/backend merges.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-website/commit/66c169c34463b9495af60de8b2922c30223ea6e9"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#19",
+      "date": "2026-02-13",
+      "merged_at": "2026-02-13T12:00:00Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 19,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/19",
+      "pr_title": "feat(academy): revamp brewing academy hub and learning sheets",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Refonte de l'Académie brassicole avec hub et fiches Fermentescibles/Couleur/Houblons.",
+      "summary_en": "Brewing Academy revamp (hub + Fermentables/Color/Hops learning sheets).",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/20",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/21",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/22"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#18",
+      "date": "2026-02-12",
+      "merged_at": "2026-02-12T12:00:00Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 18,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/18",
+      "pr_title": "fix(recipe-detail): improve ingredient navigation and english labels",
+      "phase": "5",
+      "impact_type": "fix",
+      "summary_fr": "Amélioration du détail recette, navigation catégories ingrédients et corrections labels EN.",
+      "summary_en": "Recipe detail enhancement + ingredient category navigation and EN label fixes.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/17"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#16",
+      "date": "2026-02-11",
+      "merged_at": "2026-02-11T14:00:00Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 16,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/16",
+      "pr_title": "feat(calculator): add brewing calculator v1",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Ajout du calculateur de brassage v1 (IBU/ABV/conversions).",
+      "summary_en": "Brewing calculator v1 (IBU/ABV/conversions).",
+      "evidence_links": []
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-backend#27",
+      "date": "2026-02-11",
+      "merged_at": "2026-02-11T09:00:00Z",
+      "domain": "Backend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-backend",
+      "pr_number": 27,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/27",
+      "pr_title": "chore(security): harden auth and dependency audits",
+      "phase": "5",
+      "impact_type": "security",
+      "summary_fr": "Renforcement sécurité (audits dépendances, auth/JWT, tests d'intégration).",
+      "summary_en": "Security hardening (dependency audits, auth/JWT, integration tests).",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/28",
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/29",
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/9"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#12",
+      "date": "2026-02-10",
+      "merged_at": "2026-02-10T12:00:00Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 12,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/12",
+      "pr_title": "fix(batch-ui): harden batch timeline on small screens",
+      "phase": "5",
+      "impact_type": "fix",
+      "summary_fr": "Renforcement de la timeline des brassins pour petits écrans.",
+      "summary_en": "Batch timeline hardening for small screens.",
+      "evidence_links": []
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-backend#17",
+      "date": "2026-02-06",
+      "merged_at": "2026-02-06T12:00:00Z",
+      "domain": "Backend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-backend",
+      "pr_number": 17,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/17",
+      "pr_title": "feat(batch): implement workflow, persistence and endpoints",
+      "phase": "4",
+      "impact_type": "feature",
+      "summary_fr": "Module lots: workflow, persistance et endpoints API.",
+      "summary_en": "Batch module: workflow, service, persistence, and API endpoints.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/19",
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/21",
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/23"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-backend#24",
+      "date": "2026-02-06",
+      "merged_at": "2026-02-06T10:00:00Z",
+      "domain": "Backend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-backend",
+      "pr_number": 24,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/24",
+      "pr_title": "feat(fermentation): add reminders API",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "API des rappels de fermentation.",
+      "summary_en": "Fermentation reminders API.",
+      "evidence_links": []
+    }
+  ]
+}

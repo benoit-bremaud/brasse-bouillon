@@ -377,12 +377,16 @@ function calculateSaltCorrections(
   // This is a simplified calculation - real brewing software uses linear programming
 
   // For each ion deficit, find best salt
+  // Note: salt values are in % (e.g., 36.1 = 36.1%), need to divide by 10 for correct calculation
+  // Formula: grams = (delta_ppm * volume_L) / (percentage * 10)
   if (caDelta > 0) {
-    // Use CaCl2 or Gypite
-    const bestSalt = salts.find((s) => s.ca && s.ca > 0);
-    if (bestSalt && bestSalt.ca) {
-      const gramsNeeded = (caDelta / bestSalt.ca) * volumeLiters;
-      corrections.push({ salt: bestSalt, gramsNeeded });
+    // Use CaCl2
+    const cacl2 = salts.find(
+      (s) => s.name.includes("Chlorure de calcium") && s.ca,
+    );
+    if (cacl2 && cacl2.ca) {
+      const gramsNeeded = (caDelta * volumeLiters) / (cacl2.ca * 10);
+      corrections.push({ salt: cacl2, gramsNeeded });
     }
   }
 
@@ -390,7 +394,7 @@ function calculateSaltCorrections(
     // Use Gypse (French for gypsum)
     const gypse = salts.find((s) => s.name === "Gypse" && s.so4);
     if (gypse && gypse.so4) {
-      const gramsNeeded = (so4Delta / gypse.so4) * volumeLiters;
+      const gramsNeeded = (so4Delta * volumeLiters) / (gypse.so4 * 10);
       corrections.push({ salt: gypse, gramsNeeded });
     }
   }
@@ -401,18 +405,18 @@ function calculateSaltCorrections(
       (s) => s.name.includes("Chlorure de calcium") && s.cl,
     );
     if (cacl2 && cacl2.cl) {
-      const gramsNeeded = (clDelta / cacl2.cl) * volumeLiters;
+      const gramsNeeded = (clDelta * volumeLiters) / (cacl2.cl * 10);
       corrections.push({ salt: cacl2, gramsNeeded });
     }
   }
 
   if (hco3Delta > 0) {
-    // Use Bicarbonate de soude or Craie
+    // Use Bicarbonate de soude
     const bicarbonate = salts.find(
       (s) => s.name.includes("Bicarbonate") && s.hco3,
     );
     if (bicarbonate && bicarbonate.hco3) {
-      const gramsNeeded = (hco3Delta / bicarbonate.hco3) * volumeLiters;
+      const gramsNeeded = (hco3Delta * volumeLiters) / (bicarbonate.hco3 * 10);
       corrections.push({ salt: bicarbonate, gramsNeeded });
     }
   }
@@ -421,7 +425,7 @@ function calculateSaltCorrections(
     // Use Sel de table
     const sel = salts.find((s) => s.name === "Sel de table" && s.na);
     if (sel && sel.na) {
-      const gramsNeeded = (naDelta / sel.na) * volumeLiters;
+      const gramsNeeded = (naDelta * volumeLiters) / (sel.na * 10);
       corrections.push({ salt: sel, gramsNeeded });
     }
   }
@@ -430,7 +434,7 @@ function calculateSaltCorrections(
     // Use Sel d'Epsom
     const epsom = salts.find((s) => s.name === "Sel d'Epsom" && s.mg);
     if (epsom && epsom.mg) {
-      const gramsNeeded = (mgDelta / epsom.mg) * volumeLiters;
+      const gramsNeeded = (mgDelta * volumeLiters) / (epsom.mg * 10);
       corrections.push({ salt: epsom, gramsNeeded });
     }
   }

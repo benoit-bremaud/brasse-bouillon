@@ -1,590 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brasse-Bouillon — The homebrewing app coming soon</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RVCT6NGFVG');
-    </script>
-    <style>
-        :root {
-            --bg: #f7f2ed;
-            --card: rgba(255, 255, 255, 0.86);
-            --card-border: rgba(211, 84, 0, 0.15);
-            --text: #2d2622;
-            --muted: #6c625c;
-            --primary: #d35400;
-            --primary-dark: #a84300;
-            --primary-soft: #fff1e5;
-            --shadow: 0 14px 38px rgba(0, 0, 0, 0.08);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brasse-Bouillon — The homebrewing app coming soon</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+  <link rel="apple-touch-icon" href="logo-icon-32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-RVCT6NGFVG');
+  </script>
+  <style>
+    :root {
+      --color-primary: #b7824b;
+      --color-secondary: #8d5832;
+      --color-bg: #ede2bd;
+      --color-surface: rgba(255, 253, 248, 0.94);
+      --color-card: #ffffff;
+      --color-text: #2a2018;
+      --color-muted: #5b4b3f;
+      --color-success: #7e7e31;
+      --color-warning: #d9b364;
+      --color-info: #f3f3f3;
+      --color-focus: #2f6fdd;
+      --color-error: #573921;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 10px 24px rgba(30, 30, 30, 0.13);
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    * { box-sizing: border-box; }
 
-        body {
-            font-family: Inter, Arial, sans-serif;
-            margin: 0;
-            color: var(--text);
-            background:
-                radial-gradient(circle at 10% -20%, #ffe6d3 0%, transparent 45%),
-                radial-gradient(circle at 90% 0%, #f8d9bd 0%, transparent 35%),
-                var(--bg);
-        }
+    body {
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      color: var(--color-text);
+      background:
+        radial-gradient(circle at 10% -10%, #f5e8c7 0%, transparent 38%),
+        radial-gradient(circle at 95% 0%, #e7cf9a 0%, transparent 32%),
+        var(--color-bg);
+      line-height: 1.55;
+    }
 
-        .language-switch {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 999px;
-            padding: 8px 12px;
-            font-size: 0.95rem;
-            backdrop-filter: blur(6px);
-        }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: #fff;
+      color: var(--color-text);
+      border: 2px solid var(--color-secondary);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-weight: 700;
+      z-index: 100;
+    }
 
-        .language-switch a {
-            color: var(--muted);
-            text-decoration: none;
-            font-weight: 700;
-        }
+    .skip-link:focus {
+      left: 12px;
+      top: 12px;
+    }
 
-        .language-switch a:hover {
-            color: var(--primary);
-        }
+    .language-switch {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 20;
+      padding: 8px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(141, 88, 50, 0.32);
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(4px);
+      font-size: 0.95rem;
+    }
 
-        .skip-link {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            background: #ffffff;
-            color: #2d2622;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-weight: 700;
-            z-index: 100;
-        }
+    .language-switch a {
+      color: var(--color-muted);
+      text-decoration: none;
+      font-weight: 700;
+    }
 
-        .skip-link:focus {
-            left: 12px;
-            top: 12px;
-        }
+    .language-switch a:hover { color: var(--color-secondary); }
 
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 78px 20px 32px;
+    }
 
-        .page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 72px 20px 32px;
-        }
+    .shell {
+      width: 100%;
+      max-width: 1040px;
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      border: 2px solid rgba(141, 88, 50, 0.16);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-md);
+    }
 
-        .container {
-            width: 100%;
-            max-width: 920px;
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            padding: 28px;
-            backdrop-filter: blur(5px);
-        }
+    .hero {
+      text-align: center;
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid rgba(141, 88, 50, 0.2);
+    }
 
-        .hero {
-            text-align: center;
-        }
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(243, 243, 243, 0.8));
+      border: 2px solid rgba(141, 88, 50, 0.15);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 12px;
+    }
 
-        img.logo {
-            width: 110px;
-            height: auto;
-            margin-bottom: 12px;
-        }
+    .logo {
+      width: 150px;
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
 
-        .pill {
-            display: inline-block;
-            border-radius: 999px;
-            background: var(--primary-soft);
-            color: var(--primary);
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
+    .pill {
+      display: inline-block;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: rgba(217, 179, 100, 0.25);
+      color: var(--color-secondary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
 
-        h1 {
-            margin: 0;
-            font-size: clamp(2rem, 5vw, 3rem);
-            color: var(--primary);
-        }
+    h1 {
+      margin: 0;
+      color: var(--color-secondary);
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.15;
+    }
 
-        .intro {
-            margin: 14px auto 0;
-            max-width: 740px;
-            font-size: 1.05rem;
-            line-height: 1.65;
-            color: var(--muted);
-        }
+    .intro {
+      margin: 14px auto 0;
+      max-width: 760px;
+      color: var(--color-muted);
+      font-size: 1.02rem;
+    }
 
-        h2 {
-            margin: 36px 0 12px;
-            text-align: center;
-            color: var(--primary);
-            font-size: 1.45rem;
-        }
+    .section-block { margin-top: var(--spacing-xl); }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin-top: 14px;
-        }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.45rem;
+      color: var(--color-secondary);
+      text-align: center;
+    }
 
-        .section-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
-        }
+    .section-intro {
+      margin: 0 auto 14px;
+      max-width: 760px;
+      color: var(--color-muted);
+      text-align: center;
+    }
 
-        .feature {
-            background: #ffffff;
-            border: 1px solid #f1e0d1;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 0.98rem;
-            color: #4a403a;
-        }
+    .features-grid,
+    .section-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
 
-        .mini-card {
-            background: #fff;
-            border: 1px solid #ecd8c9;
-            border-radius: 12px;
-            padding: 14px;
-            color: #4a403a;
-            line-height: 1.55;
-        }
+    .features-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+    .section-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 
-        .mini-card h3 {
-            margin: 0 0 8px;
-            font-size: 1.02rem;
-            color: var(--primary);
-        }
+    .feature,
+    .mini-card {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(141, 88, 50, 0.2);
+      padding: 14px;
+      color: #44362c;
+      box-shadow: var(--shadow-sm);
+    }
 
-        .roadmap-controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 8px 0 14px;
-        }
+    .mini-card h3 {
+      margin: 0 0 8px;
+      color: var(--color-secondary);
+      font-size: 1.02rem;
+    }
 
-        .chip {
-            border: 1px solid #e5d6c9;
-            background: #fff;
-            color: #5f4f43;
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            min-height: 40px;
-        }
+    .roadmap-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
 
-        .chip.active {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #fff3e9;
-        }
+    .chip {
+      min-height: 40px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(141, 88, 50, 0.28);
+      background: #fff;
+      color: var(--color-muted);
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-        .roadmap-track {
-            display: grid;
-            gap: 10px;
-            margin-top: 10px;
-        }
+    .chip.active {
+      background: rgba(183, 130, 75, 0.14);
+      border-color: var(--color-secondary);
+      color: var(--color-secondary);
+    }
 
-        .phase-card {
-            background: #fff;
-            border: 1px solid #ecd8c9;
-            border-radius: 12px;
-            padding: 12px;
-        }
+    .roadmap-track {
+      display: grid;
+      gap: 10px;
+    }
 
-        .phase-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .phase-card {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(141, 88, 50, 0.2);
+      padding: 12px;
+    }
 
-        .phase-title {
-            margin: 0;
-            font-size: 1rem;
-            color: #3b312b;
-        }
+    .phase-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-        .phase-state {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 999px;
-            background: #f5f0ec;
-            color: #75675e;
-        }
+    .phase-title {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-text);
+    }
 
-        .phase-state.done {
-            background: #e8f7ee;
-            color: #1f7a40;
-        }
+    .phase-state {
+      font-size: 0.76rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: var(--color-info);
+      color: #4f4f4f;
+    }
 
-        .phase-state.current {
-            background: #fff3e9;
-            color: #a44a0b;
-        }
+    .phase-state.done {
+      background: rgba(126, 126, 49, 0.18);
+      color: #4e4e1e;
+    }
 
-        .phase-state.next {
-            background: #edf4ff;
-            color: #315d99;
-        }
+    .phase-state.current {
+      background: rgba(217, 179, 100, 0.34);
+      color: #67411e;
+    }
 
-        .phase-body {
-            margin: 8px 0 0;
-            color: #5f534c;
-            line-height: 1.55;
-            font-size: 0.93rem;
-        }
+    .phase-state.next {
+      background: rgba(243, 243, 243, 1);
+      color: #555;
+    }
 
-        .phase-body ul {
-            margin: 8px 0 0 18px;
-            padding: 0;
-        }
+    .phase-body {
+      margin: 8px 0 0;
+      color: #54463a;
+      font-size: 0.94rem;
+    }
 
-        .tag {
-            display: inline-block;
-            margin-top: 8px;
-            font-size: 0.78rem;
-            padding: 4px 8px;
-            border-radius: 999px;
-            background: #fff3e9;
-            color: #a44a0b;
-            font-weight: 700;
-        }
+    .phase-body ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
 
-        .cta {
-            margin-top: 30px;
-            text-align: center;
-            color: var(--muted);
-            line-height: 1.6;
-        }
+    .badge {
+      margin-top: 10px;
+      text-align: center;
+      color: #75695f;
+      font-size: 0.9rem;
+    }
 
-        .actions {
-            margin-top: 16px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    .badge a {
+      color: inherit;
+      font-weight: 700;
+      text-decoration: none;
+    }
 
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-            min-height: 44px;
-        }
+    .badge a:hover { color: var(--color-secondary); }
 
-        .btn:hover {
-            transform: translateY(-1px);
-        }
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
 
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 8px 18px rgba(211, 84, 0, 0.35);
-        }
+    .btn {
+      min-height: 44px;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 11px 18px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-        .btn-secondary {
-            display: inline-block;
-            text-decoration: none;
-            background: #fff;
-            color: #4b3c31;
-            border: 1px solid #e3d3c4;
-        }
+    .btn-primary {
+      background: var(--color-secondary);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(141, 88, 50, 0.28);
+    }
 
-        .questionnaire {
-            display: none;
-            opacity: 0;
-            margin-top: 20px;
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid #f0e0d0;
-            padding: 12px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
+    .btn-primary:hover { background: #764828; }
 
-        iframe {
-            width: 100%;
-            height: 760px;
-            border: none;
-            border-radius: 8px;
-            background: #fff;
-        }
+    .btn-secondary {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(141, 88, 50, 0.3);
+      background: #fff;
+      color: var(--color-secondary);
+    }
 
-        .contact {
-            margin-top: 28px;
-        }
+    .questionnaire-form {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(141, 88, 50, 0.24);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
 
-        form {
-            margin: 0 auto;
-            max-width: 700px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    .questionnaire-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
 
-        input,
-        textarea {
-            width: 100%;
-            border: 1px solid #dfd0c2;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 1rem;
-            background: #fff;
-        }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
-        textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
+    .form-field-full { grid-column: 1 / -1; }
 
-        .footer {
-            margin-top: 24px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.92rem;
-            line-height: 1.55;
-        }
+    .form-field label,
+    fieldset legend {
+      font-weight: 700;
+      color: #45392f;
+      font-size: 0.92rem;
+    }
 
-        .badge {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: #8f837a;
-        }
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(141, 88, 50, 0.36);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--color-text);
+      padding: 11px 12px;
+      font-size: 0.96rem;
+      font-family: inherit;
+    }
 
-        .badge a {
-            text-decoration: none;
-            color: inherit;
-            font-weight: 700;
-        }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
 
-        .badge a:hover {
-            color: var(--primary);
-        }
+    fieldset {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(141, 88, 50, 0.22);
+      border-radius: var(--radius-sm);
+      background: rgba(243, 243, 243, 0.7);
+    }
 
-        a:focus-visible,
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible {
-            outline: 3px solid #2f6fdd;
-            outline-offset: 2px;
-        }
+    .checkbox-list,
+    .radio-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
 
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation: none !important;
-                transition: none !important;
-                scroll-behavior: auto !important;
-            }
-        }
+    .checkbox-list label,
+    .radio-list label,
+    .consent {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 0.92rem;
+      color: #4f4238;
+    }
 
-        @media (max-width: 640px) {
-            .page {
-                padding: 92px 14px 22px;
-            }
+    .checkbox-list input,
+    .radio-list input,
+    .consent input {
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      flex: 0 0 auto;
+    }
 
-            .container {
-                border-radius: 18px;
-                padding: 22px 16px;
-            }
+    .form-status {
+      margin: 10px 0 0;
+      min-height: 22px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
 
-            .language-switch {
-                top: 10px;
-                right: 10px;
-                padding: 7px 10px;
-                font-size: 0.88rem;
-            }
+    .form-status.loading { color: #5f4f43; }
+    .form-status.success { color: var(--color-success); }
+    .form-status.error { color: var(--color-error); }
 
-            .actions .btn {
-                width: 100%;
-                max-width: 340px;
-            }
+    .contact-form {
+      margin: 0 auto;
+      max-width: 720px;
+      display: grid;
+      gap: 10px;
+    }
 
-            iframe {
-                height: 640px;
-            }
-        }
-    </style>
+    .footer {
+      margin-top: var(--spacing-xl);
+      text-align: center;
+      color: var(--color-muted);
+      font-size: 0.92rem;
+    }
+
+    .footer strong { color: var(--color-secondary); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 3px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 860px) {
+      .questionnaire-grid,
+      .section-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 88px 12px 20px; }
+      .shell {
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+      .logo-wrap {
+        width: 150px;
+        height: 150px;
+      }
+      .logo { width: 126px; }
+      .actions .btn,
+      .actions .btn-secondary {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <a class="skip-link" href="#mainContentEn">Skip to main content</a>
-    <div class="language-switch" role="navigation" aria-label="Language selection">
-        <a href="index.html" aria-label="French version">🇫🇷</a> | <a href="index-en.html" aria-label="English version">🇬🇧</a>
-    </div>
-    <main class="page" id="mainContentEn">
-        <div class="container">
-            <section class="hero">
-                <img class="logo" src="logo.png" alt="Brasse-Bouillon Logo">
-                <span class="pill">Coming soon</span>
-                <h1>Brasse-Bouillon</h1>
-                <p class="intro">
-                    A mobile app built for homebrewers—from first batches to advanced recipes.
-                    Design, optimize, archive, and share your creations with ease 📱🍺
-                </p>
-            </section>
+  <a class="skip-link" href="#mainContentEn">Skip to main content</a>
 
-            <section>
-                <h2>🍻 What you’ll be able to do</h2>
-                <div class="features">
-                    <div class="feature">✅ Create and manage your recipes easily</div>
-                    <div class="feature">✅ Calculate IBU, ABV, and yield</div>
-                    <div class="feature">✅ Plan and track each brewing session</div>
-                    <div class="feature">✅ Keep a clear history of every batch</div>
-                    <div class="feature">✅ Share your creations with the community</div>
-                </div>
-            </section>
+  <div class="language-switch" role="navigation" aria-label="Language selection">
+    <a href="index.html" aria-label="French version">🇫🇷</a> |
+    <a href="index-en.html" aria-label="English version">🇬🇧</a>
+  </div>
 
-            <section>
-                <h2 id="roadmapHeadingEn">🗺️ Project roadmap</h2>
-                <div class="roadmap-controls" id="roadmapControlsEn" role="toolbar" aria-label="Roadmap filters">
-                    <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmapEn('all', this)">All</button>
-                    <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmapEn('current', this)">In progress</button>
-                    <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmapEn('next', this)">Next</button>
-                    <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapEn('done', this)">Done</button>
-                </div>
-                <div id="roadmapTrackEn" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingEn"></div>
-                <p class="badge">Detailed history of completed actions: <a href="docs/ROADMAP.md" target="_blank" rel="noopener noreferrer">roadmap “Done” section</a>.</p>
-            </section>
-
-            <section>
-                <h2>🧪 Development log</h2>
-                <div class="section-grid">
-                    <div class="mini-card">
-                        <h3>February 2026 · Product</h3>
-                        Brewing calculator v1 (IBU/ABV/conversions), richer recipe detail view, and batch timeline hardening for small screens.
-                    </div>
-                    <div class="mini-card">
-                        <h3>February 2026 · Platform</h3>
-                        Batch API (workflow + persistence + endpoints), fermentation reminders, and ongoing hardening (JWT/auth tests + security audit).
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>❓ Quick FAQ</h2>
-                <div class="section-grid">
-                    <div class="mini-card">
-                        <h3>When will the app be available?</h3>
-                        We ship in phases. A beta will be shared as soon as the core is stable.
-                    </div>
-                    <div class="mini-card">
-                        <h3>Can I contribute?</h3>
-                        Yes—through the survey, UX feedback, and direct contact.
-                    </div>
-                    <div class="mini-card">
-                        <h3>Who is it for?</h3>
-                        Beginners and experienced homebrewers alike.
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>🍺 Featured recipe</h2>
-                <div class="mini-card">
-                    <h3>Session IPA “Citrus Bloom” (sample)</h3>
-                    Light, aromatic, and perfect to discover recipe tracking in Brasse-Bouillon.
-                    More detailed recipes and brew sheets are coming soon.
-                </div>
-            </section>
-
-            <section class="cta">
-                <h2>💬 Want to contribute?</h2>
-                <p>
-                    The app is currently being built. Your feedback helps us create
-                    a truly useful experience for homebrewers.
-                </p>
-                <div class="actions">
-                    <button class="btn btn-primary" onclick="toggleForm()">Answer the questionnaire</button>
-                    <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Contact us</a>
-                </div>
-
-                <div class="questionnaire" id="questionnaireBlock">
-                    <iframe loading="lazy" src="https://docs.google.com/forms/d/e/1FAIpQLScMcXYshLn-D1H_piEspHuU8ru5s3ZkyeIZWNC5cU--ZzI1jg/viewform?embedded=true" title="Brasse-Bouillon questionnaire">Loading…</iframe>
-                </div>
-            </section>
-
-            <section class="contact">
-                <h2>📬 Contact us directly</h2>
-                <form action="https://formspree.io/f/mqaqqvab" method="POST">
-                    <label class="sr-only" for="emailEn">Email address</label>
-                    <input id="emailEn" type="email" name="email" placeholder="Your email" required>
-                    <label class="sr-only" for="messageEn">Message</label>
-                    <textarea id="messageEn" name="message" placeholder="Your message" required></textarea>
-                    <button class="btn btn-primary" type="submit">Send</button>
-                </form>
-            </section>
-
-            <div class="footer">
-                Stay connected! You can also reach us at: <strong>contact@brasse-bouillon.com</strong>
-                <div class="badge">
-                    Made with ❤️ by <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
-                </div>
-            </div>
+  <main class="page" id="mainContentEn">
+    <div class="shell">
+      <section class="hero">
+        <div class="logo-wrap">
+          <img class="logo" src="logo-hero.png" alt="Official Brasse-Bouillon mascot">
         </div>
-    </main>
+        <span class="pill">Coming soon</span>
+        <h1>Brasse-Bouillon</h1>
+        <p class="intro">
+          A mobile app built for homebrewers—from first batches to advanced recipes.
+          Design, optimize, archive, and share your creations in a friendly and accessible experience.
+        </p>
+      </section>
 
-    <script>
+      <section class="section-block">
+        <h2 class="section-title">🍻 What you’ll be able to do</h2>
+        <div class="features-grid">
+          <div class="feature">✅ Create and manage your recipes easily</div>
+          <div class="feature">✅ Calculate IBU, ABV, and yield</div>
+          <div class="feature">✅ Plan and track each brewing session</div>
+          <div class="feature">✅ Keep a clear history of every batch</div>
+          <div class="feature">✅ Share your creations with the community</div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title" id="roadmapHeadingEn">🗺️ Project roadmap</h2>
+        <div class="roadmap-controls" id="roadmapControlsEn" role="toolbar" aria-label="Roadmap filters">
+          <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmapEn('all', this)">All</button>
+          <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmapEn('current', this)">In progress</button>
+          <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmapEn('next', this)">Next</button>
+          <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapEn('done', this)">Done</button>
+        </div>
+        <div id="roadmapTrackEn" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingEn"></div>
+        <p class="badge">
+          Detailed history of completed actions:
+          <a href="docs/ROADMAP.md" target="_blank" rel="noopener noreferrer">roadmap “Done” section</a>.
+        </p>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🧪 Development log</h2>
+        <div class="section-grid">
+          <div class="mini-card">
+            <h3>February 2026 · Product</h3>
+            Brewing calculator v1 (IBU/ABV/conversions), richer recipe detail view, and batch timeline hardening for small screens.
+          </div>
+          <div class="mini-card">
+            <h3>February 2026 · Platform</h3>
+            Batch API (workflow + persistence + endpoints), fermentation reminders, and ongoing hardening (JWT/auth tests + security audit).
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">❓ Quick FAQ</h2>
+        <div class="section-grid">
+          <div class="mini-card">
+            <h3>When will the app be available?</h3>
+            We ship in phases. A beta will be shared as soon as the core is stable.
+          </div>
+          <div class="mini-card">
+            <h3>Can I contribute?</h3>
+            Yes—through the questionnaire, UX feedback, and direct contact.
+          </div>
+          <div class="mini-card">
+            <h3>Who is it for?</h3>
+            Beginners and experienced homebrewers alike.
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🍺 Featured recipe</h2>
+        <div class="mini-card">
+          <h3>Session IPA “Citrus Bloom” (sample)</h3>
+          Light, aromatic, and perfect to discover recipe tracking in Brasse-Bouillon.
+          More detailed recipes and brew sheets are coming soon.
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🧾 Community questionnaire</h2>
+        <p class="section-intro">
+          It only takes 2 minutes to help us build Brasse-Bouillon. Your answers stay confidential.
+        </p>
+        <div class="actions">
+          <button class="btn btn-primary" id="questionnaireToggleEn" type="button" onclick="toggleQuestionnaire('en')">
+            Open questionnaire
+          </button>
+          <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Contact us</a>
+        </div>
+
+        <form id="questionnaireFormEn" class="questionnaire-form" hidden>
+          <input type="hidden" name="_subject" value="New response - Brasse-Bouillon questionnaire (EN)">
+          <input type="hidden" name="lang" value="en">
+          <input type="text" name="_gotcha" style="display:none">
+
+          <div class="questionnaire-grid">
+            <fieldset class="form-field-full">
+              <legend>1. Your profile</legend>
+              <div class="radio-list">
+                <label><input type="radio" name="profil" value="Beginner" required>Beginner (&lt; 1 year)</label>
+                <label><input type="radio" name="profil" value="Confirmed amateur">Confirmed amateur</label>
+                <label><input type="radio" name="profil" value="Advanced enthusiast">Advanced enthusiast</label>
+                <label><input type="radio" name="profil" value="Professional">Microbrewery / Professional</label>
+              </div>
+              <div class="form-field" style="margin-top: 8px;">
+                <label for="qProfilAutreEn">Other</label>
+                <input id="qProfilAutreEn" type="text" name="profil_autre" placeholder="Tell us your profile if needed">
+              </div>
+            </fieldset>
+
+            <div class="form-field form-field-full">
+              <label for="qFrequencyEn">2. Brewing frequency</label>
+              <select id="qFrequencyEn" name="frequence" required>
+                <option value="">Select…</option>
+                <option value="1-2 times per year">1-2 times per year</option>
+                <option value="3-6 times per year">3-6 times per year</option>
+                <option value="Once a month">Once a month</option>
+                <option value="More than once a month">More than once a month</option>
+                <option value="I do not brew yet">I do not brew yet</option>
+              </select>
+            </div>
+
+            <fieldset class="form-field-full">
+              <legend>3. Main pain points (max 3)</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="difficultes[]" value="IBU ABV calculations">IBU / ABV calculations</label>
+                <label><input type="checkbox" name="difficultes[]" value="Recipe management">Recipe management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Inventory management">Inventory management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Brew logs">Brew logging</label>
+                <label><input type="checkbox" name="difficultes[]" value="Reproducibility">Reproducibility</label>
+                <label><input type="checkbox" name="difficultes[]" value="No pain point">No major pain point</label>
+              </div>
+              <div class="form-field" style="margin-top: 8px;">
+                <label for="qDifficultesAutreEn">Other</label>
+                <input id="qDifficultesAutreEn" type="text" name="difficultes_autre" placeholder="Any other pain point">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>4. Tools you currently use</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="outils[]" value="Excel">Excel / Google Sheets</label>
+                <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
+                <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
+                <label><input type="checkbox" name="outils[]" value="Paper notebook">Paper notebook</label>
+                <label><input type="checkbox" name="outils[]" value="Mobile app">Mobile app</label>
+                <label><input type="checkbox" name="outils[]" value="No structured tool">No structured tool</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>5. Feature importance (1 to 5)</legend>
+              <div class="form-field">
+                <label for="qCalcIbuEn">IBU / ABV calculator</label>
+                <input id="qCalcIbuEn" type="range" name="calc_ibu" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qRecettesEn">Recipes</label>
+                <input id="qRecettesEn" type="range" name="recettes" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qJournalEn">Brew log</label>
+                <input id="qJournalEn" type="range" name="journal" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qStockEn">Inventory</label>
+                <input id="qStockEn" type="range" name="stock" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qPartageEn">Sharing</label>
+                <input id="qPartageEn" type="range" name="partage" min="1" max="5" value="3">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>6. Your top 3 priorities</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="priorites[]" value="IBU ABV calculator">IBU / ABV calculator</label>
+                <label><input type="checkbox" name="priorites[]" value="Recipes">Recipes</label>
+                <label><input type="checkbox" name="priorites[]" value="Logbook">Logbook</label>
+                <label><input type="checkbox" name="priorites[]" value="Inventory">Inventory</label>
+                <label><input type="checkbox" name="priorites[]" value="Sharing">Sharing</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>7. Mobile application</legend>
+              <div class="radio-list">
+                <label><input type="radio" name="mobile" value="Yes absolutely" required>Yes absolutely</label>
+                <label><input type="radio" name="mobile" value="Yes if clear added value">Yes if clear added value</label>
+                <label><input type="radio" name="mobile" value="Maybe">Maybe</label>
+                <label><input type="radio" name="mobile" value="No">No</label>
+              </div>
+            </fieldset>
+
+            <div class="form-field form-field-full">
+              <label for="qSuggestionEn">8. Your dream feature?</label>
+              <textarea id="qSuggestionEn" name="suggestion" rows="4" placeholder="Tell us the one feature that would save you time"></textarea>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="qEmailEn">9. Stay informed (optional)</label>
+              <input id="qEmailEn" type="email" name="email" placeholder="Your email (optional)">
+            </div>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" name="rgpd" value="accepted" required>
+            I agree that my data can be used for Brasse-Bouillon product development.
+          </label>
+
+          <div class="actions" style="margin-top: 12px;">
+            <button class="btn btn-primary" type="submit">Contribute 🍻</button>
+          </div>
+        </form>
+
+        <p id="questionnaireStatusEn" class="form-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">📬 Contact us directly</h2>
+        <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
+          <label class="sr-only" for="emailEn">Email address</label>
+          <input id="emailEn" type="email" name="email" placeholder="Your email" required>
+          <label class="sr-only" for="messageEn">Message</label>
+          <textarea id="messageEn" name="message" placeholder="Your message" required></textarea>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </section>
+
+      <footer class="footer">
+        Stay connected! You can also reach us at: <strong>contact@brasse-bouillon.com</strong>
+        <div class="badge">
+          Made with ❤️ by
+          <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
+
     const roadmapEn = [
-      { phase: 1, title: "Ideation & positioning", state: "done", points: ["MVP definition", "User survey", "Founding manifesto"] },
-      { phase: 2, title: "Communication channels analysis", state: "done", points: ["Target audiences", "Editorial strategy", "Public summary"] },
-      { phase: 3, title: "Design & preparation", state: "done", points: ["UI/UX mockups", "Technical architecture", "Visual roadmap"] },
-      { phase: 4, title: "MVP development", state: "done", points: ["Auth/JWT + secure API baseline", "Recipe CRUD + persisted recipe steps", "Batch module (workflow + persistence + endpoints)", "Brewing calculator v1 (IBU/ABV/conversions)"] },
-      { phase: 5, title: "Product consolidation & public website", state: "current", points: ["Fermentation reminders (service + API)", "Recipe detail revamp + ingredient navigation fixes", "Brewing Academy (hub + Fermentables/Color/Hops guides)", "Roadmap and devlog kept in sync"] },
-      { phase: 6, title: "Beta tests & community", state: "next", points: ["Public beta", "Feedback loop", "Community space"] },
-      { phase: 7, title: "Official launch", state: "next", points: ["App stores", "Public demo", "Multi-channel communication"] },
-      { phase: 8, title: "Documentation & ecosystem", state: "next", points: ["Brew sheets", "Glossary", "Recipe sharing space"] },
-      { phase: 9, title: "Improvements & openness", state: "next", points: ["UX optimizations", "Extra modules", "Open API"] },
-      { phase: 10, title: "Partnerships & impact", state: "next", points: ["Microbreweries", "Studio B22 kit", "Open impact indicators"] }
+      { phase: 1, title: 'Ideation & positioning', state: 'done', points: ['MVP definition', 'User survey', 'Founding manifesto'] },
+      { phase: 2, title: 'Communication channels analysis', state: 'done', points: ['Target audiences', 'Editorial strategy', 'Public summary'] },
+      { phase: 3, title: 'Design & preparation', state: 'done', points: ['UI/UX mockups', 'Technical architecture', 'Visual roadmap'] },
+      { phase: 4, title: 'MVP development', state: 'done', points: ['Auth/JWT + secure API baseline', 'Recipe CRUD + persisted recipe steps', 'Batch module (workflow + persistence + endpoints)', 'Brewing calculator v1 (IBU/ABV/conversions)'] },
+      { phase: 5, title: 'Product consolidation & public website', state: 'current', points: ['Fermentation reminders (service + API)', 'Recipe detail revamp + ingredient navigation fixes', 'Brewing Academy (hub + Fermentables/Color/Hops guides)', 'Roadmap and devlog kept in sync'] },
+      { phase: 6, title: 'Beta tests & community', state: 'next', points: ['Public beta', 'Feedback loop', 'Community space'] },
+      { phase: 7, title: 'Official launch', state: 'next', points: ['App stores', 'Public demo', 'Multi-channel communication'] },
+      { phase: 8, title: 'Documentation & ecosystem', state: 'next', points: ['Brew sheets', 'Glossary', 'Recipe sharing space'] },
+      { phase: 9, title: 'Improvements & openness', state: 'next', points: ['UX optimizations', 'Extra modules', 'Open API'] },
+      { phase: 10, title: 'Partnerships & impact', state: 'next', points: ['Microbreweries', 'Studio B22 kit', 'Open impact indicators'] }
     ];
 
     function stateLabelEn(state) {
@@ -595,50 +793,111 @@
 
     function renderRoadmapEn(filter = 'all') {
       const root = document.getElementById('roadmapTrackEn');
-      const list = filter === 'all' ? roadmapEn : roadmapEn.filter(p => p.state === filter);
-      root.innerHTML = list.map(p => `
+      const list = filter === 'all' ? roadmapEn : roadmapEn.filter((phase) => phase.state === filter);
+      root.innerHTML = list.map((phase) => `
         <article class="phase-card">
           <div class="phase-head">
-            <h3 class="phase-title">Phase ${p.phase} — ${p.title}</h3>
-            <span class="phase-state ${p.state}">${stateLabelEn(p.state)}</span>
+            <h3 class="phase-title">Phase ${phase.phase} — ${phase.title}</h3>
+            <span class="phase-state ${phase.state}">${stateLabelEn(phase.state)}</span>
           </div>
           <div class="phase-body">
-            <ul>${p.points.map(point => `<li>${point}</li>`).join('')}</ul>
+            <ul>${phase.points.map((point) => `<li>${point}</li>`).join('')}</ul>
           </div>
         </article>
       `).join('');
     }
 
     function filterRoadmapEn(filter, el) {
-      const controls = document.querySelectorAll('#roadmapControlsEn .chip');
-      controls.forEach(c => {
-        c.classList.remove('active');
-        c.setAttribute('aria-pressed', 'false');
+      document.querySelectorAll('#roadmapControlsEn .chip').forEach((chip) => {
+        chip.classList.remove('active');
+        chip.setAttribute('aria-pressed', 'false');
       });
       el.classList.add('active');
       el.setAttribute('aria-pressed', 'true');
       renderRoadmapEn(filter);
     }
 
-    function toggleForm() {
-        const block = document.getElementById('questionnaireBlock');
-        if (block.style.display === 'none' || block.style.display === '') {
-            block.style.display = 'block';
-            block.style.opacity = 0;
-            setTimeout(() => {
-                block.style.transition = 'opacity 0.4s ease';
-                block.style.opacity = 1;
-            }, 10);
-        } else {
-            block.style.transition = 'opacity 0.35s ease';
-            block.style.opacity = 0;
-            setTimeout(() => {
-                block.style.display = 'none';
-            }, 350);
+    function toggleQuestionnaire(lang) {
+      const form = document.getElementById(lang === 'fr' ? 'questionnaireFormFr' : 'questionnaireFormEn');
+      const button = document.getElementById(lang === 'fr' ? 'questionnaireToggleFr' : 'questionnaireToggleEn');
+      const isHidden = form.hasAttribute('hidden');
+      if (isHidden) {
+        form.removeAttribute('hidden');
+        button.textContent = lang === 'fr' ? 'Fermer le questionnaire' : 'Close questionnaire';
+      } else {
+        form.setAttribute('hidden', '');
+        button.textContent = lang === 'fr' ? 'Ouvrir le questionnaire' : 'Open questionnaire';
+      }
+    }
+
+    function setupCheckboxLimit(form, fieldName, maxChoices, message) {
+      const checkboxes = form.querySelectorAll(`input[type="checkbox"][name="${fieldName}"]`);
+      if (!checkboxes.length) {
+        return;
+      }
+
+      checkboxes.forEach((box) => {
+        box.addEventListener('change', () => {
+          const checkedCount = Array.from(checkboxes).filter((item) => item.checked).length;
+          if (checkedCount > maxChoices) {
+            box.checked = false;
+            alert(message);
+          }
+        });
+      });
+    }
+
+    function setupQuestionnaireEn() {
+      const form = document.getElementById('questionnaireFormEn');
+      const status = document.getElementById('questionnaireStatusEn');
+      const submitBtn = form.querySelector('button[type="submit"]');
+
+      setupCheckboxLimit(form, 'difficultes[]', 3, 'Maximum 3 choices allowed for this question.');
+      setupCheckboxLimit(form, 'priorites[]', 3, 'Maximum 3 choices allowed for this question.');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!QUESTIONNAIRE_ENDPOINT) {
+          status.className = 'form-status error';
+          status.textContent = 'Questionnaire Formspree endpoint is not configured yet.';
+          return;
         }
+
+        if (!form.reportValidity()) {
+          return;
+        }
+
+        submitBtn.disabled = true;
+        status.className = 'form-status loading';
+        status.textContent = 'Sending…';
+
+        try {
+          const response = await fetch(QUESTIONNAIRE_ENDPOINT, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+          });
+
+          if (response.ok) {
+            form.reset();
+            status.className = 'form-status success';
+            status.textContent = 'Thanks! Your feedback has been sent.';
+          } else {
+            status.className = 'form-status error';
+            status.textContent = 'Unable to send right now. Please try again in a few minutes.';
+          }
+        } catch (error) {
+          status.className = 'form-status error';
+          status.textContent = 'Network error. Please check your connection and try again.';
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
     }
 
     renderRoadmapEn();
-    </script>
+    setupQuestionnaireEn();
+  </script>
 </body>
 </html>

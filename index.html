@@ -17,506 +17,7 @@
     gtag('js', new Date());
     gtag('config', 'G-RVCT6NGFVG');
   </script>
-  <style>
-    :root {
-      --color-primary: #b7824b;
-      --color-secondary: #8d5832;
-      --color-bg: #ede2bd;
-      --color-surface: rgba(255, 253, 248, 0.94);
-      --color-card: #ffffff;
-      --color-text: #2a2018;
-      --color-muted: #5b4b3f;
-      --color-success: #7e7e31;
-      --color-warning: #d9b364;
-      --color-info: #f3f3f3;
-      --color-focus: #2f6fdd;
-      --color-error: #573921;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 10px 24px rgba(30, 30, 30, 0.13);
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      --spacing-xs: 4px;
-      --spacing-sm: 8px;
-      --spacing-md: 16px;
-      --spacing-lg: 24px;
-      --spacing-xl: 32px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: 'Inter', Arial, sans-serif;
-      color: var(--color-text);
-      background:
-        radial-gradient(circle at 10% -10%, #f5e8c7 0%, transparent 38%),
-        radial-gradient(circle at 95% 0%, #e7cf9a 0%, transparent 32%),
-        var(--color-bg);
-      line-height: 1.55;
-    }
-
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      background: #fff;
-      color: var(--color-text);
-      border: 2px solid var(--color-secondary);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
-      font-weight: 700;
-      z-index: 100;
-    }
-
-    .skip-link:focus {
-      left: 12px;
-      top: 12px;
-    }
-
-    .language-switch {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 20;
-      padding: 8px 12px;
-      border-radius: 9999px;
-      border: 1px solid rgba(141, 88, 50, 0.32);
-      background: rgba(255, 255, 255, 0.84);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(4px);
-      font-size: 0.95rem;
-    }
-
-    .language-switch a {
-      color: var(--color-muted);
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .language-switch a:hover { color: var(--color-secondary); }
-
-    .page {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 78px 20px 32px;
-    }
-
-    .shell {
-      width: 100%;
-      max-width: 1040px;
-      padding: 28px;
-      border-radius: var(--radius-lg);
-      border: 2px solid rgba(141, 88, 50, 0.16);
-      background: var(--color-surface);
-      box-shadow: var(--shadow-md);
-    }
-
-    .hero {
-      text-align: center;
-      padding-bottom: var(--spacing-md);
-      border-bottom: 1px solid rgba(141, 88, 50, 0.2);
-    }
-
-    .logo-wrap {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(243, 243, 243, 0.8));
-      border: 2px solid rgba(141, 88, 50, 0.15);
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 12px;
-    }
-
-    .logo {
-      width: 150px;
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .pill {
-      display: inline-block;
-      margin-bottom: 10px;
-      border-radius: 999px;
-      padding: 6px 12px;
-      background: rgba(217, 179, 100, 0.25);
-      color: var(--color-secondary);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0;
-      color: var(--color-secondary);
-      font-size: clamp(2rem, 5vw, 3rem);
-      line-height: 1.15;
-    }
-
-    .intro {
-      margin: 14px auto 0;
-      max-width: 760px;
-      color: var(--color-muted);
-      font-size: 1.02rem;
-    }
-
-    .section-block { margin-top: var(--spacing-xl); }
-
-    .section-title {
-      margin: 0 0 12px;
-      font-size: 1.45rem;
-      color: var(--color-secondary);
-      text-align: center;
-    }
-
-    .section-intro {
-      margin: 0 auto 14px;
-      max-width: 760px;
-      color: var(--color-muted);
-      text-align: center;
-    }
-
-    .features-grid,
-    .section-grid {
-      display: grid;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .features-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-    .section-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-
-    .feature,
-    .mini-card {
-      background: var(--color-card);
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(141, 88, 50, 0.2);
-      padding: 14px;
-      color: #44362c;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .mini-card h3 {
-      margin: 0 0 8px;
-      color: var(--color-secondary);
-      font-size: 1.02rem;
-    }
-
-    .roadmap-controls {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .chip {
-      min-height: 40px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(141, 88, 50, 0.28);
-      background: #fff;
-      color: var(--color-muted);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .chip.active {
-      background: rgba(183, 130, 75, 0.14);
-      border-color: var(--color-secondary);
-      color: var(--color-secondary);
-    }
-
-    .roadmap-track {
-      display: grid;
-      gap: 10px;
-    }
-
-    .phase-card {
-      background: var(--color-card);
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(141, 88, 50, 0.2);
-      padding: 12px;
-    }
-
-    .phase-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .phase-title {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--color-text);
-    }
-
-    .phase-state {
-      font-size: 0.76rem;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 4px 9px;
-      background: var(--color-info);
-      color: #4f4f4f;
-    }
-
-    .phase-state.done {
-      background: rgba(126, 126, 49, 0.18);
-      color: #4e4e1e;
-    }
-
-    .phase-state.current {
-      background: rgba(217, 179, 100, 0.34);
-      color: #67411e;
-    }
-
-    .phase-state.next {
-      background: rgba(243, 243, 243, 1);
-      color: #555;
-    }
-
-    .phase-body {
-      margin: 8px 0 0;
-      color: #54463a;
-      font-size: 0.94rem;
-    }
-
-    .phase-body ul {
-      margin: 8px 0 0 18px;
-      padding: 0;
-    }
-
-    .badge {
-      margin-top: 10px;
-      text-align: center;
-      color: #75695f;
-      font-size: 0.9rem;
-    }
-
-    .badge a {
-      color: inherit;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .badge a:hover { color: var(--color-secondary); }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .btn {
-      min-height: 44px;
-      border: none;
-      border-radius: var(--radius-md);
-      padding: 11px 18px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-    }
-
-    .btn:hover { transform: translateY(-1px); }
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-primary {
-      background: var(--color-secondary);
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(141, 88, 50, 0.28);
-    }
-
-    .btn-primary:hover { background: #764828; }
-
-    .btn-secondary {
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(141, 88, 50, 0.3);
-      background: #fff;
-      color: var(--color-secondary);
-    }
-
-    .questionnaire-form {
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(141, 88, 50, 0.24);
-      background: #fff;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .questionnaire-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-field-full { grid-column: 1 / -1; }
-
-    .form-field label,
-    fieldset legend {
-      font-weight: 700;
-      color: #45392f;
-      font-size: 0.92rem;
-    }
-
-    input,
-    textarea,
-    select {
-      width: 100%;
-      border: 1px solid rgba(141, 88, 50, 0.36);
-      border-radius: var(--radius-sm);
-      background: #fff;
-      color: var(--color-text);
-      padding: 11px 12px;
-      font-size: 0.96rem;
-      font-family: inherit;
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    fieldset {
-      margin: 0;
-      padding: 10px 12px;
-      border: 1px solid rgba(141, 88, 50, 0.22);
-      border-radius: var(--radius-sm);
-      background: rgba(243, 243, 243, 0.7);
-    }
-
-    .checkbox-list,
-    .radio-list {
-      display: grid;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .checkbox-list label,
-    .radio-list label,
-    .consent {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      font-size: 0.92rem;
-      color: #4f4238;
-    }
-
-    .checkbox-list input,
-    .radio-list input,
-    .consent input {
-      width: 18px;
-      height: 18px;
-      margin-top: 1px;
-      flex: 0 0 auto;
-    }
-
-    .form-status {
-      margin: 10px 0 0;
-      min-height: 22px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 0.92rem;
-    }
-
-    .form-status.loading { color: #5f4f43; }
-    .form-status.success { color: var(--color-success); }
-    .form-status.error { color: var(--color-error); }
-
-    .contact-form {
-      margin: 0 auto;
-      max-width: 720px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .footer {
-      margin-top: var(--spacing-xl);
-      text-align: center;
-      color: var(--color-muted);
-      font-size: 0.92rem;
-    }
-
-    .footer strong { color: var(--color-secondary); }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    a:focus-visible,
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible,
-    select:focus-visible {
-      outline: 3px solid var(--color-focus);
-      outline-offset: 2px;
-    }
-
-    @media (max-width: 860px) {
-      .questionnaire-grid,
-      .section-grid,
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page { padding: 88px 12px 20px; }
-      .shell {
-        padding: 18px 14px;
-        border-radius: 16px;
-      }
-      .logo-wrap {
-        width: 150px;
-        height: 150px;
-      }
-      .logo { width: 126px; }
-      .actions .btn,
-      .actions .btn-secondary {
-        width: 100%;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-        scroll-behavior: auto !important;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="site.css">
 </head>
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
@@ -613,7 +114,7 @@
           2 minutes suffisent pour nous aider à construire Brasse-Bouillon. Tes réponses restent confidentielles.
         </p>
         <div class="actions">
-          <button class="btn btn-primary" id="questionnaireToggleFr" type="button" onclick="toggleQuestionnaire('fr')">
+          <button class="btn btn-primary" id="questionnaireToggleFr" type="button" aria-expanded="false" onclick="toggleQuestionnaire('fr')">
             Ouvrir le questionnaire
           </button>
           <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Nous contacter</a>
@@ -622,7 +123,7 @@
         <form id="questionnaireFormFr" class="questionnaire-form" hidden>
           <input type="hidden" name="_subject" value="Nouvelle réponse - Questionnaire Brasse-Bouillon (FR)">
           <input type="hidden" name="lang" value="fr">
-          <input type="text" name="_gotcha" style="display:none">
+          <input class="honeypot" type="text" name="_gotcha">
 
           <div class="questionnaire-grid">
             <fieldset class="form-field-full">
@@ -633,7 +134,7 @@
                 <label><input type="radio" name="profil" value="Passionne avance">Passionné avancé</label>
                 <label><input type="radio" name="profil" value="Professionnel">Micro-brasserie / Professionnel</label>
               </div>
-              <div class="form-field" style="margin-top: 8px;">
+              <div class="form-field form-field-spacing-sm">
                 <label for="qProfilAutreFr">Autre</label>
                 <input id="qProfilAutreFr" type="text" name="profil_autre" placeholder="Précise ton profil si besoin">
               </div>
@@ -661,7 +162,7 @@
                 <label><input type="checkbox" name="difficultes[]" value="Reproductibilite">Reproductibilité</label>
                 <label><input type="checkbox" name="difficultes[]" value="Aucune">Aucune difficulté</label>
               </div>
-              <div class="form-field" style="margin-top: 8px;">
+              <div class="form-field form-field-spacing-sm">
                 <label for="qDifficultesAutreFr">Autre</label>
                 <input id="qDifficultesAutreFr" type="text" name="difficultes_autre" placeholder="Autre difficulté éventuelle">
               </div>
@@ -712,6 +213,7 @@
                 <label><input type="checkbox" name="priorites[]" value="Stock">Stock</label>
                 <label><input type="checkbox" name="priorites[]" value="Partage">Partage</label>
               </div>
+              <p class="helper-text">Sélectionne entre 1 et 3 priorités pour nous aider à mieux cadrer la roadmap.</p>
             </fieldset>
 
             <fieldset class="form-field-full">
@@ -740,7 +242,7 @@
             J’accepte que mes données soient utilisées dans le cadre du développement de Brasse-Bouillon.
           </label>
 
-          <div class="actions" style="margin-top: 12px;">
+          <div class="actions actions-compact">
             <button class="btn btn-primary" type="submit">Contribuer 🍻</button>
           </div>
         </form>
@@ -769,10 +271,11 @@
     </div>
   </main>
 
+  <script src="site.js"></script>
   <script>
     const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
 
-    const roadmapFr = [
+    const ROADMAP_PHASES_FR = [
       { phase: 1, title: 'Idéation & positionnement', state: 'done', points: ['MVP défini', 'Questionnaire utilisateur', 'Manifeste fondateur'] },
       { phase: 2, title: 'Analyse des canaux de communication', state: 'done', points: ['Cibles identifiées', 'Ligne éditoriale', 'Partage des résultats'] },
       { phase: 3, title: 'Conception & préparation', state: 'done', points: ['Maquettes UI/UX', 'Architecture technique', 'Feuille de route visuelle'] },
@@ -785,6 +288,11 @@
       { phase: 10, title: 'Partenariats & impact', state: 'next', points: ['Microbrasseries', 'Kit Studio B22', 'Indicateurs open source'] }
     ];
 
+    const TOGGLE_LABELS = {
+      fr: { open: 'Ouvrir le questionnaire', close: 'Fermer le questionnaire' },
+      en: { open: 'Open questionnaire', close: 'Close questionnaire' }
+    };
+
     function stateLabelFr(state) {
       if (state === 'done') return 'Terminé';
       if (state === 'current') return 'En cours';
@@ -792,112 +300,56 @@
     }
 
     function renderRoadmapFr(filter = 'all') {
-      const root = document.getElementById('roadmapTrackFr');
-      const list = filter === 'all' ? roadmapFr : roadmapFr.filter((phase) => phase.state === filter);
-      root.innerHTML = list.map((phase) => `
-        <article class="phase-card">
-          <div class="phase-head">
-            <h3 class="phase-title">Phase ${phase.phase} — ${phase.title}</h3>
-            <span class="phase-state ${phase.state}">${stateLabelFr(phase.state)}</span>
-          </div>
-          <div class="phase-body">
-            <ul>${phase.points.map((point) => `<li>${point}</li>`).join('')}</ul>
-          </div>
-        </article>
-      `).join('');
+      BBShared.renderRoadmap({
+        rootId: 'roadmapTrackFr',
+        phases: ROADMAP_PHASES_FR,
+        filter,
+        getStateLabel: stateLabelFr
+      });
     }
 
     function filterRoadmapFr(filter, el) {
-      document.querySelectorAll('#roadmapControlsFr .chip').forEach((chip) => {
-        chip.classList.remove('active');
-        chip.setAttribute('aria-pressed', 'false');
+      BBShared.setActiveRoadmapFilter({
+        controlsSelector: '#roadmapControlsFr .chip',
+        activeElement: el
       });
-      el.classList.add('active');
-      el.setAttribute('aria-pressed', 'true');
       renderRoadmapFr(filter);
     }
 
     function toggleQuestionnaire(lang) {
-      const form = document.getElementById(lang === 'fr' ? 'questionnaireFormFr' : 'questionnaireFormEn');
-      const button = document.getElementById(lang === 'fr' ? 'questionnaireToggleFr' : 'questionnaireToggleEn');
-      const isHidden = form.hasAttribute('hidden');
-      if (isHidden) {
-        form.removeAttribute('hidden');
-        button.textContent = lang === 'fr' ? 'Fermer le questionnaire' : 'Close questionnaire';
-      } else {
-        form.setAttribute('hidden', '');
-        button.textContent = lang === 'fr' ? 'Ouvrir le questionnaire' : 'Open questionnaire';
-      }
-    }
-
-    function setupCheckboxLimit(form, fieldName, maxChoices, message) {
-      const checkboxes = form.querySelectorAll(`input[type="checkbox"][name="${fieldName}"]`);
-      if (!checkboxes.length) {
-        return;
-      }
-
-      checkboxes.forEach((box) => {
-        box.addEventListener('change', () => {
-          const checkedCount = Array.from(checkboxes).filter((item) => item.checked).length;
-          if (checkedCount > maxChoices) {
-            box.checked = false;
-            alert(message);
-          }
-        });
-      });
-    }
-
-    function setupQuestionnaireFr() {
-      const form = document.getElementById('questionnaireFormFr');
-      const status = document.getElementById('questionnaireStatusFr');
-      const submitBtn = form.querySelector('button[type="submit"]');
-
-      setupCheckboxLimit(form, 'difficultes[]', 3, 'Maximum 3 choix autorisés pour cette question.');
-      setupCheckboxLimit(form, 'priorites[]', 3, 'Maximum 3 choix autorisés pour cette question.');
-
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        if (!QUESTIONNAIRE_ENDPOINT) {
-          status.className = 'form-status error';
-          status.textContent = 'Endpoint Formspree du questionnaire non configuré.';
-          return;
-        }
-
-        if (!form.reportValidity()) {
-          return;
-        }
-
-        submitBtn.disabled = true;
-        status.className = 'form-status loading';
-        status.textContent = 'Envoi en cours…';
-
-        try {
-          const response = await fetch(QUESTIONNAIRE_ENDPOINT, {
-            method: 'POST',
-            body: new FormData(form),
-            headers: { Accept: 'application/json' }
-          });
-
-          if (response.ok) {
-            form.reset();
-            status.className = 'form-status success';
-            status.textContent = 'Merci ! Ton retour a bien été envoyé.';
-          } else {
-            status.className = 'form-status error';
-            status.textContent = 'Impossible d’envoyer pour le moment. Réessaie dans quelques minutes.';
-          }
-        } catch (error) {
-          status.className = 'form-status error';
-          status.textContent = 'Erreur réseau. Vérifie ta connexion puis réessaie.';
-        } finally {
-          submitBtn.disabled = false;
-        }
+      BBShared.toggleQuestionnaire({
+        lang,
+        labels: TOGGLE_LABELS
       });
     }
 
     renderRoadmapFr();
-    setupQuestionnaireFr();
+
+    BBShared.setupQuestionnaire({
+      formId: 'questionnaireFormFr',
+      statusId: 'questionnaireStatusFr',
+      endpoint: QUESTIONNAIRE_ENDPOINT,
+      checkboxLimits: [
+        { fieldName: 'difficultes[]', maxChoices: 3, message: 'Maximum 3 choix autorisés pour cette question.' },
+        { fieldName: 'priorites[]', maxChoices: 3, message: 'Maximum 3 choix autorisés pour cette question.' }
+      ],
+      requiredCheckboxGroups: [
+        { fieldName: 'priorites[]', minRequired: 1, message: 'Sélectionne au moins 1 priorité avant d’envoyer le questionnaire.' }
+      ],
+      messages: {
+        endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
+        sending: 'Envoi en cours…',
+        success: 'Merci ! Ton retour a bien été envoyé.',
+        http400: 'Certaines informations semblent invalides. Vérifie le formulaire puis réessaie.',
+        http429: 'Trop de demandes. Attends un peu avant de réessayer.',
+        http5xx: 'Erreur du serveur. Réessaie dans quelques minutes ou contacte le support.',
+        httpGeneric: 'Impossible d’envoyer pour le moment. Réessaie dans quelques minutes.',
+        offline: 'Tu sembles hors ligne. Vérifie ta connexion Internet puis réessaie.',
+        aborted: 'La requête a été interrompue. Réessaie l’envoi du formulaire.',
+        networkOrCors: 'Impossible de contacter le serveur (problème réseau ou CORS). Réessaie dans quelques instants.',
+        unexpected: 'Une erreur est survenue lors de l’envoi. Réessaie dans quelques instants.'
+      }
+    });
   </script>
 </body>
 </html>

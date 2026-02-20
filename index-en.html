@@ -610,7 +610,7 @@
       <section class="section-block">
         <h2 class="section-title">🧾 Community questionnaire</h2>
         <p class="section-intro">
-          Since the previous Google Form no longer works reliably, this native form collects your feedback directly.
+          It only takes 2 minutes to help us build Brasse-Bouillon. Your answers stay confidential.
         </p>
         <div class="actions">
           <button class="btn btn-primary" id="questionnaireToggleEn" type="button" onclick="toggleQuestionnaire('en')">
@@ -620,71 +620,128 @@
         </div>
 
         <form id="questionnaireFormEn" class="questionnaire-form" hidden>
-          <input type="hidden" name="_subject" value="Brasse-Bouillon questionnaire (EN)">
+          <input type="hidden" name="_subject" value="New response - Brasse-Bouillon questionnaire (EN)">
           <input type="hidden" name="lang" value="en">
+          <input type="text" name="_gotcha" style="display:none">
 
           <div class="questionnaire-grid">
-            <div class="form-field">
-              <label for="qNameEn">Name or nickname</label>
-              <input id="qNameEn" type="text" name="name" required>
-            </div>
-            <div class="form-field">
-              <label for="qEmailEn">Email</label>
-              <input id="qEmailEn" type="email" name="email" required>
-            </div>
-
-            <div class="form-field">
-              <label for="qLevelEn">Your brewing level</label>
-              <select id="qLevelEn" name="brewing_level" required>
-                <option value="">Select…</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
-
-            <div class="form-field">
-              <label for="qFrequencyEn">How often do you brew?</label>
-              <select id="qFrequencyEn" name="brewing_frequency" required>
-                <option value="">Select…</option>
-                <option value="monthly">Once a month</option>
-                <option value="quarterly">Once per quarter</option>
-                <option value="occasionally">Occasionally</option>
-              </select>
-            </div>
-
             <fieldset class="form-field-full">
-              <legend>Priority features</legend>
-              <div class="checkbox-list">
-                <label><input type="checkbox" name="priorities" value="recipes">Recipe management</label>
-                <label><input type="checkbox" name="priorities" value="brew-tracking">Brew session tracking</label>
-                <label><input type="checkbox" name="priorities" value="calculator">IBU/ABV calculator</label>
-                <label><input type="checkbox" name="priorities" value="community">Community sharing</label>
-              </div>
-            </fieldset>
-
-            <fieldset class="form-field-full">
-              <legend>Preferred platform</legend>
+              <legend>1. Your profile</legend>
               <div class="radio-list">
-                <label><input type="radio" name="preferred_platform" value="android" required>Android</label>
-                <label><input type="radio" name="preferred_platform" value="ios" required>iOS</label>
-                <label><input type="radio" name="preferred_platform" value="both" required>Both</label>
+                <label><input type="radio" name="profil" value="Beginner" required>Beginner (&lt; 1 year)</label>
+                <label><input type="radio" name="profil" value="Confirmed amateur">Confirmed amateur</label>
+                <label><input type="radio" name="profil" value="Advanced enthusiast">Advanced enthusiast</label>
+                <label><input type="radio" name="profil" value="Professional">Microbrewery / Professional</label>
+              </div>
+              <div class="form-field" style="margin-top: 8px;">
+                <label for="qProfilAutreEn">Other</label>
+                <input id="qProfilAutreEn" type="text" name="profil_autre" placeholder="Tell us your profile if needed">
               </div>
             </fieldset>
 
             <div class="form-field form-field-full">
-              <label for="qMessageEn">Other needs or suggestions</label>
-              <textarea id="qMessageEn" name="message" placeholder="Tell us what would make your brewing workflow easier…" required></textarea>
+              <label for="qFrequencyEn">2. Brewing frequency</label>
+              <select id="qFrequencyEn" name="frequence" required>
+                <option value="">Select…</option>
+                <option value="1-2 times per year">1-2 times per year</option>
+                <option value="3-6 times per year">3-6 times per year</option>
+                <option value="Once a month">Once a month</option>
+                <option value="More than once a month">More than once a month</option>
+                <option value="I do not brew yet">I do not brew yet</option>
+              </select>
+            </div>
+
+            <fieldset class="form-field-full">
+              <legend>3. Main pain points (max 3)</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="difficultes[]" value="IBU ABV calculations">IBU / ABV calculations</label>
+                <label><input type="checkbox" name="difficultes[]" value="Recipe management">Recipe management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Inventory management">Inventory management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Brew logs">Brew logging</label>
+                <label><input type="checkbox" name="difficultes[]" value="Reproducibility">Reproducibility</label>
+                <label><input type="checkbox" name="difficultes[]" value="No pain point">No major pain point</label>
+              </div>
+              <div class="form-field" style="margin-top: 8px;">
+                <label for="qDifficultesAutreEn">Other</label>
+                <input id="qDifficultesAutreEn" type="text" name="difficultes_autre" placeholder="Any other pain point">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>4. Tools you currently use</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="outils[]" value="Excel">Excel / Google Sheets</label>
+                <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
+                <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
+                <label><input type="checkbox" name="outils[]" value="Paper notebook">Paper notebook</label>
+                <label><input type="checkbox" name="outils[]" value="Mobile app">Mobile app</label>
+                <label><input type="checkbox" name="outils[]" value="No structured tool">No structured tool</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>5. Feature importance (1 to 5)</legend>
+              <div class="form-field">
+                <label for="qCalcIbuEn">IBU / ABV calculator</label>
+                <input id="qCalcIbuEn" type="range" name="calc_ibu" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qRecettesEn">Recipes</label>
+                <input id="qRecettesEn" type="range" name="recettes" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qJournalEn">Brew log</label>
+                <input id="qJournalEn" type="range" name="journal" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qStockEn">Inventory</label>
+                <input id="qStockEn" type="range" name="stock" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qPartageEn">Sharing</label>
+                <input id="qPartageEn" type="range" name="partage" min="1" max="5" value="3">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>6. Your top 3 priorities</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="priorites[]" value="IBU ABV calculator">IBU / ABV calculator</label>
+                <label><input type="checkbox" name="priorites[]" value="Recipes">Recipes</label>
+                <label><input type="checkbox" name="priorites[]" value="Logbook">Logbook</label>
+                <label><input type="checkbox" name="priorites[]" value="Inventory">Inventory</label>
+                <label><input type="checkbox" name="priorites[]" value="Sharing">Sharing</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>7. Mobile application</legend>
+              <div class="radio-list">
+                <label><input type="radio" name="mobile" value="Yes absolutely" required>Yes absolutely</label>
+                <label><input type="radio" name="mobile" value="Yes if clear added value">Yes if clear added value</label>
+                <label><input type="radio" name="mobile" value="Maybe">Maybe</label>
+                <label><input type="radio" name="mobile" value="No">No</label>
+              </div>
+            </fieldset>
+
+            <div class="form-field form-field-full">
+              <label for="qSuggestionEn">8. Your dream feature?</label>
+              <textarea id="qSuggestionEn" name="suggestion" rows="4" placeholder="Tell us the one feature that would save you time"></textarea>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="qEmailEn">9. Stay informed (optional)</label>
+              <input id="qEmailEn" type="email" name="email" placeholder="Your email (optional)">
             </div>
           </div>
 
           <label class="consent">
-            <input type="checkbox" name="consent" value="accepted" required>
-            I agree that my answers can be used to improve the Brasse-Bouillon application.
+            <input type="checkbox" name="rgpd" value="accepted" required>
+            I agree that my data can be used for Brasse-Bouillon product development.
           </label>
 
           <div class="actions" style="margin-top: 12px;">
-            <button class="btn btn-primary" type="submit">Send feedback</button>
+            <button class="btn btn-primary" type="submit">Contribute 🍻</button>
           </div>
         </form>
 
@@ -713,7 +770,7 @@
   </main>
 
   <script>
-    const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_NEW_QUESTIONNAIRE_ENDPOINT';
+    const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
 
     const roadmapEn = [
       { phase: 1, title: 'Ideation & positioning', state: 'done', points: ['MVP definition', 'User survey', 'Founding manifesto'] },
@@ -773,17 +830,37 @@
       }
     }
 
+    function setupCheckboxLimit(form, fieldName, maxChoices, message) {
+      const checkboxes = form.querySelectorAll(`input[type="checkbox"][name="${fieldName}"]`);
+      if (!checkboxes.length) {
+        return;
+      }
+
+      checkboxes.forEach((box) => {
+        box.addEventListener('change', () => {
+          const checkedCount = Array.from(checkboxes).filter((item) => item.checked).length;
+          if (checkedCount > maxChoices) {
+            box.checked = false;
+            alert(message);
+          }
+        });
+      });
+    }
+
     function setupQuestionnaireEn() {
       const form = document.getElementById('questionnaireFormEn');
       const status = document.getElementById('questionnaireStatusEn');
       const submitBtn = form.querySelector('button[type="submit"]');
 
+      setupCheckboxLimit(form, 'difficultes[]', 3, 'Maximum 3 choices allowed for this question.');
+      setupCheckboxLimit(form, 'priorites[]', 3, 'Maximum 3 choices allowed for this question.');
+
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        if (!QUESTIONNAIRE_ENDPOINT || QUESTIONNAIRE_ENDPOINT.includes('REPLACE_WITH_NEW_QUESTIONNAIRE_ENDPOINT')) {
+        if (!QUESTIONNAIRE_ENDPOINT) {
           status.className = 'form-status error';
-          status.textContent = 'Questionnaire Formspree endpoint is not configured yet. Replace `QUESTIONNAIRE_ENDPOINT` in the script.';
+          status.textContent = 'Questionnaire Formspree endpoint is not configured yet.';
           return;
         }
 

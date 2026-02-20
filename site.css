@@ -213,16 +213,65 @@
       color: var(--color-secondary);
     }
 
+    /* Timeline verticale style GitHub Projects */
     .roadmap-track {
-      display: grid;
-      gap: 10px;
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .roadmap-track::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--color-secondary), rgba(141, 88, 50, 0.2));
+      border-radius: 3px;
     }
 
     .phase-card {
+      position: relative;
       background: var(--color-card);
       border-radius: var(--radius-md);
-      border: 1px solid rgba(141, 88, 50, 0.2);
-      padding: 12px;
+      border: 1px solid rgba(141, 88, 50, 0.15);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .phase-card:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .phase-card::before {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-card);
+      border: 3px solid var(--color-muted);
+      z-index: 1;
+    }
+
+    .phase-card.done::before {
+      background: var(--color-success);
+      border-color: var(--color-success);
+    }
+
+    .phase-card.current::before {
+      background: var(--color-warning);
+      border-color: var(--color-warning);
+      box-shadow: 0 0 0 4px rgba(217, 179, 100, 0.3);
+    }
+
+    .phase-card.next::before {
+      background: var(--color-card);
+      border-color: rgba(141, 88, 50, 0.3);
     }
 
     .phase-head {
@@ -231,21 +280,29 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
+      margin-bottom: 6px;
     }
 
     .phase-title {
       margin: 0;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
       color: var(--color-text);
     }
 
+    .phase-number {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      font-weight: 600;
+    }
+
     .phase-state {
-      font-size: 0.76rem;
+      font-size: 0.7rem;
       font-weight: 700;
       border-radius: 999px;
-      padding: 4px 9px;
-      background: var(--color-info);
-      color: #4f4f4f;
+      padding: 3px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .phase-state.done {
@@ -264,14 +321,18 @@
     }
 
     .phase-body {
-      margin: 8px 0 0;
       color: #54463a;
-      font-size: 0.94rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
     }
 
     .phase-body ul {
-      margin: 8px 0 0 18px;
+      margin: 6px 0 0 16px;
       padding: 0;
+    }
+
+    .phase-body li {
+      margin-bottom: 2px;
     }
 
     .badge {

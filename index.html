@@ -3,13 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brasse-Bouillon — L’app de brassage qui arrive bientôt</title>
+  <title>Brasse-Bouillon — L'app de brassage qui arrive bientôt</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Brasse-Bouillon : l'application mobile de brassage amateur. Calcule IBU/ABV, gère tes recettes, suis tes brassins et partage avec la communauté. Bientôt disponible sur iOS et Android.">
+  <meta name="keywords" content="brassage, biere, brasseur, amateur, IBU, ABV, recette, brassin, homebrew, houblon, malt, levures, application mobile">
+  <link rel="canonical" href="https://brasse-bouillon.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brasse-bouillon.com/">
+  <meta property="og:title" content="Brasse-Bouillon — L'app de brassage amateur">
+  <meta property="og:description" content="L'application mobile pour les brasseurs amateurs. Calcule IBU/ABV, gère tes recettes et suis tes brassins.">
+  <meta property="og:image" content="https://brasse-bouillon.com/logo-hero.png">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://brasse-bouillon.com/">
+  <meta name="twitter:title" content="Brasse-Bouillon — L'app de brassage amateur">
+  <meta name="twitter:description" content="L'application mobile pour les brasseurs amateurs.">
+  <meta name="twitter:image" content="https://brasse-bouillon.com/logo-hero.png">
+  
+  <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
   <link rel="apple-touch-icon" href="logo-icon-32.png">
+  
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -17,7 +42,62 @@
     gtag('js', new Date());
     gtag('config', 'G-RVCT6NGFVG');
   </script>
+  
   <link rel="stylesheet" href="site.css">
+  
+  <!-- Schema.org JSON-LD for AI/SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Brasse-Bouillon",
+    "alternateName": "Brasse Bouillon",
+    "description": "Application mobile de brassage amateur pour créer, optimiser, archiver et partager des recettes de bière.",
+    "url": "https://brasse-bouillon.com",
+    "image": "https://brasse-bouillon.com/logo-hero.png",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/PreOrder"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Benoît Bremaud",
+      "url": "https://www.linkedin.com/in/benoit-bremaud"
+    },
+    "featureList": [
+      "Calculateur IBU/ABV",
+      "Gestion de recettes",
+      "Suivi des brassins",
+      "Historique des sessions",
+      "Partage communautaire"
+    ],
+    "screenshot": "https://brasse-bouillon.com/logo-hero.png",
+    "releaseDate": "2026-02-01"
+  }
+  </script>
+  
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Brasse-Bouillon",
+    "url": "https://brasse-bouillon.com",
+    "logo": "https://brasse-bouillon.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "contact@brasse-bouillon.com",
+      "contactType": "customer service"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/in/benoit-bremaud"
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>

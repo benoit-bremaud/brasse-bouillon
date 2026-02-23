@@ -14,9 +14,9 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { getAcademyTopicBySlug } from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
-import { getAcademyTopicBySlug } from "./academy-topics";
 
 type Props = {
   slugParam?: string;

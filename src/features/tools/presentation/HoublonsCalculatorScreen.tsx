@@ -18,9 +18,9 @@ import {
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { getHopDefaultAa, hopCatalog } from "@/features/tools/data";
 import Slider from "@react-native-community/slider";
 import * as Haptics from "expo-haptics";
-import { getHopDefaultAa, hopCatalog } from "./houblons-catalog";
 
 type TabName = "rapide" | "inverse" | "buGu";
 

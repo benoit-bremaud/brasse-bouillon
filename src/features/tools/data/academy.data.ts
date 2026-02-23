@@ -1,27 +1,5 @@
-import { ImageSourcePropType } from "react-native";
 import mascotDefault from "../../../../assets/images/icon.png";
-
-export type AcademyTopicStatus = "ready" | "coming-soon";
-export type AcademyMascotVariant =
-  | "default"
-  | "historian"
-  | "chemist"
-  | "hop-expert"
-  | "yeast-lab";
-
-export type AcademyTopic = {
-  slug: string;
-  title: string;
-  shortDescription: string;
-  focus: string;
-  order: number;
-  estimatedReadTime: string;
-  hasCalculator: boolean;
-  status: AcademyTopicStatus;
-  mascotVariant: AcademyMascotVariant;
-  mascotImage: ImageSourcePropType;
-  mascotAlt: string;
-};
+import { AcademyTopic } from "../domain/academy.types";
 
 const fallbackMascot = mascotDefault;
 

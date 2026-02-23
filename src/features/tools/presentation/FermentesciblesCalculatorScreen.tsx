@@ -8,6 +8,10 @@ import {
   type FermentableInput,
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
+import {
+  fermentableMaltCatalog,
+  type FermentableMalt,
+} from "@/features/tools/data";
 import React, { useCallback, useState } from "react";
 import {
   Alert,
@@ -18,10 +22,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {
-  fermentableMaltCatalog,
-  type FermentableMalt,
-} from "./fermentables-catalog";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";

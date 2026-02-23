@@ -1,13 +1,16 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { shopCategories } from "../domain/shop.types";
 
 export function ShopScreen() {
+  const router = useRouter();
+
   return (
     <Screen>
       <View style={styles.header}>
@@ -22,7 +25,21 @@ export function ShopScreen() {
 
         <View style={styles.categoriesGrid}>
           {shopCategories.map((category) => (
-            <View key={category.id} style={styles.categoryCard}>
+            <Pressable
+              key={category.id}
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/shop/[category]",
+                  params: { category: category.id },
+                })
+              }
+              style={({ pressed }) => [
+                styles.categoryCard,
+                pressed && styles.categoryCardPressed,
+              ]}
+              accessibilityLabel={`Ouvrir la catégorie ${category.name}`}
+              accessibilityRole="button"
+            >
               <View style={styles.categoryIcon}>
                 <Ionicons
                   name={category.icon as keyof typeof Ionicons.glyphMap}
@@ -31,7 +48,7 @@ export function ShopScreen() {
                 />
               </View>
               <Text style={styles.categoryName}>{category.name}</Text>
-            </View>
+            </Pressable>
           ))}
         </View>
 
@@ -83,6 +100,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.neutral.border,
+  },
+  categoryCardPressed: {
+    opacity: 0.7,
   },
   categoryIcon: {
     width: 56,

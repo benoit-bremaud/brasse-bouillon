@@ -29,6 +29,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Run quality gate unit tests
+        run: python -m unittest -v tests/test_quality_gate.py
+
       - name: Run website quality gate
         run: python scripts/quality_gate.py
 

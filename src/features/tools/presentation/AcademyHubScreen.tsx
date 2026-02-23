@@ -1,5 +1,4 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { academyTopics } from "@/features/tools/data";
 import {
   Image,
   Pressable,
@@ -13,8 +12,10 @@ import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { academyTopics } from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
+import { getAcademyMascotImage } from "./academy-mascot";
 
 export function AcademyHubScreen() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export function AcademyHubScreen() {
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>{topic.title}</Text>
                 <Image
-                  source={topic.mascotImage}
+                  source={getAcademyMascotImage(topic.mascotVariant)}
                   style={styles.mascot}
                   resizeMode="cover"
                   accessibilityRole="image"

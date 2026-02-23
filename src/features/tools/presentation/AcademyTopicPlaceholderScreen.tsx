@@ -17,6 +17,7 @@ import { Screen } from "@/core/ui/Screen";
 import { getAcademyTopicBySlug } from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
+import { getAcademyMascotImage } from "./academy-mascot";
 
 type Props = {
   slugParam?: string;
@@ -82,7 +83,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
         <Card style={styles.heroCard}>
           <View style={styles.heroRow}>
             <Image
-              source={topic.mascotImage}
+              source={getAcademyMascotImage(topic.mascotVariant)}
               style={styles.mascot}
               accessibilityRole="image"
               accessibilityLabel={topic.mascotAlt}

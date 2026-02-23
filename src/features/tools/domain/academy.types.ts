@@ -1,5 +1,3 @@
-import { ImageSourcePropType } from "react-native";
-
 export type AcademyTopicStatus = "ready" | "coming-soon";
 
 export type AcademyMascotVariant =
@@ -19,7 +17,6 @@ export type AcademyTopic = {
   hasCalculator: boolean;
   status: AcademyTopicStatus;
   mascotVariant: AcademyMascotVariant;
-  mascotImage: ImageSourcePropType;
   mascotAlt: string;
 };
 

@@ -14,7 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Accueil", icon: "home", href: "/(app)/dashboard" },
   { label: "Brassins", icon: "cafe", href: "/(app)/batches" },
   { label: "Recettes", icon: "book", href: "/(app)/recipes" },
-  { label: "Explorer", icon: "compass", href: "/(app)/explore" },
+  { label: "Boutique", icon: "cart", href: "/(app)/shop" },
   { label: "Outils", icon: "calculator", href: "/(app)/tools" },
 ];
 

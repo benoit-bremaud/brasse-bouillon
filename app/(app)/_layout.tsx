@@ -94,6 +94,13 @@ export default function AppLayout() {
             }}
           />
           <Tabs.Screen
+            name="shop"
+            options={{
+              href: null,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
             name="ingredients"
             options={{
               href: null,

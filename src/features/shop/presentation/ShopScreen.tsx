@@ -27,13 +27,7 @@ export function ShopScreen() {
 
         <View style={styles.categoriesGrid}>
           {shopCategories.map((category) => (
-            <Pressable
-              key={category.id}
-              style={({ pressed }) => [
-                styles.categoryCard,
-                pressed && styles.categoryCardPressed,
-              ]}
-            >
+            <View key={category.id} style={styles.categoryCard}>
               <View style={styles.categoryIcon}>
                 <Ionicons
                   name={category.icon as keyof typeof Ionicons.glyphMap}
@@ -42,7 +36,7 @@ export function ShopScreen() {
                 />
               </View>
               <Text style={styles.categoryName}>{category.name}</Text>
-            </Pressable>
+            </View>
           ))}
         </View>
 
@@ -120,10 +114,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.neutral.border,
-  },
-  categoryCardPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
   },
   categoryIcon: {
     width: 64,

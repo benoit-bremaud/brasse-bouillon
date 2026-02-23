@@ -3,6 +3,7 @@ import { Href, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NavItem = {
   label: string;
@@ -21,14 +22,17 @@ const NAV_ITEMS: NavItem[] = [
 
 export function NavigationFooter() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { paddingBottom: spacing.xs + insets.bottom }]}
+    >
       {NAV_ITEMS.map((item) => (
         <Pressable
           key={item.href as string}
           style={styles.item}
-          onPress={() => router.push(item.href)}
+          onPress={() => router.replace(item.href)}
           accessibilityRole="button"
           accessibilityLabel={item.label}
         >
@@ -46,7 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.white,
     borderTopWidth: 1,
     borderTopColor: colors.neutral.border,
-    paddingVertical: spacing.xs,
+    paddingTop: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
   item: {

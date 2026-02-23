@@ -65,12 +65,7 @@ export function ToolsHubScreen() {
               <View style={styles.badgesRow}>
                 <Badge label={topic.focus} />
                 <Badge label={topic.estimatedReadTime} />
-                <Badge
-                  label={
-                    topic.status === "ready" ? "Prêt" : "Bientôt disponible"
-                  }
-                  variant={topic.status === "ready" ? "success" : "neutral"}
-                />
+                <Badge label="Calculateur prêt" variant="success" />
               </View>
 
               <View style={styles.cardFooter}>

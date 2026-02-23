@@ -24,16 +24,18 @@ import { useRouter } from "expo-router";
 
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
-const getVisibilityLabel = (visibility: string): string => {
-  const labels: Record<string, string> = {
+const getVisibilityLabel = (visibility: Recipe["visibility"]): string => {
+  const labels: Record<Recipe["visibility"], string> = {
     public: "Public",
     private: "Private",
     unlisted: "Unlisted",
   };
-  return labels[visibility] ?? visibility;
+  return labels[visibility];
 };
 
-const getVisibilityVariant = (visibility: string): "success" | "info" => {
+const getVisibilityVariant = (
+  visibility: Recipe["visibility"],
+): "success" | "info" => {
   if (visibility === "public") return "success";
   return "info";
 };

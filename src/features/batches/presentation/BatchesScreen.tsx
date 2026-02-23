@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 
+import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -26,9 +27,15 @@ import { demoRecipes } from "@/mocks/demo-data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+const DEFAULT_BATCH_COLOR_EBC = 10;
+
 const getRecipeColorEbc = (recipeId: string): number => {
+  if (!dataSource.useDemoData) {
+    return DEFAULT_BATCH_COLOR_EBC;
+  }
+
   const recipe = demoRecipes.find((r) => r.id === recipeId);
-  return recipe?.stats?.colorEbc ?? 10;
+  return recipe?.stats?.colorEbc ?? DEFAULT_BATCH_COLOR_EBC;
 };
 
 const getStatusLabel = (status: BatchStatus): string => {

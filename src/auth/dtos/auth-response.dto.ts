@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from 'src/common/enums/role.enum';
+import { UserRole } from '../../common/enums/role.enum';
 
 /**
  * Auth Response DTO

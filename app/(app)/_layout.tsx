@@ -94,7 +94,10 @@ export default function AppLayout() {
       <Tabs.Screen
         name="tools"
         options={{
-          href: null,
+          title: "Tools",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calculator-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

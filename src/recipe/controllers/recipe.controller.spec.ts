@@ -108,9 +108,7 @@ describe('RecipeController', () => {
         batch_size_l: 20,
         boil_time_min: 60,
       };
-      jest
-        .spyOn(service, 'create')
-        .mockResolvedValue(mockRecipeOrm as any);
+      jest.spyOn(service, 'create').mockResolvedValue(mockRecipeOrm as any);
 
       // Execute
       const result = await controller.create(mockUser as any, dto as any);
@@ -140,9 +138,7 @@ describe('RecipeController', () => {
   describe('listMine() - GET /recipes', () => {
     it('should list all recipes for current user', async () => {
       // Setup
-      jest
-        .spyOn(service, 'listMine')
-        .mockResolvedValue([mockRecipeOrm] as any);
+      jest.spyOn(service, 'listMine').mockResolvedValue([mockRecipeOrm] as any);
 
       // Execute
       const result = await controller.listMine(mockUser as any);
@@ -209,9 +205,7 @@ describe('RecipeController', () => {
       // Setup
       const dto = { name: 'Updated Recipe Name' };
       const updatedRecipe = { ...mockRecipeOrm, ...dto };
-      jest
-        .spyOn(service, 'updateMine')
-        .mockResolvedValue(updatedRecipe as any);
+      jest.spyOn(service, 'updateMine').mockResolvedValue(updatedRecipe as any);
 
       // Execute
       const result = await controller.updateMine(
@@ -236,9 +230,7 @@ describe('RecipeController', () => {
   describe('deleteMine() - DELETE /recipes/:id', () => {
     it('should delete a recipe', async () => {
       // Setup
-      jest
-        .spyOn(service, 'deleteMine')
-        .mockResolvedValue({ deleted: true });
+      jest.spyOn(service, 'deleteMine').mockResolvedValue({ deleted: true });
 
       // Execute
       const result = await controller.deleteMine(

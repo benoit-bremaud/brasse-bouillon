@@ -1,11 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { Batch } from '../domain/entities/batch.entity';
 import { BatchController } from './batch.controller';
 import { BatchReminderStatus } from '../domain/enums/batch-reminder-status.enum';
 import { BatchService } from '../services/batch.service';
 import { BatchStatus } from '../domain/enums/batch-status.enum';
-import { BatchStep } from '../domain/entities/batch-step.entity';
 import { BatchStepStatus } from '../domain/enums/batch-step-status.enum';
 import { NotFoundException } from '@nestjs/common';
 
@@ -24,6 +22,7 @@ describe('BatchController', () => {
   /**
    * Mock batch object
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const mockBatch: Batch = {
     id: '550e8400-e29b-41d4-a716-446655440001',
     ownerId: '550e8400-e29b-41d4-a716-446655440000',
@@ -142,10 +141,7 @@ describe('BatchController', () => {
       const result = await controller.startMine(mockUser as any, dto);
 
       // Verify
-      expect(service.startMine).toHaveBeenCalledWith(
-        mockUser.id,
-        dto.recipeId,
-      );
+      expect(service.startMine).toHaveBeenCalledWith(mockUser.id, dto.recipeId);
       expect(result).toBeDefined();
     });
 

@@ -75,7 +75,9 @@ describe('EquipmentProfileController', () => {
       ],
     }).compile();
 
-    controller = module.get<EquipmentProfileController>(EquipmentProfileController);
+    controller = module.get<EquipmentProfileController>(
+      EquipmentProfileController,
+    );
     service = module.get<EquipmentProfileService>(EquipmentProfileService);
   });
 
@@ -144,7 +146,9 @@ describe('EquipmentProfileController', () => {
       // Setup
       jest
         .spyOn(service, 'getMineById')
-        .mockRejectedValue(new NotFoundException('Equipment profile not found'));
+        .mockRejectedValue(
+          new NotFoundException('Equipment profile not found'),
+        );
 
       // Execute & Verify
       await expect(
@@ -168,9 +172,7 @@ describe('EquipmentProfileController', () => {
         efficiency_estimated_percent: 75,
         system_type: EquipmentSystemType.ALL_GRAIN,
       };
-      jest
-        .spyOn(service, 'create')
-        .mockResolvedValue(mockProfileOrm as any);
+      jest.spyOn(service, 'create').mockResolvedValue(mockProfileOrm as any);
 
       // Execute
       const result = await controller.create(mockUser as any, dto as any);
@@ -235,7 +237,9 @@ describe('EquipmentProfileController', () => {
       const dto = { name: 'Updated Name' };
       jest
         .spyOn(service, 'updateMine')
-        .mockRejectedValue(new NotFoundException('Equipment profile not found'));
+        .mockRejectedValue(
+          new NotFoundException('Equipment profile not found'),
+        );
 
       // Execute & Verify
       await expect(
@@ -250,9 +254,7 @@ describe('EquipmentProfileController', () => {
   describe('deleteMine() - DELETE /equipment-profiles/:id', () => {
     it('should delete an equipment profile', async () => {
       // Setup
-      jest
-        .spyOn(service, 'deleteMine')
-        .mockResolvedValue({ deleted: true });
+      jest.spyOn(service, 'deleteMine').mockResolvedValue({ deleted: true });
 
       // Execute
       const result = await controller.deleteMine(
@@ -272,7 +274,9 @@ describe('EquipmentProfileController', () => {
       // Setup
       jest
         .spyOn(service, 'deleteMine')
-        .mockRejectedValue(new NotFoundException('Equipment profile not found'));
+        .mockRejectedValue(
+          new NotFoundException('Equipment profile not found'),
+        );
 
       // Execute & Verify
       await expect(

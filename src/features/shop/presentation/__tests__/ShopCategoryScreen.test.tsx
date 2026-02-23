@@ -4,6 +4,7 @@ import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScr
 import React from "react";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
@@ -11,7 +12,7 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       back: jest.fn(),
     }),
   };
@@ -20,6 +21,7 @@ jest.mock("expo-router", () => {
 describe("ShopCategoryScreen", () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
   });
 
   it("renders empty state for invalid category", () => {
@@ -64,6 +66,6 @@ describe("ShopCategoryScreen", () => {
     const backButton = screen.getByText("← Boutique");
     fireEvent.press(backButton);
 
-    expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/shop");
   });
 });

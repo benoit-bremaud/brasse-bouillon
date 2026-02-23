@@ -33,7 +33,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           title="Catégorie inconnue"
           subtitle="Cette catégorie n'existe pas"
           action={
-            <Pressable onPress={() => router.push("/(app)/shop")}>
+            <Pressable onPress={() => router.replace("/(app)/shop")}>
               <Text style={styles.backLink}>← Retour</Text>
             </Pressable>
           }
@@ -44,7 +44,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           action={
             <PrimaryButton
               label="Retour à la boutique"
-              onPress={() => router.push("/(app)/shop")}
+              onPress={() => router.replace("/(app)/shop")}
             />
           }
         />
@@ -62,7 +62,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         title={label}
         subtitle={description}
         action={
-          <Pressable onPress={() => router.push("/(app)/shop")}>
+          <Pressable onPress={() => router.replace("/(app)/shop")}>
             <Text style={styles.backLink}>← Boutique</Text>
           </Pressable>
         }

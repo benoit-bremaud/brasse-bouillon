@@ -72,7 +72,7 @@ export function RecipesScreen() {
       <View style={styles.header}>
         <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
         <Pressable
-          onPress={() => router.push("/(app)/tools")}
+          onPress={() => router.push("/(app)/academy")}
           style={styles.academyButton}
         >
           <Ionicons

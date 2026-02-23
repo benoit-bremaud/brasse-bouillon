@@ -44,7 +44,7 @@ export function ExploreScreen() {
       <Card style={styles.card}>
         <View style={styles.sectionHeader}>
           <Text style={styles.title}>Académie brassicole</Text>
-          <Pressable onPress={() => router.push("/(app)/tools")}>
+          <Pressable onPress={() => router.push("/(app)/academy")}>
             <Text style={styles.link}>Ouvrir</Text>
           </Pressable>
         </View>

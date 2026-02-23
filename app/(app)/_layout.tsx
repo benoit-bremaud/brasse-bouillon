@@ -112,6 +112,12 @@ export default function AppLayout() {
               href: null,
             }}
           />
+          <Tabs.Screen
+            name="academy"
+            options={{
+              href: null,
+            }}
+          />
         </Tabs>
       </View>
       <NavigationFooter />

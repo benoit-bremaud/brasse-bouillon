@@ -35,7 +35,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           title="Académie brassicole"
           subtitle="Page introuvable"
           action={
-            <Pressable onPress={() => router.push("/tools")}>
+            <Pressable onPress={() => router.push("/(app)/academy")}>
               <Text style={styles.backLink}>← Retour</Text>
             </Pressable>
           }
@@ -46,7 +46,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           action={
             <PrimaryButton
               label="Retour à l'académie"
-              onPress={() => router.push("/tools")}
+              onPress={() => router.push("/(app)/academy")}
             />
           }
         />
@@ -69,7 +69,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           <Pressable
             onPress={() =>
               router.push({
-                pathname: "/tools/[slug]",
+                pathname: "/academy/[slug]",
                 params: { slug: topic.slug },
               })
             }
@@ -112,7 +112,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           label="Retour à la fiche thématique"
           onPress={() =>
             router.push({
-              pathname: "/tools/[slug]",
+              pathname: "/academy/[slug]",
               params: { slug: topic.slug },
             })
           }

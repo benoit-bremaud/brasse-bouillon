@@ -17,25 +17,27 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
 
-export function AcademyHubScreen() {
+export function ToolsHubScreen() {
   const router = useRouter();
+
+  const calculatorTopics = academyTopics.filter((topic) => topic.hasCalculator);
 
   return (
     <Screen>
       <ListHeader
-        title="Académie brassicole"
-        subtitle="Base pédagogique, scientifique et historique du brassage"
+        title="Outils de calcul"
+        subtitle="Accès direct à tous les calculateurs brassicoles"
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {academyTopics.map((topic) => (
+        {calculatorTopics.map((topic) => (
           <Pressable
             key={topic.slug}
             accessibilityRole="button"
-            accessibilityLabel={`Ouvrir le thème ${topic.title}`}
+            accessibilityLabel={`Ouvrir le calculateur ${topic.title}`}
             onPress={() =>
               router.push({
-                pathname: "/academy/[slug]",
+                pathname: "/tools/[slug]/calculator",
                 params: { slug: topic.slug },
               })
             }
@@ -72,7 +74,7 @@ export function AcademyHubScreen() {
               </View>
 
               <View style={styles.cardFooter}>
-                <Text style={styles.cardFooterText}>Ouvrir le thème</Text>
+                <Text style={styles.cardFooterText}>Ouvrir le calculateur</Text>
                 <Text style={styles.cardFooterArrow}>→</Text>
               </View>
             </Card>

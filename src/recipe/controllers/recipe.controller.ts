@@ -39,7 +39,7 @@ import { RecipeService } from '../services/recipe.service';
  * Ownership: current user only (owner_id = user.id)
  */
 @ApiTags('Recipes')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipeController {

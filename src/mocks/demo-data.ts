@@ -623,7 +623,8 @@ export const demoBatchSummaries: BatchSummary[] = [
     ownerId: demoUsers[2].id,
     recipeId: demoRecipes[0].id,
     status: "in_progress",
-    currentStepOrder: 0,
+
+    currentStepOrder: 1,
     startedAt: "2026-02-18T15:00:00.000Z",
     fermentationStartedAt: null,
     fermentationCompletedAt: null,

@@ -1,11 +1,19 @@
-import { AcademyTopicPlaceholderScreen } from "@/features/tools/presentation/AcademyTopicPlaceholderScreen";
-import { useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from "expo-router";
 
 export default function AcademyTopicLearnRoute() {
   const { slug } = useLocalSearchParams<{ slug?: string | string[] }>();
   const normalizedSlug = Array.isArray(slug) ? slug[0] : slug;
 
+  if (!normalizedSlug) {
+    return <Redirect href="/(app)/academy" />;
+  }
+
   return (
-    <AcademyTopicPlaceholderScreen slugParam={normalizedSlug} mode="learn" />
+    <Redirect
+      href={{
+        pathname: "/(app)/academy/[slug]/learn",
+        params: { slug: normalizedSlug },
+      }}
+    />
   );
 }

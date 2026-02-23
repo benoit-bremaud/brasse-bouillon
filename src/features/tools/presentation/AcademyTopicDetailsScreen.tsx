@@ -48,7 +48,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           title="Académie brassicole"
           subtitle="Thème introuvable"
           action={
-            <Pressable onPress={() => router.push("/tools")}>
+            <Pressable onPress={() => router.push("/(app)/academy")}>
               <Text style={styles.backLink}>← Retour</Text>
             </Pressable>
           }
@@ -59,7 +59,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           action={
             <PrimaryButton
               label="Retour au catalogue"
-              onPress={() => router.push("/tools")}
+              onPress={() => router.push("/(app)/academy")}
             />
           }
         />
@@ -73,7 +73,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         title={topic.title}
         subtitle="Fiche thématique"
         action={
-          <Pressable onPress={() => router.push("/tools")}>
+          <Pressable onPress={() => router.push("/(app)/academy")}>
             <Text style={styles.backLink}>← Retour</Text>
           </Pressable>
         }
@@ -1612,7 +1612,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
               label="En savoir plus"
               onPress={() =>
                 router.push({
-                  pathname: "/tools/[slug]/learn",
+                  pathname: "/academy/[slug]/learn",
                   params: { slug: topic.slug },
                 })
               }

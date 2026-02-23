@@ -12,8 +12,6 @@ describe("RecipesScreen", () => {
     render(<RecipesScreen />);
 
     expect(await screen.findByText("My Recipes")).toBeTruthy();
-    expect(
-      await screen.findByText("Aucune recette pour le moment"),
-    ).toBeTruthy();
+    expect(await screen.findByText("Aucune recette")).toBeTruthy();
   });
 });

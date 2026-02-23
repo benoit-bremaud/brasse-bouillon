@@ -1,8 +1,7 @@
 import { Image, ImageStyle, StyleProp, StyleSheet, View } from "react-native";
 
 import React from "react";
-import logoIcon from "../../../assets/images/brasse-bouillon-logo-icon-64.png";
-import logoPrimary from "../../../assets/images/brasse-bouillon-logo-primary-256x256.png";
+import logoPrimary from "../../../assets/images/brasse-bouillon-logo-primary-512.png";
 
 type BrandLogoVariant = "primary" | "icon";
 
@@ -15,7 +14,7 @@ type BrandLogoProps = {
 
 const LOGO_SOURCES = {
   primary: logoPrimary,
-  icon: logoIcon,
+  icon: logoPrimary,
 } as const;
 
 export function BrandLogo({

@@ -47,12 +47,15 @@ describe("DashboardScreen", () => {
   it("renders key dashboard sections", async () => {
     render(<DashboardScreen />);
 
-    expect(await screen.findByText("Tableau de bord")).toBeTruthy();
-    expect(screen.getByText("Profil")).toBeTruthy();
-    expect(screen.getByText("Mes recettes privées")).toBeTruthy();
-    expect(screen.getByText("Recettes publiques favorites")).toBeTruthy();
-    expect(screen.getAllByText("Brassins en cours").length).toBeGreaterThan(0);
-    expect(screen.getByText("Accès complémentaires")).toBeTruthy();
+    expect(
+      await screen.findByText("Prêt à brasser quelque chose de délicieux ?"),
+    ).toBeTruthy();
+    expect(screen.getByText("Brassins actifs")).toBeTruthy();
+    expect(screen.getAllByText("Mes recettes").length).toBeGreaterThan(0);
+    expect(screen.getByText("À découvrir")).toBeTruthy();
+    expect(screen.getByText("Mon équipement")).toBeTruthy();
+    expect(screen.getByText("Se déconnecter")).toBeTruthy();
+    expect(screen.getByText("Nouveau brassin")).toBeTruthy();
     expect(screen.getByText("Private IPA")).toBeTruthy();
   });
 });

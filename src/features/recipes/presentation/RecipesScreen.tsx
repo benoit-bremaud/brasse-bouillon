@@ -18,7 +18,27 @@ import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { getSrmColor } from "@/features/tools/data/catalogs/srm";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+
+const ebcToSrm = (ebc: number): number => ebc * 0.508;
+
+const getVisibilityLabel = (visibility: Recipe["visibility"]): string => {
+  const labels: Record<Recipe["visibility"], string> = {
+    public: "Public",
+    private: "Private",
+    unlisted: "Unlisted",
+  };
+  return labels[visibility];
+};
+
+const getVisibilityVariant = (
+  visibility: Recipe["visibility"],
+): "success" | "info" => {
+  if (visibility === "public") return "success";
+  return "info";
+};
 
 export function RecipesScreen() {
   const router = useRouter();
@@ -51,31 +71,26 @@ export function RecipesScreen() {
       error={error}
       onRetry={fetchRecipes}
     >
-      <ListHeader
-        title="My Recipes"
-        subtitle="Tes recettes de brassage"
-        action={
-          <View style={styles.headerActions}>
-            <Pressable
-              onPress={() => router.push("/tools")}
-              style={styles.toolsButton}
-            >
-              <Text style={styles.toolsText}>Académie</Text>
-            </Pressable>
-            <Pressable onPress={fetchRecipes} style={styles.refreshButton}>
-              <Text style={styles.refreshText}>Refresh</Text>
-            </Pressable>
-          </View>
-        }
-      />
+      <View style={styles.header}>
+        <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
+        <Pressable
+          onPress={() => router.push("/(app)/academy")}
+          style={styles.academyButton}
+        >
+          <Ionicons
+            name="school-outline"
+            size={18}
+            color={colors.brand.secondary}
+          />
+          <Text style={styles.academyText}>Academy</Text>
+        </Pressable>
+      </View>
 
       {showEmptyState ? (
         <EmptyStateCard
-          title="Aucune recette pour le moment"
-          description="Ajoute une recette côté API pour démarrer."
-          action={
-            <PrimaryButton label="Recharger la liste" onPress={fetchRecipes} />
-          }
+          title="Aucune recette"
+          description="Ajoute une recette pour démarrer."
+          action={<PrimaryButton label="Recharger" onPress={fetchRecipes} />}
         />
       ) : null}
 
@@ -86,59 +101,105 @@ export function RecipesScreen() {
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={fetchRecipes} />
         }
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/(app)/recipes/${item.id}`)}>
-            <Card style={styles.card}>
-              <View style={styles.cardTopRow}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
-                <Badge label={item.visibility} variant="info" />
-              </View>
-              {item.description ? (
-                <Text style={styles.cardSubtitle}>{item.description}</Text>
-              ) : null}
-              <Text style={styles.cardMeta}>Voir les étapes →</Text>
-            </Card>
-          </Pressable>
-        )}
+        renderItem={({ item }) => {
+          const stats = item.stats;
+          const ebc = stats?.colorEbc ?? 10;
+          const srm = ebcToSrm(ebc);
+          const beerColor = getSrmColor(srm);
+
+          return (
+            <Pressable onPress={() => router.push(`/(app)/recipes/${item.id}`)}>
+              <Card style={styles.card}>
+                <View style={styles.cardContent}>
+                  <View
+                    style={[styles.recipeIcon, { backgroundColor: beerColor }]}
+                  >
+                    <Ionicons
+                      name="document-text"
+                      size={24}
+                      color={colors.neutral.white}
+                    />
+                  </View>
+                  <View style={styles.cardInfo}>
+                    <View style={styles.cardTopRow}>
+                      <Text style={styles.cardTitle}>{item.name}</Text>
+                      <Badge
+                        label={getVisibilityLabel(item.visibility)}
+                        variant={getVisibilityVariant(item.visibility)}
+                      />
+                    </View>
+                    {stats && (
+                      <View style={styles.statsRow}>
+                        <Text style={styles.statItem}>{stats.ibu} IBU</Text>
+                        <Text style={styles.statDivider}>•</Text>
+                        <Text style={styles.statItem}>{stats.abv}% ABV</Text>
+                        <Text style={styles.statDivider}>•</Text>
+                        <Text style={styles.statItem}>
+                          {stats.volumeLiters}L
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.neutral.muted}
+                  />
+                </View>
+              </Card>
+            </Pressable>
+          );
+        }}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  headerActions: {
-    alignItems: "flex-end",
-    gap: spacing.xs,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.sm,
+    paddingBottom: spacing.sm,
   },
-  toolsButton: {
+  academyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    backgroundColor: colors.brand.primary,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
   },
-  toolsText: {
-    color: colors.neutral.white,
+  academyText: {
+    color: colors.brand.secondary,
     fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
-  },
-  refreshButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    backgroundColor: colors.brand.secondary,
-  },
-  refreshText: {
-    color: colors.neutral.white,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.medium,
   },
   list: {
     paddingBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,
+  },
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  recipeIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardInfo: {
+    flex: 1,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -148,21 +209,20 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
-  cardSubtitle: {
-    color: colors.neutral.textSecondary,
-    marginTop: spacing.xs,
-    fontSize: typography.size.label,
-    lineHeight: typography.lineHeight.label,
-    fontWeight: typography.weight.regular,
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: spacing.xxs,
   },
-  cardMeta: {
-    marginTop: spacing.sm,
+  statItem: {
+    fontSize: typography.size.label,
+    color: colors.neutral.textSecondary,
+  },
+  statDivider: {
+    marginHorizontal: spacing.xs,
     color: colors.neutral.muted,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.regular,
   },
 });

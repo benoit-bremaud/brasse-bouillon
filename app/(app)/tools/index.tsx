@@ -1,5 +1,5 @@
-import { AcademyHubScreen } from "@/features/tools/presentation/AcademyHubScreen";
+import { ToolsHubScreen } from "@/features/tools/presentation/ToolsHubScreen";
 
 export default function ToolsRoute() {
-  return <AcademyHubScreen />;
+  return <ToolsHubScreen />;
 }

@@ -3,7 +3,8 @@ export type ShopCategory =
   | "houblons"
   | "levures"
   | "materiel"
-  | "accessoires";
+  | "accessoires"
+  | "kits";
 
 export type Product = {
   id: string;
@@ -20,9 +21,10 @@ export const shopCategories: {
   name: string;
   icon: string;
 }[] = [
-  { id: "malts", name: "Malts", icon: "beer" },
+  { id: "malts", name: "Malts", icon: "flower" },
   { id: "houblons", name: "Houblons", icon: "leaf" },
-  { id: "levures", name: "Levures", icon: "flask" },
+  { id: "levures", name: "Levures", icon: "bug" },
+  { id: "kits", name: "Kits", icon: "gift" },
   { id: "materiel", name: "Matériel", icon: "construct" },
   { id: "accessoires", name: "Accessoires", icon: "bag" },
 ];

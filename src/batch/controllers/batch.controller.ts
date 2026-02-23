@@ -38,7 +38,7 @@ import { BatchService } from '../services/batch.service';
  * Ownership: current user only (owner_id = user.id)
  */
 @ApiTags('Batches')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('batches')
 export class BatchController {

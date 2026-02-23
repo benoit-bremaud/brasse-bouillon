@@ -54,18 +54,78 @@
       top: 12px;
     }
 
+    /* Header avec gros logo */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 253, 248, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(141, 88, 50, 0.15);
+      padding: 12px 20px;
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .header-logo img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: #fff;
+      border: 2px solid rgba(141, 88, 50, 0.2);
+    }
+
+    .header-logo span {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--color-secondary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-nav a {
+      color: var(--color-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: var(--color-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .language-switch {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 20;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 9999px;
       border: 1px solid rgba(141, 88, 50, 0.32);
       background: rgba(255, 255, 255, 0.84);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(4px);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     .language-switch a {
@@ -75,6 +135,36 @@
     }
 
     .language-switch a:hover { color: var(--color-secondary); }
+
+    @media (max-width: 640px) {
+      .header-nav { display: none; }
+      .header-logo span { font-size: 1.1rem; }
+    }
+
+    @media (max-width: 860px) {
+      .questionnaire-grid,
+      .section-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 88px 12px 20px; }
+      .shell {
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+      .logo-wrap {
+        width: 150px;
+        height: 150px;
+      }
+      .logo { width: 126px; }
+      .actions .btn,
+      .actions .btn-secondary {
+        width: 100%;
+      }
+    }
 
     .page {
       min-height: 100vh;

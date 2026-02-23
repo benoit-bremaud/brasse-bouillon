@@ -22,10 +22,26 @@
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
 
-  <div class="language-switch" role="navigation" aria-label="Choix de langue">
-    <a href="index.html" aria-label="Version française">🇫🇷</a> |
-    <a href="index-en.html" aria-label="Version anglaise">🇬🇧</a>
-  </div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <img src="logo-hero.png" alt="Brasse-Bouillon">
+        <span>Brasse-Bouillon</span>
+      </a>
+      <nav class="header-nav">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#roadmapHeadingFr">Roadmap</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-right">
+        <div class="language-switch" role="navigation" aria-label="Choix de langue">
+          <a href="index.html" aria-label="Version française">🇫🇷 FR</a> ·
+          <a href="index-en.html" aria-label="Version anglaise">🇬🇧 EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
 
   <main class="page" id="mainContentFr">
     <div class="shell">
@@ -112,7 +128,7 @@
         </div>
       </section>
 
-      <section class="section-block">
+      <section class="section-block" id="faq">
         <h2 class="section-title">❓ FAQ rapide</h2>
         <div class="section-grid">
           <div class="mini-card">
@@ -281,7 +297,7 @@
         <p id="questionnaireStatusFr" class="form-status" role="status" aria-live="polite"></p>
       </section>
 
-      <section class="section-block">
+      <section class="section-block" id="contact">
         <h2 class="section-title">📬 Contact direct</h2>
         <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
           <label class="sr-only" for="emailFr">Adresse email</label>

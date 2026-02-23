@@ -96,9 +96,9 @@ EXPO_PUBLIC_USE_DEMO_DATA=false
 
 Trouver ton IP locale :
 
-- macOS : `ipconfig getifaddr en0`
+- macOS : `ifconfig` puis repérer l’interface réseau active (ex. `en0`, `en1`) et son champ `inet` (adresse en `192.168.x.x` ou `10.x.x.x`). En complément, tu peux utiliser `ipconfig getifaddr <interface>`
 - Linux : `hostname -I`
-- Windows : `ipconfig` (prendre l’IPv4)
+- Windows : `ipconfig` puis chercher `Adresse IPv4` dans l’adaptateur actif (ou `ipconfig | findstr IPv4`)
 
 ---
 
@@ -151,11 +151,15 @@ npx expo start --tunnel
 
 ### Android Emulator
 
+> ⚠️ Nécessite Android Studio installé, un AVD configuré et un émulateur déjà lancé. `npm run android` (script `expo start --android`) ouvre Expo sur un appareil/émulateur déjà disponible.
+
 ```bash
 npm run android
 ```
 
 ### iOS Simulator (macOS uniquement + Xcode)
+
+> ⚠️ Nécessite Xcode **installé complètement** (y compris les _Command Line Tools_), ouvert au moins une fois et configuré.
 
 ```bash
 npm run ios

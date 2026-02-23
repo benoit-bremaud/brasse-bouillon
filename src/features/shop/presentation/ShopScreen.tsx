@@ -1,25 +1,20 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { shopCategories } from "../domain/shop.types";
 
 export function ShopScreen() {
-  const router = useRouter();
-
   return (
     <Screen>
-      <View style={styles.headerRow}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>Boutique</Text>
-          <Text style={styles.headerSubtitle}>Tout pour brasser chez vous</Text>
-        </View>
+      <View style={styles.header}>
+        <ListHeader
+          title="Ma Boutique"
+          subtitle="Tout pour brasser chez vous"
+        />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -59,35 +54,9 @@ export function ShopScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  header: {
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral.border,
-    backgroundColor: colors.neutral.white,
-  },
-  backButton: {
-    padding: spacing.xs,
-    marginRight: spacing.sm,
-  },
-  backArrow: {
-    fontSize: 20,
-    color: colors.brand.secondary,
-    fontWeight: typography.weight.bold,
-  },
-  headerText: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: typography.size.h2,
-    fontWeight: typography.weight.bold,
-    color: colors.neutral.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
+    paddingTop: spacing.sm,
   },
   content: {
     paddingBottom: spacing.lg,
@@ -107,7 +76,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   categoryCard: {
-    width: "47%",
+    width: "31%",
     backgroundColor: colors.neutral.white,
     borderRadius: radius.lg,
     padding: spacing.md,
@@ -116,8 +85,8 @@ const styles = StyleSheet.create({
     borderColor: colors.neutral.border,
   },
   categoryIcon: {
-    width: 64,
-    height: 64,
+    width: 56,
+    height: 56,
     borderRadius: radius.lg,
     backgroundColor: colors.brand.background,
     justifyContent: "center",
@@ -125,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   categoryName: {
-    fontSize: typography.size.label,
+    fontSize: typography.size.caption,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
     textAlign: "center",

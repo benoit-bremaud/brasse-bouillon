@@ -136,36 +136,6 @@
 
     .language-switch a:hover { color: var(--color-secondary); }
 
-    @media (max-width: 640px) {
-      .header-nav { display: none; }
-      .header-logo span { font-size: 1.1rem; }
-    }
-
-    @media (max-width: 860px) {
-      .questionnaire-grid,
-      .section-grid,
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page { padding: 88px 12px 20px; }
-      .shell {
-        padding: 18px 14px;
-        border-radius: 16px;
-      }
-      .logo-wrap {
-        width: 150px;
-        height: 150px;
-      }
-      .logo { width: 126px; }
-      .actions .btn,
-      .actions .btn-secondary {
-        width: 100%;
-      }
-    }
-
     .page {
       min-height: 100vh;
       display: flex;
@@ -645,6 +615,9 @@
       .actions .btn-secondary {
         width: 100%;
       }
+
+      .header-nav { display: none; }
+      .header-logo span { font-size: 1.1rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {

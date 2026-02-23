@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          files=( *.html *.ico *.png *.css *.js CNAME )
+          files=( *.html *.ico *.png *.svg *.css *.js CNAME )
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No deployable static files found."

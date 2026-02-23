@@ -11,7 +11,7 @@ import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import {
   fermentableMaltCatalog,
   type FermentableMalt,
-} from "@/features/tools/data";
+} from "@/features/tools/data/catalogs/fermentables";
 import React, { useCallback, useState } from "react";
 import {
   Alert,

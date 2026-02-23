@@ -18,7 +18,10 @@ import {
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
-import { getHopDefaultAa, hopCatalog } from "@/features/tools/data";
+import {
+  getHopDefaultAa,
+  hopCatalog,
+} from "@/features/tools/data/catalogs/houblons";
 import Slider from "@react-native-community/slider";
 import * as Haptics from "expo-haptics";
 

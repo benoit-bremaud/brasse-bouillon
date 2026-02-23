@@ -1,29 +1,4 @@
-import { ImageSourcePropType } from "react-native";
-import mascotDefault from "../../../../assets/images/icon.png";
-
-export type AcademyTopicStatus = "ready" | "coming-soon";
-export type AcademyMascotVariant =
-  | "default"
-  | "historian"
-  | "chemist"
-  | "hop-expert"
-  | "yeast-lab";
-
-export type AcademyTopic = {
-  slug: string;
-  title: string;
-  shortDescription: string;
-  focus: string;
-  order: number;
-  estimatedReadTime: string;
-  hasCalculator: boolean;
-  status: AcademyTopicStatus;
-  mascotVariant: AcademyMascotVariant;
-  mascotImage: ImageSourcePropType;
-  mascotAlt: string;
-};
-
-const fallbackMascot = mascotDefault;
+import { AcademyTopic } from "../domain/academy.types";
 
 export const academyHighlights = [
   "14 200 mots structurés",
@@ -44,7 +19,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: false,
     status: "coming-soon",
     mascotVariant: "historian",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon en professeur d'histoire",
   },
   {
@@ -58,7 +32,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "default",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique fermentescibles",
   },
   {
@@ -72,7 +45,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "default",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique couleur",
   },
   {
@@ -86,7 +58,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "hop-expert",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon experte des houblons",
   },
   {
@@ -100,7 +71,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "ready",
     mascotVariant: "chemist",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon en chimiste de l'eau",
   },
   {
@@ -114,7 +84,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "default",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique rendement",
   },
   {
@@ -128,7 +97,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "yeast-lab",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon en laboratoire levures",
   },
   {
@@ -142,7 +110,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "default",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique carbonatation",
   },
   {
@@ -156,7 +123,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: true,
     status: "coming-soon",
     mascotVariant: "chemist",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique calculs avancés",
   },
   {
@@ -170,7 +136,6 @@ const academyTopicsData: AcademyTopic[] = [
     hasCalculator: false,
     status: "coming-soon",
     mascotVariant: "historian",
-    mascotImage: fallbackMascot,
     mascotAlt: "Mascotte Brasse-Bouillon thématique glossaire",
   },
 ];

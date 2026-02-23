@@ -1,4 +1,7 @@
-import { fermentableMaltCatalog, getMaltById } from "../fermentables-catalog";
+import {
+  fermentableMaltCatalog,
+  getMaltById,
+} from "@/features/tools/data/catalogs/fermentables";
 
 describe("fermentables-catalog", () => {
   it("exports a non-empty catalog of fermentable malts", () => {

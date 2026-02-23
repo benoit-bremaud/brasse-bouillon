@@ -450,7 +450,7 @@ export const demoRecipes: Recipe[] = [
     id: "r-demo-4",
     ownerId: demoUsers[0].id,
     name: "Imperial Stout",
-    description: " Noire,咖啡，巧克力",
+    description: " Noire,café，chocolat",
     stats: {
       ibu: 65,
       abv: 9.2,
@@ -630,7 +630,7 @@ export const demoRecipes: Recipe[] = [
     id: "r-demo-7",
     ownerId: demoUsers[0].id,
     name: "NEIPA Tropical",
-    description: "Juste，果香，乳糖",
+    description: "Juteuse, fruitée, lactose",
     stats: {
       ibu: 45,
       abv: 6.8,
@@ -996,7 +996,7 @@ export const demoRecipes: Recipe[] = [
     id: "r-demo-13",
     ownerId: demoUsers[0].id,
     name: "White IPA",
-    description: "Blanche，柑橘，IPA",
+    description: "Blanche, agrumes, IPA",
     stats: {
       ibu: 40,
       abv: 6.0,
@@ -1120,7 +1120,7 @@ export const demoRecipes: Recipe[] = [
     id: "r-demo-15",
     ownerId: demoUsers[2].id,
     name: "Scotch Ale Wee Heavy",
-    description: "Tres lourde, maltée, sucrée",
+    description: "Très lourde, maltée, sucrée",
     stats: {
       ibu: 25,
       abv: 8.5,

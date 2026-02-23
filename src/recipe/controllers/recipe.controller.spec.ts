@@ -1,33 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { NotFoundException } from '@nestjs/common';
 import { RecipeController } from './recipe.controller';
+import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeService } from '../services/recipe.service';
+import { RecipeStepOrmEntity } from '../entities/recipe-step.orm.entity';
 import { RecipeStepType } from '../domain/enums/recipe-step-type.enum';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
+import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
+import { UpdateRecipeStepDto } from '../dtos/update-recipe-step.dto';
+import { User } from '../../user/entities/user.entity';
+import { UserRole } from '../../common/enums/role.enum';
 
-/**
- * Recipe Controller Test Suite
- *
- * Tests HTTP request/response handling for recipe operations.
- *
- * @test RecipeController
- * @requires RecipeService
- */
 describe('RecipeController', () => {
   let controller: RecipeController;
   let service: RecipeService;
 
-  /**
-   * Mock recipe ORM entity
-   */
-  const mockRecipeOrm = {
+  const mockRecipeOrm: RecipeOrmEntity = {
     id: '550e8400-e29b-41d4-a716-446655440001',
     owner_id: '550e8400-e29b-41d4-a716-446655440000',
     name: 'My IPA Recipe',
     description: 'A delicious IPA',
     visibility: RecipeVisibility.PRIVATE,
-
+    version: 1,
+    root_recipe_id: '550e8400-e29b-41d4-a716-446655440001',
+    parent_recipe_id: null,
     batch_size_l: 20,
     boil_time_min: 60,
     og_target: 1.065,
@@ -36,16 +34,11 @@ describe('RecipeController', () => {
     ibu_target: 50,
     ebc_target: 15,
     efficiency_target: 75,
-
     created_at: new Date(),
     updated_at: new Date(),
   };
 
-  /**
-   * Mock recipe step
-   */
-  const mockRecipeStep = {
-    id: '550e8400-e29b-41d4-a716-446655440010',
+  const mockRecipeStep: RecipeStepOrmEntity = {
     recipe_id: '550e8400-e29b-41d4-a716-446655440001',
     step_order: 1,
     type: RecipeStepType.MASH,
@@ -55,17 +48,19 @@ describe('RecipeController', () => {
     updated_at: new Date(),
   };
 
-  /**
-   * Mock current user
-   */
-  const mockUser = {
+  const mockUser: User = Object.assign(new User(), {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'john@example.com',
-  };
+    username: 'john',
+    password_hash: 'hashed-password',
+    first_name: 'John',
+    last_name: 'Doe',
+    role: UserRole.USER,
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_active: true,
+  });
 
-  /**
-   * Setup: Initialize testing module
-   */
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecipeController],
@@ -89,95 +84,72 @@ describe('RecipeController', () => {
     service = module.get<RecipeService>(RecipeService);
   });
 
-  /**
-   * Cleanup
-   */
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  /**
-   * POST /recipes - Create recipe
-   */
   describe('create() - POST /recipes', () => {
     it('should create a new recipe', async () => {
-      // Setup
-      const dto = {
+      const dto: CreateRecipeDto = {
         name: 'My IPA Recipe',
         visibility: RecipeVisibility.PRIVATE,
         batch_size_l: 20,
         boil_time_min: 60,
       };
-      jest.spyOn(service, 'create').mockResolvedValue(mockRecipeOrm as any);
+      const createSpy = jest
+        .spyOn(service, 'create')
+        .mockResolvedValue(mockRecipeOrm);
 
-      // Execute
-      const result = await controller.create(mockUser as any, dto as any);
+      const result = await controller.create(mockUser, dto);
 
-      // Verify
-      expect(service.create).toHaveBeenCalledWith(mockUser.id, dto);
+      expect(createSpy).toHaveBeenCalledWith(mockUser.id, dto);
       expect(result).toBeDefined();
     });
 
     it('should propagate errors when creation fails', async () => {
-      // Setup
-      const dto = { name: '' };
-      jest
+      const dto: CreateRecipeDto = { name: '' };
+      const createSpy = jest
         .spyOn(service, 'create')
         .mockRejectedValue(new Error('Invalid recipe'));
 
-      // Execute & Verify
-      await expect(
-        controller.create(mockUser as any, dto as any),
-      ).rejects.toThrow('Invalid recipe');
+      await expect(controller.create(mockUser, dto)).rejects.toThrow(
+        'Invalid recipe',
+      );
+      expect(createSpy).toHaveBeenCalledWith(mockUser.id, dto);
     });
   });
 
-  /**
-   * GET /recipes - List recipes
-   */
   describe('listMine() - GET /recipes', () => {
     it('should list all recipes for current user', async () => {
-      // Setup
-      jest.spyOn(service, 'listMine').mockResolvedValue([mockRecipeOrm] as any);
+      const listMineSpy = jest
+        .spyOn(service, 'listMine')
+        .mockResolvedValue([mockRecipeOrm]);
 
-      // Execute
-      const result = await controller.listMine(mockUser as any);
+      const result = await controller.listMine(mockUser);
 
-      // Verify
-      expect(service.listMine).toHaveBeenCalledWith(mockUser.id);
+      expect(listMineSpy).toHaveBeenCalledWith(mockUser.id);
       expect(result).toHaveLength(1);
     });
 
     it('should return empty array when no recipes', async () => {
-      // Setup
-      jest.spyOn(service, 'listMine').mockResolvedValue([]);
+      const listMineSpy = jest.spyOn(service, 'listMine').mockResolvedValue([]);
 
-      // Execute
-      const result = await controller.listMine(mockUser as any);
+      const result = await controller.listMine(mockUser);
 
-      // Verify
+      expect(listMineSpy).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual([]);
     });
   });
 
-  /**
-   * GET /recipes/:id - Get recipe by ID
-   */
   describe('getMineById() - GET /recipes/:id', () => {
     it('should return a recipe by ID', async () => {
-      // Setup
-      jest
+      const getMineByIdSpy = jest
         .spyOn(service, 'getMineById')
-        .mockResolvedValue(mockRecipeOrm as any);
+        .mockResolvedValue(mockRecipeOrm);
 
-      // Execute
-      const result = await controller.getMineById(
-        mockUser as any,
-        mockRecipeOrm.id,
-      );
+      const result = await controller.getMineById(mockUser, mockRecipeOrm.id);
 
-      // Verify
-      expect(service.getMineById).toHaveBeenCalledWith(
+      expect(getMineByIdSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
       );
@@ -185,37 +157,35 @@ describe('RecipeController', () => {
     });
 
     it('should throw NotFoundException when recipe not found', async () => {
-      // Setup
-      jest
+      const getMineByIdSpy = jest
         .spyOn(service, 'getMineById')
         .mockRejectedValue(new NotFoundException('Recipe not found'));
 
-      // Execute & Verify
       await expect(
-        controller.getMineById(mockUser as any, 'invalid-id'),
+        controller.getMineById(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
+      expect(getMineByIdSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
     });
   });
 
-  /**
-   * PATCH /recipes/:id - Update recipe
-   */
   describe('updateMine() - PATCH /recipes/:id', () => {
     it('should update a recipe', async () => {
-      // Setup
-      const dto = { name: 'Updated Recipe Name' };
-      const updatedRecipe = { ...mockRecipeOrm, ...dto };
-      jest.spyOn(service, 'updateMine').mockResolvedValue(updatedRecipe as any);
+      const dto: UpdateRecipeDto = { name: 'Updated Recipe Name' };
+      const updatedRecipe: RecipeOrmEntity = {
+        ...mockRecipeOrm,
+        name: dto.name,
+      };
+      const updateMineSpy = jest
+        .spyOn(service, 'updateMine')
+        .mockResolvedValue(updatedRecipe);
 
-      // Execute
       const result = await controller.updateMine(
-        mockUser as any,
+        mockUser,
         mockRecipeOrm.id,
-        dto as any,
+        dto,
       );
 
-      // Verify
-      expect(service.updateMine).toHaveBeenCalledWith(
+      expect(updateMineSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
         dto,
@@ -224,59 +194,39 @@ describe('RecipeController', () => {
     });
   });
 
-  /**
-   * DELETE /recipes/:id - Delete recipe
-   */
   describe('deleteMine() - DELETE /recipes/:id', () => {
     it('should delete a recipe', async () => {
-      // Setup
-      jest.spyOn(service, 'deleteMine').mockResolvedValue({ deleted: true });
+      const deleteMineSpy = jest
+        .spyOn(service, 'deleteMine')
+        .mockResolvedValue({ deleted: true });
 
-      // Execute
-      const result = await controller.deleteMine(
-        mockUser as any,
-        mockRecipeOrm.id,
-      );
+      const result = await controller.deleteMine(mockUser, mockRecipeOrm.id);
 
-      // Verify
-      expect(service.deleteMine).toHaveBeenCalledWith(
-        mockUser.id,
-        mockRecipeOrm.id,
-      );
+      expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, mockRecipeOrm.id);
       expect(result).toEqual({ deleted: true });
     });
 
     it('should throw NotFoundException when recipe not found', async () => {
-      // Setup
-      jest
+      const deleteMineSpy = jest
         .spyOn(service, 'deleteMine')
         .mockRejectedValue(new NotFoundException('Recipe not found'));
 
-      // Execute & Verify
       await expect(
-        controller.deleteMine(mockUser as any, 'invalid-id'),
+        controller.deleteMine(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
+      expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
     });
   });
 
-  /**
-   * GET /recipes/:id/steps - List steps
-   */
   describe('listMineSteps() - GET /recipes/:id/steps', () => {
     it('should list all steps for a recipe', async () => {
-      // Setup
-      jest
+      const listMineStepsSpy = jest
         .spyOn(service, 'listMineSteps')
-        .mockResolvedValue([mockRecipeStep] as any);
+        .mockResolvedValue([mockRecipeStep]);
 
-      // Execute
-      const result = await controller.listMineSteps(
-        mockUser as any,
-        mockRecipeOrm.id,
-      );
+      const result = await controller.listMineSteps(mockUser, mockRecipeOrm.id);
 
-      // Verify
-      expect(service.listMineSteps).toHaveBeenCalledWith(
+      expect(listMineStepsSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
       );
@@ -284,28 +234,25 @@ describe('RecipeController', () => {
     });
   });
 
-  /**
-   * PATCH /recipes/:id/steps/:order - Update step
-   */
   describe('updateMineStep() - PATCH /recipes/:id/steps/:order', () => {
     it('should update a recipe step', async () => {
-      // Setup
-      const dto = { label: 'Updated Step Label' };
-      const updatedStep = { ...mockRecipeStep, ...dto };
-      jest
+      const dto: UpdateRecipeStepDto = { label: 'Updated Step Label' };
+      const updatedStep: RecipeStepOrmEntity = {
+        ...mockRecipeStep,
+        label: dto.label,
+      };
+      const updateMineStepSpy = jest
         .spyOn(service, 'updateMineStep')
-        .mockResolvedValue(updatedStep as any);
+        .mockResolvedValue(updatedStep);
 
-      // Execute
       const result = await controller.updateMineStep(
-        mockUser as any,
+        mockUser,
         mockRecipeOrm.id,
         1,
-        dto as any,
+        dto,
       );
 
-      // Verify
-      expect(service.updateMineStep).toHaveBeenCalledWith(
+      expect(updateMineStepSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
         1,

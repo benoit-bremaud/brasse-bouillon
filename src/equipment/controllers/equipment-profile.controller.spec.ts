@@ -1,62 +1,52 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CreateEquipmentProfileDto } from '../dtos/create-equipment-profile.dto';
 import { EquipmentProfileController } from './equipment-profile.controller';
+import { EquipmentProfileOrmEntity } from '../entities/equipment-profile.orm.entity';
 import { EquipmentProfileService } from '../services/equipment-profile.service';
 import { EquipmentSystemType } from '../domain/enums/equipment-system-type.enum';
 import { NotFoundException } from '@nestjs/common';
+import { UpdateEquipmentProfileDto } from '../dtos/update-equipment-profile.dto';
+import { User } from '../../user/entities/user.entity';
+import { UserRole } from '../../common/enums/role.enum';
 
-/**
- * EquipmentProfile Controller Test Suite
- *
- * Tests HTTP request/response handling for equipment profile operations.
- *
- * @test EquipmentProfileController
- * @requires EquipmentProfileService
- */
 describe('EquipmentProfileController', () => {
   let controller: EquipmentProfileController;
   let service: EquipmentProfileService;
 
-  /**
-   * Mock equipment profile ORM entity
-   */
-  const mockProfileOrm = {
+  const mockProfileOrm: EquipmentProfileOrmEntity = {
     id: '550e8400-e29b-41d4-a716-446655440001',
     owner_id: '550e8400-e29b-41d4-a716-446655440000',
     name: 'My Brewing Setup',
-
     mash_tun_volume_l: 30,
     boil_kettle_volume_l: 40,
     fermenter_volume_l: 30,
-
     trub_loss_l: 2,
     dead_space_loss_l: 1,
     transfer_loss_l: 1,
-
     evaporation_rate_l_per_hour: 4,
     efficiency_estimated_percent: 75,
     efficiency_measured_percent: null,
-
     cooling_time_minutes: null,
     cooling_flow_rate_l_per_minute: null,
-
     system_type: EquipmentSystemType.ALL_GRAIN,
-
     created_at: new Date(),
     updated_at: new Date(),
   };
 
-  /**
-   * Mock current user
-   */
-  const mockUser = {
+  const mockUser: User = Object.assign(new User(), {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'john@example.com',
-  };
+    username: 'john',
+    password_hash: 'hashed-password',
+    first_name: 'John',
+    last_name: 'Doe',
+    role: UserRole.USER,
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_active: true,
+  });
 
-  /**
-   * Setup: Initialize testing module
-   */
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EquipmentProfileController],
@@ -81,61 +71,41 @@ describe('EquipmentProfileController', () => {
     service = module.get<EquipmentProfileService>(EquipmentProfileService);
   });
 
-  /**
-   * Cleanup
-   */
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  /**
-   * GET /equipment-profiles - List profiles
-   */
   describe('listMine() - GET /equipment-profiles', () => {
     it('should list all equipment profiles for current user', async () => {
-      // Setup
-      jest
+      const listMineSpy = jest
         .spyOn(service, 'listMine')
-        .mockResolvedValue([mockProfileOrm] as any);
+        .mockResolvedValue([mockProfileOrm]);
 
-      // Execute
-      const result = await controller.listMine(mockUser as any);
+      const result = await controller.listMine(mockUser);
 
-      // Verify
-      expect(service.listMine).toHaveBeenCalledWith(mockUser.id);
+      expect(listMineSpy).toHaveBeenCalledWith(mockUser.id);
       expect(result).toHaveLength(1);
     });
 
     it('should return empty array when no profiles', async () => {
-      // Setup
-      jest.spyOn(service, 'listMine').mockResolvedValue([]);
+      const listMineSpy = jest.spyOn(service, 'listMine').mockResolvedValue([]);
 
-      // Execute
-      const result = await controller.listMine(mockUser as any);
+      const result = await controller.listMine(mockUser);
 
-      // Verify
+      expect(listMineSpy).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual([]);
     });
   });
 
-  /**
-   * GET /equipment-profiles/:id - Get profile by ID
-   */
   describe('getMineById() - GET /equipment-profiles/:id', () => {
     it('should return an equipment profile by ID', async () => {
-      // Setup
-      jest
+      const getMineByIdSpy = jest
         .spyOn(service, 'getMineById')
-        .mockResolvedValue(mockProfileOrm as any);
+        .mockResolvedValue(mockProfileOrm);
 
-      // Execute
-      const result = await controller.getMineById(
-        mockUser as any,
-        mockProfileOrm.id,
-      );
+      const result = await controller.getMineById(mockUser, mockProfileOrm.id);
 
-      // Verify
-      expect(service.getMineById).toHaveBeenCalledWith(
+      expect(getMineByIdSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockProfileOrm.id,
       );
@@ -143,27 +113,22 @@ describe('EquipmentProfileController', () => {
     });
 
     it('should throw NotFoundException when profile not found', async () => {
-      // Setup
-      jest
+      const getMineByIdSpy = jest
         .spyOn(service, 'getMineById')
         .mockRejectedValue(
           new NotFoundException('Equipment profile not found'),
         );
 
-      // Execute & Verify
       await expect(
-        controller.getMineById(mockUser as any, 'invalid-id'),
+        controller.getMineById(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
+      expect(getMineByIdSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
     });
   });
 
-  /**
-   * POST /equipment-profiles - Create profile
-   */
   describe('create() - POST /equipment-profiles', () => {
     it('should create a new equipment profile', async () => {
-      // Setup
-      const dto = {
+      const dto: CreateEquipmentProfileDto = {
         name: 'My Brewing Setup',
         mash_tun_volume_l: 30,
         boil_kettle_volume_l: 40,
@@ -172,19 +137,18 @@ describe('EquipmentProfileController', () => {
         efficiency_estimated_percent: 75,
         system_type: EquipmentSystemType.ALL_GRAIN,
       };
-      jest.spyOn(service, 'create').mockResolvedValue(mockProfileOrm as any);
+      const createSpy = jest
+        .spyOn(service, 'create')
+        .mockResolvedValue(mockProfileOrm);
 
-      // Execute
-      const result = await controller.create(mockUser as any, dto as any);
+      const result = await controller.create(mockUser, dto);
 
-      // Verify
-      expect(service.create).toHaveBeenCalledWith(mockUser.id, dto);
+      expect(createSpy).toHaveBeenCalledWith(mockUser.id, dto);
       expect(result).toBeDefined();
     });
 
     it('should propagate errors when creation fails', async () => {
-      // Setup
-      const dto = {
+      const dto: CreateEquipmentProfileDto = {
         name: 'Invalid',
         mash_tun_volume_l: -10,
         boil_kettle_volume_l: 40,
@@ -193,38 +157,35 @@ describe('EquipmentProfileController', () => {
         efficiency_estimated_percent: 75,
         system_type: EquipmentSystemType.ALL_GRAIN,
       };
-      jest
+      const createSpy = jest
         .spyOn(service, 'create')
         .mockRejectedValue(new Error('Invalid profile'));
 
-      // Execute & Verify
-      await expect(
-        controller.create(mockUser as any, dto as any),
-      ).rejects.toThrow('Invalid profile');
+      await expect(controller.create(mockUser, dto)).rejects.toThrow(
+        'Invalid profile',
+      );
+      expect(createSpy).toHaveBeenCalledWith(mockUser.id, dto);
     });
   });
 
-  /**
-   * PATCH /equipment-profiles/:id - Update profile
-   */
   describe('updateMine() - PATCH /equipment-profiles/:id', () => {
     it('should update an equipment profile', async () => {
-      // Setup
-      const dto = { name: 'Updated Name' };
-      const updatedProfile = { ...mockProfileOrm, ...dto };
-      jest
+      const dto: UpdateEquipmentProfileDto = { name: 'Updated Name' };
+      const updatedProfile: EquipmentProfileOrmEntity = {
+        ...mockProfileOrm,
+        name: dto.name,
+      };
+      const updateMineSpy = jest
         .spyOn(service, 'updateMine')
-        .mockResolvedValue(updatedProfile as any);
+        .mockResolvedValue(updatedProfile);
 
-      // Execute
       const result = await controller.updateMine(
-        mockUser as any,
+        mockUser,
         mockProfileOrm.id,
-        dto as any,
+        dto,
       );
 
-      // Verify
-      expect(service.updateMine).toHaveBeenCalledWith(
+      expect(updateMineSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockProfileOrm.id,
         dto,
@@ -233,37 +194,33 @@ describe('EquipmentProfileController', () => {
     });
 
     it('should throw NotFoundException when profile not found', async () => {
-      // Setup
-      const dto = { name: 'Updated Name' };
-      jest
+      const dto: UpdateEquipmentProfileDto = { name: 'Updated Name' };
+      const updateMineSpy = jest
         .spyOn(service, 'updateMine')
         .mockRejectedValue(
           new NotFoundException('Equipment profile not found'),
         );
 
-      // Execute & Verify
       await expect(
-        controller.updateMine(mockUser as any, 'invalid-id', dto as any),
+        controller.updateMine(mockUser, 'invalid-id', dto),
       ).rejects.toThrow(NotFoundException);
+      expect(updateMineSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        'invalid-id',
+        dto,
+      );
     });
   });
 
-  /**
-   * DELETE /equipment-profiles/:id - Delete profile
-   */
   describe('deleteMine() - DELETE /equipment-profiles/:id', () => {
     it('should delete an equipment profile', async () => {
-      // Setup
-      jest.spyOn(service, 'deleteMine').mockResolvedValue({ deleted: true });
+      const deleteMineSpy = jest
+        .spyOn(service, 'deleteMine')
+        .mockResolvedValue({ deleted: true });
 
-      // Execute
-      const result = await controller.deleteMine(
-        mockUser as any,
-        mockProfileOrm.id,
-      );
+      const result = await controller.deleteMine(mockUser, mockProfileOrm.id);
 
-      // Verify
-      expect(service.deleteMine).toHaveBeenCalledWith(
+      expect(deleteMineSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockProfileOrm.id,
       );
@@ -271,17 +228,16 @@ describe('EquipmentProfileController', () => {
     });
 
     it('should throw NotFoundException when profile not found', async () => {
-      // Setup
-      jest
+      const deleteMineSpy = jest
         .spyOn(service, 'deleteMine')
         .mockRejectedValue(
           new NotFoundException('Equipment profile not found'),
         );
 
-      // Execute & Verify
       await expect(
-        controller.deleteMine(mockUser as any, 'invalid-id'),
+        controller.deleteMine(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
+      expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
     });
   });
 });

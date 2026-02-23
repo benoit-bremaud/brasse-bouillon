@@ -54,18 +54,78 @@
       top: 12px;
     }
 
+    /* Header avec gros logo */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 253, 248, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(141, 88, 50, 0.15);
+      padding: 12px 20px;
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .header-logo img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: #fff;
+      border: 2px solid rgba(141, 88, 50, 0.2);
+    }
+
+    .header-logo span {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--color-secondary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-nav a {
+      color: var(--color-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: var(--color-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .language-switch {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 20;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 9999px;
       border: 1px solid rgba(141, 88, 50, 0.32);
       background: rgba(255, 255, 255, 0.84);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(4px);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     .language-switch a {
@@ -162,17 +222,75 @@
       text-align: center;
     }
 
-    .features-grid,
+    /* Features Grid - Redesign moderne */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .feature-card {
+      background: var(--color-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(141, 88, 50, 0.15);
+      padding: 24px;
+      color: #44362c;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(141, 88, 50, 0.2);
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(183, 130, 75, 0.15), rgba(141, 88, 50, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 10px;
+      color: var(--color-secondary);
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Section grid pour les autres sections */
     .section-grid {
       display: grid;
       gap: 12px;
       margin-top: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
 
-    .features-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-    .section-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-
-    .feature,
     .mini-card {
       background: var(--color-card);
       border-radius: var(--radius-md);
@@ -186,6 +304,16 @@
       margin: 0 0 8px;
       color: var(--color-secondary);
       font-size: 1.02rem;
+    }
+
+    /* Feature list (ancien style - kept for compatibility) */
+    .feature {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(141, 88, 50, 0.2);
+      padding: 14px;
+      color: #44362c;
+      box-shadow: var(--shadow-sm);
     }
 
     .roadmap-controls {
@@ -487,6 +615,9 @@
       .actions .btn-secondary {
         width: 100%;
       }
+
+      .header-nav { display: none; }
+      .header-logo span { font-size: 1.1rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {

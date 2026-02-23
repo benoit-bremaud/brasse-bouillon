@@ -22,10 +22,26 @@
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
 
-  <div class="language-switch" role="navigation" aria-label="Choix de langue">
-    <a href="index.html" aria-label="Version française">🇫🇷</a> |
-    <a href="index-en.html" aria-label="Version anglaise">🇬🇧</a>
-  </div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <img src="logo-hero.png" alt="Brasse-Bouillon">
+        <span>Brasse-Bouillon</span>
+      </a>
+      <nav class="header-nav">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#roadmapHeadingFr">Roadmap</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-right">
+        <div class="language-switch" role="navigation" aria-label="Choix de langue">
+          <a href="index.html" aria-label="Version française">🇫🇷 FR</a> ·
+          <a href="index-en.html" aria-label="Version anglaise">🇬🇧 EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
 
   <main class="page" id="mainContentFr">
     <div class="shell">
@@ -41,14 +57,45 @@
         </p>
       </section>
 
-      <section class="section-block">
-        <h2 class="section-title">🍻 Ce que tu pourras faire</h2>
+      <section class="section-block" id="features">
+        <h2 class="section-title">🍻 Toutes les fonctionnalités pour brasser comme un pro</h2>
+        <p class="section-intro">De la recette à la bière en verre, Brasse-Bouillon t'accompagne à chaque étape.</p>
         <div class="features-grid">
-          <div class="feature">✅ Créer et gérer facilement tes recettes</div>
-          <div class="feature">✅ Calculer IBU, ABV et rendement</div>
-          <div class="feature">✅ Planifier et suivre tes brassins</div>
-          <div class="feature">✅ Garder un historique clair de tes sessions</div>
-          <div class="feature">✅ Partager tes créations avec la communauté</div>
+          <article class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Gestion de Recettes</h3>
+            <p>Crée, modifie et organise toutes tes recettes. Ajoute tes ingrédients, tes étapes de brassage et tes notes personnelles. Tout est sauvegardé et accessible partout.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">🧮</div>
+            <h3>Calculateur IBU/ABV</h3>
+            <p>Calcule instantanément l'amertume (IBU) et le taux d'alcool (ABV) de tes bières. Des formules éprouvées pour des résultats précis à chaque brassin.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Suivi de Brassins</h3>
+            <p>Enregistre chaque étape de tes sessions de brassage. Température, densité, temps de fermentation : ton historique complet en un clin d'œil.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">🛒</div>
+            <h3>Gestion des Stocks</h3>
+            <p>Suis ton stock de malts, houblons et levures. Ne plus jamais manquer d'un ingrédient clé pour ton prochain brassin.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>Assistance au Brassage</h3>
+            <p>Des rappels intelligents pour chaque étape : empâtage, ébullition, fermentation. L'app te guide quand tu en as besoin.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>Partage Communautaire</h3>
+            <p>Partage tes recettes avec la communauté. Découvre les créations des autres brasseurs et inspire-toi pour de nouvelles bières.</p>
+          </article>
         </div>
       </section>
 
@@ -81,7 +128,7 @@
         </div>
       </section>
 
-      <section class="section-block">
+      <section class="section-block" id="faq">
         <h2 class="section-title">❓ FAQ rapide</h2>
         <div class="section-grid">
           <div class="mini-card">
@@ -250,7 +297,7 @@
         <p id="questionnaireStatusFr" class="form-status" role="status" aria-live="polite"></p>
       </section>
 
-      <section class="section-block">
+      <section class="section-block" id="contact">
         <h2 class="section-title">📬 Contact direct</h2>
         <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
           <label class="sr-only" for="emailFr">Adresse email</label>

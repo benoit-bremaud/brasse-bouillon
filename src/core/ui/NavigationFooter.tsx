@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Recettes", icon: "book", href: "/(app)/recipes" },
   { label: "Boutique", icon: "cart", href: "/(app)/shop" },
   { label: "Outils", icon: "calculator", href: "/(app)/tools" },
+  { label: "Académie", icon: "school", href: "/(app)/tools" },
 ];
 
 export function NavigationFooter() {

@@ -11,7 +11,7 @@ describe("BatchesScreen", () => {
   it("renders header and empty state", async () => {
     render(<BatchesScreen />);
 
-    expect(await screen.findByText("My Batches")).toBeTruthy();
-    expect(await screen.findByText("Aucun batch démarré")).toBeTruthy();
+    expect(await screen.findByText("Mes Brassins")).toBeTruthy();
+    expect(await screen.findByText("Aucun batch")).toBeTruthy();
   });
 });

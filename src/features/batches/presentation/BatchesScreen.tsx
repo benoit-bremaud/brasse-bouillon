@@ -1,4 +1,8 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  BatchStatus,
+  BatchSummary,
+} from "@/features/batches/domain/batch.types";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -17,8 +21,28 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
-import { BatchSummary } from "@/features/batches/domain/batch.types";
+import { getSrmColor } from "@/features/tools/data/catalogs/srm";
+import { demoRecipes } from "@/mocks/demo-data";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+
+const getRecipeColorEbc = (recipeId: string): number => {
+  const recipe = demoRecipes.find((r) => r.id === recipeId);
+  return recipe?.stats?.colorEbc ?? 10;
+};
+
+const getStatusLabel = (status: BatchStatus): string => {
+  const labels: Record<BatchStatus, string> = {
+    in_progress: "In Progress",
+    completed: "Done",
+  };
+  return labels[status] ?? status;
+};
+
+const getStatusVariant = (status: BatchStatus): "success" | "info" => {
+  if (status === "completed") return "success";
+  return "info";
+};
 
 export function BatchesScreen() {
   const router = useRouter();
@@ -51,31 +75,26 @@ export function BatchesScreen() {
       error={error}
       onRetry={fetchBatches}
     >
-      <ListHeader
-        title="My Batches"
-        subtitle="Suivi de tes brassins en cours"
-        action={
-          <View style={styles.headerActions}>
-            <Pressable
-              onPress={() => router.push("/tools")}
-              style={styles.toolsButton}
-            >
-              <Text style={styles.toolsText}>Académie</Text>
-            </Pressable>
-            <Pressable onPress={fetchBatches} style={styles.refreshButton}>
-              <Text style={styles.refreshText}>Refresh</Text>
-            </Pressable>
-          </View>
-        }
-      />
+      <View style={styles.header}>
+        <ListHeader title="Mes Brassins" subtitle="Suivi de tes brassins" />
+        <Pressable
+          onPress={() => router.push("/(app)/tools")}
+          style={styles.academyButton}
+        >
+          <Ionicons
+            name="school-outline"
+            size={18}
+            color={colors.brand.secondary}
+          />
+          <Text style={styles.academyText}>Academy</Text>
+        </Pressable>
+      </View>
 
       {showEmptyState ? (
         <EmptyStateCard
-          title="Aucun batch démarré"
+          title="Aucun batch"
           description="Lance un batch depuis une recette."
-          action={
-            <PrimaryButton label="Recharger la liste" onPress={fetchBatches} />
-          }
+          action={<PrimaryButton label="Recharger" onPress={fetchBatches} />}
         />
       ) : null}
 
@@ -86,64 +105,95 @@ export function BatchesScreen() {
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={fetchBatches} />
         }
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/(app)/batches/${item.id}`)}>
-            <Card style={styles.card}>
-              <View style={styles.cardTopRow}>
-                <Text style={styles.cardTitle}>
-                  Batch {item.id.slice(0, 8)}
-                </Text>
-                <Badge
-                  label={item.status}
-                  variant={item.status === "completed" ? "success" : "info"}
-                />
-              </View>
-              <Text style={styles.cardMeta}>
-                Étape courante: {item.currentStepOrder ?? "-"}
-              </Text>
-              <Text style={styles.cardMetaSecondary}>Ouvrir le détail →</Text>
-            </Card>
-          </Pressable>
-        )}
+        renderItem={({ item }) => {
+          const ebc = getRecipeColorEbc(item.recipeId);
+          const srm = ebc * 0.508;
+          const beerColor = getSrmColor(srm);
+
+          return (
+            <Pressable onPress={() => router.push(`/(app)/batches/${item.id}`)}>
+              <Card style={styles.card}>
+                <View style={styles.cardContent}>
+                  <View
+                    style={[styles.beerIcon, { backgroundColor: beerColor }]}
+                  >
+                    <Ionicons
+                      name="beer"
+                      size={24}
+                      color={colors.neutral.white}
+                    />
+                  </View>
+                  <View style={styles.cardInfo}>
+                    <View style={styles.cardTopRow}>
+                      <Text style={styles.cardTitle}>
+                        Batch {item.id.slice(0, 8)}
+                      </Text>
+                      <Badge
+                        label={getStatusLabel(item.status)}
+                        variant={getStatusVariant(item.status)}
+                      />
+                    </View>
+                  </View>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.neutral.muted}
+                  />
+                </View>
+              </Card>
+            </Pressable>
+          );
+        }}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  headerActions: {
-    alignItems: "flex-end",
-    gap: spacing.xs,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.sm,
+    paddingBottom: spacing.sm,
   },
-  toolsButton: {
+  academyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    backgroundColor: colors.brand.primary,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
   },
-  toolsText: {
-    color: colors.neutral.white,
+  academyText: {
+    color: colors.brand.secondary,
     fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
-  },
-  refreshButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    backgroundColor: colors.neutral.textPrimary,
-  },
-  refreshText: {
-    color: colors.neutral.white,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.medium,
   },
   list: {
     paddingBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,
+  },
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  beerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardInfo: {
+    flex: 1,
   },
   cardTopRow: {
     flexDirection: "row",
@@ -153,19 +203,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
-  },
-  cardMeta: {
-    marginTop: spacing.sm,
-    color: colors.neutral.textSecondary,
-    fontSize: typography.size.label,
-    lineHeight: typography.lineHeight.label,
-  },
-  cardMetaSecondary: {
-    marginTop: spacing.xs,
-    color: colors.neutral.muted,
-    fontSize: typography.size.label,
-    lineHeight: typography.lineHeight.label,
   },
 });

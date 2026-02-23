@@ -67,12 +67,44 @@ DISALLOWED_HTML_PATTERNS = {
             "schema SoftwareApplication non autorisé dans index.html "
             "(à déplacer vers app.html)",
         ),
+        (
+            r'"@type"\s*:\s*"Review"',
+            "schema Review non autorisé dans index.html",
+        ),
+        (
+            r'"aggregateRating"\s*:',
+            "champ aggregateRating non autorisé dans index.html",
+        ),
+        (
+            r'"ratingValue"\s*:',
+            "champ ratingValue non autorisé dans index.html",
+        ),
+        (
+            r'"ratingCount"\s*:',
+            "champ ratingCount non autorisé dans index.html",
+        ),
     ],
     "index-en.html": [
         (
             r'"@type"\s*:\s*"SoftwareApplication"',
             "schema SoftwareApplication non autorisé dans index-en.html "
             "(à déplacer vers app.html)",
+        ),
+        (
+            r'"@type"\s*:\s*"Review"',
+            "schema Review non autorisé dans index-en.html",
+        ),
+        (
+            r'"aggregateRating"\s*:',
+            "champ aggregateRating non autorisé dans index-en.html",
+        ),
+        (
+            r'"ratingValue"\s*:',
+            "champ ratingValue non autorisé dans index-en.html",
+        ),
+        (
+            r'"ratingCount"\s*:',
+            "champ ratingCount non autorisé dans index-en.html",
         ),
     ],
 }

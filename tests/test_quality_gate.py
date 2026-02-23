@@ -171,6 +171,32 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
                 )
             )
 
+    def test_detects_disallowed_aggregate_rating_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            fr_path = root / "index.html"
+            fr_content = fr_path.read_text(encoding="utf-8")
+            fr_path.write_text(
+                fr_content.replace(
+                    '{"@type":"Organization"}',
+                    '{"@type":"Organization","aggregateRating":'
+                    '{"ratingValue":"5","ratingCount":"12"}}',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("aggregateRating non autorisé" in err for err in errors)
+            )
+            self.assertTrue(
+                any("ratingValue non autorisé" in err for err in errors)
+            )
+            self.assertTrue(
+                any("ratingCount non autorisé" in err for err in errors)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

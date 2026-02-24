@@ -4,7 +4,7 @@ import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScr
 import React from "react";
 
 const mockPush = jest.fn();
-const mockReplace = jest.fn();
+const mockBack = jest.fn();
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
@@ -12,8 +12,8 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: mockReplace,
-      back: jest.fn(),
+      replace: jest.fn(),
+      back: mockBack,
     }),
   };
 });
@@ -21,7 +21,7 @@ jest.mock("expo-router", () => {
 describe("ShopCategoryScreen", () => {
   beforeEach(() => {
     mockPush.mockClear();
-    mockReplace.mockClear();
+    mockBack.mockClear();
   });
 
   it("renders empty state for invalid category", () => {
@@ -56,8 +56,8 @@ describe("ShopCategoryScreen", () => {
   it("renders 'À venir' badge on mock products", () => {
     render(<ShopCategoryScreen categoryParam="kits" />);
 
-    // Badge is rendered within the product card
     expect(screen.getByText("Kit Beginner IPA")).toBeTruthy();
+    expect(screen.getAllByText("À VENIR").length).toBeGreaterThan(0);
   });
 
   it("has back button to shop", () => {
@@ -66,6 +66,6 @@ describe("ShopCategoryScreen", () => {
     const backButton = screen.getByText("← Boutique");
     fireEvent.press(backButton);
 
-    expect(mockReplace).toHaveBeenCalledWith("/(app)/shop");
+    expect(mockBack).toHaveBeenCalledTimes(1);
   });
 });

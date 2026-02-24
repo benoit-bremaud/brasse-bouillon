@@ -33,7 +33,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           title="Catégorie inconnue"
           subtitle="Cette catégorie n'existe pas"
           action={
-            <Pressable onPress={() => router.replace("/(app)/shop")}>
+            <Pressable onPress={() => router.back()}>
               <Text style={styles.backLink}>← Retour</Text>
             </Pressable>
           }
@@ -44,7 +44,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           action={
             <PrimaryButton
               label="Retour à la boutique"
-              onPress={() => router.replace("/(app)/shop")}
+              onPress={() => router.back()}
             />
           }
         />
@@ -62,7 +62,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         title={label}
         subtitle={description}
         action={
-          <Pressable onPress={() => router.replace("/(app)/shop")}>
+          <Pressable onPress={() => router.back()}>
             <Text style={styles.backLink}>← Boutique</Text>
           </Pressable>
         }
@@ -111,13 +111,6 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
             </View>
           </Card>
         )}
-        ListEmptyComponent={
-          <Card>
-            <Text style={styles.emptyText}>
-              Aucun produit à afficher pour le moment.
-            </Text>
-          </Card>
-        }
       />
     </Screen>
   );
@@ -190,11 +183,5 @@ const styles = StyleSheet.create({
     fontSize: typography.size.label,
     fontWeight: typography.weight.medium,
     color: colors.brand.secondary,
-  },
-  emptyText: {
-    fontSize: typography.size.label,
-    color: colors.neutral.textSecondary,
-    textAlign: "center",
-    paddingVertical: spacing.md,
   },
 });

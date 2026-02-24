@@ -31,26 +31,18 @@ export const shopCategories: {
 
 // Type guard for validating shop category strings
 export function isShopCategory(value: string): value is ShopCategory {
-  const validCategories: ShopCategory[] = [
-    "malts",
-    "houblons",
-    "levures",
-    "materiel",
-    "accessoires",
-    "kits",
-  ];
-  return validCategories.includes(value as ShopCategory);
+  return shopCategories.some((category) => category.id === value);
 }
 
-// Human-readable labels for each category
-export const shopCategoryLabels: Record<ShopCategory, string> = {
-  malts: "Malts",
-  houblons: "Houblons",
-  levures: "Levures",
-  materiel: "Matériel",
-  accessoires: "Accessoires",
-  kits: "Kits",
-};
+// Human-readable labels for each category, derived from shopCategories
+export const shopCategoryLabels: Record<ShopCategory, string> =
+  shopCategories.reduce(
+    (accumulator, category) => {
+      accumulator[category.id] = category.name;
+      return accumulator;
+    },
+    {} as Record<ShopCategory, string>,
+  );
 
 // Short descriptions for each category (used in category screen header)
 export const shopCategoryDescriptions: Record<ShopCategory, string> = {

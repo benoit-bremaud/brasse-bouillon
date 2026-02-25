@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: spacing.md,
+    padding: spacing.lg,
   },
   title: {
     fontSize: typography.size.h2,

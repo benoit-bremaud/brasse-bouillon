@@ -11,6 +11,8 @@ export type AcademyTopic = {
   slug: string;
   title: string;
   shortDescription: string;
+  calculatorDescription?: string;
+  calculatorOrder?: number;
   focus: string;
   order: number;
   estimatedReadTime: string;

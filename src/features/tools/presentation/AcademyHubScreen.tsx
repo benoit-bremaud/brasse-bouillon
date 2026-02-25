@@ -39,7 +39,7 @@ export function AcademyHubScreen() {
               accessibilityLabel={`Ouvrir le thème ${topic.title}`}
               onPress={() =>
                 router.push({
-                  pathname: "/academy/[slug]",
+                  pathname: "/(app)/academy/[slug]",
                   params: { slug: topic.slug },
                 })
               }

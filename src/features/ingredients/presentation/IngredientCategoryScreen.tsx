@@ -22,6 +22,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 type Props = {
@@ -43,7 +44,21 @@ function getIngredientMeta(item: Ingredient): string {
   if (item.category === "hop") {
     return `Usage: ${item.hopUse} • Alpha: ${item.alphaAcid}%`;
   }
-  return `Type: ${item.yeastType} • Attenuation: ${item.attenuationMin}-${item.attenuationMax}%`;
+  return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
+}
+
+function getIngredientIconColor(category: IngredientCategory): string {
+  if (category === "malt") return colors.brand.primary;
+  if (category === "hop") return colors.semantic.success;
+  return colors.brand.secondary;
+}
+
+function getIngredientIconName(
+  category: IngredientCategory,
+): keyof typeof Ionicons.glyphMap {
+  if (category === "malt") return "nutrition-outline";
+  if (category === "hop") return "leaf-outline";
+  return "flask-outline";
 }
 
 export function IngredientCategoryScreen({ categoryParam }: Props) {
@@ -121,8 +136,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     return (
       <Screen>
         <EmptyStateCard
-          title="Unknown category"
-          description="This ingredient category does not exist."
+          title="Catégorie inconnue"
+          description="Cette catégorie d'ingrédients n'existe pas."
         />
       </Screen>
     );
@@ -135,6 +150,9 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     autoCapitalize: "none" as const,
   };
 
+  const iconColor = getIngredientIconColor(category);
+  const iconName = getIngredientIconName(category);
+
   return (
     <Screen
       isLoading={isLoading && ingredients.length === 0}
@@ -143,15 +161,15 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     >
       <ListHeader
         title={ingredientCategoryLabels[category]}
-        subtitle="Search and quick filters"
+        subtitle="Recherche et filtres rapides"
       />
 
       <Card style={styles.filtersCard}>
-        <Text style={styles.filterLabel}>Search</Text>
+        <Text style={styles.filterLabel}>Recherche</Text>
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Ingredient name"
+          placeholder="Nom de l'ingrédient"
           placeholderTextColor={colors.neutral.muted}
           style={styles.input}
           autoCorrect={false}
@@ -183,7 +201,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
         {category === "hop" ? (
           <View style={styles.field}>
-            <Text style={styles.filterLabel}>Min alpha acid (%)</Text>
+            <Text style={styles.filterLabel}>Acides alpha min (%)</Text>
             <TextInput
               value={alphaMin}
               onChangeText={setAlphaMin}
@@ -195,7 +213,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
         {category === "yeast" ? (
           <View style={styles.field}>
-            <Text style={styles.filterLabel}>Min attenuation (%)</Text>
+            <Text style={styles.filterLabel}>Atténuation min (%)</Text>
             <TextInput
               value={attenuationMin}
               onChangeText={setAttenuationMin}
@@ -208,8 +226,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
       {showEmptyState ? (
         <EmptyStateCard
-          title="No ingredients found"
-          description="Adjust search or filters to broaden results."
+          title="Aucun ingrédient trouvé"
+          description="Élargissez la recherche ou les filtres."
         />
       ) : null}
 
@@ -219,6 +237,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Voir la fiche ${item.name}`}
             onPress={() =>
               router.push({
                 pathname: "/(app)/ingredients/[category]/[id]",
@@ -227,11 +247,30 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
             }
           >
             <Card style={styles.itemCard}>
-              <Text style={styles.itemTitle}>{item.name}</Text>
-              <Text style={styles.itemMeta}>{getIngredientMeta(item)}</Text>
-              {item.origin ? (
-                <Text style={styles.itemSecondary}>Origin: {item.origin}</Text>
-              ) : null}
+              <View style={styles.cardContent}>
+                <View
+                  style={[
+                    styles.itemIcon,
+                    { backgroundColor: iconColor + "25" },
+                  ]}
+                >
+                  <Ionicons name={iconName} size={20} color={iconColor} />
+                </View>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.itemTitle}>{item.name}</Text>
+                  <Text style={styles.itemMeta}>{getIngredientMeta(item)}</Text>
+                  {item.origin ? (
+                    <Text style={styles.itemSecondary}>
+                      Origine : {item.origin}
+                    </Text>
+                  ) : null}
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.neutral.muted}
+                />
+              </View>
             </Card>
           </Pressable>
         )}
@@ -273,6 +312,21 @@ const styles = StyleSheet.create({
   itemCard: {
     marginBottom: spacing.sm,
   },
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  itemIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardInfo: {
+    flex: 1,
+  },
   itemTitle: {
     color: colors.neutral.textPrimary,
     fontSize: typography.size.body,
@@ -280,7 +334,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   itemMeta: {
-    marginTop: spacing.xs,
+    marginTop: spacing.xxs,
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,

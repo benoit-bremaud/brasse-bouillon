@@ -1,14 +1,13 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
-import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
-import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { academyTopics } from "@/features/tools/data";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import React from "react";
 
 const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   histoire: "time-outline",
@@ -36,7 +35,6 @@ export function AcademyHubScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {academyTopics.map((topic) => {
-          const isReady = topic.status === "ready";
           const iconColor =
             topic.slug === "glossaire"
               ? colors.semantic.warning
@@ -47,18 +45,15 @@ export function AcademyHubScreen() {
               key={topic.slug}
               accessibilityRole="button"
               accessibilityLabel={`Ouvrir le thème ${topic.title}`}
-              onPress={() => {
-                if (isReady) {
-                  router.push({
-                    pathname: "/(app)/academy/[slug]",
-                    params: { slug: topic.slug },
-                  });
-                }
-              }}
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/academy/[slug]",
+                  params: { slug: topic.slug },
+                })
+              }
               style={({ pressed }) => [
                 styles.cardPressable,
-                !isReady && styles.cardPressableDisabled,
-                pressed && isReady && styles.cardPressablePressed,
+                pressed && styles.cardPressablePressed,
               ]}
             >
               <Card style={styles.card}>
@@ -76,24 +71,16 @@ export function AcademyHubScreen() {
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <View style={styles.cardTopRow}>
-                      <Text style={styles.cardTitle}>{topic.title}</Text>
-                      <Badge
-                        label={isReady ? "Prêt" : "Bientôt"}
-                        variant={isReady ? "success" : "neutral"}
-                      />
-                    </View>
+                    <Text style={styles.cardTitle}>{topic.title}</Text>
                     <Text style={styles.cardMeta}>
                       {topic.shortDescription}
                     </Text>
                   </View>
-                  {isReady && (
-                    <Ionicons
-                      name="chevron-forward"
-                      size={20}
-                      color={colors.neutral.muted}
-                    />
-                  )}
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.neutral.muted}
+                  />
                 </View>
               </Card>
             </Pressable>
@@ -111,9 +98,6 @@ const styles = StyleSheet.create({
   cardPressable: {
     borderRadius: radius.lg,
     marginBottom: spacing.sm,
-  },
-  cardPressableDisabled: {
-    opacity: 0.6,
   },
   cardPressablePressed: {
     opacity: 0.92,
@@ -136,11 +120,6 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   cardTitle: {
     color: colors.neutral.textPrimary,

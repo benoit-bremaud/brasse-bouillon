@@ -2,17 +2,30 @@ import { AcademyTopic } from "../domain/academy.types";
 
 export const academyHighlights = [
   "14 200 mots structurés",
-  "8 chapitres thématiques",
+  "9 chapitres thématiques",
   "50+ formules expliquées",
   "30+ tableaux de référence",
 ] as const;
 
 const academyTopicsData: AcademyTopic[] = [
   {
+    slug: "histoire",
+    title: "Histoire de la bière",
+    shortDescription:
+      "Des premières bières sumériennes aux brasseries artisanales — 10 000 ans de fermentation, de culture et d'innovation.",
+    focus: "Histoire et culture",
+    order: 0,
+    estimatedReadTime: "10 min",
+    hasCalculator: false,
+    status: "coming-soon",
+    mascotVariant: "historian",
+    mascotAlt: "Mascotte Brasse-Bouillon en historien de la bière",
+  },
+  {
     slug: "introduction",
     title: "Introduction au brassage",
     shortDescription:
-      "Les fondamentaux du brassage, les 4 ingrédients et la logique scientifique des calculs.",
+      "Comprends comment fonctionne le brassage — les 4 ingrédients, le processus et la logique des recettes.",
     focus: "Contexte historique et pédagogique",
     order: 1,
     estimatedReadTime: "8 min",
@@ -23,9 +36,9 @@ const academyTopicsData: AcademyTopic[] = [
   },
   {
     slug: "fermentescibles",
-    title: "Fermentescibles",
+    title: "Alcool & Densité",
     shortDescription:
-      "OG, FG, ABV, atténuation et calcul des points de densité pour structurer la base alcoolique.",
+      "Comment le sucre devient alcool — densité, fermentation et calcul du degré de ta bière.",
     calculatorDescription:
       "Calcule le degré d'alcool et l'atténuation de ta bière",
     calculatorOrder: 1,
@@ -41,7 +54,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "couleur",
     title: "Couleur",
     shortDescription:
-      "MCU, SRM, EBC et formule de Morey pour piloter précisément le profil visuel de la bière.",
+      "De la Pilsner pâle à la Stout noire — comprendre et maîtriser la couleur de ta bière.",
     calculatorDescription: "Prédit la couleur finale de ta bière (SRM / EBC)",
     calculatorOrder: 3,
     focus: "Colorimétrie bière",
@@ -56,7 +69,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "houblons",
     title: "Houblons",
     shortDescription:
-      "IBU Tinseth, BU:GU et stratégie d'ajouts pour équilibrer amertume, saveur et arômes.",
+      "Amertume, arômes, équilibre — le rôle du houblon et comment l'utiliser dans ta recette.",
     calculatorDescription:
       "Calcule l'amertume (IBU) et équilibre tes ajouts de houblon",
     calculatorOrder: 2,
@@ -72,7 +85,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "eau",
     title: "Eau",
     shortDescription:
-      "Profils minéraux, pH, ratio sulfates/chlorures et ajustements pour chaque style brassicole.",
+      "Comment l'eau façonne le goût — profils minéraux, pH et ajustements par style brassicole.",
     calculatorDescription: "Ajuste le profil minéral de ton eau de brassage",
     calculatorOrder: 6,
     focus: "Chimie de l'eau",
@@ -87,7 +100,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "rendement",
     title: "Rendement",
     shortDescription:
-      "Efficacité d'extraction, pertes process et planification des volumes empâtage/rinçage.",
+      "Volumes, pertes et efficacité — comment optimiser ton processus de brassage.",
     calculatorDescription:
       "Estime les pertes et optimise tes volumes d'empâtage et de rinçage",
     calculatorOrder: 7,
@@ -103,7 +116,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "levures",
     title: "Levures",
     shortDescription:
-      "Pitching rate, starters et atténuation pour sécuriser des fermentations propres et prévisibles.",
+      "La levure : actrice principale de la fermentation et des arômes de ta bière.",
     calculatorDescription:
       "Calcule la quantité de levures et prépare un starter",
     calculatorOrder: 4,
@@ -119,7 +132,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "carbonatation",
     title: "Carbonatation",
     shortDescription:
-      "Volumes de CO₂, priming et sécurité bouteille/fût pour une pétillance maîtrisée.",
+      "Comment carbonater ta bière — refermentation, volumes de CO₂ et dosage.",
     calculatorDescription:
       "Dose le sucre de refermentation pour maîtriser ta pétillance",
     calculatorOrder: 5,
@@ -135,7 +148,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "avances",
     title: "Calculs avancés",
     shortDescription:
-      "Pouvoir diastasique, indice de Kolbach, β-glucanes et autres indicateurs de stabilité.",
+      "Pour aller plus loin — indicateurs techniques avancés pour brasseurs expérimentés.",
     calculatorDescription: "Indicateurs techniques pour brasseurs expérimentés",
     calculatorOrder: 8,
     focus: "Analyse avancée",
@@ -150,7 +163,7 @@ const academyTopicsData: AcademyTopic[] = [
     slug: "glossaire",
     title: "Glossaire brassicole",
     shortDescription:
-      "120+ termes clés d'ABV à °Z pour consolider le vocabulaire technique.",
+      "120+ termes brassicoles expliqués — du vocabulaire de base aux termes techniques experts.",
     focus: "Référence A-Z",
     order: 10,
     estimatedReadTime: "15 min",

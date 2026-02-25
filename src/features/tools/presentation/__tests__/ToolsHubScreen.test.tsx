@@ -26,7 +26,7 @@ describe("ToolsHubScreen", () => {
     render(<ToolsHubScreen />);
 
     expect(screen.getByText("Calculateurs")).toBeTruthy();
-    expect(screen.getByText("Fermentescibles")).toBeTruthy();
+    expect(screen.getByText("Alcool & Densité")).toBeTruthy();
     expect(screen.getByText("Couleur")).toBeTruthy();
     expect(screen.getByText("Eau")).toBeTruthy();
   });
@@ -35,7 +35,7 @@ describe("ToolsHubScreen", () => {
     render(<ToolsHubScreen />);
 
     const cardAction = screen.getByLabelText(
-      "Ouvrir le calculateur Fermentescibles",
+      "Ouvrir le calculateur Alcool & Densité",
     );
 
     fireEvent.press(cardAction);

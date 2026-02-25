@@ -25,7 +25,7 @@ describe("ToolsHubScreen", () => {
   it("renders calculator hub title and known calculator topics", () => {
     render(<ToolsHubScreen />);
 
-    expect(screen.getByText("Outils de calcul")).toBeTruthy();
+    expect(screen.getByText("Calculateurs")).toBeTruthy();
     expect(screen.getByText("Fermentescibles")).toBeTruthy();
     expect(screen.getByText("Couleur")).toBeTruthy();
     expect(screen.getByText("Eau")).toBeTruthy();
@@ -41,7 +41,7 @@ describe("ToolsHubScreen", () => {
     fireEvent.press(cardAction);
 
     expect(mockPush).toHaveBeenCalledWith({
-      pathname: "/tools/[slug]/calculator",
+      pathname: "/(app)/tools/[slug]/calculator",
       params: { slug: "fermentescibles" },
     });
   });

@@ -67,6 +67,19 @@ type Props = {
   recipeId: string;
 };
 
+const FALLBACK_LOCAL_WATER_PROFILE = {
+  name: "Balanced default",
+  region: "Default",
+  description: "Fallback profile when water locations are unavailable.",
+  ...DEFAULT_BALANCED_WATER_PROFILE,
+};
+
+const DEFAULT_LOCAL_WATER_PROFILE_NAME =
+  WATER_LOCATION_PROFILES[0]?.name ?? FALLBACK_LOCAL_WATER_PROFILE.name;
+
+const DEFAULT_WATER_STYLE_PRESET_ID: WaterStylePresetId =
+  WATER_STYLE_PRESETS[0]?.id ?? "pale-ale";
+
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
   const [viewModel, setViewModel] = useState<RecipeDetailsViewModel | null>(
@@ -89,11 +102,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   const [localCartItems, setLocalCartItems] = useState<LocalCartItem[]>([]);
 
   const [selectedLocalWaterProfileName, setSelectedLocalWaterProfileName] =
-    useState(WATER_LOCATION_PROFILES[0]?.name ?? "Paris");
+    useState(DEFAULT_LOCAL_WATER_PROFILE_NAME);
   const [nonPublicWaterPreference, setNonPublicWaterPreference] =
     useState<NonPublicWaterPreference>("style");
   const [selectedWaterStylePresetId, setSelectedWaterStylePresetId] =
-    useState<WaterStylePresetId>("pale-ale");
+    useState<WaterStylePresetId>(DEFAULT_WATER_STYLE_PRESET_ID);
   const [initializedRecipeId, setInitializedRecipeId] = useState<string | null>(
     null,
   );
@@ -140,18 +153,28 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   const ingredients = viewModel?.ingredients ?? [];
   const equipment = viewModel?.equipment ?? [];
   const steps = viewModel?.steps ?? [];
+  const recipeIdForInitialization = recipe?.id ?? null;
+  const recipeBaseVolumeForInitialization = recipe?.stats?.volumeLiters ?? 20;
+  const firstEquipmentId = equipment[0]?.equipmentId ?? null;
 
   useEffect(() => {
-    if (!recipe || recipe.id === initializedRecipeId) {
+    if (
+      !recipeIdForInitialization ||
+      recipeIdForInitialization === initializedRecipeId
+    ) {
       return;
     }
 
-    const recipeBaseVolume = recipe.stats?.volumeLiters ?? 20;
-    setTargetVolumeInput(String(recipeBaseVolume));
-    setSelectedEquipmentId(equipment[0]?.equipmentId ?? null);
-    setInitializedRecipeId(recipe.id);
+    setTargetVolumeInput(String(recipeBaseVolumeForInitialization));
+    setSelectedEquipmentId(firstEquipmentId);
+    setInitializedRecipeId(recipeIdForInitialization);
     setLocalCartItems([]);
-  }, [equipment, initializedRecipeId, recipe]);
+  }, [
+    firstEquipmentId,
+    initializedRecipeId,
+    recipeBaseVolumeForInitialization,
+    recipeIdForInitialization,
+  ]);
 
   if (hasFetched && !isLoading && !viewModel && !error) {
     return (
@@ -196,7 +219,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
   const localWaterProfile =
     getWaterLocationProfileByName(selectedLocalWaterProfileName) ??
-    WATER_LOCATION_PROFILES[0];
+    WATER_LOCATION_PROFILES[0] ??
+    FALLBACK_LOCAL_WATER_PROFILE;
 
   const publicRecipeStylePresetId = recipe
     ? PUBLIC_RECIPE_WATER_PRESET_BY_ID[recipe.id]
@@ -207,7 +231,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
   const selectedWaterStylePreset =
     getWaterStylePresetById(selectedWaterStylePresetId) ??
-    WATER_STYLE_PRESETS[0];
+    WATER_STYLE_PRESETS[0] ??
+    null;
 
   const recommendedWaterProfile = (() => {
     if (recipe?.visibility === "public") {
@@ -223,14 +248,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     }
 
     if (nonPublicWaterPreference === "location") {
-      return {
-        ca: localWaterProfile.ca,
-        mg: localWaterProfile.mg,
-        na: localWaterProfile.na,
-        so4: localWaterProfile.so4,
-        cl: localWaterProfile.cl,
-        hco3: localWaterProfile.hco3,
-      };
+      return localWaterProfile;
+    }
+
+    if (!selectedWaterStylePreset) {
+      return DEFAULT_BALANCED_WATER_PROFILE;
     }
 
     return buildWaterProfileFromStylePreset(selectedWaterStylePreset);
@@ -251,6 +273,10 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
     if (nonPublicWaterPreference === "location") {
       return "Recommended profile: your selected location";
+    }
+
+    if (!selectedWaterStylePreset) {
+      return "Recommended profile: balanced default";
     }
 
     return `Recommended profile: ${selectedWaterStylePreset.name}`;
@@ -323,9 +349,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     });
   };
 
-  const formatLocalCartQuantity = Number.isInteger(localCartTotalQuantity)
-    ? String(localCartTotalQuantity)
-    : localCartTotalQuantity.toFixed(2);
+  const formatLocalCartQuantity = Number.isFinite(localCartTotalQuantity)
+    ? Number.isInteger(localCartTotalQuantity)
+      ? String(localCartTotalQuantity)
+      : localCartTotalQuantity.toFixed(2)
+    : "0";
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchRecipe}>
@@ -381,6 +409,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
               <Pressable
                 key={mode.id}
                 testID={`recipe-volume-mode-${mode.id}`}
+                accessibilityRole="button"
+                accessibilityLabel={`Use ${mode.label.toLowerCase()} mode`}
                 style={[
                   styles.toggleChip,
                   volumeInputMode === mode.id && styles.toggleChipActive,
@@ -435,6 +465,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     return (
                       <Pressable
                         key={item.equipmentId}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Select equipment ${item.equipment?.name ?? "unknown"}`}
                         style={[
                           styles.choiceChip,
                           isSelected && styles.choiceChipActive,
@@ -471,7 +503,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Ingredients by type</Text>
-          <Pressable style={styles.inlineAction} onPress={openShop}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open shop from ingredients section"
+            style={styles.inlineAction}
+            onPress={openShop}
+          >
             <Ionicons
               name="cart-outline"
               size={16}
@@ -511,6 +548,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     >
                       <Pressable
                         style={styles.listItemMainPressable}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ingredient details for ${item.ingredient?.name ?? "unknown ingredient"}`}
                         disabled={!item.ingredient}
                         onPress={() => {
                           if (!item.ingredient) {
@@ -537,6 +576,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
                       <Pressable
                         testID={`recipe-add-ingredient-${item.ingredientId}-${index}`}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Add ${item.ingredient?.name ?? "ingredient"} to local cart`}
                         style={styles.addActionButton}
                         onPress={() => handleAddIngredientToCart(item)}
                       >
@@ -556,7 +597,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Equipment</Text>
-          <Pressable style={styles.inlineAction} onPress={openShop}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open shop from equipment section"
+            style={styles.inlineAction}
+            onPress={openShop}
+          >
             <Ionicons
               name="cart-outline"
               size={16}
@@ -588,6 +634,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
                 <Pressable
                   testID={`recipe-add-equipment-${item.equipmentId}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add ${item.equipment?.name ?? "equipment"} to local cart`}
                   style={styles.addActionButton}
                   onPress={() => handleAddEquipmentToCart(item.equipmentId)}
                 >
@@ -635,6 +683,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
               {NON_PUBLIC_WATER_PREFERENCE_OPTIONS.map((option) => (
                 <Pressable
                   key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Use ${option.label.toLowerCase()} recommendation`}
                   style={[
                     styles.toggleChip,
                     nonPublicWaterPreference === option.id &&
@@ -664,6 +714,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                 return (
                   <Pressable
                     key={preset.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select water style preset ${preset.name}`}
                     style={[
                       styles.choiceChip,
                       isSelected && styles.choiceChipActive,
@@ -692,6 +744,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
               return (
                 <Pressable
                   key={profile.name}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select water location ${profile.name}`}
                   style={[
                     styles.choiceChip,
                     isSelected && styles.choiceChipActive,
@@ -726,19 +780,17 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             Object.keys(
               WATER_METRIC_LABELS,
             ) as (keyof typeof WATER_METRIC_LABELS)[]
-          )
-            .slice()
-            .map((metric) => (
-              <View key={metric} style={styles.metricRow}>
-                <Text style={styles.metricLabel}>
-                  {WATER_METRIC_LABELS[metric]}
-                </Text>
-                <Text style={styles.metricValue}>
-                  {recommendedWaterProfile[metric]} /{" "}
-                  {localWaterProfile[metric]} ppm
-                </Text>
-              </View>
-            ))}
+          ).map((metric) => (
+            <View key={metric} style={styles.metricRow}>
+              <Text style={styles.metricLabel}>
+                {WATER_METRIC_LABELS[metric]}
+              </Text>
+              <Text style={styles.metricValue}>
+                {recommendedWaterProfile[metric]} / {localWaterProfile[metric]}{" "}
+                ppm
+              </Text>
+            </View>
+          ))}
 
           <PrimaryButton
             label="Compare in Water Calculator"
@@ -752,6 +804,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             <Pressable
               key={option.id}
               testID={`recipe-process-filter-${option.id}`}
+              accessibilityRole="button"
+              accessibilityLabel={`Use ${option.label.toLowerCase()} process display mode`}
               style={[
                 styles.toggleChip,
                 processDisplayMode === option.id && styles.toggleChipActive,

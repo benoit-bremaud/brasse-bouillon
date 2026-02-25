@@ -72,4 +72,48 @@ describe("cart.use-cases", () => {
     expect(getLocalCartLineCount(items)).toBe(2);
     expect(getLocalCartTotalQuantity(items)).toBe(26);
   });
+
+  it("ignores non-finite quantities when adding items", () => {
+    const withNaN = addLocalCartItem([], {
+      ...ingredientItem,
+      key: "ingredient-hop-nan",
+      quantity: Number.NaN,
+    });
+
+    const withInfinity = addLocalCartItem([], {
+      ...ingredientItem,
+      key: "ingredient-hop-infinity",
+      quantity: Number.POSITIVE_INFINITY,
+    });
+
+    expect(withNaN).toEqual([]);
+    expect(withInfinity).toEqual([]);
+  });
+
+  it("handles invalid existing quantities when merging", () => {
+    const result = addLocalCartItem(
+      [{ ...ingredientItem, quantity: Number.NaN }],
+      { ...ingredientItem, quantity: 5 },
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].quantity).toBe(5);
+  });
+
+  it("ignores non-finite and non-positive quantities in total", () => {
+    const items: LocalCartItem[] = [
+      ingredientItem,
+      equipmentItem,
+      { ...ingredientItem, key: "invalid-nan", quantity: Number.NaN },
+      {
+        ...ingredientItem,
+        key: "invalid-infinity",
+        quantity: Number.POSITIVE_INFINITY,
+      },
+      { ...ingredientItem, key: "invalid-negative", quantity: -10 },
+      { ...ingredientItem, key: "invalid-zero", quantity: 0 },
+    ];
+
+    expect(getLocalCartTotalQuantity(items)).toBe(26);
+  });
 });

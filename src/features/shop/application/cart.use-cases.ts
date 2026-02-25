@@ -1,10 +1,14 @@
 import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 
+function isFinitePositiveQuantity(value: number): boolean {
+  return Number.isFinite(value) && value > 0;
+}
+
 export function addLocalCartItem(
   currentItems: LocalCartItem[],
   itemToAdd: LocalCartItem,
 ): LocalCartItem[] {
-  if (itemToAdd.quantity <= 0) {
+  if (!isFinitePositiveQuantity(itemToAdd.quantity)) {
     return currentItems;
   }
 
@@ -18,10 +22,13 @@ export function addLocalCartItem(
 
   const updatedItems = [...currentItems];
   const existingItem = updatedItems[existingIndex];
+  const existingQuantity = isFinitePositiveQuantity(existingItem.quantity)
+    ? existingItem.quantity
+    : 0;
 
   updatedItems[existingIndex] = {
     ...existingItem,
-    quantity: existingItem.quantity + itemToAdd.quantity,
+    quantity: existingQuantity + itemToAdd.quantity,
   };
 
   return updatedItems;
@@ -42,5 +49,9 @@ export function getLocalCartLineCount(items: LocalCartItem[]): number {
 }
 
 export function getLocalCartTotalQuantity(items: LocalCartItem[]): number {
-  return items.reduce((total, item) => total + item.quantity, 0);
+  return items.reduce(
+    (total, item) =>
+      total + (isFinitePositiveQuantity(item.quantity) ? item.quantity : 0),
+    0,
+  );
 }

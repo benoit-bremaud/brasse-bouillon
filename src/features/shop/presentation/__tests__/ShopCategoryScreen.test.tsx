@@ -1,7 +1,7 @@
-import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScreen";
+import React from "react";
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
@@ -63,7 +63,7 @@ describe("ShopCategoryScreen", () => {
   it("has back button to shop", () => {
     render(<ShopCategoryScreen categoryParam="levures" />);
 
-    const backButton = screen.getByText("← Boutique");
+    const backButton = screen.getByText("Boutique");
     fireEvent.press(backButton);
 
     expect(mockBack).toHaveBeenCalledTimes(1);

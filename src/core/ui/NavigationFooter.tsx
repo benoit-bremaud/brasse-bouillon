@@ -12,12 +12,12 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Accueil", icon: "home", href: "/(app)/dashboard" },
-  { label: "Brassins", icon: "cafe", href: "/(app)/batches" },
-  { label: "Recettes", icon: "book", href: "/(app)/recipes" },
-  { label: "Boutique", icon: "cart", href: "/(app)/shop" },
-  { label: "Outils", icon: "calculator", href: "/(app)/tools" },
-  { label: "Académie", icon: "school", href: "/(app)/academy" },
+  { label: "Accueil", icon: "home", href: "/dashboard" },
+  { label: "Brassins", icon: "cafe", href: "/batches" },
+  { label: "Recettes", icon: "book", href: "/recipes" },
+  { label: "Boutique", icon: "cart", href: "/shop" },
+  { label: "Outils", icon: "calculator", href: "/tools" },
+  { label: "Académie", icon: "school", href: "/academy" },
 ];
 
 export function NavigationFooter() {

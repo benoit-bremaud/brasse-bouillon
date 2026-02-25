@@ -1,8 +1,13 @@
-import { RecipeStepType } from "@/features/recipes/domain/recipe.types";
-
 export type BatchStatus = "in_progress" | "completed";
 
 export type BatchStepStatus = "pending" | "in_progress" | "completed";
+
+export type BatchStepType =
+  | "mash"
+  | "boil"
+  | "whirlpool"
+  | "fermentation"
+  | "packaging";
 
 export type BatchSummary = {
   id: string;
@@ -21,7 +26,7 @@ export type BatchSummary = {
 export type BatchStep = {
   batchId: string;
   stepOrder: number;
-  type: RecipeStepType;
+  type: BatchStepType;
   label: string;
   description?: string | null;
   status: BatchStepStatus;

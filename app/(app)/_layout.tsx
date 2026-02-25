@@ -12,15 +12,8 @@ export default function AppLayout() {
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f3f4f6",
-        }}
-      >
-        <ActivityIndicator color="#111827" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator color={colors.neutral.textPrimary} />
       </View>
     );
   }
@@ -126,6 +119,12 @@ export default function AppLayout() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.state.infoBackground,
+  },
   headerTitleContainer: {
     flexDirection: "row",
     alignItems: "center",

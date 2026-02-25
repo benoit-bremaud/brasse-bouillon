@@ -1,12 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -16,7 +9,19 @@ import { academyTopics } from "@/features/tools/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { getAcademyMascotImage } from "./academy-mascot";
+
+const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  introduction: "book-outline",
+  fermentescibles: "calculator-outline",
+  couleur: "color-palette-outline",
+  houblons: "leaf-outline",
+  eau: "water-outline",
+  rendement: "speedometer-outline",
+  levures: "flask-outline",
+  carbonatation: "beer-outline",
+  avances: "analytics-outline",
+  glossaire: "library-outline",
+};
 
 export function AcademyHubScreen() {
   const router = useRouter();
@@ -50,13 +55,13 @@ export function AcademyHubScreen() {
             >
               <Card style={styles.card}>
                 <View style={styles.cardRow}>
-                  <Image
-                    source={getAcademyMascotImage(topic.mascotVariant)}
-                    style={styles.mascot}
-                    resizeMode="cover"
-                    accessibilityRole="image"
-                    accessibilityLabel={topic.mascotAlt}
-                  />
+                  <View style={styles.itemIcon}>
+                    <Ionicons
+                      name={ACADEMY_ICONS[topic.slug] ?? "book-outline"}
+                      size={24}
+                      color={colors.brand.primary}
+                    />
+                  </View>
                   <View style={styles.cardInfo}>
                     <View style={styles.cardTopRow}>
                       <Text style={styles.cardTitle}>{topic.title}</Text>
@@ -74,11 +79,6 @@ export function AcademyHubScreen() {
                     size={20}
                     color={colors.neutral.muted}
                   />
-                </View>
-
-                <View style={styles.badgesRow}>
-                  <Badge label={topic.focus} />
-                  <Badge label={topic.estimatedReadTime} />
                 </View>
               </Card>
             </Pressable>
@@ -109,11 +109,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
   },
-  mascot: {
+  itemIcon: {
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: colors.semantic.info,
+    backgroundColor: colors.brand.primary + "25",
+    justifyContent: "center",
+    alignItems: "center",
   },
   cardInfo: {
     flex: 1,
@@ -136,14 +138,5 @@ const styles = StyleSheet.create({
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
     marginTop: spacing.xxs,
-  },
-  badgesRow: {
-    marginTop: spacing.sm,
-    paddingTop: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.neutral.border,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.xs,
   },
 });

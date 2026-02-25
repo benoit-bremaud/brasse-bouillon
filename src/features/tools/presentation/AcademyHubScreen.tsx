@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 
 const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  histoire: "time-outline",
   introduction: "book-outline",
   fermentescibles: "calculator-outline",
   couleur: "color-palette-outline",
@@ -36,6 +37,10 @@ export function AcademyHubScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {academyTopics.map((topic) => {
           const isReady = topic.status === "ready";
+          const iconColor =
+            topic.slug === "glossaire"
+              ? colors.semantic.warning
+              : colors.brand.primary;
 
           return (
             <Pressable
@@ -50,16 +55,22 @@ export function AcademyHubScreen() {
               }
               style={({ pressed }) => [
                 styles.cardPressable,
-                pressed && styles.cardPressablePressed,
+                !isReady && styles.cardPressableDisabled,
+                pressed && isReady && styles.cardPressablePressed,
               ]}
             >
               <Card style={styles.card}>
                 <View style={styles.cardRow}>
-                  <View style={styles.itemIcon}>
+                  <View
+                    style={[
+                      styles.itemIcon,
+                      { backgroundColor: iconColor + "25" },
+                    ]}
+                  >
                     <Ionicons
                       name={ACADEMY_ICONS[topic.slug] ?? "book-outline"}
                       size={24}
-                      color={colors.brand.primary}
+                      color={iconColor}
                     />
                   </View>
                   <View style={styles.cardInfo}>
@@ -74,11 +85,13 @@ export function AcademyHubScreen() {
                       {topic.shortDescription}
                     </Text>
                   </View>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={20}
-                    color={colors.neutral.muted}
-                  />
+                  {isReady && (
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={colors.neutral.muted}
+                    />
+                  )}
                 </View>
               </Card>
             </Pressable>
@@ -97,6 +110,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     marginBottom: spacing.sm,
   },
+  cardPressableDisabled: {
+    opacity: 0.6,
+  },
   cardPressablePressed: {
     opacity: 0.92,
     transform: [{ scale: 0.995 }],
@@ -113,7 +129,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: colors.brand.primary + "25",
     justifyContent: "center",
     alignItems: "center",
   },

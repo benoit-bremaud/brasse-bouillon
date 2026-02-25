@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   title: {
-    fontSize: typography.size.h2,
+    fontSize: 20,
     fontWeight: typography.weight.bold,
   },
   link: {

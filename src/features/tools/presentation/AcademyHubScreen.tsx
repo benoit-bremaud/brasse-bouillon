@@ -1,14 +1,14 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
+import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { academyTopics } from "@/features/tools/data";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
 
 const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   histoire: "time-outline",
@@ -47,12 +47,14 @@ export function AcademyHubScreen() {
               key={topic.slug}
               accessibilityRole="button"
               accessibilityLabel={`Ouvrir le thème ${topic.title}`}
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/academy/[slug]",
-                  params: { slug: topic.slug },
-                })
-              }
+              onPress={() => {
+                if (isReady) {
+                  router.push({
+                    pathname: "/(app)/academy/[slug]",
+                    params: { slug: topic.slug },
+                  });
+                }
+              }}
               style={({ pressed }) => [
                 styles.cardPressable,
                 !isReady && styles.cardPressableDisabled,

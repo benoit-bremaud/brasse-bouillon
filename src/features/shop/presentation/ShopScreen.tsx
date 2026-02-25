@@ -18,6 +18,19 @@ export function ShopScreen() {
           title="Ma Boutique"
           subtitle="Tout pour brasser chez vous"
         />
+        <Pressable
+          onPress={() => router.push("/(app)/academy")}
+          style={styles.academyButton}
+          accessibilityRole="button"
+          accessibilityLabel="Accéder à l'Académie"
+        >
+          <Ionicons
+            name="school-outline"
+            size={18}
+            color={colors.brand.secondary}
+          />
+          <Text style={styles.academyText}>Academy</Text>
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -72,8 +85,27 @@ export function ShopScreen() {
 
 const styles = StyleSheet.create({
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: spacing.sm,
-    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+  },
+  academyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  academyText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.medium,
   },
   content: {
     paddingBottom: spacing.lg,

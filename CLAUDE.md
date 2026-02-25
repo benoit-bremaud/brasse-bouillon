@@ -1,5 +1,14 @@
 # CLAUDE.md — brasse-bouillon-frontend
 
+## Design System
+
+See [docs/design-system.md](docs/design-system.md) for the complete graphic charter:
+colors, typography, spacing, radius, component patterns (list screen, detail screen, hub screen), icon conventions, and accessibility rules.
+
+**Core rule:** All screens must use design tokens from `src/core/theme/`. No hardcoded hex values, spacing, or font sizes.
+
+---
+
 ## Project Overview
 
 **Name:** Brasse Bouillon — Frontend

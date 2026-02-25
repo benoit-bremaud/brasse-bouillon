@@ -9,6 +9,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
+import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { Batch } from "@/features/batches/domain/batch.types";
@@ -66,6 +67,10 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchBatch}>
+      <ListHeader
+        title="Détails du brassin"
+        subtitle={`ID : ${batchId.slice(0, 8)}`}
+      />
       {batch ? (
         <Card style={styles.headerCard}>
           <Text style={styles.title}>Batch {batch.id.slice(0, 8)}</Text>

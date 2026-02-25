@@ -33,8 +33,18 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           title="Catégorie inconnue"
           subtitle="Cette catégorie n'existe pas"
           action={
-            <Pressable onPress={() => router.back()}>
-              <Text style={styles.backLink}>← Retour</Text>
+            <Pressable
+              onPress={() => router.back()}
+              style={styles.backButton}
+              accessibilityRole="button"
+              accessibilityLabel="Retour"
+            >
+              <Ionicons
+                name="chevron-back"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.backText}>Retour</Text>
             </Pressable>
           }
         />
@@ -62,8 +72,18 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         title={label}
         subtitle={description}
         action={
-          <Pressable onPress={() => router.back()}>
-            <Text style={styles.backLink}>← Boutique</Text>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Retour à la boutique"
+          >
+            <Ionicons
+              name="chevron-back"
+              size={18}
+              color={colors.brand.secondary}
+            />
+            <Text style={styles.backText}>Boutique</Text>
           </Pressable>
         }
       />
@@ -123,7 +143,18 @@ const styles = StyleSheet.create({
   listHeader: {
     marginBottom: spacing.sm,
   },
-  backLink: {
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  backText: {
     color: colors.brand.secondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,

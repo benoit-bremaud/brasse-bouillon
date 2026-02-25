@@ -13,6 +13,7 @@ import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { academyTopics } from "@/features/tools/data";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
@@ -47,8 +48,7 @@ export function ToolsHubScreen() {
             ]}
           >
             <Card style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{topic.title}</Text>
+              <View style={styles.cardRow}>
                 <Image
                   source={getAcademyMascotImage(topic.mascotVariant)}
                   style={styles.mascot}
@@ -56,21 +56,23 @@ export function ToolsHubScreen() {
                   accessibilityRole="image"
                   accessibilityLabel={topic.mascotAlt}
                 />
+                <View style={styles.cardInfo}>
+                  <View style={styles.cardTopRow}>
+                    <Text style={styles.cardTitle}>{topic.title}</Text>
+                    <Badge label="Prêt" variant="success" />
+                  </View>
+                  <Text style={styles.cardMeta}>{topic.shortDescription}</Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.neutral.muted}
+                />
               </View>
-
-              <Text style={styles.cardDescription}>
-                {topic.shortDescription}
-              </Text>
 
               <View style={styles.badgesRow}>
                 <Badge label={topic.focus} />
                 <Badge label={topic.estimatedReadTime} />
-                <Badge label="Calculateur prêt" variant="success" />
-              </View>
-
-              <View style={styles.cardFooter}>
-                <Text style={styles.cardFooterText}>Ouvrir le calculateur</Text>
-                <Text style={styles.cardFooterArrow}>→</Text>
               </View>
             </Card>
           </Pressable>
@@ -95,58 +97,46 @@ const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
   },
-  cardHeader: {
+  cardRow: {
     flexDirection: "row",
-    gap: spacing.sm,
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: spacing.sm,
   },
   mascot: {
-    width: 64,
-    height: 64,
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
     backgroundColor: colors.semantic.info,
   },
+  cardInfo: {
+    flex: 1,
+  },
+  cardTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   cardTitle: {
     color: colors.neutral.textPrimary,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
-    marginBottom: spacing.xxs,
     flex: 1,
     paddingRight: spacing.xs,
   },
-  cardDescription: {
+  cardMeta: {
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
-    marginTop: spacing.sm,
+    marginTop: spacing.xxs,
   },
   badgesRow: {
-    marginTop: spacing.sm,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.xs,
-  },
-  cardFooter: {
     marginTop: spacing.sm,
     paddingTop: spacing.xs,
     borderTopWidth: 1,
     borderTopColor: colors.neutral.border,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  cardFooterText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
-  },
-  cardFooterArrow: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.body,
-    lineHeight: typography.lineHeight.body,
-    fontWeight: typography.weight.bold,
+    flexWrap: "wrap",
+    gap: spacing.xs,
   },
 });

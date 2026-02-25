@@ -22,10 +22,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: spacing.lg,
+    padding: spacing.md,
   },
   title: {
-    fontSize: 20,
+    fontSize: typography.size.h2,
     fontWeight: typography.weight.bold,
   },
   link: {

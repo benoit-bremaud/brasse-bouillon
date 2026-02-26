@@ -1,74 +1,317 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
 import { Href, useRouter } from "expo-router";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { useAuth } from "@/core/auth/auth-context";
-import { getErrorMessage } from "@/core/http/http-error";
-import { Card } from "@/core/ui/Card";
-import { Screen } from "@/core/ui/Screen";
-import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
-import { Recipe } from "@/features/recipes/domain/recipe.types";
-import { demoEquipments } from "@/mocks/demo-data";
+import { Card } from "@/core/ui/Card";
 import { Ionicons } from "@expo/vector-icons";
+import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { Screen } from "@/core/ui/Screen";
+import { academyTopics } from "@/features/tools/data";
+import { dataSource } from "@/core/data/data-source";
+import { demoIngredients } from "@/mocks/demo-data";
+import { getErrorMessage } from "@/core/http/http-error";
+import { listBatches } from "@/features/batches/application/batches.use-cases";
+import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import { useAuth } from "@/core/auth/auth-context";
 
-type QuickAction = {
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+
+type PeriodKey = "year" | "90d" | "30d";
+type AlertStatus = "Bientôt" | "Urgent" | "En retard";
+
+type DashboardAlert = {
+  id: string;
+  batchId: string;
+  batchName: string;
+  currentStepLabel: string;
+  nextStepLabel: string;
+  dueAt: Date;
+  status: AlertStatus;
+  isCriticalQuality: boolean;
+};
+
+type NavigationCard = {
   id: string;
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
-  color: string;
   href: Href;
+  metric: string;
+  status: string;
+  color: string;
 };
 
-const QUICK_ACTIONS: QuickAction[] = [
+type MoreSectionItem = {
+  id: string;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  href?: Href;
+  type: "route" | "profile";
+};
+
+type BrewStepConfig = {
+  label: string;
+  expectedHours: number;
+  isCriticalQuality: boolean;
+};
+
+type TimelineStep = {
+  label: string;
+  state: "past" | "current" | "next";
+};
+
+const PERIOD_OPTIONS: Array<{ id: PeriodKey; label: string }> = [
+  { id: "year", label: "Année" },
+  { id: "90d", label: "90 jours" },
+  { id: "30d", label: "30 jours" },
+];
+
+const BREWING_STEPS: BrewStepConfig[] = [
+  { label: "Empâtage", expectedHours: 2, isCriticalQuality: false },
+  { label: "Ébullition", expectedHours: 8, isCriticalQuality: false },
+  { label: "Fermentation", expectedHours: 24, isCriticalQuality: true },
+  { label: "Conditionnement", expectedHours: 7 * 24, isCriticalQuality: true },
+  { label: "Embouteillage", expectedHours: 10 * 24, isCriticalQuality: true },
+];
+
+const TOP_NAVIGATION_IDS = ["batches", "recipes", "ingredients", "tools"];
+
+const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
   {
-    id: "new-batch",
-    label: "Nouveau brassin",
-    icon: "cafe",
-    color: colors.brand.primary,
-    href: "/(app)/batches",
+    id: "equipment",
+    label: "Équipements",
+    icon: "construct-outline",
+    href: "/(app)/equipment",
+    type: "route",
   },
   {
-    id: "new-recipe",
-    label: "Nouvelle recette",
-    icon: "add-circle",
-    color: colors.brand.secondary,
-    href: "/(app)/recipes",
-  },
-  {
-    id: "tools",
-    label: "Outils",
-    icon: "calculator",
-    color: colors.semantic.info,
-    href: "/(app)/tools",
+    id: "explore",
+    label: "Explore",
+    icon: "compass-outline",
+    href: "/(app)/explore",
+    type: "route",
   },
   {
     id: "academy",
     label: "Académie",
-    icon: "school",
-    color: colors.semantic.warning,
+    icon: "school-outline",
     href: "/(app)/academy",
+    type: "route",
+  },
+  {
+    id: "shop",
+    label: "Boutique",
+    icon: "cart-outline",
+    href: "/(app)/shop",
+    type: "route",
   },
 ];
+
+const MORE_ACCOUNT_SECTIONS: MoreSectionItem[] = [
+  {
+    id: "profile",
+    label: "Profil",
+    icon: "person-circle-outline",
+    type: "profile",
+  },
+  {
+    id: "settings",
+    label: "Paramètres globaux",
+    icon: "settings-outline",
+    type: "profile",
+  },
+];
+
+const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
+  "En retard": 0,
+  Urgent: 1,
+  Bientôt: 2,
+};
+
+function parseDateOrNow(value: string, fallback: Date): Date {
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) {
+    return fallback;
+  }
+  return new Date(parsed);
+}
+
+function clampStepIndex(stepOrder?: number | null): number {
+  if (
+    stepOrder === null ||
+    stepOrder === undefined ||
+    Number.isNaN(stepOrder)
+  ) {
+    return 0;
+  }
+
+  const normalized = Math.round(stepOrder);
+  return Math.min(Math.max(normalized, 0), BREWING_STEPS.length - 1);
+}
+
+function getAlertStatus(dueAt: Date, now: Date): AlertStatus {
+  const timeUntilDue = dueAt.getTime() - now.getTime();
+  if (timeUntilDue < 0) {
+    return "En retard";
+  }
+  if (timeUntilDue <= 8 * HOUR_MS) {
+    return "Urgent";
+  }
+  return "Bientôt";
+}
+
+function formatRelativeDue(dueAt: Date, now: Date): string {
+  const diff = dueAt.getTime() - now.getTime();
+
+  if (diff < 0) {
+    const lateHours = Math.max(1, Math.round(Math.abs(diff) / HOUR_MS));
+    return `En retard de ${lateHours}h`;
+  }
+
+  if (diff < HOUR_MS) {
+    return "Dans moins de 1h";
+  }
+
+  if (diff < DAY_MS) {
+    return `Dans ${Math.round(diff / HOUR_MS)}h`;
+  }
+
+  return `Dans ${Math.round(diff / DAY_MS)}j`;
+}
+
+function isWithinSelectedPeriod(
+  isoDate: string,
+  period: PeriodKey,
+  now: Date,
+): boolean {
+  const parsed = Date.parse(isoDate);
+  if (Number.isNaN(parsed)) {
+    return false;
+  }
+
+  const date = new Date(parsed);
+  if (period === "year") {
+    return date.getFullYear() === now.getFullYear();
+  }
+
+  const numberOfDays = period === "90d" ? 90 : 30;
+  const threshold = new Date(now);
+  threshold.setDate(now.getDate() - numberOfDays);
+
+  return date >= threshold;
+}
+
+function isRecipeDraft(recipe: Recipe): boolean {
+  const ingredientCount = recipe.ingredients?.length ?? 0;
+  const hasStats = Boolean(recipe.stats);
+  return ingredientCount < 3 || !hasStats;
+}
+
+function buildBatchAlert(
+  batch: BatchSummary,
+  now: Date,
+): DashboardAlert | null {
+  if (batch.status !== "in_progress") {
+    return null;
+  }
+
+  const stepIndex = clampStepIndex(batch.currentStepOrder);
+  const currentStep = BREWING_STEPS[stepIndex];
+  const nextStep = BREWING_STEPS[stepIndex + 1];
+  const startedAt = parseDateOrNow(batch.startedAt, now);
+  const dueAt = new Date(
+    startedAt.getTime() + currentStep.expectedHours * HOUR_MS,
+  );
+
+  return {
+    id: `${batch.id}-${currentStep.label}`,
+    batchId: batch.id,
+    batchName: `Brassin #${batch.id.slice(0, 6)}`,
+    currentStepLabel: currentStep.label,
+    nextStepLabel: nextStep?.label ?? "Finalisation",
+    dueAt,
+    status: getAlertStatus(dueAt, now),
+    isCriticalQuality: currentStep.isCriticalQuality,
+  };
+}
+
+function getTimelineSteps(stepOrder?: number | null): TimelineStep[] {
+  const stepIndex = clampStepIndex(stepOrder);
+  const previousLabel =
+    stepIndex > 0 ? BREWING_STEPS[stepIndex - 1].label : "Préparation";
+  const currentLabel = BREWING_STEPS[stepIndex].label;
+  const nextLabel = BREWING_STEPS[stepIndex + 1]?.label ?? "Finalisation";
+
+  return [
+    { label: previousLabel, state: "past" },
+    { label: currentLabel, state: "current" },
+    { label: nextLabel, state: "next" },
+  ];
+}
+
+function getStatusColors(status: string): {
+  background: string;
+  foreground: string;
+} {
+  if (status === "En retard") {
+    return {
+      background: colors.semantic.error + "20",
+      foreground: colors.semantic.error,
+    };
+  }
+
+  if (status === "Urgent") {
+    return {
+      background: colors.semantic.warning + "30",
+      foreground: colors.semantic.error,
+    };
+  }
+
+  if (status === "Bientôt") {
+    return {
+      background: colors.semantic.success + "20",
+      foreground: colors.semantic.success,
+    };
+  }
+
+  return {
+    background: colors.neutral.border,
+    foreground: colors.neutral.textSecondary,
+  };
+}
 
 export function DashboardScreen() {
   const router = useRouter();
   const { session, logout } = useAuth();
+
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [batches, setBatches] = useState<BatchSummary[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
+  const [isProfileSheetVisible, setIsProfileSheetVisible] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
     try {
       const [recipeData, batchData] = await Promise.all([
         listRecipes(),
         listBatches(),
       ]);
+
       setRecipes(recipeData);
       setBatches(batchData);
     } catch (err) {
@@ -82,34 +325,9 @@ export function DashboardScreen() {
     fetchData();
   }, [fetchData]);
 
-  const handleLogout = useCallback(async () => {
-    await logout();
-    router.replace("/(auth)/login");
-  }, [logout, router]);
-
-  const privateRecipes = useMemo(
-    () => recipes.filter((r) => r.visibility === "private").slice(0, 2),
-    [recipes],
-  );
-
-  const publicFavorites = useMemo(
-    () => recipes.filter((r) => r.visibility === "public").slice(0, 2),
-    [recipes],
-  );
-
-  const activeBatches = useMemo(
-    () => batches.filter((b) => b.status === "in_progress").slice(0, 3),
-    [batches],
-  );
-
-  const stats = useMemo(
-    () => ({
-      privateRecipes: recipes.filter((r) => r.visibility === "private").length,
-      publicRecipes: recipes.filter((r) => r.visibility === "public").length,
-      activeBatches: batches.filter((b) => b.status === "in_progress").length,
-      equipment: demoEquipments.length,
-    }),
-    [recipes, batches],
+  const referenceDate = useMemo(
+    () => new Date(),
+    [batches, recipes, selectedPeriod],
   );
 
   const displayName =
@@ -118,12 +336,255 @@ export function DashboardScreen() {
     session?.user.email?.split("@")[0] ||
     "Brasseur";
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Bonjour";
-    if (hour < 18) return "Bon après-midi";
-    return "Bonsoir";
-  };
+  const activeBatches = useMemo(
+    () => batches.filter((batch) => batch.status === "in_progress"),
+    [batches],
+  );
+
+  const alerts = useMemo(
+    () =>
+      activeBatches
+        .map((batch) => buildBatchAlert(batch, referenceDate))
+        .filter((alert): alert is DashboardAlert => Boolean(alert))
+        .sort((a, b) => {
+          if (a.isCriticalQuality !== b.isCriticalQuality) {
+            return a.isCriticalQuality ? -1 : 1;
+          }
+
+          if (a.status !== b.status) {
+            return (
+              ALERT_STATUS_PRIORITY[a.status] - ALERT_STATUS_PRIORITY[b.status]
+            );
+          }
+
+          return a.dueAt.getTime() - b.dueAt.getTime();
+        }),
+    [activeBatches, referenceDate],
+  );
+
+  const filteredActiveBatches = useMemo(
+    () =>
+      activeBatches.filter((batch) =>
+        isWithinSelectedPeriod(batch.startedAt, selectedPeriod, referenceDate),
+      ),
+    [activeBatches, referenceDate, selectedPeriod],
+  );
+
+  const filteredActiveBatchIds = useMemo(
+    () => new Set(filteredActiveBatches.map((batch) => batch.id)),
+    [filteredActiveBatches],
+  );
+
+  const filteredAlerts = useMemo(
+    () => alerts.filter((alert) => filteredActiveBatchIds.has(alert.batchId)),
+    [alerts, filteredActiveBatchIds],
+  );
+
+  const actionsDueCount = useMemo(
+    () =>
+      filteredAlerts.filter((alert) => {
+        const diff = alert.dueAt.getTime() - referenceDate.getTime();
+        return diff >= 0 && diff <= DAY_MS;
+      }).length,
+    [filteredAlerts, referenceDate],
+  );
+
+  const criticalAlertsCount = useMemo(
+    () => filteredAlerts.filter((alert) => alert.isCriticalQuality).length,
+    [filteredAlerts],
+  );
+
+  const sortedActiveBatches = useMemo(() => {
+    const alertsMap = new Map(alerts.map((alert) => [alert.batchId, alert]));
+
+    return [...activeBatches]
+      .sort((batchA, batchB) => {
+        const alertA = alertsMap.get(batchA.id);
+        const alertB = alertsMap.get(batchB.id);
+
+        if (!alertA && !alertB) {
+          return 0;
+        }
+        if (!alertA) {
+          return 1;
+        }
+        if (!alertB) {
+          return -1;
+        }
+
+        if (alertA.isCriticalQuality !== alertB.isCriticalQuality) {
+          return alertA.isCriticalQuality ? -1 : 1;
+        }
+
+        return alertA.dueAt.getTime() - alertB.dueAt.getTime();
+      })
+      .slice(0, 2);
+  }, [activeBatches, alerts]);
+
+  const filteredRecipes = useMemo(
+    () =>
+      recipes.filter((recipe) =>
+        isWithinSelectedPeriod(recipe.updatedAt, selectedPeriod, referenceDate),
+      ),
+    [recipes, referenceDate, selectedPeriod],
+  );
+
+  const draftRecipesCount = useMemo(
+    () => filteredRecipes.filter(isRecipeDraft).length,
+    [filteredRecipes],
+  );
+
+  const missingIngredientsCount = useMemo(() => {
+    if (!dataSource.useDemoData) {
+      return 0;
+    }
+
+    const readyRecipes = filteredRecipes.filter(
+      (recipe) => !isRecipeDraft(recipe),
+    );
+    const requiredIngredientIds = new Set(
+      readyRecipes.flatMap((recipe) =>
+        (recipe.ingredients ?? []).map((ingredient) => ingredient.ingredientId),
+      ),
+    );
+
+    const availableIngredientIds = new Set(
+      demoIngredients.map((ingredient) => ingredient.id),
+    );
+
+    return [...requiredIngredientIds].filter(
+      (ingredientId) => !availableIngredientIds.has(ingredientId),
+    ).length;
+  }, [filteredRecipes]);
+
+  const favoriteToolsCount = useMemo(
+    () =>
+      academyTopics.filter(
+        (topic) => topic.hasCalculator && topic.status === "ready",
+      ).length,
+    [],
+  );
+
+  const highlightedAlert = filteredAlerts[0] ?? alerts[0] ?? null;
+
+  const navigationCards = useMemo<NavigationCard[]>(
+    () => [
+      {
+        id: "batches",
+        label: "Brassins",
+        icon: "flask-outline",
+        href: "/(app)/batches",
+        metric: highlightedAlert
+          ? formatRelativeDue(highlightedAlert.dueAt, referenceDate)
+          : "Aucune échéance",
+        status: highlightedAlert?.status ?? "OK",
+        color: colors.brand.secondary,
+      },
+      {
+        id: "recipes",
+        label: "Recettes",
+        icon: "book-outline",
+        href: "/(app)/recipes",
+        metric: `${draftRecipesCount} brouillon${draftRecipesCount > 1 ? "s" : ""}`,
+        status: draftRecipesCount === 0 ? "Prêtes" : "À compléter",
+        color: colors.brand.primary,
+      },
+      {
+        id: "ingredients",
+        label: "Ingrédients",
+        icon: "leaf-outline",
+        href: "/(app)/ingredients",
+        metric: `${missingIngredientsCount} manquant${
+          missingIngredientsCount > 1 ? "s" : ""
+        }`,
+        status: missingIngredientsCount === 0 ? "Complet" : "Incomplet",
+        color: colors.semantic.warning,
+      },
+      {
+        id: "tools",
+        label: "Outils",
+        icon: "calculator-outline",
+        href: "/(app)/tools",
+        metric: `${favoriteToolsCount} favori${favoriteToolsCount > 1 ? "s" : ""}`,
+        status: favoriteToolsCount > 0 ? "Configuré" : "À personnaliser",
+        color: colors.semantic.info,
+      },
+    ],
+    [
+      draftRecipesCount,
+      favoriteToolsCount,
+      highlightedAlert,
+      missingIngredientsCount,
+      referenceDate,
+    ],
+  );
+
+  const topNavigationCards = navigationCards.filter((card) =>
+    TOP_NAVIGATION_IDS.includes(card.id),
+  );
+
+  const handleOpenProfilePanel = useCallback(() => {
+    setProfileMessage(null);
+    setIsMoreSheetVisible(false);
+    setIsProfileSheetVisible(true);
+  }, []);
+
+  const handleCloseProfilePanel = useCallback(() => {
+    setProfileMessage(null);
+    setIsProfileSheetVisible(false);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    setIsProfileSheetVisible(false);
+    router.replace("/(auth)/login");
+  }, [logout, router]);
+
+  const handleOpenSettings = useCallback(() => {
+    setProfileMessage("Les paramètres globaux arrivent bientôt.");
+  }, []);
+
+  const handleMoreItemPress = useCallback(
+    (item: MoreSectionItem) => {
+      if (item.type === "profile") {
+        handleOpenProfilePanel();
+        return;
+      }
+
+      if (item.href) {
+        setIsMoreSheetVisible(false);
+        router.push(item.href);
+      }
+    },
+    [handleOpenProfilePanel, router],
+  );
+
+  const kpis = useMemo(
+    () => [
+      {
+        id: "active-batches",
+        label: "Brassins actifs",
+        value: `${filteredActiveBatches.length}`,
+        icon: "flask-outline" as const,
+        color: colors.brand.secondary,
+      },
+      {
+        id: "due-actions",
+        label: "Actions <24h",
+        value: `${actionsDueCount}`,
+        icon: "timer-outline" as const,
+        color: colors.semantic.warning,
+      },
+      {
+        id: "critical-alerts",
+        label: "Alertes critiques",
+        value: `${criticalAlertsCount}`,
+        icon: "warning-outline" as const,
+        color: colors.semantic.error,
+      },
+    ],
+    [actionsDueCount, criticalAlertsCount, filteredActiveBatches.length],
+  );
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchData}>
@@ -131,316 +592,488 @@ export function DashboardScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero Section */}
-        <View style={styles.hero}>
-          <View style={styles.heroContent}>
-            <Text style={styles.greeting}>{getGreeting()},</Text>
-            <Text style={styles.heroName}>{displayName} ! 👋</Text>
-            <Text style={styles.heroSubtext}>
-              Prêt à brasser quelque chose de délicieux ?
-            </Text>
+        <View style={styles.headerCard}>
+          <View style={styles.headerIdentity}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {displayName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+            <View>
+              <Text style={styles.headerName}>{displayName}</Text>
+              <Text style={styles.headerSubtitle}>
+                Tableau de bord brassage
+              </Text>
+            </View>
           </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          {QUICK_ACTIONS.map((action) => (
-            <Pressable
-              key={action.id}
-              style={({ pressed }) => [
-                styles.actionCard,
-                pressed && styles.actionCardPressed,
-              ]}
-              onPress={() => router.push(action.href)}
-              accessibilityRole="button"
-              accessibilityLabel={action.label}
-            >
-              <View
-                style={[
-                  styles.actionIcon,
-                  { backgroundColor: action.color + "20" },
-                ]}
-              >
-                <Ionicons name={action.icon} size={24} color={action.color} />
-              </View>
-              <Text style={styles.actionLabel}>{action.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {/* Stats Cards */}
-        <View style={styles.statsRow}>
-          <Pressable
-            style={[
-              styles.statCard,
-              { backgroundColor: colors.brand.primary + "15" },
-            ]}
-            onPress={() => router.push("/(app)/recipes")}
-          >
-            <View style={styles.statHeader}>
-              <Ionicons name="book" size={20} color={colors.brand.primary} />
-              <Text style={styles.statValue}>{stats.privateRecipes}</Text>
-            </View>
-            <Text style={styles.statLabel}>Mes recettes</Text>
-          </Pressable>
 
           <Pressable
-            style={[
-              styles.statCard,
-              { backgroundColor: colors.brand.secondary + "15" },
+            accessibilityRole="button"
+            accessibilityLabel="Ouvrir le profil"
+            onPress={handleOpenProfilePanel}
+            style={({ pressed }) => [
+              styles.profileButton,
+              pressed && styles.pressed,
             ]}
-            onPress={() => router.push("/(app)/batches")}
           >
-            <View style={styles.statHeader}>
-              <Ionicons name="flask" size={20} color={colors.brand.secondary} />
-              <Text style={styles.statValue}>{stats.activeBatches}</Text>
-            </View>
-            <Text style={styles.statLabel}>En fermentation</Text>
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.statCard,
-              { backgroundColor: colors.semantic.info + "15" },
-            ]}
-            onPress={() => router.push("/(app)/explore")}
-          >
-            <View style={styles.statHeader}>
-              <Ionicons name="globe" size={20} color={colors.semantic.info} />
-              <Text style={styles.statValue}>{stats.publicRecipes}</Text>
-            </View>
-            <Text style={styles.statLabel}>Recettes publiques</Text>
+            <Ionicons
+              name="person-circle-outline"
+              size={18}
+              color={colors.brand.secondary}
+            />
+            <Text style={styles.profileButtonText}>Profil</Text>
           </Pressable>
         </View>
 
-        {/* Active Batches */}
         <Card style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="flask" size={18} color={colors.brand.secondary} />
-              <Text style={styles.sectionTitle}>Brassins actifs</Text>
+            <Text style={styles.sectionTitle}>Période d’analyse</Text>
+          </View>
+
+          <View style={styles.periodFilters}>
+            {PERIOD_OPTIONS.map((option) => {
+              const isSelected = selectedPeriod === option.id;
+
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Choisir la période ${option.label}`}
+                  onPress={() => setSelectedPeriod(option.id)}
+                  style={({ pressed }) => [
+                    styles.periodChip,
+                    isSelected && styles.periodChipSelected,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.periodChipText,
+                      isSelected && styles.periodChipTextSelected,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Vue d’ensemble</Text>
+          </View>
+
+          <View style={styles.kpiRow}>
+            {kpis.map((kpi) => (
+              <View key={kpi.id} style={styles.kpiCard}>
+                <View style={styles.kpiTopRow}>
+                  <Ionicons name={kpi.icon} size={18} color={kpi.color} />
+                  <Text style={styles.kpiValue}>{kpi.value}</Text>
+                </View>
+                <Text style={styles.kpiLabel}>{kpi.label}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Alertes & échéances</Text>
+            <Text style={styles.sectionMeta}>Temps réel</Text>
+          </View>
+
+          {alerts.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={28}
+                color={colors.semantic.success}
+              />
+              <Text style={styles.emptyStateText}>Aucune alerte en cours</Text>
             </View>
-            <Pressable onPress={() => router.push("/(app)/batches")}>
-              <Text style={styles.seeAll}>Voir tout</Text>
+          ) : (
+            <View style={styles.alertsList}>
+              {alerts.slice(0, 3).map((alert) => {
+                const statusColors = getStatusColors(alert.status);
+
+                return (
+                  <View key={alert.id} style={styles.alertItem}>
+                    <View style={styles.alertContent}>
+                      <Text style={styles.alertBatchName}>
+                        {alert.batchName}
+                      </Text>
+                      <Text style={styles.alertMetaText}>
+                        {alert.currentStepLabel} → {alert.nextStepLabel}
+                      </Text>
+                      <Text style={styles.alertDueText}>
+                        {formatRelativeDue(alert.dueAt, referenceDate)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.alertActions}>
+                      <View
+                        style={[
+                          styles.statusPill,
+                          { backgroundColor: statusColors.background },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusPillText,
+                            { color: statusColors.foreground },
+                          ]}
+                        >
+                          {alert.status}
+                        </Text>
+                      </View>
+
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Ouvrir ${alert.batchName}`}
+                        onPress={() =>
+                          router.push(`/(app)/batches/${alert.batchId}`)
+                        }
+                        style={({ pressed }) => [
+                          styles.openBatchButton,
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <Text style={styles.openBatchButtonText}>
+                          Ouvrir le brassin
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Brassins actifs</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Voir tous les brassins"
+              onPress={() => router.push("/(app)/batches")}
+              style={({ pressed }) => [
+                styles.linkButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.linkButtonText}>Voir tout</Text>
             </Pressable>
           </View>
 
-          {activeBatches.length === 0 ? (
+          {sortedActiveBatches.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="beer" size={32} color={colors.neutral.muted} />
-              <Text style={styles.emptyText}>Aucun brassin en cours</Text>
+              <Ionicons
+                name="flask-outline"
+                size={28}
+                color={colors.neutral.muted}
+              />
+              <Text style={styles.emptyStateText}>Aucun brassin actif</Text>
               <Pressable
-                style={styles.emptyButton}
-                onPress={() => router.push("/(app)/batches")}
+                accessibilityRole="button"
+                accessibilityLabel="Choisir une recette à lancer"
+                onPress={() => router.push("/(app)/recipes")}
+                style={({ pressed }) => [
+                  styles.emptyStateAction,
+                  pressed && styles.pressed,
+                ]}
               >
-                <Text style={styles.emptyButtonText}>Démarrer un brassin</Text>
+                <Text style={styles.emptyStateActionText}>
+                  Choisir une recette à lancer
+                </Text>
               </Pressable>
             </View>
           ) : (
-            <View style={styles.batchesList}>
-              {activeBatches.map((batch) => (
+            <View style={styles.activeBatchesList}>
+              {sortedActiveBatches.map((batch) => {
+                const alert =
+                  alerts.find((item) => item.batchId === batch.id) ?? null;
+                const statusColors = getStatusColors(
+                  alert?.status ?? "Bientôt",
+                );
+                const timeline = getTimelineSteps(batch.currentStepOrder);
+
+                return (
+                  <Pressable
+                    key={batch.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Ouvrir le ${
+                      alert?.batchName ?? `brassin ${batch.id.slice(0, 6)}`
+                    }`}
+                    onPress={() => router.push(`/(app)/batches/${batch.id}`)}
+                    style={({ pressed }) => [
+                      styles.activeBatchItem,
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <View style={styles.activeBatchHeader}>
+                      <Text style={styles.activeBatchTitle}>
+                        {alert?.batchName ?? `Brassin #${batch.id.slice(0, 6)}`}
+                      </Text>
+                      <View
+                        style={[
+                          styles.statusPill,
+                          { backgroundColor: statusColors.background },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusPillText,
+                            { color: statusColors.foreground },
+                          ]}
+                        >
+                          {alert?.status ?? "Bientôt"}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.activeBatchMeta}>
+                      {alert?.currentStepLabel ?? "Étape en cours"} →{" "}
+                      {alert?.nextStepLabel ?? "Étape suivante"}
+                    </Text>
+
+                    <View style={styles.timelineRow}>
+                      {timeline.map((step) => {
+                        const dotStyle =
+                          step.state === "past"
+                            ? styles.timelineDotPast
+                            : step.state === "current"
+                              ? styles.timelineDotCurrent
+                              : styles.timelineDotNext;
+
+                        return (
+                          <View
+                            key={`${batch.id}-${step.label}`}
+                            style={styles.timelineItem}
+                          >
+                            <View style={[styles.timelineDot, dotStyle]} />
+                            <Text
+                              style={styles.timelineLabel}
+                              numberOfLines={1}
+                            >
+                              {step.label}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Navigation rapide</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Voir plus de sections"
+              onPress={() => setIsMoreSheetVisible(true)}
+              style={({ pressed }) => [
+                styles.linkButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.linkButtonText}>Voir plus</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.navigationGrid}>
+            {topNavigationCards.map((card) => {
+              const statusColors = getStatusColors(card.status);
+
+              return (
                 <Pressable
-                  key={batch.id}
-                  style={styles.batchItem}
-                  onPress={() => router.push(`/(app)/batches/${batch.id}`)}
+                  key={card.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Ouvrir ${card.label}`}
+                  onPress={() => router.push(card.href)}
+                  style={({ pressed }) => [
+                    styles.navigationCard,
+                    pressed && styles.pressed,
+                  ]}
                 >
-                  <View style={styles.batchIcon}>
-                    <Ionicons
-                      name="cafe"
-                      size={20}
-                      color={colors.brand.secondary}
-                    />
+                  <View style={styles.navigationTopRow}>
+                    <Ionicons name={card.icon} size={20} color={card.color} />
+                    <Text style={styles.navigationTitle}>{card.label}</Text>
                   </View>
-                  <View style={styles.batchInfo}>
-                    <Text style={styles.batchName}>
-                      Brassin #{batch.id.slice(0, 6)}
-                    </Text>
-                    <Text style={styles.batchStep}>
-                      {batch.currentStepOrder
-                        ? `Étape ${batch.currentStepOrder}`
-                        : "En attente"}
-                    </Text>
-                  </View>
+
+                  <Text style={styles.navigationMetric}>{card.metric}</Text>
+
                   <View
                     style={[
-                      styles.statusBadge,
-                      {
-                        backgroundColor:
-                          batch.status === "in_progress"
-                            ? colors.semantic.success + "20"
-                            : colors.neutral.muted,
-                      },
+                      styles.statusPill,
+                      { backgroundColor: statusColors.background },
                     ]}
                   >
                     <Text
                       style={[
-                        styles.statusText,
-                        {
-                          color:
-                            batch.status === "in_progress"
-                              ? colors.semantic.success
-                              : colors.neutral.muted,
-                        },
+                        styles.statusPillText,
+                        { color: statusColors.foreground },
                       ]}
                     >
-                      {batch.status === "in_progress" ? "Actif" : "Terminé"}
+                      {card.status}
                     </Text>
                   </View>
                 </Pressable>
-              ))}
-            </View>
-          )}
-        </Card>
-
-        {/* Private Recipes */}
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons
-                name="lock-closed"
-                size={18}
-                color={colors.brand.primary}
-              />
-              <Text style={styles.sectionTitle}>Mes recettes</Text>
-            </View>
-            <Pressable onPress={() => router.push("/(app)/recipes")}>
-              <Text style={styles.seeAll}>Voir tout</Text>
-            </Pressable>
-          </View>
-
-          {privateRecipes.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="document-text"
-                size={32}
-                color={colors.neutral.muted}
-              />
-              <Text style={styles.emptyText}>Pas encore de recettes</Text>
-              <Pressable
-                style={styles.emptyButton}
-                onPress={() => router.push("/(app)/recipes")}
-              >
-                <Text style={styles.emptyButtonText}>Créer une recette</Text>
-              </Pressable>
-            </View>
-          ) : (
-            <View style={styles.recipesGrid}>
-              {privateRecipes.map((recipe) => (
-                <Pressable
-                  key={recipe.id}
-                  style={({ pressed }) => [
-                    styles.recipeCard,
-                    pressed && styles.recipeCardPressed,
-                  ]}
-                  onPress={() => router.push(`/(app)/recipes/${recipe.id}`)}
-                >
-                  <View style={styles.recipeIcon}>
-                    <Ionicons
-                      name="beer"
-                      size={24}
-                      color={colors.brand.primary}
-                    />
-                  </View>
-                  <Text style={styles.recipeName} numberOfLines={1}>
-                    {recipe.name}
-                  </Text>
-                  <Text style={styles.recipeMeta}>Recette privée</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </Card>
-
-        {/* Public Favorites */}
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="globe" size={18} color={colors.semantic.info} />
-              <Text style={styles.sectionTitle}>À découvrir</Text>
-            </View>
-            <Pressable onPress={() => router.push("/(app)/explore")}>
-              <Text style={styles.seeAll}>Explorer</Text>
-            </Pressable>
-          </View>
-
-          {publicFavorites.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="compass" size={32} color={colors.neutral.muted} />
-              <Text style={styles.emptyText}>
-                Explorez les recettes publiques
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.recipesGrid}>
-              {publicFavorites.map((recipe) => (
-                <Pressable
-                  key={recipe.id}
-                  style={({ pressed }) => [
-                    styles.recipeCard,
-                    pressed && styles.recipeCardPressed,
-                  ]}
-                  onPress={() => router.push(`/(app)/recipes/${recipe.id}`)}
-                >
-                  <View
-                    style={[
-                      styles.recipeIcon,
-                      { backgroundColor: colors.semantic.info + "15" },
-                    ]}
-                  >
-                    <Ionicons
-                      name="beer"
-                      size={24}
-                      color={colors.semantic.info}
-                    />
-                  </View>
-                  <Text style={styles.recipeName} numberOfLines={1}>
-                    {recipe.name}
-                  </Text>
-                  <Text style={styles.recipeMeta}>Recette publique</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </Card>
-
-        {/* Equipment Summary */}
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons
-                name="construct"
-                size={18}
-                color={colors.semantic.warning}
-              />
-              <Text style={styles.sectionTitle}>Mon équipement</Text>
-            </View>
-            <Pressable onPress={() => router.push("/(app)/equipment")}>
-              <Text style={styles.seeAll}>Gérer</Text>
-            </Pressable>
-          </View>
-          <View style={styles.equipmentSummary}>
-            <View style={styles.equipmentIcon}>
-              <Ionicons
-                name="server"
-                size={24}
-                color={colors.semantic.warning}
-              />
-            </View>
-            <View style={styles.equipmentInfo}>
-              <Text style={styles.equipmentText}>
-                {stats.equipment} équipements configurés
-              </Text>
-              <Text style={styles.equipmentSubtext}>Prêt à brasser</Text>
-            </View>
+              );
+            })}
           </View>
         </Card>
-
-        {/* Logout */}
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out" size={18} color={colors.semantic.error} />
-          <Text style={styles.logoutText}>Se déconnecter</Text>
-        </Pressable>
       </ScrollView>
+
+      <Modal
+        transparent
+        animationType="slide"
+        visible={isMoreSheetVisible}
+        onRequestClose={() => setIsMoreSheetVisible(false)}
+      >
+        <View style={styles.modalRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Fermer Voir plus"
+            onPress={() => setIsMoreSheetVisible(false)}
+            style={styles.modalOverlay}
+          />
+          <View style={styles.bottomSheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Voir plus</Text>
+
+            <Text style={styles.sheetSectionTitle}>Sections métier</Text>
+            {MORE_BUSINESS_SECTIONS.map((item) => (
+              <Pressable
+                key={item.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Ouvrir ${item.label}`}
+                onPress={() => handleMoreItemPress(item)}
+                style={({ pressed }) => [
+                  styles.sheetItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={18}
+                  color={colors.brand.secondary}
+                />
+                <Text style={styles.sheetItemLabel}>{item.label}</Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+            ))}
+
+            <Text style={styles.sheetSectionTitle}>Compte</Text>
+            {MORE_ACCOUNT_SECTIONS.map((item) => (
+              <Pressable
+                key={item.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Ouvrir ${item.label}`}
+                onPress={() => handleMoreItemPress(item)}
+                style={({ pressed }) => [
+                  styles.sheetItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={18}
+                  color={colors.brand.secondary}
+                />
+                <Text style={styles.sheetItemLabel}>{item.label}</Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={isProfileSheetVisible}
+        onRequestClose={handleCloseProfilePanel}
+      >
+        <View style={styles.modalRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Fermer le profil"
+            onPress={handleCloseProfilePanel}
+            style={styles.modalOverlay}
+          />
+          <View style={styles.profileSheet}>
+            <Text style={styles.sheetTitle}>Profil</Text>
+            <Text style={styles.profileName}>{displayName}</Text>
+            <Text style={styles.profileEmail}>{session?.user.email}</Text>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ouvrir les paramètres globaux"
+              onPress={handleOpenSettings}
+              style={({ pressed }) => [
+                styles.profileAction,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.profileActionText}>Paramètres globaux</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Se déconnecter"
+              onPress={handleLogout}
+              style={({ pressed }) => [
+                styles.profileAction,
+                styles.profileLogoutAction,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons
+                name="log-out-outline"
+                size={18}
+                color={colors.semantic.error}
+              />
+              <Text style={styles.profileLogoutText}>Se déconnecter</Text>
+            </Pressable>
+
+            {profileMessage ? (
+              <Text style={styles.profileMessage}>{profileMessage}</Text>
+            ) : null}
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Fermer le panneau profil"
+              onPress={handleCloseProfilePanel}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.closeButtonText}>Fermer</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -448,97 +1081,62 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xl,
-    paddingTop: 0,
+    gap: spacing.sm,
   },
-  hero: {
-    backgroundColor: colors.brand.primary,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    marginBottom: spacing.md,
-  },
-  heroContent: {
-    alignItems: "flex-start",
-  },
-  greeting: {
-    fontSize: typography.size.h2,
-    color: colors.neutral.white,
-    opacity: 0.9,
-  },
-  heroName: {
-    fontSize: typography.size.h1,
-    fontWeight: typography.weight.bold,
-    color: colors.neutral.white,
-    marginTop: spacing.xxs,
-  },
-  heroSubtext: {
-    fontSize: typography.size.body,
-    color: colors.neutral.white,
-    opacity: 0.8,
-    marginTop: spacing.xs,
-  },
-  quickActions: {
-    flexDirection: "row",
-    paddingHorizontal: spacing.sm,
-    gap: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  actionCard: {
-    flex: 1,
+  headerCard: {
     backgroundColor: colors.neutral.white,
     borderRadius: radius.lg,
-    padding: spacing.sm,
-    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.neutral.border,
-  },
-  actionCardPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
-  },
-  actionIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing.xs,
-  },
-  actionLabel: {
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
-    color: colors.neutral.textPrimary,
-    textAlign: "center",
-  },
-  statsRow: {
-    flexDirection: "row",
-    paddingHorizontal: spacing.sm,
-    gap: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  statCard: {
-    flex: 1,
-    borderRadius: radius.lg,
     padding: spacing.sm,
-  },
-  statHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  statValue: {
-    fontSize: typography.size.h2,
+  headerIdentity: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    flex: 1,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.primary + "30",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.secondary,
+  },
+  headerName: {
+    fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
-  statLabel: {
+  headerSubtitle: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
-    marginTop: spacing.xxs,
+  },
+  profileButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    backgroundColor: colors.brand.background,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  profileButtonText: {
+    fontSize: typography.size.caption,
+    color: colors.brand.secondary,
+    fontWeight: typography.weight.medium,
   },
   sectionCard: {
-    marginHorizontal: spacing.sm,
-    marginBottom: spacing.sm,
+    borderRadius: radius.lg,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -546,156 +1144,332 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: spacing.sm,
   },
-  sectionTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
   sectionTitle: {
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
-  seeAll: {
+  sectionMeta: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  periodFilters: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  periodChip: {
+    flex: 1,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    paddingVertical: spacing.xs,
+    alignItems: "center",
+  },
+  periodChipSelected: {
+    backgroundColor: colors.brand.secondary,
+    borderColor: colors.brand.secondary,
+  },
+  periodChipText: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+    fontWeight: typography.weight.medium,
+  },
+  periodChipTextSelected: {
+    color: colors.neutral.white,
+  },
+  kpiRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: radius.md,
+    backgroundColor: colors.brand.background,
+    padding: spacing.sm,
+  },
+  kpiTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.xs,
+  },
+  kpiValue: {
+    fontSize: typography.size.h2,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  kpiLabel: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  alertsList: {
+    gap: spacing.sm,
+  },
+  alertItem: {
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    gap: spacing.sm,
+  },
+  alertContent: {
+    gap: spacing.xxs,
+  },
+  alertBatchName: {
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  alertMetaText: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  alertDueText: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textPrimary,
+    fontWeight: typography.weight.medium,
+  },
+  alertActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  statusPill: {
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+  },
+  statusPillText: {
     fontSize: typography.size.caption,
     fontWeight: typography.weight.medium,
+  },
+  openBatchButton: {
+    backgroundColor: colors.brand.secondary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  openBatchButtonText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.medium,
+  },
+  linkButton: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xxs,
+  },
+  linkButtonText: {
+    fontSize: typography.size.caption,
     color: colors.brand.secondary,
+    fontWeight: typography.weight.medium,
   },
   emptyState: {
     alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
     paddingVertical: spacing.md,
   },
-  emptyText: {
+  emptyStateText: {
     fontSize: typography.size.label,
-    color: colors.neutral.muted,
-    marginTop: spacing.xs,
+    color: colors.neutral.textSecondary,
   },
-  emptyButton: {
-    marginTop: spacing.sm,
+  emptyStateAction: {
+    marginTop: spacing.xs,
     backgroundColor: colors.brand.secondary,
+    borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: radius.md,
   },
-  emptyButtonText: {
+  emptyStateActionText: {
+    color: colors.neutral.white,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.medium,
-    color: colors.neutral.white,
   },
-  batchesList: {
-    gap: spacing.xs,
+  activeBatchesList: {
+    gap: spacing.sm,
   },
-  batchItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.neutral.white,
+  activeBatchItem: {
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
     borderRadius: radius.md,
     padding: spacing.sm,
+    gap: spacing.xs,
   },
-  batchIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.brand.secondary + "15",
-    justifyContent: "center",
+  activeBatchHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    marginRight: spacing.sm,
+    justifyContent: "space-between",
   },
-  batchInfo: {
-    flex: 1,
-  },
-  batchName: {
+  activeBatchTitle: {
     fontSize: typography.size.label,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
-  batchStep: {
+  activeBatchMeta: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
-    marginTop: 2,
   },
-  statusBadge: {
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: typography.weight.medium,
-  },
-  recipesGrid: {
+  timelineRow: {
     flexDirection: "row",
     gap: spacing.xs,
   },
-  recipeCard: {
+  timelineItem: {
     flex: 1,
-    backgroundColor: colors.neutral.white,
+    alignItems: "center",
+    gap: spacing.xxs,
+  },
+  timelineDot: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.full,
+  },
+  timelineDotPast: {
+    backgroundColor: colors.semantic.success,
+  },
+  timelineDotCurrent: {
+    backgroundColor: colors.brand.secondary,
+  },
+  timelineDotNext: {
+    backgroundColor: colors.neutral.muted,
+  },
+  timelineLabel: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  navigationGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
+  navigationCard: {
+    width: "48%",
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
     borderRadius: radius.md,
     padding: spacing.sm,
-    alignItems: "center",
+    gap: spacing.xs,
   },
-  recipeCardPressed: {
-    opacity: 0.8,
-  },
-  recipeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    backgroundColor: colors.brand.primary + "15",
-    justifyContent: "center",
+  navigationTopRow: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: spacing.xs,
+  },
+  navigationTitle: {
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  navigationMetric: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  modalRoot: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.neutral.black + "55",
+  },
+  bottomSheet: {
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    backgroundColor: colors.neutral.white,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  sheetHandle: {
+    width: 44,
+    height: spacing.xxs,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral.border,
+    alignSelf: "center",
     marginBottom: spacing.xs,
   },
-  recipeName: {
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
+  sheetTitle: {
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
-    textAlign: "center",
+    marginBottom: spacing.xs,
   },
-  recipeMeta: {
-    fontSize: 10,
+  sheetSectionTitle: {
+    fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
-  equipmentSummary: {
+  sheetItem: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  sheetItemLabel: {
+    flex: 1,
+    fontSize: typography.size.label,
+    color: colors.neutral.textPrimary,
+  },
+  profileSheet: {
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     backgroundColor: colors.neutral.white,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  profileName: {
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  profileEmail: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+  },
+  profileAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
     borderRadius: radius.md,
     padding: spacing.sm,
   },
-  equipmentIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    backgroundColor: colors.semantic.warning + "15",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: spacing.sm,
-  },
-  equipmentInfo: {
-    flex: 1,
-  },
-  equipmentText: {
+  profileActionText: {
     fontSize: typography.size.label,
-    fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
   },
-  equipmentSubtext: {
+  profileLogoutAction: {
+    borderColor: colors.semantic.error + "40",
+    backgroundColor: colors.state.errorBackground,
+  },
+  profileLogoutText: {
+    fontSize: typography.size.label,
+    color: colors.semantic.error,
+    fontWeight: typography.weight.medium,
+  },
+  profileMessage: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    marginTop: spacing.md,
-    marginHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
+  closeButton: {
+    alignSelf: "flex-end",
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xxs,
   },
-  logoutText: {
-    fontSize: typography.size.label,
-    color: colors.semantic.error,
+  closeButtonText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.medium,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

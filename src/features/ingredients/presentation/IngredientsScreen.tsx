@@ -74,7 +74,7 @@ export function IngredientsScreen() {
           return (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={`Ouvrir la catégorie ${cardTitle}`}
+              accessibilityLabel={`Ouvrir la catégorie ${ingredientCategoryLabels[item.category]}`}
               onPress={() =>
                 router.push({
                   pathname: "/(app)/ingredients/[category]",

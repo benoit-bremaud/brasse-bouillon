@@ -157,6 +157,9 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
               styles.headerCategoryIcon,
               { backgroundColor: presentation.iconColor + "20" },
             ]}
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
           >
             <Ionicons
               name={presentation.iconName}

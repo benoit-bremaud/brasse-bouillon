@@ -25,8 +25,12 @@ export const shopCategories: {
   { id: "houblons", name: "Houblons", icon: "leaf" },
   { id: "levures", name: "Levures", icon: "bug" },
   { id: "kits", name: "Kits", icon: "gift" },
-  { id: "materiel", name: "L'Office 🍽️", icon: "construct" },
-  { id: "accessoires", name: "L'Épicerie 🌶️", icon: "restaurant" },
+  { id: "materiel", name: "L'Office 🍽️", icon: "construct-outline" },
+  {
+    id: "accessoires",
+    name: "L'Épicerie 🌶️",
+    icon: "restaurant-outline",
+  },
 ];
 
 // Type guard for validating shop category strings

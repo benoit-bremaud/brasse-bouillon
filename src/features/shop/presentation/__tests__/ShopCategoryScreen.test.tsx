@@ -1,10 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
-import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScreen";
 import React from "react";
+import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScreen";
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
+
+jest.mock("@expo/vector-icons", () => {
+  return {
+    Ionicons: () => null,
+  };
+});
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");

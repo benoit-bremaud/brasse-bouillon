@@ -5,6 +5,12 @@ import React from "react";
 
 const mockPush = jest.fn();
 
+jest.mock("@expo/vector-icons", () => {
+  return {
+    Ionicons: () => null,
+  };
+});
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
   return {

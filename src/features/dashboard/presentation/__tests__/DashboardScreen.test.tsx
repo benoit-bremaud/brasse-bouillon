@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 
 import { DashboardScreen } from "@/features/dashboard/presentation/DashboardScreen";
 import React from "react";
@@ -6,6 +11,12 @@ import React from "react";
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 const mockLogout = jest.fn().mockResolvedValue(undefined);
+
+jest.mock("@expo/vector-icons", () => {
+  return {
+    Ionicons: () => null,
+  };
+});
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
@@ -97,6 +108,8 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Paramètres globaux")).toBeTruthy();
 
     fireEvent.press(screen.getByLabelText("Se déconnecter"));
-    expect(mockLogout).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockLogout).toHaveBeenCalledTimes(1);
+    });
   });
 });

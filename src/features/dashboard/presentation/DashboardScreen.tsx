@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { BatchSummary } from "@/features/batches/domain/batch.types";
@@ -22,6 +22,7 @@ import { getErrorMessage } from "@/core/http/http-error";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { useAuth } from "@/core/auth/auth-context";
+import { useQuery } from "@tanstack/react-query";
 
 // Time constants.
 const HOUR_MS = 60 * 60 * 1000;
@@ -325,37 +326,41 @@ export function DashboardScreen() {
   const { session, logout } = useAuth();
   const isUsingDemoData = dataSource.useDemoData;
 
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [batches, setBatches] = useState<BatchSummary[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
   const [isProfileSheetVisible, setIsProfileSheetVisible] = useState(false);
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const {
+    data: recipes = [],
+    isLoading: isRecipesLoading,
+    error: recipesError,
+    refetch: refetchRecipes,
+  } = useQuery<Recipe[]>({
+    queryKey: ["recipes", "list"],
+    queryFn: listRecipes,
+  });
 
-    try {
-      const [recipeData, batchData] = await Promise.all([
-        listRecipes(),
-        listBatches(),
-      ]);
+  const {
+    data: batches = [],
+    isLoading: isBatchesLoading,
+    error: batchesError,
+    refetch: refetchBatches,
+  } = useQuery<BatchSummary[]>({
+    queryKey: ["batches", "list"],
+    queryFn: listBatches,
+  });
 
-      setRecipes(recipeData);
-      setBatches(batchData);
-    } catch (err) {
-      setError(getErrorMessage(err, "Impossible de charger le dashboard"));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const isLoading = isRecipesLoading || isBatchesLoading;
+  const queryError = recipesError ?? batchesError;
+  const error = queryError
+    ? getErrorMessage(queryError, "Impossible de charger le dashboard")
+    : null;
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const handleRetry = useCallback(() => {
+    void refetchRecipes();
+    void refetchBatches();
+  }, [refetchBatches, refetchRecipes]);
 
   const [referenceDate] = useState(() => new Date());
 
@@ -629,7 +634,7 @@ export function DashboardScreen() {
   );
 
   return (
-    <Screen isLoading={isLoading} error={error} onRetry={fetchData}>
+    <Screen isLoading={isLoading} error={error} onRetry={handleRetry}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

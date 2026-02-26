@@ -3,17 +3,18 @@ import {
   IngredientCategory,
   isIngredientCategory,
 } from "@/features/ingredients/domain/ingredient.types";
-import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { colors, spacing, typography } from "@/core/theme";
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
+import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { getErrorMessage } from "@/core/http/http-error";
 import { getIngredientCategoryPageTitle } from "@/features/ingredients/presentation/ingredient-category.presentation";
 import { getIngredientDetails } from "@/features/ingredients/application/ingredients.use-cases";
+import { useQuery } from "@tanstack/react-query";
 
 type Props = {
   categoryParam?: string;
@@ -68,32 +69,27 @@ export function IngredientDetailsScreen({
     ? normalizedCategory
     : null;
 
-  const [ingredient, setIngredient] = useState<Ingredient | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: ingredient = null,
+    isLoading,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<Ingredient | null>({
+    queryKey: ["ingredients", "details", category, ingredientIdParam],
+    queryFn: () => {
+      if (!category || !ingredientIdParam) {
+        return Promise.resolve(null);
+      }
 
-  const fetchIngredient = async () => {
-    if (!category || !ingredientIdParam) {
-      return;
-    }
+      return getIngredientDetails(category, ingredientIdParam);
+    },
+    enabled: Boolean(category && ingredientIdParam),
+  });
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getIngredientDetails(category, ingredientIdParam);
-      setIngredient(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to load ingredient sheet"));
-    } finally {
-      setIsLoading(false);
-      setHasFetched(true);
-    }
-  };
-
-  useEffect(() => {
-    fetchIngredient();
-  }, [category, ingredientIdParam]);
+  const error = queryError
+    ? getErrorMessage(queryError, "Unable to load ingredient sheet")
+    : null;
 
   if (!category || !ingredientIdParam) {
     return (
@@ -106,7 +102,7 @@ export function IngredientDetailsScreen({
     );
   }
 
-  if (hasFetched && !isLoading && !ingredient && !error) {
+  if (isFetched && !isLoading && !ingredient && !error) {
     return (
       <Screen>
         <EmptyStateCard
@@ -118,7 +114,13 @@ export function IngredientDetailsScreen({
   }
 
   return (
-    <Screen isLoading={isLoading} error={error} onRetry={fetchIngredient}>
+    <Screen
+      isLoading={isLoading}
+      error={error}
+      onRetry={() => {
+        void refetch();
+      }}
+    >
       {ingredient ? (
         <>
           <ListHeader

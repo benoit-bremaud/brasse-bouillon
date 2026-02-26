@@ -1,9 +1,17 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { IngredientCategoryScreen } from "@/features/ingredients/presentation/IngredientCategoryScreen";
 import React from "react";
+import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
 
 const mockPush = jest.fn();
+
+jest.mock("@expo/vector-icons", () => {
+  return {
+    Ionicons: () => null,
+  };
+});
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
@@ -18,28 +26,54 @@ jest.mock("expo-router", () => {
 });
 
 jest.mock("@/features/ingredients/application/ingredients.use-cases", () => ({
-  listIngredientsByCategory: jest.fn().mockResolvedValue([
-    {
-      id: "malt-1",
-      name: "Pale Ale Malt",
-      category: "malt",
-      origin: "France",
-      supplier: "Malterie du Château",
-      maltType: "base",
-      ebc: 6,
-      potentialSg: 1.037,
-      maxPercent: 100,
-    },
-  ]),
+  listIngredientsByCategory: jest.fn(),
 }));
+
+const mockedListIngredientsByCategory =
+  listIngredientsByCategory as jest.MockedFunction<
+    typeof listIngredientsByCategory
+  >;
+
+function renderIngredientCategoryScreen(categoryParam = "malt") {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <IngredientCategoryScreen categoryParam={categoryParam} />
+    </QueryClientProvider>,
+  );
+}
 
 describe("IngredientCategoryScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockedListIngredientsByCategory.mockReset();
+    mockedListIngredientsByCategory.mockResolvedValue([
+      {
+        id: "malt-1",
+        name: "Pale Ale Malt",
+        category: "malt",
+        origin: "France",
+        supplier: "Malterie du Château",
+        maltType: "base",
+        ebc: 6,
+        potentialSg: 1.037,
+        maxPercent: 100,
+      },
+    ]);
   });
 
   it("renders themed category title and ingredient row", async () => {
-    render(<IngredientCategoryScreen categoryParam="malt" />);
+    renderIngredientCategoryScreen("malt");
 
     expect(await screen.findByText("La Malterie 🌾")).toBeTruthy();
     expect(screen.getByText("Recherche et filtres rapides")).toBeTruthy();
@@ -48,7 +82,7 @@ describe("IngredientCategoryScreen", () => {
   });
 
   it("navigates to ingredient details from list item", async () => {
-    render(<IngredientCategoryScreen categoryParam="malt" />);
+    renderIngredientCategoryScreen("malt");
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
 

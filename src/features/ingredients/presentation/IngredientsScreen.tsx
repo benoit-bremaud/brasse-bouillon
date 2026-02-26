@@ -3,7 +3,6 @@ import {
   IngredientCategorySummary,
   ingredientCategoryLabels,
 } from "@/features/ingredients/domain/ingredient.types";
-import React, { useEffect, useState } from "react";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
@@ -15,43 +14,42 @@ import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
+import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { getErrorMessage } from "@/core/http/http-error";
 import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 export function IngredientsScreen() {
   const router = useRouter();
-  const [categories, setCategories] = useState<IngredientCategorySummary[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: categories = [],
+    isLoading,
+    isFetching,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<IngredientCategorySummary[]>({
+    queryKey: ["ingredients", "categories-summary"],
+    queryFn: listIngredientCategoriesSummary,
+  });
 
-  const fetchCategories = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await listIngredientCategoriesSummary();
-      setCategories(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to load categories"));
-    } finally {
-      setIsLoading(false);
-      setHasFetched(true);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const showEmptyState = hasFetched && !isLoading && categories.length === 0;
+  const error = queryError
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Unable to load categories")
+    : null;
+  const showEmptyState = isFetched && !isLoading && categories.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
 
   return (
     <Screen
-      isLoading={isLoading && categories.length === 0}
+      isLoading={(isLoading && categories.length === 0) || isRetryingWithError}
       error={error}
-      onRetry={fetchCategories}
+      onRetry={() => {
+        void refetch();
+      }}
     >
       <ListHeader title="Ingrédients" subtitle="Catalogue par catégorie" />
 

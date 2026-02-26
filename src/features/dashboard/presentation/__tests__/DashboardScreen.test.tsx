@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   fireEvent,
   render,
@@ -82,6 +83,25 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
   ]),
 }));
 
+function renderDashboardScreen() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <DashboardScreen />
+    </QueryClientProvider>,
+  );
+}
+
 describe("DashboardScreen", () => {
   beforeEach(() => {
     mockPush.mockClear();
@@ -90,7 +110,7 @@ describe("DashboardScreen", () => {
   });
 
   it("renders the new dashboard sections and interactions", async () => {
-    render(<DashboardScreen />);
+    renderDashboardScreen();
 
     expect(await screen.findByText("Tableau de bord brassage")).toBeTruthy();
     expect(screen.getByText("Benoit")).toBeTruthy();

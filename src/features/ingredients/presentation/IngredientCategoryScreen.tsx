@@ -12,7 +12,7 @@ import {
   IngredientFilters,
   isIngredientCategory,
 } from "@/features/ingredients/domain/ingredient.types";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
@@ -26,6 +26,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { getErrorMessage } from "@/core/http/http-error";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 type Props = {
@@ -59,15 +60,11 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     ? normalizedCategory
     : null;
 
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [search, setSearch] = useState("");
   const [ebcMin, setEbcMin] = useState("");
   const [ebcMax, setEbcMax] = useState("");
   const [alphaMin, setAlphaMin] = useState("");
   const [attenuationMin, setAttenuationMin] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const filters = useMemo<IngredientFilters>(() => {
     const common: IngredientFilters = {
@@ -99,27 +96,30 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     return common;
   }, [alphaMin, attenuationMin, category, ebcMax, ebcMin, search]);
 
-  const fetchIngredients = async () => {
-    if (!category) {
-      return;
-    }
+  const {
+    data: ingredients = [],
+    isLoading,
+    isFetching,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<Ingredient[]>({
+    queryKey: ["ingredients", "category", category, filters],
+    queryFn: () => {
+      if (!category) {
+        return Promise.resolve([]);
+      }
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await listIngredientsByCategory(category, filters);
-      setIngredients(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to load ingredients"));
-    } finally {
-      setIsLoading(false);
-      setHasFetched(true);
-    }
-  };
+      return listIngredientsByCategory(category, filters);
+    },
+    enabled: Boolean(category),
+  });
 
-  useEffect(() => {
-    fetchIngredients();
-  }, [category, filters]);
+  const error = queryError
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Unable to load ingredients")
+    : null;
 
   if (!category) {
     return (
@@ -132,7 +132,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     );
   }
 
-  const showEmptyState = hasFetched && !isLoading && ingredients.length === 0;
+  const showEmptyState = isFetched && !isLoading && ingredients.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
   const numericInputProps = {
     keyboardType: "decimal-pad" as const,
     autoCorrect: false,
@@ -144,9 +145,11 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
   return (
     <Screen
-      isLoading={isLoading && ingredients.length === 0}
+      isLoading={(isLoading && ingredients.length === 0) || isRetryingWithError}
       error={error}
-      onRetry={fetchIngredients}
+      onRetry={() => {
+        void refetch();
+      }}
     >
       <ListHeader
         title={categoryPageTitle}

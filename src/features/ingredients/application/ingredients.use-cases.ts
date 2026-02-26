@@ -5,6 +5,11 @@ import {
   IngredientCategorySummary,
   IngredientFilters,
 } from "@/features/ingredients/domain/ingredient.types";
+import {
+  getIngredientDetailsApi,
+  listIngredientCategoriesSummaryApi,
+  listIngredientsByCategoryApi,
+} from "@/features/ingredients/data/ingredients.api";
 
 import { dataSource } from "@/core/data/data-source";
 import { demoIngredients } from "@/mocks/demo-data";
@@ -65,29 +70,27 @@ function getDemoIngredientsByCategory(
 export async function listIngredientCategoriesSummary(): Promise<
   IngredientCategorySummary[]
 > {
-  if (!dataSource.useDemoData) {
-    throw new Error(
-      "Ingredient catalogue live API is not available yet. Enable demo data to use ingredients.",
-    );
+  if (dataSource.useDemoData) {
+    return INGREDIENT_CATEGORIES.map((category) => ({
+      category,
+      count: demoIngredients.filter((item) => item.category === category)
+        .length,
+    }));
   }
 
-  return INGREDIENT_CATEGORIES.map((category) => ({
-    category,
-    count: demoIngredients.filter((item) => item.category === category).length,
-  }));
+  return listIngredientCategoriesSummaryApi();
 }
 
 export async function listIngredientsByCategory(
   category: IngredientCategory,
   filters: IngredientFilters = {},
 ): Promise<Ingredient[]> {
-  if (!dataSource.useDemoData) {
-    throw new Error(
-      "Ingredient catalogue live API is not available yet. Enable demo data to use ingredients.",
-    );
+  if (dataSource.useDemoData) {
+    const categoryItems = getDemoIngredientsByCategory(category);
+    return applyFilters(categoryItems, category, filters);
   }
 
-  const categoryItems = getDemoIngredientsByCategory(category);
+  const categoryItems = await listIngredientsByCategoryApi(category);
   return applyFilters(categoryItems, category, filters);
 }
 
@@ -99,15 +102,13 @@ export async function getIngredientDetails(
     return null;
   }
 
-  if (!dataSource.useDemoData) {
-    throw new Error(
-      "Ingredient catalogue live API is not available yet. Enable demo data to use ingredients.",
+  if (dataSource.useDemoData) {
+    return (
+      demoIngredients.find(
+        (item) => item.id === ingredientId && item.category === category,
+      ) ?? null
     );
   }
 
-  return (
-    demoIngredients.find(
-      (item) => item.id === ingredientId && item.category === category,
-    ) ?? null
-  );
+  return getIngredientDetailsApi(category, ingredientId);
 }

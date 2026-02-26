@@ -83,7 +83,7 @@ const academyTopicsData: AcademyTopic[] = [
   },
   {
     slug: "eau",
-    title: "Eau",
+    title: "Le Puits 💧",
     shortDescription:
       "Comment l'eau façonne le goût — profils minéraux, pH et ajustements par style brassicole.",
     calculatorDescription: "Ajuste le profil minéral de ton eau de brassage",

@@ -28,7 +28,7 @@ describe("ToolsHubScreen", () => {
     expect(screen.getByText("Calculateurs")).toBeTruthy();
     expect(screen.getByText("Alcool & Densité")).toBeTruthy();
     expect(screen.getByText("Couleur")).toBeTruthy();
-    expect(screen.getByText("Eau")).toBeTruthy();
+    expect(screen.getByText("Le Puits 💧")).toBeTruthy();
   });
 
   it("opens a calculator card action", () => {

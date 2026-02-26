@@ -1,20 +1,20 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
+import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { demoEquipments } from "@/mocks/demo-data";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
 
 export function EquipmentScreen() {
   return (
     <Screen>
       <ListHeader
-        title="Équipements"
-        subtitle="Inventaire fictif pour la démo"
+        title="L'Office 🍽️"
+        subtitle="Matériel brassicole disponible"
       />
 
       <FlatList

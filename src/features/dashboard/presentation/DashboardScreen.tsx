@@ -23,8 +23,14 @@ import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { useAuth } from "@/core/auth/auth-context";
 
+// Time constants.
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
+
+// Brewing defaults.
+const FERMENTATION_DAYS = 7;
+const BOTTLING_DAYS = 10;
+const MIN_RECIPE_INGREDIENTS = 3;
 
 type PeriodKey = "year" | "90d" | "30d";
 type AlertStatus = "Bientôt" | "Urgent" | "En retard";
@@ -48,6 +54,11 @@ type NavigationCard = {
   metric: string;
   status: string;
   color: string;
+};
+
+type IngredientsMetric = {
+  metric: string;
+  status: string;
 };
 
 type MoreSectionItem = {
@@ -79,8 +90,16 @@ const BREWING_STEPS: BrewStepConfig[] = [
   { label: "Empâtage", expectedHours: 2, isCriticalQuality: false },
   { label: "Ébullition", expectedHours: 8, isCriticalQuality: false },
   { label: "Fermentation", expectedHours: 24, isCriticalQuality: true },
-  { label: "Conditionnement", expectedHours: 7 * 24, isCriticalQuality: true },
-  { label: "Embouteillage", expectedHours: 10 * 24, isCriticalQuality: true },
+  {
+    label: "Conditionnement",
+    expectedHours: FERMENTATION_DAYS * 24,
+    isCriticalQuality: true,
+  },
+  {
+    label: "Embouteillage",
+    expectedHours: BOTTLING_DAYS * 24,
+    isCriticalQuality: true,
+  },
 ];
 
 const TOP_NAVIGATION_IDS = ["batches", "recipes", "ingredients", "tools"];
@@ -139,10 +158,15 @@ const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
 
 function parseDateOrNow(value: string, fallback: Date): Date {
   const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) {
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed);
+  }
+
+  if (!Number.isNaN(fallback.getTime())) {
     return fallback;
   }
-  return new Date(parsed);
+
+  return new Date();
 }
 
 function clampStepIndex(stepOrder?: number | null): number {
@@ -200,7 +224,7 @@ function isWithinSelectedPeriod(
 
   const date = new Date(parsed);
   if (period === "year") {
-    return date.getFullYear() === now.getFullYear();
+    return date.getUTCFullYear() === now.getUTCFullYear();
   }
 
   const numberOfDays = period === "90d" ? 90 : 30;
@@ -213,7 +237,16 @@ function isWithinSelectedPeriod(
 function isRecipeDraft(recipe: Recipe): boolean {
   const ingredientCount = recipe.ingredients?.length ?? 0;
   const hasStats = Boolean(recipe.stats);
-  return ingredientCount < 3 || !hasStats;
+  return ingredientCount < MIN_RECIPE_INGREDIENTS || !hasStats;
+}
+
+function getDueAtForCurrentStep(startedAt: Date, stepIndex: number): Date {
+  const totalExpectedHours = BREWING_STEPS.slice(0, stepIndex + 1).reduce(
+    (total, step) => total + step.expectedHours,
+    0,
+  );
+
+  return new Date(startedAt.getTime() + totalExpectedHours * HOUR_MS);
 }
 
 function buildBatchAlert(
@@ -228,9 +261,7 @@ function buildBatchAlert(
   const currentStep = BREWING_STEPS[stepIndex];
   const nextStep = BREWING_STEPS[stepIndex + 1];
   const startedAt = parseDateOrNow(batch.startedAt, now);
-  const dueAt = new Date(
-    startedAt.getTime() + currentStep.expectedHours * HOUR_MS,
-  );
+  const dueAt = getDueAtForCurrentStep(startedAt, stepIndex);
 
   return {
     id: `${batch.id}-${currentStep.label}`,
@@ -292,6 +323,7 @@ function getStatusColors(status: string): {
 export function DashboardScreen() {
   const router = useRouter();
   const { session, logout } = useAuth();
+  const isUsingDemoData = dataSource.useDemoData;
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [batches, setBatches] = useState<BatchSummary[]>([]);
@@ -325,10 +357,7 @@ export function DashboardScreen() {
     fetchData();
   }, [fetchData]);
 
-  const referenceDate = useMemo(
-    () => new Date(),
-    [batches, recipes, selectedPeriod],
-  );
+  const [referenceDate] = useState(() => new Date());
 
   const displayName =
     session?.user.firstName ||
@@ -394,32 +423,35 @@ export function DashboardScreen() {
     [filteredAlerts],
   );
 
+  const filteredAlertsMap = useMemo(
+    () => new Map(filteredAlerts.map((alert) => [alert.batchId, alert])),
+    [filteredAlerts],
+  );
+
   const sortedActiveBatches = useMemo(() => {
-    const alertsMap = new Map(alerts.map((alert) => [alert.batchId, alert]));
+    const compareBatches = (batchA: BatchSummary, batchB: BatchSummary) => {
+      const alertA = filteredAlertsMap.get(batchA.id);
+      const alertB = filteredAlertsMap.get(batchB.id);
 
-    return [...activeBatches]
-      .sort((batchA, batchB) => {
-        const alertA = alertsMap.get(batchA.id);
-        const alertB = alertsMap.get(batchB.id);
+      if (!alertA && !alertB) {
+        return 0;
+      }
+      if (!alertA) {
+        return 1;
+      }
+      if (!alertB) {
+        return -1;
+      }
 
-        if (!alertA && !alertB) {
-          return 0;
-        }
-        if (!alertA) {
-          return 1;
-        }
-        if (!alertB) {
-          return -1;
-        }
+      if (alertA.isCriticalQuality !== alertB.isCriticalQuality) {
+        return alertA.isCriticalQuality ? -1 : 1;
+      }
 
-        if (alertA.isCriticalQuality !== alertB.isCriticalQuality) {
-          return alertA.isCriticalQuality ? -1 : 1;
-        }
+      return alertA.dueAt.getTime() - alertB.dueAt.getTime();
+    };
 
-        return alertA.dueAt.getTime() - alertB.dueAt.getTime();
-      })
-      .slice(0, 2);
-  }, [activeBatches, alerts]);
+    return [...filteredActiveBatches].sort(compareBatches).slice(0, 2);
+  }, [filteredActiveBatches, filteredAlertsMap]);
 
   const filteredRecipes = useMemo(
     () =>
@@ -435,8 +467,8 @@ export function DashboardScreen() {
   );
 
   const missingIngredientsCount = useMemo(() => {
-    if (!dataSource.useDemoData) {
-      return 0;
+    if (!isUsingDemoData) {
+      return null;
     }
 
     const readyRecipes = filteredRecipes.filter(
@@ -455,17 +487,29 @@ export function DashboardScreen() {
     return [...requiredIngredientIds].filter(
       (ingredientId) => !availableIngredientIds.has(ingredientId),
     ).length;
-  }, [filteredRecipes]);
+  }, [filteredRecipes, isUsingDemoData]);
 
-  const favoriteToolsCount = useMemo(
-    () =>
-      academyTopics.filter(
-        (topic) => topic.hasCalculator && topic.status === "ready",
-      ).length,
-    [],
-  );
+  const ingredientsMetric = useMemo<IngredientsMetric>(() => {
+    if (missingIngredientsCount === null) {
+      return {
+        metric: "Stock live",
+        status: "Synchronisé",
+      };
+    }
 
-  const highlightedAlert = filteredAlerts[0] ?? alerts[0] ?? null;
+    return {
+      metric: `${missingIngredientsCount} manquant${
+        missingIngredientsCount > 1 ? "s" : ""
+      }`,
+      status: missingIngredientsCount === 0 ? "Complet" : "Incomplet",
+    };
+  }, [missingIngredientsCount]);
+
+  const favoriteToolsCount = academyTopics.filter(
+    (topic) => topic.hasCalculator && topic.status === "ready",
+  ).length;
+
+  const highlightedAlert = filteredAlerts[0] ?? null;
 
   const navigationCards = useMemo<NavigationCard[]>(
     () => [
@@ -494,10 +538,8 @@ export function DashboardScreen() {
         label: "Ingrédients",
         icon: "leaf-outline",
         href: "/(app)/ingredients",
-        metric: `${missingIngredientsCount} manquant${
-          missingIngredientsCount > 1 ? "s" : ""
-        }`,
-        status: missingIngredientsCount === 0 ? "Complet" : "Incomplet",
+        metric: ingredientsMetric.metric,
+        status: ingredientsMetric.status,
         color: colors.semantic.warning,
       },
       {
@@ -514,7 +556,7 @@ export function DashboardScreen() {
       draftRecipesCount,
       favoriteToolsCount,
       highlightedAlert,
-      missingIngredientsCount,
+      ingredientsMetric,
       referenceDate,
     ],
   );
@@ -570,7 +612,7 @@ export function DashboardScreen() {
       },
       {
         id: "due-actions",
-        label: "Actions <24h",
+        label: "Actions 24h",
         value: `${actionsDueCount}`,
         icon: "timer-outline" as const,
         color: colors.semantic.warning,
@@ -684,18 +726,20 @@ export function DashboardScreen() {
             <Text style={styles.sectionMeta}>Temps réel</Text>
           </View>
 
-          {alerts.length === 0 ? (
+          {filteredAlerts.length === 0 ? (
             <View style={styles.emptyState}>
               <Ionicons
                 name="checkmark-circle-outline"
                 size={28}
                 color={colors.semantic.success}
               />
-              <Text style={styles.emptyStateText}>Aucune alerte en cours</Text>
+              <Text style={styles.emptyStateText}>
+                Aucune alerte sur la période
+              </Text>
             </View>
           ) : (
             <View style={styles.alertsList}>
-              {alerts.slice(0, 3).map((alert) => {
+              {filteredAlerts.slice(0, 3).map((alert) => {
                 const statusColors = getStatusColors(alert.status);
 
                 return (
@@ -793,8 +837,7 @@ export function DashboardScreen() {
           ) : (
             <View style={styles.activeBatchesList}>
               {sortedActiveBatches.map((batch) => {
-                const alert =
-                  alerts.find((item) => item.batchId === batch.id) ?? null;
+                const alert = filteredAlertsMap.get(batch.id) ?? null;
                 const statusColors = getStatusColors(
                   alert?.status ?? "Bientôt",
                 );
@@ -941,6 +984,7 @@ export function DashboardScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Fermer Voir plus"
+            accessibilityHint="Touchez l’arrière-plan pour fermer la feuille Voir plus."
             onPress={() => setIsMoreSheetVisible(false)}
             style={styles.modalOverlay}
           />
@@ -1013,6 +1057,7 @@ export function DashboardScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Fermer le profil"
+            accessibilityHint="Touchez l’arrière-plan pour fermer le panneau profil."
             onPress={handleCloseProfilePanel}
             style={styles.modalOverlay}
           />

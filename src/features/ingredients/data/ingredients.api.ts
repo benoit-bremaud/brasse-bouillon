@@ -5,6 +5,7 @@ import {
   IngredientCategorySummary,
 } from "@/features/ingredients/domain/ingredient.types";
 
+import { authSession } from "@/core/auth/session";
 import { request } from "@/core/http/http-client";
 
 type RecipeListItemDto = {
@@ -48,6 +49,16 @@ type RecipeYeastDto = {
   created_at: string;
   updated_at: string;
 };
+
+const INGREDIENTS_CACHE_TTL_MS = 60 * 1000;
+
+type IngredientsCache = {
+  accessToken: string | null;
+  createdAt: number;
+  ingredients: Ingredient[];
+};
+
+let ingredientsCache: IngredientsCache | null = null;
 
 function toIngredientCategorySummary(
   ingredients: Ingredient[],
@@ -211,9 +222,25 @@ async function listYeastsByRecipe(recipeId: string): Promise<RecipeYeastDto[]> {
 }
 
 async function listAllIngredients(): Promise<Ingredient[]> {
+  const currentAccessToken = authSession.getAccessToken();
+  const now = Date.now();
+
+  if (
+    ingredientsCache &&
+    ingredientsCache.accessToken === currentAccessToken &&
+    now - ingredientsCache.createdAt <= INGREDIENTS_CACHE_TTL_MS
+  ) {
+    return ingredientsCache.ingredients;
+  }
+
   const recipeIds = await listRecipeIds();
 
   if (recipeIds.length === 0) {
+    ingredientsCache = {
+      accessToken: currentAccessToken,
+      createdAt: now,
+      ingredients: [],
+    };
     return [];
   }
 
@@ -233,7 +260,18 @@ async function listAllIngredients(): Promise<Ingredient[]> {
     }),
   );
 
-  return deduplicateIngredients(ingredientsByRecipe.flat());
+  const nextIngredients = deduplicateIngredients(ingredientsByRecipe.flat());
+  ingredientsCache = {
+    accessToken: currentAccessToken,
+    createdAt: now,
+    ingredients: nextIngredients,
+  };
+
+  return nextIngredients;
+}
+
+export function clearIngredientsApiCache() {
+  ingredientsCache = null;
 }
 
 export async function listIngredientCategoriesSummaryApi(): Promise<

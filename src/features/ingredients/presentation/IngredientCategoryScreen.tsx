@@ -99,6 +99,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   const {
     data: ingredients = [],
     isLoading,
+    isFetching,
     isFetched,
     error: queryError,
     refetch,
@@ -115,7 +116,9 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   });
 
   const error = queryError
-    ? getErrorMessage(queryError, "Unable to load ingredients")
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Unable to load ingredients")
     : null;
 
   if (!category) {
@@ -130,6 +133,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   }
 
   const showEmptyState = isFetched && !isLoading && ingredients.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
   const numericInputProps = {
     keyboardType: "decimal-pad" as const,
     autoCorrect: false,
@@ -141,7 +145,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
   return (
     <Screen
-      isLoading={isLoading && ingredients.length === 0}
+      isLoading={(isLoading && ingredients.length === 0) || isRetryingWithError}
       error={error}
       onRetry={() => {
         void refetch();

@@ -334,6 +334,7 @@ export function DashboardScreen() {
   const {
     data: recipes = [],
     isLoading: isRecipesLoading,
+    isFetching: isRecipesFetching,
     error: recipesError,
     refetch: refetchRecipes,
   } = useQuery<Recipe[]>({
@@ -344,6 +345,7 @@ export function DashboardScreen() {
   const {
     data: batches = [],
     isLoading: isBatchesLoading,
+    isFetching: isBatchesFetching,
     error: batchesError,
     refetch: refetchBatches,
   } = useQuery<BatchSummary[]>({
@@ -351,10 +353,14 @@ export function DashboardScreen() {
     queryFn: listBatches,
   });
 
-  const isLoading = isRecipesLoading || isBatchesLoading;
   const queryError = recipesError ?? batchesError;
+  const isFetching = isRecipesFetching || isBatchesFetching;
+  const isLoading =
+    isRecipesLoading || isBatchesLoading || (isFetching && Boolean(queryError));
   const error = queryError
-    ? getErrorMessage(queryError, "Impossible de charger le dashboard")
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Impossible de charger le dashboard")
     : null;
 
   const handleRetry = useCallback(() => {

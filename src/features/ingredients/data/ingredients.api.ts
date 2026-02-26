@@ -51,6 +51,7 @@ type RecipeYeastDto = {
 };
 
 const INGREDIENTS_CACHE_TTL_MS = 60 * 1000;
+const INGREDIENTS_FETCH_CONCURRENCY = 4;
 
 type IngredientsCache = {
   accessToken: string | null;
@@ -72,7 +73,7 @@ function toIngredientCategorySummary(
 function normalizeName(value: string): string {
   return value
     .trim()
-    .toLocaleLowerCase()
+    .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
@@ -89,7 +90,7 @@ function deduplicateIngredients(items: Ingredient[]): Ingredient[] {
   const uniqueByCategoryAndName = new Map<string, Ingredient>();
 
   items.forEach((item) => {
-    const key = `${item.category}:${item.name.toLocaleLowerCase()}`;
+    const key = `${item.category}:${item.name.toLowerCase()}`;
     if (!uniqueByCategoryAndName.has(key)) {
       uniqueByCategoryAndName.set(key, item);
     }
@@ -221,6 +222,22 @@ async function listYeastsByRecipe(recipeId: string): Promise<RecipeYeastDto[]> {
   return request<RecipeYeastDto[]>(`/recipes/${recipeId}/yeasts`);
 }
 
+async function listIngredientsForRecipe(
+  recipeId: string,
+): Promise<Ingredient[]> {
+  const [fermentables, hops, yeasts] = await Promise.all([
+    listFermentablesByRecipe(recipeId),
+    listHopsByRecipe(recipeId),
+    listYeastsByRecipe(recipeId),
+  ]);
+
+  return [
+    ...fermentables.map(mapFermentableToIngredient),
+    ...hops.map(mapHopToIngredient),
+    ...yeasts.map(mapYeastToIngredient),
+  ];
+}
+
 async function listAllIngredients(): Promise<Ingredient[]> {
   const currentAccessToken = authSession.getAccessToken();
   const now = Date.now();
@@ -244,21 +261,24 @@ async function listAllIngredients(): Promise<Ingredient[]> {
     return [];
   }
 
-  const ingredientsByRecipe = await Promise.all(
-    recipeIds.map(async (recipeId) => {
-      const [fermentables, hops, yeasts] = await Promise.all([
-        listFermentablesByRecipe(recipeId),
-        listHopsByRecipe(recipeId),
-        listYeastsByRecipe(recipeId),
-      ]);
+  const ingredientsByRecipe: Ingredient[][] = [];
 
-      return [
-        ...fermentables.map(mapFermentableToIngredient),
-        ...hops.map(mapHopToIngredient),
-        ...yeasts.map(mapYeastToIngredient),
-      ];
-    }),
-  );
+  for (
+    let startIndex = 0;
+    startIndex < recipeIds.length;
+    startIndex += INGREDIENTS_FETCH_CONCURRENCY
+  ) {
+    const recipeChunk = recipeIds.slice(
+      startIndex,
+      startIndex + INGREDIENTS_FETCH_CONCURRENCY,
+    );
+
+    const chunkResults = await Promise.all(
+      recipeChunk.map((recipeId) => listIngredientsForRecipe(recipeId)),
+    );
+
+    ingredientsByRecipe.push(...chunkResults);
+  }
 
   const nextIngredients = deduplicateIngredients(ingredientsByRecipe.flat());
   ingredientsCache = {

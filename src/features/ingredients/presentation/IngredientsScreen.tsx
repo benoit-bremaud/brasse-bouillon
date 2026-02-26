@@ -26,6 +26,7 @@ export function IngredientsScreen() {
   const {
     data: categories = [],
     isLoading,
+    isFetching,
     isFetched,
     error: queryError,
     refetch,
@@ -35,13 +36,16 @@ export function IngredientsScreen() {
   });
 
   const error = queryError
-    ? getErrorMessage(queryError, "Unable to load categories")
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Unable to load categories")
     : null;
   const showEmptyState = isFetched && !isLoading && categories.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
 
   return (
     <Screen
-      isLoading={isLoading && categories.length === 0}
+      isLoading={(isLoading && categories.length === 0) || isRetryingWithError}
       error={error}
       onRetry={() => {
         void refetch();

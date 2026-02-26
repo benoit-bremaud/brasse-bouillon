@@ -72,6 +72,7 @@ export function IngredientDetailsScreen({
   const {
     data: ingredient = null,
     isLoading,
+    isFetching,
     isFetched,
     error: queryError,
     refetch,
@@ -88,7 +89,9 @@ export function IngredientDetailsScreen({
   });
 
   const error = queryError
-    ? getErrorMessage(queryError, "Unable to load ingredient sheet")
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Unable to load ingredient sheet")
     : null;
 
   if (!category || !ingredientIdParam) {
@@ -115,7 +118,7 @@ export function IngredientDetailsScreen({
 
   return (
     <Screen
-      isLoading={isLoading}
+      isLoading={isLoading || (isFetching && Boolean(queryError))}
       error={error}
       onRetry={() => {
         void refetch();

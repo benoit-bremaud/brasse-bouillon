@@ -25,8 +25,12 @@ export const shopCategories: {
   { id: "houblons", name: "Houblons", icon: "leaf" },
   { id: "levures", name: "Levures", icon: "bug" },
   { id: "kits", name: "Kits", icon: "gift" },
-  { id: "materiel", name: "Matériel", icon: "construct" },
-  { id: "accessoires", name: "Accessoires", icon: "bag" },
+  { id: "materiel", name: "L'Office 🍽️", icon: "construct-outline" },
+  {
+    id: "accessoires",
+    name: "L'Épicerie 🌶️",
+    icon: "restaurant-outline",
+  },
 ];
 
 // Type guard for validating shop category strings
@@ -49,8 +53,8 @@ export const shopCategoryDescriptions: Record<ShopCategory, string> = {
   malts: "Pale, Munich, Pilsner, Vienne...",
   houblons: "Amérisant, aromatique, bitter...",
   levures: "Lagers, Ales, Weiße, Belgian...",
-  materiel: "Cuves, fûts, tuyaux, accessoires...",
-  accessoires: "Densimètre, thermomètre, kits...",
+  materiel: "Matériel de brassage, cuves et équipements clés",
+  accessoires: "Adjuvants, épices et compléments aromatiques",
   kits: "Kits complets pour débutants et initiés",
 };
 

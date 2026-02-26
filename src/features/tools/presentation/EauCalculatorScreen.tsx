@@ -1,16 +1,6 @@
 import * as Haptics from "expo-haptics";
 
 import {
-  calculateResidualAlkalinity,
-  calculateSulfateChlorideRatio,
-} from "@/core/brewing-calculations";
-import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import {
-  WATER_LOCATION_PROFILES,
-  WATER_STYLE_PRESETS,
-} from "@/features/tools/domain/water-profiles";
-import { useCallback, useState } from "react";
-import {
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,11 +8,21 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  WATER_LOCATION_PROFILES,
+  WATER_STYLE_PRESETS,
+} from "@/features/tools/domain/water-profiles";
+import {
+  calculateResidualAlkalinity,
+  calculateSulfateChlorideRatio,
+} from "@/core/brewing-calculations";
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
+import { useCallback, useState } from "react";
 
 import { Card } from "@/core/ui/Card";
+import type { IonRange } from "@/features/tools/domain/water-profiles";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
-import type { IonRange } from "@/features/tools/domain/water-profiles";
 
 type TabName = "profil" | "style" | "sels";
 
@@ -389,8 +389,8 @@ export function EauCalculatorScreen() {
   return (
     <Screen>
       <ListHeader
-        title="💧 Calculs Eau de brassage"
-        subtitle="Profil ionique et alkalinité résiduelle"
+        title="Le Puits 💧"
+        subtitle="Calculs eau de brassage · profil ionique et alkalinité résiduelle"
       />
 
       {/* Tabs */}

@@ -17,9 +17,11 @@ describe("EauCalculatorScreen", () => {
   it("renders the screen with initial content", () => {
     render(<EauCalculatorScreen />);
 
-    expect(screen.getByText("💧 Calculs Eau de brassage")).toBeTruthy();
+    expect(screen.getByText("Le Puits 💧")).toBeTruthy();
     expect(
-      screen.getByText("Profil ionique et alkalinité résiduelle"),
+      screen.getByText(
+        "Calculs eau de brassage · profil ionique et alkalinité résiduelle",
+      ),
     ).toBeTruthy();
     expect(screen.getByText("Profil")).toBeTruthy();
     expect(screen.getByText("Style")).toBeTruthy();

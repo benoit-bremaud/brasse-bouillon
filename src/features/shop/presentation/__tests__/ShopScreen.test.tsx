@@ -36,8 +36,8 @@ describe("ShopScreen", () => {
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.getByText("Levures")).toBeTruthy();
     expect(screen.getByText("Kits")).toBeTruthy();
-    expect(screen.getByText("Matériel")).toBeTruthy();
-    expect(screen.getByText("Accessoires")).toBeTruthy();
+    expect(screen.getByText("L'Office 🍽️")).toBeTruthy();
+    expect(screen.getByText("L'Épicerie 🌶️")).toBeTruthy();
   });
 
   it("navigates to category screen when card is pressed", () => {

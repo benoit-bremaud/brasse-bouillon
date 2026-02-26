@@ -1,8 +1,3 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  RecipeDetailsViewModel,
-  getRecipeDetailsViewModel,
-} from "@/features/recipes/application/recipes.use-cases";
 import {
   BREWING_PHASES,
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS,
@@ -13,6 +8,28 @@ import {
   RecipeProcessDisplayMode,
   RecipeVolumeInputMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
+import {
+  DEFAULT_BALANCED_WATER_PROFILE,
+  WATER_LOCATION_PROFILES,
+  WATER_STYLE_PRESETS,
+  WaterStylePresetId,
+  buildWaterProfileFromStylePreset,
+  getWaterLocationProfileByName,
+  getWaterStylePresetById,
+} from "@/features/tools/domain/water-profiles";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  RecipeDetailsViewModel,
+  getRecipeDetailsViewModel,
+} from "@/features/recipes/application/recipes.use-cases";
 import {
   WATER_METRIC_LABELS,
   buildIngredientCartItems,
@@ -33,34 +50,17 @@ import {
   getLocalCartLineCount,
   getLocalCartTotalQuantity,
 } from "@/features/shop/application/cart.use-cases";
-import {
-  DEFAULT_BALANCED_WATER_PROFILE,
-  WATER_LOCATION_PROFILES,
-  WATER_STYLE_PRESETS,
-  WaterStylePresetId,
-  buildWaterProfileFromStylePreset,
-  getWaterLocationProfileByName,
-  getWaterStylePresetById,
-} from "@/features/tools/domain/water-profiles";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
+import { Ionicons } from "@expo/vector-icons";
+import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
 import { startBatch } from "@/features/batches/application/batches.use-cases";
-import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
-import type { LocalCartItem } from "@/features/shop/domain/cart.types";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 type Props = {
@@ -287,11 +287,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     localWaterProfile,
   );
 
-  const navigateToIngredient = (
-    category: IngredientCategory,
-    ingredientId: string,
-  ) => {
-    router.push(`/(app)/ingredients/${category}/${ingredientId}`);
+  const navigateToIngredientCategory = (category: IngredientCategory) => {
+    router.push(`/(app)/ingredients/${category}`);
   };
 
   const handleVolumeInputChange = (value: string) => {
@@ -549,16 +546,15 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                       <Pressable
                         style={styles.listItemMainPressable}
                         accessibilityRole="button"
-                        accessibilityLabel={`Open ingredient details for ${item.ingredient?.name ?? "unknown ingredient"}`}
+                        accessibilityLabel={`Open ingredient category for ${item.ingredient?.name ?? "unknown ingredient"}`}
                         disabled={!item.ingredient}
                         onPress={() => {
                           if (!item.ingredient) {
                             return;
                           }
 
-                          navigateToIngredient(
+                          navigateToIngredientCategory(
                             item.ingredient.category,
-                            item.ingredient.id,
                           );
                         }}
                       >

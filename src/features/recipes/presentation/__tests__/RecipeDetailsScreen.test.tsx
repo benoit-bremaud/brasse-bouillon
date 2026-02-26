@@ -5,10 +5,10 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 
-import { startBatch } from "@/features/batches/application/batches.use-cases";
-import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
-import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
 import React from "react";
+import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
+import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
+import { startBatch } from "@/features/batches/application/batches.use-cases";
 
 const mockPush = jest.fn();
 
@@ -184,6 +184,18 @@ describe("RecipeDetailsScreen", () => {
     fireEvent.press(screen.getAllByText("Shop")[0]);
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
+  });
+
+  it("opens ingredient category page when tapping ingredient row", async () => {
+    render(<RecipeDetailsScreen recipeId="r1" />);
+
+    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+
+    fireEvent.press(
+      screen.getByLabelText("Open ingredient category for Citra"),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients/hop");
   });
 
   it("navigates to water calculator from the water section", async () => {

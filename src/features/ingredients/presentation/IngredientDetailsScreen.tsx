@@ -1,18 +1,18 @@
-import { colors, spacing, typography } from "@/core/theme";
 import {
   Ingredient,
   IngredientCategory,
-  ingredientCategoryLabels,
   isIngredientCategory,
 } from "@/features/ingredients/domain/ingredient.types";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
+import { colors, spacing, typography } from "@/core/theme";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
+import { getIngredientCategoryPageTitle } from "@/features/ingredients/presentation/ingredient-category.presentation";
 import { getIngredientDetails } from "@/features/ingredients/application/ingredients.use-cases";
 
 type Props = {
@@ -123,7 +123,7 @@ export function IngredientDetailsScreen({
         <>
           <ListHeader
             title={ingredient.name}
-            subtitle={ingredientCategoryLabels[category]}
+            subtitle={getIngredientCategoryPageTitle(category)}
           />
 
           <Card style={styles.card}>

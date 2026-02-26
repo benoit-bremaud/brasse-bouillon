@@ -1,12 +1,3 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  Ingredient,
-  IngredientCategory,
-  IngredientFilters,
-  ingredientCategoryLabels,
-  isIngredientCategory,
-} from "@/features/ingredients/domain/ingredient.types";
-import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -15,14 +6,26 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  Ingredient,
+  IngredientCategory,
+  IngredientFilters,
+  isIngredientCategory,
+} from "@/features/ingredients/domain/ingredient.types";
+import React, { useEffect, useMemo, useState } from "react";
+import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  getIngredientCategoryPageTitle,
+  ingredientCategoryPresentationById,
+} from "@/features/ingredients/presentation/ingredient-category.presentation";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 type Props = {
@@ -45,20 +48,6 @@ function getIngredientMeta(item: Ingredient): string {
     return `Usage: ${item.hopUse} • Alpha: ${item.alphaAcid}%`;
   }
   return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
-}
-
-function getIngredientIconColor(category: IngredientCategory): string {
-  if (category === "malt") return colors.brand.primary;
-  if (category === "hop") return colors.semantic.success;
-  return colors.brand.secondary;
-}
-
-function getIngredientIconName(
-  category: IngredientCategory,
-): keyof typeof Ionicons.glyphMap {
-  if (category === "malt") return "nutrition-outline";
-  if (category === "hop") return "leaf-outline";
-  return "flask-outline";
 }
 
 export function IngredientCategoryScreen({ categoryParam }: Props) {
@@ -150,8 +139,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     autoCapitalize: "none" as const,
   };
 
-  const iconColor = getIngredientIconColor(category);
-  const iconName = getIngredientIconName(category);
+  const presentation = ingredientCategoryPresentationById[category];
+  const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
   return (
     <Screen
@@ -160,8 +149,25 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
       onRetry={fetchIngredients}
     >
       <ListHeader
-        title={ingredientCategoryLabels[category]}
+        title={categoryPageTitle}
         subtitle="Recherche et filtres rapides"
+        action={
+          <View
+            style={[
+              styles.headerCategoryIcon,
+              { backgroundColor: presentation.iconColor + "20" },
+            ]}
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <Ionicons
+              name={presentation.iconName}
+              size={20}
+              color={presentation.iconColor}
+            />
+          </View>
+        }
       />
 
       <Card style={styles.filtersCard}>
@@ -251,10 +257,14 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
                 <View
                   style={[
                     styles.itemIcon,
-                    { backgroundColor: iconColor + "25" },
+                    { backgroundColor: presentation.iconColor + "25" },
                   ]}
                 >
-                  <Ionicons name={iconName} size={20} color={iconColor} />
+                  <Ionicons
+                    name={presentation.iconName}
+                    size={20}
+                    color={presentation.iconColor}
+                  />
                 </View>
                 <View style={styles.cardInfo}>
                   <Text style={styles.itemTitle}>{item.name}</Text>
@@ -280,6 +290,13 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 }
 
 const styles = StyleSheet.create({
+  headerCategoryIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   filtersCard: {
     marginBottom: spacing.sm,
   },

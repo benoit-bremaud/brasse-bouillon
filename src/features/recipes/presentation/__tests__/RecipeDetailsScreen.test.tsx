@@ -5,10 +5,10 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 
-import React from "react";
-import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
-import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
 import { startBatch } from "@/features/batches/application/batches.use-cases";
+import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
+import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
+import React from "react";
 
 const mockPush = jest.fn();
 
@@ -191,11 +191,60 @@ describe("RecipeDetailsScreen", () => {
 
     expect(await screen.findByText("Test Recipe")).toBeTruthy();
 
-    fireEvent.press(
-      screen.getByLabelText("Open ingredient category for Citra"),
-    );
+    fireEvent.press(screen.getByLabelText("Open ingredient details for Citra"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients/hop");
+  });
+
+  it("opens malt details page when tapping a malt ingredient row", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValueOnce({
+      recipe: {
+        id: "r1",
+        name: "Test Recipe",
+        description: "Test description",
+        visibility: "private",
+        stats: {
+          ibu: 35,
+          abv: 5.4,
+          og: 1.052,
+          fg: 1.011,
+          volumeLiters: 20,
+        },
+      },
+      ingredients: [
+        {
+          ingredientId: "malt-1",
+          amount: 4.2,
+          unit: "kg",
+          timing: "mash",
+          notes: null,
+          ingredient: {
+            id: "malt-1",
+            name: "Pale Ale Malt",
+            category: "malt",
+          },
+        },
+      ],
+      equipment: [],
+      steps: [],
+    });
+
+    render(<RecipeDetailsScreen recipeId="r1" />);
+
+    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+
+    fireEvent.press(
+      screen.getByLabelText("Open ingredient details for Pale Ale Malt"),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: {
+        id: "malt-1",
+        returnTo: "/(app)/recipes/[id]",
+        returnRecipeId: "r1",
+      },
+    });
   });
 
   it("navigates to water calculator from the water section", async () => {

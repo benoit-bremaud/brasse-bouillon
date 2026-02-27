@@ -7,6 +7,7 @@ import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
 
 import { User } from "@/features/auth/domain/auth.types";
 import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
+import { MaltProduct } from "@/features/ingredients/domain/malt.types";
 
 export type Equipment = {
   id: string;
@@ -76,6 +77,524 @@ export const demoEquipments: Equipment[] = [
     volumeLiters: 30,
     efficiencyPercent: 0,
     notes: "Thermowell + valve tri-clamp",
+  },
+];
+
+export const demoMalts: MaltProduct[] = [
+  {
+    id: "malt-1",
+    slug: "pale-ale-malt",
+    name: "Pale Ale Malt",
+    brand: "Malterie du Château",
+    originCountry: "France",
+    maltType: "Base malt",
+    description: "Classic base malt for pale ales and hop-forward recipes.",
+    specGroups: [
+      {
+        id: "malt-1-analytical",
+        title: "Analytical profile",
+        rows: [
+          { id: "malt-1-color", label: "Color", value: "6", unit: "EBC" },
+          {
+            id: "malt-1-extract",
+            label: "Extract (dry basis)",
+            value: "81.5",
+            unit: "%",
+          },
+          {
+            id: "malt-1-moisture",
+            label: "Moisture",
+            value: "4.5",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-1-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-1-max-usage",
+            label: "Recommended usage",
+            value: "Up to 100",
+            unit: "%",
+          },
+          {
+            id: "malt-1-flavor",
+            label: "Flavor profile",
+            value: "Bready, cereal, light honey",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-2",
+    slug: "munich-malt-type-1",
+    name: "Munich Malt Type I",
+    brand: "Weyermann",
+    originCountry: "Germany",
+    maltType: "Kilned specialty malt",
+    description: "Adds deep malt richness, toast and bread crust notes.",
+    specGroups: [
+      {
+        id: "malt-2-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-2-color",
+            label: "Color",
+            value: "20",
+            unit: "EBC",
+          },
+          {
+            id: "malt-2-extract",
+            label: "Extract (dry basis)",
+            value: "80.0",
+            unit: "%",
+          },
+          {
+            id: "malt-2-moisture",
+            label: "Moisture",
+            value: "4.8",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-2-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-2-max-usage",
+            label: "Recommended usage",
+            value: "Up to 60",
+            unit: "%",
+          },
+          {
+            id: "malt-2-flavor",
+            label: "Flavor profile",
+            value: "Toasty, bread crust, malty sweetness",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-3",
+    slug: "caramunich-ii",
+    name: "Caramunich II",
+    brand: "Weyermann",
+    originCountry: "Germany",
+    maltType: "Caramel malt",
+    description: "Contributes amber color, caramel and light raisin notes.",
+    specGroups: [
+      {
+        id: "malt-3-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-3-color",
+            label: "Color",
+            value: "120",
+            unit: "EBC",
+          },
+          {
+            id: "malt-3-extract",
+            label: "Extract (dry basis)",
+            value: "78.0",
+            unit: "%",
+          },
+          {
+            id: "malt-3-moisture",
+            label: "Moisture",
+            value: "5.2",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-3-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-3-max-usage",
+            label: "Recommended usage",
+            value: "Up to 20",
+            unit: "%",
+          },
+          {
+            id: "malt-3-flavor",
+            label: "Flavor profile",
+            value: "Caramel, toffee, dark bread",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-4",
+    slug: "chocolate-malt",
+    name: "Chocolate Malt",
+    brand: "Crisp",
+    originCountry: "United Kingdom",
+    maltType: "Roasted malt",
+    description: "Roasted chocolate and coffee notes with deep color impact.",
+    specGroups: [
+      {
+        id: "malt-4-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-4-color",
+            label: "Color",
+            value: "900",
+            unit: "EBC",
+          },
+          {
+            id: "malt-4-extract",
+            label: "Extract (dry basis)",
+            value: "70.0",
+            unit: "%",
+          },
+          {
+            id: "malt-4-moisture",
+            label: "Moisture",
+            value: "3.0",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-4-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-4-max-usage",
+            label: "Recommended usage",
+            value: "Up to 10",
+            unit: "%",
+          },
+          {
+            id: "malt-4-flavor",
+            label: "Flavor profile",
+            value: "Dark chocolate, cocoa, roasted coffee",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-5",
+    slug: "pilsner-malt",
+    name: "Pilsner Malt",
+    brand: "Bestmalz",
+    originCountry: "Germany",
+    maltType: "Base malt",
+    description: "Clean and light base for lagers and crisp ales.",
+    specGroups: [
+      {
+        id: "malt-5-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-5-color",
+            label: "Color",
+            value: "3.5",
+            unit: "EBC",
+          },
+          {
+            id: "malt-5-extract",
+            label: "Extract (dry basis)",
+            value: "82.0",
+            unit: "%",
+          },
+          {
+            id: "malt-5-moisture",
+            label: "Moisture",
+            value: "4.3",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-5-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-5-max-usage",
+            label: "Recommended usage",
+            value: "Up to 100",
+            unit: "%",
+          },
+          {
+            id: "malt-5-flavor",
+            label: "Flavor profile",
+            value: "Soft grain, cracker, light sweetness",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-6",
+    slug: "vienna-malt",
+    name: "Vienna Malt",
+    brand: "Weyermann",
+    originCountry: "Germany",
+    maltType: "Kilned base malt",
+    description: "Adds golden hue and elegant toasty malt backbone.",
+    specGroups: [
+      {
+        id: "malt-6-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-6-color",
+            label: "Color",
+            value: "7.5",
+            unit: "EBC",
+          },
+          {
+            id: "malt-6-extract",
+            label: "Extract (dry basis)",
+            value: "81.0",
+            unit: "%",
+          },
+          {
+            id: "malt-6-moisture",
+            label: "Moisture",
+            value: "4.6",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-6-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-6-max-usage",
+            label: "Recommended usage",
+            value: "Up to 100",
+            unit: "%",
+          },
+          {
+            id: "malt-6-flavor",
+            label: "Flavor profile",
+            value: "Light toast, biscuit, honey",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-7",
+    slug: "wheat-malt",
+    name: "Wheat Malt",
+    brand: "Dingemans",
+    originCountry: "Belgium",
+    maltType: "Wheat base malt",
+    description: "Improves head retention and body in wheat-forward beers.",
+    specGroups: [
+      {
+        id: "malt-7-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-7-color",
+            label: "Color",
+            value: "4.0",
+            unit: "EBC",
+          },
+          {
+            id: "malt-7-extract",
+            label: "Extract (dry basis)",
+            value: "84.0",
+            unit: "%",
+          },
+          {
+            id: "malt-7-protein",
+            label: "Protein",
+            value: "12.0",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-7-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-7-max-usage",
+            label: "Recommended usage",
+            value: "Up to 70",
+            unit: "%",
+          },
+          {
+            id: "malt-7-flavor",
+            label: "Flavor profile",
+            value: "Doughy, soft grain, creamy",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-8",
+    slug: "carahell",
+    name: "Carahell",
+    brand: "Weyermann",
+    originCountry: "Germany",
+    maltType: "Caramel malt",
+    description: "Light caramel malt for foam stability and sweet malt notes.",
+    specGroups: [
+      {
+        id: "malt-8-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-8-color",
+            label: "Color",
+            value: "25",
+            unit: "EBC",
+          },
+          {
+            id: "malt-8-extract",
+            label: "Extract (dry basis)",
+            value: "79.0",
+            unit: "%",
+          },
+          {
+            id: "malt-8-moisture",
+            label: "Moisture",
+            value: "5.5",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-8-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-8-max-usage",
+            label: "Recommended usage",
+            value: "Up to 30",
+            unit: "%",
+          },
+          {
+            id: "malt-8-flavor",
+            label: "Flavor profile",
+            value: "Caramel sweetness, honey, light toffee",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-9",
+    slug: "biscuit-malt",
+    name: "Biscuit Malt",
+    brand: "Castle Malting",
+    originCountry: "Belgium",
+    maltType: "Toasted specialty malt",
+    description: "Dry toasted biscuit character for amber and Belgian ales.",
+    specGroups: [
+      {
+        id: "malt-9-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-9-color",
+            label: "Color",
+            value: "50",
+            unit: "EBC",
+          },
+          {
+            id: "malt-9-extract",
+            label: "Extract (dry basis)",
+            value: "78.5",
+            unit: "%",
+          },
+          {
+            id: "malt-9-moisture",
+            label: "Moisture",
+            value: "4.0",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-9-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-9-max-usage",
+            label: "Recommended usage",
+            value: "Up to 15",
+            unit: "%",
+          },
+          {
+            id: "malt-9-flavor",
+            label: "Flavor profile",
+            value: "Toast, biscuit, crusty bread",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "malt-10",
+    slug: "roasted-barley",
+    name: "Roasted Barley",
+    brand: "Thomas Fawcett",
+    originCountry: "United Kingdom",
+    maltType: "Roasted unmalted barley",
+    description: "Intense roast, coffee and dry bitterness for dark beers.",
+    specGroups: [
+      {
+        id: "malt-10-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "malt-10-color",
+            label: "Color",
+            value: "1300",
+            unit: "EBC",
+          },
+          {
+            id: "malt-10-extract",
+            label: "Extract (dry basis)",
+            value: "65.0",
+            unit: "%",
+          },
+          {
+            id: "malt-10-moisture",
+            label: "Moisture",
+            value: "3.5",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "malt-10-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "malt-10-max-usage",
+            label: "Recommended usage",
+            value: "Up to 10",
+            unit: "%",
+          },
+          {
+            id: "malt-10-flavor",
+            label: "Flavor profile",
+            value: "Espresso, dark chocolate, dry roast",
+          },
+        ],
+      },
+    ],
   },
 ];
 

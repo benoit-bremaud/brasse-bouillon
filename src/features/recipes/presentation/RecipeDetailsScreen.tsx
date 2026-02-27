@@ -287,8 +287,23 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     localWaterProfile,
   );
 
-  const navigateToIngredientCategory = (category: IngredientCategory) => {
-    router.push(`/(app)/ingredients/${category}`);
+  const navigateToIngredient = (ingredient: {
+    id: string;
+    category: IngredientCategory;
+  }) => {
+    if (ingredient.category === "malt") {
+      router.push({
+        pathname: "/(app)/ingredients/malts/[id]",
+        params: {
+          id: ingredient.id,
+          returnTo: "/(app)/recipes/[id]",
+          returnRecipeId: recipeId,
+        },
+      });
+      return;
+    }
+
+    router.push(`/(app)/ingredients/${ingredient.category}`);
   };
 
   const handleVolumeInputChange = (value: string) => {
@@ -546,16 +561,14 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                       <Pressable
                         style={styles.listItemMainPressable}
                         accessibilityRole="button"
-                        accessibilityLabel={`Open ingredient category for ${item.ingredient?.name ?? "unknown ingredient"}`}
+                        accessibilityLabel={`Open ingredient details for ${item.ingredient?.name ?? "unknown ingredient"}`}
                         disabled={!item.ingredient}
                         onPress={() => {
                           if (!item.ingredient) {
                             return;
                           }
 
-                          navigateToIngredientCategory(
-                            item.ingredient.category,
-                          );
+                          navigateToIngredient(item.ingredient);
                         }}
                       >
                         <Text style={styles.listItemTitle}>

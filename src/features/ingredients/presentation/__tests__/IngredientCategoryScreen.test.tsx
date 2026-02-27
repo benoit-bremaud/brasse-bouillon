@@ -90,8 +90,38 @@ describe("IngredientCategoryScreen", () => {
     fireEvent.press(screen.getByLabelText("Voir la fiche Pale Ale Malt"));
 
     expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: {
+        id: "malt-1",
+        returnTo: "/(app)/ingredients/malt",
+      },
+    });
+  });
+
+  it("keeps category details route for non-malt ingredients", async () => {
+    mockedListIngredientsByCategory.mockResolvedValueOnce([
+      {
+        id: "hop-1",
+        name: "Citra",
+        category: "hop",
+        origin: "USA",
+        supplier: "Yakima Chief",
+        alphaAcid: 12.5,
+        betaAcid: 4,
+        hopUse: "aroma",
+        form: "pellet",
+      },
+    ]);
+
+    renderIngredientCategoryScreen("hop");
+
+    expect(await screen.findByText("Citra")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Voir la fiche Citra"));
+
+    expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/[category]/[id]",
-      params: { category: "malt", id: "malt-1" },
+      params: { category: "hop", id: "hop-1" },
     });
   });
 });

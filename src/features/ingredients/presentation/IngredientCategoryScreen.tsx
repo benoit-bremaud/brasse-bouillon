@@ -144,6 +144,24 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   const presentation = ingredientCategoryPresentationById[category];
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
+  const navigateToIngredientDetails = (ingredient: Ingredient) => {
+    if (ingredient.category === "malt") {
+      router.push({
+        pathname: "/(app)/ingredients/malts/[id]",
+        params: {
+          id: ingredient.id,
+          returnTo: "/(app)/ingredients/malt",
+        },
+      });
+      return;
+    }
+
+    router.push({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: { category: ingredient.category, id: ingredient.id },
+    });
+  };
+
   return (
     <Screen
       isLoading={(isLoading && ingredients.length === 0) || isRetryingWithError}
@@ -249,12 +267,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Voir la fiche ${item.name}`}
-            onPress={() =>
-              router.push({
-                pathname: "/(app)/ingredients/[category]/[id]",
-                params: { category, id: item.id },
-              })
-            }
+            onPress={() => navigateToIngredientDetails(item)}
           >
             <Card style={styles.itemCard}>
               <View style={styles.cardContent}>

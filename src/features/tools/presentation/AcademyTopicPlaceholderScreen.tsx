@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 
+import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -20,13 +21,14 @@ import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
 
 type Props = {
-  slugParam?: string;
+  slugParam?: string | string[];
   mode: "learn" | "calculator";
 };
 
 export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
   const router = useRouter();
-  const topic = getAcademyTopicBySlug(slugParam);
+  const normalizedSlug = normalizeRouteParam(slugParam);
+  const topic = getAcademyTopicBySlug(normalizedSlug);
 
   if (!topic) {
     return (

@@ -6,6 +6,7 @@ import {
 import { StyleSheet, Text } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
+import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -17,8 +18,8 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 type Props = {
-  categoryParam?: string;
-  ingredientIdParam?: string;
+  categoryParam?: string | string[];
+  ingredientIdParam?: string | string[];
 };
 
 function renderTechnicalSheet(item: Ingredient) {
@@ -62,7 +63,8 @@ export function IngredientDetailsScreen({
   categoryParam,
   ingredientIdParam,
 }: Props) {
-  const normalizedCategory = categoryParam ?? "";
+  const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
+  const normalizedIngredientId = normalizeRouteParam(ingredientIdParam);
   const category: IngredientCategory | null = isIngredientCategory(
     normalizedCategory,
   )
@@ -77,15 +79,15 @@ export function IngredientDetailsScreen({
     error: queryError,
     refetch,
   } = useQuery<Ingredient | null>({
-    queryKey: ["ingredients", "details", category, ingredientIdParam],
+    queryKey: ["ingredients", "details", category, normalizedIngredientId],
     queryFn: () => {
-      if (!category || !ingredientIdParam) {
+      if (!category || !normalizedIngredientId) {
         return Promise.resolve(null);
       }
 
-      return getIngredientDetails(category, ingredientIdParam);
+      return getIngredientDetails(category, normalizedIngredientId);
     },
-    enabled: Boolean(category && ingredientIdParam),
+    enabled: Boolean(category && normalizedIngredientId),
   });
 
   const error = queryError
@@ -94,7 +96,7 @@ export function IngredientDetailsScreen({
       : getErrorMessage(queryError, "Unable to load ingredient sheet")
     : null;
 
-  if (!category || !ingredientIdParam) {
+  if (!category || !normalizedIngredientId) {
     return (
       <Screen>
         <EmptyStateCard

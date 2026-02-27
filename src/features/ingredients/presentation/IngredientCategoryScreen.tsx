@@ -19,6 +19,7 @@ import {
 } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
+import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -30,7 +31,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 type Props = {
-  categoryParam?: string;
+  categoryParam?: string | string[];
 };
 
 function toOptionalNumber(value: string): number | undefined {
@@ -53,7 +54,7 @@ function getIngredientMeta(item: Ingredient): string {
 
 export function IngredientCategoryScreen({ categoryParam }: Props) {
   const router = useRouter();
-  const normalizedCategory = categoryParam ?? "";
+  const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
   const category: IngredientCategory | null = isIngredientCategory(
     normalizedCategory,
   )

@@ -7,6 +7,7 @@ import {
 } from "@/features/shop/presentation/shop.constants";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -18,12 +19,12 @@ import { useRouter } from "expo-router";
 import React from "react";
 
 type Props = {
-  categoryParam?: string;
+  categoryParam?: string | string[];
 };
 
 export function ShopCategoryScreen({ categoryParam }: Props) {
   const router = useRouter();
-  const category = categoryParam ?? "";
+  const category = normalizeRouteParam(categoryParam) ?? "";
   const isValid = isShopCategory(category);
 
   if (!isValid) {

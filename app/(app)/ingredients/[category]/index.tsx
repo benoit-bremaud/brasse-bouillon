@@ -2,7 +2,19 @@ import { IngredientCategoryScreen } from "@/features/ingredients/presentation/In
 import { useLocalSearchParams } from "expo-router";
 
 export default function IngredientCategoryRoute() {
-  const { category } = useLocalSearchParams<{ category?: string | string[] }>();
+  const { category, search, ebcMin, ebcMax } = useLocalSearchParams<{
+    category?: string | string[];
+    search?: string | string[];
+    ebcMin?: string | string[];
+    ebcMax?: string | string[];
+  }>();
 
-  return <IngredientCategoryScreen categoryParam={category} />;
+  return (
+    <IngredientCategoryScreen
+      categoryParam={category}
+      searchParam={search}
+      ebcMinParam={ebcMin}
+      ebcMaxParam={ebcMax}
+    />
+  );
 }

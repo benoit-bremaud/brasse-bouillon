@@ -37,6 +37,9 @@ import { useRouter } from "expo-router";
 
 type Props = {
   categoryParam?: string | string[];
+  searchParam?: string | string[];
+  ebcMinParam?: string | string[];
+  ebcMaxParam?: string | string[];
 };
 
 type IngredientListItem = Ingredient | MaltProduct;
@@ -89,18 +92,26 @@ function getIngredientMeta(item: IngredientListItem): string {
   return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
 }
 
-export function IngredientCategoryScreen({ categoryParam }: Props) {
+export function IngredientCategoryScreen({
+  categoryParam,
+  searchParam,
+  ebcMinParam,
+  ebcMaxParam,
+}: Props) {
   const router = useRouter();
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
+  const normalizedSearchParam = normalizeRouteParam(searchParam) ?? "";
+  const normalizedEbcMinParam = normalizeRouteParam(ebcMinParam) ?? "";
+  const normalizedEbcMaxParam = normalizeRouteParam(ebcMaxParam) ?? "";
   const category: IngredientCategory | null = isIngredientCategory(
     normalizedCategory,
   )
     ? normalizedCategory
     : null;
 
-  const [search, setSearch] = useState("");
-  const [ebcMin, setEbcMin] = useState("");
-  const [ebcMax, setEbcMax] = useState("");
+  const [search, setSearch] = useState(normalizedSearchParam);
+  const [ebcMin, setEbcMin] = useState(normalizedEbcMinParam);
+  const [ebcMax, setEbcMax] = useState(normalizedEbcMaxParam);
   const [alphaMin, setAlphaMin] = useState("");
   const [attenuationMin, setAttenuationMin] = useState("");
 
@@ -193,11 +204,19 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
 
   const navigateToIngredientDetails = (ingredient: IngredientListItem) => {
     if (isMaltProduct(ingredient) || ingredient.category === "malt") {
+      const trimmedSearch = search.trim();
+      const trimmedEbcMin = ebcMin.trim();
+      const trimmedEbcMax = ebcMax.trim();
+
       router.push({
         pathname: "/(app)/ingredients/malts/[id]",
         params: {
           id: ingredient.id,
-          returnTo: "/(app)/ingredients/malt",
+          returnTo: "/(app)/ingredients/[category]",
+          returnCategory: "malt",
+          returnSearch: trimmedSearch || undefined,
+          returnEbcMin: trimmedEbcMin || undefined,
+          returnEbcMax: trimmedEbcMax || undefined,
         },
       });
       return;

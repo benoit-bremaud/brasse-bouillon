@@ -21,3 +21,9 @@ export interface MaltProduct {
   description?: string;
   specGroups: MaltSpecGroup[];
 }
+
+export interface MaltFilters {
+  search?: string;
+  colorEbcMin?: number;
+  colorEbcMax?: number;
+}

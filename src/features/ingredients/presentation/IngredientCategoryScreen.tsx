@@ -5,6 +5,10 @@ import {
   IngredientFilters,
 } from "@/features/ingredients/domain/ingredient.types";
 import {
+  MaltFilters,
+  MaltProduct,
+} from "@/features/ingredients/domain/malt.types";
+import {
   getIngredientCategoryPageTitle,
   ingredientCategoryPresentationById,
 } from "@/features/ingredients/presentation/ingredient-category.presentation";
@@ -25,6 +29,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
+import { listMalts } from "@/features/ingredients/application/malts.use-cases";
 import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +39,8 @@ type Props = {
   categoryParam?: string | string[];
 };
 
+type IngredientListItem = Ingredient | MaltProduct;
+
 function toOptionalNumber(value: string): number | undefined {
   if (!value.trim()) {
     return undefined;
@@ -42,7 +49,37 @@ function toOptionalNumber(value: string): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-function getIngredientMeta(item: Ingredient): string {
+function getMaltColorEbcValue(item: MaltProduct): string | null {
+  for (const group of item.specGroups) {
+    for (const row of group.rows) {
+      const normalizedLabel = row.label.toLocaleLowerCase();
+      const normalizedUnit = row.unit?.toLocaleLowerCase();
+
+      if (!normalizedLabel.includes("color")) {
+        continue;
+      }
+
+      if (normalizedUnit && normalizedUnit !== "ebc") {
+        continue;
+      }
+
+      return row.value;
+    }
+  }
+
+  return null;
+}
+
+function isMaltProduct(item: IngredientListItem): item is MaltProduct {
+  return "specGroups" in item;
+}
+
+function getIngredientMeta(item: IngredientListItem): string {
+  if (isMaltProduct(item)) {
+    const colorEbc = getMaltColorEbcValue(item);
+    return `Type: ${item.maltType ?? "Unknown"} • EBC: ${colorEbc ?? "N/A"}`;
+  }
+
   if (item.category === "malt") {
     return `Type: ${item.maltType} • EBC: ${item.ebc}`;
   }
@@ -67,35 +104,36 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   const [alphaMin, setAlphaMin] = useState("");
   const [attenuationMin, setAttenuationMin] = useState("");
 
-  const filters = useMemo<IngredientFilters>(() => {
-    const common: IngredientFilters = {
+  const ingredientFilters = useMemo<IngredientFilters>(() => {
+    const commonFilters: IngredientFilters = {
       search,
     };
 
-    if (category === "malt") {
-      return {
-        ...common,
-        ebcMin: toOptionalNumber(ebcMin),
-        ebcMax: toOptionalNumber(ebcMax),
-      };
-    }
-
     if (category === "hop") {
       return {
-        ...common,
+        ...commonFilters,
         alphaAcidMin: toOptionalNumber(alphaMin),
       };
     }
 
     if (category === "yeast") {
       return {
-        ...common,
+        ...commonFilters,
         attenuationMin: toOptionalNumber(attenuationMin),
       };
     }
 
-    return common;
+    return commonFilters;
   }, [alphaMin, attenuationMin, category, ebcMax, ebcMin, search]);
+
+  const maltFilters = useMemo<MaltFilters>(
+    () => ({
+      search,
+      colorEbcMin: toOptionalNumber(ebcMin),
+      colorEbcMax: toOptionalNumber(ebcMax),
+    }),
+    [ebcMax, ebcMin, search],
+  );
 
   const {
     data: ingredients = [],
@@ -104,14 +142,23 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
     isFetched,
     error: queryError,
     refetch,
-  } = useQuery<Ingredient[]>({
-    queryKey: ["ingredients", "category", category, filters],
+  } = useQuery<IngredientListItem[]>({
+    queryKey: [
+      "ingredients",
+      "category",
+      category,
+      category === "malt" ? maltFilters : ingredientFilters,
+    ],
     queryFn: () => {
       if (!category) {
         return Promise.resolve([]);
       }
 
-      return listIngredientsByCategory(category, filters);
+      if (category === "malt") {
+        return listMalts(maltFilters);
+      }
+
+      return listIngredientsByCategory(category, ingredientFilters);
     },
     enabled: Boolean(category),
   });
@@ -144,8 +191,8 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
   const presentation = ingredientCategoryPresentationById[category];
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
-  const navigateToIngredientDetails = (ingredient: Ingredient) => {
-    if (ingredient.category === "malt") {
+  const navigateToIngredientDetails = (ingredient: IngredientListItem) => {
+    if (isMaltProduct(ingredient) || ingredient.category === "malt") {
       router.push({
         pathname: "/(app)/ingredients/malts/[id]",
         params: {
@@ -195,6 +242,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
       <Card style={styles.filtersCard}>
         <Text style={styles.filterLabel}>Recherche</Text>
         <TextInput
+          accessibilityLabel="Search ingredient by name"
           value={search}
           onChangeText={setSearch}
           placeholder="Nom de l'ingrédient"
@@ -209,6 +257,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
             <View style={styles.field}>
               <Text style={styles.filterLabel}>EBC min</Text>
               <TextInput
+                accessibilityLabel="EBC min"
                 value={ebcMin}
                 onChangeText={setEbcMin}
                 style={styles.input}
@@ -218,6 +267,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
             <View style={styles.field}>
               <Text style={styles.filterLabel}>EBC max</Text>
               <TextInput
+                accessibilityLabel="EBC max"
                 value={ebcMax}
                 onChangeText={setEbcMax}
                 style={styles.input}
@@ -231,6 +281,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
           <View style={styles.field}>
             <Text style={styles.filterLabel}>Acides alpha min (%)</Text>
             <TextInput
+              accessibilityLabel="Acides alpha min (%)"
               value={alphaMin}
               onChangeText={setAlphaMin}
               style={styles.input}
@@ -243,6 +294,7 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
           <View style={styles.field}>
             <Text style={styles.filterLabel}>Atténuation min (%)</Text>
             <TextInput
+              accessibilityLabel="Atténuation min (%)"
               value={attenuationMin}
               onChangeText={setAttenuationMin}
               style={styles.input}
@@ -286,7 +338,13 @@ export function IngredientCategoryScreen({ categoryParam }: Props) {
                 <View style={styles.cardInfo}>
                   <Text style={styles.itemTitle}>{item.name}</Text>
                   <Text style={styles.itemMeta}>{getIngredientMeta(item)}</Text>
-                  {item.origin ? (
+                  {isMaltProduct(item) ? (
+                    item.originCountry ? (
+                      <Text style={styles.itemSecondary}>
+                        Origine : {item.originCountry}
+                      </Text>
+                    ) : null
+                  ) : item.origin ? (
                     <Text style={styles.itemSecondary}>
                       Origine : {item.origin}
                     </Text>

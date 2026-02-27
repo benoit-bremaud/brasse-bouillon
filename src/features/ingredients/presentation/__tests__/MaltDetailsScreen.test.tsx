@@ -1,7 +1,10 @@
+import {
+  getMaltDetails,
+  listAlternativeMalts,
+} from "@/features/ingredients/application/malts.use-cases";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
-import { getMaltDetails } from "@/features/ingredients/application/malts.use-cases";
 import { MaltDetailsScreen } from "@/features/ingredients/presentation/MaltDetailsScreen";
 import React from "react";
 
@@ -21,22 +24,34 @@ jest.mock("expo-router", () => {
 
 jest.mock("@/features/ingredients/application/malts.use-cases", () => ({
   getMaltDetails: jest.fn(),
+  listAlternativeMalts: jest.fn(),
 }));
 
 const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
   typeof getMaltDetails
+>;
+const mockedListAlternativeMalts = listAlternativeMalts as jest.MockedFunction<
+  typeof listAlternativeMalts
 >;
 
 type RenderMaltDetailsScreenOptions = {
   maltIdParam?: string | string[];
   returnToParam?: string | string[];
   returnRecipeIdParam?: string | string[];
+  returnCategoryParam?: string | string[];
+  returnSearchParam?: string | string[];
+  returnEbcMinParam?: string | string[];
+  returnEbcMaxParam?: string | string[];
 };
 
 function renderMaltDetailsScreen({
   maltIdParam = "malt-1",
   returnToParam,
   returnRecipeIdParam,
+  returnCategoryParam,
+  returnSearchParam,
+  returnEbcMinParam,
+  returnEbcMaxParam,
 }: RenderMaltDetailsScreenOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -56,6 +71,10 @@ function renderMaltDetailsScreen({
         maltIdParam={maltIdParam}
         returnToParam={returnToParam}
         returnRecipeIdParam={returnRecipeIdParam}
+        returnCategoryParam={returnCategoryParam}
+        returnSearchParam={returnSearchParam}
+        returnEbcMinParam={returnEbcMinParam}
+        returnEbcMaxParam={returnEbcMaxParam}
       />
     </QueryClientProvider>,
   );
@@ -65,6 +84,7 @@ describe("MaltDetailsScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockedGetMaltDetails.mockReset();
+    mockedListAlternativeMalts.mockReset();
     mockedGetMaltDetails.mockResolvedValue({
       id: "malt-1",
       slug: "pale-ale-malt",
@@ -89,6 +109,7 @@ describe("MaltDetailsScreen", () => {
         },
       ],
     });
+    mockedListAlternativeMalts.mockResolvedValue([]);
   });
 
   it("renders malt identity and grouped specs", async () => {
@@ -128,6 +149,78 @@ describe("MaltDetailsScreen", () => {
     fireEvent.press(screen.getByText("Go back"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients");
+  });
+
+  it("navigates back to malt category with preserved filters", async () => {
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/ingredients/[category]",
+      returnCategoryParam: "malt",
+      returnSearchParam: "wheat",
+      returnEbcMinParam: "4",
+      returnEbcMaxParam: "12",
+    });
+
+    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Go back"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]",
+      params: {
+        category: "malt",
+        search: "wheat",
+        ebcMin: "4",
+        ebcMax: "12",
+      },
+    });
+  });
+
+  it("renders alternatives and opens selected alternative with context", async () => {
+    mockedListAlternativeMalts.mockResolvedValueOnce([
+      {
+        id: "malt-2",
+        slug: "vienna-malt",
+        name: "Vienna Malt",
+        brand: "Malterie du Château",
+        originCountry: "France",
+        maltType: "Base malt",
+        specGroups: [
+          {
+            id: "analytical",
+            title: "Analytical profile",
+            rows: [{ id: "color", label: "Color", value: "8", unit: "EBC" }],
+          },
+        ],
+      },
+    ]);
+
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/ingredients/[category]",
+      returnCategoryParam: "malt",
+      returnSearchParam: "wheat",
+      returnEbcMinParam: "4",
+      returnEbcMaxParam: "12",
+    });
+
+    expect(await screen.findByText("Alternative malts")).toBeTruthy();
+    expect(screen.getByText("Vienna Malt")).toBeTruthy();
+    expect(screen.getByText("Type: Base malt • EBC: 8")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("View alternative malt Vienna Malt"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: {
+        id: "malt-2",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "malt",
+        returnSearch: "wheat",
+        returnEbcMin: "4",
+        returnEbcMax: "12",
+      },
+    });
   });
 
   it("shows empty state when route parameter is missing", async () => {

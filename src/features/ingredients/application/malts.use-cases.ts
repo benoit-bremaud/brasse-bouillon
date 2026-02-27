@@ -51,6 +51,10 @@ function getColorEbc(malt: MaltProduct): number | null {
   return null;
 }
 
+function getNormalizedMaltType(malt: MaltProduct): string {
+  return malt.maltType?.trim().toLocaleLowerCase() ?? "";
+}
+
 export async function listMalts(
   filters?: MaltFilters | string,
 ): Promise<MaltProduct[]> {
@@ -113,4 +117,59 @@ export async function getMaltDetails(
   }
 
   return getMaltDetailsApi(maltId);
+}
+
+export async function listAlternativeMalts(
+  maltId: string,
+  limit = 3,
+): Promise<MaltProduct[]> {
+  if (!maltId) {
+    return [];
+  }
+
+  const targetMalt = await getMaltDetails(maltId);
+  if (!targetMalt) {
+    return [];
+  }
+
+  const normalizedTargetType = getNormalizedMaltType(targetMalt);
+  const targetColorEbc = getColorEbc(targetMalt);
+  const allMalts = await listMalts();
+
+  const rankedAlternatives = allMalts
+    .filter((candidate) => candidate.id !== maltId)
+    .map((candidate) => {
+      const normalizedCandidateType = getNormalizedMaltType(candidate);
+      const isSameType =
+        normalizedTargetType.length > 0 &&
+        normalizedCandidateType === normalizedTargetType;
+      const candidateColorEbc = getColorEbc(candidate);
+      const colorDistance =
+        targetColorEbc !== null && candidateColorEbc !== null
+          ? Math.abs(candidateColorEbc - targetColorEbc)
+          : Number.POSITIVE_INFINITY;
+
+      return {
+        candidate,
+        isSameType,
+        colorDistance,
+      };
+    })
+    .sort((left, right) => {
+      if (left.isSameType !== right.isSameType) {
+        return left.isSameType ? -1 : 1;
+      }
+
+      if (left.colorDistance !== right.colorDistance) {
+        return left.colorDistance - right.colorDistance;
+      }
+
+      return left.candidate.name.localeCompare(right.candidate.name);
+    });
+
+  const normalizedLimit = Math.max(0, limit);
+
+  return rankedAlternatives
+    .slice(0, normalizedLimit)
+    .map((item) => item.candidate);
 }

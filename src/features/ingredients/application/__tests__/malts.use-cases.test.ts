@@ -1,5 +1,6 @@
 import {
   getMaltDetails,
+  listAlternativeMalts,
   listMalts,
 } from "@/features/ingredients/application/malts.use-cases";
 import {
@@ -167,5 +168,30 @@ describe("malts use-cases", () => {
 
     expect(details).toBeNull();
     expect(mockedGetMaltDetailsApi).not.toHaveBeenCalled();
+  });
+
+  it("returns ranked alternatives for a malt id", async () => {
+    const alternatives = await listAlternativeMalts("malt-1", 3);
+
+    expect(alternatives).toHaveLength(3);
+    expect(alternatives.every((malt) => malt.id !== "malt-1")).toBe(true);
+  });
+
+  it("returns empty alternatives list when malt id is empty", async () => {
+    const alternatives = await listAlternativeMalts("");
+
+    expect(alternatives).toEqual([]);
+  });
+
+  it("returns empty alternatives list when target malt does not exist", async () => {
+    const alternatives = await listAlternativeMalts("unknown-malt");
+
+    expect(alternatives).toEqual([]);
+  });
+
+  it("returns empty alternatives list when limit is zero", async () => {
+    const alternatives = await listAlternativeMalts("malt-1", 0);
+
+    expect(alternatives).toEqual([]);
   });
 });

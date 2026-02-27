@@ -1,5 +1,9 @@
 import { colors, spacing, typography } from "@/core/theme";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  getMaltDetails,
+  listAlternativeMalts,
+} from "@/features/ingredients/application/malts.use-cases";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -8,7 +12,6 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getMaltDetails } from "@/features/ingredients/application/malts.use-cases";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -18,6 +21,10 @@ type Props = {
   maltIdParam?: string | string[];
   returnToParam?: string | string[];
   returnRecipeIdParam?: string | string[];
+  returnCategoryParam?: string | string[];
+  returnSearchParam?: string | string[];
+  returnEbcMinParam?: string | string[];
+  returnEbcMaxParam?: string | string[];
 };
 
 function formatSpecValue(value: string, unit?: string): string {
@@ -28,15 +35,110 @@ function formatSpecValue(value: string, unit?: string): string {
   return `${value} ${unit}`;
 }
 
+function getMaltColorEbcValue(malt: MaltProduct): string | null {
+  for (const group of malt.specGroups) {
+    for (const row of group.rows) {
+      const normalizedLabel = row.label.toLocaleLowerCase();
+      const normalizedUnit = row.unit?.toLocaleLowerCase();
+
+      if (!normalizedLabel.includes("color")) {
+        continue;
+      }
+
+      if (normalizedUnit && normalizedUnit !== "ebc") {
+        continue;
+      }
+
+      return row.value;
+    }
+  }
+
+  return null;
+}
+
+function getAlternativeMaltMeta(malt: MaltProduct): string {
+  const colorEbc = getMaltColorEbcValue(malt);
+  const typeLabel = malt.maltType ?? "Unknown";
+  const colorLabel = colorEbc ?? "N/A";
+
+  return `Type: ${typeLabel} • EBC: ${colorLabel}`;
+}
+
 export function MaltDetailsScreen({
   maltIdParam,
   returnToParam,
   returnRecipeIdParam,
+  returnCategoryParam,
+  returnSearchParam,
+  returnEbcMinParam,
+  returnEbcMaxParam,
 }: Props) {
   const router = useRouter();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
   const normalizedReturnTo = normalizeRouteParam(returnToParam);
   const normalizedReturnRecipeId = normalizeRouteParam(returnRecipeIdParam);
+  const normalizedReturnCategory = normalizeRouteParam(returnCategoryParam);
+  const normalizedReturnSearch = normalizeRouteParam(returnSearchParam);
+  const normalizedReturnEbcMin = normalizeRouteParam(returnEbcMinParam);
+  const normalizedReturnEbcMax = normalizeRouteParam(returnEbcMaxParam);
+
+  const buildMaltCategoryReturnParams = (): Record<string, string> | null => {
+    if (!normalizedReturnCategory) {
+      return null;
+    }
+
+    const params: Record<string, string> = {
+      category: normalizedReturnCategory,
+    };
+
+    if (normalizedReturnSearch) {
+      params.search = normalizedReturnSearch;
+    }
+
+    if (normalizedReturnEbcMin) {
+      params.ebcMin = normalizedReturnEbcMin;
+    }
+
+    if (normalizedReturnEbcMax) {
+      params.ebcMax = normalizedReturnEbcMax;
+    }
+
+    return params;
+  };
+
+  const buildMaltDetailsReturnContextParams = (
+    alternativeId: string,
+  ): Record<string, string> => {
+    const params: Record<string, string> = {
+      id: alternativeId,
+    };
+
+    if (normalizedReturnTo) {
+      params.returnTo = normalizedReturnTo;
+    }
+
+    if (normalizedReturnRecipeId) {
+      params.returnRecipeId = normalizedReturnRecipeId;
+    }
+
+    if (normalizedReturnCategory) {
+      params.returnCategory = normalizedReturnCategory;
+    }
+
+    if (normalizedReturnSearch) {
+      params.returnSearch = normalizedReturnSearch;
+    }
+
+    if (normalizedReturnEbcMin) {
+      params.returnEbcMin = normalizedReturnEbcMin;
+    }
+
+    if (normalizedReturnEbcMax) {
+      params.returnEbcMax = normalizedReturnEbcMax;
+    }
+
+    return params;
+  };
 
   const handleGoBack = () => {
     if (normalizedReturnTo && normalizedReturnRecipeId) {
@@ -45,6 +147,18 @@ export function MaltDetailsScreen({
         params: { id: normalizedReturnRecipeId } as never,
       });
       return;
+    }
+
+    if (normalizedReturnTo) {
+      const maltCategoryReturnParams = buildMaltCategoryReturnParams();
+
+      if (maltCategoryReturnParams) {
+        router.push({
+          pathname: normalizedReturnTo as never,
+          params: maltCategoryReturnParams as never,
+        });
+        return;
+      }
     }
 
     if (normalizedReturnTo) {
@@ -73,6 +187,31 @@ export function MaltDetailsScreen({
     },
     enabled: Boolean(normalizedMaltId),
   });
+
+  const { data: alternativeMalts = [] } = useQuery<MaltProduct[]>({
+    queryKey: [
+      "ingredients",
+      "malts",
+      "details",
+      "alternatives",
+      normalizedMaltId,
+    ],
+    queryFn: () => {
+      if (!normalizedMaltId) {
+        return Promise.resolve([]);
+      }
+
+      return listAlternativeMalts(normalizedMaltId, 3);
+    },
+    enabled: Boolean(normalizedMaltId),
+  });
+
+  const openAlternativeMalt = (alternativeId: string) => {
+    router.push({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: buildMaltDetailsReturnContextParams(alternativeId) as never,
+    });
+  };
 
   const error = queryError
     ? isFetching
@@ -150,6 +289,33 @@ export function MaltDetailsScreen({
             </Card>
           ))}
 
+          {alternativeMalts.length > 0 ? (
+            <Card style={styles.groupCard}>
+              <Text style={styles.groupTitle}>Alternative malts</Text>
+
+              {alternativeMalts.map((alternative) => (
+                <Pressable
+                  key={alternative.id}
+                  style={styles.alternativeRow}
+                  accessibilityRole="button"
+                  accessibilityLabel={`View alternative malt ${alternative.name}`}
+                  onPress={() => {
+                    openAlternativeMalt(alternative.id);
+                  }}
+                >
+                  <View style={styles.alternativeContent}>
+                    <Text style={styles.alternativeName}>
+                      {alternative.name}
+                    </Text>
+                    <Text style={styles.alternativeMeta}>
+                      {getAlternativeMaltMeta(alternative)}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </Card>
+          ) : null}
+
           <PrimaryButton label="Go back" onPress={handleGoBack} />
         </ScrollView>
       ) : null}
@@ -207,5 +373,24 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
+  },
+  alternativeRow: {
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.border,
+  },
+  alternativeContent: {
+    gap: spacing.xxs,
+  },
+  alternativeName: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  alternativeMeta: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
 });

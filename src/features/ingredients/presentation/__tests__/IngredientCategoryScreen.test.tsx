@@ -45,7 +45,19 @@ const mockedListIngredientsByCategory =
   >;
 const mockedListMalts = listMalts as jest.MockedFunction<typeof listMalts>;
 
-function renderIngredientCategoryScreen(categoryParam = "malt") {
+type RenderIngredientCategoryScreenOptions = {
+  categoryParam?: string;
+  searchParam?: string | string[];
+  ebcMinParam?: string | string[];
+  ebcMaxParam?: string | string[];
+};
+
+function renderIngredientCategoryScreen({
+  categoryParam = "malt",
+  searchParam,
+  ebcMinParam,
+  ebcMaxParam,
+}: RenderIngredientCategoryScreenOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -60,7 +72,12 @@ function renderIngredientCategoryScreen(categoryParam = "malt") {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <IngredientCategoryScreen categoryParam={categoryParam} />
+      <IngredientCategoryScreen
+        categoryParam={categoryParam}
+        searchParam={searchParam}
+        ebcMinParam={ebcMinParam}
+        ebcMaxParam={ebcMaxParam}
+      />
     </QueryClientProvider>,
   );
 }
@@ -90,7 +107,7 @@ describe("IngredientCategoryScreen", () => {
   });
 
   it("renders themed category title and ingredient row", async () => {
-    renderIngredientCategoryScreen("malt");
+    renderIngredientCategoryScreen({ categoryParam: "malt" });
 
     expect(await screen.findByText("La Malterie 🌾")).toBeTruthy();
     expect(screen.getByText("Recherche et filtres rapides")).toBeTruthy();
@@ -105,7 +122,7 @@ describe("IngredientCategoryScreen", () => {
   });
 
   it("navigates to ingredient details from list item", async () => {
-    renderIngredientCategoryScreen("malt");
+    renderIngredientCategoryScreen({ categoryParam: "malt" });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
 
@@ -115,7 +132,11 @@ describe("IngredientCategoryScreen", () => {
       pathname: "/(app)/ingredients/malts/[id]",
       params: {
         id: "malt-1",
-        returnTo: "/(app)/ingredients/malt",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "malt",
+        returnSearch: undefined,
+        returnEbcMin: undefined,
+        returnEbcMax: undefined,
       },
     });
   });
@@ -136,7 +157,7 @@ describe("IngredientCategoryScreen", () => {
       },
     ]);
 
-    renderIngredientCategoryScreen("hop");
+    renderIngredientCategoryScreen({ categoryParam: "hop" });
 
     expect(await screen.findByText("Citra")).toBeTruthy();
 
@@ -153,7 +174,7 @@ describe("IngredientCategoryScreen", () => {
   });
 
   it("applies EBC filters through malt filters", async () => {
-    renderIngredientCategoryScreen("malt");
+    renderIngredientCategoryScreen({ categoryParam: "malt" });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
 
@@ -166,6 +187,33 @@ describe("IngredientCategoryScreen", () => {
         colorEbcMin: 5,
         colorEbcMax: 10,
       });
+    });
+  });
+
+  it("navigates with return filter context when opening a malt detail", async () => {
+    renderIngredientCategoryScreen({
+      categoryParam: "malt",
+      searchParam: "wheat",
+      ebcMinParam: "4",
+      ebcMaxParam: "12",
+    });
+
+    expect(await screen.findByDisplayValue("wheat")).toBeTruthy();
+    expect(screen.getByDisplayValue("4")).toBeTruthy();
+    expect(screen.getByDisplayValue("12")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Voir la fiche Pale Ale Malt"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: {
+        id: "malt-1",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "malt",
+        returnSearch: "wheat",
+        returnEbcMin: "4",
+        returnEbcMax: "12",
+      },
     });
   });
 });

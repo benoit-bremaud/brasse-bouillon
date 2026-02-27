@@ -88,6 +88,7 @@ function renderDashboardScreen() {
     defaultOptions: {
       queries: {
         retry: false,
+        gcTime: Number.POSITIVE_INFINITY,
       },
       mutations: {
         retry: false,

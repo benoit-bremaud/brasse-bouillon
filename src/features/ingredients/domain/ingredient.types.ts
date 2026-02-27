@@ -1,6 +1,4 @@
-export const INGREDIENT_CATEGORIES = ["malt", "hop", "yeast"] as const;
-
-export type IngredientCategory = (typeof INGREDIENT_CATEGORIES)[number];
+export type IngredientCategory = "malt" | "hop" | "yeast";
 
 type IngredientBase = {
   id: string;
@@ -51,15 +49,3 @@ export type IngredientCategorySummary = {
   category: IngredientCategory;
   count: number;
 };
-
-export const ingredientCategoryLabels: Record<IngredientCategory, string> = {
-  malt: "Malts",
-  hop: "Hops",
-  yeast: "Yeasts",
-};
-
-export function isIngredientCategory(
-  value: string,
-): value is IngredientCategory {
-  return (INGREDIENT_CATEGORIES as readonly string[]).includes(value);
-}

@@ -4,7 +4,7 @@ import {
   mockShopProducts,
   shopCategoryDescriptions,
   shopCategoryLabels,
-} from "@/features/shop/domain/shop.types";
+} from "@/features/shop/presentation/shop.constants";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";

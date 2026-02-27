@@ -1,3 +1,8 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  RecipeDetailsViewModel,
+  getRecipeDetailsViewModel,
+} from "@/features/recipes/application/recipes.use-cases";
 import {
   BREWING_PHASES,
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS,
@@ -8,28 +13,6 @@ import {
   RecipeProcessDisplayMode,
   RecipeVolumeInputMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
-import {
-  DEFAULT_BALANCED_WATER_PROFILE,
-  WATER_LOCATION_PROFILES,
-  WATER_STYLE_PRESETS,
-  WaterStylePresetId,
-  buildWaterProfileFromStylePreset,
-  getWaterLocationProfileByName,
-  getWaterStylePresetById,
-} from "@/features/tools/domain/water-profiles";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  RecipeDetailsViewModel,
-  getRecipeDetailsViewModel,
-} from "@/features/recipes/application/recipes.use-cases";
 import {
   WATER_METRIC_LABELS,
   buildIngredientCartItems,
@@ -50,17 +33,34 @@ import {
   getLocalCartLineCount,
   getLocalCartTotalQuantity,
 } from "@/features/shop/application/cart.use-cases";
-import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  DEFAULT_BALANCED_WATER_PROFILE,
+  WATER_LOCATION_PROFILES,
+  WATER_STYLE_PRESETS,
+  buildWaterProfileFromStylePreset,
+  getWaterLocationProfileByName,
+  getWaterStylePresetById,
+} from "@/features/tools/data/water-profiles.data";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
+import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
-import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
-import { Ionicons } from "@expo/vector-icons";
-import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getErrorMessage } from "@/core/http/http-error";
 import { startBatch } from "@/features/batches/application/batches.use-cases";
+import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
+import type { LocalCartItem } from "@/features/shop/domain/cart.types";
+import type { WaterStylePresetId } from "@/features/tools/domain/water-profiles";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 type Props = {

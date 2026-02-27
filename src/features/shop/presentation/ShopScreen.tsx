@@ -4,9 +4,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { SHOP_CATEGORIES } from "@/features/shop/presentation/shop.constants";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { shopCategories } from "../domain/shop.types";
 
 export function ShopScreen() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export function ShopScreen() {
         <Text style={styles.sectionTitle}>Catégories</Text>
 
         <View style={styles.categoriesGrid}>
-          {shopCategories.map((category) => (
+          {SHOP_CATEGORIES.map((category) => (
             <Pressable
               key={category.id}
               onPress={() =>

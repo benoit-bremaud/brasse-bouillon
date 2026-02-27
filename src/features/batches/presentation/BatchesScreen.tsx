@@ -3,7 +3,6 @@ import {
   BatchStatus,
   BatchSummary,
 } from "@/features/batches/domain/batch.types";
-import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -25,7 +24,9 @@ import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { getSrmColor } from "@/features/tools/data/catalogs/srm";
 import { demoRecipes } from "@/mocks/demo-data";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import React from "react";
 
 const DEFAULT_BATCH_COLOR_EBC = 10;
 
@@ -53,34 +54,35 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 
 export function BatchesScreen() {
   const router = useRouter();
-  const [batches, setBatches] = useState<BatchSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: batches = [],
+    isLoading,
+    isFetching,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<BatchSummary[]>({
+    queryKey: ["batches", "list"],
+    queryFn: listBatches,
+  });
 
-  const fetchBatches = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await listBatches();
-      setBatches(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Failed to load batches"));
-    } finally {
-      setIsLoading(false);
-    }
+  const error = queryError
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Failed to load batches")
+    : null;
+  const showEmptyState = isFetched && !isLoading && batches.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
+
+  const handleRefetch = () => {
+    void refetch();
   };
-
-  useEffect(() => {
-    fetchBatches();
-  }, []);
-
-  const showEmptyState = !isLoading && batches.length === 0;
 
   return (
     <Screen
-      isLoading={isLoading && batches.length === 0}
+      isLoading={(isLoading && batches.length === 0) || isRetryingWithError}
       error={error}
-      onRetry={fetchBatches}
+      onRetry={handleRefetch}
     >
       <View style={styles.header}>
         <ListHeader title="Mes Brassins" subtitle="Suivi de tes brassins" />
@@ -101,7 +103,7 @@ export function BatchesScreen() {
         <EmptyStateCard
           title="Aucun batch"
           description="Lance un batch depuis une recette."
-          action={<PrimaryButton label="Recharger" onPress={fetchBatches} />}
+          action={<PrimaryButton label="Recharger" onPress={handleRefetch} />}
         />
       ) : null}
 
@@ -110,7 +112,7 @@ export function BatchesScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchBatches} />
+          <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
         renderItem={({ item }) => {
           const ebc = getRecipeColorEbc(item.recipeId);

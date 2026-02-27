@@ -12,6 +12,11 @@ import {
   getIngredientCategoryPageTitle,
   ingredientCategoryPresentationById,
 } from "@/features/ingredients/presentation/ingredient-category.presentation";
+import {
+  buildIngredientCategoryInitialFilters,
+  buildIngredientCategoryReturnContextParams,
+  buildIngredientDetailsReturnParams,
+} from "@/features/ingredients/presentation/ingredient-navigation-context";
 import React, { useMemo, useState } from "react";
 import {
   FlatList,
@@ -40,6 +45,8 @@ type Props = {
   searchParam?: string | string[];
   ebcMinParam?: string | string[];
   ebcMaxParam?: string | string[];
+  alphaMinParam?: string | string[];
+  attenuationMinParam?: string | string[];
 };
 
 type IngredientListItem = Ingredient | MaltProduct;
@@ -97,23 +104,31 @@ export function IngredientCategoryScreen({
   searchParam,
   ebcMinParam,
   ebcMaxParam,
+  alphaMinParam,
+  attenuationMinParam,
 }: Props) {
   const router = useRouter();
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
-  const normalizedSearchParam = normalizeRouteParam(searchParam) ?? "";
-  const normalizedEbcMinParam = normalizeRouteParam(ebcMinParam) ?? "";
-  const normalizedEbcMaxParam = normalizeRouteParam(ebcMaxParam) ?? "";
+  const initialFilters = buildIngredientCategoryInitialFilters({
+    searchParam,
+    ebcMinParam,
+    ebcMaxParam,
+    alphaMinParam,
+    attenuationMinParam,
+  });
   const category: IngredientCategory | null = isIngredientCategory(
     normalizedCategory,
   )
     ? normalizedCategory
     : null;
 
-  const [search, setSearch] = useState(normalizedSearchParam);
-  const [ebcMin, setEbcMin] = useState(normalizedEbcMinParam);
-  const [ebcMax, setEbcMax] = useState(normalizedEbcMaxParam);
-  const [alphaMin, setAlphaMin] = useState("");
-  const [attenuationMin, setAttenuationMin] = useState("");
+  const [search, setSearch] = useState(initialFilters.search);
+  const [ebcMin, setEbcMin] = useState(initialFilters.ebcMin);
+  const [ebcMax, setEbcMax] = useState(initialFilters.ebcMax);
+  const [alphaMin, setAlphaMin] = useState(initialFilters.alphaMin);
+  const [attenuationMin, setAttenuationMin] = useState(
+    initialFilters.attenuationMin,
+  );
 
   const ingredientFilters = useMemo<IngredientFilters>(() => {
     const commonFilters: IngredientFilters = {
@@ -203,28 +218,40 @@ export function IngredientCategoryScreen({
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
   const navigateToIngredientDetails = (ingredient: IngredientListItem) => {
-    if (isMaltProduct(ingredient) || ingredient.category === "malt") {
-      const trimmedSearch = search.trim();
-      const trimmedEbcMin = ebcMin.trim();
-      const trimmedEbcMax = ebcMax.trim();
+    const ingredientCategory = isMaltProduct(ingredient)
+      ? "malt"
+      : ingredient.category;
+    const returnContext = buildIngredientCategoryReturnContextParams(
+      ingredientCategory,
+      {
+        search,
+        ebcMin,
+        ebcMax,
+        alphaMin,
+        attenuationMin,
+      },
+    );
+    const ingredientDetailsReturnParams = buildIngredientDetailsReturnParams(
+      ingredient.id,
+      returnContext,
+    );
 
+    if (isMaltProduct(ingredient) || ingredient.category === "malt") {
       router.push({
         pathname: "/(app)/ingredients/malts/[id]",
-        params: {
-          id: ingredient.id,
-          returnTo: "/(app)/ingredients/[category]",
-          returnCategory: "malt",
-          returnSearch: trimmedSearch || undefined,
-          returnEbcMin: trimmedEbcMin || undefined,
-          returnEbcMax: trimmedEbcMax || undefined,
-        },
+        params: ingredientDetailsReturnParams as never,
       });
       return;
     }
 
+    const params = {
+      category: ingredient.category,
+      ...ingredientDetailsReturnParams,
+    };
+
     router.push({
       pathname: "/(app)/ingredients/[category]/[id]",
-      params: { category: ingredient.category, id: ingredient.id },
+      params: params as never,
     });
   };
 

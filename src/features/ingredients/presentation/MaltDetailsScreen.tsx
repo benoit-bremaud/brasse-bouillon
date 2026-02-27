@@ -3,6 +3,12 @@ import {
   getMaltDetails,
   listAlternativeMalts,
 } from "@/features/ingredients/application/malts.use-cases";
+import {
+  buildIngredientCategoryBackNavigationParams,
+  buildIngredientDetailsReturnParams,
+  buildRecipeBackNavigationTarget,
+  normalizeIngredientReturnContextParams,
+} from "@/features/ingredients/presentation/ingredient-navigation-context";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
@@ -25,6 +31,8 @@ type Props = {
   returnSearchParam?: string | string[];
   returnEbcMinParam?: string | string[];
   returnEbcMaxParam?: string | string[];
+  returnAlphaMinParam?: string | string[];
+  returnAttenuationMinParam?: string | string[];
 };
 
 function formatSpecValue(value: string, unit?: string): string {
@@ -72,97 +80,42 @@ export function MaltDetailsScreen({
   returnSearchParam,
   returnEbcMinParam,
   returnEbcMaxParam,
+  returnAlphaMinParam,
+  returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
-  const normalizedReturnTo = normalizeRouteParam(returnToParam);
-  const normalizedReturnRecipeId = normalizeRouteParam(returnRecipeIdParam);
-  const normalizedReturnCategory = normalizeRouteParam(returnCategoryParam);
-  const normalizedReturnSearch = normalizeRouteParam(returnSearchParam);
-  const normalizedReturnEbcMin = normalizeRouteParam(returnEbcMinParam);
-  const normalizedReturnEbcMax = normalizeRouteParam(returnEbcMaxParam);
-
-  const buildMaltCategoryReturnParams = (): Record<string, string> | null => {
-    if (!normalizedReturnCategory) {
-      return null;
-    }
-
-    const params: Record<string, string> = {
-      category: normalizedReturnCategory,
-    };
-
-    if (normalizedReturnSearch) {
-      params.search = normalizedReturnSearch;
-    }
-
-    if (normalizedReturnEbcMin) {
-      params.ebcMin = normalizedReturnEbcMin;
-    }
-
-    if (normalizedReturnEbcMax) {
-      params.ebcMax = normalizedReturnEbcMax;
-    }
-
-    return params;
-  };
-
-  const buildMaltDetailsReturnContextParams = (
-    alternativeId: string,
-  ): Record<string, string> => {
-    const params: Record<string, string> = {
-      id: alternativeId,
-    };
-
-    if (normalizedReturnTo) {
-      params.returnTo = normalizedReturnTo;
-    }
-
-    if (normalizedReturnRecipeId) {
-      params.returnRecipeId = normalizedReturnRecipeId;
-    }
-
-    if (normalizedReturnCategory) {
-      params.returnCategory = normalizedReturnCategory;
-    }
-
-    if (normalizedReturnSearch) {
-      params.returnSearch = normalizedReturnSearch;
-    }
-
-    if (normalizedReturnEbcMin) {
-      params.returnEbcMin = normalizedReturnEbcMin;
-    }
-
-    if (normalizedReturnEbcMax) {
-      params.returnEbcMax = normalizedReturnEbcMax;
-    }
-
-    return params;
-  };
+  const normalizedReturnContext = normalizeIngredientReturnContextParams({
+    returnToParam,
+    returnRecipeIdParam,
+    returnCategoryParam,
+    returnSearchParam,
+    returnEbcMinParam,
+    returnEbcMaxParam,
+    returnAlphaMinParam,
+    returnAttenuationMinParam,
+  });
 
   const handleGoBack = () => {
-    if (normalizedReturnTo && normalizedReturnRecipeId) {
-      router.push({
-        pathname: normalizedReturnTo as never,
-        params: { id: normalizedReturnRecipeId } as never,
-      });
+    const recipeBackNavigationTarget = buildRecipeBackNavigationTarget(
+      normalizedReturnContext,
+    );
+
+    if (recipeBackNavigationTarget) {
+      router.push(recipeBackNavigationTarget as never);
       return;
     }
 
-    if (normalizedReturnTo) {
-      const maltCategoryReturnParams = buildMaltCategoryReturnParams();
+    const ingredientCategoryBackNavigationTarget =
+      buildIngredientCategoryBackNavigationParams(normalizedReturnContext);
 
-      if (maltCategoryReturnParams) {
-        router.push({
-          pathname: normalizedReturnTo as never,
-          params: maltCategoryReturnParams as never,
-        });
-        return;
-      }
+    if (ingredientCategoryBackNavigationTarget) {
+      router.push(ingredientCategoryBackNavigationTarget as never);
+      return;
     }
 
-    if (normalizedReturnTo) {
-      router.push(normalizedReturnTo as never);
+    if (normalizedReturnContext.returnTo) {
+      router.push(normalizedReturnContext.returnTo as never);
       return;
     }
 
@@ -209,7 +162,10 @@ export function MaltDetailsScreen({
   const openAlternativeMalt = (alternativeId: string) => {
     router.push({
       pathname: "/(app)/ingredients/malts/[id]",
-      params: buildMaltDetailsReturnContextParams(alternativeId) as never,
+      params: buildIngredientDetailsReturnParams(
+        alternativeId,
+        normalizedReturnContext,
+      ) as never,
     });
   };
 

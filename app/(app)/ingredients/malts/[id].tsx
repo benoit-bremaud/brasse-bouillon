@@ -10,6 +10,8 @@ export default function MaltDetailsRoute() {
     returnSearch,
     returnEbcMin,
     returnEbcMax,
+    returnAlphaMin,
+    returnAttenuationMin,
   } = useLocalSearchParams<{
     id?: string | string[];
     returnTo?: string | string[];
@@ -18,6 +20,8 @@ export default function MaltDetailsRoute() {
     returnSearch?: string | string[];
     returnEbcMin?: string | string[];
     returnEbcMax?: string | string[];
+    returnAlphaMin?: string | string[];
+    returnAttenuationMin?: string | string[];
   }>();
 
   return (
@@ -29,6 +33,8 @@ export default function MaltDetailsRoute() {
       returnSearchParam={returnSearch}
       returnEbcMinParam={returnEbcMin}
       returnEbcMaxParam={returnEbcMax}
+      returnAlphaMinParam={returnAlphaMin}
+      returnAttenuationMinParam={returnAttenuationMin}
     />
   );
 }

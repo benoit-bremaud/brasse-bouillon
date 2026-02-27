@@ -50,6 +50,8 @@ type RenderIngredientCategoryScreenOptions = {
   searchParam?: string | string[];
   ebcMinParam?: string | string[];
   ebcMaxParam?: string | string[];
+  alphaMinParam?: string | string[];
+  attenuationMinParam?: string | string[];
 };
 
 function renderIngredientCategoryScreen({
@@ -57,6 +59,8 @@ function renderIngredientCategoryScreen({
   searchParam,
   ebcMinParam,
   ebcMaxParam,
+  alphaMinParam,
+  attenuationMinParam,
 }: RenderIngredientCategoryScreenOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -77,6 +81,8 @@ function renderIngredientCategoryScreen({
         searchParam={searchParam}
         ebcMinParam={ebcMinParam}
         ebcMaxParam={ebcMaxParam}
+        alphaMinParam={alphaMinParam}
+        attenuationMinParam={attenuationMinParam}
       />
     </QueryClientProvider>,
   );
@@ -165,11 +171,102 @@ describe("IngredientCategoryScreen", () => {
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/[category]/[id]",
-      params: { category: "hop", id: "hop-1" },
+      params: {
+        category: "hop",
+        id: "hop-1",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "hop",
+        returnSearch: undefined,
+        returnAlphaMin: undefined,
+      },
     });
     expect(mockedListIngredientsByCategory).toHaveBeenCalledWith("hop", {
       search: "",
       alphaAcidMin: undefined,
+    });
+  });
+
+  it("navigates with alpha filter context for hop details", async () => {
+    mockedListMalts.mockResolvedValueOnce([]);
+    mockedListIngredientsByCategory.mockResolvedValueOnce([
+      {
+        id: "hop-1",
+        name: "Citra",
+        category: "hop",
+        origin: "USA",
+        supplier: "Yakima Chief",
+        alphaAcid: 12.5,
+        betaAcid: 4,
+        hopUse: "aroma",
+        form: "pellet",
+      },
+    ]);
+
+    renderIngredientCategoryScreen({
+      categoryParam: "hop",
+      searchParam: "citra",
+      alphaMinParam: "8",
+    });
+
+    expect(await screen.findByText("Citra")).toBeTruthy();
+    expect(screen.getByDisplayValue("citra")).toBeTruthy();
+    expect(screen.getByDisplayValue("8")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Voir la fiche Citra"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: {
+        category: "hop",
+        id: "hop-1",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "hop",
+        returnSearch: "citra",
+        returnAlphaMin: "8",
+      },
+    });
+  });
+
+  it("navigates with attenuation filter context for yeast details", async () => {
+    mockedListMalts.mockResolvedValueOnce([]);
+    mockedListIngredientsByCategory.mockResolvedValueOnce([
+      {
+        id: "yeast-1",
+        name: "US-05",
+        category: "yeast",
+        origin: "USA",
+        supplier: "Fermentis",
+        yeastType: "ale",
+        attenuationMin: 78,
+        attenuationMax: 82,
+        flocculation: "medium",
+        fermentationMinC: 18,
+        fermentationMaxC: 22,
+      },
+    ]);
+
+    renderIngredientCategoryScreen({
+      categoryParam: "yeast",
+      searchParam: "us-05",
+      attenuationMinParam: "75",
+    });
+
+    expect(await screen.findByText("US-05")).toBeTruthy();
+    expect(screen.getByDisplayValue("us-05")).toBeTruthy();
+    expect(screen.getByDisplayValue("75")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Voir la fiche US-05"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: {
+        category: "yeast",
+        id: "yeast-1",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "yeast",
+        returnSearch: "us-05",
+        returnAttenuationMin: "75",
+      },
     });
   });
 

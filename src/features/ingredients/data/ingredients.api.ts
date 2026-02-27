@@ -1,5 +1,4 @@
 import {
-  INGREDIENT_CATEGORIES,
   Ingredient,
   IngredientCategory,
   IngredientCategorySummary,
@@ -64,7 +63,9 @@ let ingredientsCache: IngredientsCache | null = null;
 function toIngredientCategorySummary(
   ingredients: Ingredient[],
 ): IngredientCategorySummary[] {
-  return INGREDIENT_CATEGORIES.map((category) => ({
+  const categories = ["malt", "hop", "yeast"] as const;
+
+  return categories.map((category) => ({
     category,
     count: ingredients.filter((item) => item.category === category).length,
   }));
@@ -115,6 +116,24 @@ function mapFermentableTypeToMaltType(
   }
 
   return "base";
+}
+
+function getIngredientCategoryFromLiveId(
+  ingredientId: string,
+): IngredientCategory | null {
+  const allowedCategories: readonly IngredientCategory[] = [
+    "malt",
+    "hop",
+    "yeast",
+  ];
+  const [candidateCategory] = ingredientId.split("-");
+
+  if (!candidateCategory) {
+    return null;
+  }
+
+  const category = candidateCategory as IngredientCategory;
+  return allowedCategories.includes(category) ? category : null;
 }
 
 function mapHopTypeToForm(type: RecipeHopDto["type"]): "pellet" | "whole" {
@@ -313,6 +332,11 @@ export async function getIngredientDetailsApi(
   ingredientId: string,
 ): Promise<Ingredient | null> {
   if (!ingredientId) {
+    return null;
+  }
+
+  const parsedCategory = getIngredientCategoryFromLiveId(ingredientId);
+  if (parsedCategory && parsedCategory !== category) {
     return null;
   }
 

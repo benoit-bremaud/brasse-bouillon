@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
+import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
 import { IngredientCategoryScreen } from "@/features/ingredients/presentation/IngredientCategoryScreen";
 import React from "react";
-import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
 
 const mockPush = jest.fn();
 
@@ -39,6 +39,7 @@ function renderIngredientCategoryScreen(categoryParam = "malt") {
     defaultOptions: {
       queries: {
         retry: false,
+        gcTime: Number.POSITIVE_INFINITY,
       },
       mutations: {
         retry: false,

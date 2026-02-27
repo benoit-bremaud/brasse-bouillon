@@ -1,3 +1,14 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  Ingredient,
+  IngredientCategory,
+  IngredientFilters,
+} from "@/features/ingredients/domain/ingredient.types";
+import {
+  getIngredientCategoryPageTitle,
+  ingredientCategoryPresentationById,
+} from "@/features/ingredients/presentation/ingredient-category.presentation";
+import React, { useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -6,26 +17,15 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {
-  Ingredient,
-  IngredientCategory,
-  IngredientFilters,
-  isIngredientCategory,
-} from "@/features/ingredients/domain/ingredient.types";
-import React, { useMemo, useState } from "react";
-import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  getIngredientCategoryPageTitle,
-  ingredientCategoryPresentationById,
-} from "@/features/ingredients/presentation/ingredient-category.presentation";
 
+import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
-import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
-import { getErrorMessage } from "@/core/http/http-error";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
+import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 

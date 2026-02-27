@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react-native";
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
@@ -32,9 +33,29 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
   }),
 }));
 
+function renderBatchDetailsScreen(batchId = "b1") {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: Number.POSITIVE_INFINITY,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BatchDetailsScreen batchId={batchId} />
+    </QueryClientProvider>,
+  );
+}
+
 describe("BatchDetailsScreen", () => {
   it("renders batch details", async () => {
-    render(<BatchDetailsScreen batchId="b1" />);
+    renderBatchDetailsScreen();
 
     expect(await screen.findByText("Batch b1")).toBeTruthy();
     expect(screen.getByText("Progression du brassin")).toBeTruthy();

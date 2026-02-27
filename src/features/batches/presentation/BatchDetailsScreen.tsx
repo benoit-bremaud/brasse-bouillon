@@ -3,7 +3,7 @@ import {
   completeCurrentBatchStep,
   getBatchDetails,
 } from "@/features/batches/application/batches.use-cases";
-import React, { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
@@ -14,59 +14,82 @@ import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { Batch } from "@/features/batches/domain/batch.types";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
+import React from "react";
 
 type Props = {
   batchId: string;
 };
 
 export function BatchDetailsScreen({ batchId }: Props) {
-  const [batch, setBatch] = useState<Batch | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [mutationError, setMutationError] = React.useState<string | null>(null);
+  const missingBatchId = !batchId;
 
-  const fetchBatch = async () => {
-    if (!batchId) {
-      setError("Missing batch id.");
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getBatchDetails(batchId);
-      setBatch(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Failed to load batch"));
-    } finally {
-      setIsLoading(false);
+  const {
+    data: batch = null,
+    isLoading,
+    isFetching,
+    error: queryError,
+    refetch,
+  } = useQuery<Batch | null>({
+    queryKey: ["batches", "details", batchId],
+    queryFn: () => getBatchDetails(batchId),
+    enabled: !missingBatchId,
+  });
+
+  const {
+    mutate: mutateCompleteCurrentStep,
+    isPending: isCompleting,
+    reset: resetCompletionState,
+  } = useMutation<Batch | null, Error>({
+    mutationFn: () => completeCurrentBatchStep(batchId),
+    onSuccess: (nextBatch) => {
+      setMutationError(null);
+      queryClient.setQueryData<Batch | null>(
+        ["batches", "details", batchId],
+        nextBatch,
+      );
+      void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
+    },
+    onError: (error) => {
+      setMutationError(getErrorMessage(error, "Failed to complete step"));
+    },
+  });
+
+  const error = missingBatchId
+    ? "Missing batch id."
+    : (mutationError ??
+      (queryError
+        ? isFetching
+          ? null
+          : getErrorMessage(queryError, "Failed to load batch")
+        : null));
+
+  const isRetryingWithError = isFetching && Boolean(queryError);
+  const handleRetry = () => {
+    setMutationError(null);
+    resetCompletionState();
+    if (!missingBatchId) {
+      void refetch();
     }
   };
 
-  const handleComplete = async () => {
-    if (!batchId) {
+  const handleComplete = () => {
+    if (missingBatchId) {
       return;
     }
-    setIsCompleting(true);
-    try {
-      const data = await completeCurrentBatchStep(batchId);
-      if (data) {
-        setBatch(data);
-      }
-    } catch (err) {
-      setError(getErrorMessage(err, "Failed to complete step"));
-    } finally {
-      setIsCompleting(false);
-    }
+    setMutationError(null);
+    mutateCompleteCurrentStep();
   };
-
-  useEffect(() => {
-    fetchBatch();
-  }, [batchId]);
 
   const isCompleted = batch?.status === "completed";
 
   return (
-    <Screen isLoading={isLoading} error={error} onRetry={fetchBatch}>
+    <Screen
+      isLoading={(isLoading && !missingBatchId) || isRetryingWithError}
+      error={error}
+      onRetry={handleRetry}
+    >
       <ListHeader
         title="Détails du brassin"
         subtitle={`ID : ${batchId.slice(0, 8)}`}

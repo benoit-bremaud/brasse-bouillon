@@ -1,5 +1,4 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -20,7 +19,9 @@ import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
 import { getSrmColor } from "@/features/tools/data/catalogs/srm";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import React from "react";
 
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
@@ -42,34 +43,35 @@ const getVisibilityVariant = (
 
 export function RecipesScreen() {
   const router = useRouter();
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: recipes = [],
+    isLoading,
+    isFetching,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<Recipe[]>({
+    queryKey: ["recipes", "list"],
+    queryFn: listRecipes,
+  });
 
-  const fetchRecipes = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await listRecipes();
-      setRecipes(data);
-    } catch (err) {
-      setError(getErrorMessage(err, "Failed to load recipes"));
-    } finally {
-      setIsLoading(false);
-    }
+  const error = queryError
+    ? isFetching
+      ? null
+      : getErrorMessage(queryError, "Failed to load recipes")
+    : null;
+  const showEmptyState = isFetched && !isLoading && recipes.length === 0;
+  const isRetryingWithError = isFetching && Boolean(queryError);
+
+  const handleRefetch = () => {
+    void refetch();
   };
-
-  useEffect(() => {
-    fetchRecipes();
-  }, []);
-
-  const showEmptyState = !isLoading && recipes.length === 0;
 
   return (
     <Screen
-      isLoading={isLoading && recipes.length === 0}
+      isLoading={(isLoading && recipes.length === 0) || isRetryingWithError}
       error={error}
-      onRetry={fetchRecipes}
+      onRetry={handleRefetch}
     >
       <View style={styles.header}>
         <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
@@ -90,7 +92,7 @@ export function RecipesScreen() {
         <EmptyStateCard
           title="Aucune recette"
           description="Ajoute une recette pour démarrer."
-          action={<PrimaryButton label="Recharger" onPress={fetchRecipes} />}
+          action={<PrimaryButton label="Recharger" onPress={handleRefetch} />}
         />
       ) : null}
 
@@ -99,7 +101,7 @@ export function RecipesScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchRecipes} />
+          <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
         renderItem={({ item }) => {
           const stats = item.stats;

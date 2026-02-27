@@ -1,25 +1,23 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import {
-  IngredientCategorySummary,
-  ingredientCategoryLabels,
-} from "@/features/ingredients/domain/ingredient.types";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
   ingredientCategoryPresentationById,
 } from "@/features/ingredients/presentation/ingredient-category.presentation";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
-import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
-import React from "react";
 import { Screen } from "@/core/ui/Screen";
-import { getErrorMessage } from "@/core/http/http-error";
 import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
+import { IngredientCategorySummary } from "@/features/ingredients/domain/ingredient.types";
+import { ingredientCategoryLabels } from "@/features/ingredients/presentation/ingredient-category.constants";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import React from "react";
 
 export function IngredientsScreen() {
   const router = useRouter();

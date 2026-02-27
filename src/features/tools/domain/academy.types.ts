@@ -31,14 +31,3 @@ export type CalculatorSlug =
   | "levures"
   | "carbonatation"
   | "avances";
-
-export const CALCULATOR_TOPICS: readonly CalculatorSlug[] = [
-  "fermentescibles",
-  "couleur",
-  "houblons",
-  "eau",
-  "rendement",
-  "levures",
-  "carbonatation",
-  "avances",
-];

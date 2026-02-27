@@ -1,18 +1,22 @@
 import {
-  INGREDIENT_CATEGORIES,
+  getIngredientDetailsApi,
+  listIngredientCategoriesSummaryApi,
+  listIngredientsByCategoryApi,
+} from "@/features/ingredients/data/ingredients.api";
+import {
   Ingredient,
   IngredientCategory,
   IngredientCategorySummary,
   IngredientFilters,
 } from "@/features/ingredients/domain/ingredient.types";
-import {
-  getIngredientDetailsApi,
-  listIngredientCategoriesSummaryApi,
-  listIngredientsByCategoryApi,
-} from "@/features/ingredients/data/ingredients.api";
 
 import { dataSource } from "@/core/data/data-source";
 import { demoIngredients } from "@/mocks/demo-data";
+
+function isIngredientCategory(value: string): value is IngredientCategory {
+  const categories: readonly IngredientCategory[] = ["malt", "hop", "yeast"];
+  return categories.includes(value as IngredientCategory);
+}
 
 function normalizeSearch(search?: string): string {
   return search?.trim().toLocaleLowerCase() ?? "";
@@ -71,7 +75,9 @@ export async function listIngredientCategoriesSummary(): Promise<
   IngredientCategorySummary[]
 > {
   if (dataSource.useDemoData) {
-    return INGREDIENT_CATEGORIES.map((category) => ({
+    const categories = ["malt", "hop", "yeast"] as const;
+
+    return categories.map((category) => ({
       category,
       count: demoIngredients.filter((item) => item.category === category)
         .length,
@@ -103,6 +109,13 @@ export async function getIngredientDetails(
   }
 
   if (dataSource.useDemoData) {
+    const [categoryFromId] = ingredientId.split("-");
+    if (categoryFromId && isIngredientCategory(categoryFromId)) {
+      if (categoryFromId !== category) {
+        return null;
+      }
+    }
+
     return (
       demoIngredients.find(
         (item) => item.id === ingredientId && item.category === category,

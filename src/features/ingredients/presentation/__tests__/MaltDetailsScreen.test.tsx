@@ -95,6 +95,7 @@ describe("MaltDetailsScreen", () => {
     renderMaltDetailsScreen({ maltIdParam: "malt-1" });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+    expect(screen.getByTestId("malt-details-scroll")).toBeTruthy();
     expect(screen.getByText("Analytical profile")).toBeTruthy();
     expect(screen.getByText("Color")).toBeTruthy();
     expect(screen.getByText("6 EBC")).toBeTruthy();

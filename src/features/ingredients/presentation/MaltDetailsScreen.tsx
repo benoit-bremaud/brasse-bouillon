@@ -1,5 +1,5 @@
 import { colors, spacing, typography } from "@/core/theme";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -111,7 +111,11 @@ export function MaltDetailsScreen({
       }}
     >
       {malt ? (
-        <>
+        <ScrollView
+          testID="malt-details-scroll"
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+        >
           <ListHeader
             title={malt.name}
             subtitle={malt.brand ?? "Malt product sheet"}
@@ -147,13 +151,19 @@ export function MaltDetailsScreen({
           ))}
 
           <PrimaryButton label="Go back" onPress={handleGoBack} />
-        </>
+        </ScrollView>
       ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: spacing.lg,
+  },
   identityCard: {
     marginBottom: spacing.sm,
   },

@@ -60,6 +60,50 @@ describe("malts use-cases", () => {
     ).toBe(true);
   });
 
+  it("filters demo malts by color EBC range", async () => {
+    const results = await listMalts({
+      colorEbcMin: 20,
+      colorEbcMax: 60,
+    });
+
+    expect(results.length).toBeGreaterThan(0);
+
+    const extractedColors = results
+      .map((malt) => {
+        const colorRow = malt.specGroups
+          .flatMap((group) => group.rows)
+          .find(
+            (row) =>
+              row.label.toLocaleLowerCase().includes("color") &&
+              row.unit?.toLocaleLowerCase() === "ebc",
+          );
+
+        return colorRow ? Number.parseFloat(colorRow.value) : Number.NaN;
+      })
+      .filter((value) => Number.isFinite(value));
+
+    expect(extractedColors.length).toBe(results.length);
+    expect(extractedColors.every((value) => value >= 20 && value <= 60)).toBe(
+      true,
+    );
+  });
+
+  it("combines search and color filters", async () => {
+    const results = await listMalts({
+      search: "weyermann",
+      colorEbcMax: 30,
+    });
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(
+      results.every((malt) =>
+        [malt.name, malt.brand, malt.maltType]
+          .filter((value): value is string => Boolean(value))
+          .some((value) => value.toLocaleLowerCase().includes("weyermann")),
+      ),
+    ).toBe(true);
+  });
+
   it("returns malt details from demo data", async () => {
     const details = await getMaltDetails("malt-1");
 

@@ -25,6 +25,10 @@
 
     * { box-sizing: border-box; }
 
+    html {
+      scroll-padding-top: 96px;
+    }
+
     body {
       margin: 0;
       font-family: 'Inter', Arial, sans-serif;
@@ -46,7 +50,7 @@
       border-radius: var(--radius-sm);
       padding: 8px 12px;
       font-weight: 700;
-      z-index: 100;
+      z-index: 1200;
     }
 
     .skip-link:focus {
@@ -54,7 +58,7 @@
       top: 12px;
     }
 
-    /* Header avec gros logo */
+    /* Sticky header with logo */
     .site-header {
       position: sticky;
       top: 0;
@@ -206,7 +210,10 @@
       font-size: 1.02rem;
     }
 
-    .section-block { margin-top: var(--spacing-xl); }
+    .section-block {
+      margin-top: var(--spacing-xl);
+      scroll-margin-top: 96px;
+    }
 
     .section-title {
       margin: 0 0 12px;
@@ -222,7 +229,7 @@
       text-align: center;
     }
 
-    /* Features Grid - Redesign moderne */
+    /* Features grid - modern redesign */
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -283,7 +290,7 @@
       line-height: 1.6;
     }
 
-    /* Section grid pour les autres sections */
+    /* Section grid for secondary sections */
     .section-grid {
       display: grid;
       gap: 12px;
@@ -306,7 +313,7 @@
       font-size: 1.02rem;
     }
 
-    /* Feature list (ancien style - kept for compatibility) */
+    /* Legacy feature list (kept for compatibility) */
     .feature {
       background: var(--color-card);
       border-radius: var(--radius-md);

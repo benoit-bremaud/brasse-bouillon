@@ -3,13 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brasse-Bouillon — L’app de brassage qui arrive bientôt</title>
+  <title>Brasse-Bouillon — Application de brassage maison (recettes, IBU/ABV, suivi)</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Brasse-Bouillon est l’application mobile de brassage amateur : recettes de bière, calculs IBU/ABV, suivi de fermentation et journal de brassins.">
+  <meta name="keywords" content="application brassage, brassage amateur, recette bière, calcul IBU, calcul ABV, suivi fermentation, journal de brassins, homebrew">
+  <link rel="canonical" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brasse-bouillon.com/">
+  <meta property="og:title" content="Brasse-Bouillon | Application de brassage maison">
+  <meta property="og:description" content="Crée des recettes, calcule IBU/ABV et suis tes brassins avec Brasse-Bouillon.">
+  <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
+  <meta property="og:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://brasse-bouillon.com/">
+  <meta name="twitter:title" content="Brasse-Bouillon | Application de brassage maison">
+  <meta name="twitter:description" content="L’application mobile des brasseurs amateurs : recettes, calculs IBU/ABV et suivi des brassins.">
+  <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
+  <meta name="twitter:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
+  
+  <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
   <link rel="apple-touch-icon" href="logo-icon-32.png">
+  
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -17,7 +46,42 @@
     gtag('js', new Date());
     gtag('config', 'G-RVCT6NGFVG');
   </script>
+  
   <link rel="stylesheet" href="site.css">
+  
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@id": "https://brasse-bouillon.com/#organization",
+    "@type": "Organization",
+    "name": "Brasse-Bouillon",
+    "url": "https://brasse-bouillon.com/",
+    "logo": "https://brasse-bouillon.com/logo.png",
+    "description": "Projet d’application mobile dédié au brassage amateur, aux recettes de bière et au suivi de fermentation.",
+    "email": "contact@brasse-bouillon.com",
+    "founder": {
+      "@type": "Person",
+      "name": "Benoît Bremaud",
+      "url": "https://www.linkedin.com/in/benoit-bremaud"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "contact@brasse-bouillon.com",
+      "contactType": "customer service"
+    },
+    "knowsAbout": [
+      "Brassage amateur",
+      "Recettes de bière",
+      "Calcul IBU",
+      "Calcul ABV",
+      "Suivi de fermentation"
+    ],
+    "sameAs": [
+      "https://www.linkedin.com/in/benoit-bremaud"
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
@@ -47,55 +111,25 @@
     <div class="shell">
       <section class="hero">
         <div class="logo-wrap">
-          <img class="logo" src="logo-hero.png" alt="Mascotte officielle Brasse-Bouillon">
+          <img class="logo" src="logo-hero.png" alt="Mascotte officielle Brasse-Bouillon" loading="eager" width="180" height="180">
         </div>
-        <span class="pill">Bientôt disponible</span>
-        <h1>Brasse-Bouillon</h1>
+        <p class="section-intro">L’app de brassage maison pour gérer tes recettes et suivre tes brassins.</p>
+        <h1>Brasse-Bouillon, l’app de brassage maison</h1>
         <p class="intro">
           L’application mobile pensée pour les brasseurs amateurs, du premier brassin aux recettes avancées.
           Conçois, optimise, archive et partage tes créations dans un univers convivial et accessible.
         </p>
+        <p class="badge">Bêta bientôt : ouvre le questionnaire pour être informé(e).</p>
       </section>
 
       <section class="section-block" id="features">
-        <h2 class="section-title">🍻 Toutes les fonctionnalités pour brasser comme un pro</h2>
-        <p class="section-intro">De la recette à la bière en verre, Brasse-Bouillon t'accompagne à chaque étape.</p>
+        <h2 class="section-title">🍻 Recettes, calcul IBU/ABV et suivi de brassins</h2>
         <div class="features-grid">
-          <article class="feature-card">
-            <div class="feature-icon">📝</div>
-            <h3>Gestion de Recettes</h3>
-            <p>Crée, modifie et organise toutes tes recettes. Ajoute tes ingrédients, tes étapes de brassage et tes notes personnelles. Tout est sauvegardé et accessible partout.</p>
-          </article>
-          
-          <article class="feature-card">
-            <div class="feature-icon">🧮</div>
-            <h3>Calculateur IBU/ABV</h3>
-            <p>Calcule instantanément l'amertume (IBU) et le taux d'alcool (ABV) de tes bières. Des formules éprouvées pour des résultats précis à chaque brassin.</p>
-          </article>
-          
-          <article class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Suivi de Brassins</h3>
-            <p>Enregistre chaque étape de tes sessions de brassage. Température, densité, temps de fermentation : ton historique complet en un clin d'œil.</p>
-          </article>
-          
-          <article class="feature-card">
-            <div class="feature-icon">🛒</div>
-            <h3>Gestion des Stocks</h3>
-            <p>Suis ton stock de malts, houblons et levures. Ne plus jamais manquer d'un ingrédient clé pour ton prochain brassin.</p>
-          </article>
-          
-          <article class="feature-card">
-            <div class="feature-icon">🤖</div>
-            <h3>Assistance au Brassage</h3>
-            <p>Des rappels intelligents pour chaque étape : empâtage, ébullition, fermentation. L'app te guide quand tu en as besoin.</p>
-          </article>
-          
-          <article class="feature-card">
-            <div class="feature-icon">🔗</div>
-            <h3>Partage Communautaire</h3>
-            <p>Partage tes recettes avec la communauté. Découvre les créations des autres brasseurs et inspire-toi pour de nouvelles bières.</p>
-          </article>
+          <div class="feature">✅ Créer et gérer facilement tes recettes</div>
+          <div class="feature">✅ Calculer IBU, ABV et rendement</div>
+          <div class="feature">✅ Planifier et suivre tes brassins</div>
+          <div class="feature">✅ Garder un historique clair de tes sessions</div>
+          <div class="feature">✅ Partager tes créations avec la communauté</div>
         </div>
       </section>
 
@@ -128,8 +162,8 @@
         </div>
       </section>
 
-      <section class="section-block" id="faq">
-        <h2 class="section-title">❓ FAQ rapide</h2>
+      <section class="section-block">
+        <h2 class="section-title" id="faq">❓ FAQ rapide</h2>
         <div class="section-grid">
           <div class="mini-card">
             <h3>Quand l’app sera disponible ?</h3>
@@ -297,8 +331,8 @@
         <p id="questionnaireStatusFr" class="form-status" role="status" aria-live="polite"></p>
       </section>
 
-      <section class="section-block" id="contact">
-        <h2 class="section-title">📬 Contact direct</h2>
+      <section class="section-block">
+        <h2 class="section-title" id="contact">📬 Contact direct</h2>
         <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
           <label class="sr-only" for="emailFr">Adresse email</label>
           <input id="emailFr" type="email" name="email" placeholder="Ton email" required>
@@ -313,6 +347,9 @@
         <div class="badge">
           Made with ❤️ by
           <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+        </div>
+        <div class="badge" style="margin-top: 8px;">
+          <a href="legal.html">Mentions légales</a>
         </div>
       </footer>
     </div>

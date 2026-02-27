@@ -69,6 +69,7 @@ The roadmap sync workflow ingests user-facing updates via `repository_dispatch` 
 ## 🧪 Local checks
 
 ```bash
+python3 -m unittest -v tests/test_quality_gate.py
 python3 scripts/quality_gate.py
 python3 -m py_compile scripts/quality_gate.py
 python3 -m py_compile scripts/roadmap_sync.py

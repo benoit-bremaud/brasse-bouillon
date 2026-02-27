@@ -29,6 +29,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Run quality gate unit tests
+        run: python -m unittest -v tests/test_quality_gate.py
+
       - name: Run website quality gate
         run: python scripts/quality_gate.py
 
@@ -59,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          files=( *.html *.ico *.png *.svg *.css *.js CNAME )
+          files=( *.html *.ico *.png *.svg *.css *.js *.xml *.txt CNAME )
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No deployable static files found."

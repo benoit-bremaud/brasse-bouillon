@@ -16,6 +16,8 @@ import React from "react";
 
 type Props = {
   maltIdParam?: string | string[];
+  returnToParam?: string | string[];
+  returnRecipeIdParam?: string | string[];
 };
 
 function formatSpecValue(value: string, unit?: string): string {
@@ -26,9 +28,32 @@ function formatSpecValue(value: string, unit?: string): string {
   return `${value} ${unit}`;
 }
 
-export function MaltDetailsScreen({ maltIdParam }: Props) {
+export function MaltDetailsScreen({
+  maltIdParam,
+  returnToParam,
+  returnRecipeIdParam,
+}: Props) {
   const router = useRouter();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
+  const normalizedReturnTo = normalizeRouteParam(returnToParam);
+  const normalizedReturnRecipeId = normalizeRouteParam(returnRecipeIdParam);
+
+  const handleGoBack = () => {
+    if (normalizedReturnTo && normalizedReturnRecipeId) {
+      router.push({
+        pathname: normalizedReturnTo as never,
+        params: { id: normalizedReturnRecipeId } as never,
+      });
+      return;
+    }
+
+    if (normalizedReturnTo) {
+      router.push(normalizedReturnTo as never);
+      return;
+    }
+
+    router.push("/(app)/ingredients");
+  };
 
   const {
     data: malt = null,
@@ -121,12 +146,7 @@ export function MaltDetailsScreen({ maltIdParam }: Props) {
             </Card>
           ))}
 
-          <PrimaryButton
-            label="Go back"
-            onPress={() => {
-              router.back();
-            }}
-          />
+          <PrimaryButton label="Go back" onPress={handleGoBack} />
         </>
       ) : null}
     </Screen>

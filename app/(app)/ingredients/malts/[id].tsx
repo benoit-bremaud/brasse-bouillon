@@ -2,7 +2,17 @@ import { MaltDetailsScreen } from "@/features/ingredients/presentation/MaltDetai
 import { useLocalSearchParams } from "expo-router";
 
 export default function MaltDetailsRoute() {
-  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const { id, returnTo, returnRecipeId } = useLocalSearchParams<{
+    id?: string | string[];
+    returnTo?: string | string[];
+    returnRecipeId?: string | string[];
+  }>();
 
-  return <MaltDetailsScreen maltIdParam={id} />;
+  return (
+    <MaltDetailsScreen
+      maltIdParam={id}
+      returnToParam={returnTo}
+      returnRecipeIdParam={returnRecipeId}
+    />
+  );
 }

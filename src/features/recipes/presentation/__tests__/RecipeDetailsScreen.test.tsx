@@ -239,7 +239,11 @@ describe("RecipeDetailsScreen", () => {
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/malts/[id]",
-      params: { id: "malt-1" },
+      params: {
+        id: "malt-1",
+        returnTo: "/(app)/recipes/[id]",
+        returnRecipeId: "r1",
+      },
     });
   });
 

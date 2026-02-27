@@ -294,7 +294,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     if (ingredient.category === "malt") {
       router.push({
         pathname: "/(app)/ingredients/malts/[id]",
-        params: { id: ingredient.id },
+        params: {
+          id: ingredient.id,
+          returnTo: "/(app)/recipes/[id]",
+          returnRecipeId: recipeId,
+        },
       });
       return;
     }

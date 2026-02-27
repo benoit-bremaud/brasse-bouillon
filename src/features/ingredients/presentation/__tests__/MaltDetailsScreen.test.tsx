@@ -5,16 +5,16 @@ import { getMaltDetails } from "@/features/ingredients/application/malts.use-cas
 import { MaltDetailsScreen } from "@/features/ingredients/presentation/MaltDetailsScreen";
 import React from "react";
 
-const mockBack = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
   return {
     ...actual,
     useRouter: () => ({
-      push: jest.fn(),
+      push: mockPush,
       replace: jest.fn(),
-      back: mockBack,
+      back: jest.fn(),
     }),
   };
 });
@@ -27,7 +27,17 @@ const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
   typeof getMaltDetails
 >;
 
-function renderMaltDetailsScreen(maltIdParam: string | string[] = "malt-1") {
+type RenderMaltDetailsScreenOptions = {
+  maltIdParam?: string | string[];
+  returnToParam?: string | string[];
+  returnRecipeIdParam?: string | string[];
+};
+
+function renderMaltDetailsScreen({
+  maltIdParam = "malt-1",
+  returnToParam,
+  returnRecipeIdParam,
+}: RenderMaltDetailsScreenOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -42,14 +52,18 @@ function renderMaltDetailsScreen(maltIdParam: string | string[] = "malt-1") {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MaltDetailsScreen maltIdParam={maltIdParam} />
+      <MaltDetailsScreen
+        maltIdParam={maltIdParam}
+        returnToParam={returnToParam}
+        returnRecipeIdParam={returnRecipeIdParam}
+      />
     </QueryClientProvider>,
   );
 }
 
 describe("MaltDetailsScreen", () => {
   beforeEach(() => {
-    mockBack.mockReset();
+    mockPush.mockReset();
     mockedGetMaltDetails.mockReset();
     mockedGetMaltDetails.mockResolvedValue({
       id: "malt-1",
@@ -78,7 +92,7 @@ describe("MaltDetailsScreen", () => {
   });
 
   it("renders malt identity and grouped specs", async () => {
-    renderMaltDetailsScreen("malt-1");
+    renderMaltDetailsScreen({ maltIdParam: "malt-1" });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
     expect(screen.getByText("Analytical profile")).toBeTruthy();
@@ -88,18 +102,35 @@ describe("MaltDetailsScreen", () => {
     expect(screen.getByText("81.5 %")).toBeTruthy();
   });
 
-  it("navigates back when pressing the action button", async () => {
-    renderMaltDetailsScreen("malt-1");
+  it("navigates back to recipe details when return params are provided", async () => {
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/recipes/[id]",
+      returnRecipeIdParam: "r1",
+    });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
 
     fireEvent.press(screen.getByText("Go back"));
 
-    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/recipes/[id]",
+      params: { id: "r1" },
+    });
+  });
+
+  it("falls back to ingredients root when no return context is provided", async () => {
+    renderMaltDetailsScreen({ maltIdParam: "malt-1" });
+
+    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Go back"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients");
   });
 
   it("shows empty state when route parameter is missing", async () => {
-    renderMaltDetailsScreen("");
+    renderMaltDetailsScreen({ maltIdParam: "" });
 
     expect(await screen.findByText("Unavailable malt sheet")).toBeTruthy();
     expect(mockedGetMaltDetails).not.toHaveBeenCalled();
@@ -108,7 +139,7 @@ describe("MaltDetailsScreen", () => {
   it("shows empty state when malt is not found", async () => {
     mockedGetMaltDetails.mockResolvedValueOnce(null);
 
-    renderMaltDetailsScreen("malt-missing");
+    renderMaltDetailsScreen({ maltIdParam: "malt-missing" });
 
     expect(await screen.findByText("Malt not found")).toBeTruthy();
   });

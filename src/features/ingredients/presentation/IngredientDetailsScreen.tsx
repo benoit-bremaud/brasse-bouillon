@@ -3,6 +3,11 @@ import {
   Ingredient,
   IngredientCategory,
 } from "@/features/ingredients/domain/ingredient.types";
+import {
+  buildIngredientCategoryBackNavigationParams,
+  buildRecipeBackNavigationTarget,
+  normalizeIngredientReturnContextParams,
+} from "@/features/ingredients/presentation/ingredient-navigation-context";
 import { StyleSheet, Text } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
@@ -10,16 +15,26 @@ import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { getIngredientDetails } from "@/features/ingredients/application/ingredients.use-cases";
 import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { getIngredientCategoryPageTitle } from "@/features/ingredients/presentation/ingredient-category.presentation";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import React from "react";
 
 type Props = {
   categoryParam?: string | string[];
   ingredientIdParam?: string | string[];
+  returnToParam?: string | string[];
+  returnRecipeIdParam?: string | string[];
+  returnCategoryParam?: string | string[];
+  returnSearchParam?: string | string[];
+  returnEbcMinParam?: string | string[];
+  returnEbcMaxParam?: string | string[];
+  returnAlphaMinParam?: string | string[];
+  returnAttenuationMinParam?: string | string[];
 };
 
 function renderTechnicalSheet(item: Ingredient) {
@@ -62,14 +77,67 @@ function renderTechnicalSheet(item: Ingredient) {
 export function IngredientDetailsScreen({
   categoryParam,
   ingredientIdParam,
+  returnToParam,
+  returnRecipeIdParam,
+  returnCategoryParam,
+  returnSearchParam,
+  returnEbcMinParam,
+  returnEbcMaxParam,
+  returnAlphaMinParam,
+  returnAttenuationMinParam,
 }: Props) {
+  const router = useRouter();
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
   const normalizedIngredientId = normalizeRouteParam(ingredientIdParam);
+  const normalizedReturnContext = normalizeIngredientReturnContextParams({
+    returnToParam,
+    returnRecipeIdParam,
+    returnCategoryParam,
+    returnSearchParam,
+    returnEbcMinParam,
+    returnEbcMaxParam,
+    returnAlphaMinParam,
+    returnAttenuationMinParam,
+  });
   const category: IngredientCategory | null = isIngredientCategory(
     normalizedCategory,
   )
     ? normalizedCategory
     : null;
+
+  const handleGoBack = () => {
+    const recipeBackNavigationTarget = buildRecipeBackNavigationTarget(
+      normalizedReturnContext,
+    );
+
+    if (recipeBackNavigationTarget) {
+      router.push(recipeBackNavigationTarget as never);
+      return;
+    }
+
+    const ingredientCategoryBackNavigationTarget =
+      buildIngredientCategoryBackNavigationParams(normalizedReturnContext);
+
+    if (ingredientCategoryBackNavigationTarget) {
+      router.push(ingredientCategoryBackNavigationTarget as never);
+      return;
+    }
+
+    if (normalizedReturnContext.returnTo) {
+      router.push(normalizedReturnContext.returnTo as never);
+      return;
+    }
+
+    if (category) {
+      router.push({
+        pathname: "/(app)/ingredients/[category]",
+        params: { category },
+      } as never);
+      return;
+    }
+
+    router.push("/(app)/ingredients");
+  };
 
   const {
     data: ingredient = null,
@@ -145,6 +213,8 @@ export function IngredientDetailsScreen({
               <Text style={styles.notes}>Notes: {ingredient.notes}</Text>
             ) : null}
           </Card>
+
+          <PrimaryButton label="Go back" onPress={handleGoBack} />
         </>
       ) : null}
     </Screen>

@@ -42,6 +42,8 @@ type RenderMaltDetailsScreenOptions = {
   returnSearchParam?: string | string[];
   returnEbcMinParam?: string | string[];
   returnEbcMaxParam?: string | string[];
+  returnAlphaMinParam?: string | string[];
+  returnAttenuationMinParam?: string | string[];
 };
 
 function renderMaltDetailsScreen({
@@ -52,6 +54,8 @@ function renderMaltDetailsScreen({
   returnSearchParam,
   returnEbcMinParam,
   returnEbcMaxParam,
+  returnAlphaMinParam,
+  returnAttenuationMinParam,
 }: RenderMaltDetailsScreenOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -75,6 +79,8 @@ function renderMaltDetailsScreen({
         returnSearchParam={returnSearchParam}
         returnEbcMinParam={returnEbcMinParam}
         returnEbcMaxParam={returnEbcMaxParam}
+        returnAlphaMinParam={returnAlphaMinParam}
+        returnAttenuationMinParam={returnAttenuationMinParam}
       />
     </QueryClientProvider>,
   );
@@ -219,6 +225,95 @@ describe("MaltDetailsScreen", () => {
         returnSearch: "wheat",
         returnEbcMin: "4",
         returnEbcMax: "12",
+      },
+    });
+  });
+
+  it("navigates back to hop category with alpha filter", async () => {
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/ingredients/[category]",
+      returnCategoryParam: "hop",
+      returnSearchParam: "citra",
+      returnAlphaMinParam: "8",
+    });
+
+    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Go back"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]",
+      params: {
+        category: "hop",
+        search: "citra",
+        alphaMin: "8",
+      },
+    });
+  });
+
+  it("navigates back to yeast category with attenuation filter", async () => {
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/ingredients/[category]",
+      returnCategoryParam: "yeast",
+      returnSearchParam: "us-05",
+      returnAttenuationMinParam: "75",
+    });
+
+    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Go back"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]",
+      params: {
+        category: "yeast",
+        search: "us-05",
+        attenuationMin: "75",
+      },
+    });
+  });
+
+  it("keeps hop return context when opening an alternative", async () => {
+    mockedListAlternativeMalts.mockResolvedValueOnce([
+      {
+        id: "malt-2",
+        slug: "vienna-malt",
+        name: "Vienna Malt",
+        brand: "Malterie du Château",
+        originCountry: "France",
+        maltType: "Base malt",
+        specGroups: [
+          {
+            id: "analytical",
+            title: "Analytical profile",
+            rows: [{ id: "color", label: "Color", value: "8", unit: "EBC" }],
+          },
+        ],
+      },
+    ]);
+
+    renderMaltDetailsScreen({
+      maltIdParam: "malt-1",
+      returnToParam: "/(app)/ingredients/[category]",
+      returnCategoryParam: "hop",
+      returnSearchParam: "citra",
+      returnAlphaMinParam: "8",
+    });
+
+    expect(await screen.findByText("Alternative malts")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("View alternative malt Vienna Malt"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/malts/[id]",
+      params: {
+        id: "malt-2",
+        returnTo: "/(app)/ingredients/[category]",
+        returnCategory: "hop",
+        returnSearch: "citra",
+        returnAlphaMin: "8",
       },
     });
   });

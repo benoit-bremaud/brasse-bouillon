@@ -303,7 +303,15 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       return;
     }
 
-    router.push(`/(app)/ingredients/${ingredient.category}`);
+    router.push({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: {
+        category: ingredient.category,
+        id: ingredient.id,
+        returnTo: "/(app)/recipes/[id]",
+        returnRecipeId: recipeId,
+      },
+    });
   };
 
   const handleVolumeInputChange = (value: string) => {

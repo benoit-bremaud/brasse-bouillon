@@ -186,14 +186,72 @@ describe("RecipeDetailsScreen", () => {
     expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
   });
 
-  it("opens ingredient category page when tapping ingredient row", async () => {
+  it("opens hop details page with recipe return context when tapping ingredient row", async () => {
     render(<RecipeDetailsScreen recipeId="r1" />);
 
     expect(await screen.findByText("Test Recipe")).toBeTruthy();
 
     fireEvent.press(screen.getByLabelText("Open ingredient details for Citra"));
 
-    expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients/hop");
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: {
+        category: "hop",
+        id: "hop-1",
+        returnTo: "/(app)/recipes/[id]",
+        returnRecipeId: "r1",
+      },
+    });
+  });
+
+  it("opens yeast details page with recipe return context when tapping ingredient row", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValueOnce({
+      recipe: {
+        id: "r1",
+        name: "Test Recipe",
+        description: "Test description",
+        visibility: "private",
+        stats: {
+          ibu: 35,
+          abv: 5.4,
+          og: 1.052,
+          fg: 1.011,
+          volumeLiters: 20,
+        },
+      },
+      ingredients: [
+        {
+          ingredientId: "yeast-1",
+          amount: 1,
+          unit: "pack",
+          timing: "pitch",
+          notes: null,
+          ingredient: {
+            id: "yeast-1",
+            name: "US-05",
+            category: "yeast",
+          },
+        },
+      ],
+      equipment: [],
+      steps: [],
+    });
+
+    render(<RecipeDetailsScreen recipeId="r1" />);
+
+    expect(await screen.findByText("US-05")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Open ingredient details for US-05"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]/[id]",
+      params: {
+        category: "yeast",
+        id: "yeast-1",
+        returnTo: "/(app)/recipes/[id]",
+        returnRecipeId: "r1",
+      },
+    });
   });
 
   it("opens malt details page when tapping a malt ingredient row", async () => {

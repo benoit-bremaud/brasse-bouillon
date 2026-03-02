@@ -1,10 +1,10 @@
 import {
-    getYeastDetailsApi,
-    listYeastsApi,
+  getYeastDetailsApi,
+  listYeastsApi,
 } from "@/features/ingredients/data/yeasts.api";
 import {
-    YeastFilters,
-    YeastProduct,
+  YeastFilters,
+  YeastProduct,
 } from "@/features/ingredients/domain/yeast.types";
 
 import { dataSource } from "@/core/data/data-source";

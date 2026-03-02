@@ -1,9 +1,9 @@
 import { request } from "@/core/http/http-client";
 import { HttpError } from "@/core/http/http-error";
 import {
-    YeastProduct,
-    YeastSpecGroup,
-    YeastSpecRow,
+  YeastProduct,
+  YeastSpecGroup,
+  YeastSpecRow,
 } from "@/features/ingredients/domain/yeast.types";
 
 type YeastSpecRowDto = {

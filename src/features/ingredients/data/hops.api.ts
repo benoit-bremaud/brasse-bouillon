@@ -1,9 +1,9 @@
 import { request } from "@/core/http/http-client";
 import { HttpError } from "@/core/http/http-error";
 import {
-    HopProduct,
-    HopSpecGroup,
-    HopSpecRow,
+  HopProduct,
+  HopSpecGroup,
+  HopSpecRow,
 } from "@/features/ingredients/domain/hop.types";
 
 type HopSpecRowDto = {

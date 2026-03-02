@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
 import {
-    getHopDetails,
-    listAlternativeHops,
-    listHops,
+  getHopDetails,
+  listAlternativeHops,
+  listHops,
 } from "../hops.use-cases";
 
 import { dataSource } from "@/core/data/data-source";

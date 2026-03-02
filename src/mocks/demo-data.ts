@@ -6,8 +6,10 @@ import {
 import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
 
 import { User } from "@/features/auth/domain/auth.types";
+import { HopProduct } from "@/features/ingredients/domain/hop.types";
 import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
+import { YeastProduct } from "@/features/ingredients/domain/yeast.types";
 
 export type Equipment = {
   id: string;
@@ -591,6 +593,499 @@ export const demoMalts: MaltProduct[] = [
             id: "malt-10-flavor",
             label: "Flavor profile",
             value: "Espresso, dark chocolate, dry roast",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const demoHops: HopProduct[] = [
+  {
+    id: "hop-1",
+    slug: "citra",
+    name: "Citra",
+    brand: "Yakima Chief Hops",
+    originCountry: "United States",
+    hopType: "Dual-purpose",
+    description:
+      "Citrusy and tropical hop with intense grapefruit and lime notes.",
+    specGroups: [
+      {
+        id: "hop-1-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "hop-1-alpha",
+            label: "Alpha acids",
+            value: "11.0-15.0",
+            unit: "%",
+          },
+          {
+            id: "hop-1-beta",
+            label: "Beta acids",
+            value: "3.5-4.5",
+            unit: "%",
+          },
+          {
+            id: "hop-1-cohumulone",
+            label: "Cohumulone",
+            value: "22-24",
+            unit: "%",
+          },
+          {
+            id: "hop-1-oil",
+            label: "Total oil",
+            value: "2.2-2.8",
+            unit: "mL/100g",
+          },
+        ],
+      },
+      {
+        id: "hop-1-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "hop-1-purpose",
+            label: "Purpose",
+            value: "Aroma, flavor, bittering",
+          },
+          {
+            id: "hop-1-styles",
+            label: "Beer styles",
+            value: "IPA, Pale Ale, NEIPA",
+          },
+          {
+            id: "hop-1-flavor",
+            label: "Flavor profile",
+            value: "Grapefruit, lime, tropical fruit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hop-2",
+    slug: "saaz",
+    name: "Saaz",
+    brand: "Czech Hop Growers",
+    originCountry: "Czech Republic",
+    hopType: "Noble aroma",
+    description:
+      "Classic noble hop with spicy, earthy and floral characteristics.",
+    specGroups: [
+      {
+        id: "hop-2-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "hop-2-alpha",
+            label: "Alpha acids",
+            value: "3.0-4.5",
+            unit: "%",
+          },
+          {
+            id: "hop-2-beta",
+            label: "Beta acids",
+            value: "3.0-4.5",
+            unit: "%",
+          },
+          {
+            id: "hop-2-cohumulone",
+            label: "Cohumulone",
+            value: "24-28",
+            unit: "%",
+          },
+          {
+            id: "hop-2-oil",
+            label: "Total oil",
+            value: "0.4-0.8",
+            unit: "mL/100g",
+          },
+        ],
+      },
+      {
+        id: "hop-2-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "hop-2-purpose",
+            label: "Purpose",
+            value: "Aroma, flavor finishing",
+          },
+          {
+            id: "hop-2-styles",
+            label: "Beer styles",
+            value: "Pilsner, Lager, Belgian Ale",
+          },
+          {
+            id: "hop-2-flavor",
+            label: "Flavor profile",
+            value: "Spicy, earthy, mild floral",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hop-3",
+    slug: "magnum",
+    name: "Magnum",
+    brand: "Hopsteiner",
+    originCountry: "Germany",
+    hopType: "Bittering",
+    description:
+      "High alpha acid hop excellent for clean bittering with minimal flavor.",
+    specGroups: [
+      {
+        id: "hop-3-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "hop-3-alpha",
+            label: "Alpha acids",
+            value: "10.0-14.0",
+            unit: "%",
+          },
+          {
+            id: "hop-3-beta",
+            label: "Beta acids",
+            value: "5.5-7.0",
+            unit: "%",
+          },
+          {
+            id: "hop-3-cohumulone",
+            label: "Cohumulone",
+            value: "21-24",
+            unit: "%",
+          },
+          {
+            id: "hop-3-oil",
+            label: "Total oil",
+            value: "1.6-2.2",
+            unit: "mL/100g",
+          },
+        ],
+      },
+      {
+        id: "hop-3-usage",
+        title: "Usage guidance",
+        rows: [
+          { id: "hop-3-purpose", label: "Purpose", value: "Bittering" },
+          {
+            id: "hop-3-styles",
+            label: "Beer styles",
+            value: "All styles for clean bitterness",
+          },
+          {
+            id: "hop-3-flavor",
+            label: "Flavor profile",
+            value: "Neutral, clean bitter",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hop-4",
+    slug: "mosaic",
+    name: "Mosaic",
+    brand: "Yakima Chief Hops",
+    originCountry: "United States",
+    hopType: "Dual-purpose",
+    description:
+      "Complex hop with fruity, tropical and floral characteristics.",
+    specGroups: [
+      {
+        id: "hop-4-analytical",
+        title: "Analytical profile",
+        rows: [
+          {
+            id: "hop-4-alpha",
+            label: "Alpha acids",
+            value: "11.5-13.5",
+            unit: "%",
+          },
+          {
+            id: "hop-4-beta",
+            label: "Beta acids",
+            value: "3.2-3.9",
+            unit: "%",
+          },
+          {
+            id: "hop-4-cohumulone",
+            label: "Cohumulone",
+            value: "24-26",
+            unit: "%",
+          },
+          {
+            id: "hop-4-oil",
+            label: "Total oil",
+            value: "1.0-1.5",
+            unit: "mL/100g",
+          },
+        ],
+      },
+      {
+        id: "hop-4-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "hop-4-purpose",
+            label: "Purpose",
+            value: "Aroma, flavor, dry hop",
+          },
+          {
+            id: "hop-4-styles",
+            label: "Beer styles",
+            value: "IPA, Pale Ale, Saison",
+          },
+          {
+            id: "hop-4-flavor",
+            label: "Flavor profile",
+            value: "Mango, stone fruit, berry, floral",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const demoYeasts: YeastProduct[] = [
+  {
+    id: "yeast-1",
+    slug: "safale-us-05",
+    name: "SafAle US-05",
+    brand: "Fermentis",
+    originCountry: "France",
+    yeastType: "American Ale",
+    description:
+      "American ale yeast producing well-balanced beers with low diacetyl and a very clean, crisp end palate.",
+    specGroups: [
+      {
+        id: "yeast-1-fermentation",
+        title: "Fermentation characteristics",
+        rows: [
+          {
+            id: "yeast-1-attenuation",
+            label: "Attenuation",
+            value: "78-82",
+            unit: "%",
+          },
+          {
+            id: "yeast-1-temp",
+            label: "Temperature",
+            value: "18-26",
+            unit: "°C",
+          },
+          {
+            id: "yeast-1-flocculation",
+            label: "Flocculation",
+            value: "Medium",
+          },
+          {
+            id: "yeast-1-alcohol",
+            label: "Alcohol tolerance",
+            value: "Up to 12",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "yeast-1-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "yeast-1-styles",
+            label: "Beer styles",
+            value: "American Ale, IPA, Wheat Beer",
+          },
+          {
+            id: "yeast-1-flavor",
+            label: "Flavor profile",
+            value: "Clean, neutral, crisp finish",
+          },
+          {
+            id: "yeast-1-dosage",
+            label: "Dosage",
+            value: "50-80",
+            unit: "g/hL",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "yeast-2",
+    slug: "wlp001-california-ale",
+    name: "WLP001 California Ale",
+    brand: "White Labs",
+    originCountry: "United States",
+    yeastType: "California Ale",
+    description:
+      "Famous yeast from Sierra Nevada Brewery. Ferments fairly neutral, clean, crisp, fruity flavor.",
+    specGroups: [
+      {
+        id: "yeast-2-fermentation",
+        title: "Fermentation characteristics",
+        rows: [
+          {
+            id: "yeast-2-attenuation",
+            label: "Attenuation",
+            value: "73-80",
+            unit: "%",
+          },
+          {
+            id: "yeast-2-temp",
+            label: "Temperature",
+            value: "19-22",
+            unit: "°C",
+          },
+          {
+            id: "yeast-2-flocculation",
+            label: "Flocculation",
+            value: "Medium",
+          },
+          {
+            id: "yeast-2-alcohol",
+            label: "Alcohol tolerance",
+            value: "Up to 14",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "yeast-2-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "yeast-2-styles",
+            label: "Beer styles",
+            value: "American Ale, IPA, Barleywine",
+          },
+          {
+            id: "yeast-2-flavor",
+            label: "Flavor profile",
+            value: "Clean, slightly fruity",
+          },
+          { id: "yeast-2-format", label: "Format", value: "Liquid culture" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "yeast-3",
+    slug: "saflager-w-34-70",
+    name: "SafLager W-34/70",
+    brand: "Fermentis",
+    originCountry: "Germany",
+    yeastType: "Lager",
+    description:
+      "German lager yeast selected for its ability to form compact sediment and its clean flavor development.",
+    specGroups: [
+      {
+        id: "yeast-3-fermentation",
+        title: "Fermentation characteristics",
+        rows: [
+          {
+            id: "yeast-3-attenuation",
+            label: "Attenuation",
+            value: "80-84",
+            unit: "%",
+          },
+          {
+            id: "yeast-3-temp",
+            label: "Temperature",
+            value: "9-15",
+            unit: "°C",
+          },
+          { id: "yeast-3-flocculation", label: "Flocculation", value: "High" },
+          {
+            id: "yeast-3-alcohol",
+            label: "Alcohol tolerance",
+            value: "Up to 10",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "yeast-3-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "yeast-3-styles",
+            label: "Beer styles",
+            value: "Lager, Pilsner, Märzen",
+          },
+          {
+            id: "yeast-3-flavor",
+            label: "Flavor profile",
+            value: "Clean, neutral lager character",
+          },
+          {
+            id: "yeast-3-dosage",
+            label: "Dosage",
+            value: "80-120",
+            unit: "g/hL",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "yeast-4",
+    slug: "safspirit-be-256",
+    name: "SafSpirit BE-256",
+    brand: "Fermentis",
+    originCountry: "Belgium",
+    yeastType: "Belgian Ale",
+    description:
+      "Belgian ale yeast selected for its ability to produce traditional Belgian beer styles with spicy phenolic flavors.",
+    specGroups: [
+      {
+        id: "yeast-4-fermentation",
+        title: "Fermentation characteristics",
+        rows: [
+          {
+            id: "yeast-4-attenuation",
+            label: "Attenuation",
+            value: "82-86",
+            unit: "%",
+          },
+          {
+            id: "yeast-4-temp",
+            label: "Temperature",
+            value: "18-26",
+            unit: "°C",
+          },
+          { id: "yeast-4-flocculation", label: "Flocculation", value: "High" },
+          {
+            id: "yeast-4-alcohol",
+            label: "Alcohol tolerance",
+            value: "Up to 15",
+            unit: "%",
+          },
+        ],
+      },
+      {
+        id: "yeast-4-usage",
+        title: "Usage guidance",
+        rows: [
+          {
+            id: "yeast-4-styles",
+            label: "Beer styles",
+            value: "Belgian Ale, Tripel, Dubbel",
+          },
+          {
+            id: "yeast-4-flavor",
+            label: "Flavor profile",
+            value: "Spicy, phenolic, fruity esters",
+          },
+          {
+            id: "yeast-4-dosage",
+            label: "Dosage",
+            value: "50-80",
+            unit: "g/hL",
           },
         ],
       },

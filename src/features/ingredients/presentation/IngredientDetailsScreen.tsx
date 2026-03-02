@@ -1,4 +1,6 @@
 import { normalizeRouteParam } from "@/core/navigation/route-params";
+import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Screen } from "@/core/ui/Screen";
 import { HopDetailsScreen } from "@/features/ingredients/presentation/HopDetailsScreen";
 import { MaltDetailsScreen } from "@/features/ingredients/presentation/MaltDetailsScreen";
 import { YeastDetailsScreen } from "@/features/ingredients/presentation/YeastDetailsScreen";
@@ -30,8 +32,14 @@ export function IngredientDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
+  const isMaltCategory =
+    normalizedCategory === "malt" || normalizedCategory === "malts";
+  const isHopCategory =
+    normalizedCategory === "hop" || normalizedCategory === "hops";
+  const isYeastCategory =
+    normalizedCategory === "yeast" || normalizedCategory === "yeasts";
 
-  if (normalizedCategory === "malts") {
+  if (isMaltCategory) {
     return (
       <MaltDetailsScreen
         maltIdParam={ingredientIdParam}
@@ -47,7 +55,7 @@ export function IngredientDetailsScreen({
     );
   }
 
-  if (normalizedCategory === "hops") {
+  if (isHopCategory) {
     return (
       <HopDetailsScreen
         hopIdParam={ingredientIdParam}
@@ -63,7 +71,7 @@ export function IngredientDetailsScreen({
     );
   }
 
-  if (normalizedCategory === "yeasts") {
+  if (isYeastCategory) {
     return (
       <YeastDetailsScreen
         yeastIdParam={ingredientIdParam}
@@ -79,18 +87,13 @@ export function IngredientDetailsScreen({
     );
   }
 
-  // Fallback to not found screen if category is not supported
+  // Unsupported category
   return (
-    <MaltDetailsScreen
-      maltIdParam={ingredientIdParam}
-      returnToParam={returnToParam}
-      returnRecipeIdParam={returnRecipeIdParam}
-      returnCategoryParam={returnCategoryParam}
-      returnSearchParam={returnSearchParam}
-      returnEbcMinParam={returnEbcMinParam}
-      returnEbcMaxParam={returnEbcMaxParam}
-      returnAlphaMinParam={returnAlphaMinParam}
-      returnAttenuationMinParam={returnAttenuationMinParam}
-    />
+    <Screen>
+      <EmptyStateCard
+        title="Unsupported ingredient category"
+        description="This ingredient category is not available."
+      />
+    </Screen>
   );
 }

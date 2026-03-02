@@ -1,4 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
+import {
+  getHopDetailsApi,
+  listHopsApi,
+} from "@/features/ingredients/data/hops.api";
 import {
   getHopDetails,
   listAlternativeHops,
@@ -6,17 +9,31 @@ import {
 } from "../hops.use-cases";
 
 import { dataSource } from "@/core/data/data-source";
+import { HopProduct } from "@/features/ingredients/domain/hop.types";
+
+jest.mock("@/core/data/data-source", () => ({
+  dataSource: {
+    useDemoData: true,
+  },
+}));
+
+jest.mock("@/features/ingredients/data/hops.api", () => ({
+  listHopsApi: jest.fn(),
+  getHopDetailsApi: jest.fn(),
+}));
+
+const mockedListHopsApi = listHopsApi as jest.MockedFunction<
+  typeof listHopsApi
+>;
+const mockedGetHopDetailsApi = getHopDetailsApi as jest.MockedFunction<
+  typeof getHopDetailsApi
+>;
 
 describe("Hops Use Cases", () => {
-  let originalUseDemoData: boolean;
-
   beforeEach(() => {
-    originalUseDemoData = dataSource.useDemoData;
     dataSource.useDemoData = true;
-  });
-
-  afterEach(() => {
-    dataSource.useDemoData = originalUseDemoData;
+    mockedListHopsApi.mockReset();
+    mockedGetHopDetailsApi.mockReset();
   });
 
   describe("listHops", () => {
@@ -65,6 +82,23 @@ describe("Hops Use Cases", () => {
 
       expect(hop).toBeNull();
     });
+
+    it("should use live details API when demo data is disabled", async () => {
+      dataSource.useDemoData = false;
+      mockedGetHopDetailsApi.mockResolvedValue({
+        id: "hop-live-1",
+        slug: "live-citra",
+        name: "Live Citra",
+        brand: "Live Hops",
+        hopType: "Dual-purpose",
+        specGroups: [],
+      });
+
+      const hop = await getHopDetails("hop-live-1");
+
+      expect(mockedGetHopDetailsApi).toHaveBeenCalledWith("hop-live-1");
+      expect(hop).toMatchObject({ id: "hop-live-1" });
+    });
   });
 
   describe("listAlternativeHops", () => {
@@ -92,6 +126,64 @@ describe("Hops Use Cases", () => {
       const alternatives = await listAlternativeHops("");
 
       expect(alternatives).toEqual([]);
+    });
+  });
+
+  describe("live API mode", () => {
+    it("should use live list API when demo data is disabled", async () => {
+      dataSource.useDemoData = false;
+
+      const liveHops: HopProduct[] = [
+        {
+          id: "hop-live-1",
+          slug: "live-citra",
+          name: "Live Citra",
+          brand: "Live Hops",
+          hopType: "Dual-purpose",
+          specGroups: [
+            {
+              id: "hop-live-1-analytical",
+              title: "Analytical profile",
+              rows: [
+                {
+                  id: "hop-live-1-alpha",
+                  label: "Alpha acids",
+                  value: "12-14",
+                  unit: "%",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: "hop-live-2",
+          slug: "live-saaz",
+          name: "Live Saaz",
+          brand: "Live Hops",
+          hopType: "Noble aroma",
+          specGroups: [
+            {
+              id: "hop-live-2-analytical",
+              title: "Analytical profile",
+              rows: [
+                {
+                  id: "hop-live-2-alpha",
+                  label: "Alpha acids",
+                  value: "3.5-4.5",
+                  unit: "%",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      mockedListHopsApi.mockResolvedValue(liveHops);
+
+      const filtered = await listHops({ search: "citra", alphaAcidMin: 12.5 });
+
+      expect(mockedListHopsApi).toHaveBeenCalledTimes(1);
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toMatchObject({ id: "hop-live-1" });
     });
   });
 });

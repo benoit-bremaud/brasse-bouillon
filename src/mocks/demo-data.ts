@@ -1034,8 +1034,8 @@ export const demoYeasts: YeastProduct[] = [
   },
   {
     id: "yeast-4",
-    slug: "safspirit-be-256",
-    name: "SafSpirit BE-256",
+    slug: "safale-be-256",
+    name: "SafAle BE-256",
     brand: "Fermentis",
     originCountry: "Belgium",
     yeastType: "Belgian Ale",

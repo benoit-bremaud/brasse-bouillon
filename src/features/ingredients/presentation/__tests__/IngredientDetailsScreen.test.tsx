@@ -78,7 +78,7 @@ describe("IngredientDetailsScreen", () => {
     expect(screen.getByText("Malt Details: malt-1")).toBeTruthy();
   });
 
-  it("falls back to MaltDetailsScreen for unknown categories", () => {
+  it("renders unsupported state for unknown categories", () => {
     render(
       <IngredientDetailsScreen
         categoryParam="unknown"
@@ -86,8 +86,10 @@ describe("IngredientDetailsScreen", () => {
       />,
     );
 
-    expect(screen.getByTestId("malt-details-screen")).toBeTruthy();
-    expect(screen.getByText("Malt Details: ingredient-1")).toBeTruthy();
+    expect(screen.getByText("Unsupported ingredient category")).toBeTruthy();
+    expect(
+      screen.getByText("This ingredient category is not available."),
+    ).toBeTruthy();
   });
 
   it("passes all props through to specialized screens", () => {

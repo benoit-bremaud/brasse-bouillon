@@ -27,6 +27,22 @@ function parseNumericValue(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseRangeAverage(value: string): number | null {
+  if (!value.includes("-")) {
+    return parseNumericValue(value);
+  }
+
+  const [minRaw, maxRaw] = value.split("-");
+  const minValue = parseNumericValue(minRaw);
+  const maxValue = parseNumericValue(maxRaw);
+
+  if (minValue === null || maxValue === null) {
+    return null;
+  }
+
+  return (minValue + maxValue) / 2;
+}
+
 function getAlphaAcid(hop: HopProduct): number | null {
   for (const group of hop.specGroups) {
     for (const row of group.rows) {
@@ -41,7 +57,7 @@ function getAlphaAcid(hop: HopProduct): number | null {
         continue;
       }
 
-      const alphaAcid = parseNumericValue(row.value);
+      const alphaAcid = parseRangeAverage(row.value);
       if (alphaAcid !== null) {
         return alphaAcid;
       }

@@ -41,6 +41,10 @@ export function IngredientsScreen() {
   const showEmptyState = isFetched && !isLoading && categories.length === 0;
   const isRetryingWithError = isFetching && Boolean(queryError);
 
+  const handleGoToDashboard = () => {
+    router.replace("/dashboard");
+  };
+
   return (
     <Screen
       isLoading={(isLoading && categories.length === 0) || isRetryingWithError}
@@ -57,7 +61,7 @@ export function IngredientsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Retour à l'accueil"
             style={styles.headerActionButton}
-            onPress={() => router.replace("/(app)/dashboard")}
+            onPress={handleGoToDashboard}
           >
             <Ionicons
               name="chevron-back"

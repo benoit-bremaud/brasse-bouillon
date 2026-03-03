@@ -218,7 +218,7 @@ export function IngredientCategoryScreen({
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
   const handleGoBack = () => {
-    router.replace("/(app)/ingredients");
+    router.replace("/ingredients");
   };
 
   const navigateToIngredientDetails = (ingredient: IngredientListItem) => {

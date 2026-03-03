@@ -97,7 +97,7 @@ describe("IngredientsScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Retour à l'accueil"));
 
-    expect(mockReplace).toHaveBeenCalledWith("/(app)/dashboard");
+    expect(mockReplace).toHaveBeenCalledWith("/dashboard");
   });
 
   it("shows empty state when no category is returned", async () => {

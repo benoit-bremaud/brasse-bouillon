@@ -156,7 +156,7 @@ describe("IngredientCategoryScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Retour à la liste des ingrédients"));
 
-    expect(mockReplace).toHaveBeenCalledWith("/(app)/ingredients");
+    expect(mockReplace).toHaveBeenCalledWith("/ingredients");
   });
 
   it("keeps category details route for non-malt ingredients", async () => {

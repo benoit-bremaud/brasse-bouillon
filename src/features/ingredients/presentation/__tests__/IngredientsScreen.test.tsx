@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
-import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
 import { IngredientsScreen } from "@/features/ingredients/presentation/IngredientsScreen";
 import React from "react";
+import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("@expo/vector-icons", () => {
   return {
@@ -19,7 +20,7 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       back: jest.fn(),
     }),
   };
@@ -57,6 +58,7 @@ function renderIngredientsScreen() {
 describe("IngredientsScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockReplace.mockReset();
     mockedListIngredientCategoriesSummary.mockReset();
     mockedListIngredientCategoriesSummary.mockResolvedValue([
       { category: "malt", count: 12 },
@@ -86,6 +88,16 @@ describe("IngredientsScreen", () => {
       pathname: "/(app)/ingredients/[category]",
       params: { category: "malt" },
     });
+  });
+
+  it("navigates back to dashboard from header action", async () => {
+    renderIngredientsScreen();
+
+    expect(await screen.findByText("Ingrédients")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à l'accueil"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/dashboard");
   });
 
   it("shows empty state when no category is returned", async () => {

@@ -6,12 +6,13 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 
-import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
-import { listMalts } from "@/features/ingredients/application/malts.use-cases";
 import { IngredientCategoryScreen } from "@/features/ingredients/presentation/IngredientCategoryScreen";
 import React from "react";
+import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
+import { listMalts } from "@/features/ingredients/application/malts.use-cases";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("@expo/vector-icons", () => {
   return {
@@ -25,7 +26,7 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       back: jest.fn(),
     }),
   };
@@ -91,6 +92,7 @@ function renderIngredientCategoryScreen({
 describe("IngredientCategoryScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockReplace.mockReset();
     mockedListIngredientsByCategory.mockReset();
     mockedListMalts.mockReset();
     mockedListMalts.mockResolvedValue([
@@ -145,6 +147,16 @@ describe("IngredientCategoryScreen", () => {
         returnEbcMax: undefined,
       },
     });
+  });
+
+  it("navigates back to ingredients list from header action", async () => {
+    renderIngredientCategoryScreen({ categoryParam: "malt" });
+
+    expect(await screen.findByText("La Malterie 🌾")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à la liste des ingrédients"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/ingredients");
   });
 
   it("keeps category details route for non-malt ingredients", async () => {

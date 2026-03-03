@@ -1,5 +1,5 @@
-import { colors, spacing, typography } from "@/core/theme";
 import { StyleSheet, Text, View } from "react-native";
+import { colors, spacing, typography } from "@/core/theme";
 
 import React from "react";
 
@@ -12,11 +12,11 @@ type Props = {
 export function ListHeader({ title, subtitle, action }: Props) {
   return (
     <View style={styles.header}>
-      <View>
+      <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
-      {action ? <View>{action}</View> : null}
+      {action ? <View style={styles.actionContainer}>{action}</View> : null}
     </View>
   );
 }
@@ -24,9 +24,16 @@ export function ListHeader({ title, subtitle, action }: Props) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: spacing.sm,
+  },
+  textContainer: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: spacing.sm,
+  },
+  actionContainer: {
+    flexShrink: 0,
   },
   title: {
     fontSize: typography.size.h2,

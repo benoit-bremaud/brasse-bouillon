@@ -1,8 +1,3 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  RecipeDetailsViewModel,
-  getRecipeDetailsViewModel,
-} from "@/features/recipes/application/recipes.use-cases";
 import {
   BREWING_PHASES,
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS,
@@ -13,6 +8,27 @@ import {
   RecipeProcessDisplayMode,
   RecipeVolumeInputMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
+import {
+  DEFAULT_BALANCED_WATER_PROFILE,
+  WATER_LOCATION_PROFILES,
+  WATER_STYLE_PRESETS,
+  buildWaterProfileFromStylePreset,
+  getWaterLocationProfileByName,
+  getWaterStylePresetById,
+} from "@/features/tools/data/water-profiles.data";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  RecipeDetailsViewModel,
+  getRecipeDetailsViewModel,
+} from "@/features/recipes/application/recipes.use-cases";
 import {
   WATER_METRIC_LABELS,
   buildIngredientCartItems,
@@ -33,34 +49,19 @@ import {
   getLocalCartLineCount,
   getLocalCartTotalQuantity,
 } from "@/features/shop/application/cart.use-cases";
-import {
-  DEFAULT_BALANCED_WATER_PROFILE,
-  WATER_LOCATION_PROFILES,
-  WATER_STYLE_PRESETS,
-  buildWaterProfileFromStylePreset,
-  getWaterLocationProfileByName,
-  getWaterStylePresetById,
-} from "@/features/tools/data/water-profiles.data";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
+import { Ionicons } from "@expo/vector-icons";
+import { ListHeader } from "@/core/ui/ListHeader";
+import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { startBatch } from "@/features/batches/application/batches.use-cases";
-import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
-import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 import type { WaterStylePresetId } from "@/features/tools/domain/water-profiles";
-import { Ionicons } from "@expo/vector-icons";
+import { getErrorMessage } from "@/core/http/http-error";
+import { startBatch } from "@/features/batches/application/batches.use-cases";
 import { useRouter } from "expo-router";
 
 type Props = {
@@ -369,6 +370,10 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     });
   };
 
+  const handleGoBack = () => {
+    router.replace("/(app)/recipes");
+  };
+
   const formatLocalCartQuantity = Number.isFinite(localCartTotalQuantity)
     ? Number.isInteger(localCartTotalQuantity)
       ? String(localCartTotalQuantity)
@@ -378,9 +383,28 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchRecipe}>
       <ScrollView contentContainerStyle={styles.content}>
+        <ListHeader
+          title="My Recipe Book"
+          subtitle="Recipe details"
+          action={
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back to my recipes"
+              style={styles.headerBackButton}
+              onPress={handleGoBack}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.headerBackText}>My Recipes</Text>
+            </Pressable>
+          }
+        />
+
         {recipe ? (
           <Card style={styles.headerCard}>
-            <Text style={styles.collectionLabel}>My Recipe Book</Text>
             <Text style={styles.title}>{recipe.name}</Text>
             {recipe.description ? (
               <Text style={styles.subtitle}>{recipe.description}</Text>
@@ -913,17 +937,26 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.lg,
   },
+  headerBackButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  headerBackText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.md,
-  },
-  collectionLabel: {
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    color: colors.brand.secondary,
-    fontWeight: typography.weight.bold,
-    textTransform: "uppercase",
-    marginBottom: spacing.xxs,
   },
   title: {
     fontSize: typography.size.h2,

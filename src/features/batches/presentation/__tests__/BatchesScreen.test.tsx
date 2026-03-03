@@ -4,6 +4,10 @@ import { render, screen } from "@testing-library/react-native";
 import { BatchesScreen } from "@/features/batches/presentation/BatchesScreen";
 import React from "react";
 
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: () => null,
+}));
+
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
   listBatches: jest.fn().mockResolvedValue([]),
 }));

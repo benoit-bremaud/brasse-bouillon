@@ -1,23 +1,23 @@
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
   ingredientCategoryPresentationById,
 } from "@/features/ingredients/presentation/ingredient-category.presentation";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
-import { ListHeader } from "@/core/ui/ListHeader";
-import { Screen } from "@/core/ui/Screen";
-import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
 import { IngredientCategorySummary } from "@/features/ingredients/domain/ingredient.types";
-import { ingredientCategoryLabels } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { Ionicons } from "@expo/vector-icons";
+import { ListHeader } from "@/core/ui/ListHeader";
+import React from "react";
+import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
+import { ingredientCategoryLabels } from "@/features/ingredients/presentation/ingredient-category.constants";
+import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React from "react";
 
 export function IngredientsScreen() {
   const router = useRouter();
@@ -41,6 +41,10 @@ export function IngredientsScreen() {
   const showEmptyState = isFetched && !isLoading && categories.length === 0;
   const isRetryingWithError = isFetching && Boolean(queryError);
 
+  const handleGoToDashboard = () => {
+    router.replace("/dashboard");
+  };
+
   return (
     <Screen
       isLoading={(isLoading && categories.length === 0) || isRetryingWithError}
@@ -49,7 +53,25 @@ export function IngredientsScreen() {
         void refetch();
       }}
     >
-      <ListHeader title="Ingrédients" subtitle="Catalogue par catégorie" />
+      <ListHeader
+        title="Ingrédients"
+        subtitle="Catalogue par catégorie"
+        action={
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Retour à l'accueil"
+            style={styles.headerActionButton}
+            onPress={handleGoToDashboard}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={18}
+              color={colors.brand.secondary}
+            />
+            <Text style={styles.headerActionText}>Accueil</Text>
+          </Pressable>
+        }
+      />
 
       {showEmptyState ? (
         <EmptyStateCard
@@ -117,6 +139,23 @@ export function IngredientsScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  headerActionText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   list: {
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,

@@ -1,4 +1,11 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import {
   Ingredient,
   IngredientCategory,
@@ -8,35 +15,28 @@ import {
   MaltFilters,
   MaltProduct,
 } from "@/features/ingredients/domain/malt.types";
-import {
-  getIngredientCategoryPageTitle,
-  ingredientCategoryPresentationById,
-} from "@/features/ingredients/presentation/ingredient-category.presentation";
+import React, { useMemo, useState } from "react";
 import {
   buildIngredientCategoryInitialFilters,
   buildIngredientCategoryReturnContextParams,
   buildIngredientDetailsReturnParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
-import React, { useMemo, useState } from "react";
+import { colors, radius, spacing, typography } from "@/core/theme";
 import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+  getIngredientCategoryPageTitle,
+  ingredientCategoryPresentationById,
+} from "@/features/ingredients/presentation/ingredient-category.presentation";
 
-import { getErrorMessage } from "@/core/http/http-error";
-import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
+import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
 import { listMalts } from "@/features/ingredients/application/malts.use-cases";
-import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
-import { Ionicons } from "@expo/vector-icons";
+import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
@@ -217,6 +217,10 @@ export function IngredientCategoryScreen({
   const presentation = ingredientCategoryPresentationById[category];
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
+  const handleGoBack = () => {
+    router.replace("/ingredients");
+  };
+
   const navigateToIngredientDetails = (ingredient: IngredientListItem) => {
     const ingredientCategory = isMaltProduct(ingredient)
       ? "malt"
@@ -267,20 +271,36 @@ export function IngredientCategoryScreen({
         title={categoryPageTitle}
         subtitle="Recherche et filtres rapides"
         action={
-          <View
-            style={[
-              styles.headerCategoryIcon,
-              { backgroundColor: presentation.iconColor + "20" },
-            ]}
-            accessible={false}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <Ionicons
-              name={presentation.iconName}
-              size={20}
-              color={presentation.iconColor}
-            />
+          <View style={styles.headerActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Retour à la liste des ingrédients"
+              style={styles.headerBackButton}
+              onPress={handleGoBack}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.headerBackText}>Ingrédients</Text>
+            </Pressable>
+
+            <View
+              style={[
+                styles.headerCategoryIcon,
+                { backgroundColor: presentation.iconColor + "20" },
+              ]}
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Ionicons
+                name={presentation.iconName}
+                size={20}
+                color={presentation.iconColor}
+              />
+            </View>
           </View>
         }
       />
@@ -411,6 +431,28 @@ export function IngredientCategoryScreen({
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  headerBackButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  headerBackText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   headerCategoryIcon: {
     width: 36,
     height: 36,

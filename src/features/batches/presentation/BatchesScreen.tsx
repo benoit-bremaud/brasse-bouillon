@@ -1,4 +1,3 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   BatchStatus,
   BatchSummary,
@@ -11,22 +10,23 @@ import {
   Text,
   View,
 } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { dataSource } from "@/core/data/data-source";
-import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import React from "react";
 import { Screen } from "@/core/ui/Screen";
-import { listBatches } from "@/features/batches/application/batches.use-cases";
-import { getSrmColor } from "@/features/tools/data/catalogs/srm";
+import { dataSource } from "@/core/data/data-source";
 import { demoRecipes } from "@/mocks/demo-data";
-import { Ionicons } from "@expo/vector-icons";
+import { getErrorMessage } from "@/core/http/http-error";
+import { getSrmColor } from "@/features/tools/data/catalogs/srm";
+import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React from "react";
 
 const DEFAULT_BATCH_COLOR_EBC = 10;
 
@@ -84,20 +84,7 @@ export function BatchesScreen() {
       error={error}
       onRetry={handleRefetch}
     >
-      <View style={styles.header}>
-        <ListHeader title="Mes Brassins" subtitle="Suivi de tes brassins" />
-        <Pressable
-          onPress={() => router.push("/(app)/academy")}
-          style={styles.academyButton}
-        >
-          <Ionicons
-            name="school-outline"
-            size={18}
-            color={colors.brand.secondary}
-          />
-          <Text style={styles.academyText}>Academy</Text>
-        </Pressable>
-      </View>
+      <ListHeader title="Mes Brassins" subtitle="Suivi de tes brassins" />
 
       {showEmptyState ? (
         <EmptyStateCard
@@ -159,29 +146,6 @@ export function BatchesScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  academyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  academyText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
-  },
   list: {
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,

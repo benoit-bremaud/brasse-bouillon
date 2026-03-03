@@ -1,7 +1,25 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
+
+const mockReplace = jest.fn();
+
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: () => null,
+}));
+
+jest.mock("expo-router", () => {
+  const actual = jest.requireActual("expo-router");
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: jest.fn(),
+      replace: mockReplace,
+      back: jest.fn(),
+    }),
+  };
+});
 
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
   getBatchDetails: jest.fn().mockResolvedValue({
@@ -54,6 +72,10 @@ function renderBatchDetailsScreen(batchId = "b1") {
 }
 
 describe("BatchDetailsScreen", () => {
+  beforeEach(() => {
+    mockReplace.mockReset();
+  });
+
   it("renders batch details", async () => {
     renderBatchDetailsScreen();
 
@@ -61,5 +83,15 @@ describe("BatchDetailsScreen", () => {
     expect(screen.getByText("Progression du brassin")).toBeTruthy();
     expect(screen.getByText("Steps")).toBeTruthy();
     expect(screen.getByText("Complete current step")).toBeTruthy();
+  });
+
+  it("navigates back to batches list from header action", async () => {
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Batch b1")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à la liste des brassins"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/batches");
   });
 });

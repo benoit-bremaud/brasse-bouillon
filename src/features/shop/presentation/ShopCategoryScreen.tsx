@@ -1,3 +1,4 @@
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   isShopCategory,
@@ -5,18 +6,17 @@ import {
   shopCategoryDescriptions,
   shopCategoryLabels,
 } from "@/features/shop/presentation/shop.constants";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { Screen } from "@/core/ui/Screen";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React from "react";
+import { Screen } from "@/core/ui/Screen";
+import { normalizeRouteParam } from "@/core/navigation/route-params";
+import { useRouter } from "expo-router";
 
 type Props = {
   categoryParam?: string | string[];
@@ -27,6 +27,10 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
   const category = normalizeRouteParam(categoryParam) ?? "";
   const isValid = isShopCategory(category);
 
+  const handleGoToShop = () => {
+    router.replace("/shop");
+  };
+
   if (!isValid) {
     return (
       <Screen>
@@ -35,7 +39,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           subtitle="Cette catégorie n'existe pas"
           action={
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleGoToShop}
               style={styles.backButton}
               accessibilityRole="button"
               accessibilityLabel="Retour"
@@ -55,7 +59,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           action={
             <PrimaryButton
               label="Retour à la boutique"
-              onPress={() => router.back()}
+              onPress={handleGoToShop}
             />
           }
         />
@@ -74,7 +78,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         subtitle={description}
         action={
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleGoToShop}
             style={styles.backButton}
             accessibilityRole="button"
             accessibilityLabel="Retour à la boutique"

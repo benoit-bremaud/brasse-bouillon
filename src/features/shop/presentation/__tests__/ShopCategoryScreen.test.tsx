@@ -4,6 +4,7 @@ import React from "react";
 import { ShopCategoryScreen } from "@/features/shop/presentation/ShopCategoryScreen";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 const mockBack = jest.fn();
 
 jest.mock("@expo/vector-icons", () => {
@@ -18,7 +19,7 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       back: mockBack,
     }),
   };
@@ -27,6 +28,7 @@ jest.mock("expo-router", () => {
 describe("ShopCategoryScreen", () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
     mockBack.mockClear();
   });
 
@@ -72,6 +74,7 @@ describe("ShopCategoryScreen", () => {
     const backButton = screen.getByText("Boutique");
     fireEvent.press(backButton);
 
-    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockReplace).toHaveBeenCalledWith("/shop");
+    expect(mockBack).not.toHaveBeenCalled();
   });
 });

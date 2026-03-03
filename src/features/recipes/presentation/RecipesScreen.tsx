@@ -1,4 +1,3 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   FlatList,
   Pressable,
@@ -7,21 +6,22 @@ import {
   Text,
   View,
 } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { Screen } from "@/core/ui/Screen";
-import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import React from "react";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
 import { getSrmColor } from "@/features/tools/data/catalogs/srm";
-import { Ionicons } from "@expo/vector-icons";
+import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React from "react";
 
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
@@ -73,20 +73,7 @@ export function RecipesScreen() {
       error={error}
       onRetry={handleRefetch}
     >
-      <View style={styles.header}>
-        <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
-        <Pressable
-          onPress={() => router.push("/(app)/academy")}
-          style={styles.academyButton}
-        >
-          <Ionicons
-            name="school-outline"
-            size={18}
-            color={colors.brand.secondary}
-          />
-          <Text style={styles.academyText}>Academy</Text>
-        </Pressable>
-      </View>
+      <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
 
       {showEmptyState ? (
         <EmptyStateCard
@@ -158,29 +145,6 @@ export function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  academyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  academyText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
-  },
   list: {
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,

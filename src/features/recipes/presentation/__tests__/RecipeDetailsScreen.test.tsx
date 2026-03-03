@@ -5,12 +5,13 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 
-import { startBatch } from "@/features/batches/application/batches.use-cases";
-import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
-import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
 import React from "react";
+import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
+import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
+import { startBatch } from "@/features/batches/application/batches.use-cases";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
@@ -18,7 +19,7 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       back: jest.fn(),
     }),
   };
@@ -85,6 +86,7 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
 describe("RecipeDetailsScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockReplace.mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockClear();
     (startBatch as jest.Mock).mockClear();
   });
@@ -184,6 +186,16 @@ describe("RecipeDetailsScreen", () => {
     fireEvent.press(screen.getAllByText("Shop")[0]);
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
+  });
+
+  it("navigates back to my recipes from header action", async () => {
+    render(<RecipeDetailsScreen recipeId="r1" />);
+
+    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Back to my recipes"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/recipes");
   });
 
   it("opens hop details page with recipe return context when tapping ingredient row", async () => {

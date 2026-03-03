@@ -1,26 +1,29 @@
-import { colors, spacing, typography } from "@/core/theme";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   completeCurrentBatchStep,
   getBatchDetails,
 } from "@/features/batches/application/batches.use-cases";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FlatList, StyleSheet, Text, View } from "react-native";
 
-import { getErrorMessage } from "@/core/http/http-error";
 import { Badge } from "@/core/ui/Badge";
-import { Card } from "@/core/ui/Card";
-import { ListHeader } from "@/core/ui/ListHeader";
-import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { Screen } from "@/core/ui/Screen";
 import { Batch } from "@/features/batches/domain/batch.types";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
+import { Card } from "@/core/ui/Card";
+import { Ionicons } from "@expo/vector-icons";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import React from "react";
+import { Screen } from "@/core/ui/Screen";
+import { getErrorMessage } from "@/core/http/http-error";
+import { useRouter } from "expo-router";
 
 type Props = {
   batchId: string;
 };
 
 export function BatchDetailsScreen({ batchId }: Props) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [mutationError, setMutationError] = React.useState<string | null>(null);
   const missingBatchId = !batchId;
@@ -82,6 +85,10 @@ export function BatchDetailsScreen({ batchId }: Props) {
     mutateCompleteCurrentStep();
   };
 
+  const handleGoBack = () => {
+    router.replace("/(app)/batches");
+  };
+
   const isCompleted = batch?.status === "completed";
 
   return (
@@ -93,6 +100,21 @@ export function BatchDetailsScreen({ batchId }: Props) {
       <ListHeader
         title="Détails du brassin"
         subtitle={`ID : ${batchId.slice(0, 8)}`}
+        action={
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Retour à la liste des brassins"
+            style={styles.headerBackButton}
+            onPress={handleGoBack}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={18}
+              color={colors.brand.secondary}
+            />
+            <Text style={styles.headerBackText}>Mes Brassins</Text>
+          </Pressable>
+        }
       />
       {batch ? (
         <Card style={styles.headerCard}>
@@ -151,6 +173,23 @@ export function BatchDetailsScreen({ batchId }: Props) {
 }
 
 const styles = StyleSheet.create({
+  headerBackButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand.background,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  headerBackText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.sm,

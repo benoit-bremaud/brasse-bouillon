@@ -4,6 +4,7 @@ import {
   ConflictException,
   NotFoundException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -65,6 +66,8 @@ import { PasswordService } from '../../auth/services/password.service';
  */
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   /**
    * Constructor - Dependency Injection
    *
@@ -296,7 +299,7 @@ export class UserService {
     // ✅ DATABASE PERSISTENCE
     const savedAdmin = await this.userRepository.save(admin);
 
-    console.log(`✅ Admin created: ${email} (ID: ${savedAdmin.id})`);
+    this.logger.log(`Admin created (id: ${savedAdmin.id})`);
 
     return this.formatUserResponse(savedAdmin);
   }
@@ -474,7 +477,7 @@ export class UserService {
    *
    * @example
    * const totalUsers = await userService.count();
-   * console.log(`System has ${totalUsers} active users`);
+   * logger.log(`System has ${totalUsers} active users`);
    */
   async count(): Promise<number> {
     return this.userRepository.count({
@@ -642,7 +645,7 @@ export class UserService {
     // ✅ DATABASE PERSISTENCE
     const updatedUser = await this.userRepository.save(user);
 
-    console.log(`👤 User role updated: ${userId} (${oldRole} → ${role})`);
+    this.logger.log(`User role updated: ${userId} (${oldRole} -> ${role})`);
 
     // ✅ SECURITY: Remove password hash before returning
     return this.formatUserResponse(updatedUser);
@@ -722,8 +725,8 @@ export class UserService {
     );
 
     if (!isPasswordValid) {
-      console.warn(
-        `⚠️ SECURITY: Failed password change attempt for user ${userId}`,
+      this.logger.warn(
+        `SECURITY: failed password change attempt for user ${userId}`,
       );
       throw new UnauthorizedException('Old password is incorrect');
     }
@@ -739,7 +742,7 @@ export class UserService {
     // ✅ DATABASE PERSISTENCE
     const updatedUser = await this.userRepository.save(user);
 
-    console.log(`🔐 Password changed for user ${userId}`);
+    this.logger.log(`Password changed for user ${userId}`);
 
     // ✅ SECURITY: Remove password hash before returning
     return this.formatUserResponse(updatedUser);
@@ -802,7 +805,7 @@ export class UserService {
     // ✅ DATABASE DELETION: Remove user permanently
     await this.userRepository.remove(user);
 
-    console.log(`🗑️ User deleted: ${id} (${user.email})`);
+    this.logger.log(`User deleted: ${id}`);
   }
 
   // ============================================================================

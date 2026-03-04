@@ -5,11 +5,12 @@ import {
 } from '../../common/exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { PasswordService } from '../../auth/services/password.service';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PasswordService } from '../../auth/services/password.service';
 
 /**
  * User Service Test Suite
@@ -410,6 +411,149 @@ describe('UserService', () => {
 
       // Verify: null is returned (not an exception)
       expect(result).toBeNull();
+    });
+  });
+
+  /**
+   * Test suite for UserService.createAdmin() method
+   *
+   * Tests admin creation flow used by seed endpoints.
+   */
+  describe('createAdmin()', () => {
+    it('should create an admin user when email and username are unique', async () => {
+      const adminEntity = {
+        ...mockUser,
+        email: 'admin@example.com',
+        username: 'admin',
+        password_hash: 'hashedAdminPassword123',
+        role: UserRole.ADMIN,
+      } as User;
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+
+      const createSpy = jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(adminEntity);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(adminEntity);
+      const hashPasswordSpy = jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedAdminPassword123');
+
+      const result = await userService.createAdmin(
+        'admin@example.com',
+        'admin',
+        'AdminPassword123!',
+        'Admin',
+        'User',
+      );
+
+      expect(hashPasswordSpy).toHaveBeenCalledWith('AdminPassword123!');
+      expect(createSpy).toHaveBeenCalled();
+      expect(saveSpy).toHaveBeenCalledWith(adminEntity);
+      expect(result.email).toBe('admin@example.com');
+      expect(result.password_hash).toBeUndefined();
+    });
+  });
+
+  /**
+   * Test suite for UserService.updateUserRole() method
+   */
+  describe('updateUserRole()', () => {
+    it('should update user role successfully', async () => {
+      const existingUser = {
+        ...mockUser,
+        role: UserRole.ADMIN,
+      } as User;
+      const updatedUser = {
+        ...existingUser,
+        role: UserRole.MODERATOR,
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(updatedUser);
+
+      const result = await userService.updateUserRole(
+        existingUser.id,
+        UserRole.MODERATOR,
+      );
+
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ role: UserRole.MODERATOR }),
+      );
+      expect(result.role).toBe(UserRole.MODERATOR);
+      expect(result.password_hash).toBeUndefined();
+    });
+  });
+
+  /**
+   * Test suite for UserService.changePassword() method
+   */
+  describe('changePassword()', () => {
+    it('should change password when old password is valid', async () => {
+      const existingUser = {
+        ...mockUser,
+        password_hash: 'old-password-hash',
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const comparePasswordSpy = jest
+        .spyOn(passwordService, 'comparePassword')
+        .mockResolvedValue(true);
+      const hashPasswordSpy = jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('new-password-hash');
+      const saveSpy = jest.spyOn(userRepository, 'save').mockResolvedValue({
+        ...existingUser,
+        password_hash: 'new-password-hash',
+      } as User);
+
+      const result = await userService.changePassword(
+        existingUser.id,
+        'OldPassword123!',
+        'NewPassword456!',
+      );
+
+      expect(comparePasswordSpy).toHaveBeenCalledWith(
+        'OldPassword123!',
+        'old-password-hash',
+      );
+      expect(hashPasswordSpy).toHaveBeenCalledWith('NewPassword456!');
+      expect(saveSpy).toHaveBeenCalled();
+      expect(result.password_hash).toBeUndefined();
+    });
+
+    it('should throw when old password is incorrect', async () => {
+      const existingUser = {
+        ...mockUser,
+        password_hash: 'old-password-hash',
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const comparePasswordSpy = jest
+        .spyOn(passwordService, 'comparePassword')
+        .mockResolvedValue(false);
+      const saveSpy = jest.spyOn(userRepository, 'save');
+
+      await expect(
+        userService.changePassword(
+          existingUser.id,
+          'WrongPassword123!',
+          'NewPassword456!',
+        ),
+      ).rejects.toThrow('Old password is incorrect');
+
+      expect(comparePasswordSpy).toHaveBeenCalledWith(
+        'WrongPassword123!',
+        'old-password-hash',
+      );
+      expect(saveSpy).not.toHaveBeenCalled();
     });
   });
 

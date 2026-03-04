@@ -155,4 +155,46 @@ describe('GET /auth/me (JWT protected)', () => {
       }),
     );
   });
+
+  it('should return 429 after too many failed login attempts', async () => {
+    const suffix = Date.now().toString().slice(-6);
+    const email = `protected-throttle-${Date.now()}@example.com`;
+    const password = 'SecurePassword123!';
+
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        email,
+        username: `pt_${suffix}`,
+        password,
+        first_name: 'Protected',
+        last_name: 'Throttle',
+      })
+      .expect(201);
+
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email,
+          password: 'WrongPassword!',
+        })
+        .expect(401);
+    }
+
+    const throttledResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email,
+        password: 'WrongPassword!',
+      })
+      .expect(429);
+
+    const throttledBody = toRecord(throttledResponse.body);
+    expect(throttledBody).toEqual(
+      expect.objectContaining({
+        statusCode: 429,
+      }),
+    );
+  });
 });

@@ -16,7 +16,9 @@ import {
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
+  ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dtos/login.dto';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
@@ -95,6 +97,7 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({
     summary: 'User login',
     description: 'Authenticates user and returns JWT token',
@@ -138,6 +141,15 @@ export class AuthController {
     example: {
       statusCode: 401,
       message: 'Invalid credentials',
+    },
+  })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many login attempts, please retry later',
+  })
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60_000,
     },
   })
   async login(

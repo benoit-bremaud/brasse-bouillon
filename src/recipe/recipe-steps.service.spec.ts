@@ -5,6 +5,9 @@ import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
+import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
+import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
 import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
@@ -16,6 +19,7 @@ describe('RecipeService (steps)', () => {
   let module: TestingModule;
   let service: RecipeService;
   let dataSource: DataSource;
+  let hopRepo: Repository<RecipeHopOrmEntity>;
   let recipeRepo: Repository<RecipeOrmEntity>;
   let stepRepo: Repository<RecipeStepOrmEntity>;
 
@@ -25,17 +29,22 @@ describe('RecipeService (steps)', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [RecipeOrmEntity, RecipeStepOrmEntity],
+          entities: [RecipeOrmEntity, RecipeStepOrmEntity, RecipeHopOrmEntity],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([RecipeOrmEntity, RecipeStepOrmEntity]),
+        TypeOrmModule.forFeature([
+          RecipeOrmEntity,
+          RecipeStepOrmEntity,
+          RecipeHopOrmEntity,
+        ]),
       ],
       providers: [RecipeService],
     }).compile();
 
     service = module.get(RecipeService);
     dataSource = module.get(DataSource);
+    hopRepo = module.get(getRepositoryToken(RecipeHopOrmEntity));
     recipeRepo = module.get(getRepositoryToken(RecipeOrmEntity));
     stepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
 
@@ -55,6 +64,7 @@ describe('RecipeService (steps)', () => {
 
   beforeEach(async () => {
     await dataSource.query('DELETE FROM "batches_test"');
+    await hopRepo.clear();
     await stepRepo.clear();
     await recipeRepo.clear();
   });
@@ -195,5 +205,115 @@ describe('RecipeService (steps)', () => {
     await expect(
       service.updateMineStep(ownerId, recipe.id, 99, { label: 'Nope' }),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('estimateMineIbu() should return zero when recipe has no hops', async () => {
+    const ownerId = 'user-1';
+    const recipe = await service.create(ownerId, {
+      name: 'No hops recipe',
+      batch_size_l: 20,
+      og_target: 1.05,
+      boil_time_min: 60,
+    });
+
+    const result = await service.estimateMineIbu(ownerId, recipe.id);
+
+    expect(result.recipe_id).toBe(recipe.id);
+    expect(result.ibu).toBe(0);
+    expect(result.breakdown).toEqual([]);
+  });
+
+  it('estimateMineIbu() should return zero breakdown when required metrics are missing', async () => {
+    const ownerId = 'user-1';
+    const recipe = await service.create(ownerId, {
+      name: 'Missing OG',
+      batch_size_l: 20,
+      boil_time_min: 60,
+    });
+
+    const hop = await hopRepo.save(
+      hopRepo.create({
+        recipe_id: recipe.id,
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 28,
+        alpha_acid_percent: 5.5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      }),
+    );
+
+    const result = await service.estimateMineIbu(ownerId, recipe.id);
+
+    expect(result.ibu).toBe(0);
+    expect(result.breakdown).toHaveLength(1);
+    expect(result.breakdown[0]).toEqual(
+      expect.objectContaining({
+        hop_id: hop.id,
+        utilization: 0,
+        ibu: 0,
+      }),
+    );
+  });
+
+  it('estimateMineIbu() should compute Tinseth IBU with breakdown', async () => {
+    const ownerId = 'user-1';
+    const recipe = await service.create(ownerId, {
+      name: 'Tinseth IPA',
+      batch_size_l: 20,
+      og_target: 1.05,
+      boil_time_min: 60,
+    });
+
+    const boilHop = await hopRepo.save(
+      hopRepo.create({
+        recipe_id: recipe.id,
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 28,
+        alpha_acid_percent: 5.5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      }),
+    );
+
+    await hopRepo.save(
+      hopRepo.create({
+        recipe_id: recipe.id,
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 40,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 0,
+      }),
+    );
+
+    const result = await service.estimateMineIbu(ownerId, recipe.id);
+
+    expect(result.ibu).toBe(19.54);
+    expect(result.breakdown).toHaveLength(2);
+    expect(result.breakdown[0]).toEqual(
+      expect.objectContaining({
+        hop_id: boilHop.id,
+        variety: 'Cascade',
+        utilization: 0.2537,
+        ibu: 19.54,
+      }),
+    );
+    expect(result.breakdown[1].ibu).toBe(0);
+  });
+
+  it('estimateMineIbu() should enforce ownership', async () => {
+    const recipe = await service.create('owner-1', {
+      name: 'Protected recipe',
+      batch_size_l: 20,
+      og_target: 1.05,
+      boil_time_min: 60,
+    });
+
+    await expect(service.estimateMineIbu('owner-2', recipe.id)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

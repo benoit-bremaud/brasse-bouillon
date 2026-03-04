@@ -3,6 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { NotFoundException } from '@nestjs/common';
 import { RecipeController } from './recipe.controller';
+import { RecipeHopAdditionStage } from '../domain/enums/recipe-hop-addition-stage.enum';
+import { RecipeHopType } from '../domain/enums/recipe-hop-type.enum';
+import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeService } from '../services/recipe.service';
 import { RecipeStepOrmEntity } from '../entities/recipe-step.orm.entity';
@@ -48,6 +51,24 @@ describe('RecipeController', () => {
     updated_at: new Date(),
   };
 
+  const mockIbuEstimate: RecipeIbuEstimateDto = {
+    recipe_id: mockRecipeOrm.id,
+    ibu: 19.54,
+    breakdown: [
+      {
+        hop_id: '550e8400-e29b-41d4-a716-446655440111',
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+        weight_g: 28,
+        alpha_acid_percent: 5.5,
+        utilization: 0.2537,
+        ibu: 19.54,
+      },
+    ],
+  };
+
   const mockUser: User = Object.assign(new User(), {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'john@example.com',
@@ -75,6 +96,7 @@ describe('RecipeController', () => {
             deleteMine: jest.fn(),
             listMineSteps: jest.fn(),
             updateMineStep: jest.fn(),
+            estimateMineIbu: jest.fn(),
           },
         },
       ],
@@ -170,10 +192,11 @@ describe('RecipeController', () => {
 
   describe('updateMine() - PATCH /recipes/:id', () => {
     it('should update a recipe', async () => {
-      const dto: UpdateRecipeDto = { name: 'Updated Recipe Name' };
+      const updatedName = 'Updated Recipe Name';
+      const dto: UpdateRecipeDto = { name: updatedName };
       const updatedRecipe: RecipeOrmEntity = {
         ...mockRecipeOrm,
-        name: dto.name,
+        name: updatedName,
       };
       const updateMineSpy = jest
         .spyOn(service, 'updateMine')
@@ -236,10 +259,11 @@ describe('RecipeController', () => {
 
   describe('updateMineStep() - PATCH /recipes/:id/steps/:order', () => {
     it('should update a recipe step', async () => {
-      const dto: UpdateRecipeStepDto = { label: 'Updated Step Label' };
+      const updatedLabel = 'Updated Step Label';
+      const dto: UpdateRecipeStepDto = { label: updatedLabel };
       const updatedStep: RecipeStepOrmEntity = {
         ...mockRecipeStep,
-        label: dto.label,
+        label: updatedLabel,
       };
       const updateMineStepSpy = jest
         .spyOn(service, 'updateMineStep')
@@ -259,6 +283,39 @@ describe('RecipeController', () => {
         dto,
       );
       expect(result).toBeDefined();
+    });
+  });
+
+  describe('estimateMineIbu() - GET /recipes/:id/ibu-estimate', () => {
+    it('should estimate IBU for a recipe', async () => {
+      const estimateMineIbuSpy = jest
+        .spyOn(service, 'estimateMineIbu')
+        .mockResolvedValue(mockIbuEstimate);
+
+      const result = await controller.estimateMineIbu(
+        mockUser,
+        mockRecipeOrm.id,
+      );
+
+      expect(estimateMineIbuSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockRecipeOrm.id,
+      );
+      expect(result).toEqual(mockIbuEstimate);
+    });
+
+    it('should propagate NotFoundException when recipe is missing', async () => {
+      const estimateMineIbuSpy = jest
+        .spyOn(service, 'estimateMineIbu')
+        .mockRejectedValue(new NotFoundException('Recipe not found'));
+
+      await expect(
+        controller.estimateMineIbu(mockUser, 'invalid-id'),
+      ).rejects.toThrow(NotFoundException);
+      expect(estimateMineIbuSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        'invalid-id',
+      );
     });
   });
 });

@@ -16,6 +16,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -26,6 +27,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../user/entities/user.entity';
 
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
+import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
 import { RecipeStepDto } from '../dtos/recipe-step.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
@@ -124,5 +126,16 @@ export class RecipeController {
   ): Promise<RecipeStepDto> {
     const saved = await this.service.updateMineStep(user.id, id, order, dto);
     return RecipeStepDto.fromEntity(saved);
+  }
+
+  @Get(':id/ibu-estimate')
+  @ApiOperation({ summary: 'Estimate IBU (Tinseth) for one of my recipes' })
+  @ApiOkResponse({ type: RecipeIbuEstimateDto })
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
+  async estimateMineIbu(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<RecipeIbuEstimateDto> {
+    return this.service.estimateMineIbu(user.id, id);
   }
 }

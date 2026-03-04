@@ -8,9 +8,12 @@ import { randomUUID } from 'crypto';
 import { EntityManager, QueryFailedError, Repository } from 'typeorm';
 
 import { RecipeDomainService } from '../domain/services/recipe-domain.service';
+import { RecipeIbuTinsethDomainService } from '../domain/services/recipe-ibu-tinseth.domain.service';
 import { RecipeWorkflowService } from '../domain/services/recipe-workflow.service';
+import { RecipeHopOrmEntity } from '../entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeStepOrmEntity } from '../entities/recipe-step.orm.entity';
+import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
 import { UpdateRecipeStepDto } from '../dtos/update-recipe-step.dto';
@@ -19,12 +22,15 @@ import { UpdateRecipeStepDto } from '../dtos/update-recipe-step.dto';
 export class RecipeService {
   private readonly domain = new RecipeDomainService();
   private readonly workflow = new RecipeWorkflowService();
+  private readonly ibuCalculator = new RecipeIbuTinsethDomainService();
 
   constructor(
     @InjectRepository(RecipeOrmEntity)
     private readonly repo: Repository<RecipeOrmEntity>,
     @InjectRepository(RecipeStepOrmEntity)
     private readonly stepRepo: Repository<RecipeStepOrmEntity>,
+    @InjectRepository(RecipeHopOrmEntity)
+    private readonly hopRepo: Repository<RecipeHopOrmEntity>,
   ) {}
 
   async create(
@@ -183,6 +189,42 @@ export class RecipeService {
 
       return stepsRepo.save(entity);
     });
+  }
+
+  async estimateMineIbu(
+    ownerId: string,
+    recipeId: string,
+  ): Promise<RecipeIbuEstimateDto> {
+    const recipe = await this.getMineById(ownerId, recipeId);
+    const hops = await this.hopRepo.find({
+      where: { recipe_id: recipeId },
+      order: { created_at: 'ASC' },
+    });
+
+    if (hops.length === 0) {
+      return RecipeIbuEstimateDto.fromUnestimated(recipeId, []);
+    }
+
+    if (!recipe.batch_size_l || !recipe.og_target) {
+      return RecipeIbuEstimateDto.fromUnestimated(recipeId, hops);
+    }
+
+    const result = this.ibuCalculator.calculate({
+      batchSizeL: recipe.batch_size_l,
+      og: recipe.og_target,
+      boilTimeMin: recipe.boil_time_min ?? null,
+      hops: hops.map((hop) => ({
+        hopId: hop.id,
+        variety: hop.variety,
+        type: hop.type,
+        additionStage: hop.addition_stage,
+        additionTimeMin: hop.addition_time_min ?? null,
+        weightG: hop.weight_g,
+        alphaAcidPercent: hop.alpha_acid_percent ?? null,
+      })),
+    });
+
+    return RecipeIbuEstimateDto.fromTinseth(recipeId, result);
   }
 
   private async ensureDefaultSteps(

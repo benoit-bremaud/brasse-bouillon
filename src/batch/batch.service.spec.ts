@@ -11,6 +11,7 @@ import { BatchService } from './services/batch.service';
 import { BatchStatus } from './domain/enums/batch-status.enum';
 import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
+import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
@@ -37,6 +38,7 @@ describe('BatchService', () => {
           entities: [
             RecipeOrmEntity,
             RecipeStepOrmEntity,
+            RecipeHopOrmEntity,
             BatchOrmEntity,
             BatchStepOrmEntity,
             BatchReminderOrmEntity,
@@ -47,6 +49,7 @@ describe('BatchService', () => {
         TypeOrmModule.forFeature([
           RecipeOrmEntity,
           RecipeStepOrmEntity,
+          RecipeHopOrmEntity,
           BatchOrmEntity,
           BatchStepOrmEntity,
           BatchReminderOrmEntity,

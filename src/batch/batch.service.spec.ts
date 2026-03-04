@@ -2,22 +2,21 @@ jest.setTimeout(20000);
 
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
-import { RecipeVisibility } from '../recipe/domain/enums/recipe-visibility.enum';
-import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
-import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
-import { RecipeService } from '../recipe/services/recipe.service';
-
-import { BatchStatus } from './domain/enums/batch-status.enum';
-import { BatchReminderStatus } from './domain/enums/batch-reminder-status.enum';
-import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
-import { BatchReminderOrmEntity } from './entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from './entities/batch.orm.entity';
-import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
+import { BatchReminderOrmEntity } from './entities/batch-reminder.orm.entity';
+import { BatchReminderStatus } from './domain/enums/batch-reminder-status.enum';
 import { BatchService } from './services/batch.service';
+import { BatchStatus } from './domain/enums/batch-status.enum';
+import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
+import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
+import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
+import { RecipeService } from '../recipe/services/recipe.service';
+import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
+import { RecipeVisibility } from '../recipe/domain/enums/recipe-visibility.enum';
+import { Repository } from 'typeorm';
+import { randomUUID } from 'crypto';
 
 describe('BatchService', () => {
   let module: TestingModule;
@@ -133,6 +132,49 @@ describe('BatchService', () => {
 
     await expect(
       batchService.getMineById('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('deleteMine() should delete owned batch with related steps and reminders', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await batchService.createMineReminder(ownerId, started.batch.id, {
+      label: 'Check gravity',
+      dueAt: new Date('2026-02-01T10:00:00.000Z'),
+    });
+
+    expect(await batchRepo.count({ where: { id: started.batch.id } })).toBe(1);
+    expect(
+      await batchStepRepo.count({ where: { batch_id: started.batch.id } }),
+    ).toBe(5);
+    expect(
+      await batchReminderRepo.count({ where: { batch_id: started.batch.id } }),
+    ).toBe(1);
+
+    await batchService.deleteMine(ownerId, started.batch.id);
+
+    expect(await batchRepo.count({ where: { id: started.batch.id } })).toBe(0);
+    expect(
+      await batchStepRepo.count({ where: { batch_id: started.batch.id } }),
+    ).toBe(0);
+    expect(
+      await batchReminderRepo.count({ where: { batch_id: started.batch.id } }),
+    ).toBe(0);
+  });
+
+  it('deleteMine() should enforce ownership and throw NotFoundException', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.deleteMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      batchService.deleteMine(ownerId, randomUUID()),
     ).rejects.toThrow(NotFoundException);
   });
 

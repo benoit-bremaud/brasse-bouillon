@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -77,6 +79,17 @@ export class BatchController {
   ): Promise<BatchDto> {
     const { batch, steps } = await this.service.getMineById(user.id, id);
     return BatchDto.fromEntities(batch, steps);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete one of my batches by id' })
+  @ApiNoContentResponse({ description: 'Batch deleted' })
+  async deleteMine(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    await this.service.deleteMine(user.id, id);
   }
 
   @Post(':id/steps/current/complete')

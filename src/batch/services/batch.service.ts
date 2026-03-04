@@ -101,6 +101,25 @@ export class BatchService {
     return { batch, steps };
   }
 
+  async deleteMine(ownerId: string, id: string): Promise<void> {
+    await this.batchRepo.manager.transaction(async (manager) => {
+      const batchRepo = manager.getRepository(BatchOrmEntity);
+      const stepRepo = manager.getRepository(BatchStepOrmEntity);
+      const reminderRepo = manager.getRepository(BatchReminderOrmEntity);
+
+      const batch = await batchRepo.findOne({
+        where: { id, owner_id: ownerId },
+      });
+      if (!batch) {
+        throw new NotFoundException('Batch not found');
+      }
+
+      await reminderRepo.delete({ batch_id: batch.id });
+      await stepRepo.delete({ batch_id: batch.id });
+      await batchRepo.delete({ id: batch.id, owner_id: ownerId });
+    });
+  }
+
   async startFermentationMine(
     ownerId: string,
     batchId: string,

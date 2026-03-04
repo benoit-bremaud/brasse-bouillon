@@ -105,6 +105,7 @@ describe('BatchController', () => {
             startMine: jest.fn(),
             listMine: jest.fn(),
             getMineById: jest.fn(),
+            deleteMine: jest.fn(),
             startFermentationMine: jest.fn(),
             completeFermentationMine: jest.fn(),
             listMineReminders: jest.fn(),
@@ -227,6 +228,38 @@ describe('BatchController', () => {
         controller.getMineById(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
       expect(getMineByIdSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
+    });
+  });
+
+  /**
+   * DELETE /batches/:id - Delete batch by ID
+   */
+  describe('deleteMine() - DELETE /batches/:id', () => {
+    it('should delete a batch by ID', async () => {
+      // Setup
+      const deleteMineSpy = jest
+        .spyOn(service, 'deleteMine')
+        .mockResolvedValue(undefined);
+
+      // Execute
+      const result = await controller.deleteMine(mockUser, mockBatchOrm.id);
+
+      // Verify
+      expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, mockBatchOrm.id);
+      expect(result).toBeUndefined();
+    });
+
+    it('should throw NotFoundException when deleting unknown batch', async () => {
+      // Setup
+      const deleteMineSpy = jest
+        .spyOn(service, 'deleteMine')
+        .mockRejectedValue(new NotFoundException('Batch not found'));
+
+      // Execute & Verify
+      await expect(
+        controller.deleteMine(mockUser, 'invalid-id'),
+      ).rejects.toThrow(NotFoundException);
+      expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
     });
   });
 

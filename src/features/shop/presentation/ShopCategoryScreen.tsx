@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   isShopCategory,
@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
@@ -38,19 +39,11 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
           title="Catégorie inconnue"
           subtitle="Cette catégorie n'existe pas"
           action={
-            <Pressable
+            <HeaderBackButton
+              label="Boutique"
+              accessibilityLabel="Retour à la boutique"
               onPress={handleGoToShop}
-              style={styles.backButton}
-              accessibilityRole="button"
-              accessibilityLabel="Retour"
-            >
-              <Ionicons
-                name="chevron-back"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.backText}>Retour</Text>
-            </Pressable>
+            />
           }
         />
         <EmptyStateCard
@@ -77,19 +70,11 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         title={label}
         subtitle={description}
         action={
-          <Pressable
-            onPress={handleGoToShop}
-            style={styles.backButton}
-            accessibilityRole="button"
+          <HeaderBackButton
+            label="Boutique"
             accessibilityLabel="Retour à la boutique"
-          >
-            <Ionicons
-              name="chevron-back"
-              size={18}
-              color={colors.brand.secondary}
-            />
-            <Text style={styles.backText}>Boutique</Text>
-          </Pressable>
+            onPress={handleGoToShop}
+          />
         }
       />
 
@@ -147,23 +132,6 @@ const styles = StyleSheet.create({
   },
   listHeader: {
     marginBottom: spacing.sm,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  backText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
   },
   infoCard: {
     backgroundColor: colors.brand.background,

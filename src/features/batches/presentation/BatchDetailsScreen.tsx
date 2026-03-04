@@ -1,5 +1,5 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { colors, spacing, typography } from "@/core/theme";
 import {
   completeCurrentBatchStep,
   getBatchDetails,
@@ -10,7 +10,7 @@ import { Badge } from "@/core/ui/Badge";
 import { Batch } from "@/features/batches/domain/batch.types";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 import { Card } from "@/core/ui/Card";
-import { Ionicons } from "@expo/vector-icons";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import React from "react";
@@ -86,7 +86,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
   };
 
   const handleGoBack = () => {
-    router.replace("/(app)/batches");
+    router.replace("/batches");
   };
 
   const isCompleted = batch?.status === "completed";
@@ -101,19 +101,11 @@ export function BatchDetailsScreen({ batchId }: Props) {
         title="Détails du brassin"
         subtitle={`ID : ${batchId.slice(0, 8)}`}
         action={
-          <Pressable
-            accessibilityRole="button"
+          <HeaderBackButton
+            label="Mes brassins"
             accessibilityLabel="Retour à la liste des brassins"
-            style={styles.headerBackButton}
             onPress={handleGoBack}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={18}
-              color={colors.brand.secondary}
-            />
-            <Text style={styles.headerBackText}>Mes Brassins</Text>
-          </Pressable>
+          />
         }
       />
       {batch ? (
@@ -173,23 +165,6 @@ export function BatchDetailsScreen({ batchId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  headerBackButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  headerBackText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
-  },
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.sm,

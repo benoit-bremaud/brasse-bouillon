@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { IngredientCategorySummary } from "@/features/ingredients/domain/ingredient.types";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -57,19 +58,11 @@ export function IngredientsScreen() {
         title="Ingrédients"
         subtitle="Catalogue par catégorie"
         action={
-          <Pressable
-            accessibilityRole="button"
+          <HeaderBackButton
+            label="Accueil"
             accessibilityLabel="Retour à l'accueil"
-            style={styles.headerActionButton}
             onPress={handleGoToDashboard}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={18}
-              color={colors.brand.secondary}
-            />
-            <Text style={styles.headerActionText}>Accueil</Text>
-          </Pressable>
+          />
         }
       />
 
@@ -139,23 +132,6 @@ export function IngredientsScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerActionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  headerActionText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
-  },
   list: {
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,

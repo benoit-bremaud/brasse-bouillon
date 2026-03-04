@@ -36,7 +36,7 @@ import { EquipmentProfileDto } from '../dtos/equipment-profile.dto';
  * Ownership: all endpoints are scoped to the authenticated user (owner_id = user.id)
  */
 @ApiTags('Equipment')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('equipment-profiles')
 export class EquipmentProfileController {

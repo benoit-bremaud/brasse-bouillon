@@ -249,7 +249,7 @@ export class UserController {
    */
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current user profile',
     description:
@@ -330,7 +330,7 @@ export class UserController {
    */
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Update current user profile',
     description:
@@ -423,7 +423,7 @@ export class UserController {
    */
   @Post('me/change-password')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Change user password',
     description:
@@ -525,7 +525,7 @@ export class UserController {
   @Get('admin/list')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get all users (ADMIN ONLY)',
     description: 'Retrieve complete list of all users. Requires ADMIN role.',
@@ -608,7 +608,7 @@ export class UserController {
    */
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get a user by ID',
     description:
@@ -724,7 +724,7 @@ export class UserController {
    */
   @Put(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Update a user profile',
     description:
@@ -833,7 +833,7 @@ export class UserController {
    */
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Delete a user account',
     description:

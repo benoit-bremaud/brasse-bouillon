@@ -15,7 +15,6 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
-import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
@@ -55,11 +54,6 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 
 export function BatchesScreen() {
   const router = useRouter();
-
-  const handleGoToDashboard = () => {
-    router.replace("/dashboard");
-  };
-
   const {
     data: batches = [],
     isLoading,
@@ -90,17 +84,7 @@ export function BatchesScreen() {
       error={error}
       onRetry={handleRefetch}
     >
-      <ListHeader
-        title="Mes Brassins"
-        subtitle="Suivi de tes brassins"
-        action={
-          <HeaderBackButton
-            label="Accueil"
-            accessibilityLabel="Retour à l'accueil"
-            onPress={handleGoToDashboard}
-          />
-        }
-      />
+      <ListHeader title="Mes Brassins" subtitle="Suivi de tes brassins" />
 
       {showEmptyState ? (
         <EmptyStateCard

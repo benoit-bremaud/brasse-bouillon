@@ -193,9 +193,9 @@ describe("RecipeDetailsScreen", () => {
 
     expect(await screen.findByText("Test Recipe")).toBeTruthy();
 
-    fireEvent.press(screen.getByLabelText("Back to my recipes"));
+    fireEvent.press(screen.getByLabelText("Retour à mes recettes"));
 
-    expect(mockReplace).toHaveBeenCalledWith("/(app)/recipes");
+    expect(mockReplace).toHaveBeenCalledWith("/recipes");
   });
 
   it("opens hop details page with recipe return context when tapping ingredient row", async () => {

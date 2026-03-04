@@ -92,6 +92,6 @@ describe("BatchDetailsScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Retour à la liste des brassins"));
 
-    expect(mockReplace).toHaveBeenCalledWith("/(app)/batches");
+    expect(mockReplace).toHaveBeenCalledWith("/batches");
   });
 });

@@ -11,6 +11,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
@@ -43,6 +44,11 @@ const getVisibilityVariant = (
 
 export function RecipesScreen() {
   const router = useRouter();
+
+  const handleGoToDashboard = () => {
+    router.replace("/dashboard");
+  };
+
   const {
     data: recipes = [],
     isLoading,
@@ -73,7 +79,17 @@ export function RecipesScreen() {
       error={error}
       onRetry={handleRefetch}
     >
-      <ListHeader title="My Recipes" subtitle="Tes recettes de brassage" />
+      <ListHeader
+        title="My Recipes"
+        subtitle="Tes recettes de brassage"
+        action={
+          <HeaderBackButton
+            label="Accueil"
+            accessibilityLabel="Retour à l'accueil"
+            onPress={handleGoToDashboard}
+          />
+        }
+      />
 
       {showEmptyState ? (
         <EmptyStateCard

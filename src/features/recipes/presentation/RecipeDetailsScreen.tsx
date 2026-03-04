@@ -53,6 +53,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -371,7 +372,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   };
 
   const handleGoBack = () => {
-    router.replace("/(app)/recipes");
+    router.replace("/recipes");
   };
 
   const formatLocalCartQuantity = Number.isFinite(localCartTotalQuantity)
@@ -387,19 +388,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
           title="My Recipe Book"
           subtitle="Recipe details"
           action={
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back to my recipes"
-              style={styles.headerBackButton}
+            <HeaderBackButton
+              label="Mes recettes"
+              accessibilityLabel="Retour à mes recettes"
               onPress={handleGoBack}
-            >
-              <Ionicons
-                name="chevron-back"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.headerBackText}>My Recipes</Text>
-            </Pressable>
+            />
           }
         />
 
@@ -936,23 +929,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.lg,
-  },
-  headerBackButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  headerBackText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
   },
   headerCard: {
     padding: spacing.md,

@@ -29,6 +29,7 @@ import {
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
@@ -272,19 +273,11 @@ export function IngredientCategoryScreen({
         subtitle="Recherche et filtres rapides"
         action={
           <View style={styles.headerActions}>
-            <Pressable
-              accessibilityRole="button"
+            <HeaderBackButton
+              label="Ingrédients"
               accessibilityLabel="Retour à la liste des ingrédients"
-              style={styles.headerBackButton}
               onPress={handleGoBack}
-            >
-              <Ionicons
-                name="chevron-back"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.headerBackText}>Ingrédients</Text>
-            </Pressable>
+            />
 
             <View
               style={[
@@ -435,23 +428,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
-  },
-  headerBackButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  headerBackText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
   },
   headerCategoryIcon: {
     width: 36,

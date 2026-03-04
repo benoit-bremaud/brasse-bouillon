@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # SonarCloud requires full git history for blame annotations
+          # SonarQube Cloud requires full git history for blame annotations
           fetch-depth: 0
 
       - name: Setup Node
@@ -40,20 +40,15 @@ jobs:
       - name: Test with coverage
         run: npm run test:cov
 
-      - name: SonarCloud Analysis
+      - name: SonarQube Cloud Scan
         if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarcloud-github-action@v3
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=benoit-bremaud_brasse-bouillon-backend
-            -Dsonar.organization=benoit-bremaud
 
-      - name: SonarCloud Analysis (skipped)
+      - name: SonarQube Cloud Scan (skipped)
         if: env.SONAR_TOKEN == ''
-        run: echo "Skipping SonarCloud analysis because SONAR_TOKEN is not configured"
+        run: echo "Skipping SonarQube Cloud scan because SONAR_TOKEN is not configured"
 
   security_audit:
     name: Security Audit (prod deps)

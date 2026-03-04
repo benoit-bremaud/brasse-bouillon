@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../../user/dtos/create-user.dto';
+import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { LoginDto } from '../dtos/login.dto';
 import { PasswordService } from '../services/password.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -85,6 +86,17 @@ describe('AuthController', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
+  const getRegisterHandler = (): ((...args: unknown[]) => unknown) => {
+    const registerDescriptor = Object.getOwnPropertyDescriptor(
+      AuthController.prototype,
+      'register',
+    );
+
+    expect(registerDescriptor?.value).toBeDefined();
+
+    return registerDescriptor!.value as (...args: unknown[]) => unknown;
+  };
 
   describe('login() - POST /auth/login', () => {
     it('should authenticate user and return token payload', async () => {
@@ -186,6 +198,49 @@ describe('AuthController', () => {
         email: dto.email,
         password: dto.password,
       });
+    });
+  });
+
+  describe('throttling metadata', () => {
+    it('should apply throttler guard on register endpoint', () => {
+      const registerHandler = getRegisterHandler();
+      const guardsMetadata = Reflect.getMetadata(
+        GUARDS_METADATA,
+        registerHandler,
+      ) as unknown;
+
+      expect(Array.isArray(guardsMetadata)).toBe(true);
+
+      if (!Array.isArray(guardsMetadata)) {
+        throw new Error('Expected guards metadata to be an array');
+      }
+
+      expect(guardsMetadata).toContain(ThrottlerGuard);
+    });
+
+    it('should apply @Throttle options on register endpoint', () => {
+      const registerHandler = getRegisterHandler();
+      const registerLimitMetadata = Reflect.getMetadata(
+        'THROTTLER:LIMITdefault',
+        registerHandler,
+      ) as unknown;
+      const registerTtlMetadata = Reflect.getMetadata(
+        'THROTTLER:TTLdefault',
+        registerHandler,
+      ) as unknown;
+
+      expect(typeof registerLimitMetadata).toBe('number');
+      expect(typeof registerTtlMetadata).toBe('number');
+
+      if (
+        typeof registerLimitMetadata !== 'number' ||
+        typeof registerTtlMetadata !== 'number'
+      ) {
+        throw new Error('Expected throttling metadata to be numeric');
+      }
+
+      expect(registerLimitMetadata).toBe(5);
+      expect(registerTtlMetadata).toBe(60_000);
     });
   });
 

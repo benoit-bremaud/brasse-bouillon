@@ -208,6 +208,7 @@ export class AuthController {
    */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({
     summary: 'User registration',
     description: 'Creates new user account and returns JWT token',
@@ -223,6 +224,15 @@ export class AuthController {
   })
   @ApiBadRequestResponse({
     description: 'Validation failed',
+  })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many registration attempts, please retry later',
+  })
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 60_000,
+    },
   })
   async register(
     @Body(new ValidationPipe({ transform: true, whitelist: true }))

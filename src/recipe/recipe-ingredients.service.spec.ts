@@ -11,6 +11,7 @@ import { RecipeFermentableType } from './domain/enums/recipe-fermentable-type.en
 import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
+import { RecipeIbuEstimateDto } from './dtos/recipe-ibu-estimate.dto';
 import { RecipeIngredientsService } from './services/recipe-ingredients.service';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
@@ -235,6 +236,39 @@ describe('RecipeIngredientsService', () => {
       const recipe = await createRecipe();
       await expect(service.listHops(OTHER, recipe.id)).rejects.toThrow(
         NotFoundException,
+      );
+    });
+
+    it('should expose IBU estimate from recipe service when hops are present', async () => {
+      const recipe = await createRecipe();
+
+      await service.addHop(OWNER, recipe.id, {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 28,
+        alpha_acid_percent: 5.5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      });
+
+      await recipeService.updateMine(OWNER, recipe.id, {
+        batch_size_l: 20,
+        og_target: 1.05,
+        boil_time_min: 60,
+      });
+
+      const estimate: RecipeIbuEstimateDto =
+        await recipeService.estimateMineIbu(OWNER, recipe.id);
+
+      expect(estimate.recipe_id).toBe(recipe.id);
+      expect(estimate.ibu).toBe(19.54);
+      expect(estimate.breakdown).toHaveLength(1);
+      expect(estimate.breakdown[0]).toEqual(
+        expect.objectContaining({
+          variety: 'Cascade',
+          utilization: 0.2537,
+          ibu: 19.54,
+        }),
       );
     });
   });

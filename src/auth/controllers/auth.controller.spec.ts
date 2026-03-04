@@ -7,6 +7,7 @@ import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../../user/dtos/create-user.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { PasswordService } from '../services/password.service';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { User } from '../../user/entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from '../../user/services/user.service';
@@ -45,7 +46,7 @@ describe('AuthController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleBuilder = Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         {
@@ -68,7 +69,13 @@ describe('AuthController', () => {
           },
         },
       ],
-    }).compile();
+    });
+
+    moduleBuilder.overrideGuard(ThrottlerGuard).useValue({
+      canActivate: jest.fn().mockReturnValue(true),
+    });
+
+    const module: TestingModule = await moduleBuilder.compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);

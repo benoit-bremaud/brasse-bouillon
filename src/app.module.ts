@@ -8,6 +8,7 @@ import { EauModule } from './eau/eau.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from './user/user.module';
 
 /**
@@ -43,6 +44,13 @@ import { UserModule } from './user/user.module';
           ? ['.env.test', '.env.test.example', '.env.local', '.env']
           : ['.env.local', '.env'],
     }),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 10,
+      },
+    ]),
 
     // Database module - TypeORM configuration and connection
     DatabaseModule,

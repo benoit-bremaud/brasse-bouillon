@@ -1,13 +1,13 @@
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { UserController } from './user.controller';
-import { UserService } from '../services/user.service';
-import { ConfigService } from '@nestjs/config';
 import { UserRole } from '../../common/enums/role.enum';
+import { UserService } from '../services/user.service';
 
 /**
  * User Controller Test Suite
@@ -22,6 +22,7 @@ import { UserRole } from '../../common/enums/role.enum';
 describe('UserController', () => {
   let controller: UserController;
   let service: UserService;
+  let configService: ConfigService;
 
   /**
    * Mock user object
@@ -60,9 +61,12 @@ describe('UserController', () => {
           provide: UserService,
           useValue: {
             create: jest.fn(),
+            createAdmin: jest.fn(),
+            findAll: jest.fn(),
             findById: jest.fn(),
             findByEmail: jest.fn(),
             update: jest.fn(),
+            updateUserRole: jest.fn(),
             delete: jest.fn(),
             count: jest.fn(),
           },
@@ -78,6 +82,7 @@ describe('UserController', () => {
 
     controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   /**
@@ -169,6 +174,20 @@ describe('UserController', () => {
       expect(result).toEqual(mockUser);
     });
 
+    it('should throw ForbiddenException when non-admin accesses another profile', async () => {
+      const currentUser = {
+        ...mockUser,
+        role: UserRole.USER,
+      } as User;
+
+      await expect(
+        controller.findById(
+          currentUser,
+          '550e8400-e29b-41d4-a716-446655440999',
+        ),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
     /**
      * Test Case 4️⃣: User not found by ID
      *
@@ -190,6 +209,32 @@ describe('UserController', () => {
       await expect(
         controller.findById(adminUser, '550e8400-e29b-41d4-a716-446655440999'),
       ).rejects.toThrow('User not found');
+    });
+  });
+
+  /**
+   * GET /users/admin/list - Get all users (admin)
+   */
+  describe('getAllUsers() - GET /users/admin/list', () => {
+    it('should return all users', async () => {
+      const users = [
+        mockUser,
+        {
+          ...mockUser,
+          id: '550e8400-e29b-41d4-a716-446655440111',
+          email: 'jane@example.com',
+          username: 'jane_doe',
+        } as User,
+      ];
+
+      const findAllSpy = jest
+        .spyOn(service, 'findAll')
+        .mockResolvedValue(users);
+
+      const result = await controller.getAllUsers();
+
+      expect(findAllSpy).toHaveBeenCalledTimes(1);
+      expect(result).toHaveLength(2);
     });
   });
 
@@ -226,6 +271,22 @@ describe('UserController', () => {
       // Verify: Updated user is returned
       expect(result.first_name).toBe('Jonathan');
     });
+
+    it('should throw ForbiddenException when user updates another profile', async () => {
+      const currentUser = {
+        ...mockUser,
+        role: UserRole.USER,
+      } as User;
+      const updateUserDto: UpdateUserDto = { first_name: 'Jonathan' };
+
+      await expect(
+        controller.update(
+          currentUser,
+          '550e8400-e29b-41d4-a716-446655440999',
+          updateUserDto,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+    });
   });
 
   /**
@@ -254,6 +315,92 @@ describe('UserController', () => {
       expect(service.delete).toHaveBeenCalledWith(mockUser.id);
       // Verify: Confirmation message returned
       expect(result).toEqual({ message: 'User deleted successfully' });
+    });
+
+    it('should throw ForbiddenException when user deletes another account', async () => {
+      const currentUser = {
+        ...mockUser,
+        role: UserRole.USER,
+      } as User;
+
+      await expect(
+        controller.delete(currentUser, '550e8400-e29b-41d4-a716-446655440999'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('seedAdmin() - POST /users/dev/seed-admin', () => {
+    it('should create genesis admin when seed endpoints are enabled', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockImplementation((key: string): string | undefined => {
+          if (key === 'NODE_ENV') return 'test';
+          if (key === 'SEED_ENDPOINTS_ENABLED') return 'true';
+          if (key === 'SEED_ENDPOINTS_TOKEN') return undefined;
+          return undefined;
+        });
+
+      jest.spyOn(service, 'findByEmail').mockResolvedValue(null);
+      const createAdminSpy = jest
+        .spyOn(service, 'createAdmin')
+        .mockResolvedValue({
+          ...mockUser,
+          email: 'admin@example.com',
+          username: 'admin',
+          role: UserRole.ADMIN,
+        } as User);
+
+      const result = await controller.seedAdmin();
+
+      expect(createAdminSpy).toHaveBeenCalledWith(
+        'admin@example.com',
+        'admin',
+        'AdminPassword123!',
+        'Admin',
+        'User',
+      );
+      expect(result.email).toBe('admin@example.com');
+    });
+  });
+
+  describe('seedModerator() - POST /users/dev/seed-moderator', () => {
+    it('should create moderator when seed endpoints are enabled', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockImplementation((key: string): string | undefined => {
+          if (key === 'NODE_ENV') return 'test';
+          if (key === 'SEED_ENDPOINTS_ENABLED') return 'true';
+          if (key === 'SEED_ENDPOINTS_TOKEN') return undefined;
+          return undefined;
+        });
+
+      const createdModerator = {
+        ...mockUser,
+        id: '550e8400-e29b-41d4-a716-446655440123',
+        email: 'moderator@example.com',
+        username: 'moderator',
+        role: UserRole.ADMIN,
+      } as User;
+
+      const updatedModerator = {
+        ...createdModerator,
+        role: UserRole.MODERATOR,
+      } as User;
+
+      jest.spyOn(service, 'findByEmail').mockResolvedValue(null);
+      jest.spyOn(service, 'createAdmin').mockResolvedValue(createdModerator);
+      const updateUserRoleSpy = jest
+        .spyOn(service, 'updateUserRole')
+        .mockResolvedValue(updatedModerator);
+
+      const result = await controller.seedModerator();
+
+      expect(updateUserRoleSpy).toHaveBeenCalledWith(
+        createdModerator.id,
+        UserRole.MODERATOR,
+      );
+      expect(result.role).toBe(UserRole.MODERATOR);
+      expect(result.email).toBe('moderator@example.com');
     });
   });
 });

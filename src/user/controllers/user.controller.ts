@@ -15,6 +15,7 @@ import {
   ConflictException,
   Patch,
   Headers,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -93,6 +94,8 @@ import { ConfigService } from '@nestjs/config';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
+
   /**
    * Constructor - Dependency injection
    *
@@ -541,7 +544,7 @@ export class UserController {
     description: 'User does not have ADMIN role',
   })
   async getAllUsers(): Promise<UserResponseDto[]> {
-    console.log(`📋 ADMIN route: Fetching all users`);
+    this.logger.log('Admin route: fetching all users');
     const users = await this.userService.findAll();
     return plainToInstance(UserResponseDto, users);
   }
@@ -640,15 +643,13 @@ export class UserController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<UserResponseDto> {
     if (currentUser.id !== id && currentUser.role !== UserRole.ADMIN) {
-      console.warn(
-        `⚠️ SECURITY: User ${currentUser.email} (${currentUser.id}) attempted to access user ${id}`,
+      this.logger.warn(
+        `SECURITY: user ${currentUser.id} attempted to access user ${id}`,
       );
       throw new ForbiddenException('You can only access your own profile');
     }
 
-    console.log(
-      `👤 User ${currentUser.email} (${currentUser.id}) fetching user ${id}`,
-    );
+    this.logger.log(`User ${currentUser.id} fetching user ${id}`);
     return this.userService.findById(id);
   }
 
@@ -766,15 +767,13 @@ export class UserController {
   ): Promise<UserResponseDto> {
     // ✅ Ownership verification: User can only update their own profile
     if (currentUser.id !== id) {
-      console.warn(
-        `⚠️ SECURITY: User ${currentUser.email} (${currentUser.id}) attempted to update user ${id}`,
+      this.logger.warn(
+        `SECURITY: user ${currentUser.id} attempted to update user ${id}`,
       );
       throw new ForbiddenException('You can only update your own profile');
     }
 
-    console.log(
-      `✏️ User ${currentUser.email} (${currentUser.id}) updating their profile`,
-    );
+    this.logger.log(`User ${currentUser.id} updating profile`);
     return this.userService.update(id, updateUserDto);
   }
 
@@ -865,15 +864,13 @@ export class UserController {
   ): Promise<{ message: string }> {
     // ✅ Ownership verification: User can only delete their own account
     if (currentUser.id !== id) {
-      console.warn(
-        `⚠️ SECURITY: User ${currentUser.email} (${currentUser.id}) attempted to delete user ${id}`,
+      this.logger.warn(
+        `SECURITY: user ${currentUser.id} attempted to delete user ${id}`,
       );
       throw new ForbiddenException('You can only delete your own account');
     }
 
-    console.log(
-      `🗑️ User ${currentUser.email} (${currentUser.id}) deleting their account`,
-    );
+    this.logger.log(`User ${currentUser.id} deleting account`);
     await this.userService.delete(id);
 
     return {
@@ -955,7 +952,7 @@ export class UserController {
     @Headers('x-seed-token') seedToken?: string,
   ): Promise<UserResponseDto> {
     this.ensureSeedAccess(seedToken);
-    console.log('🌱 Seeding Genesis Admin...');
+    this.logger.log('Seeding genesis admin user');
 
     // Check if admin already exists (idempotent)
     const existingAdmin =
@@ -975,7 +972,7 @@ export class UserController {
       'User',
     );
 
-    console.log(`✅ Genesis Admin created: ${admin.email} (ID: ${admin.id})`);
+    this.logger.log(`Genesis admin created (id: ${admin.id})`);
 
     return plainToInstance(UserResponseDto, admin);
   }
@@ -1055,7 +1052,7 @@ export class UserController {
     @Headers('x-seed-token') seedToken?: string,
   ): Promise<UserResponseDto> {
     this.ensureSeedAccess(seedToken);
-    console.log('🌱 Seeding Moderator User...');
+    this.logger.log('Seeding moderator user');
 
     // Check if moderator already exists (idempotent)
     const existingModerator = await this.userService.findByEmail(
@@ -1082,9 +1079,7 @@ export class UserController {
       UserRole.MODERATOR,
     );
 
-    console.log(
-      `✅ Moderator created: ${updatedModerator.email} (ID: ${updatedModerator.id})`,
-    );
+    this.logger.log(`Moderator user created (id: ${updatedModerator.id})`);
 
     return plainToInstance(UserResponseDto, updatedModerator);
   }

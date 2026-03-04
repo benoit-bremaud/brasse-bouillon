@@ -18,7 +18,7 @@ import { WaterProfileDto } from '../dtos/water-profile.dto';
 import { EauService } from '../services/eau.service';
 
 @ApiTags('Eau')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('eau')
 export class EauController {

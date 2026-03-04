@@ -275,7 +275,7 @@ export class AuthController {
    */
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get current user',
     description: 'Returns authenticated user data from JWT token',

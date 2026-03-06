@@ -4,12 +4,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { AuthService } from '../services/auth.service';
-import { CreateUserDto } from '../../user/dtos/create-user.dto';
-import { UpdateUserDto } from '../../user/dtos/update-user.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
+import { CreateUserDto } from '../../user/dtos/create-user.dto';
 import { LoginDto } from '../dtos/login.dto';
-import { PasswordService } from '../services/password.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { UpdateUserDto } from '../../user/dtos/update-user.dto';
 import { User } from '../../user/entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from '../../user/services/user.service';
@@ -65,13 +64,6 @@ describe('AuthController', () => {
             update: jest.fn(),
             changePassword: jest.fn(),
             delete: jest.fn(),
-          },
-        },
-        {
-          provide: PasswordService,
-          useValue: {
-            hashPassword: jest.fn(),
-            comparePassword: jest.fn(),
           },
         },
       ],

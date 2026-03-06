@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
 
+import { ConfigService } from '@nestjs/config';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { UserController } from './user.controller';
@@ -121,6 +121,49 @@ describe('UserController', () => {
       const result = await controller.seedAdmin();
       expect(service.createAdmin).toHaveBeenCalled();
       expect(result).toBeDefined();
+    });
+  });
+
+  describe('seedModerator() - POST /users/dev/seed-moderator', () => {
+    it('should create moderator and update role to MODERATOR', async () => {
+      jest.spyOn(configService, 'get').mockImplementation((key) => {
+        if (key === 'NODE_ENV') return 'development';
+        if (key === 'SEED_ENDPOINTS_ENABLED') return 'true';
+        return undefined;
+      });
+
+      jest.spyOn(service, 'findByEmail').mockResolvedValue(null);
+
+      const createdModerator = {
+        ...mockUser,
+        id: '550e8400-e29b-41d4-a716-446655440123',
+        email: 'moderator@example.com',
+        username: 'moderator',
+        role: UserRole.ADMIN,
+      } as User;
+
+      const updatedModerator = {
+        ...createdModerator,
+        role: UserRole.MODERATOR,
+      } as User;
+
+      jest.spyOn(service, 'createAdmin').mockResolvedValue(createdModerator);
+      jest.spyOn(service, 'updateUserRole').mockResolvedValue(updatedModerator);
+
+      const result = await controller.seedModerator();
+
+      expect(service.createAdmin).toHaveBeenCalledWith(
+        'moderator@example.com',
+        'moderator',
+        'ModeratorPassword123!',
+        'Moderator',
+        'User',
+      );
+      expect(service.updateUserRole).toHaveBeenCalledWith(
+        createdModerator.id,
+        UserRole.MODERATOR,
+      );
+      expect(result.role).toBe(UserRole.MODERATOR);
     });
   });
 });

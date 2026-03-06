@@ -28,7 +28,6 @@ import { LoginDto } from '../dtos/login.dto';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { ChangePasswordResponseDto } from '../dtos/change-password-response.dto';
-import { PasswordService } from '../services/password.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 
@@ -44,7 +43,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly passwordService: PasswordService,
   ) {}
 
   @Post('login')

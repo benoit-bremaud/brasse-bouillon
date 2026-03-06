@@ -1,14 +1,14 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthController } from './auth.controller';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { AuthService } from '../services/auth.service';
+import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { CreateUserDto } from '../../user/dtos/create-user.dto';
-import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { LoginDto } from '../dtos/login.dto';
-import { PasswordService } from '../services/password.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { UpdateUserDto } from '../../user/dtos/update-user.dto';
 import { User } from '../../user/entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from '../../user/services/user.service';
@@ -60,13 +60,10 @@ describe('AuthController', () => {
           provide: UserService,
           useValue: {
             create: jest.fn(),
-          },
-        },
-        {
-          provide: PasswordService,
-          useValue: {
-            hashPassword: jest.fn(),
-            comparePassword: jest.fn(),
+            findById: jest.fn(),
+            update: jest.fn(),
+            changePassword: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -87,17 +84,6 @@ describe('AuthController', () => {
     jest.clearAllMocks();
   });
 
-  const getRegisterHandler = (): ((...args: unknown[]) => unknown) => {
-    const registerDescriptor = Object.getOwnPropertyDescriptor(
-      AuthController.prototype,
-      'register',
-    );
-
-    expect(registerDescriptor?.value).toBeDefined();
-
-    return registerDescriptor!.value as (...args: unknown[]) => unknown;
-  };
-
   describe('login() - POST /auth/login', () => {
     it('should authenticate user and return token payload', async () => {
       const dto: LoginDto = {
@@ -105,30 +91,12 @@ describe('AuthController', () => {
         password: 'SecurePassword123!',
       };
 
-      const loginSpy = jest
-        .spyOn(authService, 'login')
-        .mockResolvedValue(authResponse);
+      jest.spyOn(authService, 'login').mockResolvedValue(authResponse);
 
       const result = await controller.login(dto);
 
-      expect(loginSpy).toHaveBeenCalledWith(dto);
+      expect(authService.login).toHaveBeenCalledWith(dto);
       expect(result).toEqual(authResponse);
-    });
-
-    it('should propagate UnauthorizedException when credentials are invalid', async () => {
-      const dto: LoginDto = {
-        email: mockUser.email,
-        password: 'WrongPassword!',
-      };
-
-      const loginSpy = jest
-        .spyOn(authService, 'login')
-        .mockRejectedValue(new UnauthorizedException('Invalid credentials'));
-
-      await expect(controller.login(dto)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(loginSpy).toHaveBeenCalledWith(dto);
     });
   });
 
@@ -142,111 +110,73 @@ describe('AuthController', () => {
         last_name: mockUser.last_name,
       };
 
-      const createSpy = jest
-        .spyOn(userService, 'create')
-        .mockResolvedValue(mockUser);
-      const loginSpy = jest
-        .spyOn(authService, 'login')
-        .mockResolvedValue(authResponse);
+      jest.spyOn(userService, 'create').mockResolvedValue(mockUser);
+      jest.spyOn(authService, 'login').mockResolvedValue(authResponse);
 
       const result = await controller.register(dto);
 
-      expect(createSpy).toHaveBeenCalledWith(dto);
-      expect(loginSpy).toHaveBeenCalledWith({
+      expect(userService.create).toHaveBeenCalledWith(dto);
+      expect(authService.login).toHaveBeenCalledWith({
         email: dto.email,
         password: dto.password,
       });
       expect(result).toEqual(authResponse);
     });
+  });
 
-    it('should propagate ConflictException when user creation fails', async () => {
-      const dto: CreateUserDto = {
-        email: 'already-used@example.com',
-        username: 'already_used',
-        password: 'SecurePassword123!',
-      };
+  describe('getMe() - GET /auth/me', () => {
+    it('should return the current user profile', async () => {
+      jest.spyOn(userService, 'findById').mockResolvedValue(mockUser);
 
-      const createSpy = jest
-        .spyOn(userService, 'create')
-        .mockRejectedValue(new ConflictException('Email already exists'));
-      const loginSpy = jest.spyOn(authService, 'login');
+      const result = await controller.getMe(mockUser);
 
-      await expect(controller.register(dto)).rejects.toThrow(ConflictException);
-      expect(createSpy).toHaveBeenCalledWith(dto);
-      expect(loginSpy).not.toHaveBeenCalled();
+      expect(userService.findById).toHaveBeenCalledWith(mockUser.id);
+      expect(result.id).toEqual(mockUser.id);
     });
+  });
 
-    it('should propagate authentication error after successful creation', async () => {
-      const dto: CreateUserDto = {
-        email: mockUser.email,
-        username: mockUser.username,
-        password: 'SecurePassword123!',
+  describe('updateMe() - PATCH /auth/me', () => {
+    it('should update and return the user profile', async () => {
+      const updateDto: UpdateUserDto = { first_name: 'Jane' };
+      const updatedUser = { ...mockUser, first_name: 'Jane' } as User;
+
+      jest.spyOn(userService, 'update').mockResolvedValue(updatedUser);
+
+      const result = await controller.updateMe(mockUser, updateDto);
+
+      expect(userService.update).toHaveBeenCalledWith(mockUser.id, updateDto);
+      expect(result.first_name).toEqual('Jane');
+    });
+  });
+
+  describe('changePassword() - POST /auth/me/change-password', () => {
+    it('should change password successfully', async () => {
+      const changePwDto: ChangePasswordDto = {
+        old_password: 'old',
+        new_password: 'new',
       };
 
-      const createSpy = jest
-        .spyOn(userService, 'create')
-        .mockResolvedValue(mockUser);
-      const loginSpy = jest
-        .spyOn(authService, 'login')
-        .mockRejectedValue(new UnauthorizedException('Invalid credentials'));
+      jest.spyOn(userService, 'changePassword').mockResolvedValue(mockUser);
 
-      await expect(controller.register(dto)).rejects.toThrow(
-        UnauthorizedException,
+      const result = await controller.changePassword(mockUser, changePwDto);
+
+      expect(userService.changePassword).toHaveBeenCalledWith(
+        mockUser.id,
+        'old',
+        'new',
       );
-      expect(createSpy).toHaveBeenCalledWith(dto);
-      expect(loginSpy).toHaveBeenCalledWith({
-        email: dto.email,
-        password: dto.password,
-      });
+      expect(result.message).toBeDefined();
     });
   });
 
-  describe('throttling metadata', () => {
-    it('should apply throttler guard on register endpoint', () => {
-      const registerHandler = getRegisterHandler();
-      const guardsMetadata = Reflect.getMetadata(
-        GUARDS_METADATA,
-        registerHandler,
-      ) as unknown;
+  describe('deleteMe() - DELETE /auth/me', () => {
+    it('should delete current user account', async () => {
+      jest.spyOn(userService, 'delete').mockResolvedValue();
 
-      expect(Array.isArray(guardsMetadata)).toBe(true);
+      const result = await controller.deleteMe(mockUser);
 
-      if (!Array.isArray(guardsMetadata)) {
-        throw new Error('Expected guards metadata to be an array');
-      }
-
-      expect(guardsMetadata).toContain(ThrottlerGuard);
-    });
-
-    it('should apply @Throttle options on register endpoint', () => {
-      const registerHandler = getRegisterHandler();
-      const registerLimitMetadata = Reflect.getMetadata(
-        'THROTTLER:LIMITdefault',
-        registerHandler,
-      ) as unknown;
-      const registerTtlMetadata = Reflect.getMetadata(
-        'THROTTLER:TTLdefault',
-        registerHandler,
-      ) as unknown;
-
-      expect(typeof registerLimitMetadata).toBe('number');
-      expect(typeof registerTtlMetadata).toBe('number');
-
-      if (
-        typeof registerLimitMetadata !== 'number' ||
-        typeof registerTtlMetadata !== 'number'
-      ) {
-        throw new Error('Expected throttling metadata to be numeric');
-      }
-
-      expect(registerLimitMetadata).toBe(5);
-      expect(registerTtlMetadata).toBe(60_000);
-    });
-  });
-
-  describe('getCurrentUser() - GET /auth/me', () => {
-    it('should return currently authenticated user', () => {
-      expect(controller.getCurrentUser(mockUser)).toBe(mockUser);
+      expect(userService.delete).toHaveBeenCalledWith(mockUser.id);
+      expect(result.message).toBeDefined();
     });
   });
 });

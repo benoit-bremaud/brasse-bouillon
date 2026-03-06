@@ -107,6 +107,13 @@ const TOP_NAVIGATION_IDS = ["batches", "recipes", "ingredients", "tools"];
 
 const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
   {
+    id: "scan",
+    label: "Scanner",
+    icon: "qr-code-outline",
+    href: "/(app)/dashboard/scan",
+    type: "route",
+  },
+  {
     id: "equipment",
     label: "Équipements",
     icon: "construct-outline",

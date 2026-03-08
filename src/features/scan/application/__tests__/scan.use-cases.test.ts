@@ -1,10 +1,3 @@
-import type {
-  ScanConsentPreferences,
-  ScanPendingCapture,
-  ScanProductDetails,
-  ScanProductRecord,
-  ScanResolvedResult,
-} from "@/features/scan/domain/scan.types";
 import {
   getDefaultScanConsentPreferences,
   getPendingScanToastMessage,
@@ -18,9 +11,16 @@ import {
   scanProductRepository,
   scanStorage,
 } from "@/features/scan/data/scan.repository";
+import type {
+  ScanConsentPreferences,
+  ScanPendingCapture,
+  ScanProductDetails,
+  ScanProductRecord,
+  ScanResolvedResult,
+} from "@/features/scan/domain/scan.types";
 
-import type { Recipe } from "@/features/recipes/domain/recipe.types";
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import type { Recipe } from "@/features/recipes/domain/recipe.types";
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   listRecipes: jest.fn(),
@@ -58,6 +58,8 @@ const DEFAULT_PREFERENCES: ScanConsentPreferences = {
   storeScanMetadata: true,
   useDataForModelTraining: true,
 };
+const MISSING_CONSENT_ERROR_MESSAGE =
+  "Scan consent is required before processing scan attempts.";
 
 const MOCK_PRODUCT: ScanProductRecord = {
   id: "beer-1",
@@ -203,6 +205,12 @@ describe("scan use-cases", () => {
   it("matches by barcode on first stage", async () => {
     const scannedAt = new Date("2026-02-01T08:00:00.000Z");
     mockedScanProductRepository.findByBarcode.mockResolvedValue(MOCK_PRODUCT);
+    mockedScanStorage.getConsentSettings.mockResolvedValue({
+      hasConsent: true,
+      consentedAtIso: "2026-02-01T08:00:00.000Z",
+      retentionDays: 30,
+      preferences: DEFAULT_PREFERENCES,
+    });
 
     const outcome = await processScanAttempt({
       barcodeValue: "3760241234501",
@@ -227,6 +235,12 @@ describe("scan use-cases", () => {
 
   it("asks for front photo when barcode is unmatched", async () => {
     mockedScanProductRepository.findByBarcode.mockResolvedValue(null);
+    mockedScanStorage.getConsentSettings.mockResolvedValue({
+      hasConsent: true,
+      consentedAtIso: "2026-02-01T08:00:00.000Z",
+      retentionDays: 30,
+      preferences: DEFAULT_PREFERENCES,
+    });
 
     const outcome = await processScanAttempt({
       barcodeValue: "0000000000000",
@@ -243,6 +257,12 @@ describe("scan use-cases", () => {
 
   it("asks for back photo when front exists but back is missing", async () => {
     mockedScanProductRepository.findByBarcode.mockResolvedValue(null);
+    mockedScanStorage.getConsentSettings.mockResolvedValue({
+      hasConsent: true,
+      consentedAtIso: "2026-02-01T08:00:00.000Z",
+      retentionDays: 30,
+      preferences: DEFAULT_PREFERENCES,
+    });
 
     const outcome = await processScanAttempt({
       barcodeValue: "0000000000000",
@@ -415,5 +435,41 @@ describe("scan use-cases", () => {
     expect(outcome.capture.backPhotoUri).toBeNull();
     expect(outcome.capture.backLabelMissing).toBe(true);
     expect(outcome.capture.metadata).toContain("Back label missing: yes");
+  });
+
+  it("throws when consent settings are missing", async () => {
+    mockedScanProductRepository.findByBarcode.mockResolvedValue(MOCK_PRODUCT);
+    mockedScanStorage.getConsentSettings.mockResolvedValue(null);
+
+    await expect(
+      processScanAttempt({
+        barcodeValue: "3760241234501",
+        scannedAt: new Date("2026-02-06T08:00:00.000Z"),
+      }),
+    ).rejects.toThrow(MISSING_CONSENT_ERROR_MESSAGE);
+
+    expect(mockedScanStorage.saveResolvedResult).not.toHaveBeenCalled();
+    expect(mockedScanStorage.savePendingCapture).not.toHaveBeenCalled();
+  });
+
+  it("throws when consent exists but is explicitly denied", async () => {
+    mockedScanProductRepository.findByBarcode.mockResolvedValue(null);
+    mockedScanStorage.getConsentSettings.mockResolvedValue({
+      hasConsent: false,
+      consentedAtIso: "2026-02-01T08:00:00.000Z",
+      retentionDays: 30,
+      preferences: DEFAULT_PREFERENCES,
+    });
+
+    await expect(
+      processScanAttempt({
+        barcodeValue: "0000000000000",
+        frontPhotoUri: "mock://front.jpg",
+        backPhotoUri: "mock://back.jpg",
+        scannedAt: new Date("2026-02-07T08:00:00.000Z"),
+      }),
+    ).rejects.toThrow(MISSING_CONSENT_ERROR_MESSAGE);
+
+    expect(mockedScanStorage.savePendingCapture).not.toHaveBeenCalled();
   });
 });

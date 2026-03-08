@@ -394,6 +394,41 @@ describe("ScanScreen", () => {
     expect(secondAttempt.backLabelMissing).toBe(false);
   });
 
+  it("blocks bottle validation when consent has not been granted", async () => {
+    mockedGetScanConsentSettings.mockResolvedValue({
+      hasConsent: false,
+      consentedAtIso: "2026-02-01T08:00:00.000Z",
+      retentionDays: 30,
+      preferences: DEFAULT_PREFERENCES,
+    });
+
+    renderScreen();
+
+    await waitForReadyState();
+
+    fireEvent.press(screen.getByText("Later"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Scan consent required")).toBeNull();
+    });
+
+    fireEvent.press(screen.getByText("Switch to bottle mode"));
+
+    expect(await screen.findByText("Front label capture")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("capture-front-button"));
+
+    expect(await screen.findByText(/Captured URI:/)).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("validate-front-button"));
+
+    expect(
+      await screen.findByText("Scan consent is required before validation."),
+    ).toBeTruthy();
+    expect(screen.getByText("Scan consent required")).toBeTruthy();
+    expect(mockedProcessScanAttempt).not.toHaveBeenCalled();
+  });
+
   it("confirms reset action before restarting the scan flow", async () => {
     renderScreen();
 

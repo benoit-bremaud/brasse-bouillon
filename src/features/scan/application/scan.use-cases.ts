@@ -25,6 +25,8 @@ const FRONT_CAPTURE_TOAST_MESSAGE =
   "Barcode not recognized. Capture the front of the bottle.";
 const BACK_CAPTURE_TOAST_MESSAGE =
   "Front captured. Capture the back of the bottle.";
+const SCAN_CONSENT_REQUIRED_ERROR_MESSAGE =
+  "Scan consent is required before processing scan attempts.";
 
 const DEFAULT_CONSENT_PREFERENCES: ScanConsentPreferences = {
   storeBarcodeValue: true,
@@ -254,6 +256,11 @@ function resolvePendingCapture(
 
 async function resolveConsentSnapshot(): Promise<ScanConsentPreferences> {
   const consentSettings = await scanStorage.getConsentSettings();
+
+  if (!consentSettings?.hasConsent) {
+    throw new Error(SCAN_CONSENT_REQUIRED_ERROR_MESSAGE);
+  }
+
   return sanitizeConsentPreferences(consentSettings?.preferences);
 }
 
@@ -313,6 +320,7 @@ function resolveRequiredPhotoCaptureStage(
 export async function processScanAttempt(
   input: ScanAttemptInput,
 ): Promise<ScanProcessOutcome> {
+  const consentSnapshot = await resolveConsentSnapshot();
   const scannedAt = input.scannedAt ?? new Date();
   const normalizedBarcode = normalize(input.barcodeValue);
 
@@ -353,7 +361,6 @@ export async function processScanAttempt(
     };
   }
 
-  const consentSnapshot = await resolveConsentSnapshot();
   const pendingCapture = resolvePendingCapture(
     input,
     scannedAt,

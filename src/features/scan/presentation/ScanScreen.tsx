@@ -443,7 +443,26 @@ export function ScanScreen() {
     return "Auto-capture armed: hold the back label steady.";
   }, [captureStage, isAutoCaptureArmed]);
 
+  const ensureBottleValidationAccess = useCallback((): boolean => {
+    if (!hasConsent) {
+      setStatusMessage("Scan consent is required before validation.");
+      setIsConsentModalVisible(true);
+      return false;
+    }
+
+    if (!canUseCameraPermission) {
+      setStatusMessage("Camera permission is required before validation.");
+      return false;
+    }
+
+    return true;
+  }, [canUseCameraPermission, hasConsent]);
+
   const handleValidateFrontLabel = async () => {
+    if (!ensureBottleValidationAccess()) {
+      return;
+    }
+
     if (!frontPhotoUri) {
       setStatusMessage("Capture the front label before validation.");
       return;
@@ -472,6 +491,10 @@ export function ScanScreen() {
   };
 
   const handleSaveBottleCapture = async () => {
+    if (!ensureBottleValidationAccess()) {
+      return;
+    }
+
     if (!frontPhotoUri) {
       setStatusMessage("Capture the front label before saving.");
       return;

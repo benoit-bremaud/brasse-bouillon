@@ -124,6 +124,10 @@ describe("DashboardScreen", () => {
     fireEvent.press(screen.getByLabelText("Voir plus de sections"));
     expect(screen.getByText("Sections métier")).toBeTruthy();
     expect(screen.getByText("Compte")).toBeTruthy();
+    expect(screen.getByText("Scanner")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Ouvrir Scanner"));
+    expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
 
     fireEvent.press(screen.getByLabelText("Ouvrir le profil"));
     expect(screen.getByText("Paramètres globaux")).toBeTruthy();

@@ -1,60 +1,101 @@
 # Brasse-Bouillon Backend
 
-API NestJS pour l'application **Brasse-Bouillon** (assistant de brassage), avec authentification JWT, gestion des utilisateurs, profils d'équipement, recettes, lots de brassage et rappels de fermentation.
+NestJS API for the **Brasse-Bouillon** application (homebrewing assistant), with JWT authentication, user management, equipment profiles, recipes, brewing batches, and fermentation reminders.
 
-## Fonctionnalités principales
+## Main Features
 
-- Authentification (`/auth`): login, register, profil courant
-- Utilisateurs (`/users`): profil, changement de mot de passe, rôles
-- Équipements (`/equipment-profiles`): CRUD par utilisateur
-- Recettes (`/recipes`): CRUD + étapes de workflow
-- Batches (`/batches`): démarrage de brassin, progression d'étapes, fermentation, rappels
-- Documentation Swagger (activée hors prod, ou via variable dédiée)
+- Authentication (`/auth`): login, register, current profile
+- Users (`/users`): profile, password change, roles
+- Equipment (`/equipment-profiles`): user-scoped CRUD
+- Recipes (`/recipes`): CRUD + workflow steps
+- Batches (`/batches`): start batch, step progression, fermentation, reminders
+- Swagger documentation (enabled outside production, or via dedicated environment variable)
 
-## Stack technique
+## Tech Stack
 
 - **Node.js 20** + **NestJS 11**
 - **TypeScript**
 - **TypeORM**
-- **SQLite (better-sqlite3)** par défaut
-- **JWT / Passport** pour la sécurité
-- **Docker** (image multi-stage)
+- **SQLite (better-sqlite3)** by default
+- **JWT / Passport** for security
+- **Docker** (multi-stage image)
 
-## Prérequis
+## Prerequisites
 
 - Node.js `>=20 <21`
 - npm
-- Docker (si exécution conteneurisée)
+- Docker (for containerized execution)
 
-## Variables d'environnement
+## Environment Variables
 
-Variables importantes utilisées par l'API :
+The environment strategy is based on **2 core variables**:
 
-| Variable | Obligatoire | Défaut | Description |
+- `APP_ENV`: application context (`development`, `test`, `staging`, `production`)
+- `NODE_ENV`: Node runtime mode (`development`, `test`, `production`)
+
+Compatibility rules:
+
+- `APP_ENV=development` → `NODE_ENV=development`
+- `APP_ENV=test` → `NODE_ENV=test`
+- `APP_ENV=staging` → `NODE_ENV=production`
+- `APP_ENV=production` → `NODE_ENV=production`
+
+### `.env` File Loading Order
+
+- `development`: `.env.development.local` → `.env.development` → `.env.local` → `.env`
+- `test`: `.env.test.local` → `.env.test` → `.env.local` → `.env`
+- `staging`: `.env.staging.local` → `.env.staging` → `.env.local` → `.env`
+- `production`: **no `.env` file loaded** (`ignoreEnvFile=true`), runtime injection required
+
+### Versioned Templates
+
+- `.env.example`: local development baseline
+- `.env.test.example`: test baseline
+- `.env.staging.example`: staging (production-like) baseline
+
+Important variables used by the API:
+
+| Variable | Required | Default | Description |
 |---|---|---|---|
-| `JWT_SECRET` | ✅ Oui | - | Secret de signature JWT (obligatoire au démarrage) |
-| `JWT_EXPIRATION` | Non | `86400s` | Durée de validité des tokens |
-| `PORT` | Non | `3000` | Port HTTP de l'API |
-| `NODE_ENV` | Non | `development` (local) / `production` (Docker) | Environnement d'exécution |
-| `DATABASE_PATH` | Non | `./data/brasse-bouillon.db` (selon cwd) | Chemin de la base SQLite |
-| `TYPEORM_MIGRATIONS_RUN` | Non | `false` | Exécuter les migrations au démarrage |
-| `TYPEORM_SYNCHRONIZE` | Non | `false` | Synchronisation auto du schéma (à éviter en prod) |
-| `TYPEORM_LOGGING` | Non | auto selon env | Niveau de logs TypeORM |
-| `SWAGGER_ENABLED` | Non | auto selon env | Force l'activation Swagger (`true`/`false`) |
-| `SEED_ENDPOINTS_ENABLED` | Non | `false` | Active les endpoints de seed dev |
-| `SEED_ENDPOINTS_TOKEN` | Non | vide | Token optionnel pour protéger les endpoints de seed |
+| `APP_ENV` | ✅ Yes | `development` (bootstrap fallback) | Application context (`development`/`test`/`staging`/`production`) |
+| `NODE_ENV` | ✅ Yes | derived from `APP_ENV` (bootstrap fallback) | Node runtime mode |
+| `JWT_SECRET` | ✅ Yes | - | JWT secret (min. 24 characters) |
+| `JWT_EXPIRATION` | No | `86400s` | Token lifetime |
+| `PORT` | No | `3000` | API HTTP port |
+| `DATABASE_PATH` | No | `./data/brasse-bouillon.db` | SQLite file path |
+| `TYPEORM_MIGRATIONS_RUN` | No | `false` | Run migrations on startup |
+| `TYPEORM_SYNCHRONIZE` | No | `false` | Auto schema sync (forbidden in staging/production) |
+| `TYPEORM_LOGGING` | No | depends on environment | TypeORM logging |
+| `SWAGGER_ENABLED` | No | depends on environment | Enable/disable Swagger |
+| `SEED_ENDPOINTS_ENABLED` | No | `false` | Enable seed endpoints (development only) |
+| `SEED_ENDPOINTS_TOKEN` | No | empty | Seed protection token |
+| `WATER_PROVIDER_DEFAULT` | No | `hubeau` | Default water provider |
+| `HUBEAU_BASE_URL` | No | Official Hubeau URL | Hubeau API base URL |
+| `HUBEAU_TIMEOUT_MS` | No | `8000` | Water provider timeout |
+| `HUBEAU_CACHE_TTL_SECONDS` | No | `3600` | Water provider cache TTL |
+| `HUBEAU_MAX_SAMPLES` | No | `50` | Maximum number of samples |
+| `HUBEAU_COMMUNES_UDI_SIZE` | No | `10` | Batch size for communes/UDI |
+| `HUBEAU_RESULTATS_DIS_SIZE` | No | `100` | Batch size for distribution results |
 
-## Lancer le projet en local (sans Docker)
+## Run Locally (Without Docker)
 
-1. Installer les dépendances :
+1. Install dependencies:
 
 ```bash
 npm ci
 ```
 
-2. Créer un fichier `.env.local` (exemple minimal) :
+2. Create local configuration from the template:
+
+```bash
+cp .env.example .env.local
+```
+
+Minimal example:
 
 ```env
+APP_ENV=development
+NODE_ENV=development
 JWT_SECRET=change-me-in-local
 JWT_EXPIRATION=86400s
 PORT=3000
@@ -64,26 +105,26 @@ TYPEORM_SYNCHRONIZE=false
 SWAGGER_ENABLED=true
 ```
 
-3. Démarrer en mode dev :
+3. Start in development mode:
 
 ```bash
 npm run start:dev
 ```
 
-4. Vérifier :
+4. Verify:
 
 - API: `http://localhost:3000/`
 - Swagger UI: `http://localhost:3000/api`
 
-## Lancer le serveur avec Docker
+## Run With Docker
 
-### 1) Build de l'image
+### 1) Build the image
 
 ```bash
 docker build -t brasse-bouillon-backend:local .
 ```
 
-### 2) Run du conteneur
+### 2) Run the container
 
 ```bash
 docker run --rm \
@@ -97,14 +138,14 @@ docker run --rm \
   brasse-bouillon-backend:local
 ```
 
-### Notes Docker importantes
+### Important Docker Notes
 
-- `JWT_SECRET` est **obligatoire**, sinon l'app ne démarre pas.
-- Le volume `brasse-bouillon-data` persiste la base SQLite (`/app/data`).
-- En image Docker, `NODE_ENV=production` par défaut (défini dans le `Dockerfile`).
-- Swagger est désactivé en production sauf si `SWAGGER_ENABLED=true`.
+- `JWT_SECRET` is **required**, otherwise the app will not start.
+- The `brasse-bouillon-data` volume persists the SQLite database (`/app/data`).
+- In Docker image runtime, `NODE_ENV=production` by default (defined in `Dockerfile`).
+- Swagger is disabled in production unless `SWAGGER_ENABLED=true`.
 
-## Commandes utiles
+## Useful Commands
 
 ```bash
 # Build TypeScript
@@ -113,10 +154,10 @@ npm run build
 # Lint
 npm run lint:check
 
-# Tests unitaires
+# Unit tests
 npm run test
 
-# Tests e2e
+# e2e tests
 npm run test:e2e
 
 # Migrations
@@ -124,19 +165,24 @@ npm run migration:run
 npm run migration:revert
 ```
 
-## Structure du projet (vue rapide)
+## Project Structure (Quick View)
 
 ```text
 src/
-  auth/         # Auth JWT, guards, stratégies
-  user/         # Utilisateurs, profil, rôles
-  equipment/    # Profils d'équipement
-  recipe/       # Recettes et étapes
+  auth/         # JWT auth, guards, strategies
+  user/         # Users, profile, roles
+  equipment/    # Equipment profiles
+  recipe/       # Recipes and steps
   batch/        # Batches, fermentation, reminders
-  database/     # Config TypeORM + migrations
-  common/       # Filtres, interceptors, DTO communs
+  database/     # TypeORM config + migrations
+  common/       # Filters, interceptors, shared DTOs
 ```
 
 ## Roadmap
 
-Voir [`ROADMAP.md`](./ROADMAP.md) pour la vision produit et les prochaines étapes.
+See [`ROADMAP.md`](./ROADMAP.md) for product vision and next steps.
+
+## Additional Documentation
+
+- [Environment Strategy](./docs/environment-strategy.md)
+- [Secret Incident Runbook](./docs/secret-incident-runbook.md)

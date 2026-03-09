@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react-native";
+import { Alert, AlertButton } from "react-native";
 
 import { ProfileScreen } from "@/features/auth/presentation/ProfileScreen";
 import React from "react";
@@ -37,9 +38,20 @@ jest.mock("@/core/auth/auth-context", () => ({
 }));
 
 describe("ProfileScreen", () => {
+  let alertSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+  });
+
   beforeEach(() => {
     mockRefreshProfile.mockReset();
     mockLogout.mockReset();
+    alertSpy.mockClear();
+  });
+
+  afterAll(() => {
+    alertSpy.mockRestore();
   });
 
   it("renders profile information", () => {
@@ -67,12 +79,27 @@ describe("ProfileScreen", () => {
     });
   });
 
-  it("calls logout action", async () => {
+  it("asks for confirmation before calling logout action", async () => {
     mockLogout.mockResolvedValue(undefined);
 
     render(<ProfileScreen />);
 
     fireEvent.press(screen.getByLabelText("Se déconnecter"));
+
+    expect(mockLogout).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledTimes(1);
+
+    const alertCall = alertSpy.mock.calls[0];
+    expect(alertCall[0]).toBe("Confirmer la déconnexion");
+
+    const buttons = (alertCall[2] ?? []) as AlertButton[];
+    const confirmButton = buttons.find(
+      (button) => button.text === "Se déconnecter",
+    );
+
+    expect(confirmButton).toBeDefined();
+
+    confirmButton?.onPress?.();
 
     await waitFor(() => {
       expect(mockLogout).toHaveBeenCalledTimes(1);

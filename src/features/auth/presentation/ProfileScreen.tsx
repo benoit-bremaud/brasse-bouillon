@@ -1,6 +1,13 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -37,6 +44,26 @@ export function ProfileScreen() {
     } catch (error) {
       setLocalError(getErrorMessage(error, "Impossible de se déconnecter"));
     }
+  };
+
+  const handleLogoutPress = () => {
+    Alert.alert(
+      "Confirmer la déconnexion",
+      "Voulez-vous vraiment vous déconnecter de l'application ?",
+      [
+        {
+          text: "Annuler",
+          style: "cancel",
+        },
+        {
+          text: "Se déconnecter",
+          style: "destructive",
+          onPress: () => {
+            void handleLogout();
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -95,7 +122,7 @@ export function ProfileScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Se déconnecter"
-          onPress={handleLogout}
+          onPress={handleLogoutPress}
           disabled={isLoading}
           style={({ pressed }) => [
             styles.secondaryAction,

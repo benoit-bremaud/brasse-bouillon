@@ -5,6 +5,7 @@ import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.ent
 import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
 import { DataSourceOptions } from 'typeorm';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
 import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
 import { RecipeFermentableOrmEntity } from '../recipe/entities/recipe-fermentable.orm.entity';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
@@ -31,6 +32,7 @@ export const ormEntities = [
   RecipeYeastOrmEntity,
   RecipeAdditiveOrmEntity,
   RecipeWaterOrmEntity,
+  LabelDraftOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

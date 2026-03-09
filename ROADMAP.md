@@ -126,6 +126,7 @@ modern, and offline-first.
 ### In Progress
 - Test coverage improvement (currently ~33% — target ≥60%)
 - SonarCloud setup planning (project onboarding + CI integration still pending)
+- Label Workshop backend foundation (Lot 1): module scaffold + migration `label_drafts` + ORM wiring
 
 ### To Do
 Phase 1 - MVP Backend
@@ -175,3 +176,4 @@ Phase 3 - Post-MVP
 - 2026-02-06: Added fermentation + reminders API (PR #24).
 - 2026-02-18: Full repo audit. Confirmed JWT protected e2e tests and CI security audit hardening; refined backend priorities and open questions.
 - 2026-02-19 (session 4): Documentation consistency pass after Copilot review; removed unimplemented items from "Done" and aligned statuses with the current codebase.
+- 2026-03-09: Started Label Workshop backend implementation (Lot 1): added `LabelModule` scaffold (controllers/services/domain/entities), `LabelDraftOrmEntity`, TypeORM/AppModule wiring, and migration `1775000000000-AddLabelDrafts`.

@@ -304,4 +304,37 @@ Tests:       2 skipped, 54 passed, 56 total
 
 ---
 
+## 10. Addendum (2026-03-09) — Label Workshop Lot 1
+
+### Périmètre implémenté
+- Nouvelle feature backend `label/` scaffoldée selon l’architecture Clean :
+  - `controllers/`: `label-draft.controller.ts`, `label-catalog.controller.ts`, `label-defaults.controller.ts`
+  - `services/`: `label-draft.service.ts`, `label-catalog.service.ts`, `label-defaults.service.ts`
+  - `domain/enums/`: `LabelDraftStatus`, `BottleFormat`, `TemplateId`
+  - `domain/entities/`: `LabelDraft`, `LabelEditableFields`, `LabelPreviewSnapshot`
+  - `entities/`: `LabelDraftOrmEntity`
+  - `label.module.ts`
+
+- Fondations DB ajoutées :
+  - Migration `1775000000000-AddLabelDrafts.ts`
+  - Table `label_drafts` avec contraintes CHECK, FK nommées et index nommés
+  - Soft-delete prêt via `deleted_at`
+  - Concurrence optimiste prête via colonne `version`
+
+- Wiring applicatif :
+  - `LabelModule` importé dans `AppModule`
+  - `LabelDraftOrmEntity` ajouté à `ormEntities` (`typeorm.config.ts`)
+
+### Qualité / conformité
+- Contrôleurs protégés JWT (`@UseGuards(JwtAuthGuard)`) et documentés Swagger (`@ApiBearerAuth('JWT-auth')`, `@ApiTags('Labels')`).
+- Build TypeScript ✅ (`npm run build`)
+- Lint ciblé ✅ (`npm run lint:check ...`)
+- Test de fondation module ✅ (`src/label/label.module.spec.ts`, avec SQLite in-memory)
+
+### État
+- **Lot 1 terminé** (fondation module + migration + wiring).
+- Les routes métiers/dtos/use-cases restent à implémenter dans les lots suivants (CRUD P0, catalog/defaults, e2e/docs, hardening).
+
+---
+
 *Prochain audit recommandé après implémentation de la fondation ingrédients (migration + ORM + API) et ajout de l'étape SonarCloud en CI.*

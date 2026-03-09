@@ -58,6 +58,34 @@ const normalizeNodeEnvironment = (
   return null;
 };
 
+const assertValidAppEnvironment = (
+  rawAppEnv: string | undefined,
+  appEnv: AppEnvironment | null,
+): void => {
+  if (rawAppEnv === undefined || appEnv) {
+    return;
+  }
+
+  const receivedValue = rawAppEnv.trim() || '(empty string)';
+  throw new Error(
+    `Invalid APP_ENV value: "${receivedValue}". Expected one of: ${APP_ENVIRONMENTS.join(', ')}`,
+  );
+};
+
+const assertValidNodeEnvironment = (
+  rawNodeEnv: string | undefined,
+  nodeEnv: NodeEnvironment | null,
+): void => {
+  if (rawNodeEnv === undefined || nodeEnv) {
+    return;
+  }
+
+  const receivedValue = rawNodeEnv.trim() || '(empty string)';
+  throw new Error(
+    `Invalid NODE_ENV value: "${receivedValue}". Expected one of: ${NODE_ENVIRONMENTS.join(', ')}`,
+  );
+};
+
 export interface BootstrapEnvironmentConfig {
   readonly appEnv: AppEnvironment;
   readonly nodeEnv: NodeEnvironment;
@@ -85,6 +113,9 @@ export const resolveBootstrapEnvironment = (
 ): Pick<BootstrapEnvironmentConfig, 'appEnv' | 'nodeEnv'> => {
   const appEnv = normalizeAppEnvironment(rawAppEnv);
   const nodeEnv = normalizeNodeEnvironment(rawNodeEnv);
+
+  assertValidAppEnvironment(rawAppEnv, appEnv);
+  assertValidNodeEnvironment(rawNodeEnv, nodeEnv);
 
   if (appEnv && nodeEnv) {
     assertEnvCompatibility(appEnv, nodeEnv);

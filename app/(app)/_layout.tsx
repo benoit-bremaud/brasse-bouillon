@@ -111,6 +111,13 @@ export default function AppLayout() {
               href: null,
             }}
           />
+          <Tabs.Screen
+            name="profile"
+            options={{
+              href: null,
+              title: "Profil",
+            }}
+          />
         </Tabs>
       </View>
       <NavigationFooter />

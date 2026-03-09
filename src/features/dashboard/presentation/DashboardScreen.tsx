@@ -383,13 +383,11 @@ function getStatusColors(status: string): {
 
 export function DashboardScreen() {
   const router = useRouter();
-  const { session, logout } = useAuth();
+  const { session } = useAuth();
   const isUsingDemoData = dataSource.useDemoData;
 
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
   const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
-  const [isProfileSheetVisible, setIsProfileSheetVisible] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<string | null>(null);
 
   const {
     data: recipes = [],
@@ -637,25 +635,9 @@ export function DashboardScreen() {
   );
 
   const handleOpenProfilePanel = useCallback(() => {
-    setProfileMessage(null);
     setIsMoreSheetVisible(false);
-    setIsProfileSheetVisible(true);
-  }, []);
-
-  const handleCloseProfilePanel = useCallback(() => {
-    setProfileMessage(null);
-    setIsProfileSheetVisible(false);
-  }, []);
-
-  const handleLogout = useCallback(async () => {
-    await logout();
-    setIsProfileSheetVisible(false);
-    router.replace("/(auth)/login");
-  }, [logout, router]);
-
-  const handleOpenSettings = useCallback(() => {
-    setProfileMessage("Les paramètres globaux arrivent bientôt.");
-  }, []);
+    router.push("/(app)/profile");
+  }, [router]);
 
   const handleMoreItemPress = useCallback(
     (item: MoreSectionItem) => {
@@ -1074,79 +1056,6 @@ export function DashboardScreen() {
           </View>
         </View>
       </Modal>
-
-      <Modal
-        transparent
-        animationType="fade"
-        visible={isProfileSheetVisible}
-        onRequestClose={handleCloseProfilePanel}
-      >
-        <View style={styles.modalRoot}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Fermer le profil"
-            accessibilityHint="Touchez l’arrière-plan pour fermer le panneau profil."
-            onPress={handleCloseProfilePanel}
-            style={styles.modalOverlay}
-          />
-          <View style={styles.profileSheet}>
-            <Text style={styles.sheetTitle}>Profil</Text>
-            <Text style={styles.profileName}>{displayName}</Text>
-            <Text style={styles.profileEmail}>{session?.user.email}</Text>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Ouvrir les paramètres globaux"
-              onPress={handleOpenSettings}
-              style={({ pressed }) => [
-                styles.profileAction,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons
-                name="settings-outline"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.profileActionText}>Paramètres globaux</Text>
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Se déconnecter"
-              onPress={handleLogout}
-              style={({ pressed }) => [
-                styles.profileAction,
-                styles.profileLogoutAction,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons
-                name="log-out-outline"
-                size={18}
-                color={colors.semantic.error}
-              />
-              <Text style={styles.profileLogoutText}>Se déconnecter</Text>
-            </Pressable>
-
-            {profileMessage ? (
-              <Text style={styles.profileMessage}>{profileMessage}</Text>
-            ) : null}
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Fermer le panneau profil"
-              onPress={handleCloseProfilePanel}
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={styles.closeButtonText}>Fermer</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </Screen>
   );
 }
@@ -1487,60 +1396,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.label,
     color: colors.neutral.textPrimary,
-  },
-  profileSheet: {
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    backgroundColor: colors.neutral.white,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    gap: spacing.sm,
-  },
-  profileName: {
-    fontSize: typography.size.body,
-    fontWeight: typography.weight.bold,
-    color: colors.neutral.textPrimary,
-  },
-  profileEmail: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
-  },
-  profileAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-  },
-  profileActionText: {
-    fontSize: typography.size.label,
-    color: colors.neutral.textPrimary,
-  },
-  profileLogoutAction: {
-    borderColor: colors.semantic.error + "40",
-    backgroundColor: colors.state.errorBackground,
-  },
-  profileLogoutText: {
-    fontSize: typography.size.label,
-    color: colors.semantic.error,
-    fontWeight: typography.weight.medium,
-  },
-  profileMessage: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
-  },
-  closeButton: {
-    alignSelf: "flex-end",
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xxs,
-  },
-  closeButtonText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
   },
   pressed: {
     opacity: 0.85,

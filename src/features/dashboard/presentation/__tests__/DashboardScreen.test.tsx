@@ -1,17 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { DashboardScreen } from "@/features/dashboard/presentation/DashboardScreen";
 import React from "react";
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
-const mockLogout = jest.fn().mockResolvedValue(undefined);
 
 jest.mock("@expo/vector-icons", () => {
   return {
@@ -42,7 +36,6 @@ jest.mock("@/core/auth/auth-context", () => ({
         updatedAt: "2026-01-01T00:00:00.000Z",
       },
     },
-    logout: mockLogout,
   }),
 }));
 
@@ -107,7 +100,6 @@ describe("DashboardScreen", () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockReplace.mockClear();
-    mockLogout.mockClear();
   });
 
   it("renders the new dashboard sections and interactions", async () => {
@@ -136,11 +128,6 @@ describe("DashboardScreen", () => {
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
 
     fireEvent.press(screen.getByLabelText("Ouvrir le profil"));
-    expect(screen.getByText("Paramètres globaux")).toBeTruthy();
-
-    fireEvent.press(screen.getByLabelText("Se déconnecter"));
-    await waitFor(() => {
-      expect(mockLogout).toHaveBeenCalledTimes(1);
-    });
+    expect(mockPush).toHaveBeenCalledWith("/(app)/profile");
   });
 });

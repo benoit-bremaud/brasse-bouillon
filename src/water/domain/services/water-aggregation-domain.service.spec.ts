@@ -150,17 +150,17 @@ describe('WaterAggregationDomainService', () => {
       maxSamples: 10,
       samples: [
         {
-          parameterLabel: 'Magnésium',
+          parameterLabel: 'Magnesium',
           numericResult: 9,
           conformity: 'C',
         },
         {
-          parameterLabel: 'Chlorures',
+          parameterLabel: 'Chlorides',
           numericResult: 17,
           conformity: 'C',
         },
         {
-          parameterLabel: 'Bicarbonates totaux',
+          parameterLabel: 'Total bicarbonates',
           numericResult: 122,
           conformity: 'C',
         },

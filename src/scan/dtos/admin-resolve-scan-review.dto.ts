@@ -85,25 +85,21 @@ export class AdminResolveScanReviewDto {
   notes_source?: string;
 
   @ApiPropertyOptional({ example: false, default: false })
-  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   is_abv_estimated?: boolean;
 
   @ApiPropertyOptional({ example: false, default: false })
-  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   is_ibu_estimated?: boolean;
 
   @ApiPropertyOptional({ example: false, default: false })
-  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   is_color_ebc_estimated?: boolean;
 
   @ApiPropertyOptional({ example: false, default: false })
-  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   is_style_estimated?: boolean;

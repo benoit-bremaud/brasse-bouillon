@@ -5,25 +5,25 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 
-import { ScanDomainService } from '../domain/services/scan-domain.service';
 import { ScanImageFace } from '../domain/enums/scan-image-face.enum';
 import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
 import { ScanReviewStatus } from '../domain/enums/scan-review-status.enum';
-import { ScanRequestOrmEntity } from '../entities/scan-request.orm.entity';
+import { ScanDomainService } from '../domain/services/scan-domain.service';
+import { AdminMarkScanReviewNotFoundDto } from '../dtos/admin-mark-scan-review-not-found.dto';
+import { AdminResolveScanReviewDto } from '../dtos/admin-resolve-scan-review.dto';
+import { ScanCatalogItemDto } from '../dtos/scan-catalog-item.dto';
+import { ScanLabelImageDto } from '../dtos/scan-label-image.dto';
+import { ScanRequestDto } from '../dtos/scan-request.dto';
+import { ScanReviewQueueDto } from '../dtos/scan-review-queue.dto';
+import { SubmitScanBarcodeDto } from '../dtos/submit-scan-barcode.dto';
 import { ScanCatalogItemOrmEntity } from '../entities/scan-catalog-item.orm.entity';
 import { ScanLabelImageOrmEntity } from '../entities/scan-label-image.orm.entity';
+import { ScanRequestOrmEntity } from '../entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../entities/scan-review-queue.orm.entity';
-import { SubmitScanBarcodeDto } from '../dtos/submit-scan-barcode.dto';
-import { ScanRequestDto } from '../dtos/scan-request.dto';
-import { ScanCatalogItemDto } from '../dtos/scan-catalog-item.dto';
-import { ScanReviewQueueDto } from '../dtos/scan-review-queue.dto';
-import { ScanLabelImageDto } from '../dtos/scan-label-image.dto';
-import { ScanStorageService } from './scan-storage.service';
-import { AdminResolveScanReviewDto } from '../dtos/admin-resolve-scan-review.dto';
-import { AdminMarkScanReviewNotFoundDto } from '../dtos/admin-mark-scan-review-not-found.dto';
 import { UploadedImageFile } from '../scan.types';
+import { ScanStorageService } from './scan-storage.service';
 
 @Injectable()
 export class ScanService {
@@ -58,9 +58,10 @@ export class ScanService {
       }),
     );
 
-    const existingByIdempotency = await this.scanRequestRepository.findOne({
-      where: { owner_id: ownerId, idempotency_key: idempotencyKey },
-    });
+    const existingByIdempotency = await this.findByIdempotency(
+      ownerId,
+      idempotencyKey,
+    );
 
     if (existingByIdempotency) {
       return this.deserializeIdempotencyResponse(existingByIdempotency);
@@ -97,7 +98,22 @@ export class ScanService {
 
     scanRequest.idempotency_response = JSON.stringify(initialResponse);
 
-    await this.scanRequestRepository.save(scanRequest);
+    try {
+      await this.scanRequestRepository.save(scanRequest);
+    } catch (error) {
+      if (this.isUniqueIdempotencyConstraintError(error)) {
+        const persistedByIdempotency = await this.findByIdempotency(
+          ownerId,
+          idempotencyKey,
+        );
+
+        if (persistedByIdempotency) {
+          return this.deserializeIdempotencyResponse(persistedByIdempotency);
+        }
+      }
+
+      throw error;
+    }
 
     return initialResponse;
   }
@@ -337,6 +353,7 @@ export class ScanService {
     }
 
     scanRequest.status = ScanRequestStatus.NOT_FOUND;
+    scanRequest.catalog_item_id = null;
     await this.scanRequestRepository.save(scanRequest);
 
     reviewQueue.status = ScanReviewStatus.NOT_FOUND;
@@ -360,6 +377,36 @@ export class ScanService {
         images: [],
       });
     }
+  }
+
+  private async findByIdempotency(
+    ownerId: string,
+    idempotencyKey: string,
+  ): Promise<ScanRequestOrmEntity | null> {
+    return this.scanRequestRepository.findOne({
+      where: { owner_id: ownerId, idempotency_key: idempotencyKey },
+    });
+  }
+
+  private isUniqueIdempotencyConstraintError(error: unknown): boolean {
+    if (!(error instanceof QueryFailedError)) {
+      return false;
+    }
+
+    const driverError = error.driverError as {
+      code?: string;
+      message?: string;
+      errno?: number;
+    };
+
+    const message = (driverError.message ?? '').toLowerCase();
+
+    return (
+      driverError.code === 'SQLITE_CONSTRAINT' ||
+      driverError.errno === 19 ||
+      message.includes('uq_scan_requests_owner_idempotency_key') ||
+      message.includes('scan_requests.owner_id, scan_requests.idempotency_key')
+    );
   }
 
   private parseFaceOrThrow(faceRaw: string): ScanImageFace {

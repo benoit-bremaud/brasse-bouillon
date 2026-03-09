@@ -1,8 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString, Matches } from 'class-validator';
 
-import { Type } from 'class-transformer';
-
 export class SubmitScanBarcodeDto {
   @ApiProperty({
     example: '3271234567890',
@@ -17,7 +15,6 @@ export class SubmitScanBarcodeDto {
     description:
       'Explicit user opt-in for using label images in future AI training dataset',
   })
-  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   consent_ai_training?: boolean;

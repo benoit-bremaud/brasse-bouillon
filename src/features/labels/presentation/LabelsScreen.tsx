@@ -34,58 +34,91 @@ interface LabelInspirationExample {
   abvLabel: string;
 }
 
-const LABEL_EXAMPLES: LabelInspirationExample[] = [
-  {
-    id: "example-1",
-    title: "Hoppy Dawn",
-    subtitle: "Session IPA",
-    paletteId: "sunset_amber",
-    iconId: "hop",
-    bottleFormatLabel: "33cl Long Neck",
-    templateLabel: "Template Héritage",
-    abvLabel: "ABV 5.2%",
-  },
-  {
-    id: "example-2",
-    title: "Velvet Night",
-    subtitle: "Imperial Stout",
-    paletteId: "midnight_stout",
-    iconId: "barley",
-    bottleFormatLabel: "44cl Canette",
-    templateLabel: "Template Brut",
-    abvLabel: "ABV 8.5%",
-  },
-  {
-    id: "example-3",
-    title: "Golden Whisper",
-    subtitle: "Belgian Tripel",
-    paletteId: "sunset_amber",
-    iconId: "flask",
-    bottleFormatLabel: "75cl Champenoise",
-    templateLabel: "Template Moderne",
-    abvLabel: "ABV 8.0%",
-  },
-  {
-    id: "example-4",
-    title: "Citrus Bloom",
-    subtitle: "New England IPA",
-    paletteId: "hop_garden",
-    iconId: "hop",
-    bottleFormatLabel: "44cl Canette",
-    templateLabel: "Template Moderne",
-    abvLabel: "ABV 6.4%",
-  },
-  {
-    id: "example-5",
-    title: "Alpine Spark",
-    subtitle: "German Pils",
-    paletteId: "hop_garden",
-    iconId: "barley",
-    bottleFormatLabel: "33cl Long Neck",
-    templateLabel: "Template Héritage",
-    abvLabel: "ABV 4.8%",
-  },
+type LabelInspirationSeed = readonly [
+  string,
+  string,
+  string,
+  LabelPaletteId,
+  LabelIconId,
+  string,
+  string,
+  string,
 ];
+
+const LABEL_EXAMPLE_SEEDS: LabelInspirationSeed[] = [
+  [
+    "example-1",
+    "Hoppy Dawn",
+    "Session IPA",
+    "sunset_amber",
+    "hop",
+    "33cl Long Neck",
+    "Template Héritage",
+    "ABV 5.2%",
+  ],
+  [
+    "example-2",
+    "Velvet Night",
+    "Imperial Stout",
+    "midnight_stout",
+    "barley",
+    "44cl Canette",
+    "Template Brut",
+    "ABV 8.5%",
+  ],
+  [
+    "example-3",
+    "Golden Whisper",
+    "Belgian Tripel",
+    "sunset_amber",
+    "flask",
+    "75cl Champenoise",
+    "Template Moderne",
+    "ABV 8.0%",
+  ],
+  [
+    "example-4",
+    "Citrus Bloom",
+    "New England IPA",
+    "hop_garden",
+    "hop",
+    "44cl Canette",
+    "Template Moderne",
+    "ABV 6.4%",
+  ],
+  [
+    "example-5",
+    "Alpine Spark",
+    "German Pils",
+    "hop_garden",
+    "barley",
+    "33cl Long Neck",
+    "Template Héritage",
+    "ABV 4.8%",
+  ],
+];
+
+const LABEL_EXAMPLES: LabelInspirationExample[] = LABEL_EXAMPLE_SEEDS.map(
+  ([
+    id,
+    title,
+    subtitle,
+    paletteId,
+    iconId,
+    bottleFormatLabel,
+    templateLabel,
+    abvLabel,
+  ]) => ({
+    id,
+    title,
+    subtitle,
+    paletteId,
+    iconId,
+    bottleFormatLabel,
+    templateLabel,
+    abvLabel,
+  }),
+);
 
 const LABEL_SELECT_BATCH_ROUTE =
   "/(app)/dashboard/labels/create/select-batch" as const;

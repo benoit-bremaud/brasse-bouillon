@@ -62,12 +62,20 @@ type IngredientsMetric = {
   status: string;
 };
 
+type MoreSectionCategory = "business" | "account";
+
 type MoreSectionItem = {
   id: string;
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
   href?: Href;
   type: "route" | "profile";
+  category: MoreSectionCategory;
+};
+
+type MoreSectionConfig = {
+  title: string;
+  items: MoreSectionItem[];
 };
 
 type BrewStepConfig = {
@@ -112,6 +120,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "qr-code-outline",
     href: "/(app)/dashboard/scan",
     type: "route",
+    category: "business",
   },
   {
     id: "labels",
@@ -119,6 +128,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "pricetags-outline",
     href: "/(app)/dashboard/labels",
     type: "route",
+    category: "business",
   },
   {
     id: "equipment",
@@ -126,6 +136,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "construct-outline",
     href: "/(app)/equipment",
     type: "route",
+    category: "business",
   },
   {
     id: "explore",
@@ -133,6 +144,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "compass-outline",
     href: "/(app)/explore",
     type: "route",
+    category: "business",
   },
   {
     id: "academy",
@@ -140,6 +152,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "school-outline",
     href: "/(app)/academy",
     type: "route",
+    category: "business",
   },
   {
     id: "shop",
@@ -147,6 +160,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     icon: "cart-outline",
     href: "/(app)/shop",
     type: "route",
+    category: "business",
   },
 ];
 
@@ -156,14 +170,46 @@ const MORE_ACCOUNT_SECTIONS: MoreSectionItem[] = [
     label: "Profil",
     icon: "person-circle-outline",
     type: "profile",
+    category: "account",
   },
   {
     id: "settings",
     label: "Paramètres globaux",
     icon: "settings-outline",
     type: "profile",
+    category: "account",
   },
 ];
+
+const MORE_SECTION_CONFIGS: MoreSectionConfig[] = [
+  {
+    title: "Sections métier",
+    items: MORE_BUSINESS_SECTIONS,
+  },
+  {
+    title: "Compte",
+    items: MORE_ACCOUNT_SECTIONS,
+  },
+];
+
+function renderMoreSectionItem(
+  item: MoreSectionItem,
+  onPress: (item: MoreSectionItem) => void,
+) {
+  return (
+    <Pressable
+      key={`${item.category}-${item.id}`}
+      accessibilityRole="button"
+      accessibilityLabel={`Ouvrir ${item.label}`}
+      onPress={() => onPress(item)}
+      style={({ pressed }) => [styles.sheetItem, pressed && styles.pressed]}
+    >
+      <Ionicons name={item.icon} size={18} color={colors.brand.secondary} />
+      <Text style={styles.sheetItemLabel}>{item.label}</Text>
+      <Ionicons name="chevron-forward" size={16} color={colors.neutral.muted} />
+    </Pressable>
+  );
+}
 
 const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
   "En retard": 0,
@@ -1017,56 +1063,13 @@ export function DashboardScreen() {
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Voir plus</Text>
 
-            <Text style={styles.sheetSectionTitle}>Sections métier</Text>
-            {MORE_BUSINESS_SECTIONS.map((item) => (
-              <Pressable
-                key={item.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Ouvrir ${item.label}`}
-                onPress={() => handleMoreItemPress(item)}
-                style={({ pressed }) => [
-                  styles.sheetItem,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Ionicons
-                  name={item.icon}
-                  size={18}
-                  color={colors.brand.secondary}
-                />
-                <Text style={styles.sheetItemLabel}>{item.label}</Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={16}
-                  color={colors.neutral.muted}
-                />
-              </Pressable>
-            ))}
-
-            <Text style={styles.sheetSectionTitle}>Compte</Text>
-            {MORE_ACCOUNT_SECTIONS.map((item) => (
-              <Pressable
-                key={item.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Ouvrir ${item.label}`}
-                onPress={() => handleMoreItemPress(item)}
-                style={({ pressed }) => [
-                  styles.sheetItem,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Ionicons
-                  name={item.icon}
-                  size={18}
-                  color={colors.brand.secondary}
-                />
-                <Text style={styles.sheetItemLabel}>{item.label}</Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={16}
-                  color={colors.neutral.muted}
-                />
-              </Pressable>
+            {MORE_SECTION_CONFIGS.map((section) => (
+              <View key={section.title}>
+                <Text style={styles.sheetSectionTitle}>{section.title}</Text>
+                {section.items.map((item) =>
+                  renderMoreSectionItem(item, handleMoreItemPress),
+                )}
+              </View>
             ))}
           </View>
         </View>

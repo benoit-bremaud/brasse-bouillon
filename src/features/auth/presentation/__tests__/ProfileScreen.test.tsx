@@ -67,12 +67,37 @@ describe("ProfileScreen", () => {
     });
   });
 
-  it("calls logout action", async () => {
+  it("opens logout confirmation modal before logout", () => {
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getByLabelText("Se déconnecter"));
+
+    expect(mockLogout).not.toHaveBeenCalled();
+    expect(screen.getByText("Confirmer la déconnexion")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Voulez-vous vraiment vous déconnecter de l'application ?",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("closes logout confirmation modal when user cancels", () => {
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getByLabelText("Se déconnecter"));
+    fireEvent.press(screen.getByLabelText("Annuler la déconnexion"));
+
+    expect(mockLogout).not.toHaveBeenCalled();
+    expect(screen.queryByText("Confirmer la déconnexion")).toBeNull();
+  });
+
+  it("calls logout when user confirms in modal", async () => {
     mockLogout.mockResolvedValue(undefined);
 
     render(<ProfileScreen />);
 
     fireEvent.press(screen.getByLabelText("Se déconnecter"));
+    fireEvent.press(screen.getByLabelText("Confirmer la déconnexion"));
 
     await waitFor(() => {
       expect(mockLogout).toHaveBeenCalledTimes(1);

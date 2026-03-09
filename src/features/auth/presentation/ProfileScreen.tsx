@@ -1,6 +1,13 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -12,6 +19,7 @@ export function ProfileScreen() {
   const { session, refreshProfile, logout, isLoading } = useAuth();
   const [localError, setLocalError] = useState<string | null>(null);
   const [localInfo, setLocalInfo] = useState<string | null>(null);
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
   const displayName =
     session?.user.firstName || session?.user.username || "Brasseur";
@@ -37,6 +45,19 @@ export function ProfileScreen() {
     } catch (error) {
       setLocalError(getErrorMessage(error, "Impossible de se déconnecter"));
     }
+  };
+
+  const handleLogoutPress = () => {
+    setIsLogoutModalVisible(true);
+  };
+
+  const handleCancelLogout = () => {
+    setIsLogoutModalVisible(false);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLogoutModalVisible(false);
+    await handleLogout();
   };
 
   return (
@@ -95,7 +116,7 @@ export function ProfileScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Se déconnecter"
-          onPress={handleLogout}
+          onPress={handleLogoutPress}
           disabled={isLoading}
           style={({ pressed }) => [
             styles.secondaryAction,
@@ -106,6 +127,65 @@ export function ProfileScreen() {
           <Text style={styles.secondaryActionText}>Se déconnecter</Text>
         </Pressable>
       </ScrollView>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={isLogoutModalVisible}
+        onRequestClose={handleCancelLogout}
+      >
+        <View style={styles.modalRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Fermer la confirmation de déconnexion"
+            onPress={handleCancelLogout}
+            style={styles.modalOverlay}
+          />
+
+          <Card style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Confirmer la déconnexion</Text>
+            <Text style={styles.modalDescription}>
+              Voulez-vous vraiment vous déconnecter de l'application ?
+            </Text>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Annuler la déconnexion"
+                disabled={isLoading}
+                onPress={handleCancelLogout}
+                style={({ pressed }) => [
+                  styles.modalActionButton,
+                  styles.modalCancelButton,
+                  pressed && styles.pressed,
+                  isLoading && styles.disabled,
+                ]}
+              >
+                <Text style={styles.modalCancelButtonText}>Annuler</Text>
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Confirmer la déconnexion"
+                disabled={isLoading}
+                onPress={() => {
+                  void handleConfirmLogout();
+                }}
+                style={({ pressed }) => [
+                  styles.modalActionButton,
+                  styles.modalConfirmButton,
+                  pressed && styles.pressed,
+                  isLoading && styles.disabled,
+                ]}
+              >
+                <Text style={styles.modalConfirmButtonText}>
+                  Se déconnecter
+                </Text>
+              </Pressable>
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -198,6 +278,64 @@ const styles = StyleSheet.create({
     color: colors.semantic.error,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+  },
+  modalRoot: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.md,
+  },
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.neutral.black + "55",
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  modalDescription: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  modalActionButton: {
+    flex: 1,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  modalCancelButton: {
+    borderColor: colors.neutral.border,
+    backgroundColor: colors.neutral.white,
+  },
+  modalCancelButtonText: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  modalConfirmButton: {
+    borderColor: colors.semantic.error,
+    backgroundColor: colors.state.errorBackground,
+  },
+  modalConfirmButtonText: {
+    color: colors.semantic.error,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
     fontWeight: typography.weight.medium,
   },
   pressed: {

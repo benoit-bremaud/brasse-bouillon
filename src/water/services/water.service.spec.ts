@@ -1,14 +1,14 @@
 import { BadGatewayException, NotFoundException } from '@nestjs/common';
-import { EAU_CONFIG, WATER_PROVIDERS } from '../eau.constants';
 import { Test, TestingModule } from '@nestjs/testing';
+import { WATER_CONFIG, WATER_PROVIDERS } from '../water.constants';
 
-import type { EauConfig } from '../../config/eau.config';
-import { EauService } from './eau.service';
+import type { WaterConfig } from '../../config/water.config';
 import { WaterConformity } from '../domain/enums/water-conformity.enum';
 import { WaterProviderKey } from '../domain/enums/water-provider-key.enum';
 import type { WaterQualityProviderPort } from '../domain/ports/water-quality-provider.port';
+import { WaterService } from './water.service';
 
-const eauConfigFixture: EauConfig = {
+const waterConfigFixture: WaterConfig = {
   defaultProvider: WaterProviderKey.HUBEAU,
   hubeauBaseUrl: 'https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable',
   hubeauTimeoutMs: 8000,
@@ -18,9 +18,9 @@ const eauConfigFixture: EauConfig = {
   hubeauResultatsDisSize: 100,
 };
 
-describe('EauService', () => {
+describe('WaterService', () => {
   let module: TestingModule;
-  let service: EauService;
+  let service: WaterService;
 
   const findDominantNetworkByInsee = jest.fn();
   const getNetworkSamples = jest.fn();
@@ -37,10 +37,10 @@ describe('EauService', () => {
 
     module = await Test.createTestingModule({
       providers: [
-        EauService,
+        WaterService,
         {
-          provide: EAU_CONFIG,
-          useValue: eauConfigFixture,
+          provide: WATER_CONFIG,
+          useValue: waterConfigFixture,
         },
         {
           provide: WATER_PROVIDERS,
@@ -49,7 +49,7 @@ describe('EauService', () => {
       ],
     }).compile();
 
-    service = module.get(EauService);
+    service = module.get(WaterService);
   });
 
   afterEach(async () => {
@@ -70,7 +70,7 @@ describe('EauService', () => {
         conformity: 'C',
       },
       {
-        parameterLabel: 'Magnésium',
+        parameterLabel: 'Magnesium',
         numericResult: 8,
         conformity: 'C',
       },
@@ -78,7 +78,7 @@ describe('EauService', () => {
 
     const profile = await service.getWaterProfile({
       codeInsee: '44109',
-      annee: 2024,
+      year: 2024,
     });
 
     expect(findDominantNetworkByInsee).toHaveBeenCalledWith('44109');
@@ -90,9 +90,9 @@ describe('EauService', () => {
 
     expect(profile.provider).toBe(WaterProviderKey.HUBEAU);
     expect(profile.codeInsee).toBe('44109');
-    expect(profile.annee).toBe(2024);
-    expect(profile.nomReseau).toBe('NANTES SUD');
-    expect(profile.conformite).toBe(WaterConformity.C);
+    expect(profile.year).toBe(2024);
+    expect(profile.networkName).toBe('NANTES SUD');
+    expect(profile.conformity).toBe(WaterConformity.C);
   });
 
   it('should cache results for identical requests', async () => {
@@ -110,11 +110,11 @@ describe('EauService', () => {
 
     await service.getWaterProfile({
       codeInsee: '44109',
-      annee: 2024,
+      year: 2024,
     });
     await service.getWaterProfile({
       codeInsee: '44109',
-      annee: 2024,
+      year: 2024,
     });
 
     expect(findDominantNetworkByInsee).toHaveBeenCalledTimes(1);
@@ -125,7 +125,7 @@ describe('EauService', () => {
     findDominantNetworkByInsee.mockResolvedValue(null);
 
     await expect(
-      service.getWaterProfile({ codeInsee: '44109', annee: 2024 }),
+      service.getWaterProfile({ codeInsee: '44109', year: 2024 }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -137,7 +137,7 @@ describe('EauService', () => {
     getNetworkSamples.mockResolvedValue([]);
 
     await expect(
-      service.getWaterProfile({ codeInsee: '44109', annee: 2024 }),
+      service.getWaterProfile({ codeInsee: '44109', year: 2024 }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -145,7 +145,7 @@ describe('EauService', () => {
     await expect(
       service.getWaterProfile({
         codeInsee: '44109',
-        annee: 2024,
+        year: 2024,
         provider: 'unknown' as WaterProviderKey,
       }),
     ).rejects.toThrow(BadGatewayException);

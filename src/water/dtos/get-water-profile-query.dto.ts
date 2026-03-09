@@ -17,7 +17,7 @@ const MAX_ALLOWED_YEAR = new Date().getFullYear() + 1;
 export class GetWaterProfileQueryDto {
   @ApiProperty({
     example: '44109',
-    description: 'Code INSEE de la commune (5 chiffres)',
+    description: 'INSEE city code (5 digits)',
   })
   @IsString()
   @Matches(/^\d{5}$/)
@@ -25,17 +25,17 @@ export class GetWaterProfileQueryDto {
 
   @ApiProperty({
     example: 2024,
-    description: 'Année des analyses à agréger',
+    description: 'Year of analyses to aggregate',
   })
   @Type(() => Number)
   @IsInt()
   @Min(2000)
   @Max(MAX_ALLOWED_YEAR)
-  annee: number;
+  year: number;
 
   @ApiPropertyOptional({
     enum: WaterProviderKey,
-    description: 'Provider externe à utiliser',
+    description: 'External provider to use',
     default: WaterProviderKey.HUBEAU,
   })
   @IsOptional()

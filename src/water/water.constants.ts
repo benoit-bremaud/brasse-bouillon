@@ -1,2 +1,2 @@
 export const WATER_PROVIDERS = Symbol('WATER_PROVIDERS');
-export const EAU_CONFIG = Symbol('EAU_CONFIG');
+export const WATER_CONFIG = Symbol('WATER_CONFIG');

@@ -7,10 +7,10 @@ type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
 
 const PARAMETER_MAP: Record<string, MineralKey> = {
   Calcium: 'ca',
-  Magnésium: 'mg',
-  Chlorures: 'cl',
+  Magnesium: 'mg',
+  Chlorides: 'cl',
   Sulfates: 'so4',
-  'Bicarbonates totaux': 'hco3',
+  'Total bicarbonates': 'hco3',
 };
 
 interface AggregateBucket {
@@ -40,7 +40,7 @@ const normalizeConformity = (
   value: string | null | undefined,
 ): WaterConformity => {
   if (!value) {
-    return WaterConformity.INCONNU;
+    return WaterConformity.UNKNOWN;
   }
 
   const trimmed = value.trim().toUpperCase();
@@ -49,7 +49,7 @@ const normalizeConformity = (
   if (trimmed === 'D') return WaterConformity.D;
   if (trimmed === 'S') return WaterConformity.S;
 
-  return WaterConformity.INCONNU;
+  return WaterConformity.UNKNOWN;
 };
 
 const CONFORMITY_SEVERITY: Record<WaterConformity, number> = {
@@ -57,14 +57,14 @@ const CONFORMITY_SEVERITY: Record<WaterConformity, number> = {
   [WaterConformity.S]: 1,
   [WaterConformity.D]: 2,
   [WaterConformity.N]: 3,
-  [WaterConformity.INCONNU]: -1,
+  [WaterConformity.UNKNOWN]: -1,
 };
 
 export class WaterAggregationDomainService {
   aggregate(input: {
     provider: WaterProviderKey;
     codeInsee: string;
-    annee: number;
+    year: number;
     networkName: string | null;
     samples: WaterSample[];
     maxSamples: number;
@@ -92,23 +92,23 @@ export class WaterAggregationDomainService {
     const cl = this.computeAverage(aggregate.cl);
     const so4 = this.computeAverage(aggregate.so4);
     const hco3 = this.computeAverage(aggregate.hco3);
-    const conformite = this.resolveConformity(samples);
+    const conformity = this.resolveConformity(samples);
 
     return new WaterProfileEntity({
       provider: input.provider,
       codeInsee: input.codeInsee,
-      annee: input.annee,
-      nomReseau: input.networkName,
-      nbPrelevements: input.samples.length,
-      conformite,
-      minerauxMgL: {
+      year: input.year,
+      networkName: input.networkName,
+      sampleCount: input.samples.length,
+      conformity,
+      mineralsMgL: {
         ca,
         mg,
         cl,
         so4,
         hco3,
       },
-      dureteFrancais: this.computeHardnessFrench(ca, mg),
+      hardnessFrench: this.computeHardnessFrench(ca, mg),
     });
   }
 
@@ -138,7 +138,7 @@ export class WaterAggregationDomainService {
 
     for (const sample of samples) {
       const normalized = normalizeConformity(sample.conformity);
-      if (normalized === WaterConformity.INCONNU) {
+      if (normalized === WaterConformity.UNKNOWN) {
         continue;
       }
 
@@ -150,6 +150,6 @@ export class WaterAggregationDomainService {
       }
     }
 
-    return worst ?? WaterConformity.INCONNU;
+    return worst ?? WaterConformity.UNKNOWN;
   }
 }

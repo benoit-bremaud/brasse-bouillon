@@ -1,4 +1,4 @@
-import { WaterProviderKey } from '../eau/domain/enums/water-provider-key.enum';
+import { WaterProviderKey } from '../water/domain/enums/water-provider-key.enum';
 
 const DEFAULT_WATER_PROVIDER = WaterProviderKey.HUBEAU;
 const DEFAULT_HUBEAU_BASE_URL =
@@ -9,7 +9,7 @@ const DEFAULT_HUBEAU_MAX_SAMPLES = 50;
 const DEFAULT_HUBEAU_COMMUNES_UDI_SIZE = 10;
 const DEFAULT_HUBEAU_RESULTATS_DIS_SIZE = 100;
 
-export interface EauConfig {
+export interface WaterConfig {
   readonly defaultProvider: WaterProviderKey;
   readonly hubeauBaseUrl: string;
   readonly hubeauTimeoutMs: number;
@@ -51,7 +51,7 @@ const parseProvider = (
     : fallback;
 };
 
-export const eauConfig = (): EauConfig => ({
+export const waterConfig = (): WaterConfig => ({
   defaultProvider: parseProvider(
     process.env.WATER_PROVIDER_DEFAULT,
     DEFAULT_WATER_PROVIDER,

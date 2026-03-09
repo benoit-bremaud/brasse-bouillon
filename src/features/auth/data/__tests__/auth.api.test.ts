@@ -4,8 +4,12 @@ import { HttpError } from "@/core/http/http-error";
 
 const mockRequest = jest.fn();
 
-const createTestCredential = () =>
-  `${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+let credentialSequence = 0;
+
+const createTestCredential = () => {
+  credentialSequence += 1;
+  return `credential-${credentialSequence}`;
+};
 
 jest.mock("@/core/http/http-client", () => ({
   request: (...args: unknown[]) => mockRequest(...args),

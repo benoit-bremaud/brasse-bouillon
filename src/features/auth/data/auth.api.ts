@@ -18,17 +18,7 @@ type AuthUserDto = {
 type AuthResponse = {
   access_token?: string;
   token?: string;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    first_name?: string;
-    last_name?: string;
-    role: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-  };
+  user: AuthUserDto;
 };
 
 export type SignupInput = {
@@ -38,6 +28,8 @@ export type SignupInput = {
   firstName?: string;
   lastName?: string;
 };
+
+const CURRENT_USER_ENDPOINTS = ["/auth/me", "/users/me"] as const;
 
 function mapUser(dto: AuthUserDto): User {
   return {
@@ -89,7 +81,7 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
   };
 
   try {
-    const data = await request<AuthResponse>("/auth/signup", {
+    const data = await request<AuthResponse>("/auth/register", {
       method: "POST",
       body,
       auth: false,
@@ -98,7 +90,7 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
     return mapAuthSession(data);
   } catch (error) {
     if (error instanceof HttpError && error.status === 404) {
-      const data = await request<AuthResponse>("/auth/register", {
+      const data = await request<AuthResponse>("/auth/signup", {
         method: "POST",
         body,
         auth: false,
@@ -131,4 +123,28 @@ export async function requestPasswordReset(email: string): Promise<void> {
 
     throw error;
   }
+}
+
+export async function getCurrentUser(): Promise<User> {
+  let lastNotFoundError: HttpError | null = null;
+
+  for (const endpoint of CURRENT_USER_ENDPOINTS) {
+    try {
+      const data = await request<AuthUserDto>(endpoint);
+      return mapUser(data);
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 404) {
+        lastNotFoundError = error;
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  if (lastNotFoundError) {
+    throw lastNotFoundError;
+  }
+
+  throw new Error("Unable to load current user profile.");
 }

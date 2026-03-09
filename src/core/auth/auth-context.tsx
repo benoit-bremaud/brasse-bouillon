@@ -1,5 +1,7 @@
+import { HttpError, getErrorMessage } from "@/core/http/http-error";
 import {
   SignupInput,
+  getCurrentUser,
   login,
   requestPasswordReset,
   signup,
@@ -14,7 +16,6 @@ import React, {
 
 import { authSession } from "@/core/auth/session";
 import { dataSource } from "@/core/data/data-source";
-import { getErrorMessage } from "@/core/http/http-error";
 import { AuthSession } from "@/features/auth/domain/auth.types";
 import { demoUsers } from "@/mocks/demo-data";
 
@@ -25,6 +26,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   signup: (input: SignupInput) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   loginWithDemoAccount: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -68,19 +70,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (dataSource.useDemoData && token === DEMO_ACCESS_TOKEN) {
             setSession(createDemoSession());
           } else {
-            const now = new Date().toISOString();
-            setSession({
-              accessToken: token,
-              user: {
-                id: "cached",
-                email: "cached@local",
-                username: "cached",
-                role: "user",
-                isActive: true,
-                createdAt: now,
-                updatedAt: now,
-              },
-            });
+            try {
+              const currentUser = await getCurrentUser();
+              setSession({
+                accessToken: token,
+                user: currentUser,
+              });
+            } catch (error) {
+              if (error instanceof HttpError && error.status === 401) {
+                await authSession.clear();
+                setSession(null);
+              } else {
+                throw error;
+              }
+            }
           }
         }
       } catch (err) {
@@ -140,6 +143,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleRefreshProfile = async () => {
+    if (!session?.accessToken) {
+      return;
+    }
+
+    if (dataSource.useDemoData && session.accessToken === DEMO_ACCESS_TOKEN) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const currentUser = await getCurrentUser();
+      setSession({
+        accessToken: session.accessToken,
+        user: currentUser,
+      });
+    } catch (err) {
+      if (err instanceof HttpError && err.status === 401) {
+        await authSession.clear();
+        setSession(null);
+      }
+
+      const message = getErrorMessage(err, "Failed to refresh profile");
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleDemoLogin = async () => {
     setIsLoading(true);
     setError(null);
@@ -175,10 +209,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login: handleLogin,
       signup: handleSignup,
       requestPasswordReset: handleRequestPasswordReset,
+      refreshProfile: handleRefreshProfile,
       loginWithDemoAccount: handleDemoLogin,
       logout: handleLogout,
     }),
-    [session, isLoading, error, isBootstrapped],
+    [
+      session,
+      isLoading,
+      error,
+      isBootstrapped,
+      handleRefreshProfile,
+      handleRequestPasswordReset,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

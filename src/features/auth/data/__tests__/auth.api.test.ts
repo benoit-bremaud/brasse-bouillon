@@ -4,6 +4,9 @@ import { HttpError } from "@/core/http/http-error";
 
 const mockRequest = jest.fn();
 
+const createTestCredential = () =>
+  `${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+
 jest.mock("@/core/http/http-client", () => ({
   request: (...args: unknown[]) => mockRequest(...args),
 }));
@@ -14,6 +17,8 @@ describe("auth.api", () => {
   });
 
   it("registers with /auth/register first", async () => {
+    const credential = createTestCredential();
+
     mockRequest.mockResolvedValue({
       access_token: "access-token",
       user: {
@@ -31,7 +36,7 @@ describe("auth.api", () => {
 
     const session = await signup({
       email: "new-user@example.com",
-      password: "strong-password",
+      password: credential,
       username: "new-user",
       firstName: "New",
       lastName: "User",
@@ -41,7 +46,7 @@ describe("auth.api", () => {
       method: "POST",
       body: {
         email: "new-user@example.com",
-        password: "strong-password",
+        password: credential,
         username: "new-user",
         first_name: "New",
         last_name: "User",
@@ -59,6 +64,8 @@ describe("auth.api", () => {
   });
 
   it("falls back to /auth/signup when /auth/register is not found", async () => {
+    const credential = createTestCredential();
+
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
       .mockResolvedValueOnce({
@@ -76,7 +83,7 @@ describe("auth.api", () => {
 
     const session = await signup({
       email: "fallback-user@example.com",
-      password: "strong-password",
+      password: credential,
       username: "fallback-user",
     });
 

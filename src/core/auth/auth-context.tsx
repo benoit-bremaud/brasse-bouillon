@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleRefreshProfile = async () => {
-    if (!session || !session.accessToken) {
+    if (!session?.accessToken) {
       return;
     }
 

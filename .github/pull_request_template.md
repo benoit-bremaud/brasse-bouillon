@@ -10,16 +10,16 @@
 ## Review Governance (Required)
 
 ### CI / Checks
-- [ ] Tous les checks requis sont au vert (`gh pr checks <pr_number>`)
-- [ ] Aucune exécution requise en `pending` / `in_progress`
+- [ ] All required checks are green (`gh pr checks <pr_number>`)
+- [ ] No required check run is left in `pending` / `in_progress`
 
 ### Copilot comments / conversations
-- [ ] Tous les commentaires Copilot ont été lus et classés (`MUST_HAVE` / `SHOULD_HAVE` / `NICE_TO_HAVE` / `REJECT`)
-- [ ] Chaque commentaire a une réponse explicite (décision + justification)
-- [ ] Toutes les suggestions `MUST_HAVE` pertinentes ont été implémentées
-- [ ] Pour chaque `SHOULD_HAVE`/`NICE_TO_HAVE`, une question utilisateur a été posée **une par une** pour création éventuelle d'issue backlog
-- [ ] Pour chaque `SHOULD_HAVE`/`NICE_TO_HAVE`, la décision backlog est tracée (issue créée avec titre `type(scope): description` ou refus explicite)
-- [ ] Toutes les conversations traitées sont clôturées
+- [ ] All Copilot comments were read and classified (`MUST_HAVE` / `SHOULD_HAVE` / `NICE_TO_HAVE` / `REJECT`)
+- [ ] Every comment has an explicit reply (decision + rationale)
+- [ ] All relevant `MUST_HAVE` suggestions were implemented
+- [ ] For every `SHOULD_HAVE`/`NICE_TO_HAVE`, a user question was asked **one by one** about creating a backlog issue
+- [ ] For every `SHOULD_HAVE`/`NICE_TO_HAVE`, the backlog decision is tracked (issue created with title `type(scope): description` or explicit rejection)
+- [ ] All processed conversations are closed
 
 ## Notes
 - 

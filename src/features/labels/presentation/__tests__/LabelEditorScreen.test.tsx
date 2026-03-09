@@ -9,8 +9,8 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 
-import { LabelDraft } from "@/features/labels/domain/label.types";
 import { LabelEditorScreen } from "@/features/labels/presentation/LabelEditorScreen";
+import { buildLabelDraft } from "@/features/labels/test-utils/label-test-fixtures";
 import React from "react";
 
 const mockPush = jest.fn();
@@ -45,44 +45,6 @@ const mockedUpdateLabelDraft = updateLabelDraft as jest.MockedFunction<
   typeof updateLabelDraft
 >;
 
-function buildDraft(overrides: Partial<LabelDraft> = {}): LabelDraft {
-  return {
-    id: "draft-1",
-    batchId: "batch-1",
-    bottleFormat: "33cl_long_neck",
-    templateId: "template_1",
-    editableFields: {
-      name: "Saison",
-      subtitle: "Ferme",
-      paletteId: "sunset_amber",
-      iconId: "hop",
-    },
-    autofillFields: {
-      beerName: "Saison",
-      style: "Ferme",
-      abv: 6.2,
-      volumeLiters: 0.33,
-      breweryName: "Brasse Bouillon",
-      brewDateIso: "2026-02-10T00:00:00.000Z",
-    },
-    previewSnapshot: {
-      title: "Saison",
-      subtitle: "Ferme",
-      bottleFormatLabel: "33cl Long Neck",
-      templateLabel: "Template Héritage",
-      abvLabel: "ABV 6.2%",
-      volumeLabel: "33 cl",
-      breweryLabel: "Brasse Bouillon",
-      brewDateLabel: "2026-02-10",
-      legalHint:
-        "L’abus d’alcool est dangereux pour la santé, à consommer avec modération.",
-    },
-    updatedAt: "2026-02-11T00:00:00.000Z",
-    status: "draft",
-    ...overrides,
-  };
-}
-
 describe("LabelEditorScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
@@ -92,8 +54,8 @@ describe("LabelEditorScreen", () => {
   });
 
   it("loads, updates and opens details view", async () => {
-    const initialDraft = buildDraft();
-    const updatedDraft = buildDraft({
+    const initialDraft = buildLabelDraft();
+    const updatedDraft = buildLabelDraft({
       editableFields: {
         ...initialDraft.editableFields,
         name: "Saison révisée",
@@ -136,7 +98,7 @@ describe("LabelEditorScreen", () => {
   });
 
   it("routes back to labels home from header action", async () => {
-    mockedGetLabelDraftById.mockResolvedValue(buildDraft());
+    mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
 
     render(<LabelEditorScreen draftIdParam="draft-1" />);
 

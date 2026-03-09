@@ -15,6 +15,9 @@ const ASYNC_STORAGE_UNAVAILABLE_PATTERNS = [
 const inMemoryStorage = new Map<string, string>();
 let useInMemoryFallbackStorage = false;
 
+type MemoryOperation<T> = () => T;
+type AsyncStorageOperation<T> = () => Promise<T>;
+
 function isAsyncStorageUnavailableError(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return false;
@@ -29,59 +32,53 @@ function enableInMemoryFallbackStorage(): void {
   useInMemoryFallbackStorage = true;
 }
 
-async function safeGetItem(key: string): Promise<string | null> {
+async function runWithStorageFallback<T>(
+  runAsyncStorage: AsyncStorageOperation<T>,
+  runInMemoryStorage: MemoryOperation<T>,
+): Promise<T> {
   if (useInMemoryFallbackStorage) {
-    return inMemoryStorage.get(key) ?? null;
+    return runInMemoryStorage();
   }
 
   try {
-    return await AsyncStorage.getItem(key);
+    return await runAsyncStorage();
   } catch (error) {
-    if (isAsyncStorageUnavailableError(error)) {
-      enableInMemoryFallbackStorage();
-      return inMemoryStorage.get(key) ?? null;
+    if (!isAsyncStorageUnavailableError(error)) {
+      throw error;
     }
 
-    throw error;
+    enableInMemoryFallbackStorage();
+    return runInMemoryStorage();
   }
+}
+
+async function safeGetItem(key: string): Promise<string | null> {
+  return runWithStorageFallback(
+    () => AsyncStorage.getItem(key),
+    () => inMemoryStorage.get(key) ?? null,
+  );
 }
 
 async function safeSetItem(key: string, value: string): Promise<void> {
-  if (useInMemoryFallbackStorage) {
-    inMemoryStorage.set(key, value);
-    return;
-  }
-
-  try {
-    await AsyncStorage.setItem(key, value);
-  } catch (error) {
-    if (isAsyncStorageUnavailableError(error)) {
-      enableInMemoryFallbackStorage();
+  await runWithStorageFallback(
+    async () => {
+      await AsyncStorage.setItem(key, value);
+    },
+    () => {
       inMemoryStorage.set(key, value);
-      return;
-    }
-
-    throw error;
-  }
+    },
+  );
 }
 
 async function safeRemoveItem(key: string): Promise<void> {
-  if (useInMemoryFallbackStorage) {
-    inMemoryStorage.delete(key);
-    return;
-  }
-
-  try {
-    await AsyncStorage.removeItem(key);
-  } catch (error) {
-    if (isAsyncStorageUnavailableError(error)) {
-      enableInMemoryFallbackStorage();
+  await runWithStorageFallback(
+    async () => {
+      await AsyncStorage.removeItem(key);
+    },
+    () => {
       inMemoryStorage.delete(key);
-      return;
-    }
-
-    throw error;
-  }
+    },
+  );
 }
 
 function parseJson<T>(value: string | null, fallback: T): T {

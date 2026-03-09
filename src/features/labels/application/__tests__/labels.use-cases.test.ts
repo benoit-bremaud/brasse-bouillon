@@ -9,7 +9,7 @@ import {
 
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { labelsStorage } from "@/features/labels/data/labels.repository";
-import { LabelDraft } from "@/features/labels/domain/label.types";
+import { buildLabelDraft } from "@/features/labels/test-utils/label-test-fixtures";
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
@@ -37,44 +37,6 @@ const mockedListRecipes = listRecipes as jest.MockedFunction<
   typeof listRecipes
 >;
 const mockedLabelsStorage = labelsStorage as jest.Mocked<typeof labelsStorage>;
-
-function buildDraft(overrides: Partial<LabelDraft> = {}): LabelDraft {
-  return {
-    id: "draft-1",
-    batchId: "batch-1",
-    bottleFormat: "33cl_long_neck",
-    templateId: "template_1",
-    editableFields: {
-      name: "Session IPA",
-      subtitle: "Hoppy",
-      paletteId: "sunset_amber",
-      iconId: "hop",
-    },
-    autofillFields: {
-      beerName: "Session IPA",
-      style: "IPA",
-      abv: 5.2,
-      volumeLiters: 0.33,
-      breweryName: "Brasse Bouillon",
-      brewDateIso: "2026-02-01T00:00:00.000Z",
-    },
-    previewSnapshot: {
-      title: "Session IPA",
-      subtitle: "Hoppy",
-      bottleFormatLabel: "33cl Long Neck",
-      templateLabel: "Template Héritage",
-      abvLabel: "ABV 5.2%",
-      volumeLabel: "33 cl",
-      breweryLabel: "Brasse Bouillon",
-      brewDateLabel: "2026-02-01",
-      legalHint:
-        "L’abus d’alcool est dangereux pour la santé, à consommer avec modération.",
-    },
-    updatedAt: "2026-02-02T00:00:00.000Z",
-    status: "draft",
-    ...overrides,
-  };
-}
 
 describe("labels use-cases", () => {
   beforeEach(() => {
@@ -169,8 +131,11 @@ describe("labels use-cases", () => {
 
   it("sorts drafts by updated date descending", async () => {
     mockedLabelsStorage.listDrafts.mockResolvedValue([
-      buildDraft({ id: "draft-1", updatedAt: "2026-01-01T00:00:00.000Z" }),
-      buildDraft({ id: "draft-2", updatedAt: "2026-02-01T00:00:00.000Z" }),
+      buildLabelDraft({ id: "draft-1", updatedAt: "2026-01-01T00:00:00.000Z" }),
+      buildLabelDraft({
+        id: "draft-2",
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      }),
     ]);
 
     const drafts = await listLabelDrafts();
@@ -249,7 +214,7 @@ describe("labels use-cases", () => {
 
   it("updates and persists an existing draft", async () => {
     mockedLabelsStorage.getDraftById.mockResolvedValue(
-      buildDraft({
+      buildLabelDraft({
         id: "draft-1",
         bottleFormat: "33cl_long_neck",
         templateId: "template_1",

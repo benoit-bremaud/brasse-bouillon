@@ -31,6 +31,24 @@ function getBatchStatusLabel(status: LabelBatchCandidate["status"]): string {
   return status === "completed" ? "Terminé" : "En cours";
 }
 
+export function resolveSelectedBatchId(
+  currentSelection: string | null,
+  nextCandidates: LabelBatchCandidate[],
+): string | null {
+  if (nextCandidates.length === 0) {
+    return null;
+  }
+
+  if (
+    currentSelection &&
+    nextCandidates.some((candidate) => candidate.batchId === currentSelection)
+  ) {
+    return currentSelection;
+  }
+
+  return nextCandidates[0]?.batchId ?? null;
+}
+
 export function LabelSelectBatchScreen() {
   const router = useRouter();
   const [candidates, setCandidates] = useState<LabelBatchCandidate[]>([]);
@@ -52,13 +70,9 @@ export function LabelSelectBatchScreen() {
     try {
       const nextCandidates = await listLabelBatchCandidates();
       setCandidates(nextCandidates);
-      setSelectedBatchId((currentSelection) => {
-        if (currentSelection) {
-          return currentSelection;
-        }
-
-        return nextCandidates[0]?.batchId ?? null;
-      });
+      setSelectedBatchId((currentSelection) =>
+        resolveSelectedBatchId(currentSelection, nextCandidates),
+      );
     } catch (loadError) {
       setError(getErrorMessage(loadError, "Unable to load available batches."));
     } finally {

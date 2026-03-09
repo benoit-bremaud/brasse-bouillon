@@ -125,6 +125,12 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Sections métier")).toBeTruthy();
     expect(screen.getByText("Compte")).toBeTruthy();
     expect(screen.getByText("Scanner")).toBeTruthy();
+    expect(screen.getByText("Mes étiquettes")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Ouvrir Mes étiquettes"));
+    expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels");
+
+    fireEvent.press(screen.getByLabelText("Voir plus de sections"));
 
     fireEvent.press(screen.getByLabelText("Ouvrir Scanner"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");

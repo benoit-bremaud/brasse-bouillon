@@ -1,4 +1,6 @@
+import { colors, radius, spacing, typography } from "@/core/theme";
 import { Href, useRouter } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -7,21 +9,19 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useCallback, useMemo, useState } from "react";
-import { colors, radius, spacing, typography } from "@/core/theme";
 
-import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { Card } from "@/core/ui/Card";
-import { Ionicons } from "@expo/vector-icons";
-import { Recipe } from "@/features/recipes/domain/recipe.types";
-import { Screen } from "@/core/ui/Screen";
-import { academyTopics } from "@/features/tools/data";
-import { dataSource } from "@/core/data/data-source";
-import { demoIngredients } from "@/mocks/demo-data";
-import { getErrorMessage } from "@/core/http/http-error";
-import { listBatches } from "@/features/batches/application/batches.use-cases";
-import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { useAuth } from "@/core/auth/auth-context";
+import { dataSource } from "@/core/data/data-source";
+import { getErrorMessage } from "@/core/http/http-error";
+import { Card } from "@/core/ui/Card";
+import { Screen } from "@/core/ui/Screen";
+import { listBatches } from "@/features/batches/application/batches.use-cases";
+import { BatchSummary } from "@/features/batches/domain/batch.types";
+import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
+import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { academyTopics } from "@/features/tools/data";
+import { demoIngredients } from "@/mocks/demo-data";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 
 // Time constants.
@@ -111,6 +111,13 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     label: "Scanner",
     icon: "qr-code-outline",
     href: "/(app)/dashboard/scan",
+    type: "route",
+  },
+  {
+    id: "labels",
+    label: "Mes étiquettes",
+    icon: "pricetags-outline",
+    href: "/(app)/dashboard/labels",
     type: "route",
   },
   {

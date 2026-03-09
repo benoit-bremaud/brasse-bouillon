@@ -31,7 +31,7 @@ export class TransformResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
-        // Détermine le message basé sur le HTTP status code
+        // Determine message based on the HTTP status code
         const messageMap: Record<number, string> = {
           200: 'Success',
           201: 'Resource created successfully',
@@ -40,7 +40,7 @@ export class TransformResponseInterceptor implements NestInterceptor {
 
         const message = messageMap[statusCode] || 'Operation successful';
 
-        // Retourne le DTO standardisé
+        // Return the standardized DTO
         return new ApiResponseDto(true, statusCode, message, data);
       }),
     );

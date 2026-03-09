@@ -1,83 +1,83 @@
-# Brasse-Bouillon Backend — Audit Technique
+# Brasse-Bouillon Backend — Technical Audit
 
-> **Date** : 2026-02-18  
-> **Commit audité** : `ca90768` (PR #30 merged)  
-> **Auditeur** : Cline AI (assistant)  
-> **Périmètre** : Repo `benoit-bremaud/brasse-bouillon-backend`
+> **Date**: 2026-02-18  
+> **Audited commit**: `ca90768` (PR #30 merged)  
+> **Auditor**: Cline AI (assistant)  
+> **Scope**: Repository `benoit-bremaud/brasse-bouillon-backend`
 
 ---
 
-## 1. Vue d'ensemble de l'architecture
+## 1. Architecture Overview
 
-### Stack technique
-| Élément | Version / Choix |
+### Technical Stack
+| Item | Version / Choice |
 |---|---|
 | Runtime | Node.js 20 (`>=20 <21`) |
 | Framework | NestJS 11 |
-| Langage | TypeScript 5.7 (strict) |
+| Language | TypeScript 5.7 (strict) |
 | ORM | TypeORM 0.3 |
 | DB (dev/test) | SQLite via `better-sqlite3` |
-| DB (prod cible) | PostgreSQL (pas encore migrée) |
+| DB (production target) | PostgreSQL (not migrated yet) |
 | Auth | JWT + Passport (`passport-jwt`) |
 | Validation | `class-validator` + `class-transformer` |
-| Documentation | Swagger/OpenAPI (`@nestjs/swagger`) |
-| Conteneurisation | Docker multi-stage (node:20-bookworm-slim) |
+| API docs | Swagger/OpenAPI (`@nestjs/swagger`) |
+| Containerization | Multi-stage Docker (`node:20-bookworm-slim`) |
 | CI | GitHub Actions |
 | CD | GHCR (GitHub Container Registry) |
-| Qualité code | Lint + tests + security audit en CI (SonarCloud planifié) |
+| Code quality | Lint + tests + security audit in CI (SonarCloud planned) |
 
-### Architecture par module
-Le projet suit une **Clean Architecture** par module feature :
+### Module-Based Architecture
+The project follows a **Clean Architecture** approach by feature module:
 
 ```
 src/
-  auth/          ← Auth JWT, guards, strategies, decorators
-  user/          ← Utilisateurs, profil, rôles, seed dev
-  equipment/     ← Profils d'équipement (CRUD owner-scoped)
-  recipe/        ← Recettes + étapes (ingrédients à implémenter)
-  batch/         ← Brassins, étapes, fermentation, rappels
-  database/      ← Config TypeORM + migrations
-  common/        ← Filtres, interceptors, DTOs communs, enums
-  config/        ← auth.config.ts, database.config.ts
+  auth/          <- JWT auth, guards, strategies, decorators
+  user/          <- Users, profile, roles, dev seeding
+  equipment/     <- Equipment profiles (owner-scoped CRUD)
+  recipe/        <- Recipes + steps (ingredients still to implement)
+  batch/         <- Batches, steps, fermentation, reminders
+  database/      <- TypeORM config + migrations
+  common/        <- Filters, interceptors, shared DTOs, enums
+  config/        <- auth.config.ts, database.config.ts
 ```
 
-Chaque module respecte (en grande partie) la structure :
+Each module mostly follows this structure:
 ```
 <module>/
-  controllers/   ← HTTP thin controllers
-  services/      ← Application services (use-case layer)
-  dtos/          ← DTOs HTTP validés (class-validator)
-  entities/      ← ORM entities (TypeORM, infrastructure)
+  controllers/   <- Thin HTTP controllers
+  services/      <- Application services (use-case layer)
+  dtos/          <- Validated HTTP DTOs (class-validator)
+  entities/      <- ORM entities (TypeORM, infrastructure)
   domain/
-    entities/    ← Domain entities (pure TS, zéro dépendance)
-    enums/       ← Domain enums
-    services/    ← Domain services (logique métier pure)
+    entities/    <- Domain entities (pure TypeScript, zero framework dependency)
+    enums/       <- Domain enums
+    services/    <- Domain services (pure business logic)
 ```
 
 ---
 
-## 2. État des modules
+## 2. Module Status
 
 ### 2.1 Auth (`/auth`)
-| Endpoint | Statut |
+| Endpoint | Status |
 |---|---|
-| `POST /auth/register` | ✅ Opérationnel |
-| `POST /auth/login` | ✅ Opérationnel |
-| `GET /auth/me` | ✅ Opérationnel (JWT protégé) |
+| `POST /auth/register` | ✅ Operational |
+| `POST /auth/login` | ✅ Operational |
+| `GET /auth/me` | ✅ Operational (JWT protected) |
 
-**Observations :**
-- Validation email/password via `class-validator` ✅
-- Pas de refresh token (out of scope MVP) ✅
-- Pas de rate limiting sur login (risque brute-force — **TODO V1**) ⚠️
-- Le champ `role` n'est pas inclus dans le JWT payload (seulement `sub: userId`). Le rôle est rechargé depuis la DB à chaque requête via `JwtStrategy.validate()` → OK mais N+1 potentiel.
+**Notes:**
+- Email/password validation with `class-validator` ✅
+- No refresh token (out of MVP scope) ✅
+- No login rate limiting yet (brute force risk — **TODO V1**) ⚠️
+- `role` is not embedded in JWT payload (`sub: userId` only). Role is reloaded from DB in `JwtStrategy.validate()` -> acceptable but potential N+1 cost.
 
 ### 2.2 Users (`/users`)
-| Endpoint | Statut |
+| Endpoint | Status |
 |---|---|
-| `POST /users` (register) | ✅ Opérationnel |
-| `GET /users/me` | ✅ Opérationnel |
-| `PATCH /users/me` | ✅ Opérationnel |
-| `POST /users/me/change-password` | ✅ Opérationnel |
+| `POST /users` (register) | ✅ Operational |
+| `GET /users/me` | ✅ Operational |
+| `PATCH /users/me` | ✅ Operational |
+| `POST /users/me/change-password` | ✅ Operational |
 | `GET /users/admin/list` | ✅ Admin only |
 | `GET /users/:id` | ✅ Ownership enforced |
 | `PUT /users/:id` | ✅ Ownership enforced |
@@ -85,101 +85,100 @@ Chaque module respecte (en grande partie) la structure :
 | `POST /users/dev/seed-admin` | ✅ Gated (`SEED_ENDPOINTS_ENABLED`) |
 | `POST /users/dev/seed-moderator` | ✅ Gated (`SEED_ENDPOINTS_ENABLED`) |
 
-**Observations :**
-- `console.log` présents dans le controller (logging non structuré) — acceptable en dev, mais à remplacer par `Logger` NestJS en prod ⚠️
-- Le endpoint `GET /users/:id` autorise n'importe quel utilisateur authentifié à accéder au profil d'un autre user — le guard d'ownership est là mais le commentaire Swagger documente "Forbidden" alors que le code log juste un warning et autorise quand même (bug de doc mineur) ⚠️
-  - **Correction** : si `currentUser.id !== id && currentUser.role !== ADMIN` → throw ForbiddenException est bien dans le code. Comportement correct, doc Swagger OK.
-- `PUT /users/:id` vs `PATCH /users/me` : duplication fonctionnelle — les deux font la même chose. Peut être simplifié.
+**Notes:**
+- `console.log` is still used in the controller (unstructured logging). Acceptable in dev, should be replaced with NestJS `Logger` for production ⚠️
+- `GET /users/:id` ownership behavior is now correct in code (`ForbiddenException` for non-owner/non-admin). The old discrepancy was documentation-related.
+- `PUT /users/:id` and `PATCH /users/me` overlap functionally and can be simplified.
 
 ### 2.3 Equipment Profiles (`/equipment-profiles`)
-| Endpoint | Statut |
+| Endpoint | Status |
 |---|---|
-| `POST /equipment-profiles` | ✅ Opérationnel |
+| `POST /equipment-profiles` | ✅ Operational |
 | `GET /equipment-profiles` | ✅ Owner-scoped |
 | `GET /equipment-profiles/:id` | ✅ Ownership enforced |
 | `PATCH /equipment-profiles/:id` | ✅ Ownership enforced |
 | `DELETE /equipment-profiles/:id` | ✅ Ownership enforced |
 
-**Observations :**
-- Validation domaine via `EquipmentProfileDomainService.createProfile()` à chaque create/update ✅
-- Aucun test de controller (seulement `equipment-profile.domain.spec.ts`) ⚠️
+**Notes:**
+- Domain validation through `EquipmentProfileDomainService.createProfile()` on create/update ✅
+- No dedicated controller tests yet ⚠️
 
 ### 2.4 Recipes (`/recipes`)
-| Endpoint | Statut |
+| Endpoint | Status |
 |---|---|
-| `POST /recipes` | ✅ Opérationnel |
+| `POST /recipes` | ✅ Operational |
 | `GET /recipes` | ✅ Owner-scoped |
 | `GET /recipes/:id` | ✅ Ownership enforced |
 | `PATCH /recipes/:id` | ✅ Ownership enforced |
-| `DELETE /recipes/:id` | ✅ FK guard (bloque si batch actif) |
-| `GET /recipes/:id/steps` | ✅ Lazy backfill des 5 étapes |
+| `DELETE /recipes/:id` | ✅ FK guard (blocked when referenced by a batch) |
+| `GET /recipes/:id/steps` | ✅ Lazy backfill of 5 default steps |
 | `PATCH /recipes/:id/steps/:order` | ✅ Ownership enforced |
 
-**Observations :**
-- Les ingrédients (fermentables, hops, yeasts, water, additives) ne sont **pas encore implémentés** : pas de migration dédiée, pas d'ORM entities, pas d'API HTTP ❌
-- `RecipeOrmEntity` n'a pas de `@OneToMany` vers des entités ingrédients ❌
-- La suppression de recette est correctement protégée par un FK guard (erreur si batch référence la recette) ✅
-- Aucun test de controller ⚠️
+**Notes:**
+- Ingredients (fermentables, hops, yeasts, water, additives) are **not implemented yet**: no dedicated migration, no ORM entities, no HTTP API ❌
+- `RecipeOrmEntity` still has no `@OneToMany` relations to ingredient entities ❌
+- Recipe deletion protection with FK checks is correct ✅
+- No recipe controller tests yet ⚠️
 
 ### 2.5 Batches (`/batches`)
-| Endpoint | Statut |
+| Endpoint | Status |
 |---|---|
-| `POST /batches` | ✅ Start batch depuis une recette |
+| `POST /batches` | ✅ Start batch from recipe |
 | `GET /batches` | ✅ Owner-scoped |
 | `GET /batches/:id` | ✅ Ownership enforced |
-| `POST /batches/:id/steps/current/complete` | ✅ State machine domaine |
-| `POST /batches/:id/fermentation/start` | ✅ Opérationnel |
-| `POST /batches/:id/fermentation/complete` | ✅ Opérationnel |
+| `POST /batches/:id/steps/current/complete` | ✅ Domain state machine |
+| `POST /batches/:id/fermentation/start` | ✅ Operational |
+| `POST /batches/:id/fermentation/complete` | ✅ Operational |
 | `GET /batches/:id/reminders` | ✅ Ownership enforced |
-| `POST /batches/:id/reminders` | ✅ Opérationnel |
-| `PATCH /batches/:id/reminders/:reminderId` | ✅ Opérationnel |
-| `DELETE /batches/:id` | ❌ **Absent** — pas d'endpoint de suppression |
+| `POST /batches/:id/reminders` | ✅ Operational |
+| `PATCH /batches/:id/reminders/:reminderId` | ✅ Operational |
+| `DELETE /batches/:id` | ❌ Missing endpoint |
 
-**Observations :**
-- La machine d'état du batch (domaine) est bien isolée et testée ✅
-- `completeMineCurrentStep` utilise `stepRepo.save(stepPayloads)` sur **tous** les steps dans la transaction — les steps existants sont recréés (conflit de PK potentiel selon le driver). À surveiller. ⚠️
-- Pas de DELETE batch ❌
+**Notes:**
+- Batch domain state machine is isolated and tested ✅
+- `completeMineCurrentStep` currently calls `stepRepo.save(stepPayloads)` for all steps in one transaction; this may recreate existing steps depending on driver behavior (potential PK conflicts). Needs review ⚠️
+- Batch deletion endpoint is missing ❌
 
 ---
 
-## 3. Base de données et migrations
+## 3. Database and Migrations
 
-### Migrations en place
-| Migration | Contenu |
+### Existing Migrations
+| Migration | Content |
 |---|---|
-| `1739439600000-InitialSchema` | Tables users, equipment_profiles, recipes, recipe_steps, batches, batch_steps, batch_reminders |
+| `1739439600000-InitialSchema` | Tables: users, equipment_profiles, recipes, recipe_steps, batches, batch_steps, batch_reminders |
 
-**Observations :**
-- Les migrations utilisent `PRAGMA foreign_keys = OFF/ON` — correct pour SQLite ✅
-- Les index sont bien nommés (`IDX_<table>_<colonne>`) dans `InitialSchema` ✅
-- Les FK sont bien nommées (`FK_<table>_<colonne>`) dans `InitialSchema` ✅
-- Aucune migration ingrédients/métriques n'est présente à ce stade ❌
-- Les colonnes `updated_at` ne sont pas auto-mises à jour par trigger DB (uniquement via TypeORM `@UpdateDateColumn`) — acceptable ✅
-- **Pas de migration PostgreSQL** — toujours sur SQLite ❌ (décision produit connue, à faire)
+**Notes:**
+- Migrations use `PRAGMA foreign_keys = OFF/ON` — correct for SQLite ✅
+- Index naming follows convention (`IDX_<table>_<column>`) ✅
+- FK naming follows convention (`FK_<table>_<column>`) ✅
+- No ingredient/metrics migration at this stage ❌
+- `updated_at` is managed by TypeORM `@UpdateDateColumn` (no DB trigger) — acceptable ✅
+- No PostgreSQL migration path yet ❌
 
 ---
 
 ## 4. Tests
 
-### Résultats actuels (2026-02-18)
+### Current Results (2026-02-18)
 ```
 Test Suites: 1 skipped, 10 passed, 10 of 11 total
 Tests:       2 skipped, 54 passed, 56 total
 ```
 
-### Couverture globale
-| Métrique | Valeur |
+### Global Coverage
+| Metric | Value |
 |---|---|
 | Statements | ~33% |
 | Branches | ~31% |
 | Functions | ~40% |
 | Lines | ~32% |
 
-### Fichiers de tests existants
-| Fichier | Type | Couvre |
+### Existing Test Files
+| File | Type | Coverage |
 |---|---|---|
 | `src/app.controller.spec.ts` | Unit | AppController (hello world) |
-| `src/batch/batch.service.spec.ts` | Integration | BatchService complet (SQLite :memory:) |
+| `src/batch/batch.service.spec.ts` | Integration | BatchService (SQLite `:memory:`) |
 | `src/batch/domain/batch.domain.spec.ts` | Unit | BatchDomainService |
 | `src/equipment/domain/equipment-profile.domain.spec.ts` | Unit | EquipmentProfileDomainService |
 | `src/recipe/recipe-steps.service.spec.ts` | Integration | RecipeService.ensureDefaultSteps |
@@ -187,127 +186,127 @@ Tests:       2 skipped, 54 passed, 56 total
 | `src/recipe/domain/recipe.domain.spec.ts` | Unit | RecipeDomainService |
 | `src/user/controllers/user.controller.spec.ts` | Unit (mock) | UserController |
 | `src/user/services/user.service.spec.ts` | Unit | UserService |
-| `src/user/user.e2e-simple.spec.ts` | E2E | User endpoints |
-| `src/user/user.e2e.spec.ts` | E2E | User endpoints (skipped) |
+| `src/user/user.e2e-simple.spec.ts` | E2E | User flows |
+| `src/user/user.e2e.spec.ts` | E2E | User flows (skipped) |
 | `test/app.e2e-spec.ts` | E2E | App root |
 | `test/auth.protected.e2e-spec.ts` | E2E | JWT auth guard |
 
-### Lacunes de tests
-- ❌ Aucun test pour `RecipeController`
-- ❌ Aucun test pour `EquipmentProfileController` + `EquipmentProfileService`
-- ❌ Aucun test pour `AuthController` / `AuthService` (hors JWT guard)
-- ❌ Aucun test pour `BatchController`
-- ❌ Aucun test pour le module `common/` (filtres, interceptors)
+### Testing Gaps
+- ❌ No tests for `RecipeController`
+- ❌ No tests for `EquipmentProfileController` and `EquipmentProfileService`
+- ❌ No tests for `AuthController` and `AuthService` (except JWT guard coverage)
+- ❌ No tests for `BatchController`
+- ❌ No tests for `common/` module parts (filters, interceptors)
 
 ---
 
 ## 5. CI/CD
 
-### Pipeline CI (`.github/workflows/ci.yml`)
-| Job | Statut |
+### CI Pipeline (`.github/workflows/ci.yml`)
+| Job | Status |
 |---|---|
-| Build + Lint + Test | ✅ Opérationnel |
-| Security Audit (prod, critical only) | ✅ Opérationnel |
+| Build + Lint + Test | ✅ Operational |
+| Security Audit (prod deps, critical only) | ✅ Operational |
 
-**Observation CI :**
-- Aucune étape SonarCloud/SonarQube n'est actuellement configurée dans `ci.yml` ⚠️
+**CI note:**
+- No SonarCloud/SonarQube step is currently configured in `ci.yml` ⚠️
 
-### Pipeline CD (`.github/workflows/cd-docker.yml`)
-| Job | Statut |
+### CD Pipeline (`.github/workflows/cd-docker.yml`)
+| Job | Status |
 |---|---|
-| Build + Push Docker → GHCR | ✅ Opérationnel (déclenché après CI sur main) |
+| Build + Push Docker image to GHCR | ✅ Operational (triggered after CI on `main`) |
 
 ### Copilot Review (`.github/workflows/copilot-review.yml`)
-- Auto-review Copilot sur chaque PR ✅
+- Automatic Copilot review on every PR ✅
 
 ---
 
-## 6. Sécurité
+## 6. Security
 
-### Authentification
-- JWT HS256 avec secret obligatoire au démarrage (app plante si absent) ✅
-- Expiration configurable via `JWT_EXPIRATION` (défaut `86400s`) ✅
-- Pas de refresh token (out of scope MVP) — acceptable ✅
-- bcrypt pour le hachage des mots de passe ✅
+### Authentication
+- JWT HS256 with mandatory secret at startup (app fails fast if missing) ✅
+- Expiration configurable with `JWT_EXPIRATION` (default `86400s`) ✅
+- No refresh token (MVP scope decision) ✅
+- Password hashing with bcrypt ✅
 
-### Autorisations
-- Ownership enforced via `owner_id = user.id` sur toutes les ressources ✅
-- RolesGuard pour les routes admin ✅
-- Seed endpoints gated par `SEED_ENDPOINTS_ENABLED` + `SEED_ENDPOINTS_TOKEN` optionnel ✅
+### Authorization
+- Ownership enforced via `owner_id = user.id` on all protected resources ✅
+- `RolesGuard` for admin routes ✅
+- Dev seed endpoints gated by `SEED_ENDPOINTS_ENABLED` + optional `SEED_ENDPOINTS_TOKEN` ✅
 
-### Dépendances
-- `npm audit` critique : ✅ propre (tar override pour sqlite3 chain)
-- Audit niveau `high` : peut contenir des vulnérabilités non critiques (politique documentée : CI gate sur `critical` uniquement)
+### Dependencies
+- `npm audit` critical vulnerabilities: ✅ clean (sqlite3 chain handled with tar override)
+- `high`-level vulnerabilities may still exist (policy: CI gate at `critical` only)
 
-### Expositions
-- Swagger désactivé en prod sauf `SWAGGER_ENABLED=true` ✅
-- Stack traces masquées en prod (`AllExceptionsFilter`) ✅
-- Pas de rate limiting sur les endpoints auth ⚠️ (**risque brute-force — TODO**)
-- `console.log` avec données utilisateur dans `UserController` ⚠️ (risque logs sensibles)
+### Exposure and Hardening
+- Swagger disabled in production unless `SWAGGER_ENABLED=true` ✅
+- Stack traces masked in production (`AllExceptionsFilter`) ✅
+- No rate limiting on auth endpoints yet ⚠️ (**brute force risk — TODO**)
+- `console.log` still logs user data in `UserController` ⚠️ (sensitive log risk)
 
 ---
 
 ## 7. Docker
 
-### Image
-- Multi-stage build (build → runtime) ✅
-- Base : `node:20-bookworm-slim` ✅
-- User non-root (`USER node`) ✅
-- HEALTHCHECK natif (fetch HTTP) ✅
-- Volume `/app/data` pour SQLite ✅
-- `NODE_ENV=production` par défaut ✅
+### Image Setup
+- Multi-stage build (build -> runtime) ✅
+- Base image: `node:20-bookworm-slim` ✅
+- Non-root runtime user (`USER node`) ✅
+- Native `HEALTHCHECK` (HTTP fetch) ✅
+- SQLite volume at `/app/data` ✅
+- `NODE_ENV=production` by default ✅
 
-### Observations
-- Les migrations doivent être lancées manuellement via `TYPEORM_MIGRATIONS_RUN=true` au démarrage — OK ✅
-- La migration vers PostgreSQL invalidera le volume SQLite — nécessite une stratégie de migration de données ⚠️
+### Notes
+- Migrations can run at startup via `TYPEORM_MIGRATIONS_RUN=true` — acceptable ✅
+- PostgreSQL migration will deprecate current SQLite volume data path; data migration strategy is required ⚠️
 
 ---
 
-## 8. Priorités recommandées
+## 8. Recommended Priorities
 
-### 🔴 Critique (bloquer MVP)
-1. **Ingredients foundation + CRUD API** — Créer la migration DB, les ORM entities et l'API HTTP (controllers/services/DTOs) pour fermentables, hops, yeasts, water, additives sous `/recipes/:id/fermentables`, `/recipes/:id/hops`, etc.
-2. **TypeORM relations** — Ajouter `@OneToMany` dans `RecipeOrmEntity` vers les entités ingrédients une fois ces entités créées.
+### 🔴 Critical (MVP blockers)
+1. **Ingredients foundation + CRUD API** — Add DB migration, ORM entities, and HTTP API (controllers/services/DTOs) for fermentables, hops, yeasts, water, additives under `/recipes/:id/fermentables`, `/recipes/:id/hops`, etc.
+2. **TypeORM relations** — Add `@OneToMany` in `RecipeOrmEntity` toward ingredient entities once those entities exist.
 
-### 🟠 Important (qualité et robustesse)
-3. **Couverture tests** — Atteindre ≥60% (ajouter tests controllers recipe, equipment, batch + AuthService)
-4. **SonarCloud** — Ajouter l'intégration CI (coverage upload + analyse) puis configurer le projet/secret `SONAR_TOKEN`
-5. **Batch DELETE** — Ajouter `DELETE /batches/:id` (soft ou hard delete, scoped owner)
-6. **Rate limiting** — Ajouter `@nestjs/throttler` sur les endpoints `/auth/login` et `/auth/register`
+### 🟠 Important (quality and robustness)
+3. **Test coverage** — Reach >=60% (add recipe/equipment/batch controller tests and AuthService tests)
+4. **SonarCloud** — Add CI integration (coverage upload + analysis) and configure `SONAR_TOKEN`
+5. **Batch DELETE** — Add `DELETE /batches/:id` (owner-scoped, soft or hard delete)
+6. **Rate limiting** — Add `@nestjs/throttler` to `/auth/login` and `/auth/register`
 
-### 🟡 À planifier
-7. **PostgreSQL migration** — Définir stratégie de migration SQLite → PostgreSQL
-8. **Calculateurs ABV/IBU** — Module `calculator/` avec service Tinseth
-9. **Swagger bearer alignment** — Remplacer `@ApiBearerAuth()` par `@ApiBearerAuth('JWT-auth')` dans batch et recipe controllers
-10. **Logger structuré** — Remplacer `console.log` dans `UserController` par `Logger` NestJS
+### 🟡 Planned improvements
+7. **PostgreSQL migration** — Define strategy for SQLite -> PostgreSQL migration
+8. **ABV/IBU calculators** — Add `calculator/` module with Tinseth service
+9. **Swagger bearer alignment** — Replace `@ApiBearerAuth()` with `@ApiBearerAuth('JWT-auth')` where still needed
+10. **Structured logging** — Replace `console.log` in `UserController` with NestJS `Logger`
 
 ### 🟢 Post-MVP
 11. Refresh tokens
 12. Social login
 13. Offline sync API
-14. Rôles étendus (Mentor/Editor/Pro)
+14. Extended roles (Mentor/Editor/Pro)
 
 ---
 
-## 9. Métriques snapshot
+## 9. Snapshot Metrics
 
-| Métrique | Valeur | Objectif |
+| Metric | Value | Target |
 |---|---|---|
-| Tests passants | 54/56 | 100% |
-| Couverture statements | ~33% | ≥60% |
-| Couverture branches | ~31% | ≥60% |
-| Vulnérabilités critiques npm | 0 | 0 |
-| Modules feature | 5 (auth, user, equipment, recipe, batch) | - |
-| Endpoints HTTP | ~30 | - |
+| Passing tests | 54/56 | 100% |
+| Statement coverage | ~33% | >=60% |
+| Branch coverage | ~31% | >=60% |
+| Critical npm vulnerabilities | 0 | 0 |
+| Feature modules | 5 (auth, user, equipment, recipe, batch) | - |
+| HTTP endpoints | ~30 | - |
 | Migrations | 1 | - |
-| PR mergées | 30 | - |
+| Merged PRs | 30 | - |
 
 ---
 
 ## 10. Addendum (2026-03-09) — Label Workshop Lot 1
 
-### Périmètre implémenté
-- Nouvelle feature backend `label/` scaffoldée selon l’architecture Clean :
+### Implemented Scope
+- New backend `label/` feature scaffolded with Clean Architecture:
   - `controllers/`: `label-draft.controller.ts`, `label-catalog.controller.ts`, `label-defaults.controller.ts`
   - `services/`: `label-draft.service.ts`, `label-catalog.service.ts`, `label-defaults.service.ts`
   - `domain/enums/`: `LabelDraftStatus`, `BottleFormat`, `TemplateId`
@@ -315,26 +314,26 @@ Tests:       2 skipped, 54 passed, 56 total
   - `entities/`: `LabelDraftOrmEntity`
   - `label.module.ts`
 
-- Fondations DB ajoutées :
+- Database foundation added:
   - Migration `1775000000000-AddLabelDrafts.ts`
-  - Table `label_drafts` avec contraintes CHECK, FK nommées et index nommés
-  - Soft-delete prêt via `deleted_at`
-  - Concurrence optimiste prête via colonne `version`
+  - `label_drafts` table with CHECK constraints, named FKs, and named indexes
+  - Soft delete ready via `deleted_at`
+  - Optimistic concurrency ready via `version`
 
-- Wiring applicatif :
-  - `LabelModule` importé dans `AppModule`
-  - `LabelDraftOrmEntity` ajouté à `ormEntities` (`typeorm.config.ts`)
+- Application wiring:
+  - `LabelModule` imported in `AppModule`
+  - `LabelDraftOrmEntity` added to `ormEntities` (`typeorm.config.ts`)
 
-### Qualité / conformité
-- Contrôleurs protégés JWT (`@UseGuards(JwtAuthGuard)`) et documentés Swagger (`@ApiBearerAuth('JWT-auth')`, `@ApiTags('Labels')`).
-- Build TypeScript ✅ (`npm run build`)
-- Lint ciblé ✅ (`npm run lint:check ...`)
-- Test de fondation module ✅ (`src/label/label.module.spec.ts`, avec SQLite in-memory)
+### Quality and Compliance
+- Controllers are JWT protected (`@UseGuards(JwtAuthGuard)`) and documented with Swagger (`@ApiBearerAuth('JWT-auth')`, `@ApiTags('Labels')`).
+- TypeScript build passes ✅ (`npm run build`)
+- Targeted lint passes ✅ (`npm run lint:check ...`)
+- Foundation module test added ✅ (`src/label/label.module.spec.ts`, SQLite in-memory)
 
-### État
-- **Lot 1 terminé** (fondation module + migration + wiring).
-- Les routes métiers/dtos/use-cases restent à implémenter dans les lots suivants (CRUD P0, catalog/defaults, e2e/docs, hardening).
+### Status
+- **Lot 1 completed** (module foundation + migration + wiring).
+- Business routes/DTOs/use-cases remain for next lots (P0 CRUD, catalog/defaults, e2e/docs, hardening).
 
 ---
 
-*Prochain audit recommandé après implémentation de la fondation ingrédients (migration + ORM + API) et ajout de l'étape SonarCloud en CI.*
+*Next audit recommended after ingredient foundation implementation (migration + ORM + API) and SonarCloud CI integration.*

@@ -96,7 +96,7 @@ describe('HubeauWaterQualityProvider', () => {
               conclusion_conformite_prelevement_pc: 'C',
             },
             {
-              nom_parametre: 'Magnésium',
+              nom_parametre: 'Magnesium',
               resultat_numerique: 9,
               conclusion_conformite_prelevement_pc: null,
             },
@@ -106,7 +106,7 @@ describe('HubeauWaterQualityProvider', () => {
               conclusion_conformite_prelevement_pc: 'C',
             },
             {
-              nom_parametre: 'Chlorures',
+              nom_parametre: 'Chlorides',
               resultat_numerique: 'not-a-number',
               conclusion_conformite_prelevement_pc: 'D',
             },
@@ -143,12 +143,12 @@ describe('HubeauWaterQualityProvider', () => {
         conformity: 'C',
       },
       {
-        parameterLabel: 'Magnésium',
+        parameterLabel: 'Magnesium',
         numericResult: 9,
         conformity: null,
       },
       {
-        parameterLabel: 'Chlorures',
+        parameterLabel: 'Chlorides',
         numericResult: null,
         conformity: 'D',
       },

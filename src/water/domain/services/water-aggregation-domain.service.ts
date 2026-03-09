@@ -5,14 +5,30 @@ import { WaterSample } from '../ports/water-quality-provider.port';
 
 type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
 
-const PARAMETER_MAP: Record<string, MineralKey> = {
-  calcium: 'ca',
-  magnesium: 'mg',
-  chlorides: 'cl',
-  chlorures: 'cl',
-  sulfates: 'so4',
-  'total bicarbonates': 'hco3',
-  'bicarbonates totaux': 'hco3',
+const resolveMineralKey = (normalizedLabel: string): MineralKey | null => {
+  if (normalizedLabel.includes('calcium')) {
+    return 'ca';
+  }
+
+  if (normalizedLabel.includes('magnesium')) {
+    return 'mg';
+  }
+
+  if (normalizedLabel.includes('sulfate')) {
+    return 'so4';
+  }
+
+  // Matches both "chlorides" and localized variants sharing the same stem.
+  if (normalizedLabel.includes('chlor')) {
+    return 'cl';
+  }
+
+  // Matches both "total bicarbonates" and localized variants.
+  if (normalizedLabel.includes('bicarbonate')) {
+    return 'hco3';
+  }
+
+  return null;
 };
 
 const normalizeParameterLabel = (value: string): string =>
@@ -82,7 +98,9 @@ export class WaterAggregationDomainService {
 
     const aggregate = createEmptyAggregate();
     for (const sample of samples) {
-      const key = PARAMETER_MAP[normalizeParameterLabel(sample.parameterLabel)];
+      const key = resolveMineralKey(
+        normalizeParameterLabel(sample.parameterLabel),
+      );
       if (!key) {
         continue;
       }

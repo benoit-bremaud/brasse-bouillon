@@ -15,42 +15,42 @@ import { JwtAuthGuard } from '../../auth/guards/jwt.guard';
 import { User } from '../../user/entities/user.entity';
 import { GetWaterProfileQueryDto } from '../dtos/get-water-profile-query.dto';
 import { WaterProfileDto } from '../dtos/water-profile.dto';
-import { EauService } from '../services/eau.service';
+import { WaterService } from '../services/water.service';
 
-@ApiTags('Eau')
+@ApiTags('Water')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
-@Controller('eau')
-export class EauController {
-  constructor(private readonly eauService: EauService) {}
+@Controller('water')
+export class WaterController {
+  constructor(private readonly waterService: WaterService) {}
 
   @Get()
   @ApiOperation({
-    summary: "Obtenir le profil d'eau agrégé d'une commune",
+    summary: 'Get aggregated water profile for a city',
   })
   @ApiOkResponse({
     type: WaterProfileDto,
-    description: "Profil d'eau agrégé avec minéraux et dureté",
+    description: 'Aggregated water profile with minerals and hardness',
   })
   @ApiBadRequestResponse({
-    description: 'Paramètres de requête invalides',
+    description: 'Invalid query parameters',
   })
   @ApiUnauthorizedResponse({
-    description: 'JWT manquant ou invalide',
+    description: 'Missing or invalid JWT',
   })
   @ApiNotFoundResponse({
-    description: 'Aucune donnée disponible pour cette commune/année',
+    description: 'No data available for this city/year',
   })
   @ApiBadGatewayResponse({
-    description: "Erreur lors de l'appel au provider externe",
+    description: 'Error while calling external provider',
   })
   async getWaterProfile(
     @CurrentUser() _user: User,
     @Query() query: GetWaterProfileQueryDto,
   ): Promise<WaterProfileDto> {
-    const profile = await this.eauService.getWaterProfile({
+    const profile = await this.waterService.getWaterProfile({
       codeInsee: query.codeInsee,
-      annee: query.annee,
+      year: query.year,
       provider: query.provider,
     });
 

@@ -29,39 +29,39 @@ export class WaterProfileDto {
   codeInsee: string;
 
   @ApiProperty({ example: 2024 })
-  annee: number;
+  year: number;
 
   @ApiPropertyOptional({ nullable: true, example: 'NANTES SUD' })
-  nomReseau: string | null;
+  networkName: string | null;
 
   @ApiProperty({ example: 42 })
-  nbPrelevements: number;
+  sampleCount: number;
 
   @ApiProperty({ enum: WaterConformity, example: WaterConformity.C })
-  conformite: WaterConformity;
+  conformity: WaterConformity;
 
   @ApiProperty({ type: WaterMineralsMgLDto })
-  minerauxMgL: WaterMineralsMgLDto;
+  mineralsMgL: WaterMineralsMgLDto;
 
   @ApiPropertyOptional({ nullable: true, example: 55.9 })
-  dureteFrancais: number | null;
+  hardnessFrench: number | null;
 
   static fromEntity(entity: WaterProfileEntity): WaterProfileDto {
     const dto = new WaterProfileDto();
     dto.provider = entity.provider;
     dto.codeInsee = entity.codeInsee;
-    dto.annee = entity.annee;
-    dto.nomReseau = entity.nomReseau;
-    dto.nbPrelevements = entity.nbPrelevements;
-    dto.conformite = entity.conformite;
-    dto.minerauxMgL = {
-      ca: entity.minerauxMgL.ca,
-      mg: entity.minerauxMgL.mg,
-      cl: entity.minerauxMgL.cl,
-      so4: entity.minerauxMgL.so4,
-      hco3: entity.minerauxMgL.hco3,
+    dto.year = entity.year;
+    dto.networkName = entity.networkName;
+    dto.sampleCount = entity.sampleCount;
+    dto.conformity = entity.conformity;
+    dto.mineralsMgL = {
+      ca: entity.mineralsMgL.ca,
+      mg: entity.mineralsMgL.mg,
+      cl: entity.mineralsMgL.cl,
+      so4: entity.mineralsMgL.so4,
+      hco3: entity.mineralsMgL.hco3,
     };
-    dto.dureteFrancais = entity.dureteFrancais;
+    dto.hardnessFrench = entity.hardnessFrench;
     return dto;
   }
 }

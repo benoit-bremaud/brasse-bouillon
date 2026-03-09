@@ -5,8 +5,8 @@ import {
   WaterSample,
 } from '../domain/ports/water-quality-provider.port';
 
-import type { EauConfig } from '../../config/eau.config';
-import { EAU_CONFIG } from '../eau.constants';
+import type { WaterConfig } from '../../config/water.config';
+import { WATER_CONFIG } from '../water.constants';
 import { WaterProviderKey } from '../domain/enums/water-provider-key.enum';
 
 interface HubEauCommuneUdiRecord {
@@ -33,18 +33,20 @@ interface HubEauResultatsResponse {
 export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
   readonly key = WaterProviderKey.HUBEAU;
 
-  constructor(@Inject(EAU_CONFIG) private readonly eauConfig: EauConfig) {}
+  constructor(
+    @Inject(WATER_CONFIG) private readonly waterConfig: WaterConfig,
+  ) {}
 
   async findDominantNetworkByInsee(
     codeInsee: string,
   ): Promise<WaterNetwork | null> {
     const response = await this.fetchHubEau<HubEauCommuneUdiResponse>(
-      `${this.eauConfig.hubeauBaseUrl}/communes_udi`,
+      `${this.waterConfig.hubeauBaseUrl}/communes_udi`,
       {
         code_commune: codeInsee,
-        size: String(this.eauConfig.hubeauCommunesUdiSize),
+        size: String(this.waterConfig.hubeauCommunesUdiSize),
       },
-      this.eauConfig.hubeauTimeoutMs,
+      this.waterConfig.hubeauTimeoutMs,
     );
 
     if (!response.data.length) {
@@ -72,7 +74,7 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
     size: number;
   }): Promise<WaterSample[]> {
     const response = await this.fetchHubEau<HubEauResultatsResponse>(
-      `${this.eauConfig.hubeauBaseUrl}/resultats_dis`,
+      `${this.waterConfig.hubeauBaseUrl}/resultats_dis`,
       {
         code_udi: input.networkCode,
         fields:
@@ -81,7 +83,7 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
         date_max_prelevement: `${input.year}-12-31`,
         size: String(input.size),
       },
-      this.eauConfig.hubeauTimeoutMs,
+      this.waterConfig.hubeauTimeoutMs,
     );
 
     return response.data

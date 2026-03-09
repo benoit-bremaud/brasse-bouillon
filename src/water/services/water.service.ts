@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import type { EauConfig } from '../../config/eau.config';
-import { EAU_CONFIG, WATER_PROVIDERS } from '../eau.constants';
+import type { WaterConfig } from '../../config/water.config';
+import { WATER_CONFIG, WATER_PROVIDERS } from '../water.constants';
 import { WaterProfileEntity } from '../domain/entities/water-profile.entity';
 import { WaterProviderKey } from '../domain/enums/water-provider-key.enum';
 import { WaterQualityProviderPort } from '../domain/ports/water-quality-provider.port';
@@ -19,12 +19,12 @@ interface CacheEntry {
 
 export interface GetWaterProfileInput {
   readonly codeInsee: string;
-  readonly annee: number;
+  readonly year: number;
   readonly provider?: WaterProviderKey;
 }
 
 @Injectable()
-export class EauService {
+export class WaterService {
   private static readonly MAX_CACHE_ENTRIES = 500;
 
   private readonly domainService = new WaterAggregationDomainService();
@@ -33,19 +33,19 @@ export class EauService {
   constructor(
     @Inject(WATER_PROVIDERS)
     private readonly providers: WaterQualityProviderPort[],
-    @Inject(EAU_CONFIG)
-    private readonly eauConfig: EauConfig,
+    @Inject(WATER_CONFIG)
+    private readonly waterConfig: WaterConfig,
   ) {}
 
   async getWaterProfile(
     input: GetWaterProfileInput,
   ): Promise<WaterProfileEntity> {
-    const providerKey = input.provider ?? this.eauConfig.defaultProvider;
+    const providerKey = input.provider ?? this.waterConfig.defaultProvider;
     this.pruneExpiredEntries();
 
     const cacheKey = this.buildCacheKey(
       input.codeInsee,
-      input.annee,
+      input.year,
       providerKey,
     );
     const cached = this.getCached(cacheKey);
@@ -56,30 +56,28 @@ export class EauService {
     const provider = this.selectProvider(providerKey);
     const network = await provider.findDominantNetworkByInsee(input.codeInsee);
     if (!network) {
-      throw new NotFoundException(
-        'Aucun réseau d’eau trouvé pour ce code INSEE',
-      );
+      throw new NotFoundException('No water network found for this INSEE code');
     }
 
     const samples = await provider.getNetworkSamples({
       networkCode: network.code,
-      year: input.annee,
-      size: this.eauConfig.hubeauResultatsDisSize,
+      year: input.year,
+      size: this.waterConfig.hubeauResultatsDisSize,
     });
 
     if (!samples.length) {
       throw new NotFoundException(
-        'Aucun prélèvement disponible pour ce réseau et cette année',
+        'No sample available for this network and year',
       );
     }
 
     const profile = this.domainService.aggregate({
       provider: providerKey,
       codeInsee: input.codeInsee,
-      annee: input.annee,
+      year: input.year,
       networkName: network.name,
       samples,
-      maxSamples: this.eauConfig.hubeauMaxSamples,
+      maxSamples: this.waterConfig.hubeauMaxSamples,
     });
 
     this.setCached(cacheKey, profile);
@@ -94,7 +92,7 @@ export class EauService {
     );
     if (!provider) {
       throw new BadGatewayException(
-        `Provider eau non supporté: ${providerKey}`,
+        `Unsupported water provider: ${providerKey}`,
       );
     }
 
@@ -103,10 +101,10 @@ export class EauService {
 
   private buildCacheKey(
     codeInsee: string,
-    annee: number,
+    year: number,
     provider: WaterProviderKey,
   ): string {
-    return `${provider}:${codeInsee}:${annee}`;
+    return `${provider}:${codeInsee}:${year}`;
   }
 
   private getCached(cacheKey: string): WaterProfileEntity | null {
@@ -127,14 +125,14 @@ export class EauService {
   private setCached(cacheKey: string, value: WaterProfileEntity): void {
     this.pruneExpiredEntries();
 
-    if (this.cache.size >= EauService.MAX_CACHE_ENTRIES) {
+    if (this.cache.size >= WaterService.MAX_CACHE_ENTRIES) {
       const oldestKey = this.cache.keys().next().value as string | undefined;
       if (oldestKey) {
         this.cache.delete(oldestKey);
       }
     }
 
-    const ttlSeconds = this.eauConfig.hubeauCacheTtlSeconds;
+    const ttlSeconds = this.waterConfig.hubeauCacheTtlSeconds;
     const expiresAt = Date.now() + ttlSeconds * 1000;
     this.cache.set(cacheKey, { value, expiresAt });
   }

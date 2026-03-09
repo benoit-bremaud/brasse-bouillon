@@ -1,3 +1,3 @@
 export * from './database.config';
 export * from './auth.config';
-export * from './eau.config';
+export * from './water.config';

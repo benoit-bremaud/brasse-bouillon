@@ -15,10 +15,18 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+.env.local
 .env.development
+.env.development.local
 .env.test
+.env.test.local
+.env.staging
+.env.staging.local
 .env.production
+.env.production.local
+!.env.example
 !.env.test.example
+!.env.staging.example
 
 # temp directory
 .temp
@@ -30,11 +38,6 @@ data/brasse-bouillon.db
 tree.txt
 data/brasse-bouillon.db
 data/*.db
-
-# Environment
-.env
-.env.local
-.env.*.local
 
 # IDE
 .vscode/

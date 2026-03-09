@@ -1,3 +1,8 @@
+import {
+  buildBootstrapEnvironmentConfig,
+  environmentValidationSchema,
+} from './config/environment.config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -10,6 +15,8 @@ import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from './user/user.module';
+
+const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
 
 /**
  * App Module
@@ -39,10 +46,13 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'test'
-          ? ['.env.test', '.env.test.example', '.env.local', '.env']
-          : ['.env.local', '.env'],
+      envFilePath: bootstrapEnvironment.envFilePaths,
+      ignoreEnvFile: bootstrapEnvironment.ignoreEnvFile,
+      validationSchema: environmentValidationSchema,
+      validationOptions: {
+        abortEarly: false,
+        allowUnknown: true,
+      },
     }),
 
     ThrottlerModule.forRoot([

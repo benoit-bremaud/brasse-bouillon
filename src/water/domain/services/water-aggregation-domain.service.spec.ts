@@ -140,4 +140,35 @@ describe('WaterAggregationDomainService', () => {
 
     expect(profile.conformity).toBe(WaterConformity.N);
   });
+
+  it('should map french and accented HubEau parameter labels', () => {
+    const profile = service.aggregate({
+      provider: WaterProviderKey.HUBEAU,
+      codeInsee: '29232',
+      year: 2024,
+      networkName: 'QUIMPER',
+      maxSamples: 10,
+      samples: [
+        {
+          parameterLabel: 'Magnésium',
+          numericResult: 9,
+          conformity: 'C',
+        },
+        {
+          parameterLabel: 'Chlorures',
+          numericResult: 17,
+          conformity: 'C',
+        },
+        {
+          parameterLabel: 'Bicarbonates totaux',
+          numericResult: 122,
+          conformity: 'C',
+        },
+      ],
+    });
+
+    expect(profile.mineralsMgL.mg).toBe(9);
+    expect(profile.mineralsMgL.cl).toBe(17);
+    expect(profile.mineralsMgL.hco3).toBe(122);
+  });
 });

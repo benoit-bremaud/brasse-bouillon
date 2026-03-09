@@ -6,12 +6,21 @@ import { WaterSample } from '../ports/water-quality-provider.port';
 type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
 
 const PARAMETER_MAP: Record<string, MineralKey> = {
-  Calcium: 'ca',
-  Magnesium: 'mg',
-  Chlorides: 'cl',
-  Sulfates: 'so4',
-  'Total bicarbonates': 'hco3',
+  calcium: 'ca',
+  magnesium: 'mg',
+  chlorides: 'cl',
+  chlorures: 'cl',
+  sulfates: 'so4',
+  'total bicarbonates': 'hco3',
+  'bicarbonates totaux': 'hco3',
 };
+
+const normalizeParameterLabel = (value: string): string =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
 
 interface AggregateBucket {
   sum: number;
@@ -73,7 +82,7 @@ export class WaterAggregationDomainService {
 
     const aggregate = createEmptyAggregate();
     for (const sample of samples) {
-      const key = PARAMETER_MAP[sample.parameterLabel];
+      const key = PARAMETER_MAP[normalizeParameterLabel(sample.parameterLabel)];
       if (!key) {
         continue;
       }

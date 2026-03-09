@@ -10,6 +10,7 @@ import { BatchModule } from './batch/batch.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { LabelModule } from './label/label.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -78,6 +79,7 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     RecipeModule,
     BatchModule,
     WaterModule,
+    LabelModule,
   ],
 
   // Controllers that handle HTTP requests at root level

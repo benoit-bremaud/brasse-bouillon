@@ -1,12 +1,12 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { NestFactory } from '@nestjs/core';
-import { TransformResponseInterceptor } from './common/interceptors';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { TransformResponseInterceptor } from './common/interceptors';
 
 /**
  * Brasse-Bouillon API - Bootstrap Entry Point
@@ -54,6 +54,24 @@ async function bootstrap(): Promise<void> {
    * - Global providers (services, guards, etc.)
    */
   const app = await NestFactory.create(AppModule);
+
+  // ============================================================================
+  // 🌍 CORS - CROSS-ORIGIN REQUESTS
+  // ============================================================================
+
+  /**
+   * Global CORS configuration
+   *
+   * Why this is required:
+   * - Expo Web runs on a different origin (e.g. http://localhost:8081)
+   * - Browser sends preflight OPTIONS before POST/PUT/PATCH with JSON headers
+   * - Without CORS middleware, Nest returns "Cannot OPTIONS /..." and browser blocks request
+   */
+  app.enableCors({
+    origin: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   // ============================================================================
   // 🔧 CONFIGURATION

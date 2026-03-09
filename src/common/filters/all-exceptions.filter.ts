@@ -2,6 +2,7 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
+  HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
@@ -21,10 +22,60 @@ import { Request, Response } from 'express';
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
+  private extractHttpExceptionMessage(
+    responseBody: unknown,
+    fallback: string,
+  ): string {
+    if (typeof responseBody === 'string') {
+      return responseBody;
+    }
+
+    if (
+      typeof responseBody === 'object' &&
+      responseBody !== null &&
+      'message' in responseBody
+    ) {
+      const message = (responseBody as { message?: unknown }).message;
+
+      if (typeof message === 'string') {
+        return message;
+      }
+
+      if (Array.isArray(message)) {
+        const firstStringMessage = message.find(
+          (item: unknown): item is string => typeof item === 'string',
+        );
+
+        if (firstStringMessage) {
+          return firstStringMessage;
+        }
+      }
+    }
+
+    return fallback;
+  }
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
+    if (exception instanceof HttpException) {
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+      const message = this.extractHttpExceptionMessage(
+        exceptionResponse,
+        exception.message,
+      );
+
+      response.status(status).json({
+        statusCode: status,
+        message,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      });
+      return;
+    }
 
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
     const isProduction = process.env.NODE_ENV === 'production';

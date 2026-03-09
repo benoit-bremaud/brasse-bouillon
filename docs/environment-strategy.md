@@ -53,7 +53,8 @@ Validation is applied via `ConfigModule.forRoot({ validationSchema })`.
 
 - Required critical variables: `APP_ENV`, `NODE_ENV`, `JWT_SECRET`
 - Explicit defaults for non-critical variables
-- Boolean config validation through pattern (`true/false/1/0/yes/no/on/off`)
+- Shared boolean schema accepts (`true/false/1/0/yes/no/on/off`) for validated env vars
+- `SWAGGER_ENABLED` runtime behavior is strict: only `SWAGGER_ENABLED=true` enables Swagger in production-like contexts
 - Immediate startup failure when configuration is invalid
 
 ## 6) Versioned File Policy

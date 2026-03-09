@@ -13,6 +13,10 @@ import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
 import { RecipeWaterOrmEntity } from '../recipe/entities/recipe-water.orm.entity';
 import { RecipeYeastOrmEntity } from '../recipe/entities/recipe-yeast.orm.entity';
+import { ScanCatalogItemOrmEntity } from '../scan/entities/scan-catalog-item.orm.entity';
+import { ScanLabelImageOrmEntity } from '../scan/entities/scan-label-image.orm.entity';
+import { ScanRequestOrmEntity } from '../scan/entities/scan-request.orm.entity';
+import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 
@@ -33,6 +37,10 @@ export const ormEntities = [
   RecipeAdditiveOrmEntity,
   RecipeWaterOrmEntity,
   LabelDraftOrmEntity,
+  ScanRequestOrmEntity,
+  ScanCatalogItemOrmEntity,
+  ScanLabelImageOrmEntity,
+  ScanReviewQueueOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

@@ -13,6 +13,7 @@ import { EquipmentModule } from './equipment/equipment.module';
 import { LabelModule } from './label/label.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
+import { ScanModule } from './scan/scan.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from './user/user.module';
 import { WaterModule } from './water/water.module';
@@ -80,6 +81,7 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     BatchModule,
     WaterModule,
     LabelModule,
+    ScanModule,
   ],
 
   // Controllers that handle HTTP requests at root level

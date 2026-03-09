@@ -81,7 +81,7 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
   };
 
   try {
-    const data = await request<AuthResponse>("/auth/signup", {
+    const data = await request<AuthResponse>("/auth/register", {
       method: "POST",
       body,
       auth: false,
@@ -90,7 +90,7 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
     return mapAuthSession(data);
   } catch (error) {
     if (error instanceof HttpError && error.status === 404) {
-      const data = await request<AuthResponse>("/auth/register", {
+      const data = await request<AuthResponse>("/auth/signup", {
         method: "POST",
         body,
         auth: false,

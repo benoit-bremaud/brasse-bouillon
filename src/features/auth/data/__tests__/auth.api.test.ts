@@ -1,5 +1,6 @@
+import { getCurrentUser, signup } from "@/features/auth/data/auth.api";
+
 import { HttpError } from "@/core/http/http-error";
-import { getCurrentUser } from "@/features/auth/data/auth.api";
 
 const mockRequest = jest.fn();
 
@@ -10,6 +11,86 @@ jest.mock("@/core/http/http-client", () => ({
 describe("auth.api", () => {
   beforeEach(() => {
     mockRequest.mockReset();
+  });
+
+  it("registers with /auth/register first", async () => {
+    mockRequest.mockResolvedValue({
+      access_token: "access-token",
+      user: {
+        id: "u-signup",
+        email: "new-user@example.com",
+        username: "new-user",
+        first_name: "New",
+        last_name: "User",
+        role: "user",
+        is_active: true,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      },
+    });
+
+    const session = await signup({
+      email: "new-user@example.com",
+      password: "strong-password",
+      username: "new-user",
+      firstName: "New",
+      lastName: "User",
+    });
+
+    expect(mockRequest).toHaveBeenCalledWith("/auth/register", {
+      method: "POST",
+      body: {
+        email: "new-user@example.com",
+        password: "strong-password",
+        username: "new-user",
+        first_name: "New",
+        last_name: "User",
+      },
+      auth: false,
+    });
+
+    expect(session).toMatchObject({
+      accessToken: "access-token",
+      user: {
+        id: "u-signup",
+        email: "new-user@example.com",
+      },
+    });
+  });
+
+  it("falls back to /auth/signup when /auth/register is not found", async () => {
+    mockRequest
+      .mockRejectedValueOnce(new HttpError(404, "Not Found"))
+      .mockResolvedValueOnce({
+        access_token: "fallback-token",
+        user: {
+          id: "u-signup-fallback",
+          email: "fallback-user@example.com",
+          username: "fallback-user",
+          role: "user",
+          is_active: true,
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-01T00:00:00.000Z",
+        },
+      });
+
+    const session = await signup({
+      email: "fallback-user@example.com",
+      password: "strong-password",
+      username: "fallback-user",
+    });
+
+    expect(mockRequest).toHaveBeenNthCalledWith(
+      1,
+      "/auth/register",
+      expect.objectContaining({ method: "POST", auth: false }),
+    );
+    expect(mockRequest).toHaveBeenNthCalledWith(
+      2,
+      "/auth/signup",
+      expect.objectContaining({ method: "POST", auth: false }),
+    );
+    expect(session.accessToken).toBe("fallback-token");
   });
 
   it("loads current user from /auth/me", async () => {

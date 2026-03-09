@@ -9,6 +9,18 @@ import { Alert, AlertButton } from "react-native";
 import { ProfileScreen } from "@/features/auth/presentation/ProfileScreen";
 import React from "react";
 
+function getTestWindow(): Window & typeof globalThis {
+  if (typeof globalThis.window === "undefined") {
+    Object.defineProperty(globalThis, "window", {
+      value: {} as Window & typeof globalThis,
+      configurable: true,
+      writable: true,
+    });
+  }
+
+  return globalThis.window as Window & typeof globalThis;
+}
+
 const mockRefreshProfile = jest.fn();
 const mockLogout = jest.fn();
 
@@ -42,6 +54,8 @@ describe("ProfileScreen", () => {
 
   beforeAll(() => {
     alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+    getTestWindow();
   });
 
   beforeEach(() => {
@@ -79,30 +93,77 @@ describe("ProfileScreen", () => {
     });
   });
 
-  it("asks for confirmation before calling logout action", async () => {
+  it("uses native alert confirmation when browser confirm is unavailable", async () => {
+    const testWindow = getTestWindow();
+    const originalConfirm = testWindow.confirm;
+
+    Object.defineProperty(testWindow, "confirm", {
+      value: undefined,
+      configurable: true,
+    });
+
     mockLogout.mockResolvedValue(undefined);
 
-    render(<ProfileScreen />);
+    try {
+      render(<ProfileScreen />);
 
-    fireEvent.press(screen.getByLabelText("Se déconnecter"));
+      fireEvent.press(screen.getByLabelText("Se déconnecter"));
 
-    expect(mockLogout).not.toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledTimes(1);
+      expect(mockLogout).not.toHaveBeenCalled();
+      expect(alertSpy).toHaveBeenCalledTimes(1);
 
-    const alertCall = alertSpy.mock.calls[0];
-    expect(alertCall[0]).toBe("Confirmer la déconnexion");
+      const alertCall = alertSpy.mock.calls[0];
+      expect(alertCall[0]).toBe("Confirmer la déconnexion");
 
-    const buttons = (alertCall[2] ?? []) as AlertButton[];
-    const confirmButton = buttons.find(
-      (button) => button.text === "Se déconnecter",
-    );
+      const buttons = (alertCall[2] ?? []) as AlertButton[];
+      const confirmButton = buttons.find(
+        (button) => button.text === "Se déconnecter",
+      );
 
-    expect(confirmButton).toBeDefined();
+      expect(confirmButton).toBeDefined();
 
-    confirmButton?.onPress?.();
+      confirmButton?.onPress?.();
 
-    await waitFor(() => {
-      expect(mockLogout).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(mockLogout).toHaveBeenCalledTimes(1);
+      });
+    } finally {
+      Object.defineProperty(testWindow, "confirm", {
+        value: originalConfirm,
+        configurable: true,
+      });
+    }
+  });
+
+  it("uses browser confirm when available", async () => {
+    const testWindow = getTestWindow();
+    const originalConfirm = testWindow.confirm;
+
+    Object.defineProperty(testWindow, "confirm", {
+      value: jest.fn().mockReturnValue(true),
+      configurable: true,
     });
+
+    const confirmMock = testWindow.confirm as jest.Mock;
+
+    mockLogout.mockResolvedValue(undefined);
+
+    try {
+      render(<ProfileScreen />);
+
+      fireEvent.press(screen.getByLabelText("Se déconnecter"));
+
+      expect(alertSpy).not.toHaveBeenCalled();
+      expect(confirmMock).toHaveBeenCalledTimes(1);
+
+      await waitFor(() => {
+        expect(mockLogout).toHaveBeenCalledTimes(1);
+      });
+    } finally {
+      Object.defineProperty(testWindow, "confirm", {
+        value: originalConfirm,
+        configurable: true,
+      });
+    }
   });
 });

@@ -47,6 +47,21 @@ export function ProfileScreen() {
   };
 
   const handleLogoutPress = () => {
+    const canUseBrowserConfirm =
+      typeof window !== "undefined" && typeof window.confirm === "function";
+
+    if (canUseBrowserConfirm) {
+      const confirmed = window.confirm(
+        "Voulez-vous vraiment vous déconnecter de l'application ?",
+      );
+
+      if (confirmed) {
+        void handleLogout();
+      }
+
+      return;
+    }
+
     Alert.alert(
       "Confirmer la déconnexion",
       "Voulez-vous vraiment vous déconnecter de l'application ?",

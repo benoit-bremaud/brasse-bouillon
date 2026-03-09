@@ -96,7 +96,6 @@
       "**/*.(t|j)s",
       "!**/*.spec.(t|j)s",
       "!**/*.e2e-spec.(t|j)s",
-      "!**/main.(t|j)s",
       "!**/database/migrations/**"
     ],
     "coverageDirectory": "../coverage",

@@ -1,4 +1,8 @@
-import { getCurrentUser, signup } from "@/features/auth/data/auth.api";
+import {
+  getCurrentUser,
+  requestPasswordReset,
+  signup,
+} from "@/features/auth/data/auth.api";
 
 import { HttpError } from "@/core/http/http-error";
 
@@ -102,6 +106,33 @@ describe("auth.api", () => {
       expect.objectContaining({ method: "POST", auth: false }),
     );
     expect(session.accessToken).toBe("fallback-token");
+  });
+
+  it("requests password reset via /auth/forgot-password", async () => {
+    const email = "reset@example.com";
+    mockRequest.mockResolvedValue(undefined);
+
+    await requestPasswordReset(email);
+
+    expect(mockRequest).toHaveBeenCalledWith("/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+  });
+
+  it("propagates forgot password errors without legacy fallback", async () => {
+    const email = "reset@example.com";
+    const error = new HttpError(404, "Not Found");
+    mockRequest.mockRejectedValue(error);
+
+    await expect(requestPasswordReset(email)).rejects.toBe(error);
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+    expect(mockRequest).toHaveBeenCalledWith("/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
   });
 
   it("loads current user from /auth/me", async () => {

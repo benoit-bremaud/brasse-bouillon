@@ -104,25 +104,11 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
 }
 
 export async function requestPasswordReset(email: string): Promise<void> {
-  try {
-    await request<unknown>("/auth/forgot-password", {
-      method: "POST",
-      body: { email },
-      auth: false,
-    });
-    return;
-  } catch (error) {
-    if (error instanceof HttpError && error.status === 404) {
-      await request<unknown>("/auth/password/forgot", {
-        method: "POST",
-        body: { email },
-        auth: false,
-      });
-      return;
-    }
-
-    throw error;
-  }
+  await request<unknown>("/auth/forgot-password", {
+    method: "POST",
+    body: { email },
+    auth: false,
+  });
 }
 
 export async function getCurrentUser(): Promise<User> {

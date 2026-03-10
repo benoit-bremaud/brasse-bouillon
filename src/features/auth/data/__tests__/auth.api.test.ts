@@ -121,9 +121,29 @@ describe("auth.api", () => {
     });
   });
 
-  it("propagates forgot password errors without legacy fallback", async () => {
+  it("falls back to /auth/password/forgot when /auth/forgot-password is not found", async () => {
+    const email = "reset-fallback@example.com";
+    mockRequest
+      .mockRejectedValueOnce(new HttpError(404, "Not Found"))
+      .mockResolvedValueOnce(undefined);
+
+    await requestPasswordReset(email);
+
+    expect(mockRequest).toHaveBeenNthCalledWith(1, "/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+    expect(mockRequest).toHaveBeenNthCalledWith(2, "/auth/password/forgot", {
+      method: "POST",
+      body: { email },
+      auth: false,
+    });
+  });
+
+  it("propagates forgot password errors when they are not 404", async () => {
     const email = "reset@example.com";
-    const error = new HttpError(404, "Not Found");
+    const error = new HttpError(500, "Internal Server Error");
     mockRequest.mockRejectedValue(error);
 
     await expect(requestPasswordReset(email)).rejects.toBe(error);
@@ -133,6 +153,16 @@ describe("auth.api", () => {
       body: { email },
       auth: false,
     });
+  });
+
+  it("resolves silently when both forgot-password endpoints are missing", async () => {
+    const email = "missing-reset@example.com";
+
+    mockRequest
+      .mockRejectedValueOnce(new HttpError(404, "Not Found"))
+      .mockRejectedValueOnce(new HttpError(404, "Not Found"));
+
+    await expect(requestPasswordReset(email)).resolves.toBeUndefined();
   });
 
   it("loads current user from /auth/me", async () => {

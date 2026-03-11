@@ -129,7 +129,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
   }
 
   if (lastNotFoundError) {
-    return;
+    throw new Error("Password reset endpoint unavailable.");
   }
 
   throw new Error("Unable to request password reset.");

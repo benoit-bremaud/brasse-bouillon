@@ -30,6 +30,10 @@ export type SignupInput = {
 };
 
 const CURRENT_USER_ENDPOINTS = ["/auth/me", "/users/me"] as const;
+const FORGOT_PASSWORD_ENDPOINTS = [
+  "/auth/forgot-password",
+  "/auth/password/forgot",
+] as const;
 
 function mapUser(dto: AuthUserDto): User {
   return {
@@ -104,11 +108,31 @@ export async function signup(input: SignupInput): Promise<AuthSession> {
 }
 
 export async function requestPasswordReset(email: string): Promise<void> {
-  await request<unknown>("/auth/forgot-password", {
-    method: "POST",
-    body: { email },
-    auth: false,
-  });
+  let lastNotFoundError: HttpError | null = null;
+
+  for (const endpoint of FORGOT_PASSWORD_ENDPOINTS) {
+    try {
+      await request<unknown>(endpoint, {
+        method: "POST",
+        body: { email },
+        auth: false,
+      });
+      return;
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 404) {
+        lastNotFoundError = error;
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  if (lastNotFoundError) {
+    throw new Error("Password reset endpoint unavailable.");
+  }
+
+  throw new Error("Unable to request password reset.");
 }
 
 export async function getCurrentUser(): Promise<User> {

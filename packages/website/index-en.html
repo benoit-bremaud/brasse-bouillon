@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brasse-Bouillon — Homebrewing app (coming soon)</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Brasse-Bouillon: the homebrewing mobile app to create beer recipes, calculate IBU/ABV, manage your brews and track fermentation. The perfect kit for all homebrewers, from beginner to expert.">
+  <meta name="robots" content="noindex,follow">
+  <link rel="canonical" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brasse-bouillon.com/">
+  <meta property="og:title" content="Brasse-Bouillon — The homebrewing app">
+  <meta property="og:description" content="The mobile app for homebrewers. Calculate IBU/ABV, manage recipes and track your brews.">
+  <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://brasse-bouillon.com/">
+  <meta name="twitter:title" content="Brasse-Bouillon — The homebrewing app">
+  <meta name="twitter:description" content="The mobile app for homebrewers.">
+  <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+  <link rel="apple-touch-icon" href="logo-icon-32.png">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-RVCT6NGFVG');
+  </script>
+  
+  <link rel="stylesheet" href="site.css">
+  
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@id": "https://brasse-bouillon.com/#organization",
+    "@type": "Organization",
+    "name": "Brasse-Bouillon",
+    "url": "https://brasse-bouillon.com/",
+    "logo": "https://brasse-bouillon.com/logo.png",
+    "description": "Project building a mobile app for homebrewing recipes and fermentation tracking.",
+    "email": "contact@brasse-bouillon.com",
+    "founder": {
+      "@type": "Person",
+      "name": "Benoît Bremaud",
+      "url": "https://www.linkedin.com/in/benoit-bremaud"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "contact@brasse-bouillon.com",
+      "contactType": "customer service"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/in/benoit-bremaud"
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#mainContentEn">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index-en.html" class="header-logo">
+        <img src="logo-hero.png" alt="Brasse-Bouillon">
+        <span>Brasse-Bouillon</span>
+      </a>
+      <nav class="header-nav">
+        <a href="#features">Features</a>
+        <a href="#roadmapHeadingEn">Roadmap</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-right">
+        <div class="language-switch" role="navigation" aria-label="Language selection">
+          <a href="index.html" aria-label="French version">🇫🇷 FR</a> ·
+          <a href="index-en.html" aria-label="English version">🇬🇧 EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page" id="mainContentEn">
+    <div class="shell">
+      <section class="hero">
+        <div class="logo-wrap">
+          <img class="logo" src="logo-hero.png" alt="Official Brasse-Bouillon mascot" loading="eager" width="180" height="180">
+        </div>
+        <span class="pill">Coming soon</span>
+        <h1>Brasse-Bouillon</h1>
+        <p class="intro">
+          A mobile app built for homebrewers—from first batches to advanced recipes.
+          Design, optimize, archive, and share your creations in a friendly and accessible experience.
+        </p>
+      </section>
+
+      <section class="section-block" id="features">
+        <h2 class="section-title">🍻 What you’ll be able to do</h2>
+        <div class="features-grid">
+          <div class="feature">✅ Create and manage your recipes easily</div>
+          <div class="feature">✅ Calculate IBU, ABV, and yield</div>
+          <div class="feature">✅ Plan and track each brewing session</div>
+          <div class="feature">✅ Keep a clear history of every batch</div>
+          <div class="feature">✅ Share your creations with the community</div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title" id="roadmapHeadingEn">🗺️ Project roadmap</h2>
+        <div class="roadmap-controls" id="roadmapControlsEn" role="toolbar" aria-label="Roadmap filters">
+          <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmapEn('all', this)">All</button>
+          <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmapEn('current', this)">In progress</button>
+          <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmapEn('next', this)">Next</button>
+          <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapEn('done', this)">Done</button>
+        </div>
+        <div id="roadmapTrackEn" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingEn"></div>
+        <p class="badge">
+          Detailed history of completed actions:
+          <a href="docs/ROADMAP.md" target="_blank" rel="noopener noreferrer">roadmap “Done” section</a>.
+        </p>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🧪 Development log</h2>
+        <div class="section-grid">
+          <div class="mini-card">
+            <h3>February 2026 · Product</h3>
+            Brewing calculator v1 (IBU/ABV/conversions), richer recipe detail view, and batch timeline hardening for small screens.
+          </div>
+          <div class="mini-card">
+            <h3>February 2026 · Platform</h3>
+            Batch API (workflow + persistence + endpoints), fermentation reminders, and ongoing hardening (JWT/auth tests + security audit).
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title" id="faq">❓ Quick FAQ</h2>
+        <div class="section-grid">
+          <div class="mini-card">
+            <h3>When will the app be available?</h3>
+            We ship in phases. A beta will be shared as soon as the core is stable.
+          </div>
+          <div class="mini-card">
+            <h3>Can I contribute?</h3>
+            Yes—through the questionnaire, UX feedback, and direct contact.
+          </div>
+          <div class="mini-card">
+            <h3>Who is it for?</h3>
+            Beginners and experienced homebrewers alike.
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🍺 Featured recipe</h2>
+        <div class="mini-card">
+          <h3>Session IPA “Citrus Bloom” (sample)</h3>
+          Light, aromatic, and perfect to discover recipe tracking in Brasse-Bouillon.
+          More detailed recipes and brew sheets are coming soon.
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title">🧾 Community questionnaire</h2>
+        <p class="section-intro">
+          It only takes 2 minutes to help us build Brasse-Bouillon. Your answers stay confidential.
+        </p>
+        <div class="actions">
+          <button class="btn btn-primary" id="questionnaireToggleEn" type="button" aria-expanded="false" onclick="toggleQuestionnaire('en')">
+            Open questionnaire
+          </button>
+          <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Contact us</a>
+        </div>
+
+        <form id="questionnaireFormEn" class="questionnaire-form" hidden>
+          <input type="hidden" name="_subject" value="New response - Brasse-Bouillon questionnaire (EN)">
+          <input type="hidden" name="lang" value="en">
+          <input class="honeypot" type="text" name="_gotcha">
+
+          <div class="questionnaire-grid">
+            <fieldset class="form-field-full">
+              <legend>1. Your profile</legend>
+              <div class="radio-list">
+                <label><input type="radio" name="profil" value="Beginner" required>Beginner (&lt; 1 year)</label>
+                <label><input type="radio" name="profil" value="Confirmed amateur">Confirmed amateur</label>
+                <label><input type="radio" name="profil" value="Advanced enthusiast">Advanced enthusiast</label>
+                <label><input type="radio" name="profil" value="Professional">Microbrewery / Professional</label>
+              </div>
+              <div class="form-field form-field-spacing-sm">
+                <label for="qProfilAutreEn">Other</label>
+                <input id="qProfilAutreEn" type="text" name="profil_autre" placeholder="Tell us your profile if needed">
+              </div>
+            </fieldset>
+
+            <div class="form-field form-field-full">
+              <label for="qFrequencyEn">2. Brewing frequency</label>
+              <select id="qFrequencyEn" name="frequence" required>
+                <option value="">Select…</option>
+                <option value="1-2 times per year">1-2 times per year</option>
+                <option value="3-6 times per year">3-6 times per year</option>
+                <option value="Once a month">Once a month</option>
+                <option value="More than once a month">More than once a month</option>
+                <option value="I do not brew yet">I do not brew yet</option>
+              </select>
+            </div>
+
+            <fieldset class="form-field-full">
+              <legend>3. Main pain points (max 3)</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="difficultes[]" value="IBU ABV calculations">IBU / ABV calculations</label>
+                <label><input type="checkbox" name="difficultes[]" value="Recipe management">Recipe management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Inventory management">Inventory management</label>
+                <label><input type="checkbox" name="difficultes[]" value="Brew logs">Brew logging</label>
+                <label><input type="checkbox" name="difficultes[]" value="Reproducibility">Reproducibility</label>
+                <label><input type="checkbox" name="difficultes[]" value="No pain point">No major pain point</label>
+              </div>
+              <div class="form-field form-field-spacing-sm">
+                <label for="qDifficultesAutreEn">Other</label>
+                <input id="qDifficultesAutreEn" type="text" name="difficultes_autre" placeholder="Any other pain point">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>4. Tools you currently use</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="outils[]" value="Excel">Excel / Google Sheets</label>
+                <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
+                <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
+                <label><input type="checkbox" name="outils[]" value="Paper notebook">Paper notebook</label>
+                <label><input type="checkbox" name="outils[]" value="Mobile app">Mobile app</label>
+                <label><input type="checkbox" name="outils[]" value="No structured tool">No structured tool</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>5. Feature importance (1 to 5)</legend>
+              <div class="form-field">
+                <label for="qCalcIbuEn">IBU / ABV calculator</label>
+                <input id="qCalcIbuEn" type="range" name="calc_ibu" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qRecettesEn">Recipes</label>
+                <input id="qRecettesEn" type="range" name="recettes" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qJournalEn">Brew log</label>
+                <input id="qJournalEn" type="range" name="journal" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qStockEn">Inventory</label>
+                <input id="qStockEn" type="range" name="stock" min="1" max="5" value="3">
+              </div>
+              <div class="form-field">
+                <label for="qPartageEn">Sharing</label>
+                <input id="qPartageEn" type="range" name="partage" min="1" max="5" value="3">
+              </div>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>6. Your top 3 priorities</legend>
+              <div class="checkbox-list">
+                <label><input type="checkbox" name="priorites[]" value="IBU ABV calculator">IBU / ABV calculator</label>
+                <label><input type="checkbox" name="priorites[]" value="Recipes">Recipes</label>
+                <label><input type="checkbox" name="priorites[]" value="Logbook">Logbook</label>
+                <label><input type="checkbox" name="priorites[]" value="Inventory">Inventory</label>
+                <label><input type="checkbox" name="priorites[]" value="Sharing">Sharing</label>
+              </div>
+              <p class="helper-text">Pick 1 to 3 priorities so we can better scope the roadmap.</p>
+            </fieldset>
+
+            <fieldset class="form-field-full">
+              <legend>7. Mobile application</legend>
+              <div class="radio-list">
+                <label><input type="radio" name="mobile" value="Yes absolutely" required>Yes absolutely</label>
+                <label><input type="radio" name="mobile" value="Yes if clear added value">Yes if clear added value</label>
+                <label><input type="radio" name="mobile" value="Maybe">Maybe</label>
+                <label><input type="radio" name="mobile" value="No">No</label>
+              </div>
+            </fieldset>
+
+            <div class="form-field form-field-full">
+              <label for="qSuggestionEn">8. Your dream feature?</label>
+              <textarea id="qSuggestionEn" name="suggestion" rows="4" placeholder="Tell us the one feature that would save you time"></textarea>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label for="qEmailEn">9. Stay informed (optional)</label>
+              <input id="qEmailEn" type="email" name="email" placeholder="Your email (optional)">
+            </div>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" name="rgpd" value="accepted" required>
+            I agree that my data can be used for Brasse-Bouillon product development.
+          </label>
+
+          <div class="actions actions-compact">
+            <button class="btn btn-primary" type="submit">Contribute 🍻</button>
+          </div>
+        </form>
+
+        <p id="questionnaireStatusEn" class="form-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title" id="contact">📬 Contact us directly</h2>
+        <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
+          <label class="sr-only" for="emailEn">Email address</label>
+          <input id="emailEn" type="email" name="email" placeholder="Your email" required>
+          <label class="sr-only" for="messageEn">Message</label>
+          <textarea id="messageEn" name="message" placeholder="Your message" required></textarea>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </section>
+
+      <footer class="footer">
+        Stay connected! You can also reach us at: <strong>contact@brasse-bouillon.com</strong>
+        <div class="badge">
+          Made with ❤️ by
+          <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+        </div>
+        <div class="badge" style="margin-top: 8px;">
+          <a href="legal-en.html">Legal Notice</a>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <script src="site.js"></script>
+  <script>
+    const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
+
+    const ROADMAP_PHASES_EN = [
+      { phase: 1, title: 'Ideation & positioning', state: 'done', points: ['MVP definition', 'User survey', 'Founding manifesto'] },
+      { phase: 2, title: 'Communication channels analysis', state: 'done', points: ['Target audiences', 'Editorial strategy', 'Public summary'] },
+      { phase: 3, title: 'Design & preparation', state: 'done', points: ['UI/UX mockups', 'Technical architecture', 'Visual roadmap'] },
+      { phase: 4, title: 'MVP development', state: 'done', points: ['Auth/JWT + secure API baseline', 'Recipe CRUD + persisted recipe steps', 'Batch module (workflow + persistence + endpoints)', 'Brewing calculator v1 (IBU/ABV/conversions)'] },
+      { phase: 5, title: 'Product consolidation & public website', state: 'current', points: ['Fermentation reminders (service + API)', 'Recipe detail revamp + ingredient navigation fixes', 'Brewing Academy (hub + Fermentables/Color/Hops guides)', 'Roadmap and devlog kept in sync'] },
+      { phase: 6, title: 'Beta tests & community', state: 'next', points: ['Public beta', 'Feedback loop', 'Community space'] },
+      { phase: 7, title: 'Official launch', state: 'next', points: ['App stores', 'Public demo', 'Multi-channel communication'] },
+      { phase: 8, title: 'Documentation & ecosystem', state: 'next', points: ['Brew sheets', 'Glossary', 'Recipe sharing space'] },
+      { phase: 9, title: 'Improvements & openness', state: 'next', points: ['UX optimizations', 'Extra modules', 'Open API'] },
+      { phase: 10, title: 'Partnerships & impact', state: 'next', points: ['Microbreweries', 'Studio B22 kit', 'Open impact indicators'] }
+    ];
+
+    const TOGGLE_LABELS = {
+      fr: { open: 'Ouvrir le questionnaire', close: 'Fermer le questionnaire' },
+      en: { open: 'Open questionnaire', close: 'Close questionnaire' }
+    };
+
+    function stateLabelEn(state) {
+      if (state === 'done') return 'Done';
+      if (state === 'current') return 'In progress';
+      return 'Next';
+    }
+
+    function renderRoadmapEn(filter = 'all') {
+      BBShared.renderRoadmap({
+        rootId: 'roadmapTrackEn',
+        phases: ROADMAP_PHASES_EN,
+        filter,
+        getStateLabel: stateLabelEn
+      });
+    }
+
+    function filterRoadmapEn(filter, el) {
+      BBShared.setActiveRoadmapFilter({
+        controlsSelector: '#roadmapControlsEn .chip',
+        activeElement: el
+      });
+      renderRoadmapEn(filter);
+    }
+
+    function toggleQuestionnaire(lang) {
+      BBShared.toggleQuestionnaire({
+        lang,
+        labels: TOGGLE_LABELS
+      });
+    }
+
+    renderRoadmapEn();
+
+    BBShared.setupQuestionnaire({
+      formId: 'questionnaireFormEn',
+      statusId: 'questionnaireStatusEn',
+      endpoint: QUESTIONNAIRE_ENDPOINT,
+      checkboxLimits: [
+        { fieldName: 'difficultes[]', maxChoices: 3, message: 'Maximum 3 choices allowed for this question.' },
+        { fieldName: 'priorites[]', maxChoices: 3, message: 'Maximum 3 choices allowed for this question.' }
+      ],
+      requiredCheckboxGroups: [
+        { fieldName: 'priorites[]', minRequired: 1, message: 'Please select at least 1 priority before submitting the questionnaire.' }
+      ],
+      messages: {
+        endpointMissing: 'Questionnaire Formspree endpoint is not configured yet.',
+        sending: 'Sending…',
+        success: 'Thanks! Your feedback has been sent.',
+        http400: 'Some information looks invalid. Please review the form and try again.',
+        http429: 'Too many requests. Please wait a moment before trying again.',
+        http5xx: 'Server error. Please try again in a few minutes or contact support.',
+        httpGeneric: 'Unable to send right now. Please try again in a few minutes.',
+        offline: 'You appear to be offline. Check your internet connection and try again.',
+        aborted: 'The request was interrupted. Please submit the form again.',
+        networkOrCors: 'Unable to reach the server (network or CORS issue). Please try again soon.',
+        unexpected: 'An unexpected error occurred while sending. Please try again shortly.'
+      }
+    });
+  </script>
+</body>
+</html>

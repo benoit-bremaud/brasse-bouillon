@@ -1,0 +1,8 @@
+# Code owners for review requests
+#
+# When a pull request touches a path that matches a pattern below, GitHub
+# automatically requests review from the listed owners.
+#
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @vitalikevin

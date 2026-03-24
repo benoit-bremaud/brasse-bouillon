@@ -1,0 +1,112 @@
+import * as path from 'path';
+
+import { BatchOrmEntity } from '../batch/entities/batch.orm.entity';
+import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.entity';
+import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
+import { DataSourceOptions } from 'typeorm';
+import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
+import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
+import { RecipeFermentableOrmEntity } from '../recipe/entities/recipe-fermentable.orm.entity';
+import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
+import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
+import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
+import { RecipeWaterOrmEntity } from '../recipe/entities/recipe-water.orm.entity';
+import { RecipeYeastOrmEntity } from '../recipe/entities/recipe-yeast.orm.entity';
+import { ScanCatalogItemOrmEntity } from '../scan/entities/scan-catalog-item.orm.entity';
+import { ScanLabelImageOrmEntity } from '../scan/entities/scan-label-image.orm.entity';
+import { ScanRequestOrmEntity } from '../scan/entities/scan-request.orm.entity';
+import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm.entity';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+
+const truthyEnvValues = new Set(['1', 'true', 'yes', 'on']);
+const falsyEnvValues = new Set(['0', 'false', 'no', 'off']);
+
+export const ormEntities = [
+  User,
+  EquipmentProfileOrmEntity,
+  BatchOrmEntity,
+  BatchStepOrmEntity,
+  BatchReminderOrmEntity,
+  RecipeOrmEntity,
+  RecipeStepOrmEntity,
+  RecipeFermentableOrmEntity,
+  RecipeHopOrmEntity,
+  RecipeYeastOrmEntity,
+  RecipeAdditiveOrmEntity,
+  RecipeWaterOrmEntity,
+  LabelDraftOrmEntity,
+  ScanRequestOrmEntity,
+  ScanCatalogItemOrmEntity,
+  ScanLabelImageOrmEntity,
+  ScanReviewQueueOrmEntity,
+];
+
+const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {
+  const raw = process.env[name];
+
+  if (raw === undefined) {
+    return defaultValue;
+  }
+
+  const normalized = raw.trim().toLowerCase();
+  if (truthyEnvValues.has(normalized)) {
+    return true;
+  }
+  if (falsyEnvValues.has(normalized)) {
+    return false;
+  }
+
+  return defaultValue;
+};
+
+const resolveTypeOrmLogging = (
+  isProduction: boolean,
+  isTest: boolean,
+): DataSourceOptions['logging'] => {
+  const verboseLogging = parseBooleanEnv(
+    'TYPEORM_LOGGING',
+    !isProduction && !isTest,
+  );
+
+  return verboseLogging ? ['query', 'error', 'warn'] : ['error'];
+};
+
+/**
+ * TypeORM Configuration
+ *
+ * Configures the SQLite connection used by Nest runtime and TypeORM CLI.
+ * Schema evolution is migration-first (`synchronize` disabled by default).
+ *
+ * @function typeOrmConfig
+ * @returns {TypeOrmModuleOptions} TypeORM module configuration
+ *
+ * @example
+ * // Used in DatabaseModule
+ * TypeOrmModule.forRoot(typeOrmConfig())
+ */
+export const buildTypeOrmOptions = (): DataSourceOptions => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isTest = process.env.NODE_ENV === 'test';
+
+  const dbPath =
+    process.env.DATABASE_PATH ||
+    path.join(process.cwd(), 'data', 'brasse-bouillon.db');
+
+  const synchronize = parseBooleanEnv('TYPEORM_SYNCHRONIZE', false);
+  const migrationsRun = parseBooleanEnv('TYPEORM_MIGRATIONS_RUN', false);
+
+  return {
+    type: 'better-sqlite3',
+    database: dbPath,
+    entities: ormEntities,
+    migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
+    migrationsRun,
+    synchronize,
+    logging: resolveTypeOrmLogging(isProduction, isTest),
+    logger: 'simple-console',
+  };
+};
+
+export const typeOrmConfig = (): TypeOrmModuleOptions => buildTypeOrmOptions();

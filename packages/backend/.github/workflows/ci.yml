@@ -1,0 +1,75 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build_and_test:
+    name: Build, Lint & Test
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # SonarQube Cloud requires full git history for blame annotations
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint:check
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Test with coverage
+        run: npm run test:cov
+
+      - name: SonarQube Cloud Scan
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
+      - name: SonarQube Cloud Scan (skipped)
+        if: env.SONAR_TOKEN == ''
+        run: echo "Skipping SonarQube Cloud scan because SONAR_TOKEN is not configured"
+
+  security_audit:
+    name: Security Audit (prod deps)
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci --omit=dev
+
+      - name: Audit production dependencies (high/critical)
+        run: npm audit --omit=dev --audit-level=critical

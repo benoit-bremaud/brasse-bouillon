@@ -1,0 +1,235 @@
+# Cline Rules — brasse-bouillon-frontend
+
+## 1. Project Overview
+
+**Name:** Brasse Bouillon — Frontend  
+**Stack:** React Native + Expo (SDK 54) + Expo Router v6 + TypeScript (strict)  
+**Domain:** Homebrewing app — recipes, batch tracking, brewing tools & academy  
+**Backend:** REST API (brasse-bouillon-backend) — responses are wrapped `{ success, statusCode, message, data }`, the HTTP client unwraps `data` automatically.  
+**Alias:** `@/*` maps to `src/*` (configured in `tsconfig.json` and `jest.config.js`)
+
+### Key directories
+
+```
+app/          → Expo Router file-based routes (delegate to src/features screens)
+src/
+  core/       → Shared: auth, http client, theme, UI primitives, config, data-source
+  features/   → Feature modules (auth, recipes, batches, ingredients, tools, dashboard…)
+    <feature>/
+      domain/       → Types / interfaces only
+      data/         → API calls (http client wrappers)
+      application/  → Use-cases (business logic, orchestration)
+      presentation/ → React Native screens & components
+        __tests__/  → Component & use-case tests
+  mocks/      → Demo data (used when EXPO_PUBLIC_USE_DEMO_DATA=true)
+  types/      → Global TypeScript declarations
+```
+
+---
+
+## 2. Language & Communication
+
+- **Always respond in English** — all answers, explanations, code comments, and commit messages must be in English.
+- Be concise and technical. Avoid unnecessary filler sentences.
+
+---
+
+## 3. Git Workflow — Branch per task, no exceptions
+
+### Branch creation
+
+- **Every task requires a new dedicated branch** — including new features, improvements, refactors, bug fixes, and chores.
+- Always branch from `main` (or the current default integration branch).
+- **Never commit directly to `main`.**
+- **Never reuse an existing branch for a separate, unrelated task.**
+
+| Type     | Pattern            | Example                        |
+| -------- | ------------------ | ------------------------------ |
+| Feature  | `feat/<scope>`     | `feat/color-calculator`        |
+| Bug fix  | `fix/<scope>`      | `fix/srm-edge-case`            |
+| Refactor | `refactor/<scope>` | `refactor/color-calculator-ux` |
+| Chore    | `chore/<scope>`    | `chore/update-clinerules`      |
+| Docs     | `docs/<scope>`     | `docs/readme-setup`            |
+
+```bash
+git checkout main
+git checkout -b <branch-name>
+```
+
+### Commits
+
+- Use **Conventional Commits** format: `<type>(<scope>): <short description>`
+- Group logically related file changes in the same commit.
+- After `npm run ci:check` passes, push automatically:
+
+  ```bash
+  git push -u origin <branch-name>
+  ```
+
+### Pull Request flow
+
+1. Create branch from `main` → implement → test → `npm run ci:check`
+2. Commit (conventional format) + `git push -u origin <branch-name>`
+3. **Ask the user for explicit validation before creating the PR**
+4. Only after user approval, create the PR:
+
+   ```bash
+   gh pr create --title "<type>(<scope>): <description>" --body "<summary of changes>"
+   ```
+
+5. **Never merge** — always wait for user review and approval.
+
+---
+
+## 4. Workflow — Always follow this order
+
+**Before any code change:**
+
+1. Run `npm run ci:check` mentally (lint + typecheck + format:check) — flag any pre-existing issues before touching files.
+2. **Present a complete plan** listing:
+   - Every file that will be created or modified
+   - The approach and rationale
+   - Any tradeoffs or risks
+3. Wait for explicit approval before writing any code.
+
+**After implementing:**
+
+- Run `npm run ci:check` to validate the changes.
+- Run `npm test` to ensure no regression.
+- Push the branch and ask for user validation before creating the PR.
+
+---
+
+## 5. Architecture Rules
+
+### Clean Architecture — strictly layered (no cross-layer shortcuts)
+
+```
+domain  ←  application  ←  data
+                ↓
+          presentation
+```
+
+- `domain/` — types and interfaces only. No logic, no imports from other layers.
+- `data/` — API calls using `src/core/http/http-client.ts`. No business logic.
+- `application/` — use-cases only. Orchestrate data layer, apply business rules. No UI imports.
+- `presentation/` — screens and components only. Call use-cases, never call `data/` directly.
+- `app/` — Expo Router routes only. Must delegate immediately to `src/features/*/presentation/` screens.
+
+### State Management — migrating to TanStack Query (React Query)
+
+- When adding or refactoring data-fetching logic, use **TanStack Query** (`useQuery`, `useMutation`).
+- Do NOT introduce new `useState + useEffect` patterns for remote data fetching.
+- Existing `useState/useEffect` patterns may remain until explicitly refactored.
+
+### Data source toggle
+
+- Always respect the `dataSource.useDemoData` pattern from `src/core/data/data-source.ts`.
+- Use-cases must branch on `dataSource.useDemoData` before calling the real API.
+- Never bypass this pattern or hardcode demo data outside of `src/mocks/`.
+
+### Environment variables
+
+Available at runtime (Expo public):
+
+- `EXPO_PUBLIC_API_URL` — base URL of the backend API
+- `EXPO_PUBLIC_USE_DEMO_DATA` — `"true"` to use mock data instead of the live API
+
+---
+
+## 6. Code Style & Naming Conventions
+
+### TypeScript
+
+- **Strict mode is ON** — never use `any`. Always type explicitly.
+- Prefer `interface` for object shapes in `domain/`; use `type` for unions, mapped types, and utility types.
+- Export named exports only (no default exports for screens or use-cases).
+
+### Naming
+
+| Element             | Convention                 | Example                    |
+| ------------------- | -------------------------- | -------------------------- |
+| React components    | `PascalCase`               | `RecipesScreen`, `Badge`   |
+| Functions / hooks   | `camelCase`                | `listRecipes`, `useRouter` |
+| Constants           | `SCREAMING_SNAKE_CASE`     | `MAX_BATCH_SIZE`           |
+| Files (components)  | `PascalCase.tsx`           | `RecipeDetailsScreen.tsx`  |
+| Files (logic/utils) | `kebab-case.ts`            | `recipes.use-cases.ts`     |
+| Test files          | `*.test.ts` / `*.test.tsx` | `RecipesScreen.test.tsx`   |
+
+### Component design
+
+- Decompose large components into smaller, reusable sub-components.
+- Keep components focused: one responsibility per component.
+- Prefer **pure functions** — avoid side-effects directly in component bodies.
+- Use `StyleSheet.create()` for all styles (no inline style objects).
+- Use design tokens from `src/core/theme/` — never hardcode colors, spacing, or typography values.
+
+### Imports order (enforced by VSCode settings)
+
+1. React & React Native
+2. Expo / third-party libraries
+3. Internal `@/core/...`
+4. Internal `@/features/...`
+5. Relative imports
+
+---
+
+## 7. Testing
+
+Tests are **mandatory for every new feature**.
+
+### Rules
+
+- **Use-cases** → unit tests in `src/features/<feature>/application/__tests__/`
+- **Screens / components** → integration tests in `src/features/<feature>/presentation/__tests__/`
+- Use `@testing-library/react-native` for component tests.
+- Mock `expo-router` (already set up in `jest.setup.ts`).
+- Mock the use-case layer when testing presentation components (never test real HTTP calls).
+- Test file naming: `<TestedFile>.test.ts` or `<TestedFile>.test.tsx`.
+
+### Commands
+
+```bash
+npm test                # run all tests
+npm test -- --watch    # watch mode
+npm test -- <path>     # run a specific test file
+```
+
+---
+
+## 8. CI Check
+
+Always ensure the following passes before considering a task done:
+
+```bash
+npm run ci:check   # lint + typecheck + format:check
+npm test           # all tests green
+```
+
+---
+
+## 9. Forbidden — Off-limits without explicit user request
+
+### Config files — DO NOT modify without being explicitly asked
+
+- `eslint.config.js`
+- `tsconfig.json`
+- `babel.config.js`
+- `jest.config.js`
+- `jest.setup.ts`
+- `app.json`
+- `.env` / `.env.example`
+
+### Directories — never touch
+
+- `node_modules/`
+- `.expo/`
+- `.git/`
+
+### Patterns — never introduce
+
+- `any` TypeScript type
+- Default exports for screens, use-cases, or API modules
+- Direct `fetch()` calls outside of `src/core/http/http-client.ts`
+- Business logic inside `app/` route files
+- Hardcoded color, spacing, or font values (use theme tokens)

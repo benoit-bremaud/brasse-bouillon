@@ -1,0 +1,56 @@
+name: Auto Request Codex Reviewer
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  request-review:
+    name: Request chatgpt-codex-connector[bot]
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Request reviewer on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewer = "chatgpt-codex-connector[bot]";
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+            const existingReviewers =
+              context.payload.pull_request.requested_reviewers?.map(
+                (reviewerUser) => reviewerUser.login,
+              ) ?? [];
+
+            core.info(
+              `Requested reviewers on payload: ${existingReviewers.join(", ") || "(none)"}`,
+            );
+
+            if (existingReviewers.includes(reviewer)) {
+              core.info(`${reviewer} is already requested. Skipping.`);
+              return;
+            }
+
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner,
+                repo,
+                pull_number,
+                reviewers: [reviewer],
+              });
+
+              core.info(`Reviewer requested successfully: ${reviewer}`);
+            } catch (error) {
+              if (error.status === 422) {
+                core.warning(
+                  `Could not request ${reviewer}. Check if the app/account exists on this repository and has pull request review permissions.`,
+                );
+                return;
+              }
+
+              throw error;
+            }

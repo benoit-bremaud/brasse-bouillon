@@ -1,0 +1,59 @@
+# Nestjs specific
+/dist
+/node_modules
+/build
+/tmp
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# dotenv environment variable files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.staging
+.env.staging.local
+.env.production
+.env.production.local
+!.env.example
+!.env.test.example
+!.env.staging.example
+
+# temp directory
+.temp
+.tmp
+data/
+data/brasse-bouillon.db
+
+# Project specific
+tree.txt
+data/brasse-bouillon.db
+data/*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Tests
+coverage/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

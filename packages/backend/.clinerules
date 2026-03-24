@@ -1,0 +1,177 @@
+# Brasse-Bouillon Backend — Cline Rules
+
+## Project Context
+
+NestJS backend application for **Brasse-Bouillon**, a craft brewing assistant.
+- **Stack**: Node.js 20, NestJS 11, strict TypeScript, TypeORM, SQLite (dev) / PostgreSQL (prod), JWT/Passport, multi-stage Docker.
+- **Architecture**: Clean Architecture by feature module (`domain/` -> `services/` -> `controllers/` + ORM `entities/` separated from domain).
+- **Database**: TypeORM migrations are mandatory (`src/database/migrations/`), never `synchronize: true` in production.
+- **GitHub repository**: `benoit-bremaud/brasse-bouillon-backend`
+
+## Reference Files
+
+- `ROADMAP.md` — product vision, decisions, progress status, changelog
+- `AUDIT.md` — dated technical audit report (updated for each audit)
+- `.github/copilot-instructions.md` — GitHub Copilot guidelines
+- `src/database/migrations/` — all schema migrations
+
+## Code Conventions
+
+### Naming
+- **Files**: kebab-case (`recipe-step.orm.entity.ts`, `batch-domain.service.ts`)
+- **Classes/Interfaces**: PascalCase (`RecipeOrmEntity`, `BatchDomainService`)
+- **Methods/Variables**: camelCase
+- **DB columns / ORM fields**: snake_case (`owner_id`, `batch_size_l`, `created_at`)
+- **Domain fields (domain entities)**: camelCase (`ownerId`, `batchSizeL`, `createdAt`)
+- **Enums**: PascalCase + SCREAMING_SNAKE_CASE values (`BatchStatus.IN_PROGRESS`)
+
+### TypeScript
+- Always use strict typing (`"strict": true` in `tsconfig.json`)
+- Avoid `any` — use `unknown` + narrowing or precise types
+- Prefer `readonly` for immutable domain properties
+- Use `class-validator` + `class-transformer` for all HTTP DTOs
+- Decorate all DTOs with `@ApiProperty()` / `@ApiPropertyOptional()` for Swagger
+
+## Architecture — Strict Rules
+
+### Module Structure
+Each feature module must follow:
+```
+src/<feature>/
+  <feature>.module.ts
+  controllers/           <- thin controllers, HTTP orchestration only
+  services/              <- application services (use-case layer)
+  dtos/                  <- HTTP input/output DTOs (class-validator)
+  entities/              <- TypeORM ORM entities (infrastructure)
+  domain/
+    entities/            <- domain entities (pure TypeScript, no NestJS/ORM)
+    enums/               <- domain enums
+    services/            <- domain services (pure business logic, no NestJS)
+```
+
+### Domain Rules
+- The **domain** (`domain/`) MUST NOT import NestJS, TypeORM, or any framework
+- The domain contains only pure business logic that is unit testable
+- **ORM entities** (`entities/*.orm.entity.ts`) are separate from domain entities (`domain/entities/*.entity.ts`)
+- **Application services** (`services/`) orchestrate domain + TypeORM repositories
+- **Controllers** stay thin: no business logic, only HTTP parsing -> service call -> DTO mapping
+
+### Ownership and Security
+- All protected routes use `@UseGuards(JwtAuthGuard)`
+- Resource ownership is always checked via `owner_id = user.id` (never trust client params)
+- Admin endpoints also use `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles(UserRole.ADMIN)`
+- Dev seed endpoints are gated by `SEED_ENDPOINTS_ENABLED` and `SEED_ENDPOINTS_TOKEN`
+
+### Swagger
+- Use `@ApiBearerAuth('JWT-auth')` (explicit name) on all protected controllers
+- Tag each controller with `@ApiTags('...')`
+- Document all possible responses (`@ApiOkResponse`, `@ApiCreatedResponse`, `@ApiBadRequestResponse`, etc.)
+
+## Database
+
+### Migrations
+- **Always** create a migration for every schema change: `npm run migration:generate`
+- Name migrations explicitly: `<timestamp>-<PascalCaseName>.ts`
+- `down()` must cleanly revert `up()`
+- Never modify a migration already merged into `main`
+- No `TYPEORM_SYNCHRONIZE=true` in production or staging
+
+### Schema Conventions
+- IDs: application-generated UUID stored as `varchar` with `randomUUID()`
+- Timestamps: `created_at` and `updated_at` on all tables (`datetime NOT NULL DEFAULT CURRENT_TIMESTAMP`)
+- Foreign keys: always named (`FK_<table>_<column>`)
+- Indexes: always named (`IDX_<table>_<column>`)
+- CHECK constraints for enums in DB (not only in application)
+
+## Tests
+
+### Structure
+- **Unit tests** (`*.spec.ts`) in `src/`: domain + application services + controllers
+- **E2E tests** (`*.e2e-spec.ts`) in `test/` and `src/<module>/`: full HTTP flows
+- Domain tests have **no dependency** on NestJS or TypeORM
+- Service tests use SQLite `:memory:` with `synchronize: true` (test-only)
+
+### Coverage
+- Coverage target: **>=60%** statements and branches
+- LCOV coverage report for SonarCloud: `npm run test:cov`
+- Report location: `coverage/lcov.info`
+
+### Conventions
+- Name suites as `describe('<ClassName>')` and test cases as `it('should <behavior>')`
+- Test error cases as much as nominal cases
+- E2E tests must isolate DB (`:memory:` or separate test DB)
+- Clear data between each test (`beforeEach` cleanup)
+
+## CI/CD
+
+### CI Pipeline (`.github/workflows/ci.yml`)
+1. TypeScript build
+2. Lint (`eslint`)
+3. Unit tests (`npm test`)
+4. LCOV coverage report -> SonarCloud analysis
+5. Security audit (production deps, `critical` level)
+
+### CD Pipeline (`.github/workflows/cd-docker.yml`)
+- Triggered after successful CI on `main`
+- Build + push Docker image to GHCR (`ghcr.io/<repo>:latest` + `sha-<short>`)
+
+### Required Secrets
+- `SONAR_TOKEN` — SonarCloud token for quality analysis
+- `GITHUB_TOKEN` — auto-provided by GitHub Actions (GHCR push)
+
+## Commit and PR Conventions
+
+- Conventional Commits: `<type>(<scope>): <description>`
+- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `ci`
+- Examples: `feat(recipe): add ingredients CRUD API`, `test(batch): cover fermentation edge cases`
+- A new branch is mandatory for each task/feature/fix/docs/ci: `<type>/<scope>` from `main`
+- Never work directly on `main` for a new task
+- PR template available: `.github/pull_request_template.md`
+- Automatic Copilot review on each PR
+- Human review required by `@vitalikevin` (CODEOWNERS)
+
+## PR & Copilot Routine (MANDATORY)
+
+### 1) Quality Gate before final review/merge
+- After each PR push, check checks with `gh pr checks <pr_number>` (or watch mode)
+- All required checks must be **green** before any merge proposal
+- No CI step may remain in `pending` / `in_progress` when closing review
+
+### 2) Systematic Copilot comment handling
+- All Copilot comments/threads must be read and processed
+- Each suggestion is explicitly classified:
+  - `MUST_HAVE`: security issue, functional bug, data integrity issue, API/contract regression, architecture rule violation, test/build/lint failure
+  - `SHOULD_HAVE`: important non-blocking improvement
+  - `NICE_TO_HAVE`: non-urgent maintainability/convenience improvement
+  - `REJECT`: non-relevant suggestion in context
+- Every Copilot comment must receive an explicit response with classification, decision, and concise rationale
+
+### 3) Suggestion implementation policy
+- Implement in PR only relevant `MUST_HAVE` suggestions
+- For each `SHOULD_HAVE` or `NICE_TO_HAVE`, ask the user **one by one**:
+  - "Do you want me to create a backlog issue for this suggestion?"
+- If the user agrees, create a backlog issue with Angular/Conventional title format:
+  - `type(scope): description`
+- Track the issue link (or explicit user rejection) in the corresponding thread reply
+
+### 4) Copilot conversation closing
+- Once the response is posted and the decision is tracked, close the corresponding conversation immediately
+- No Copilot conversation should remain open at end of PR processing
+
+### 5) PR Definition of Done
+- Required CI checks: ✅
+- All Copilot comments: response + tracked decision: ✅
+- All processed threads: closed: ✅
+- All relevant `MUST_HAVE` suggestions: implemented: ✅
+- All `SHOULD_HAVE`/`NICE_TO_HAVE` suggestions: backlog decision requested from user, one by one: ✅
+
+## What Cline MUST NOT do
+
+- Modify migrations already merged into `main`
+- Set `synchronize: true` in prod or staging config
+- Add business logic in controllers
+- Import NestJS or TypeORM in `domain/` files
+- Use `console.log` in production code (except bootstrap and explicit admin logs)
+- Create new feature files without associated tests
+- Use `any` without documented justification
+- Bypass ownership guards (`owner_id`) by trusting HTTP parameters

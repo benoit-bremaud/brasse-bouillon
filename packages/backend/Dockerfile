@@ -1,0 +1,48 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-bookworm-slim AS build
+
+WORKDIR /app
+
+# Native dependencies (e.g. better-sqlite3) may need a toolchain.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY nest-cli.json tsconfig*.json ./
+COPY src ./src
+RUN npm run build
+
+# Keep only production dependencies in the final image.
+RUN npm prune --omit=dev
+
+FROM node:20-bookworm-slim AS runtime
+
+WORKDIR /app
+
+ENV PORT=3000
+ENV NODE_ENV=production
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY package.json ./
+
+RUN mkdir -p data && chown -R node:node data
+
+# Persist application data (SQLite DB by default lives under /app/data).
+# Mount a named volume at /app/data in production to avoid losing the DB on container recreation.
+VOLUME ["/app/data"]
+
+USER node
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e 'const port = process.env.PORT || 3000; const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 2000); fetch(`http://127.0.0.1:${port}/`, { signal: controller.signal }).then((r) => { clearTimeout(timer); process.exit(r.ok ? 0 : 1); }).catch(() => process.exit(1));'
+
+CMD ["node", "dist/main"]

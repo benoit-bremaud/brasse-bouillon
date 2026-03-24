@@ -1,0 +1,797 @@
+import {
+  EmailAlreadyExistsException,
+  UserNotFoundException,
+  UsernameAlreadyExistsException,
+} from '../../common/exceptions';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { PasswordService } from '../../auth/services/password.service';
+import { Repository } from 'typeorm';
+import { User } from '../entities/user.entity';
+import { UserRole } from '../../common/enums/role.enum';
+import { UserService } from './user.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+
+/**
+ * User Service Test Suite
+ *
+ * Comprehensive test coverage for UserService built iteratively.
+ * Each test is added one at a time and validated before moving to the next.
+ *
+ * Tests focus on:
+ * - User creation with validation
+ * - Email and username uniqueness checks
+ * - Exception handling and error scenarios
+ * - Database interaction mocking
+ *
+ * @test UserService
+ * @requires UserService
+ * @requires User Entity
+ * @requires Custom Exceptions (EmailAlreadyExistsException, UsernameAlreadyExistsException)
+ */
+describe('UserService', () => {
+  let userService: UserService;
+  let userRepository: Repository<User>;
+  let passwordService: PasswordService;
+
+  /**
+   * Mock user object for testing
+   *
+   * Represents a typical user record returned from the database.
+   * Used as a fixture throughout test cases.
+   */
+  const mockUser: User = {
+    id: '550e8400-e29b-41d4-a716-446655440000',
+    email: 'john@example.com',
+    username: 'john_doe',
+    password_hash: 'hashedPassword123',
+    first_name: 'John',
+    last_name: 'Doe',
+    is_active: true,
+    created_at: new Date(),
+    updated_at: new Date(),
+  } as User;
+
+  /**
+   * Mock user creation data for testing
+   *
+   * Represents data sent from a client during user registration.
+   * Contains required fields: email, username, password.
+   * Contains optional fields: first_name, last_name.
+   */
+  const mockCreateUserData = {
+    email: 'john@example.com',
+    username: 'john_doe',
+    password: 'SecurePassword123!',
+    first_name: 'John',
+    last_name: 'Doe',
+  };
+
+  /**
+   * Setup: Initialize testing module with mocked repository
+   *
+   * This function runs before each test to ensure a clean state.
+   * Creates a NestJS testing module with:
+   * - UserService (the service under test)
+   * - Mocked Repository<User> with all methods as jest.fn()
+   *
+   * Dependency injection is handled by NestJS testing utilities.
+   *
+   * @before Each test execution
+   */
+  beforeEach(async () => {
+    // Create mock repository with arrow functions to avoid ESLint unbound-method warnings
+    const mockRepository = {
+      findOne: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      remove: jest.fn(),
+      count: jest.fn(),
+    };
+
+    const mockPasswordService = {
+      hashPassword: jest.fn(),
+      comparePassword: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: getRepositoryToken(User),
+          useValue: mockRepository,
+        },
+        {
+          provide: PasswordService,
+          useValue: mockPasswordService,
+        },
+      ],
+    }).compile();
+
+    userService = module.get<UserService>(UserService);
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    passwordService = module.get<PasswordService>(PasswordService);
+  });
+
+  /**
+   * Cleanup: Clear all mocks after each test
+   *
+   * This ensures that mock data from one test doesn't affect another test.
+   * Prevents flaky tests caused by mock state leaking between test cases.
+   *
+   * @after Each test execution
+   */
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // ============================================================================
+  // CREATE METHOD TEST SUITE
+  // ============================================================================
+
+  /**
+   * Test suite for UserService.create() method
+   *
+   * Tests user creation with validation, duplication checks, and error handling.
+   * All create() scenarios are tested here.
+   */
+  describe('create()', () => {
+    /**
+     * Test Case 1️⃣: Successful user creation
+     *
+     * Scenario: Email and username are unique, all required fields provided
+     * Expected: User is created and saved to database
+     *
+     * Validates that:
+     * - Both email and username uniqueness checks return null (no duplicates)
+     * - User object is created with correct data
+     * - User object is saved to database
+     * - Created user is returned to caller
+     * - Password is hashed before storage
+     *
+     * Test Setup:
+     * - Mock findOne to return null twice (email check, username check)
+     * - Mock create to return mockUser
+     * - Mock save to return mockUser
+     * - Mock User.hashPassword static method
+     *
+     * Assertions:
+     * - result is defined
+     * - create was called with email and username
+     * - save was called with mockUser
+     */
+    it('should create a new user when email and username are unique', async () => {
+      // Setup: Mock repository to return null for both uniqueness checks
+      // First call simulates email uniqueness check passing
+      // Second call simulates username uniqueness check passing
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null) // No existing email
+        .mockResolvedValueOnce(null); // No existing username
+
+      // Create spies for methods we'll assert on
+      const createSpy = jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(mockUser);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(mockUser);
+
+      // Mock password hashing
+      jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedPassword123');
+
+      // Execute: Call the service method with valid user data
+      const result = await userService.create(mockCreateUserData);
+
+      // Verify: Check that user was created with correct data
+      expect(result).toBeDefined();
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: mockCreateUserData.email,
+          username: mockCreateUserData.username,
+        }),
+      );
+
+      // Verify: Check that user was saved to database
+      expect(saveSpy).toHaveBeenCalledWith(mockUser);
+    });
+
+    /**
+     * Test Case 2️⃣: Email already exists
+     *
+     * Scenario: User attempts to register with an email that already exists
+     * Expected: EmailAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - Service correctly checks for duplicate email
+     * - Throws the correct custom exception (EmailAlreadyExistsException)
+     * - No further database operations occur after email conflict detected
+     * - Service fails fast on email conflict before checking username
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser on first call (simulates email existing)
+     *
+     * Assertions:
+     * - EmailAlreadyExistsException is thrown
+     * - Exception is thrown during create() call
+     */
+    it('should throw EmailAlreadyExistsException when email already exists', async () => {
+      // Setup: Mock findOne to return existing user on first call (email check)
+      // This simulates the email already being registered
+      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(mockUser);
+
+      // Execute & Verify: Expect EmailAlreadyExistsException to be thrown
+      // The service should detect the duplicate email and throw immediately
+      await expect(userService.create(mockCreateUserData)).rejects.toThrow(
+        EmailAlreadyExistsException,
+      );
+    });
+
+    /**
+     * Test Case 3️⃣: Username already exists
+     *
+     * Scenario: User attempts to register with a username that already exists
+     * Expected: UsernameAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - Service passes email uniqueness check
+     * - Service correctly detects duplicate username on second check
+     * - Throws the correct custom exception (UsernameAlreadyExistsException)
+     * - Flow: email check passes → username check fails → exception thrown
+     *
+     * Test Setup:
+     * - Mock findOne with chained responses:
+     *   - First call (email check): null (email is unique)
+     *   - Second call (username check): mockUser (username already exists)
+     *
+     * Assertions:
+     * - UsernameAlreadyExistsException is thrown
+     * - Exception is thrown during create() call
+     */
+    it('should throw UsernameAlreadyExistsException when username already exists', async () => {
+      // Setup: Mock findOne with chained responses
+      // First call returns null: email is unique (passes check)
+      // Second call returns mockUser: username already exists (fails check)
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null) // Email check passes
+        .mockResolvedValueOnce(mockUser); // Username check fails
+
+      // Execute & Verify: Expect UsernameAlreadyExistsException to be thrown
+      // The service should detect the duplicate username and throw
+      await expect(userService.create(mockCreateUserData)).rejects.toThrow(
+        UsernameAlreadyExistsException,
+      );
+    });
+  });
+
+  /**
+   * Test suite for UserService.findById() method
+   *
+   * Tests user retrieval by unique identifier with exception handling.
+   */
+  describe('findById()', () => {
+    /**
+     * Test Case 4️⃣: User found by ID
+     *
+     * Scenario: Valid user ID provided and user exists in database
+     * Expected: User object is returned
+     *
+     * Validates that:
+     * - Repository is queried with correct ID
+     * - User object is returned with all properties
+     * - Password hash is excluded from response
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - result contains correct email
+     * - findOne called with correct ID
+     */
+    it('should return a user when found by ID', async () => {
+      // Setup: Mock repository to return user
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      const result = await userService.findById(mockUser.id);
+
+      // Verify: User is returned with correct data
+      expect(result).toBeDefined();
+      expect(result.email).toBe(mockUser.email);
+      // Verify: Repository was called with correct query
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+      });
+    });
+
+    /**
+     * Test Case 5️⃣: User not found by ID
+     *
+     * Scenario: User ID provided but no user exists with that ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service detects missing user
+     * - Throws the correct custom exception (UserNotFoundException)
+     * - Error message is descriptive
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when user does not exist', async () => {
+      // Setup: Mock repository to return null (user not found)
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException to be thrown
+      await expect(userService.findById('non-existent-id')).rejects.toThrow(
+        UserNotFoundException,
+      );
+    });
+  });
+
+  /**
+   * Test suite for UserService.findByEmail() method
+   *
+   * Tests user retrieval by email address.
+   * Note: This method does NOT format response (includes password hash for auth).
+   */
+  describe('findByEmail()', () => {
+    /**
+     * Test Case 6️⃣: User found by email
+     *
+     * Scenario: Valid email provided and user exists with that email
+     * Expected: User object is returned (including password hash for auth)
+     *
+     * Validates that:
+     * - Repository is queried with correct email
+     * - User object is returned with password hash included
+     * - Used for authentication purposes
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - result has correct email
+     * - findOne called with correct email
+     */
+    it('should return a user when found by email', async () => {
+      // Setup: Mock repository to return user
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      const result = await userService.findByEmail(mockUser.email);
+
+      // Verify: User is returned
+      expect(result).toBeDefined();
+      if (result) {
+        expect(result.email).toBe(mockUser.email);
+      }
+      // Verify: Repository was called with correct email query
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        where: { email: mockUser.email },
+      });
+    });
+
+    /**
+     * Test Case 7️⃣: User not found by email
+     *
+     * Scenario: Email provided but no user exists with that email
+     * Expected: null is returned (NOT an exception)
+     *
+     * Note: This differs from findById() which throws an exception.
+     * findByEmail() returns null for flexible error handling in controllers.
+     *
+     * Validates that:
+     * - Service returns null instead of throwing
+     * - Repository was called with correct query
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - result is null (not undefined, not exception)
+     */
+    it('should return null when user does not exist by email', async () => {
+      // Setup: Mock repository to return null
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute: Call the service method
+      const result = await userService.findByEmail('nonexistent@example.com');
+
+      // Verify: null is returned (not an exception)
+      expect(result).toBeNull();
+    });
+  });
+
+  /**
+   * Test suite for UserService.createAdmin() method
+   *
+   * Tests admin creation flow used by seed endpoints.
+   */
+  describe('createAdmin()', () => {
+    it('should create an admin user when email and username are unique', async () => {
+      const adminEntity = {
+        ...mockUser,
+        email: 'admin@example.com',
+        username: 'admin',
+        password_hash: 'hashedAdminPassword123',
+        role: UserRole.ADMIN,
+      } as User;
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+
+      const createSpy = jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(adminEntity);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(adminEntity);
+      const hashPasswordSpy = jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedAdminPassword123');
+
+      const result = await userService.createAdmin(
+        'admin@example.com',
+        'admin',
+        'AdminPassword123!',
+        'Admin',
+        'User',
+      );
+
+      expect(hashPasswordSpy).toHaveBeenCalledWith('AdminPassword123!');
+      expect(createSpy).toHaveBeenCalled();
+      expect(saveSpy).toHaveBeenCalledWith(adminEntity);
+      expect(result.email).toBe('admin@example.com');
+      expect(result.password_hash).toBeUndefined();
+    });
+  });
+
+  /**
+   * Test suite for UserService.updateUserRole() method
+   */
+  describe('updateUserRole()', () => {
+    it('should update user role successfully', async () => {
+      const existingUser = {
+        ...mockUser,
+        role: UserRole.ADMIN,
+      } as User;
+      const updatedUser = {
+        ...existingUser,
+        role: UserRole.MODERATOR,
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(updatedUser);
+
+      const result = await userService.updateUserRole(
+        existingUser.id,
+        UserRole.MODERATOR,
+      );
+
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ role: UserRole.MODERATOR }),
+      );
+      expect(result.role).toBe(UserRole.MODERATOR);
+      expect(result.password_hash).toBeUndefined();
+    });
+  });
+
+  /**
+   * Test suite for UserService.changePassword() method
+   */
+  describe('changePassword()', () => {
+    it('should change password when old password is valid', async () => {
+      const existingUser = {
+        ...mockUser,
+        password_hash: 'old-password-hash',
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const comparePasswordSpy = jest
+        .spyOn(passwordService, 'comparePassword')
+        .mockResolvedValue(true);
+      const hashPasswordSpy = jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('new-password-hash');
+      const saveSpy = jest.spyOn(userRepository, 'save').mockResolvedValue({
+        ...existingUser,
+        password_hash: 'new-password-hash',
+      } as User);
+
+      const result = await userService.changePassword(
+        existingUser.id,
+        'OldPassword123!',
+        'NewPassword456!',
+      );
+
+      expect(comparePasswordSpy).toHaveBeenCalledWith(
+        'OldPassword123!',
+        'old-password-hash',
+      );
+      expect(hashPasswordSpy).toHaveBeenCalledWith('NewPassword456!');
+      expect(saveSpy).toHaveBeenCalled();
+      expect(result.password_hash).toBeUndefined();
+    });
+
+    it('should throw when old password is incorrect', async () => {
+      const existingUser = {
+        ...mockUser,
+        password_hash: 'old-password-hash',
+      } as User;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(existingUser);
+      const comparePasswordSpy = jest
+        .spyOn(passwordService, 'comparePassword')
+        .mockResolvedValue(false);
+      const saveSpy = jest.spyOn(userRepository, 'save');
+
+      await expect(
+        userService.changePassword(
+          existingUser.id,
+          'WrongPassword123!',
+          'NewPassword456!',
+        ),
+      ).rejects.toThrow('Old password is incorrect');
+
+      expect(comparePasswordSpy).toHaveBeenCalledWith(
+        'WrongPassword123!',
+        'old-password-hash',
+      );
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Test suite for UserService.update() method
+   *
+   * Tests user information updates with validation and conflict detection.
+   */
+  describe('update()', () => {
+    /**
+     * Test Case 8️⃣: Successful user update
+     *
+     * Scenario: Valid user ID and update data provided
+     * Expected: User is updated and saved to database
+     *
+     * Validates that:
+     * - User exists (findOne called)
+     * - Update data is applied
+     * - Updated user is saved to database
+     * - Updated user is returned
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     * - Mock save to return mockUser
+     *
+     * Assertions:
+     * - result is defined
+     * - save was called
+     */
+    it('should update a user successfully', async () => {
+      // Setup: Mock repository for find and save
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      jest.spyOn(userRepository, 'save').mockResolvedValue(mockUser);
+
+      // Execute: Call the service method with partial update data
+      const updateData = { first_name: 'Johnny' };
+      const result = await userService.update(mockUser.id, updateData);
+
+      // Verify: User is returned
+      expect(result).toBeDefined();
+      // Verify: User was saved to database
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(userRepository.save).toHaveBeenCalled();
+    });
+
+    /**
+     * Test Case 9️⃣: Update non-existent user
+     *
+     * Scenario: Update data provided for non-existent user ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service checks if user exists first
+     * - Throws correct exception for missing user
+     * - No save operation occurs
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when updating non-existent user', async () => {
+      // Setup: Mock repository to return null (user not found)
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException
+      await expect(
+        userService.update('non-existent-id', { first_name: 'Johnny' }),
+      ).rejects.toThrow(UserNotFoundException);
+    });
+
+    /**
+     * Test Case 🔟: Update to duplicate email
+     *
+     * Scenario: User attempts to change email to one already in use
+     * Expected: EmailAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - User exists (first findOne returns current user)
+     * - Email uniqueness is checked (second findOne returns conflicting user)
+     * - Throws correct exception for email conflict
+     * - No update occurs
+     *
+     * Test Setup:
+     * - Mock findOne with chained responses:
+     *   - First call: current user (exists check)
+     *   - Second call: other user (email conflict detection)
+     *
+     * Assertions:
+     * - EmailAlreadyExistsException is thrown
+     */
+    it('should throw EmailAlreadyExistsException when updating to existing email', async () => {
+      // Setup: Create another user for conflict detection
+      const otherUser = { ...mockUser, id: 'other-id' } as User;
+
+      // Mock findOne with chained responses
+      // First call: Returns current user (exists check)
+      // Second call: Returns other user (email conflict detection)
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(otherUser);
+
+      // Execute & Verify: Expect EmailAlreadyExistsException
+      await expect(
+        userService.update(mockUser.id, {
+          email: 'other@example.com',
+        }),
+      ).rejects.toThrow(EmailAlreadyExistsException);
+    });
+
+    /**
+     * Test Case 1️⃣1️⃣: Update to duplicate username
+     *
+     * Scenario: User attempts to change username to one already in use
+     * Expected: UsernameAlreadyExistsException is thrown
+     *
+     * Validates that:
+     * - User exists (first findOne)
+     * - Email uniqueness passes (second findOne returns null)
+     * - Username uniqueness check detects conflict (third findOne returns conflicting user)
+     * - Throws correct exception for username conflict
+     *
+     * Test Setup:
+     * - Mock findOne with chained responses:
+     *   - First call: current user (exists check)
+     *   - Second call: null (email is unique)
+     *   - Third call: other user (username conflict detection)
+     *
+     * Assertions:
+     * - UsernameAlreadyExistsException is thrown
+     */
+    it('should throw UsernameAlreadyExistsException when updating to existing username', async () => {
+      // Setup: Create another user for conflict detection
+      const otherUser = {
+        ...mockUser,
+        id: 'other-id',
+        username: 'other_username',
+      } as User;
+
+      // Mock findOne - returns different values based on query parameter
+
+      jest.spyOn(userRepository, 'findOne').mockImplementation((options) => {
+        const where = Array.isArray(options?.where)
+          ? options.where[0]
+          : options?.where;
+        if (where?.id === mockUser.id) {
+          return Promise.resolve(mockUser); // User exists check
+        }
+        if (where?.email === mockUser.email) {
+          return Promise.resolve(null); // Email is unique
+        }
+        if (where?.username === 'other_username') {
+          return Promise.resolve(otherUser); // Username conflict
+        }
+        return Promise.resolve(null);
+      });
+      // Execute & Verify: Expect UsernameAlreadyExistsException
+      await expect(
+        userService.update(mockUser.id, {
+          username: 'other_username',
+        }),
+      ).rejects.toThrow(UsernameAlreadyExistsException);
+    });
+  });
+
+  /**
+   * Test suite for UserService.delete() method
+   *
+   * Tests user deletion with existence validation.
+   */
+  describe('delete()', () => {
+    /**
+     * Test Case 1️⃣2️⃣: Successfully delete user
+     *
+     * Scenario: Valid user ID provided and user exists
+     * Expected: User is deleted from database
+     *
+     * Validates that:
+     * - User exists before deletion
+     * - User is removed from database
+     * - Method returns void (no value)
+     *
+     * Test Setup:
+     * - Mock findOne to return mockUser
+     * - Mock remove to resolve (user deleted)
+     *
+     * Assertions:
+     * - remove is called with mockUser
+     * - No error is thrown
+     */
+    it('should delete a user successfully', async () => {
+      // Setup: Mock repository
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+      const removeSpy = jest
+        .spyOn(userRepository, 'remove')
+        .mockResolvedValue(mockUser);
+
+      // Execute: Call the service method
+      await userService.delete(mockUser.id);
+
+      // Verify: Remove was called with user
+      expect(removeSpy).toHaveBeenCalledWith(mockUser);
+    });
+
+    /**
+     * Test Case 1️⃣3️⃣: Delete non-existent user
+     *
+     * Scenario: Delete is called with non-existent user ID
+     * Expected: UserNotFoundException is thrown
+     *
+     * Validates that:
+     * - Service checks if user exists first
+     * - Throws correct exception for missing user
+     * - No removal operation occurs
+     *
+     * Test Setup:
+     * - Mock findOne to return null
+     *
+     * Assertions:
+     * - UserNotFoundException is thrown
+     */
+    it('should throw UserNotFoundException when deleting non-existent user', async () => {
+      // Setup: Mock repository to return null
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      // Execute & Verify: Expect UserNotFoundException
+      await expect(userService.delete('non-existent-id')).rejects.toThrow(
+        UserNotFoundException,
+      );
+    });
+  });
+});

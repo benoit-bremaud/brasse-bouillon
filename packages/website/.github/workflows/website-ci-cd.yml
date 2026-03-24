@@ -1,0 +1,82 @@
+name: Website CI/CD
+
+'on':
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run quality gate unit tests
+        run: python -m unittest -v tests/test_quality_gate.py
+
+      - name: Run website quality gate
+        run: python scripts/quality_gate.py
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare deploy artifact
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=( *.html *.ico *.png *.svg *.css *.js *.xml *.txt CNAME )
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No deployable static files found."
+            exit 1
+          fi
+
+          mkdir -p dist
+          cp -v "${files[@]}" dist/
+
+      - name: Upload static website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -27,9 +27,7 @@ import { UserService } from '../services/user.service';
  */
 @ValidatorConstraint({ name: 'IsUniqueUsername', async: true })
 @Injectable()
-export class IsUniqueUsernameConstraint
-  implements ValidatorConstraintInterface
-{
+export class IsUniqueUsernameConstraint implements ValidatorConstraintInterface {
   /**
    * Constructor - Injects the User service
    *

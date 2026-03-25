@@ -1,6 +1,10 @@
 # User Stories - Brasse-Bouillon
 
-## Introduction
+> **SUPERSEDED** — This document has been replaced by the unified Product Backlog at
+> [`docs/product-backlog/product-backlog.md`](product-backlog/product-backlog.md).
+> All User Stories are now tracked as GitHub Issues (#403-#465) on the project board.
+
+## Introduction (historical)
 
 Les user stories suivantes sont basées sur les personas documentés pour l'application Brasse-Bouillon. Elles visent à répondre aux besoins spécifiques des utilisateurs tout en priorisant les fonctionnalités essentielles pour le MVP (Minimum Viable Product).
 

@@ -15,10 +15,11 @@
 |--------|-------|------|-------------|--------|
 | Sprint 0 | Nov 26 – Dec 17, 2025 | Yday 1-2 | Team formation, project ideation, initial planning | Done |
 | Sprint 1 | Dec 18, 2025 – Jan 22, 2026 | Yday 3-5 | Oral presentation, define backlog, start production | Done |
-| Sprint 2 | Jan 23 – Mar 24, 2026 | Yday 6-7 | Full audit, monorepo migration plan, 68 issues created | Done |
-| Sprint 3 | Mar 25 – mid-Apr 2026 | Yday 8 | Monorepo bootstrap, Scrum framework, retroplanning | In Progress |
-| Sprint 4 | mid-Apr 2026 | Yday 9 | Feature development, CI validation, demo prep | Planned |
-| Sprint 5 | early May 2026 | Yday 10 | Final polish, soutenance preparation | Planned |
+| Sprint 2 | Jan 23 – Mar 4, 2026 | Yday 6 | Feature development (auth, recipes, tools, batches) | Done |
+| Sprint 3 | Mar 5 – Mar 24, 2026 | Yday 7 | Full audit, monorepo migration plan, 68 issues created | Done |
+| Sprint 4 | Mar 25 – Apr 14, 2026 | Yday 8 | Bootstrap & Scrum — monorepo, product backlog, core recipe CRUD | In Progress |
+| Sprint 5 | Apr 15 – May 5, 2026 | Yday 9 | Features & Demo Prep — search, auto-calc, batch recording, glossary | Planned |
+| Sprint 6 | May 6 – May 27, 2026 | Yday 10 | Soutenance Prep — polish, community, tutorial, demo rehearsal | Planned |
 
 ## Sprint Ceremonies Schedule
 

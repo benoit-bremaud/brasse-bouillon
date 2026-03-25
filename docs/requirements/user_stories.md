@@ -1,4 +1,8 @@
-# 📖 User Stories – Projet Brasse-Bouillon
+# User Stories – Projet Brasse-Bouillon
+
+> **SUPERSEDED** — This document has been replaced by the unified Product Backlog at
+> [`docs/product-backlog/product-backlog.md`](../product-backlog/product-backlog.md).
+> All User Stories are now tracked as GitHub Issues (#403-#465) on the project board.
 
 Ce document regroupe les récits utilisateurs (user stories) exprimant les besoins fonctionnels des brasseurs amateurs, tels qu'identifiés dans la phase de recueil des besoins. Les histoires sont classées par grandes thématiques fonctionnelles.
 

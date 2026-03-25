@@ -2,7 +2,7 @@
 # Brasse-Bouillon — Monorepo Makefile
 # ==============================================================================
 
-SONAR_CONTAINER := bb-sonarqube
+SONAR_CONTAINER := vsea-sonarqube
 SONAR_IMAGE     := sonarqube:lts-community
 SONAR_PORT      := 9000
 SONAR_URL       := http://localhost:$(SONAR_PORT)
@@ -23,9 +23,9 @@ sonar-start: ## Start local SonarQube server (Docker, port 9000) — creates con
 	else \
 		echo "[sonar] Creating and starting SonarQube container..."; \
 		docker run -d --name $(SONAR_CONTAINER) -p $(SONAR_PORT):9000 \
-			-v bb_sonarqube_data:/opt/sonarqube/data \
-			-v bb_sonarqube_extensions:/opt/sonarqube/extensions \
-			-v bb_sonarqube_logs:/opt/sonarqube/logs \
+			-v ci_sonarqube_data:/opt/sonarqube/data \
+			-v ci_sonarqube_extensions:/opt/sonarqube/extensions \
+			-v ci_sonarqube_logs:/opt/sonarqube/logs \
 			$(SONAR_IMAGE); \
 	fi
 	@echo "[sonar] Waiting for SonarQube to be ready at $(SONAR_URL) ..."

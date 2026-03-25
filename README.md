@@ -1,130 +1,188 @@
 # Brasse-Bouillon
 
-[![Build](https://img.shields.io/github/actions/workflow/status/benoit-bremaud/brasse-bouillon/ci.yml?branch=main)](https://github.com/benoit-bremaud/brasse-bouillon/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/benoit-bremaud/brasse-bouillon/ci.yml?branch=main&label=CI)](https://github.com/benoit-bremaud/brasse-bouillon/actions)
 [![License](https://img.shields.io/github/license/benoit-bremaud/brasse-bouillon)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/benoit-bremaud/brasse-bouillon)](https://github.com/benoit-bremaud/brasse-bouillon/issues)
-[![Last Commit](https://img.shields.io/github/last-commit/benoit-bremaud/brasse-bouillon)](https://github.com/benoit-bremaud/brasse-bouillon/commits/main)
-[![Docker](https://img.shields.io/badge/docker-enabled-blue?logo=docker)](https://www.docker.com/)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-green?logo=node.js)](https://nodejs.org/)
-[![Platform](https://img.shields.io/badge/platform-local--dev-lightgrey)](https://github.com/benoit-bremaud/brasse-bouillon)
+[![Node](https://img.shields.io/badge/node-%3E%3D20%20%3C21-green?logo=node.js)](https://nodejs.org/)
 
-**Brasse-Bouillon** is an open-source mobile and web application designed to support amateur brewers in managing and sharing their brewing recipes. It provides essential tools to calculate brewing parameters and organize batches efficiently.
+**Brasse-Bouillon** is an open-source mobile and web application for amateur brewers. It provides recipe management, batch tracking, brewing calculators, and an educational academy — all in one app.
 
 ---
 
-## Table of Contents
+## Monorepo Structure
 
-* [Project Overview](#project-overview)
-* [Installation](#installation)
-* [Usage](#usage)
-* [Contributing](#contributing)
-* [Documentation](#documentation)
-* [Project Status](#project-status)
-* [Website](#website)
-* [Contact](#contact)
-* [License](#license)
+This repository is an [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces) monorepo containing three packages:
 
----
-
-## Project Overview
-
-This project follows an Agile methodology and is structured into modular GitHub Projects (Frontend, Backend, Design System, etc.).
-
-**Main Features:**
-
-* Recipe creation and editing
-* Brewing parameter calculations (ABV, IBU, OG/FG)
-* Session tracking
-* User-friendly mobile experience
-
----
-
-## Installation
-
-To install and run the project locally:
-
-```bash
-# Clone the repository
-git clone https://github.com/benoit-bremaud/brasse-bouillon.git
-cd brasse-bouillon
+```
+brasse-bouillon/
+  packages/
+    frontend/     React Native + Expo SDK 54 + Expo Router v6 + TypeScript
+    backend/      NestJS 11 + TypeORM + SQLite + TypeScript
+    website/      Static HTML/CSS/JS marketing site + Python quality gate
+  docs/           Project documentation (architecture, design, API, requirements)
+  _archive/       Old code preserved for reference (pre-monorepo)
+  .github/        CI workflows (path-filtered per package)
 ```
 
-Next, follow the setup instructions for each component:
+---
 
-* [Backend Installation Guide](./backend/README.md)
+## Prerequisites
 
-* [Frontend Installation Guide](./frontend/README.md)
-
-Each guide contains detailed steps to configure the environment, install dependencies, and run the application.
+- **Node.js** 20.x (`nvm use` will read `.nvmrc`)
+- **npm** 10+
+- **Docker** (optional, for SonarQube local analysis)
 
 ---
 
-## Usage
+## Getting Started
 
-Once installed, you can:
+```bash
+# Clone
+git clone git@github.com:benoit-bremaud/brasse-bouillon.git
+cd brasse-bouillon
 
-* Access the frontend via Expo to simulate the mobile interface
-* Interact with the backend via REST endpoints
-* Add or manage recipes
-* View calculated data for each batch
+# Install all dependencies (from root)
+npm install
+
+# Start the frontend (Expo dev server)
+npm run dev:frontend
+
+# Start the backend (NestJS dev server)
+npm run dev:backend
+```
+
+### Environment Variables
+
+Each package has its own `.env.example`. Copy and configure before running:
+
+```bash
+cp packages/frontend/.env.example packages/frontend/.env
+cp packages/backend/.env.example packages/backend/.env
+```
+
+Key variables:
+
+| Package | Variable | Description |
+|---------|----------|-------------|
+| Frontend | `EXPO_PUBLIC_API_URL` | Backend API URL (default: `http://localhost:3000`) |
+| Frontend | `EXPO_PUBLIC_USE_DEMO_DATA` | `true` to use mock data without backend |
+| Backend | `JWT_SECRET` | JWT signing secret (required) |
+| Backend | `PORT` | API port (default: 3000) |
+| Backend | `DATABASE_PATH` | SQLite database file path |
 
 ---
 
-## Contributing
+## Available Scripts
 
-Contributions are welcome! Please follow the project's conventions:
+### Root (monorepo)
 
-* Follow our [CONVENTIONS.md](./docs/CONVENTIONS.md) file.
-* Use [Angular-style commit messages](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): short description`
-* Reference issues using `Closes #<issue-number>`.
-* Create PRs with clear checklists and descriptions.
-* See also: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+| Script | Description |
+|--------|-------------|
+| `npm run dev:frontend` | Start Expo dev server |
+| `npm run dev:backend` | Start NestJS in watch mode |
+| `npm run ci:all` | Run lint + typecheck + format check for all packages |
+| `npm run test:all` | Run all tests across packages |
+| `npm run lint:all` | Run linters across packages |
+| `npm run typecheck:all` | Run type checking across packages |
+
+### SonarQube (local analysis)
+
+| Command | Description |
+|---------|-------------|
+| `make sonar-start` | Start local SonarQube (Docker) |
+| `make sonar-stop` | Stop SonarQube |
+| `make sonar-status` | Check SonarQube status |
+| `make sonar-scan SONAR_TOKEN=sqp_xxx` | Run analysis |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Mobile / Web | React Native, Expo SDK 54, Expo Router v6 |
+| State / Data | TanStack Query (migrating from useState+useEffect) |
+| Backend | NestJS 11, TypeORM, SQLite |
+| Auth | JWT (access token + refresh) |
+| CI | GitHub Actions (path-filtered per package) |
+| Code Quality | SonarQube (local), ESLint, Prettier |
+| Testing | Jest, @testing-library/react-native |
+
+---
+
+## Architecture
+
+The frontend follows **Clean Architecture** with strict layering:
+
+```
+domain  <-  application  <-  data
+                |
+          presentation
+```
+
+- `domain/` — Types and interfaces only
+- `data/` — API calls via HTTP client
+- `application/` — Use-cases (business logic)
+- `presentation/` — React Native screens and components
+
+See [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md) for full frontend conventions.
+
+---
+
+## CI/CD
+
+GitHub Actions runs automatically on every PR to `main`:
+
+- **Path-filtered**: only changed packages are tested
+- **Frontend**: lint + typecheck + format check + 407 tests
+- **Backend**: lint + build + 238 tests
+- **Website**: Python quality gate
+
+Coverage reports are uploaded as artifacts for SonarQube integration.
 
 ---
 
 ## Documentation
 
-Project documentation is stored in the `docs/` folder and dedicated subproject READMEs.
-
-Notable files:
-
-* [`frontend/README.md`](./frontend/README.md) – Guide for launching and developing the mobile app
-
-* [`backend/README.md`](./backend/README.md) – Technical guide for backend setup and usage
-
-* [`docs/design/charte_graphique.md`](./docs/design/charte_graphique.md)
-
-* [`docs/backend/api-overview.md`](./docs/backend/api-overview.md)
-
-* [`docs/frontend/navigation-structure.md`](./docs/frontend/navigation-structure.md)
+| Topic | Location |
+|-------|----------|
+| Frontend conventions | [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md) |
+| Design system | [packages/frontend/docs/design-system.md](packages/frontend/docs/design-system.md) |
+| API documentation | [docs/api/](docs/api/) |
+| Architecture | [docs/architecture/](docs/architecture/) |
+| Requirements | [docs/requirements/](docs/requirements/) |
+| Scrum / Project management | [docs/project-management/](docs/project-management/) |
 
 ---
 
-## Project Status
+## Contributing
 
-| Phase                        | Status         |
-| ---------------------------- | -------------- |
-| Phase 1 – Initialisation     | ✅ Completed    |
-| Phase 2 – Conception         | ✅ Completed    |
-| Phase 3 – Development        | 🚧 In Progress |
-| Phase 4 – Testing & QA       | 📝 Planned     |
-| Phase 5 – Deployment         | ⏳ Upcoming     |
-| Phase 6 – Final Presentation | ⏳ Upcoming     |
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick summary:
 
----
-
-## Website
-
-Visit the official website: [https://brasse-bouillon.com](https://brasse-bouillon.com)
+- Branch from `main` for every task (never commit directly)
+- Use Conventional Commits: `type(scope): description`
+- Run `npm run ci:all && npm run test:all` before pushing
+- Create a PR with a clear description and checklist
+- Wait for CI to pass and at least one review before merging
 
 ---
 
-## Contact
+## Team
 
-Project maintained by [@benoit-bremaud](https://github.com/benoit-bremaud). For any inquiries, open an issue or contact via GitHub.
+| Member | Role | Scope |
+|--------|------|-------|
+| Benoit | Project lead, Fullstack, Design | Frontend, Backend, Monorepo, DevOps |
+| Fabien | Cybersecurity, Frontend/Design | Frontend, Design, Security |
+| Kevin | Fullstack (backend focus) | Backend, Frontend |
+| Sara | Fullstack (frontend focus) | Frontend, Backend |
+| Clement | Infrastructure, DevOps | DevOps, Infrastructure |
+| Catarina | Infrastructure, Security, Cloud | DevOps, Infrastructure, Security |
+| Fabio | UI/UX, Art Direction | Design, Frontend |
+| Liam | Design, UI/UX | Design |
+| Thais | UI/UX, Frontend | Design, Frontend |
 
 ---
 
 ## License
 
-Distributed under the MIT License. See the `LICENSE` file for more details.
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.

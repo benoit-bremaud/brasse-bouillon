@@ -1,5 +1,5 @@
 name: Feature Request
-description: Propose a new feature or enhancement.
+description: Propose a new feature or enhancement (technical task, not a User Story).
 title: "feat(<scope>): <short description>"
 labels: ["type:feature"]
 body:
@@ -17,11 +17,10 @@ body:
       required: true
 
   - type: textarea
-    id: user_story
+    id: description
     attributes:
-      label: User Story
-      description: Describe the feature from the user's perspective.
-      placeholder: "As a [persona], I want [action], so that [benefit]."
+      label: Description
+      description: Describe what needs to be implemented and why.
     validations:
       required: true
 
@@ -46,10 +45,36 @@ body:
   - type: dropdown
     id: priority
     attributes:
-      label: Priority
+      label: Priority (MoSCoW)
       options:
-        - Low
-        - Medium
-        - High
+        - Must-Have
+        - Should-Have
+        - Nice-to-Have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimation
+    attributes:
+      label: Estimation (T-shirt / Story Points)
+      options:
+        - XS (1 SP)
+        - S (2 SP)
+        - M (3 SP)
+        - L (5 SP)
+        - XL (8 SP)
+        - "XXL (13 SP) — should be split"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      options:
+        - Sprint 4 (Mar 25 – Apr 14)
+        - Sprint 5 (Apr 15 – May 5)
+        - Sprint 6 (May 6 – May 27)
+        - Backlog (not yet planned)
     validations:
       required: true

@@ -1,0 +1,118 @@
+name: User Story
+description: Describe a feature from the end user's perspective (Scrum User Story — INVEST model).
+title: "feat(<scope>): as <persona>, I want <action> so that <benefit>"
+labels: ["type:user-story"]
+body:
+  - type: dropdown
+    id: persona
+    attributes:
+      label: Persona
+      description: Which user persona does this story target?
+      options:
+        - Nicolas (Beginner)
+        - Claire (Intermediate)
+        - Marc (Expert)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package(s) does this story affect?
+      multiple: true
+      options:
+        - frontend
+        - backend
+        - website
+        - monorepo (root config, CI, tooling)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: User Story
+      description: "Follow the standard format: As a [persona], I want [action], so that [benefit]."
+      placeholder: "As a [Nicolas/Claire/Marc], I want [action], so that [benefit]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: "Use Given/When/Then format. Each criterion must be testable."
+      placeholder: |
+        **Scenario 1: <title>**
+        - Given <precondition>
+        - When <action>
+        - Then <expected result>
+
+        **Scenario 2: <title>**
+        - Given <precondition>
+        - When <action>
+        - Then <expected result>
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (MoSCoW)
+      options:
+        - Must-Have
+        - Should-Have
+        - Nice-to-Have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimation
+    attributes:
+      label: Estimation (T-shirt / Story Points)
+      description: "Estimated during Planning Poker. Max 8 SP per story — split if larger."
+      options:
+        - XS (1 SP)
+        - S (2 SP)
+        - M (3 SP)
+        - L (5 SP)
+        - XL (8 SP)
+        - "XXL (13 SP) — should be split"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      description: Which sprint is this story planned for?
+      options:
+        - Sprint 4 (Mar 25 – Apr 14)
+        - Sprint 5 (Apr 15 – May 5)
+        - Sprint 6 (May 6 – May 27)
+        - Backlog (not yet planned)
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: "Implementation hints, affected files, API contracts, related issues."
+      placeholder: |
+        - Files to modify: ...
+        - API endpoint: ...
+        - Related issues: #xxx, #yyy
+
+  - type: textarea
+    id: decomposition
+    attributes:
+      label: Sub-issues (decomposition)
+      description: "List the atomic tasks needed to implement this story. Each will become a sub-issue."
+      placeholder: |
+        - [ ] feat(<scope>): implement <screen/component> UI
+        - [ ] feat(<scope>): add <endpoint> API endpoint
+        - [ ] feat(<scope>): write <use-case> use-case
+        - [ ] test(<scope>): unit tests for <use-case>
+        - [ ] test(<scope>): integration tests for <screen>

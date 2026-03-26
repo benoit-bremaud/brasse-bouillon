@@ -65,6 +65,85 @@ docs(readme): update getting started section
 
 ---
 
+## Issue Types & Templates
+
+Every GitHub issue must use a template. When creating an issue, GitHub will prompt you to pick one.
+
+| Template | Label | Title convention | When to use |
+|----------|-------|-----------------|-------------|
+| **User Story** | `type:user-story` | `feat(<scope>): as <persona>, I want...` | Feature from the user's perspective (INVEST model) |
+| **Feature** | `type:feature` | `feat(<scope>): <description>` | Technical task implementing a feature |
+| **Bug Report** | `type:bug` | `fix(<scope>): <description>` | Report a bug or unexpected behavior |
+| **Test** | `type:test` | `test(<scope>): <description>` | Write or improve tests |
+| **Refactor** | `type:refactor` | `refactor(<scope>): <description>` | Code restructuring, no functional change |
+| **Task / Chore** | `type:chore` | `chore(<scope>): <description>` | Config, tooling, dependencies, maintenance |
+| **Epic** | `type:epic` | `epic(<scope>): <description>` | Large body of work grouping User Stories |
+
+### User Stories & Sub-issues
+
+User Stories follow the **3C model** (Card, Conversation, Confirmation) and the **INVEST** criteria (Independent, Negotiable, Valuable, Estimable, Small, Testable).
+
+A User Story is decomposed into **sub-issues** (GitHub native sub-issues, not Markdown tasklists):
+
+```
+Epic (type:epic)
+  └── User Story (type:user-story) — value for the user
+        ├── Feature (type:feature) — implementation work
+        ├── Test (type:test) — validation work
+        ├── Bug (type:bug) — defect found during sprint
+        └── Docs (type:docs) — documentation work
+```
+
+Sub-issues inherit scope labels from their parent. GitHub auto-tracks completion progress on the parent issue.
+
+---
+
+## Labels
+
+All labels use a **prefixed namespace** for consistency.
+
+| Prefix | Purpose | Examples |
+|--------|---------|---------|
+| `priority:` | MoSCoW prioritization | `must-have`, `should-have`, `nice-to-have` |
+| `size:` | T-shirt estimation (Fibonacci mapping) | `XS` (1 SP), `S` (2), `M` (3), `L` (5), `XL` (8), `XXL` (13) |
+| `scope:` | Which part of the codebase | `frontend`, `backend`, `charte`, `devops`, `website`, `monorepo` |
+| `type:` | Nature of work | `feature`, `bug`, `test`, `refactor`, `docs`, `chore`, `ci`, `epic`, `user-story` |
+| `sprint:` | Sprint assignment | `sprint:4`, `sprint:5`, `sprint:6` |
+| `area:` | Cross-cutting concern | `api`, `security`, `a11y`, `ux`, `architecture`, `theme` |
+| `epic:` | Epic tracking | `auth`, `recipes`, `batches`, `calculators`, etc. |
+| `status:` | Workflow state | `planned`, `in-progress`, `done` |
+
+**Excluded from daily workflow:** `persona:*` (product design only), `bloc:*` and `ref:*` (deprecated).
+
+---
+
+## Discord Notifications
+
+GitHub events are automatically routed to specialized Discord channels based on `scope:*` labels:
+
+| Discord channel | Scope label |
+|----------------|-------------|
+| `#app-mobile` | `scope:frontend` |
+| `#api-backend` | `scope:backend` |
+| `#design-system` | `scope:charte` |
+| `#devops` | `scope:devops` |
+| `#site-vitrine` | `scope:website` |
+| `#github` | Fallback (no scope label) |
+
+Notifications display a compact, color-coded embed with: event type, priority, size, scope, sprint, parent reference (for sub-issues), and a clickable title.
+
+---
+
+## Scrum Workflow
+
+- **Sprint duration:** 3 weeks (aligned with Yday cycle)
+- **Estimation:** Planning Poker with Fibonacci scale, displayed as T-shirt sizes
+- **Priority:** MoSCoW (Must-Have / Should-Have / Nice-to-Have)
+- **Ceremonies:** Sprint Planning, async Daily (Discord), Sprint Review, Retrospective
+- **Definition of Ready / Done:** see `docs/project-management/`
+
+---
+
 ## Development Workflow
 
 ### 1. Pick an issue

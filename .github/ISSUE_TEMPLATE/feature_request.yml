@@ -1,0 +1,55 @@
+name: Feature Request
+description: Propose a new feature or enhancement.
+title: "feat(<scope>): <short description>"
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package does this feature affect?
+      options:
+        - frontend
+        - backend
+        - website
+        - monorepo (root config, CI, tooling)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: User Story
+      description: Describe the feature from the user's perspective.
+      placeholder: "As a [persona], I want [action], so that [benefit]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this feature to be considered done?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Implementation hints, affected files, related issues.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true

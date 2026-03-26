@@ -52,3 +52,39 @@ body:
     attributes:
       label: Technical Notes
       description: Files to modify, dependencies, related issues.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (MoSCoW)
+      options:
+        - Must-Have
+        - Should-Have
+        - Nice-to-Have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimation
+    attributes:
+      label: Estimation (T-shirt / Story Points)
+      options:
+        - XS (1 SP)
+        - S (2 SP)
+        - M (3 SP)
+        - L (5 SP)
+        - XL (8 SP)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      options:
+        - Sprint 4 (Mar 25 – Apr 14)
+        - Sprint 5 (Apr 15 – May 5)
+        - Sprint 6 (May 6 – May 27)
+        - Backlog (not yet planned)
+    validations:
+      required: true

@@ -1,13 +1,13 @@
-name: Bug Report
-description: Report a bug or unexpected behavior.
-title: "fix(<scope>): <short description>"
-labels: ["type:bug"]
+name: Refactor
+description: Code restructuring with no functional change.
+title: "refactor(<scope>): <short description>"
+labels: ["type:refactor"]
 body:
   - type: dropdown
     id: package
     attributes:
       label: Package
-      description: Which package is affected?
+      description: Which package needs refactoring?
       options:
         - frontend
         - backend
@@ -19,35 +19,32 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: Clear description of the bug.
-      placeholder: "What happened? What did you expect instead?"
+      label: What to Refactor
+      description: Describe the current code and why it needs restructuring.
     validations:
       required: true
 
   - type: textarea
-    id: steps
+    id: approach
     attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this bug?
+      label: Proposed Approach
+      description: How should the code be restructured?
       placeholder: |
-        1. Go to ...
-        2. Click on ...
-        3. See error ...
+        - Move X from Y to Z
+        - Extract shared logic into ...
+        - Rename ...
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know this refactor is complete and safe?
+      placeholder: |
+        - [ ] No functional change (all existing tests still pass)
+        - [ ] Code follows architecture conventions
+        - [ ] No new `any` types introduced
     validations:
       required: true
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected Behavior
-      description: What should have happened?
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots / Logs
-      description: Add screenshots or error logs if applicable.
 
   - type: dropdown
     id: priority
@@ -77,7 +74,6 @@ body:
     id: sprint
     attributes:
       label: Sprint
-      description: Which sprint should this be fixed in?
       options:
         - Sprint 4 (Mar 25 – Apr 14)
         - Sprint 5 (Apr 15 – May 5)

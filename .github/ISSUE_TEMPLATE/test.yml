@@ -1,53 +1,60 @@
-name: Bug Report
-description: Report a bug or unexpected behavior.
-title: "fix(<scope>): <short description>"
-labels: ["type:bug"]
+name: Test
+description: Write or improve tests (unit, integration, e2e).
+title: "test(<scope>): <short description>"
+labels: ["type:test"]
 body:
   - type: dropdown
     id: package
     attributes:
       label: Package
-      description: Which package is affected?
+      description: Which package needs testing?
       options:
         - frontend
         - backend
         - website
-        - monorepo (root config, CI, tooling)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test_type
+    attributes:
+      label: Test Type
+      options:
+        - Unit test (use-case, utility, service)
+        - Integration test (screen, component, controller)
+        - E2E test (full user flow)
     validations:
       required: true
 
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: Clear description of the bug.
-      placeholder: "What happened? What did you expect instead?"
+      label: What to Test
+      description: Describe the feature, component, or use-case to test.
     validations:
       required: true
 
   - type: textarea
-    id: steps
+    id: test_cases
     attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this bug?
+      label: Test Cases
+      description: List the scenarios to cover.
       placeholder: |
-        1. Go to ...
-        2. Click on ...
-        3. See error ...
+        - [ ] Happy path: ...
+        - [ ] Edge case: ...
+        - [ ] Error case: ...
     validations:
       required: true
 
   - type: textarea
-    id: expected
+    id: acceptance_criteria
     attributes:
-      label: Expected Behavior
-      description: What should have happened?
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots / Logs
-      description: Add screenshots or error logs if applicable.
+      label: Acceptance Criteria
+      description: When is this test task considered done?
+      placeholder: |
+        - [ ] All test cases implemented
+        - [ ] Coverage increased for target module
+        - [ ] CI passes
 
   - type: dropdown
     id: priority
@@ -77,7 +84,6 @@ body:
     id: sprint
     attributes:
       label: Sprint
-      description: Which sprint should this be fixed in?
       options:
         - Sprint 4 (Mar 25 – Apr 14)
         - Sprint 5 (Apr 15 – May 5)

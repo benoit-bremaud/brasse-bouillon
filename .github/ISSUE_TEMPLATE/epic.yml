@@ -1,0 +1,57 @@
+name: Epic
+description: Large body of work spanning multiple sprints, grouping related User Stories.
+title: "epic(<scope>): <short description>"
+labels: ["type:epic"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Epic Description
+      description: High-level goal of this epic. What problem does it solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_stories
+    attributes:
+      label: User Stories
+      description: List the User Stories that compose this epic. Each will become a separate issue.
+      placeholder: |
+        - [ ] As a [persona], I want [action], so that [benefit] — **XL**
+        - [ ] As a [persona], I want [action], so that [benefit] — **L**
+        - [ ] As a [persona], I want [action], so that [benefit] — **M**
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: How do we know this epic is complete?
+      placeholder: |
+        - [ ] All User Stories implemented and closed
+        - [ ] All acceptance criteria validated
+        - [ ] Demo successful in Sprint Review
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (MoSCoW)
+      options:
+        - Must-Have
+        - Should-Have
+        - Nice-to-Have
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope & Packages
+      description: Which packages and teams are involved?
+      placeholder: |
+        - Packages: frontend, backend
+        - Teams: fullstack, design
+        - Related epics: #xxx

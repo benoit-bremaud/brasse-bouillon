@@ -1,0 +1,374 @@
+# ==============================================================================
+# Brasse-Bouillon — Discord Notification Routing
+# Routes issue/PR notifications to specialized Discord channels based on
+# scope:* labels. Unlabeled items fall back to the general #github channel.
+#
+# Display hierarchy (top = most important):
+#   Layout: Variant C header + D sprint + B parent ref
+#   Header: Real type + Action + Meta (Story Opened │ P0 · XL)
+#   Body:   Sprint badge + Zoom line (scope › area, text only)
+#           + Parent ref (discret, above child) + Title (clickable bold link)
+#   Footer: Author avatar + timestamp
+#
+# Excluded from display: epic:*, persona:*, status:*, bloc:*, ref:*
+# Language: English
+# Max zoom levels in notification: 3 (scope › type › area)
+# ==============================================================================
+
+name: Discord Notifications
+
+on:
+  issues:
+    types: [opened, closed, reopened, labeled]
+  pull_request:
+    types: [opened, closed, ready_for_review, review_requested]
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: read
+  pull-requests: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Route notification to Discord
+        uses: actions/github-script@v7
+        env:
+          DISCORD_WEBHOOK_FRONTEND: ${{ secrets.DISCORD_WEBHOOK_FRONTEND }}
+          DISCORD_WEBHOOK_BACKEND: ${{ secrets.DISCORD_WEBHOOK_BACKEND }}
+          DISCORD_WEBHOOK_CHARTE: ${{ secrets.DISCORD_WEBHOOK_CHARTE }}
+          DISCORD_WEBHOOK_DEVOPS: ${{ secrets.DISCORD_WEBHOOK_DEVOPS }}
+          DISCORD_WEBHOOK_WEBSITE: ${{ secrets.DISCORD_WEBHOOK_WEBSITE }}
+          DISCORD_WEBHOOK_GITHUB: ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+        with:
+          script: |
+            // ── Configuration ────────────────────────────────────────────
+
+            // Label-to-webhook routing
+            const SCOPE_MAP = {
+              'scope:frontend': process.env.DISCORD_WEBHOOK_FRONTEND,
+              'scope:backend':  process.env.DISCORD_WEBHOOK_BACKEND,
+              'scope:charte':   process.env.DISCORD_WEBHOOK_CHARTE,
+              'scope:devops':   process.env.DISCORD_WEBHOOK_DEVOPS,
+              'scope:website':  process.env.DISCORD_WEBHOOK_WEBSITE,
+            };
+            const FALLBACK_WEBHOOK = process.env.DISCORD_WEBHOOK_GITHUB;
+
+            // Priority display (MoSCoW) — warm color gradient, short labels
+            const PRIORITY_MAP = {
+              'priority:must-have':    { emoji: '\ud83d\udd34', text: 'P0' },
+              'priority:should-have':  { emoji: '\ud83d\udfe0', text: 'P1' },
+              'priority:nice-to-have': { emoji: '\u26aa', text: 'P2' },
+            };
+
+            // Size display (T-shirt → Fibonacci) — warm color gradient
+            const SIZE_MAP = {
+              'size:XS':  { emoji: '\ud83d\udfe6', text: 'XS' },   // 1 SP
+              'size:S':   { emoji: '\ud83d\udfe9', text: 'S' },    // 2 SP
+              'size:M':   { emoji: '\ud83d\udfe8', text: 'M' },    // 3 SP
+              'size:L':   { emoji: '\ud83d\udfe7', text: 'L' },    // 5 SP
+              'size:XL':  { emoji: '\ud83d\udfe5', text: 'XL' },   // 8 SP
+              'size:XXL': { emoji: '\u2b1b', text: 'XXL' },  // 13 SP
+            };
+
+            // ── Zoom levels (scope › type › area) ────────────────────────
+            // Level 0: scope — WHERE in the project
+            const SCOPE_DISPLAY = {
+              'scope:frontend':       { emoji: '\ud83d\udcf1', text: 'Frontend' },
+              'scope:backend':        { emoji: '\u2699\ufe0f', text: 'Backend' },
+              'scope:charte':         { emoji: '\ud83c\udfa8', text: 'Design' },
+              'scope:devops':         { emoji: '\ud83d\udd27', text: 'DevOps' },
+              'scope:website':        { emoji: '\ud83c\udf10', text: 'Website' },
+              'scope:monorepo':       { emoji: '\ud83d\udce6', text: 'Monorepo' },
+              'scope:marketing':      { emoji: '\ud83d\udce3', text: 'Marketing' },
+              'scope:ydays':          { emoji: '\ud83c\udf93', text: 'Ydays' },
+            };
+
+            // Level 1: type — WHAT kind of work
+            const TYPE_DISPLAY = {
+              'type:feature':    { emoji: '\u2728', text: 'Feature' },
+              'type:bug':        { emoji: '\ud83d\udc1b', text: 'Bug' },
+              'type:refactor':   { emoji: '\u267b\ufe0f', text: 'Refactor' },
+              'type:docs':       { emoji: '\ud83d\udcdd', text: 'Docs' },
+              'type:test':       { emoji: '\ud83e\uddea', text: 'Test' },
+              'type:chore':      { emoji: '\ud83e\uddf9', text: 'Chore' },
+              'type:build':      { emoji: '\ud83d\udce6', text: 'Build' },
+              'type:ci':         { emoji: '\u2699\ufe0f', text: 'CI' },
+              'type:task':       { emoji: '\ud83d\udccb', text: 'Task' },
+              'type:epic':       { emoji: '\ud83c\udfaf', text: 'Epic' },
+              'type:user-story': { emoji: '\ud83d\udcd6', text: 'Story' },
+            };
+
+            // Level 2: area — WHICH specialty / cross-cutting concern
+            const AREA_DISPLAY = {
+              'area:api':          { emoji: '\ud83c\udf10', text: 'API' },
+              'area:security':     { emoji: '\ud83d\udd12', text: 'Security' },
+              'area:a11y':         { emoji: '\u267f', text: 'A11y' },
+              'area:ux':           { emoji: '\ud83c\udfaf', text: 'UX' },
+              'area:architecture': { emoji: '\ud83c\udfd7\ufe0f', text: 'Archi' },
+              'area:theme':        { emoji: '\ud83c\udfa8', text: 'Theme' },
+              'area:wireframe':    { emoji: '\ud83d\uddbc\ufe0f', text: 'Wireframe' },
+              'area:uml':          { emoji: '\ud83d\udcd0', text: 'UML' },
+              'area:deployment':   { emoji: '\ud83d\ude80', text: 'Deploy' },
+              'area:setup':        { emoji: '\ud83d\udee0\ufe0f', text: 'Setup' },
+              'area:automation':   { emoji: '\u2699\ufe0f', text: 'Auto' },
+              'area:training':     { emoji: '\ud83c\udf93', text: 'Training' },
+              'area:planning':     { emoji: '\ud83d\udcc5', text: 'Planning' },
+              'area:workflow':     { emoji: '\ud83d\udd04', text: 'Workflow' },
+              'area:analysis':     { emoji: '\ud83d\udd0d', text: 'Analysis' },
+            };
+
+            // Event color coding
+            const EVENT_DISPLAY = {
+              'issues:opened':                         { emoji: '\ud83d\udfe2', text: 'Issue Opened',             color: 0x2ea44f },
+              'issues:closed':                         { emoji: '\ud83d\udd34', text: 'Issue Closed',             color: 0xda3633 },
+              'issues:reopened':                       { emoji: '\ud83d\udfe0', text: 'Issue Reopened',            color: 0xf0883e },
+              'issues:labeled':                        { emoji: '\ud83c\udff7\ufe0f', text: 'Issue Labeled',             color: 0x8b949e },
+              'pull_request:opened':                   { emoji: '\ud83d\udfe2', text: 'PR Opened',                color: 0x2ea44f },
+              'pull_request:closed:merged':            { emoji: '\ud83d\udfe3', text: 'PR Merged',                color: 0x8957e5 },
+              'pull_request:closed':                   { emoji: '\ud83d\udd34', text: 'PR Closed',                color: 0xda3633 },
+              'pull_request:ready_for_review':         { emoji: '\ud83d\udd35', text: 'PR Ready for Review',      color: 0x58a6ff },
+              'pull_request:review_requested':         { emoji: '\ud83d\udfe3', text: 'Review Requested',         color: 0xd2a8ff },
+              'pull_request_review:approved':          { emoji: '\ud83d\udfe2', text: 'Review: Approved',         color: 0x2ea44f },
+              'pull_request_review:changes_requested': { emoji: '\ud83d\udfe0', text: 'Review: Changes Requested', color: 0xf0883e },
+              'pull_request_review:commented':         { emoji: '\ud83d\udcac', text: 'Review: Commented',        color: 0x8b949e },
+              'issue_comment:created':                 { emoji: '\ud83d\udcac', text: 'Comment',                  color: 0x58a6ff },
+            };
+
+            // ── Extract payload data ─────────────────────────────────────
+            const event = context.eventName;
+            const action = context.payload.action;
+            let labels = [];
+            let title = '';
+            let url = '';
+            let author = '';
+            let number = 0;
+
+            if (event === 'issues') {
+              const issue = context.payload.issue;
+              labels = issue.labels.map(l => l.name);
+              title = issue.title;
+              url = issue.html_url;
+              author = issue.user.login;
+              number = issue.number;
+            } else if (event === 'pull_request') {
+              const pr = context.payload.pull_request;
+              labels = pr.labels.map(l => l.name);
+              title = pr.title;
+              url = pr.html_url;
+              author = pr.user.login;
+              number = pr.number;
+            } else if (event === 'pull_request_review') {
+              const pr = context.payload.pull_request;
+              labels = pr.labels.map(l => l.name);
+              title = pr.title;
+              url = context.payload.review.html_url;
+              author = context.payload.review.user.login;
+              number = pr.number;
+            } else if (event === 'issue_comment') {
+              if (context.payload.issue.pull_request) {
+                core.info('Skipping PR comment (handled by pull_request_review).');
+                return;
+              }
+              const issue = context.payload.issue;
+              labels = issue.labels.map(l => l.name);
+              title = issue.title;
+              url = context.payload.comment.html_url;
+              author = context.payload.comment.user.login;
+              number = issue.number;
+            }
+
+            // ── Handle labeled events ────────────────────────────────────
+            let targetLabels = labels;
+            if (action === 'labeled') {
+              const addedLabel = context.payload.label.name;
+              if (!addedLabel.startsWith('scope:')) {
+                core.info(`Label "${addedLabel}" is not a scope label. Skipping.`);
+                return;
+              }
+              targetLabels = [addedLabel];
+            }
+
+            // ── Resolve target webhooks ──────────────────────────────────
+            const webhooks = new Set();
+            for (const label of targetLabels) {
+              if (SCOPE_MAP[label]) {
+                webhooks.add(SCOPE_MAP[label]);
+              }
+            }
+            if (webhooks.size === 0 && FALLBACK_WEBHOOK) {
+              webhooks.add(FALLBACK_WEBHOOK);
+            }
+            if (webhooks.size === 0) {
+              core.warning('No webhook URL resolved. Check GitHub Secrets configuration.');
+              return;
+            }
+
+            // ── Resolve event display ────────────────────────────────────
+            // Use real type label (Story, Bug, Feature...) instead of generic "Issue"
+            const typeLabel_raw = labels.find(l => TYPE_DISPLAY[l]);
+            const typeName = typeLabel_raw ? TYPE_DISPLAY[typeLabel_raw].text : null;
+
+            let eventAction = action;
+            let eventColor = 0x8b949e;
+            let eventEmoji = '\u2b55';
+
+            if (event === 'issues') {
+              if (action === 'opened') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Opened'; }
+              else if (action === 'closed') { eventEmoji = '\ud83d\udd34'; eventColor = 0xda3633; eventAction = typeName === 'Bug' ? 'Fixed' : 'Closed'; }
+              else if (action === 'reopened') { eventEmoji = '\ud83d\udfe0'; eventColor = 0xf0883e; eventAction = 'Reopened'; }
+              else if (action === 'labeled') { eventEmoji = '\ud83c\udff7\ufe0f'; eventColor = 0x8b949e; eventAction = 'Labeled'; }
+            } else if (event === 'pull_request') {
+              if (action === 'opened') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Opened'; }
+              else if (action === 'closed' && context.payload.pull_request.merged) { eventEmoji = '\ud83d\udfe3'; eventColor = 0x8957e5; eventAction = 'Merged'; }
+              else if (action === 'closed') { eventEmoji = '\ud83d\udd34'; eventColor = 0xda3633; eventAction = 'Closed'; }
+              else if (action === 'ready_for_review') { eventEmoji = '\ud83d\udd35'; eventColor = 0x58a6ff; eventAction = 'Ready for Review'; }
+              else if (action === 'review_requested') { eventEmoji = '\ud83d\udfe3'; eventColor = 0xd2a8ff; eventAction = 'Review Requested'; }
+            } else if (event === 'pull_request_review') {
+              const state = context.payload.review.state;
+              if (state === 'approved') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Approved'; }
+              else if (state === 'changes_requested') { eventEmoji = '\ud83d\udfe0'; eventColor = 0xf0883e; eventAction = 'Changes Requested'; }
+              else { eventEmoji = '\ud83d\udcac'; eventColor = 0x8b949e; eventAction = 'Commented'; }
+            } else if (event === 'issue_comment') {
+              eventEmoji = '\ud83d\udcac'; eventColor = 0x58a6ff; eventAction = 'Comment';
+            }
+
+            // Build display type: use real type for issues, "PR" for pull requests, "Review" for reviews
+            let displayType;
+            if (event === 'issues' || event === 'issue_comment') {
+              displayType = typeName || 'Issue';
+            } else if (event === 'pull_request') {
+              displayType = 'PR';
+            } else if (event === 'pull_request_review') {
+              displayType = 'Review';
+            } else {
+              displayType = 'Issue';
+            }
+
+            const eventInfo = { emoji: eventEmoji, color: eventColor, text: `${displayType} ${eventAction}` };
+
+            // ── Build meta line (Priority · Size) ────────────────────────
+            const priorityLabel = labels.find(l => PRIORITY_MAP[l]);
+            const priorityText = priorityLabel
+              ? `${PRIORITY_MAP[priorityLabel].emoji} ${PRIORITY_MAP[priorityLabel].text}`
+              : '';
+
+            const sizeLabel = labels.find(l => SIZE_MAP[l]);
+            const sizeText = sizeLabel
+              ? `${SIZE_MAP[sizeLabel].emoji} ${SIZE_MAP[sizeLabel].text}`
+              : '';
+
+            const metaLine = [priorityText, sizeText].filter(Boolean).join('  \u00b7  ');
+
+            // ── Build zoom line (scope › area) — type is now in header ──
+            const zoomParts = [];
+
+            // Scopes (can be multiple: frontend + backend)
+            const scopes = labels
+              .filter(l => SCOPE_DISPLAY[l])
+              .map(l => SCOPE_DISPLAY[l].text);
+            if (scopes.length > 0) {
+              zoomParts.push(scopes.join(' \u00b7 '));
+            }
+
+            // Area (cross-cutting concern)
+            const areaLabel = labels.find(l => AREA_DISPLAY[l]);
+            if (areaLabel) {
+              zoomParts.push(AREA_DISPLAY[areaLabel].text);
+            }
+
+            const zoomLine = zoomParts.join('  \u203a  ');
+
+            // ── Resolve sprint label ────────────────────────────────────
+            const sprintLabel = labels.find(l => l.startsWith('sprint:'));
+            const sprintText = sprintLabel
+              ? `Sprint ${sprintLabel.replace('sprint:', '')}`
+              : '';
+
+            // ── Resolve parent issue (GitHub sub-issues) ────────────────
+            const { owner, repo } = context.repo;
+            const baseUrl = `https://github.com/${owner}/${repo}`;
+            let parentRef = '';
+
+            if (event === 'issues' || event === 'issue_comment') {
+              const issueNumber = event === 'issue_comment'
+                ? context.payload.issue.number
+                : context.payload.issue.number;
+              try {
+                const issueData = await github.rest.issues.get({
+                  owner, repo, issue_number: issueNumber,
+                });
+                // GitHub sub-issues expose parent via body "Parent issue: #NNN"
+                // or via the sub_issues API. Check body for parent reference.
+                const bodyText = issueData.data.body || '';
+                const parentMatch = bodyText.match(/Parent issue:\s*#(\d+)/i)
+                  || bodyText.match(/parent:\s*#(\d+)/i);
+                if (parentMatch) {
+                  const parentNum = parentMatch[1];
+                  // Fetch parent title
+                  try {
+                    const parentData = await github.rest.issues.get({
+                      owner, repo, issue_number: parseInt(parentNum),
+                    });
+                    parentRef = `[#${parentNum}](${baseUrl}/issues/${parentNum}) ${parentData.data.title}`;
+                  } catch {
+                    parentRef = `[#${parentNum}](${baseUrl}/issues/${parentNum})`;
+                  }
+                }
+              } catch {
+                core.info('Could not fetch issue data for parent detection.');
+              }
+            }
+
+            // ── Build Discord embed ─────────────────────────────────────
+            // Header: Event + Meta
+            const headerParts = [`${eventInfo.emoji} ${eventInfo.text}`];
+            if (metaLine) headerParts.push(metaLine);
+            const headerLine = headerParts.join('  \u2502  ');
+
+            // Body: Sprint + Zoom + Parent + Title
+            const bodyParts = [];
+            if (sprintText) bodyParts.push(`\`${sprintText}\``);
+            if (zoomLine) bodyParts.push(zoomLine);
+            if (parentRef) {
+              bodyParts.push(`\n${parentRef}`);
+              bodyParts.push(`\u2514 **[#${number} ${title}](${baseUrl}/issues/${number})**`);
+            } else {
+              bodyParts.push(`\n**[#${number} ${title}](${baseUrl}/issues/${number})**`);
+            }
+
+            const embed = {
+              author: {
+                name: headerLine,
+              },
+              description: bodyParts.join('\n') || undefined,
+              color: eventInfo.color,
+              footer: {
+                text: author,
+                icon_url: `https://github.com/${author}.png`,
+              },
+              timestamp: new Date().toISOString(),
+            };
+
+            // ── Send to all matching webhooks ────────────────────────────
+            for (const webhookUrl of webhooks) {
+              const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: 'Brasse-Bouillon Bot',
+                  avatar_url: 'https://github.com/benoit-bremaud/brasse-bouillon/raw/main/packages/frontend/assets/images/icon.png',
+                  embeds: [embed],
+                }),
+              });
+
+              if (!response.ok) {
+                core.warning(`Discord webhook failed (${response.status}): ${await response.text()}`);
+              } else {
+                core.info('Notification sent to Discord.');
+              }
+            }

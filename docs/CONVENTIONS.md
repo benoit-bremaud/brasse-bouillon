@@ -1,223 +1,249 @@
-# 📚 Project Conventions – Brasse-Bouillon
+# Project Conventions — Brasse-Bouillon
 
-This document defines the naming conventions and project standards applied throughout the Brasse-Bouillon ecosystem. It is designed to ensure consistency, maintainability, and ease of collaboration across all sub-projects.
+This document defines the naming conventions and standards applied across the Brasse-Bouillon monorepo. It ensures consistency, maintainability, and ease of collaboration.
 
-> Brasse-Bouillon is an open-source project that helps amateur brewers manage recipes and share brewing knowledge. It includes multiple sub-projects: mobile app, backend API, design system, and CI/CD pipelines.
-
----
-
-## 📁 1. File and Folder Naming
-
-* Use lowercase letters and dashes (`-`) as separators.
-* Folder names should be meaningful and scoped (e.g. `api/`, `docs/design/`, `src/components/`).
-* Files should use the kebab-case convention (e.g. `user-profile.js`, `create-recipe-form.tsx`).
-* Keep documentation files in `docs/`, categorized by topic.
-* Use English language for all files and avoid unclear abbreviations.
+For the full contribution workflow, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ---
 
-## 🔧 2. Branch Naming (Git)
+## 1. Language
 
-Use the following pattern:
-
-```bash
-<type>/<scope>-<short-description>
-```
-
-**Examples**:
-
-* `feat/frontend-add-login-screen`
-* `fix/backend-auth-token-refresh`
-* `chore/devops-update-dockerfile`
-
-**Types**: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`, `style`
-
-**Scope examples**: `frontend`, `backend`, `charte`, `devops`, `infra`
+All code, comments, commit messages, PR descriptions, issue titles, and documentation must be in English. No exceptions.
 
 ---
 
-## ✍️ 3. Commit Messages (Angular Style)
+## 2. File and Folder Naming
 
-Follow the [Angular Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style:
-
-```bash
-type(scope): short description
-```
-
-**Examples**:
-
-* `feat(auth): implement JWT middleware`
-* `fix(db): correct foreign key constraints`
-
-> Use imperative mood (e.g. "add", not "added") and keep under 72 characters.
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Folders | lowercase with dashes | `docs/project-management/` |
+| Logic/utility files | kebab-case | `recipes.use-cases.ts` |
+| React components | PascalCase | `RecipeDetailsScreen.tsx` |
+| Test files | Same name + `.test` or `.spec` | `RecipesScreen.test.tsx` |
+| Documentation | kebab-case | `sprint-definition.md` |
 
 ---
 
-## 🚧 4. GitHub Project Naming
-
-All GitHub Projects are named with the format:
+## 3. Monorepo Structure
 
 ```
-brasse-bouillon · <Project Scope>
+brasse-bouillon/
+  packages/
+    frontend/     React Native + Expo SDK 54 + Router v6 + TypeScript
+    backend/      NestJS 11 + TypeORM + SQLite + TypeScript
+    website/      Static HTML/CSS/JS + Python quality gate
+  docs/           Project documentation
+  _archive/       Old code preserved for reference
+  .github/        CI workflows, issue templates
 ```
 
-**Examples**:
-
-* `brasse-bouillon · Charte Graphique`
-* `brasse-bouillon · Backend`
-* `brasse-bouillon · Frontend`
-* `brasse-bouillon · Roadmap Dynamique`
-
-> The dot separator (`·`) is stylistic for clarity. Scope should reflect the main domain (use PascalCase or descriptive nouns).
-
-### ✅ Create GitHub Projects with CLI
-
-Although GitHub CLI doesn't directly create *Projects* (currently), you can manage them using the GitHub web interface and link them to repositories as needed. Once created, CLI can still be used for all associated issues and milestones.
+Path references in documentation must always use `packages/frontend/`, `packages/backend/`, never bare `frontend/` or `backend/`.
 
 ---
 
-## 🧩 5. Milestone Naming
+## 4. Git Branching
 
-Each milestone is prefixed by its project scope for clarity:
+Branch from `main` for every task. Never commit directly to `main`.
 
-| Prefix | Project Scope           | Example                          |
-| ------ | ----------------------- | -------------------------------- |
-| `P`    | Main project            | `P3 – Développement`             |
-| `CG`   | Design charter          | `CG1 – Moodboard & logo`         |
-| `BE`   | Backend                 | `BE2 – API Security & Auth`      |
-| `FE`   | Frontend                | `FE1 – UI Layout & Navigation`   |
-| `DO`   | DevOps / Infrastructure | `DO1 – Docker config & CI setup` |
-| `COM`  | Communication           | `COM1 – Launch visuals & assets` |
-
-> Each milestone must include a concise summary and due date (when applicable). Distinguish between short-term and long-term milestones.
-
-### ✅ Create milestones using GitHub CLI
-
-```bash
-gh milestone create "<milestone-name>" \
-  --description "<description>" \
-  --due "YYYY-MM-DD"
-```
-
-**Example:**
-
-```bash
-gh milestone create "BE4 – JSDoc Setup & Configuration" \
-  --description "Install and configure JSDoc to enable automatic API documentation generation." \
-  --due "2025-05-27"
-```
+| Type | Pattern | Example |
+|------|---------|---------|
+| Feature | `feat/<scope>` | `feat/ibu-calculator` |
+| Bug fix | `fix/<scope>` | `fix/login-redirect` |
+| Refactor | `refactor/<scope>` | `refactor/http-client` |
+| Chore | `chore/<scope>` | `chore/update-deps` |
+| Docs | `docs/<scope>` | `docs/readme-update` |
+| CI | `ci/<scope>` | `ci/sonarqube-integration` |
 
 ---
 
-## 🏷️ 6. GitHub Labels
+## 5. Commit Messages
 
-Use clear labels with a consistent style:
+[Conventional Commits](https://www.conventionalcommits.org/) format:
 
-* Priority: `priority:high`, `priority:medium`, `priority:low`
-* Status: `status:planned`, `status:in-progress`, `status:done`
-* Type: `type:bug`, `type:feature`, `type:refactor`, `type:task`, `type:docs`
-* Scope: `scope:backend`, `scope:frontend`, `scope:charte`, `scope:devops`, `scope:infra`, `scope:website`
-* UX/UI: `ux`, `design`, `a11y`
-
-### ✅ Create labels using GitHub CLI
-
-```bash
-gh label create "<label-name>" \
-  --description "<description>" \
-  --color <hexcode>
+```
+type(scope): short description in imperative mood
 ```
 
-**Examples:**
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`
 
-```bash
-gh label create "priority:high" --description "Critical or urgent task" --color FF0000
-gh label create "status:planned" --description "Planned but not started" --color 007BFF
-gh label create "type:docs" --description "Documentation related task" --color 8E44AD
-gh label create "scope:backend" --description "Backend-related task" --color 2C3E50
+**Scope:** the affected area — `auth`, `recipes`, `tools`, `backend`, `frontend`, `monorepo`, `ci`, `sonar`, `design`
+
+Examples:
+
 ```
+feat(recipes): add recipe duplication use-case
+fix(auth): handle expired refresh token gracefully
+ci(monorepo): add SonarQube quality gate to CI pipeline
+```
+
+Keep under 72 characters. Use imperative mood ("add", not "added").
 
 ---
 
-## 📣 7. Naming Rules for Issues
+## 6. Issue Conventions
 
-Issues should be titled using the Angular-style convention:
+### Title format
 
 ```
 type(scope): short but meaningful description
 ```
 
-**Examples**:
+### Issue templates
 
-* `feat(frontend): add recipe editor component`
-* `docs(charte): update color palette in design guide`
+All issues must use a GitHub issue template:
 
-> Use English and include sub-tags if necessary for clarity.
+| Template | Label | When to use |
+|----------|-------|-------------|
+| Bug Report | `type:bug` | Unexpected behavior or error |
+| Feature Request | `type:feature` | New functionality |
+| Task / Chore | `type:chore` | Config, tooling, maintenance |
 
-### ✅ Create issues using GitHub CLI
+### User Stories and Sub-issues
+
+User Stories follow the **INVEST** model and the **3C** pattern (Card, Conversation, Confirmation). They are decomposed into sub-issues (GitHub native sub-issues):
+
+```
+Epic (type:epic)
+  User Story (type:user-story)
+    Feature (type:feature)
+    Test (type:test)
+    Bug (type:bug)
+    Docs (type:docs)
+```
+
+Sub-issues inherit scope labels from their parent.
+
+---
+
+## 7. Labels
+
+All labels use a prefixed namespace:
+
+| Prefix | Purpose | Examples |
+|--------|---------|---------|
+| `type:` | Nature of work | `feature`, `bug`, `test`, `refactor`, `docs`, `chore`, `epic`, `user-story` |
+| `scope:` | Codebase area | `frontend`, `backend`, `charte`, `devops`, `website`, `monorepo` |
+| `priority:` | MoSCoW | `must-have`, `should-have`, `nice-to-have` |
+| `size:` | T-shirt / Story Points | `XS` (1), `S` (2), `M` (3), `L` (5), `XL` (8), `XXL` (13) |
+| `sprint:` | Sprint assignment | `sprint:4`, `sprint:5`, `sprint:6` |
+| `area:` | Cross-cutting concern | `api`, `security`, `a11y`, `ux`, `architecture` |
+| `status:` | Workflow state | `planned`, `in-progress`, `done` |
+
+---
+
+## 8. Milestones
+
+| # | Milestone | Description |
+|---|-----------|-------------|
+| 31 | Monorepo Migration | Import repos, npm workspaces, CI |
+| 32 | Documentation & Governance | README, CONTRIBUTING, CONVENTIONS, templates |
+| 33 | Developer Experience & Cleanup | Shared config, DX scripts, SonarQube |
+| 34 | Scrum & Agile Framework | DoD, DoR, sprint structure, ceremonies |
+| 35 | Documentation Refactoring | Rewrite outdated docs for new stack |
+| 36 | Marketing & Growth Strategy | Brand, personas, competitive analysis |
+| 37 | Design System & Visual Identity | Audit and refactor graphic charter |
+| 38 | Ynov Compliance & Ydays | Moodle deposits, soutenance prep |
+
+---
+
+## 9. Pull Request Conventions
+
+### Title format
+
+```
+type(scope): concise description
+```
+
+### PR body must include
+
+- Summary of changes (what and why)
+- Checklist of acceptance criteria
+- `Closes #<issue-number>`
+- Screenshots for UI changes
+
+### Metadata (applied via API)
+
+- Assignee
+- Labels (type + scope + priority)
+- Milestone
+- Project board
+
+### Review comments
+
+Every review comment must cover 3 axes:
+
+1. **What was verified** — proof the code was read, not just skimmed
+2. **What is solid** — reinforce good choices
+3. **What could improve** — even minor or optional
+
+A review comment must be readable in 3 months. "ok" is not acceptable.
+
+---
+
+## 10. TypeScript Code Style
+
+- **Strict mode** enabled everywhere
+- **No `any` type** — ever
+- **Named exports only** — no default exports
+- `interface` for object shapes, `type` for unions and utilities
+- Import order: React/RN > Expo/third-party > `@/core/` > `@/features/` > relative
+
+### Frontend specific
+
+- `StyleSheet.create()` for styles — no inline objects
+- Design tokens from `src/core/theme/` — never hardcode values
+- Clean Architecture layers: `domain/` > `application/` > `data/` > `presentation/`
+
+### Backend specific
+
+- NestJS module/controller/service pattern
+- TypeORM entities with `.entity.ts` suffix
+- DTOs with class-validator decorators
+
+---
+
+## 11. Testing
+
+Tests are mandatory for every new feature.
+
+| Package | Tool | Location |
+|---------|------|----------|
+| Frontend | Jest + @testing-library/react-native | `src/features/<feature>/presentation/__tests__/` |
+| Backend | Jest + supertest | `src/<module>/*.spec.ts` + `test/*.e2e-spec.ts` |
+
+Run before every push:
 
 ```bash
-gh issue create \
-  --title "type(scope): short description" \
-  --body "Detailed task description\n- [ ] Subtask 1\n- [ ] Subtask 2" \
-  --label "type:docs,scope:backend,status:planned" \
-  --milestone "BE4 – JSDoc Setup & Configuration"
+npm run ci:all && npm run test:all
 ```
 
 ---
 
-## 📦 8. Pull Request Conventions
+## 12. CI/CD
 
-Each pull request must follow this checklist:
+GitHub Actions runs on every PR to `main`:
 
-**Title format:**
-
-```
-type(scope): concise and meaningful title
-```
-
-**PR Description must include**:
-
-* A short summary of the change
-* A checklist of completed items (if needed)
-* Reference to related issues (e.g. `Closes #42`)
-* Screenshots or video (for UI-related changes)
-* Indication of breaking changes (if any)
-
-**Examples**:
-
-```
-feat(api): add endpoint to update recipes
-Closes #52
-```
-
-**Checklist Template**:
-
-* [x] Code is linted and tested
-* [x] Documentation is updated
-* [x] No breaking changes introduced
-
-> We recommend using a GitHub PR template. If unavailable, include this checklist manually.
+- **Path-filtered**: only changed packages are tested
+- **Frontend**: lint + typecheck + format + tests
+- **Backend**: lint + build + tests
+- **Website**: Python quality gate
+- Coverage reports uploaded as artifacts
 
 ---
 
-## 📃 9. File Naming for Documentation
+## 13. Scrum Workflow
 
-* Design documentation: `docs/design/<file>.md`
-* Planning & roadmap: `docs/roadmap.md`
-* General conventions: `docs/CONVENTIONS.md`
-* Backend specs: `docs/backend/<file>.md`
-* Frontend UI rules: `docs/frontend/<file>.md`
-
-> Avoid abbreviations. Write filenames in English with clear purpose.
+- **Sprint duration:** 3 weeks (aligned with Yday cycle)
+- **Estimation:** Planning Poker, Fibonacci scale, T-shirt sizes
+- **Priority:** MoSCoW (Must-Have / Should-Have / Nice-to-Have)
+- **Ceremonies:** Sprint Planning, async Daily (Discord), Sprint Review, Retrospective
+- **Artifacts:** see `docs/project-management/` (DoD, DoR, sprint-definition, scrum-roles)
 
 ---
 
-## ✅ 10. References
+## References
 
-* Angular Commit Style: [https://www.conventionalcommits.org/en/v1.0.0/](https://www.conventionalcommits.org/en/v1.0.0/)
-* GitHub Docs: [https://docs.github.com/en/issues/planning-and-tracking-with-projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
-* Markdown Naming & Folder Best Practices
-
----
-
-> This file must be updated in sync with project evolution. Any deviation should be justified and documented.
+- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+- [GitHub Projects documentation](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [docs/project-management/](project-management/)

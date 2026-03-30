@@ -43,6 +43,7 @@ Each package has its own CLAUDE.md with detailed conventions:
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`
 - Use **Conventional Commits**: `<type>(<scope>): <short description>`
 - Run CI checks before pushing. Ask for explicit user validation before creating a PR.
+- After creating a PR, post an **informational notification comment** mentioning relevant team members (based on scope/area labels). The comment must use plain, non-technical language so all team members understand. See [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment.
 - See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
 ### TypeScript

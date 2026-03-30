@@ -130,6 +130,17 @@ Before PR, ensure:
 - After push approval and successful push, the agent must ask whether it can draft the PR.
 - If approved, the agent drafts PR title/body in English.
 
+### PR Notification Comment
+
+After PR creation, the agent must post an **informational comment** on the PR:
+
+1. Ask the user which team members to notify (suggest based on scope/area labels from the linked issue).
+2. Write the comment in **plain, non-technical language** so all team members (designers, product, etc.) understand.
+3. Explain what was done, why, and what changes concretely for the project.
+4. Mention the selected team members with `@username`.
+
+This is separate from requested reviewers (which remain for blocking code reviews).
+
 ### PR Validation Monitoring
 
 After PR creation, the agent must monitor and report:

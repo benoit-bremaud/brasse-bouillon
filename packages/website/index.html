@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brasse-Bouillon — Application de brassage maison (recettes, IBU/ABV, suivi)</title>
+  <title>Brasse-Bouillon — Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Brasse-Bouillon est l’application mobile de brassage amateur : recettes de bière, calculs IBU/ABV, suivi de fermentation et journal de brassins.">
-  <meta name="keywords" content="application brassage, brassage amateur, recette bière, calcul IBU, calcul ABV, suivi fermentation, journal de brassins, homebrew">
+  <meta name="description" content="Brasse-Bouillon est l’application de brassage amateur pour créer des recettes de bière, calculer IBU/ABV, suivre la fermentation et réussir chaque brassin pas à pas.">
+  <meta name="keywords" content="application brassage amateur, brassage maison, recette bière, calcul IBU, calcul ABV, suivi fermentation, guide brassage, journal de brassins, homebrew">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
@@ -15,16 +15,16 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://brasse-bouillon.com/">
-  <meta property="og:title" content="Brasse-Bouillon | Application de brassage maison">
-  <meta property="og:description" content="Crée des recettes, calcule IBU/ABV et suis tes brassins avec Brasse-Bouillon.">
+  <meta property="og:title" content="Brasse-Bouillon | Application de brassage amateur">
+  <meta property="og:description" content="Crée des recettes de bière, calcule IBU/ABV et suis la fermentation avec un guide de brassage pas à pas.">
   <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
   <meta property="og:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://brasse-bouillon.com/">
-  <meta name="twitter:title" content="Brasse-Bouillon | Application de brassage maison">
-  <meta name="twitter:description" content="L’application mobile des brasseurs amateurs : recettes, calculs IBU/ABV et suivi des brassins.">
+  <meta name="twitter:title" content="Brasse-Bouillon | Application de brassage amateur">
+  <meta name="twitter:description" content="L’application des brasseurs amateurs : recettes de bière, calculs IBU/ABV, suivi fermentation et guide pas à pas.">
   <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
   <meta name="twitter:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
   
@@ -51,7 +51,7 @@
     "name": "Brasse-Bouillon",
     "url": "https://brasse-bouillon.com/",
     "logo": "https://brasse-bouillon.com/logo.png",
-    "description": "Projet d’application mobile dédié au brassage amateur, aux recettes de bière et au suivi de fermentation.",
+    "description": "Projet d’application mobile de brassage amateur pour créer des recettes de bière, calculer IBU/ABV et suivre la fermentation.",
     "email": "contact@brasse-bouillon.com",
     "founder": {
       "@type": "Person",
@@ -75,6 +75,64 @@
     ]
   }
   </script>
+
+  <!-- FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quand l’app sera disponible ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Puis-je participer ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui : via le questionnaire, les retours UX et le contact direct."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Pour quel niveau ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "iOS, Android… ou les deux ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "L’objectif produit est une disponibilité sur les deux plateformes. Le déploiement se fera progressivement avec une phase bêta en amont."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Mes recettes et brassins seront-ils sauvegardés ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui. La trajectoire produit prévoit un historique structuré des recettes/brassins avec persistance pour suivre et reproduire plus facilement tes sessions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment suivre les nouveautés ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "La roadmap et le journal de développement sont mis à jour en continu sur le site, avec un historique traçable des évolutions livrées."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
@@ -82,7 +140,7 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="header-logo">
-        <img src="logo-hero.png" alt="Brasse-Bouillon">
+        <img src="logo-hero.png" alt="Brasse-Bouillon" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
       <nav class="header-nav">
@@ -226,6 +284,35 @@
             APIs produit étendues (Hub’Eau + ingrédients recette + métriques de brassage), détail recette “Mon livre” complété par des fiches malts “must-have”, et synchronisation roadmap/devlog maintenue.
           </div>
         </div>
+      </section>
+
+      <section class="section-block" id="guideBrassageSeoFr">
+        <h2 class="section-title">📘 Guide brassage amateur : réussir sa recette de bière de A à Z</h2>
+        <p class="section-intro">
+          Tu veux améliorer ton brassage maison ? Cette méthode simple t’aide à structurer chaque session :
+          préparation, calculs IBU/ABV, suivi fermentation et analyse post-brassin.
+        </p>
+        <div class="section-grid">
+          <div class="mini-card">
+            <h3>1. Préparer une recette de bière claire et reproductible</h3>
+            Définis style, volume, densité cible et houblonnage, puis garde un historique propre pour comparer tes brassins.
+          </div>
+          <div class="mini-card">
+            <h3>2. Fiabiliser les calculs IBU, ABV et volumes</h3>
+            Vérifie les indicateurs clés avant l’ébullition pour limiter les écarts et garder le contrôle sur le résultat final.
+          </div>
+          <div class="mini-card">
+            <h3>3. Suivre la fermentation sans rien oublier</h3>
+            Utilise une timeline d’étapes, des checkpoints et des rappels pour sécuriser les décisions critiques jusqu’au conditionnement.
+          </div>
+        </div>
+        <p class="badge">
+          Pour aller plus loin :
+          <a href="#brewAssistantFr">assistant de brassage guidé</a>,
+          <a href="#faq">FAQ</a>,
+          <a href="#newsletterFr">newsletter</a>
+          et <a href="#contact">contact direct</a>.
+        </p>
       </section>
 
       <section class="section-block">

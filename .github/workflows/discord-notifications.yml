@@ -10,6 +10,11 @@
 #           + Parent ref (discret, above child) + Title (clickable bold link)
 #   Footer: Author avatar + timestamp
 #
+# Triggers (strict minimal):
+#   - Issue opened (1 notification per issue, at creation only)
+#   - PR opened + PR merged (2 max per PR lifecycle)
+# Excluded: labeled, closed, reopened, review_requested, review, issue_comment
+# Routing: single channel per event (first matching scope, then fallback)
 # Excluded from display: epic:*, persona:*, status:*, bloc:*, ref:*
 # Language: English
 # Max zoom levels in notification: 3 (scope › type › area)
@@ -19,13 +24,9 @@ name: Discord Notifications
 
 on:
   issues:
-    types: [opened, closed, reopened, labeled]
+    types: [opened]
   pull_request:
-    types: [opened, closed, ready_for_review, review_requested]
-  pull_request_review:
-    types: [submitted]
-  issue_comment:
-    types: [created]
+    types: [opened, closed]
 
 permissions:
   issues: read
@@ -122,21 +123,11 @@ jobs:
               'area:analysis':     { emoji: '\ud83d\udd0d', text: 'Analysis' },
             };
 
-            // Event color coding
+            // Event color coding (only triggered events)
             const EVENT_DISPLAY = {
-              'issues:opened':                         { emoji: '\ud83d\udfe2', text: 'Issue Opened',             color: 0x2ea44f },
-              'issues:closed':                         { emoji: '\ud83d\udd34', text: 'Issue Closed',             color: 0xda3633 },
-              'issues:reopened':                       { emoji: '\ud83d\udfe0', text: 'Issue Reopened',            color: 0xf0883e },
-              'issues:labeled':                        { emoji: '\ud83c\udff7\ufe0f', text: 'Issue Labeled',             color: 0x8b949e },
-              'pull_request:opened':                   { emoji: '\ud83d\udfe2', text: 'PR Opened',                color: 0x2ea44f },
-              'pull_request:closed:merged':            { emoji: '\ud83d\udfe3', text: 'PR Merged',                color: 0x8957e5 },
-              'pull_request:closed':                   { emoji: '\ud83d\udd34', text: 'PR Closed',                color: 0xda3633 },
-              'pull_request:ready_for_review':         { emoji: '\ud83d\udd35', text: 'PR Ready for Review',      color: 0x58a6ff },
-              'pull_request:review_requested':         { emoji: '\ud83d\udfe3', text: 'Review Requested',         color: 0xd2a8ff },
-              'pull_request_review:approved':          { emoji: '\ud83d\udfe2', text: 'Review: Approved',         color: 0x2ea44f },
-              'pull_request_review:changes_requested': { emoji: '\ud83d\udfe0', text: 'Review: Changes Requested', color: 0xf0883e },
-              'pull_request_review:commented':         { emoji: '\ud83d\udcac', text: 'Review: Commented',        color: 0x8b949e },
-              'issue_comment:created':                 { emoji: '\ud83d\udcac', text: 'Comment',                  color: 0x58a6ff },
+              'issues:opened':              { emoji: '\ud83d\udfe2', text: 'Issue Opened',  color: 0x2ea44f },
+              'pull_request:opened':        { emoji: '\ud83d\udfe2', text: 'PR Opened',     color: 0x2ea44f },
+              'pull_request:closed:merged': { emoji: '\ud83d\udfe3', text: 'PR Merged',     color: 0x8957e5 },
             };
 
             // ── Extract payload data ─────────────────────────────────────
@@ -162,48 +153,26 @@ jobs:
               url = pr.html_url;
               author = pr.user.login;
               number = pr.number;
-            } else if (event === 'pull_request_review') {
-              const pr = context.payload.pull_request;
-              labels = pr.labels.map(l => l.name);
-              title = pr.title;
-              url = context.payload.review.html_url;
-              author = context.payload.review.user.login;
-              number = pr.number;
-            } else if (event === 'issue_comment') {
-              if (context.payload.issue.pull_request) {
-                core.info('Skipping PR comment (handled by pull_request_review).');
-                return;
-              }
-              const issue = context.payload.issue;
-              labels = issue.labels.map(l => l.name);
-              title = issue.title;
-              url = context.payload.comment.html_url;
-              author = context.payload.comment.user.login;
-              number = issue.number;
             }
 
-            // ── Handle labeled events ────────────────────────────────────
-            let targetLabels = labels;
-            if (action === 'labeled') {
-              const addedLabel = context.payload.label.name;
-              if (!addedLabel.startsWith('scope:')) {
-                core.info(`Label "${addedLabel}" is not a scope label. Skipping.`);
-                return;
-              }
-              targetLabels = [addedLabel];
+            // Skip PR closed without merge (only notify on merge)
+            if (event === 'pull_request' && action === 'closed' && !context.payload.pull_request.merged) {
+              core.info('Skipping PR closed without merge.');
+              return;
             }
 
-            // ── Resolve target webhooks ──────────────────────────────────
-            const webhooks = new Set();
-            for (const label of targetLabels) {
+            // ── Resolve target webhook (single channel: first scope match, then fallback)
+            let webhookUrl = null;
+            for (const label of labels) {
               if (SCOPE_MAP[label]) {
-                webhooks.add(SCOPE_MAP[label]);
+                webhookUrl = SCOPE_MAP[label];
+                break;
               }
             }
-            if (webhooks.size === 0 && FALLBACK_WEBHOOK) {
-              webhooks.add(FALLBACK_WEBHOOK);
+            if (!webhookUrl) {
+              webhookUrl = FALLBACK_WEBHOOK;
             }
-            if (webhooks.size === 0) {
+            if (!webhookUrl) {
               core.warning('No webhook URL resolved. Check GitHub Secrets configuration.');
               return;
             }
@@ -218,35 +187,18 @@ jobs:
             let eventEmoji = '\u2b55';
 
             if (event === 'issues') {
-              if (action === 'opened') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Opened'; }
-              else if (action === 'closed') { eventEmoji = '\ud83d\udd34'; eventColor = 0xda3633; eventAction = typeName === 'Bug' ? 'Fixed' : 'Closed'; }
-              else if (action === 'reopened') { eventEmoji = '\ud83d\udfe0'; eventColor = 0xf0883e; eventAction = 'Reopened'; }
-              else if (action === 'labeled') { eventEmoji = '\ud83c\udff7\ufe0f'; eventColor = 0x8b949e; eventAction = 'Labeled'; }
+              eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Opened';
             } else if (event === 'pull_request') {
               if (action === 'opened') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Opened'; }
               else if (action === 'closed' && context.payload.pull_request.merged) { eventEmoji = '\ud83d\udfe3'; eventColor = 0x8957e5; eventAction = 'Merged'; }
-              else if (action === 'closed') { eventEmoji = '\ud83d\udd34'; eventColor = 0xda3633; eventAction = 'Closed'; }
-              else if (action === 'ready_for_review') { eventEmoji = '\ud83d\udd35'; eventColor = 0x58a6ff; eventAction = 'Ready for Review'; }
-              else if (action === 'review_requested') { eventEmoji = '\ud83d\udfe3'; eventColor = 0xd2a8ff; eventAction = 'Review Requested'; }
-            } else if (event === 'pull_request_review') {
-              const state = context.payload.review.state;
-              if (state === 'approved') { eventEmoji = '\ud83d\udfe2'; eventColor = 0x2ea44f; eventAction = 'Approved'; }
-              else if (state === 'changes_requested') { eventEmoji = '\ud83d\udfe0'; eventColor = 0xf0883e; eventAction = 'Changes Requested'; }
-              else { eventEmoji = '\ud83d\udcac'; eventColor = 0x8b949e; eventAction = 'Commented'; }
-            } else if (event === 'issue_comment') {
-              eventEmoji = '\ud83d\udcac'; eventColor = 0x58a6ff; eventAction = 'Comment';
             }
 
-            // Build display type: use real type for issues, "PR" for pull requests, "Review" for reviews
+            // Build display type: use real type for issues, "PR" for pull requests
             let displayType;
-            if (event === 'issues' || event === 'issue_comment') {
+            if (event === 'issues') {
               displayType = typeName || 'Issue';
-            } else if (event === 'pull_request') {
-              displayType = 'PR';
-            } else if (event === 'pull_request_review') {
-              displayType = 'Review';
             } else {
-              displayType = 'Issue';
+              displayType = 'PR';
             }
 
             const eventInfo = { emoji: eventEmoji, color: eventColor, text: `${displayType} ${eventAction}` };
@@ -294,10 +246,8 @@ jobs:
             const baseUrl = `https://github.com/${owner}/${repo}`;
             let parentRef = '';
 
-            if (event === 'issues' || event === 'issue_comment') {
-              const issueNumber = event === 'issue_comment'
-                ? context.payload.issue.number
-                : context.payload.issue.number;
+            if (event === 'issues') {
+              const issueNumber = context.payload.issue.number;
               try {
                 const issueData = await github.rest.issues.get({
                   owner, repo, issue_number: issueNumber,
@@ -354,21 +304,19 @@ jobs:
               timestamp: new Date().toISOString(),
             };
 
-            // ── Send to all matching webhooks ────────────────────────────
-            for (const webhookUrl of webhooks) {
-              const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  username: 'Brasse-Bouillon Bot',
-                  avatar_url: 'https://github.com/benoit-bremaud/brasse-bouillon/raw/main/packages/frontend/assets/images/icon.png',
-                  embeds: [embed],
-                }),
-              });
+            // ── Send to single webhook ───────────────────────────────────
+            const response = await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'Brasse-Bouillon Bot',
+                avatar_url: 'https://github.com/benoit-bremaud/brasse-bouillon/raw/main/packages/frontend/assets/images/icon.png',
+                embeds: [embed],
+              }),
+            });
 
-              if (!response.ok) {
-                core.warning(`Discord webhook failed (${response.status}): ${await response.text()}`);
-              } else {
-                core.info('Notification sent to Discord.');
-              }
+            if (!response.ok) {
+              core.warning(`Discord webhook failed (${response.status}): ${await response.text()}`);
+            } else {
+              core.info('Notification sent to Discord.');
             }

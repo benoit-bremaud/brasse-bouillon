@@ -16,8 +16,8 @@ This repository is an [npm workspaces](https://docs.npmjs.com/cli/using-npm/work
 ```
 brasse-bouillon/
   packages/
-    frontend/     React Native + Expo SDK 54 + Expo Router v6 + TypeScript
-    backend/      NestJS 11 + TypeORM + SQLite + TypeScript
+    mobile-app/   React Native + Expo SDK 54 + Expo Router v6 + TypeScript
+    api/          NestJS 11 + TypeORM + SQLite + TypeScript
     website/      Static HTML/CSS/JS marketing site + Python quality gate
   docs/           Project documentation (architecture, design, API, requirements)
   _archive/       Old code preserved for reference (pre-monorepo)
@@ -45,10 +45,10 @@ cd brasse-bouillon
 npm install
 
 # Start the frontend (Expo dev server)
-npm run dev:frontend
+npm run dev:mobile-app
 
 # Start the backend (NestJS dev server)
-npm run dev:backend
+npm run dev:api
 ```
 
 ### Environment Variables
@@ -56,19 +56,19 @@ npm run dev:backend
 Each package has its own `.env.example`. Copy and configure before running:
 
 ```bash
-cp packages/frontend/.env.example packages/frontend/.env
-cp packages/backend/.env.example packages/backend/.env
+cp packages/mobile-app/.env.example packages/mobile-app/.env
+cp packages/api/.env.example packages/api/.env
 ```
 
 Key variables:
 
 | Package | Variable | Description |
 |---------|----------|-------------|
-| Frontend | `EXPO_PUBLIC_API_URL` | Backend API URL (default: `http://localhost:3000`) |
-| Frontend | `EXPO_PUBLIC_USE_DEMO_DATA` | `true` to use mock data without backend |
-| Backend | `JWT_SECRET` | JWT signing secret (required) |
-| Backend | `PORT` | API port (default: 3000) |
-| Backend | `DATABASE_PATH` | SQLite database file path |
+| Mobile App | `EXPO_PUBLIC_API_URL` | API URL (default: `http://localhost:3000`) |
+| Mobile App | `EXPO_PUBLIC_USE_DEMO_DATA` | `true` to use mock data without API |
+| API | `JWT_SECRET` | JWT signing secret (required) |
+| API | `PORT` | API port (default: 3000) |
+| API | `DATABASE_PATH` | SQLite database file path |
 
 ---
 
@@ -78,8 +78,8 @@ Key variables:
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev:frontend` | Start Expo dev server |
-| `npm run dev:backend` | Start NestJS in watch mode |
+| `npm run dev:mobile-app` | Start Expo dev server |
+| `npm run dev:api` | Start NestJS in watch mode |
 | `npm run ci:all` | Run lint + typecheck + format check for all packages |
 | `npm run test:all` | Run all tests across packages |
 | `npm run lint:all` | Run linters across packages |
@@ -125,7 +125,7 @@ domain  <-  application  <-  data
 - `application/` — Use-cases (business logic)
 - `presentation/` — React Native screens and components
 
-See [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md) for full frontend conventions.
+See [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md) for full frontend conventions.
 
 ---
 
@@ -134,8 +134,8 @@ See [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md) for full frontend
 GitHub Actions runs automatically on every PR to `main`:
 
 - **Path-filtered**: only changed packages are tested
-- **Frontend**: lint + typecheck + format check + 407 tests
-- **Backend**: lint + build + 238 tests
+- **Mobile App**: lint + typecheck + format check + 407 tests
+- **API**: lint + build + 238 tests
 - **Website**: Python quality gate
 
 Coverage reports are uploaded as artifacts for SonarQube integration.
@@ -146,8 +146,8 @@ Coverage reports are uploaded as artifacts for SonarQube integration.
 
 | Topic | Location |
 |-------|----------|
-| Frontend conventions | [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md) |
-| Design system | [packages/frontend/docs/design-system.md](packages/frontend/docs/design-system.md) |
+| Frontend conventions | [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md) |
+| Design system | [packages/mobile-app/docs/design-system.md](packages/mobile-app/docs/design-system.md) |
 | API documentation | [docs/api/](docs/api/) |
 | Architecture | [docs/architecture/](docs/architecture/) |
 | Requirements | [docs/requirements/](docs/requirements/) |

@@ -29,15 +29,15 @@ All code, comments, commit messages, PR descriptions, issue titles, and document
 ```
 brasse-bouillon/
   packages/
-    frontend/     React Native + Expo SDK 54 + Router v6 + TypeScript
-    backend/      NestJS 11 + TypeORM + SQLite + TypeScript
+    mobile-app/   React Native + Expo SDK 54 + Router v6 + TypeScript
+    api/          NestJS 11 + TypeORM + SQLite + TypeScript
     website/      Static HTML/CSS/JS + Python quality gate
   docs/           Project documentation
   _archive/       Old code preserved for reference
   .github/        CI workflows, issue templates
 ```
 
-Path references in documentation must always use `packages/frontend/`, `packages/backend/`, never bare `frontend/` or `backend/`.
+Path references in documentation must always use `packages/mobile-app/`, `packages/api/`, never bare `mobile-app/` or `api/`.
 
 ---
 

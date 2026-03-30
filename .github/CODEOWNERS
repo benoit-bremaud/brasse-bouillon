@@ -2,10 +2,10 @@
 * @benoit-bremaud
 
 # Frontend
-packages/frontend/ @benoit-bremaud @Fabien-Ori @Smith06S @Thais9723
+packages/mobile-app/ @benoit-bremaud @Fabien-Ori @Smith06S @Thais9723
 
 # Backend
-packages/backend/ @benoit-bremaud @vitalikevin @Smith06S
+packages/api/ @benoit-bremaud @vitalikevin @Smith06S
 
 # Website
 packages/website/ @benoit-bremaud @Lin0ooo

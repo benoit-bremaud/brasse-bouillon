@@ -1,6 +1,7 @@
 # ==============================================================================
 # Brasse-Bouillon — Unified CI Pipeline
-# Runs path-filtered jobs for frontend and backend on every PR to main.
+# Runs path-filtered jobs for mobile-app, api, website, and beer-label-ai
+# on every PR to main.
 # ==============================================================================
 
 name: CI
@@ -24,8 +25,8 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      frontend: ${{ steps.filter.outputs.frontend }}
-      backend: ${{ steps.filter.outputs.backend }}
+      mobile-app: ${{ steps.filter.outputs.mobile-app }}
+      api: ${{ steps.filter.outputs.api }}
       website: ${{ steps.filter.outputs.website }}
       beer-label-ai: ${{ steps.filter.outputs.beer-label-ai }}
     steps:
@@ -34,25 +35,25 @@ jobs:
         id: filter
         with:
           filters: |
-            frontend:
-              - 'packages/frontend/**'
-            backend:
-              - 'packages/backend/**'
+            mobile-app:
+              - 'packages/mobile-app/**'
+            api:
+              - 'packages/api/**'
             website:
               - 'packages/website/**'
             beer-label-ai:
               - 'packages/beer-label-ai/**'
 
   # ============================================================================
-  # Frontend: lint + typecheck + format + tests
+  # Mobile App: lint + typecheck + format + tests
   # ============================================================================
-  frontend:
+  mobile-app:
     needs: changes
-    if: needs.changes.outputs.frontend == 'true'
+    if: needs.changes.outputs.mobile-app == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/frontend
+        working-directory: packages/mobile-app
     steps:
       - uses: actions/checkout@v4
 
@@ -60,7 +61,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: packages/frontend/package-lock.json
+          cache-dependency-path: packages/mobile-app/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -75,20 +76,20 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage
-          path: packages/frontend/coverage/lcov.info
+          name: mobile-app-coverage
+          path: packages/mobile-app/coverage/lcov.info
           retention-days: 7
 
   # ============================================================================
-  # Backend: lint + build + tests
+  # API: lint + build + tests
   # ============================================================================
-  backend:
+  api:
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/backend
+        working-directory: packages/api
     steps:
       - uses: actions/checkout@v4
 
@@ -96,7 +97,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: packages/backend/package-lock.json
+          cache-dependency-path: packages/api/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -114,8 +115,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage
-          path: packages/backend/coverage/lcov.info
+          name: api-coverage
+          path: packages/api/coverage/lcov.info
           retention-days: 7
 
   # ============================================================================

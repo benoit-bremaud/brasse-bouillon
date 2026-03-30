@@ -17,6 +17,26 @@ def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
+    legal_html_template = (
+        "<!DOCTYPE html><html lang=\"{lang}\"><head>"
+        "<title>{title}</title></head><body></body></html>"
+    )
+    legal_pages = [
+        ("legal.html", "fr", "legal"),
+        ("legal-en.html", "en", "legal-en"),
+        ("privacy.html", "fr", "privacy"),
+        ("privacy-en.html", "en", "privacy-en"),
+        ("cookies.html", "fr", "cookies"),
+        ("cookies-en.html", "en", "cookies-en"),
+        ("terms.html", "fr", "terms"),
+        ("terms-en.html", "en", "terms-en"),
+    ]
+    for rel_path, lang, title in legal_pages:
+        _write_file(
+            base,
+            rel_path,
+            legal_html_template.format(lang=lang, title=title),
+        )
 
     _write_file(
         base,
@@ -86,10 +106,10 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            (root / "robots.txt").unlink()
+            (root / "terms-en.html").unlink()
 
             errors = quality_gate.collect_errors(root)
-            self.assertIn("Fichier requis manquant: robots.txt", errors)
+            self.assertIn("Fichier requis manquant: terms-en.html", errors)
 
     def test_detects_en_page_missing_noindex(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

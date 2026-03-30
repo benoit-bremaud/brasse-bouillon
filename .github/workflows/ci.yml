@@ -23,6 +23,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: read
     outputs:
       mobile-app: ${{ steps.filter.outputs.mobile-app }}

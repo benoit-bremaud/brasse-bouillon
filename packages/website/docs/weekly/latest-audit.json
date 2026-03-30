@@ -1,0 +1,310 @@
+{
+  "generated_at": "2026-03-05T15:28:46Z",
+  "since": "2026-02-27T18:59:03Z",
+  "repos": [
+    "benoit-bremaud/brasse-bouillon-frontend",
+    "benoit-bremaud/brasse-bouillon-backend"
+  ],
+  "totals": {
+    "all": 17,
+    "user_facing": 12,
+    "technical": 5
+  },
+  "publish_recommended": true,
+  "highlight_themes": [
+    "Ingredient experience expanded (malt filters, hop/yeast detail pages, and contextual navigation).",
+    "Navigation reliability improved across ingredients, recipes, batches, and shop flows.",
+    "Authentication security hardening delivered (throttling on login/register endpoints).",
+    "Batch lifecycle improved with owner-scoped deletion support.",
+    "Brewing calculations expanded with a Tinseth IBU estimation endpoint."
+  ],
+  "prs": [
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 57,
+      "title": "feat(ingredients): improve malterie flow with malt catalog filters",
+      "merged_at": "2026-02-27T19:51:27Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/57",
+      "files": [
+        "src/features/ingredients/application/__tests__/malts.use-cases.test.ts",
+        "src/features/ingredients/application/malts.use-cases.ts",
+        "src/features/ingredients/domain/malt.types.ts",
+        "src/features/ingredients/presentation/IngredientCategoryScreen.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientCategoryScreen.test.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 58,
+      "title": "feat(ingredients): preserve malterie filters and suggest alternatives",
+      "merged_at": "2026-02-27T21:04:26Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/58",
+      "files": [
+        "app/(app)/ingredients/[category]/index.tsx",
+        "app/(app)/ingredients/malts/[id].tsx",
+        "src/features/ingredients/application/__tests__/malts.use-cases.test.ts",
+        "src/features/ingredients/application/malts.use-cases.ts",
+        "src/features/ingredients/presentation/IngredientCategoryScreen.tsx",
+        "src/features/ingredients/presentation/MaltDetailsScreen.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientCategoryScreen.test.tsx",
+        "src/features/ingredients/presentation/__tests__/MaltDetailsScreen.test.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 59,
+      "title": "refactor(ingredients): unify contextual return navigation",
+      "merged_at": "2026-02-27T23:07:34Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/59",
+      "files": [
+        "app/(app)/ingredients/[category]/[id].tsx",
+        "app/(app)/ingredients/[category]/index.tsx",
+        "app/(app)/ingredients/malts/[id].tsx",
+        "src/features/ingredients/presentation/IngredientCategoryScreen.tsx",
+        "src/features/ingredients/presentation/IngredientDetailsScreen.tsx",
+        "src/features/ingredients/presentation/MaltDetailsScreen.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientCategoryScreen.test.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientDetailsScreen.test.tsx",
+        "src/features/ingredients/presentation/__tests__/MaltDetailsScreen.test.tsx",
+        "src/features/ingredients/presentation/__tests__/ingredient-navigation-context.test.ts",
+        "src/features/ingredients/presentation/ingredient-navigation-context.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 60,
+      "title": "feat(recipes): route hop and yeast rows to detail with recipe return context",
+      "merged_at": "2026-02-28T17:38:46Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/60",
+      "files": [
+        "src/features/recipes/presentation/RecipeDetailsScreen.tsx",
+        "src/features/recipes/presentation/__tests__/RecipeDetailsScreen.test.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 61,
+      "title": "feat: implement hop and yeast product pages",
+      "merged_at": "2026-03-02T13:31:53Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/61",
+      "files": [
+        "src/features/ingredients/application/__tests__/hops.use-cases.test.ts",
+        "src/features/ingredients/application/__tests__/yeasts.use-cases.test.ts",
+        "src/features/ingredients/application/hops.use-cases.ts",
+        "src/features/ingredients/application/yeasts.use-cases.ts",
+        "src/features/ingredients/data/hops.api.ts",
+        "src/features/ingredients/data/ingredient-api.utils.ts",
+        "src/features/ingredients/data/yeasts.api.ts",
+        "src/features/ingredients/domain/hop.types.ts",
+        "src/features/ingredients/domain/yeast.types.ts",
+        "src/features/ingredients/presentation/HopDetailsScreen.tsx",
+        "src/features/ingredients/presentation/IngredientDetailsScreen.tsx",
+        "src/features/ingredients/presentation/YeastDetailsScreen.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientDetailsScreen.test.tsx",
+        "src/mocks/demo-data.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 62,
+      "title": "fix(navigation): prioritize header back actions",
+      "merged_at": "2026-03-03T11:54:43Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/62",
+      "files": [
+        "src/core/ui/ListHeader.tsx",
+        "src/features/batches/presentation/BatchDetailsScreen.tsx",
+        "src/features/batches/presentation/BatchesScreen.tsx",
+        "src/features/batches/presentation/__tests__/BatchDetailsScreen.test.tsx",
+        "src/features/batches/presentation/__tests__/BatchesScreen.test.tsx",
+        "src/features/ingredients/presentation/IngredientCategoryScreen.tsx",
+        "src/features/ingredients/presentation/IngredientsScreen.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientCategoryScreen.test.tsx",
+        "src/features/ingredients/presentation/__tests__/IngredientsScreen.test.tsx",
+        "src/features/recipes/presentation/RecipeDetailsScreen.tsx",
+        "src/features/recipes/presentation/RecipesScreen.tsx",
+        "src/features/recipes/presentation/__tests__/RecipeDetailsScreen.test.tsx",
+        "src/features/recipes/presentation/__tests__/RecipesScreen.test.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 63,
+      "title": "feat(footer): add active feedback and deterministic shop back navigation",
+      "merged_at": "2026-03-03T13:47:05Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/63",
+      "files": [
+        "src/core/ui/NavigationFooter.tsx",
+        "src/core/ui/__tests__/NavigationFooter.test.tsx",
+        "src/features/shop/presentation/ShopCategoryScreen.tsx",
+        "src/features/shop/presentation/__tests__/ShopCategoryScreen.test.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 64,
+      "title": "chore(ci): run all tests automatically on PR",
+      "merged_at": "2026-03-03T13:50:48Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/64",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "user_facing": false,
+      "reason": "technical-title-prefix"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 39,
+      "title": "ci(sonarcloud): align CI scan with SonarQube Cloud action",
+      "merged_at": "2026-03-04T15:20:41Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/39",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "user_facing": false,
+      "reason": "technical-title-prefix"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "number": 65,
+      "title": "feat(navigation): standardize header back button usage",
+      "merged_at": "2026-03-04T16:09:14Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/65",
+      "files": [
+        "src/core/ui/HeaderBackButton.tsx",
+        "src/features/batches/presentation/BatchDetailsScreen.tsx",
+        "src/features/batches/presentation/__tests__/BatchDetailsScreen.test.tsx",
+        "src/features/ingredients/presentation/IngredientCategoryScreen.tsx",
+        "src/features/ingredients/presentation/IngredientsScreen.tsx",
+        "src/features/recipes/presentation/RecipeDetailsScreen.tsx",
+        "src/features/recipes/presentation/__tests__/RecipeDetailsScreen.test.tsx",
+        "src/features/shop/presentation/ShopCategoryScreen.tsx"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 40,
+      "title": "fix(auth): enforce login throttling and harden jwt secret",
+      "merged_at": "2026-03-04T16:39:42Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/40",
+      "files": [
+        "package-lock.json",
+        "package.json",
+        "src/app.module.spec.ts",
+        "src/app.module.ts",
+        "src/auth/controllers/auth.controller.spec.ts",
+        "src/auth/controllers/auth.controller.ts",
+        "src/config/auth.config.ts",
+        "test/auth.protected.e2e-spec.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 41,
+      "title": "ci(sonarqube): fail pipeline when quality gate fails",
+      "merged_at": "2026-03-04T19:48:07Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/41",
+      "files": [
+        ".github/workflows/ci.yml",
+        "sonar-project.properties"
+      ],
+      "user_facing": false,
+      "reason": "technical-title-prefix"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 42,
+      "title": "feat(batch): add owner-scoped delete endpoint",
+      "merged_at": "2026-03-04T20:08:49Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/42",
+      "files": [
+        "src/batch/batch.service.spec.ts",
+        "src/batch/controllers/batch.controller.spec.ts",
+        "src/batch/controllers/batch.controller.ts",
+        "src/batch/services/batch.service.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 43,
+      "title": "docs(swagger): use explicit JWT bearer auth scheme name",
+      "merged_at": "2026-03-04T20:24:35Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/43",
+      "files": [
+        "src/auth/controllers/auth.controller.ts",
+        "src/eau/controllers/eau.controller.ts",
+        "src/equipment/controllers/equipment-profile.controller.ts",
+        "src/user/controllers/user.controller.ts"
+      ],
+      "user_facing": false,
+      "reason": "technical-title-prefix"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 44,
+      "title": "fix(auth): add register endpoint rate limiting",
+      "merged_at": "2026-03-04T20:46:37Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/44",
+      "files": [
+        "src/auth/controllers/auth.controller.spec.ts",
+        "src/auth/controllers/auth.controller.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 45,
+      "title": "refactor(user): replace console logs with nest logger",
+      "merged_at": "2026-03-04T21:59:23Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/45",
+      "files": [
+        "src/user/controllers/user.controller.spec.ts",
+        "src/user/controllers/user.controller.ts",
+        "src/user/services/user.service.spec.ts",
+        "src/user/services/user.service.ts"
+      ],
+      "user_facing": false,
+      "reason": "technical-refactor"
+    },
+    {
+      "repo": "benoit-bremaud/brasse-bouillon-backend",
+      "number": 46,
+      "title": "feat(recipe): add Tinseth IBU estimation endpoint",
+      "merged_at": "2026-03-04T23:17:35Z",
+      "url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/46",
+      "files": [
+        "src/batch/batch.service.spec.ts",
+        "src/recipe/controllers/recipe.controller.spec.ts",
+        "src/recipe/controllers/recipe.controller.ts",
+        "src/recipe/domain/services/recipe-ibu-tinseth.domain.service.ts",
+        "src/recipe/dtos/recipe-ibu-breakdown-hop.dto.ts",
+        "src/recipe/dtos/recipe-ibu-estimate.dto.ts",
+        "src/recipe/recipe-ingredients.service.spec.ts",
+        "src/recipe/recipe-steps.service.spec.ts",
+        "src/recipe/services/recipe.service.ts"
+      ],
+      "user_facing": true,
+      "reason": "product-code-change"
+    }
+  ]
+}

@@ -2,6 +2,120 @@
   "version": 1,
   "entries": [
     {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#56",
+      "date": "2026-02-27",
+      "merged_at": "2026-02-27T18:59:03Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 56,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/56",
+      "pr_title": "feat(ingredients): must-have malt product details and contextual navigation",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Détail recette « Mon livre » complété par fiches malts « must-have » et navigation ingrédient contextualisée.",
+      "summary_en": "Recipe detail flow upgraded with must-have malt product sheets and contextual ingredient navigation.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/47"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#52",
+      "date": "2026-02-26",
+      "merged_at": "2026-02-26T21:32:09Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 52,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/52",
+      "pr_title": "feat(dashboard): reading-first home and progressive live ingredient data",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Accueil repensé en mode lecture + espaces découverte ingrédients et récupération live progressive des données.",
+      "summary_en": "Home dashboard redesigned (reading-first) with ingredient discovery spaces and progressive live data fetching.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/50",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/49",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/48"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#46",
+      "date": "2026-02-25",
+      "merged_at": "2026-02-25T17:45:53Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 46,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/46",
+      "pr_title": "fix(academy/tools): consolidate hub UX and navigation",
+      "phase": "5",
+      "impact_type": "fix",
+      "summary_fr": "UX des hubs Académie/Outils consolidée (cartes cliquables, navigation fiabilisée, interface simplifiée).",
+      "summary_en": "Academy/Tools hubs UX consolidated (clickable cards, reliable navigation, simplified interface).",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/45",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/44",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/43",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/42",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/41"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#38",
+      "date": "2026-02-25",
+      "merged_at": "2026-02-25T10:35:57Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 38,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/38",
+      "pr_title": "feat(shop): category navigation and demo content expansion",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Expérience boutique et contenus démo enrichis (catégories/kits + 12 recettes et 12 brassins de démonstration).",
+      "summary_en": "Shop and demo experience expanded (category/kits navigation + 12 demo recipes and 12 demo batches).",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/37",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/36",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/35"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-frontend#30",
+      "date": "2026-02-20",
+      "merged_at": "2026-02-20T12:41:43Z",
+      "domain": "Frontend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-frontend",
+      "pr_number": 30,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/30",
+      "pr_title": "feat(tools): complete remaining brewing calculators",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "Suite des calculateurs finalisée (couleur/houblons/eau/conversions) avec navigation outils améliorée.",
+      "summary_en": "Brewing tools suite completed (color/hops/water/conversion calculators) with improved tools navigation.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/29",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/27",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/25",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/24",
+        "https://github.com/benoit-bremaud/brasse-bouillon-frontend/pull/31"
+      ]
+    },
+    {
+      "id": "benoit-bremaud/brasse-bouillon-backend#33",
+      "date": "2026-02-19",
+      "merged_at": "2026-02-19T14:34:39Z",
+      "domain": "Backend",
+      "source_repo": "benoit-bremaud/brasse-bouillon-backend",
+      "pr_number": 33,
+      "pr_url": "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/33",
+      "pr_title": "feat(eau): add Hub'Eau water profile endpoint",
+      "phase": "5",
+      "impact_type": "feature",
+      "summary_fr": "API enrichies : profil d'eau Hub'Eau + CRUD ingrédients recette et métriques de brassage.",
+      "summary_en": "Backend APIs expanded: Hub'Eau water profile + recipe ingredients CRUD and brewing metrics.",
+      "evidence_links": [
+        "https://github.com/benoit-bremaud/brasse-bouillon-backend/pull/32"
+      ]
+    },
+    {
       "id": "benoit-bremaud/brasse-bouillon-website#58",
       "date": "2026-02-17",
       "merged_at": "2026-02-17T12:00:00Z",

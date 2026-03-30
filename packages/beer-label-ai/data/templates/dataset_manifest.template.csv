@@ -1,0 +1,2 @@
+image_path,split,source_type,source_name,source_url,license,usage_allowed,evidence_ref,collected_by,collected_at,style_hint,notes
+images/train/example_0001.jpg,train,public_dataset,example-dataset,https://example.org/image/1,CC-BY-4.0,yes,dataset/evidence/example-dataset.md,owner,2026-02-26,ipa,replace with real metadata

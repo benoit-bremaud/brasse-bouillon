@@ -1,0 +1,9 @@
+# Sprint 1 template for YOLOv8 training
+path: /absolute/path/to/dataset
+train: images/train
+val: images/val
+test: images/test
+
+# Single class for detection-only baseline
+names:
+  0: beer_label

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ML artifacts
+runs/
+checkpoints/
+*.pt
+*.onnx
+*.engine
+*.tflite
+
+# Dataset / assets
+data/raw/
+data/processed/
+data/external/
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# Node
+node_modules/
+dist/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

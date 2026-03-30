@@ -1,0 +1,56 @@
+[
+  {
+    "id": "bb-001",
+    "name": "BB Session IPA",
+    "style": "ipa",
+    "abv": 5.2,
+    "ibu": 42,
+    "description": "Light and fruity session IPA.",
+    "ingredients": ["Pale malt", "Citra", "Mosaic", "US-05"]
+  },
+  {
+    "id": "bb-002",
+    "name": "BB Classic Lager",
+    "style": "lager",
+    "abv": 5.0,
+    "ibu": 20,
+    "description": "Balanced, easy-drinking lager recipe.",
+    "ingredients": ["Pilsner malt", "Saaz", "S-04"]
+  },
+  {
+    "id": "bb-003",
+    "name": "BB Citrus Wheat",
+    "style": "wheat",
+    "abv": 4.8,
+    "ibu": 15,
+    "description": "Fresh wheat beer with orange peel notes.",
+    "ingredients": ["Wheat malt", "Coriander", "Orange peel", "WB-06"]
+  },
+  {
+    "id": "bb-004",
+    "name": "BB Cocoa Stout",
+    "style": "stout",
+    "abv": 6.5,
+    "ibu": 35,
+    "description": "Roasty stout with cocoa character.",
+    "ingredients": ["Roasted barley", "Chocolate malt", "Fuggles", "S-04"]
+  },
+  {
+    "id": "bb-005",
+    "name": "BB Caramel Amber Ale",
+    "style": "amber_ale",
+    "abv": 5.8,
+    "ibu": 28,
+    "description": "Smooth amber ale with biscuit and caramel notes.",
+    "ingredients": ["Vienna malt", "Caramalt", "East Kent Goldings", "S-04"]
+  },
+  {
+    "id": "bb-006",
+    "name": "BB Zesty Sour",
+    "style": "sour",
+    "abv": 4.7,
+    "ibu": 10,
+    "description": "Bright, tart sour ale with citrus finish.",
+    "ingredients": ["Pilsner malt", "Wheat malt", "Lactic culture", "Lemon zest"]
+  }
+]

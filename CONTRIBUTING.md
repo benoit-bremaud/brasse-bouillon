@@ -188,7 +188,28 @@ Create a PR targeting `main` with:
 - A checklist of acceptance criteria
 - `Closes #<issue-number>` in the body
 
-### 6. Wait for review
+### 6. PR notification comment
+
+After creating the PR, post an **informational comment** that mentions team members for visibility. This is separate from requested reviewers (which remain for blocking reviews).
+
+The comment must:
+- Be written in **plain, non-technical language** so that all team members (designers, product, etc.) can understand it
+- Explain **what was done** and **why**
+- Explain **what changes concretely** for the project or the product
+- Mention **who might be interested**, based on the labels inherited from the linked issue (`scope:`, `area:`, `type:`)
+
+Example:
+
+```markdown
+@Fabien-Ori @Thais9723 — For your information: this PR adds the legal
+pages (cookies, privacy, terms of use) to the marketing website, in both
+French and English. The site is now fully compliant with GDPR requirements.
+No impact on the mobile app or the backend server.
+```
+
+The list of people to mention should be suggested based on the PR context (scope labels, area labels) and confirmed by the author before posting.
+
+### 7. Wait for review
 
 - CI must pass (GitHub Actions runs automatically)
 - At least one reviewer must approve

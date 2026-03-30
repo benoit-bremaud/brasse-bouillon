@@ -4,7 +4,7 @@
 
 **Name:** Brasse-Bouillon
 **Type:** npm workspaces monorepo
-**Packages:** `packages/frontend`, `packages/backend`, `packages/website`
+**Packages:** `packages/frontend`, `packages/backend`, `packages/website`, `packages/beer-label-ai`
 **Node:** 20.x (enforced via `.nvmrc` and `engines` field)
 **Language:** English only — all code, comments, commits, docs, and issues in English
 
@@ -18,6 +18,7 @@ brasse-bouillon/
     frontend/     React Native + Expo SDK 54 + Router v6 + TypeScript (strict)
     backend/      NestJS 11 + TypeORM + SQLite + TypeScript
     website/      Static HTML/CSS/JS marketing site + Python quality gate
+    beer-label-ai/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR ML pipeline
   docs/           Project documentation
   _archive/       Pre-monorepo code (read-only reference)
   .github/        CI workflows
@@ -30,6 +31,7 @@ Each package has its own CLAUDE.md with detailed conventions:
 
 - **Frontend:** [packages/frontend/CLAUDE.md](packages/frontend/CLAUDE.md)
 - **Backend:** No CLAUDE.md yet — follow NestJS conventions, TypeORM patterns, and the rules below
+- **Beer Label AI:** [packages/beer-label-ai/CLAUDE.md](packages/beer-label-ai/CLAUDE.md)
 
 ---
 
@@ -41,6 +43,7 @@ Each package has its own CLAUDE.md with detailed conventions:
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`
 - Use **Conventional Commits**: `<type>(<scope>): <short description>`
 - Run CI checks before pushing. Ask for explicit user validation before creating a PR.
+- After creating a PR, post an **informational notification comment** mentioning relevant team members (based on scope/area labels). The comment must use plain, non-technical language so all team members understand. See [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment.
 - See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
 ### TypeScript

@@ -1,0 +1,23 @@
+# Default — project lead reviews everything
+* @benoit-bremaud
+
+# Frontend
+packages/frontend/ @benoit-bremaud @Fabien-Ori @Smith06S @Thais9723
+
+# Backend
+packages/backend/ @benoit-bremaud @vitalikevin @Smith06S
+
+# Website
+packages/website/ @benoit-bremaud @Lin0ooo
+
+# Design documentation
+docs/design/ @benoit-bremaud @Fabien-Ori @Lin0ooo @Liamggn @Thais9723
+
+# Infrastructure & CI
+.github/ @benoit-bremaud @clemoune-tech @Moooniie
+Makefile @benoit-bremaud @clemoune-tech @Moooniie
+sonar-project.properties @benoit-bremaud @clemoune-tech @Moooniie
+
+# Project documentation
+docs/project-management/ @benoit-bremaud
+docs/architecture/ @benoit-bremaud

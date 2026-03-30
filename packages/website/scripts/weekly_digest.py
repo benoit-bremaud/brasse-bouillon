@@ -607,7 +607,7 @@ def render_social_drafts_markdown(
             "",
             "Weekly product update 🍺",
         ]
-    ]
+    )
     lines.extend([f"- {bullet}" for bullet in en_bullets])
     lines.extend(
         [

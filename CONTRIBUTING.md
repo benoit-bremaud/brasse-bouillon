@@ -163,14 +163,14 @@ Follow the architecture and code style conventions (see below).
 ### 4. Run checks locally
 
 ```bash
-# Frontend
-npm -w packages/frontend run ci:check   # lint + typecheck + format
-npm -w packages/frontend test           # 407 tests
+# Mobile App
+npm -w packages/mobile-app run ci:check   # lint + typecheck + format
+npm -w packages/mobile-app test           # 407 tests
 
-# Backend
-npm -w packages/backend run lint:check
-npm -w packages/backend run build
-npm -w packages/backend test            # 238 tests
+# API
+npm -w packages/api run lint:check
+npm -w packages/api run build
+npm -w packages/api test            # 238 tests
 
 # Or run everything at once
 npm run ci:all && npm run test:all
@@ -226,15 +226,15 @@ The list of people to mention should be suggested based on the PR context (scope
 - **Named exports only** — no default exports for screens, use-cases, or API modules
 - `interface` for object shapes, `type` for unions and utility types
 
-### Frontend (React Native / Expo)
+### Mobile App (React Native / Expo)
 
 - **Clean Architecture**: domain -> application -> data -> presentation
 - `StyleSheet.create()` for all styles — no inline style objects
-- Design tokens from `packages/frontend/src/core/theme/` — never hardcode colors, spacing, or fonts
+- Design tokens from `packages/mobile-app/src/core/theme/` — never hardcode colors, spacing, or fonts
 - TanStack Query for data fetching (no `useState + useEffect` for remote data)
 - Path alias: `@/*` maps to `src/*`
 
-### Backend (NestJS)
+### API (NestJS)
 
 - TypeORM for database access
 - DTOs with `class-validator` decorators for request validation
@@ -256,17 +256,17 @@ Tests are mandatory for every new feature.
 
 | Package | Test framework | Location |
 |---------|---------------|----------|
-| Frontend | Jest + @testing-library/react-native | `src/features/<feature>/presentation/__tests__/` |
-| Frontend | Jest (unit) | `src/features/<feature>/application/__tests__/` |
-| Backend | Jest | `src/**/*.spec.ts` and `test/**/*.e2e-spec.ts` |
+| Mobile App | Jest + @testing-library/react-native | `src/features/<feature>/presentation/__tests__/` |
+| Mobile App | Jest (unit) | `src/features/<feature>/application/__tests__/` |
+| API | Jest | `src/**/*.spec.ts` and `test/**/*.e2e-spec.ts` |
 
 ```bash
 # Run specific test file
-npm -w packages/frontend test -- path/to/test.ts
+npm -w packages/mobile-app test -- path/to/test.ts
 
 # Run with coverage
-npm -w packages/frontend run test:coverage
-npm -w packages/backend run test:cov
+npm -w packages/mobile-app run test:coverage
+npm -w packages/api run test:cov
 ```
 
 ---
@@ -291,7 +291,7 @@ Before requesting review, verify:
 ```
 brasse-bouillon/
   packages/
-    frontend/         Expo SDK 54 + Router v6 + TypeScript
+    mobile-app/       Expo SDK 54 + Router v6 + TypeScript
       src/
         core/           Shared: auth, http client, theme, UI primitives
         features/       Feature modules (auth, recipes, batches, tools...)
@@ -301,7 +301,7 @@ brasse-bouillon/
             application/  Use-cases (business logic)
             presentation/ Screens and components
       app/              Expo Router file-based routes
-    backend/          NestJS 11 + TypeORM + SQLite
+    api/              NestJS 11 + TypeORM + SQLite
       src/              Application source code
       test/             E2E tests
     website/          Static marketing site
@@ -314,8 +314,8 @@ brasse-bouillon/
 
 ## Useful Links
 
-- [Frontend conventions (CLAUDE.md)](packages/frontend/CLAUDE.md)
-- [Design system](packages/frontend/docs/design-system.md)
+- [Mobile App conventions (CLAUDE.md)](packages/mobile-app/CLAUDE.md)
+- [Design system](packages/mobile-app/docs/design-system.md)
 - [Definition of Done](docs/project-management/definition-of-done.md)
 - [Definition of Ready](docs/project-management/definition-of-ready.md)
 - [Sprint structure](docs/project-management/sprint-definition.md)

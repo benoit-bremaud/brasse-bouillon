@@ -310,7 +310,7 @@ jobs:
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 username: 'Brasse-Bouillon Bot',
-                avatar_url: 'https://github.com/benoit-bremaud/brasse-bouillon/raw/main/packages/frontend/assets/images/icon.png',
+                avatar_url: 'https://github.com/benoit-bremaud/brasse-bouillon/raw/main/packages/mobile-app/assets/images/icon.png',
                 embeds: [embed],
               }),
             });

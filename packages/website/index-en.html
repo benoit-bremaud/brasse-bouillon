@@ -3,50 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brasse-Bouillon — Homebrewing app (coming soon)</title>
-  
+  <title>Brasse-Bouillon — Homebrewing app (recipes, IBU/ABV, guided brewing)</title>
+
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Brasse-Bouillon: the homebrewing mobile app to create beer recipes, calculate IBU/ABV, manage your brews and track fermentation. The perfect kit for all homebrewers, from beginner to expert.">
+  <meta name="description" content="Brasse-Bouillon is the homebrewing mobile app for recipes, IBU/ABV calculations, fermentation tracking, and step-by-step brew guidance.">
+  <meta name="keywords" content="homebrewing app, beer recipe app, IBU calculator, ABV calculator, brew day assistant, fermentation tracking">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/index-en.html">
   <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
-  
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://brasse-bouillon.com/">
-  <meta property="og:title" content="Brasse-Bouillon — The homebrewing app">
-  <meta property="og:description" content="The mobile app for homebrewers. Calculate IBU/ABV, manage recipes and track your brews.">
+  <meta property="og:title" content="Brasse-Bouillon — The homebrewing co-pilot app">
+  <meta property="og:description" content="Plan recipes, follow step-by-step brew sessions, and improve every batch with confidence.">
   <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
-  
+  <meta property="og:image:alt" content="Brasse-Bouillon, homebrewing mobile app">
+
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://brasse-bouillon.com/">
-  <meta name="twitter:title" content="Brasse-Bouillon — The homebrewing app">
-  <meta name="twitter:description" content="The mobile app for homebrewers.">
+  <meta name="twitter:title" content="Brasse-Bouillon — The homebrewing co-pilot app">
+  <meta name="twitter:description" content="From first kit to advanced all-grain batches: brew with confidence and consistency.">
   <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
-  
+  <meta name="twitter:image:alt" content="Brasse-Bouillon, homebrewing mobile app">
+
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
   <link rel="apple-touch-icon" href="logo-icon-32.png">
-  
+
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVCT6NGFVG"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-RVCT6NGFVG');
-  </script>
-  
-  <link rel="stylesheet" href="site.css">
-  
+
+  <!-- Analytics loaded only after explicit cookie consent -->
+
+  <link rel="stylesheet" href="site.css?v=20260228-cookie-fix-1">
+
   <!-- Organization Schema -->
   <script type="application/ld+json">
   {
@@ -56,7 +53,7 @@
     "name": "Brasse-Bouillon",
     "url": "https://brasse-bouillon.com/",
     "logo": "https://brasse-bouillon.com/logo.png",
-    "description": "Project building a mobile app for homebrewing recipes and fermentation tracking.",
+    "description": "Project building a mobile app dedicated to homebrewing recipes and fermentation tracking.",
     "email": "contact@brasse-bouillon.com",
     "founder": {
       "@type": "Person",
@@ -80,13 +77,15 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="index-en.html" class="header-logo">
-        <img src="logo-hero.png" alt="Brasse-Bouillon">
+        <img src="logo-hero.png" alt="Brasse-Bouillon" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
       <nav class="header-nav">
         <a href="#features">Features</a>
+        <a href="#brewAssistantEn">Assistant</a>
         <a href="#roadmapHeadingEn">Roadmap</a>
         <a href="#faq">FAQ</a>
+        <a href="#newsletterEn">Newsletter</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="header-right">
@@ -100,27 +99,99 @@
 
   <main class="page" id="mainContentEn">
     <div class="shell">
+      <p class="responsibility-banner">
+        🍺 Brasse-Bouillon is intended for adults (18+) and promotes responsible drinking.
+        Alcohol abuse is harmful to your health.
+      </p>
+
       <section class="hero">
         <div class="logo-wrap">
           <img class="logo" src="logo-hero.png" alt="Official Brasse-Bouillon mascot" loading="eager" width="180" height="180">
         </div>
-        <span class="pill">Coming soon</span>
-        <h1>Brasse-Bouillon</h1>
+        <p class="pill">🚀 Beta 2026 • Limited early access</p>
+        <h1>Brasse-Bouillon: your brewing co-pilot for every successful batch</h1>
         <p class="intro">
-          A mobile app built for homebrewers—from first batches to advanced recipes.
-          Design, optimize, archive, and share your creations in a friendly and accessible experience.
+          From first extract kits to advanced all-grain recipes, Brasse-Bouillon guides and supports every step.
+          Goal: simpler brewing, better consistency, and a lot more fun on brew day.
         </p>
+        <div class="actions">
+          <a class="btn btn-secondary" href="#brewAssistantEn">Explore the step-by-step guide</a>
+          <a class="btn btn-primary" href="#newsletterEn">Join the waitlist</a>
+          <a class="btn btn-secondary" href="#questionnaireEn">Shape the roadmap</a>
+        </div>
+        <p class="badge">🔥 Newsletter + questionnaire + direct contact: 3 ways to contribute.</p>
       </section>
 
       <section class="section-block" id="features">
-        <h2 class="section-title">🍻 What you’ll be able to do</h2>
+        <h2 class="section-title">🍻 Features that make every brew day smoother</h2>
+        <p class="section-intro">Designed to save time, reduce mistakes, and help you improve batch after batch.</p>
         <div class="features-grid">
-          <div class="feature">✅ Create and manage your recipes easily</div>
-          <div class="feature">✅ Calculate IBU, ABV, and yield</div>
-          <div class="feature">✅ Plan and track each brewing session</div>
-          <div class="feature">✅ Keep a clear history of every batch</div>
-          <div class="feature">✅ Share your creations with the community</div>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📚</div>
+            <h3>Practical recipe studio</h3>
+            <p>Create, duplicate, tweak, and version recipes quickly—without getting lost in complex screens.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🧪</div>
+            <h3>Reliable brewing calculations</h3>
+            <p>IBU, ABV, color, volumes, and efficiency in one place, so you can make better decisions faster.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">⏱️</div>
+            <h3>Real-time brew session control</h3>
+            <p>Clear timeline, helpful reminders, and critical checkpoints: know what to do, when, and why.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🧭</div>
+            <h3>Guided brew assistant</h3>
+            <p>Choose your path (All-grain, BIAB, or Kit/Extract) and follow guided steps to avoid costly mistakes.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📈</div>
+            <h3>History that helps you improve</h3>
+            <p>Compare batches, understand your decisions, and repeat what works with confidence.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🤝</div>
+            <h3>Community sharing & feedback</h3>
+            <p>Share your brews, get practical feedback, and discover new inspiration for your next session.</p>
+          </article>
         </div>
+      </section>
+
+      <section class="section-block" id="brewAssistantEn">
+        <h2 class="section-title">🧭 Step-by-step brewing guide: 3 paths, one objective</h2>
+        <p class="section-intro">Pick your method and level; Brasse-Bouillon guides every critical step through fermentation.</p>
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3>Classic all-grain</h3>
+            <ul>
+              <li>Water prep + pH + milling</li>
+              <li>Mash schedule, sparging, gravity checks</li>
+              <li>Boil, hop additions, cooling</li>
+              <li>Fermentation, tracking, packaging</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>BIAB (Brew In A Bag)</h3>
+            <ul>
+              <li>Fast BIAB setup with safety prompts</li>
+              <li>Temperature and extraction guidance</li>
+              <li>Simplified hop schedule</li>
+              <li>Anti-miss checklist through cold crash</li>
+            </ul>
+          </article>
+          <article class="guide-card">
+            <h3>Kits / Extracts (beginners)</h3>
+            <ul>
+              <li>Easy start without unnecessary jargon</li>
+              <li>Guided volumes, dilution, sanitization</li>
+              <li>Timing and key temperature cues</li>
+              <li>First successful batch with less stress</li>
+            </ul>
+          </article>
+        </div>
+        <p class="badge">✅ Contextual reminders, required steps, and quality checkpoints from start to bottling.</p>
       </section>
 
       <section class="section-block">
@@ -142,12 +213,12 @@
         <h2 class="section-title">🧪 Development log</h2>
         <div class="section-grid">
           <div class="mini-card">
-            <h3>February 2026 · Product</h3>
-            Brewing calculator v1 (IBU/ABV/conversions), richer recipe detail view, and batch timeline hardening for small screens.
+            <h3>Late February 2026 · Product</h3>
+            Brewing tools suite completed (color/hops/water/conversions), richer shop flows (categories + kits + demo content), streamlined Academy/Tools hubs, and a reading-first dashboard with ingredient discovery.
           </div>
           <div class="mini-card">
-            <h3>February 2026 · Platform</h3>
-            Batch API (workflow + persistence + endpoints), fermentation reminders, and ongoing hardening (JWT/auth tests + security audit).
+            <h3>Late February 2026 · Platform</h3>
+            Product APIs expanded (Hub'Eau water profile + recipe ingredients + brewing metrics), recipe detail “My Book” enhanced with must-have malt sheets, and roadmap/devlog synchronization maintained.
           </div>
         </div>
       </section>
@@ -167,6 +238,18 @@
             <h3>Who is it for?</h3>
             Beginners and experienced homebrewers alike.
           </div>
+          <div class="mini-card">
+            <h3>iOS, Android… or both?</h3>
+            The product target is availability on both platforms. Rollout will be progressive, starting with a beta phase.
+          </div>
+          <div class="mini-card">
+            <h3>Will my recipes and batches be saved?</h3>
+            Yes. The product direction includes structured recipe/batch history with persistence, so it is easier to track and reproduce brew sessions.
+          </div>
+          <div class="mini-card">
+            <h3>How can I follow upcoming updates?</h3>
+            The roadmap and development log are continuously updated on the website, with a traceable history of delivered improvements.
+          </div>
         </div>
       </section>
 
@@ -179,7 +262,39 @@
         </div>
       </section>
 
-      <section class="section-block">
+      <section class="section-block" id="newsletterEn">
+        <h2 class="section-title">📮 Brasse-Bouillon Newsletter</h2>
+        <p class="section-intro">
+          Receive notable product and roadmap updates (light cadence, no spam).
+        </p>
+        <form id="newsletterFormEn" class="contact-form">
+          <input type="hidden" name="_subject" value="Brasse-Bouillon newsletter signup (EN)">
+          <input type="hidden" name="lang" value="en">
+          <input type="hidden" name="source" value="newsletter">
+          <input type="hidden" name="message" value="New newsletter signup from website (EN)">
+
+          <label class="sr-only" for="newsletterEmailEn">Newsletter email address</label>
+          <input id="newsletterEmailEn" type="email" name="email" placeholder="Your email to receive updates" required>
+
+          <label class="consent">
+            <input type="checkbox" name="newsletter_consent" value="accepted" required>
+            I agree to receive Brasse-Bouillon updates and understand I can unsubscribe at any time.
+          </label>
+          <p class="consent-note">
+            By subscribing, you accept our
+            <a href="terms-en.html" target="_blank" rel="noopener noreferrer">Terms of Use</a>,
+            our <a href="privacy-en.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            and our <a href="cookies-en.html" target="_blank" rel="noopener noreferrer">Cookie Policy</a>.
+          </p>
+
+          <div class="actions actions-compact">
+            <button class="btn btn-primary" type="submit">Subscribe to newsletter</button>
+          </div>
+        </form>
+        <p id="newsletterStatusEn" class="form-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="section-block" id="questionnaireEn">
         <h2 class="section-title">🧾 Community questionnaire</h2>
         <p class="section-intro">
           It only takes 2 minutes to help us build Brasse-Bouillon. Your answers stay confidential.
@@ -312,6 +427,10 @@
             <input type="checkbox" name="rgpd" value="accepted" required>
             I agree that my data can be used for Brasse-Bouillon product development.
           </label>
+          <p class="consent-note">
+            See our <a href="privacy-en.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            and <a href="terms-en.html" target="_blank" rel="noopener noreferrer">Terms of Use</a>.
+          </p>
 
           <div class="actions actions-compact">
             <button class="btn btn-primary" type="submit">Contribute 🍻</button>
@@ -328,6 +447,16 @@
           <input id="emailEn" type="email" name="email" placeholder="Your email" required>
           <label class="sr-only" for="messageEn">Message</label>
           <textarea id="messageEn" name="message" placeholder="Your message" required></textarea>
+          <label class="consent">
+            <input type="checkbox" name="contact_legal_acceptance" value="accepted" required>
+            I accept the Terms of Use and Privacy Policy.
+          </label>
+          <p class="consent-note">
+            By sending this message, you accept our
+            <a href="terms-en.html" target="_blank" rel="noopener noreferrer">Terms of Use</a>,
+            our <a href="privacy-en.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            and our <a href="cookies-en.html" target="_blank" rel="noopener noreferrer">Cookie Policy</a>.
+          </p>
           <button class="btn btn-primary" type="submit">Send</button>
         </form>
       </section>
@@ -338,23 +467,41 @@
           Made with ❤️ by
           <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
         </div>
-        <div class="badge" style="margin-top: 8px;">
+        <div class="footer-links">
           <a href="legal-en.html">Legal Notice</a>
+          <a href="privacy-en.html">Privacy</a>
+          <a href="cookies-en.html">Cookies</a>
+          <a href="terms-en.html">Terms of Use</a>
         </div>
       </footer>
     </div>
   </main>
 
+  <div class="cookie-banner" id="cookieBannerEn" role="dialog" aria-live="polite" aria-label="Cookie preferences">
+    <h3>🍪 Cookie preferences</h3>
+    <p>
+      We use audience measurement cookies only with your explicit consent.
+      You can accept, refuse, or change your decision at any time.
+    </p>
+    <div class="cookie-actions">
+      <button class="btn btn-primary" type="button" data-consent-action="accept">Accept</button>
+      <button class="btn btn-secondary" type="button" data-consent-action="reject">Reject</button>
+    </div>
+  </div>
+  <button class="cookie-manage" id="cookieManageEn" type="button">Cookies</button>
+
   <script src="site.js"></script>
   <script>
+    const GA_MEASUREMENT_ID = 'G-RVCT6NGFVG';
     const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
+    const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
 
     const ROADMAP_PHASES_EN = [
       { phase: 1, title: 'Ideation & positioning', state: 'done', points: ['MVP definition', 'User survey', 'Founding manifesto'] },
       { phase: 2, title: 'Communication channels analysis', state: 'done', points: ['Target audiences', 'Editorial strategy', 'Public summary'] },
       { phase: 3, title: 'Design & preparation', state: 'done', points: ['UI/UX mockups', 'Technical architecture', 'Visual roadmap'] },
       { phase: 4, title: 'MVP development', state: 'done', points: ['Auth/JWT + secure API baseline', 'Recipe CRUD + persisted recipe steps', 'Batch module (workflow + persistence + endpoints)', 'Brewing calculator v1 (IBU/ABV/conversions)'] },
-      { phase: 5, title: 'Product consolidation & public website', state: 'current', points: ['Fermentation reminders (service + API)', 'Recipe detail revamp + ingredient navigation fixes', 'Brewing Academy (hub + Fermentables/Color/Hops guides)', 'Roadmap and devlog kept in sync'] },
+      { phase: 5, title: 'Product consolidation & public website', state: 'current', points: ['Tools suite completed (color/hops/water/conversion calculators)', 'Shop and demo content expanded (categories/kits + recipes + batches)', 'Academy/Tools hubs UX consolidated (clickable cards + reliable navigation)', 'Reading-first dashboard + discovery spaces + progressive live ingredient data', 'Recipe detail “My Book” enhanced with must-have malt product sheets', 'Product APIs expanded (Hub\'Eau water profile + recipe ingredients + brewing metrics)', 'Roadmap and devlog kept in sync'] },
       { phase: 6, title: 'Beta tests & community', state: 'next', points: ['Public beta', 'Feedback loop', 'Community space'] },
       { phase: 7, title: 'Official launch', state: 'next', points: ['App stores', 'Public demo', 'Multi-channel communication'] },
       { phase: 8, title: 'Documentation & ecosystem', state: 'next', points: ['Brew sheets', 'Glossary', 'Recipe sharing space'] },
@@ -397,7 +544,53 @@
       });
     }
 
+    function initializeConsentBannerEn() {
+      const storageKey = 'bb_cookie_consent_v1';
+      const banner = document.getElementById('cookieBannerEn');
+      const manageBtn = document.getElementById('cookieManageEn');
+      if (!banner || !manageBtn) return;
+
+      const readConsent = () => window.localStorage.getItem(storageKey);
+      const showBanner = () => banner.classList.add('visible');
+      const hideBanner = () => banner.classList.remove('visible');
+
+      const loadAnalytics = () => {
+        if (window.__bbAnalyticsLoaded) return;
+        window.__bbAnalyticsLoaded = true;
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        window.gtag('config', GA_MEASUREMENT_ID, { anonymize_ip: true });
+      };
+
+      const applyConsent = (value) => {
+        window.localStorage.setItem(storageKey, value);
+        hideBanner();
+        if (value === 'accepted') {
+          loadAnalytics();
+        }
+      };
+
+      banner.querySelector('[data-consent-action="accept"]').addEventListener('click', () => applyConsent('accepted'));
+      banner.querySelector('[data-consent-action="reject"]').addEventListener('click', () => applyConsent('rejected'));
+      manageBtn.addEventListener('click', showBanner);
+
+      const current = readConsent();
+      if (current === 'accepted') {
+        loadAnalytics();
+      } else if (current !== 'rejected') {
+        showBanner();
+      }
+    }
+
     renderRoadmapEn();
+    initializeConsentBannerEn();
 
     BBShared.setupQuestionnaire({
       formId: 'questionnaireFormEn',
@@ -422,6 +615,25 @@
         aborted: 'The request was interrupted. Please submit the form again.',
         networkOrCors: 'Unable to reach the server (network or CORS issue). Please try again soon.',
         unexpected: 'An unexpected error occurred while sending. Please try again shortly.'
+      }
+    });
+
+    BBShared.setupQuestionnaire({
+      formId: 'newsletterFormEn',
+      statusId: 'newsletterStatusEn',
+      endpoint: NEWSLETTER_ENDPOINT,
+      messages: {
+        endpointMissing: 'Newsletter endpoint is not configured yet.',
+        sending: 'Subscribing…',
+        success: 'Great! Your newsletter subscription is confirmed.',
+        http400: 'Invalid or incomplete email address. Please review and try again.',
+        http429: 'Too many attempts. Please wait a moment before trying again.',
+        http5xx: 'Newsletter service is temporarily unavailable. Please try again later.',
+        httpGeneric: 'Unable to save your subscription right now. Please try again in a few minutes.',
+        offline: 'You appear offline. Check your connection and try again.',
+        aborted: 'The request was interrupted. Please try subscribing again.',
+        networkOrCors: 'Unable to reach newsletter service (network/CORS issue). Please try again soon.',
+        unexpected: 'An unexpected error occurred. Please try again shortly.'
       }
     });
   </script>

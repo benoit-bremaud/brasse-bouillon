@@ -4,7 +4,8 @@
   "workspaces": [
     "packages/frontend",
     "packages/backend",
-    "packages/website"
+    "packages/website",
+    "packages/beer-label-ai"
   ],
   "engines": {
     "node": ">=20 <21"

@@ -27,6 +27,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
       website: ${{ steps.filter.outputs.website }}
+      beer-label-ai: ${{ steps.filter.outputs.beer-label-ai }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -39,6 +40,8 @@ jobs:
               - 'packages/backend/**'
             website:
               - 'packages/website/**'
+            beer-label-ai:
+              - 'packages/beer-label-ai/**'
 
   # ============================================================================
   # Frontend: lint + typecheck + format + tests
@@ -139,3 +142,31 @@ jobs:
           else
             echo "No quality gate script found — skipping"
           fi
+
+  # ============================================================================
+  # Beer Label AI: Python compile + lint + tests
+  # ============================================================================
+  beer-label-ai:
+    needs: changes
+    if: needs.changes.outputs.beer-label-ai == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/beer-label-ai
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml/requirements.txt
+
+      - name: Python compile sanity
+        run: python -m py_compile api/main.py ml/*.py scripts/*.py
+
+      - name: Run tests
+        run: pytest -q tests/

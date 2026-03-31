@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
-
 
 ALLOWED_CLASS_IDS = {0}
 REQUIRED_SPLITS = ("train", "val")

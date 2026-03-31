@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
@@ -24,7 +23,7 @@ def healthcheck() -> dict[str, str]:
 @app.post("/scan", response_model=ScanResponse)
 async def scan_endpoint(
     file: UploadFile = File(...),
-    model_path: Optional[str] = None,
+    model_path: str | None = None,
     recipes_path: str = "data/recipes.sample.json",
     top_n: int = 3,
 ) -> ScanResponse:

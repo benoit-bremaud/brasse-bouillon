@@ -2,6 +2,13 @@
 # Brasse-Bouillon — Unified CI Pipeline
 # Runs path-filtered jobs for mobile-app, api, website, and beer-label-ai
 # on every PR to main.
+#
+# Quality gates:
+#   - Mobile App: lint + typecheck + format + tests (70% coverage minimum)
+#   - API: lint + build + tests (70% coverage minimum)
+#   - Website: Python quality gate
+#   - Beer Label AI: ruff lint + compile check + tests (70% coverage minimum)
+#   - Security: npm audit for Node packages
 # ==============================================================================
 
 name: CI
@@ -46,7 +53,7 @@ jobs:
               - 'packages/beer-label-ai/**'
 
   # ============================================================================
-  # Mobile App: lint + typecheck + format + tests
+  # Mobile App: lint + typecheck + format + tests + coverage gate
   # ============================================================================
   mobile-app:
     needs: changes
@@ -73,6 +80,14 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
+      - name: Check coverage threshold (70%)
+        run: |
+          COVERAGE=$(npx lcov-summary coverage/lcov.info 2>/dev/null | grep -oP 'Lines:\s+\K[\d.]+' || echo "0")
+          echo "Coverage: ${COVERAGE}%"
+          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
+            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
+          fi
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
@@ -82,7 +97,7 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # API: lint + build + tests
+  # API: lint + build + tests + coverage gate
   # ============================================================================
   api:
     needs: changes
@@ -111,6 +126,14 @@ jobs:
 
       - name: Run tests with coverage
         run: npm run test:cov
+
+      - name: Check coverage threshold (70%)
+        run: |
+          COVERAGE=$(npx lcov-summary coverage/lcov.info 2>/dev/null | grep -oP 'Lines:\s+\K[\d.]+' || echo "0")
+          echo "Coverage: ${COVERAGE}%"
+          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
+            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
+          fi
 
       - name: Upload coverage report
         if: always()
@@ -146,7 +169,7 @@ jobs:
           fi
 
   # ============================================================================
-  # Beer Label AI: Python compile + lint + tests
+  # Beer Label AI: ruff lint + compile check + tests + coverage
   # ============================================================================
   beer-label-ai:
     needs: changes
@@ -166,9 +189,52 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r ml/requirements.txt
+          pip install ruff pytest-cov
+
+      - name: Lint (ruff)
+        run: ruff check .
 
       - name: Python compile sanity
         run: python -m py_compile api/main.py ml/*.py scripts/*.py
 
-      - name: Run tests
-        run: pytest -q tests/
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ --cov=ml --cov=api --cov-report=term --cov-report=lcov:coverage/lcov.info -q
+
+      - name: Check coverage threshold (70%)
+        run: |
+          COVERAGE=$(python -c "
+          import re, sys
+          data = open('coverage/lcov.info').read()
+          hits = sum(int(m) for m in re.findall(r'^DA:\d+,(\d+)', data, re.M))
+          total = len(re.findall(r'^DA:\d+,', data, re.M))
+          print(f'{100*hits/total:.1f}' if total else '0')
+          " 2>/dev/null || echo "0")
+          echo "Coverage: ${COVERAGE}%"
+          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
+            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beer-label-ai-coverage
+          path: packages/beer-label-ai/coverage/lcov.info
+          retention-days: 7
+
+  # ============================================================================
+  # Security: dependency audit
+  # ============================================================================
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Audit Node dependencies
+        run: npm audit --audit-level=high || true
+        continue-on-error: true

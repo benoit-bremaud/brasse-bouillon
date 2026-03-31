@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Sequence
 
 from ml.schemas import ExtractedFields, Recipe, RecipeSuggestion
 
 
-def load_recipes(path: str | Path) -> List[Recipe]:
+def load_recipes(path: str | Path) -> list[Recipe]:
     recipe_file = Path(path)
     if not recipe_file.exists():
         raise FileNotFoundError(f"Recipe file not found: {recipe_file}")
@@ -54,7 +54,7 @@ def _numeric_score(value_a: float | None, value_b: float | None, tolerated_gap: 
     return max(0.0, 1.0 - min(gap / tolerated_gap, 1.0))
 
 
-def score_recipe(extracted: ExtractedFields, recipe: Recipe) -> tuple[float, List[str]]:
+def score_recipe(extracted: ExtractedFields, recipe: Recipe) -> tuple[float, list[str]]:
     style_score = _style_score(extracted.style, recipe.style)
     abv_score = _numeric_score(extracted.abv, recipe.abv, tolerated_gap=5.0)
     ibu_score = _numeric_score(None, recipe.ibu, tolerated_gap=30.0)
@@ -62,7 +62,7 @@ def score_recipe(extracted: ExtractedFields, recipe: Recipe) -> tuple[float, Lis
     total = 0.60 * style_score + 0.25 * abv_score + 0.15 * ibu_score
     total = max(0.0, min(1.0, total))
 
-    reasons: List[str] = []
+    reasons: list[str] = []
     if extracted.style and recipe.style:
         reasons.append(f"Detected style: {extracted.style} vs recipe style: {recipe.style}")
     if extracted.abv is not None and recipe.abv is not None:
@@ -77,8 +77,8 @@ def recommend_recipes(
     extracted: ExtractedFields,
     recipes: Sequence[Recipe],
     top_n: int = 3,
-) -> List[RecipeSuggestion]:
-    scored: List[RecipeSuggestion] = []
+) -> list[RecipeSuggestion]:
+    scored: list[RecipeSuggestion] = []
     for recipe in recipes:
         score, reasons = score_recipe(extracted, recipe)
         scored.append(

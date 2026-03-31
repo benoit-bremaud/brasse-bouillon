@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional, Sequence
 
 from ml.extract import extract_fields_from_text
 from ml.infer import detect_label_regions
@@ -17,7 +17,7 @@ def _clamp01(value: float) -> float:
 def scan_image(
     image_path: str | Path,
     recipes_path: str | Path,
-    model_path: Optional[str | Path] = None,
+    model_path: str | Path | None = None,
     top_n: int = 3,
     languages: Sequence[str] = ("en", "fr"),
 ) -> ScanResponse:

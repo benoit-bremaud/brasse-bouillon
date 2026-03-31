@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import cv2
 
@@ -19,9 +18,9 @@ class DetectedRegionRaw:
 
 def detect_label_regions(
     image_path: str | Path,
-    model_path: Optional[str | Path] = None,
+    model_path: str | Path | None = None,
     conf_threshold: float = 0.25,
-) -> Tuple[List[DetectedRegionRaw], List[str]]:
+) -> tuple[list[DetectedRegionRaw], list[str]]:
     """Detect label regions with YOLO if available, otherwise return full-image fallback."""
     path = Path(image_path)
     if not path.exists():
@@ -32,8 +31,8 @@ def detect_label_regions(
         raise ValueError(f"Unable to read image: {path}")
 
     h, w = image.shape[:2]
-    notes: List[str] = []
-    regions: List[DetectedRegionRaw] = []
+    notes: list[str] = []
+    regions: list[DetectedRegionRaw] = []
 
     if model_path:
         model_file = Path(model_path)

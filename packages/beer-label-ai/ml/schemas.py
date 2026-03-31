@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel, Field
 
 
 class ExtractedFields(BaseModel):
-    name: Optional[str] = None
-    style: Optional[str] = None
-    abv: Optional[float] = None
-    brewery: Optional[str] = None
+    name: str | None = None
+    style: str | None = None
+    abv: float | None = None
+    brewery: str | None = None
 
 
 class DetectionRegion(BaseModel):
@@ -25,26 +23,26 @@ class ScanExtraction(BaseModel):
     detected_text: str = ""
     fields: ExtractedFields
     confidence: float = Field(ge=0.0, le=1.0)
-    notes: List[str] = Field(default_factory=list)
-    regions: List[DetectionRegion] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    regions: list[DetectionRegion] = Field(default_factory=list)
 
 
 class Recipe(BaseModel):
     id: str
     name: str
     style: str
-    abv: Optional[float] = None
-    ibu: Optional[float] = None
-    description: Optional[str] = None
-    ingredients: List[str] = Field(default_factory=list)
+    abv: float | None = None
+    ibu: float | None = None
+    description: str | None = None
+    ingredients: list[str] = Field(default_factory=list)
 
 
 class RecipeSuggestion(BaseModel):
     recipe: Recipe
     score: float = Field(ge=0.0, le=1.0)
-    match_reasons: List[str] = Field(default_factory=list)
+    match_reasons: list[str] = Field(default_factory=list)
 
 
 class ScanResponse(BaseModel):
     extraction: ScanExtraction
-    recommendations: List[RecipeSuggestion] = Field(default_factory=list)
+    recommendations: list[RecipeSuggestion] = Field(default_factory=list)

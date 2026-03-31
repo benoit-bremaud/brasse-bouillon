@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, List, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -30,8 +30,8 @@ def _preprocess_for_ocr(crop: np.ndarray) -> np.ndarray:
     )
 
 
-def _read_text(crop: np.ndarray, languages: Sequence[str]) -> Tuple[str, float, List[str]]:
-    notes: List[str] = []
+def _read_text(crop: np.ndarray, languages: Sequence[str]) -> tuple[str, float, list[str]]:
+    notes: list[str] = []
     if crop.size == 0:
         return "", 0.0, ["Empty crop for OCR."]
 
@@ -40,9 +40,9 @@ def _read_text(crop: np.ndarray, languages: Sequence[str]) -> Tuple[str, float, 
     except Exception as exc:  # noqa: BLE001
         return "", 0.0, [f"EasyOCR unavailable: {exc}"]
 
-    def parse(results: Iterable) -> Tuple[List[str], List[float]]:
-        texts: List[str] = []
-        confs: List[float] = []
+    def parse(results: Iterable) -> tuple[list[str], list[float]]:
+        texts: list[str] = []
+        confs: list[float] = []
         for item in results:
             if len(item) < 3:
                 continue
@@ -76,16 +76,16 @@ def ocr_regions(
     image_path: str | Path,
     regions: Sequence[DetectedRegionRaw],
     languages: Sequence[str] = ("en", "fr"),
-) -> Tuple[str, float, List[str]]:
+) -> tuple[str, float, list[str]]:
     path = Path(image_path)
     image = cv2.imread(str(path))
     if image is None:
         raise ValueError(f"Unable to read image for OCR: {path}")
 
     h, w = image.shape[:2]
-    all_notes: List[str] = []
-    chunk_texts: List[str] = []
-    chunk_confs: List[float] = []
+    all_notes: list[str] = []
+    chunk_texts: list[str] = []
+    chunk_confs: list[float] = []
 
     for region in regions:
         x1 = max(0, min(w, region.x1))

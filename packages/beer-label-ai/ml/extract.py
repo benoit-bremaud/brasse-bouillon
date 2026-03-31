@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Optional
 
 from ml.schemas import ExtractedFields
 
-
-STYLE_KEYWORDS: Dict[str, List[str]] = {
+STYLE_KEYWORDS: dict[str, list[str]] = {
     "ipa": ["ipa", "india pale ale"],
     "lager": ["lager", "pils", "pilsner", "helles", "blonde"],
     "wheat": ["wheat", "witbier", "weiss", "blanche"],
@@ -22,7 +20,7 @@ def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower()).strip()
 
 
-def extract_abv(text: str) -> Optional[float]:
+def extract_abv(text: str) -> float | None:
     match = re.search(r"(\d{1,2}(?:[\.,]\d)?)\s*%", text)
     if not match:
         return None
@@ -33,7 +31,7 @@ def extract_abv(text: str) -> Optional[float]:
         return None
 
 
-def infer_style(text: str) -> Optional[str]:
+def infer_style(text: str) -> str | None:
     normalized = _normalize(text)
     for style, keywords in STYLE_KEYWORDS.items():
         if any(keyword in normalized for keyword in keywords):
@@ -41,7 +39,7 @@ def infer_style(text: str) -> Optional[str]:
     return None
 
 
-def extract_brewery(text: str) -> Optional[str]:
+def extract_brewery(text: str) -> str | None:
     pattern = re.compile(r"(?:brewery|brewer|brasserie)\s*[:\-]?\s*([\w\-\s]{3,40})", re.IGNORECASE)
     match = pattern.search(text)
     if match:
@@ -49,7 +47,7 @@ def extract_brewery(text: str) -> Optional[str]:
     return None
 
 
-def extract_name(text: str, style: Optional[str], brewery: Optional[str]) -> Optional[str]:
+def extract_name(text: str, style: str | None, brewery: str | None) -> str | None:
     lines = [line.strip(" -|\t") for line in text.splitlines() if line.strip()]
     for line in lines:
         normalized_line = _normalize(line)

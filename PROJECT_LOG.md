@@ -1,7 +1,7 @@
 # Project Log — Brasse-Bouillon
 
-Chronological record of all project activity. Most recent entries first.
-This is the operational logbook, not the release changelog (see CHANGELOG.md).
+Reverse-chronological record of all project activity (most recent entries first).
+This is the operational logbook, not the release changelog (see [docs/changelog.md](docs/changelog.md)).
 
 ---
 

@@ -151,8 +151,8 @@ This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — a chronological, a
 **Rules:**
 
 - Update after every merged PR, significant decision, or backlog change
-- Entries are append-only (never delete), most recent first
-- This is NOT `CHANGELOG.md` — the changelog tracks releases, the project log tracks daily operations
+- Entries are add-only — never delete or modify past entries; add new entries at the top (most recent first)
+- This is NOT `docs/changelog.md` — the changelog tracks releases, the project log tracks daily operations
 
 ---
 

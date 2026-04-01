@@ -144,10 +144,23 @@ DATABASE_PATH=./data/brasse-bouillon.db
 
 ---
 
+## Project Log
+
+This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — a chronological, agent-agnostic operational logbook recording all significant project activity (merged PRs, architectural decisions, backlog changes).
+
+**Rules:**
+
+- Update after every merged PR, significant decision, or backlog change
+- Entries are append-only (never delete), most recent first
+- This is NOT `CHANGELOG.md` — the changelog tracks releases, the project log tracks daily operations
+
+---
+
 ## Documentation
 
 | Topic | Location |
 |-------|----------|
+| Project log | [PROJECT_LOG.md](PROJECT_LOG.md) |
 | Mobile App conventions | [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md) |
 | Design system | [packages/mobile-app/docs/design-system.md](packages/mobile-app/docs/design-system.md) |
 | Contributing guide | [CONTRIBUTING.md](CONTRIBUTING.md) |

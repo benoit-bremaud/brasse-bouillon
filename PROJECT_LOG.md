@@ -25,7 +25,7 @@ Decided to deploy SonarQube on Klouders VM instead of local or SonarCloud. Invit
 
 ### Infrastructure: restructure Discord server
 
-Created #annonces channel (read-only). Merged 5 SCRUM channels into #daily-standup + #ceremonies. Archived #merch, #intervention, #autre-appli-de-brassage, #github. Configured BB Bot webhook on #ceremonies.
+Created #annonces channel (read-only). Merged 5 SCRUM channels into #daily-standup + #ceremonies. Archived #merch, #intervention, #autre-appli-de-brassage. #github channel archived — fallback notifications temporarily routed to #général. Configured BB Bot webhook on #ceremonies.
 
 ### Backlog: close resolved issues and audit milestones
 

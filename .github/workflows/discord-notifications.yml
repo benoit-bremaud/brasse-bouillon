@@ -45,7 +45,7 @@ jobs:
           DISCORD_WEBHOOK_DEVOPS: ${{ secrets.DISCORD_WEBHOOK_DEVOPS }}
           DISCORD_WEBHOOK_WEBSITE: ${{ secrets.DISCORD_WEBHOOK_WEBSITE }}
           DISCORD_WEBHOOK_GITHUB: ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
-          DISCORD_WEBHOOK_SECU: ${{ secrets.DISCORD_WEBHOOK_SECU }}
+          DISCORD_WEBHOOK_SECURITY: ${{ secrets.DISCORD_WEBHOOK_SECURITY }}
         with:
           script: |
             // ── Configuration ────────────────────────────────────────────
@@ -57,7 +57,7 @@ jobs:
               'scope:charte':   process.env.DISCORD_WEBHOOK_CHARTE,
               'scope:devops':   process.env.DISCORD_WEBHOOK_DEVOPS,
               'scope:website':  process.env.DISCORD_WEBHOOK_WEBSITE,
-              'scope:security': process.env.DISCORD_WEBHOOK_SECU,
+              'scope:security': process.env.DISCORD_WEBHOOK_SECURITY,
             };
             const FALLBACK_WEBHOOK = process.env.DISCORD_WEBHOOK_GITHUB;
 

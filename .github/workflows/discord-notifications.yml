@@ -45,6 +45,7 @@ jobs:
           DISCORD_WEBHOOK_DEVOPS: ${{ secrets.DISCORD_WEBHOOK_DEVOPS }}
           DISCORD_WEBHOOK_WEBSITE: ${{ secrets.DISCORD_WEBHOOK_WEBSITE }}
           DISCORD_WEBHOOK_GITHUB: ${{ secrets.DISCORD_WEBHOOK_GITHUB }}
+          DISCORD_WEBHOOK_SECU: ${{ secrets.DISCORD_WEBHOOK_SECU }}
         with:
           script: |
             // ── Configuration ────────────────────────────────────────────
@@ -56,6 +57,7 @@ jobs:
               'scope:charte':   process.env.DISCORD_WEBHOOK_CHARTE,
               'scope:devops':   process.env.DISCORD_WEBHOOK_DEVOPS,
               'scope:website':  process.env.DISCORD_WEBHOOK_WEBSITE,
+              'scope:security': process.env.DISCORD_WEBHOOK_SECU,
             };
             const FALLBACK_WEBHOOK = process.env.DISCORD_WEBHOOK_GITHUB;
 
@@ -84,6 +86,7 @@ jobs:
               'scope:charte':         { emoji: '\ud83c\udfa8', text: 'Design' },
               'scope:devops':         { emoji: '\ud83d\udd27', text: 'DevOps' },
               'scope:website':        { emoji: '\ud83c\udf10', text: 'Website' },
+              'scope:security':       { emoji: '\ud83d\udd12', text: 'Security' },
               'scope:monorepo':       { emoji: '\ud83d\udce6', text: 'Monorepo' },
               'scope:marketing':      { emoji: '\ud83d\udce3', text: 'Marketing' },
               'scope:ydays':          { emoji: '\ud83c\udf93', text: 'Ydays' },

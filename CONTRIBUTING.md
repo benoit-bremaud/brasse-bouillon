@@ -129,6 +129,7 @@ GitHub events are automatically routed to specialized Discord channels based on 
 | `#devops` | `scope:devops` |
 | `#site-vitrine` | `scope:website` |
 | `#secu-cyber` | `scope:security` |
+| `#devops` | `scope:infrastructure` |
 | `#général` | Fallback (no scope label) |
 
 Notifications display a compact, color-coded embed with: event type, priority, size, scope, sprint, parent reference (for sub-issues), and a clickable title.

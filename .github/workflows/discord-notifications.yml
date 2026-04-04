@@ -57,7 +57,8 @@ jobs:
               'scope:charte':   process.env.DISCORD_WEBHOOK_CHARTE,
               'scope:devops':   process.env.DISCORD_WEBHOOK_DEVOPS,
               'scope:website':  process.env.DISCORD_WEBHOOK_WEBSITE,
-              'scope:security': process.env.DISCORD_WEBHOOK_SECURITY,
+              'scope:security':       process.env.DISCORD_WEBHOOK_SECURITY,
+              'scope:infrastructure': process.env.DISCORD_WEBHOOK_DEVOPS,
             };
             const FALLBACK_WEBHOOK = process.env.DISCORD_WEBHOOK_GITHUB;
 
@@ -66,6 +67,9 @@ jobs:
               'priority:must-have':    { emoji: '\ud83d\udd34', text: 'P0' },
               'priority:should-have':  { emoji: '\ud83d\udfe0', text: 'P1' },
               'priority:nice-to-have': { emoji: '\u26aa', text: 'P2' },
+              'priority:high':        { emoji: '\ud83d\udd34', text: 'High' },
+              'priority:medium':      { emoji: '\ud83d\udfe0', text: 'Medium' },
+              'priority:low':         { emoji: '\u26aa', text: 'Low' },
             };
 
             // Size display (T-shirt → Fibonacci) — warm color gradient
@@ -87,6 +91,7 @@ jobs:
               'scope:devops':         { emoji: '\ud83d\udd27', text: 'DevOps' },
               'scope:website':        { emoji: '\ud83c\udf10', text: 'Website' },
               'scope:security':       { emoji: '\ud83d\udd12', text: 'Security' },
+              'scope:infrastructure': { emoji: '\ud83c\udfd7\ufe0f', text: 'Infra' },
               'scope:monorepo':       { emoji: '\ud83d\udce6', text: 'Monorepo' },
               'scope:marketing':      { emoji: '\ud83d\udce3', text: 'Marketing' },
               'scope:ydays':          { emoji: '\ud83c\udf93', text: 'Ydays' },

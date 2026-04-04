@@ -62,7 +62,7 @@ jobs:
             };
             const FALLBACK_WEBHOOK = process.env.DISCORD_WEBHOOK_GITHUB;
 
-            // Priority display (MoSCoW) — warm color gradient, short labels
+            // Priority display (MoSCoW for user stories, high/medium/low for chores)
             const PRIORITY_MAP = {
               'priority:must-have':    { emoji: '\ud83d\udd34', text: 'P0' },
               'priority:should-have':  { emoji: '\ud83d\udfe0', text: 'P1' },

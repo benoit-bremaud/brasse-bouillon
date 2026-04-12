@@ -7,7 +7,7 @@
 #   - Mobile App: lint + typecheck + format + tests (70% coverage minimum)
 #   - API: lint + build + tests (70% coverage minimum)
 #   - Website: Python quality gate
-#   - Beer Label AI: ruff lint + compile check + tests (70% coverage minimum)
+#   - Beer Encyclopedia: ruff lint + compile check + tests (70% coverage minimum)
 #   - Security: npm audit for Node packages
 # ==============================================================================
 

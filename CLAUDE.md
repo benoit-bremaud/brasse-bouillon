@@ -18,7 +18,7 @@ brasse-bouillon/
     mobile-app/   React Native + Expo SDK 54 + Router v6 + TypeScript (strict)
     api/          NestJS 11 + TypeORM + SQLite + TypeScript
     website/      Static HTML/CSS/JS marketing site + Python quality gate
-    beer-encyclopedia/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR + PostgreSQL beer encyclopedia
+    beer-encyclopedia/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR beer encyclopedia
   docs/           Project documentation
   _archive/       Pre-monorepo code (read-only reference)
   .github/        CI workflows

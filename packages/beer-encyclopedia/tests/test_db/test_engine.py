@@ -90,11 +90,19 @@ async def test_get_db_yields_active_session(
         await dispose_engine()
 
 
-def test_session_factory_requires_prior_engine_or_initializes(
+async def test_session_factory_initializes_engine_on_demand(
     monkeypatch: pytest.MonkeyPatch, sqlite_url: str
 ) -> None:
+    """Requesting the session factory before ``get_engine`` must transparently
+    initialize both. Always dispose afterward so the module-level state does
+    not leak into sibling tests."""
+
     monkeypatch.setenv("DATABASE_URL", sqlite_url)
-    # Without running the async teardown, we just check that requesting the
-    # factory does not explode when called before ``get_engine``.
-    factory = get_session_factory()
-    assert factory is not None
+    await dispose_engine()
+    try:
+        factory = get_session_factory()
+        assert factory is not None
+        async with factory() as session:
+            assert isinstance(session, AsyncSession)
+    finally:
+        await dispose_engine()

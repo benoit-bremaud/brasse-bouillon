@@ -9,15 +9,27 @@ pip install --upgrade pip
 pip install -e ".[ml,dev]"
 ```
 
-## 2) Start local PostgreSQL
+## 2) Create your `.env` file
 
 ```bash
-cp .env.example .env         # edit DATABASE_URL if needed
+cp .env.example .env
+# Open .env and replace every CHANGE_ME value with real ones.
+# `.env` is gitignored — credentials never reach the repo.
+```
+
+All entry points (`uvicorn`, `alembic`, `pytest`) automatically load this file
+via `python-dotenv` (called once in `db/engine.py`), so no manual `export` is
+needed. `DATABASE_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` are mandatory
+— the app and `docker compose` both fail fast with a clear message if missing.
+
+## 3) Start local PostgreSQL
+
+```bash
 docker compose up -d         # postgres on :5432, pgadmin on :5050
 alembic upgrade head
 ```
 
-## 3) Start the scan API
+## 4) Start the scan API
 
 ```bash
 uvicorn api.main:app --reload
@@ -27,13 +39,13 @@ Then test:
 - `GET http://127.0.0.1:8000/health`
 - `POST http://127.0.0.1:8000/scan` (multipart image file)
 
-## 4) Run a CLI scan demo
+## 5) Run a CLI scan demo
 
 ```bash
 python scripts/run_scan_demo.py --image /path/to/beer-photo.jpg
 ```
 
-## 5) Train YOLOv8
+## 6) Train YOLOv8
 
 ```bash
 python ml/train.py --data /path/to/data.yaml --epochs 50 --imgsz 640 --batch 16

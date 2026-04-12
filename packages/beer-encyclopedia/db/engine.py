@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 from collections.abc import AsyncIterator
 
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -16,13 +17,26 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-DEFAULT_DATABASE_URL = (
-    "postgresql+asyncpg://beer_enc:beer_enc_dev@localhost:5432/beer_encyclopedia"
-)
+# Load .env once at import time so every entry point (FastAPI app, Alembic,
+# pytest, ad-hoc scripts) shares the same configuration without each having to
+# remember to call load_dotenv themselves.
+load_dotenv()
 
 
-def _database_url() -> str:
-    return os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)
+class DatabaseConfigurationError(RuntimeError):
+    """Raised when mandatory database configuration is missing."""
+
+
+def get_database_url() -> str:
+    """Return the configured DATABASE_URL or fail fast with a clear message."""
+
+    url = os.environ.get("DATABASE_URL")
+    if not url:
+        raise DatabaseConfigurationError(
+            "DATABASE_URL is not set. Copy .env.example to .env and fill it in, "
+            "or export DATABASE_URL in your shell before starting the app."
+        )
+    return url
 
 
 def _echo_enabled() -> bool:
@@ -36,7 +50,7 @@ def create_engine(url: str | None = None, *, echo: bool | None = None) -> AsyncE
     isolated engines and the application can swap URLs between runs.
     """
 
-    resolved_url = url if url is not None else _database_url()
+    resolved_url = url if url is not None else get_database_url()
     resolved_echo = echo if echo is not None else _echo_enabled()
     return create_async_engine(resolved_url, echo=resolved_echo, future=True)
 
@@ -62,7 +76,10 @@ def get_engine() -> AsyncEngine:
 def get_session_factory() -> async_sessionmaker[AsyncSession]:
     if _session_factory is None:
         get_engine()
-    assert _session_factory is not None
+    if _session_factory is None:
+        raise DatabaseConfigurationError(
+            "Session factory could not be initialized — the engine setup likely failed."
+        )
     return _session_factory
 
 

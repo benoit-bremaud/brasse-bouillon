@@ -9,14 +9,16 @@ from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from db.engine import _database_url
+from db.engine import get_database_url
 from db.models import Base
 
 # Alembic Config object, provides access to values in alembic.ini
 config = context.config
 
-# Inject the runtime DATABASE_URL so offline/online migrations share one source
-config.set_main_option("sqlalchemy.url", _database_url())
+# Inject the runtime DATABASE_URL so offline/online migrations share one source.
+# Escape `%` by doubling it: ConfigParser treats `%` as interpolation syntax and
+# would raise ValueError on URL-encoded credentials like `%40` (= `@`).
+config.set_main_option("sqlalchemy.url", get_database_url().replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

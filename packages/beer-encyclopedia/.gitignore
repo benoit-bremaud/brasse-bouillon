@@ -7,6 +7,19 @@ venv/
 env/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+coverage/
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # Jupyter
 .ipynb_checkpoints/

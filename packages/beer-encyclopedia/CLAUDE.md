@@ -3,8 +3,8 @@
 ## Package Overview
 
 **Name:** @brasse-bouillon/beer-encyclopedia
-**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + Pydantic
-**Purpose:** ML pipeline for beer label scanning — detection, OCR, field extraction, and recipe recommendation
+**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + PostgreSQL + async SQLAlchemy 2.0 + Alembic + Pydantic
+**Purpose:** Beer encyclopedia with ML label scanning (detection + OCR + field extraction), persistent brewery/beer database, and recipe recommendation
 
 ---
 
@@ -20,14 +20,20 @@ ml/               Core ML pipeline
   ├── recommender.py  Deterministic recipe ranking algorithm
   ├── schemas.py      Pydantic models (ExtractedFields, ScanResponse, etc.)
   └── train.py        YOLOv8 training script
+db/               Database layer (async SQLAlchemy 2.0)
+  ├── engine.py       Async engine factory + get_db FastAPI dependency
+  └── models/         ORM models (Base, TimestampMixin, UUIDMixin, …)
+migrations/       Alembic migrations (async-aware env.py)
+  └── versions/       Individual migration scripts
 scripts/          CLI tools and dataset utilities
-tests/            pytest test suite
+tests/            pytest test suite (pytest-asyncio auto mode)
 configs/          Training configuration (YAML)
 data/             Sample recipes + dataset templates
 docs/             Governance (AGENT.md), ADRs, dataset guides
 ```
 
-**Data flow:** API → pipeline → infer → ocr → extract → recommender → response
+**Data flow (scan):** API → pipeline → infer → ocr → extract → recommender → response
+**Data flow (encyclopedia):** API → db session → ORM models → PostgreSQL
 
 ---
 
@@ -68,24 +74,31 @@ docs/             Governance (AGENT.md), ADRs, dataset guides
 
 ## Dependencies
 
-- Defined in `ml/requirements.txt`
-- **No version pinning yet** — add `pip-compile` lock file before production
-- Key deps: ultralytics, easyocr, opencv-python, numpy, pydantic, fastapi, uvicorn, pytest
+- Defined in `pyproject.toml` (single source of truth)
+- Core runtime deps are mandatory; ML deps are gated behind the `[ml]` extra; test/lint deps are under `[dev]`
+- Install locally with `pip install -e ".[ml,dev]"`
 
 ---
 
 ## Running Locally
 
 ```bash
-# Setup
+# 1. Python environment
 python -m venv .venv
 source .venv/bin/activate
-pip install -r ml/requirements.txt
+pip install -e ".[ml,dev]"
 
-# Start API
+# 2. Local PostgreSQL (Docker Compose)
+cp .env.example .env         # edit DATABASE_URL if needed
+docker compose up -d         # starts postgres on :5432 and pgadmin on :5050
+
+# 3. Database migrations
+alembic upgrade head
+
+# 4. Start API
 uvicorn api.main:app --reload
 
-# Run tests
+# 5. Run tests
 pytest -q tests/
 ```
 

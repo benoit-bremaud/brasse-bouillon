@@ -22,7 +22,7 @@ See `docs/SETUP.md`.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -r ml/requirements.txt
+pip install -e ".[ml,dev]"
 uvicorn api.main:app --reload
 ```
 

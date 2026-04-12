@@ -188,18 +188,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r ml/requirements.txt
-          pip install ruff pytest-cov
+          pip install -e ".[ml,dev]"
 
       - name: Lint (ruff)
         run: ruff check .
 
       - name: Python compile sanity
-        run: python -m py_compile api/main.py ml/*.py scripts/*.py
+        run: python -m py_compile api/main.py ml/*.py db/*.py db/models/*.py scripts/*.py
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ --cov=ml --cov=api --cov-report=term --cov-report=lcov:coverage/lcov.info -q
+          pytest tests/ --cov=ml --cov=api --cov=db --cov-report=term --cov-report=lcov:coverage/lcov.info -q
 
       - name: Check coverage threshold (70%)
         run: |

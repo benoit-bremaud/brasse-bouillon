@@ -7,7 +7,7 @@ npm workspaces monorepo with 4 packages:
 - `packages/mobile-app` — React Native + Expo SDK 54 + TypeScript (strict)
 - `packages/api` — NestJS 11 + TypeORM + SQLite + TypeScript
 - `packages/website` — Static HTML/CSS/JS + Python scripts
-- `packages/beer-label-ai` — Python 3.12 + FastAPI + YOLOv8 + EasyOCR
+- `packages/beer-encyclopedia` — Python 3.12 + FastAPI + YOLOv8 + EasyOCR + PostgreSQL
 
 ## TypeScript rules (mobile-app + api)
 
@@ -18,13 +18,13 @@ npm workspaces monorepo with 4 packages:
 - No hardcoded colors, spacing, or font values in mobile-app — must use theme tokens
 - No direct `fetch()` calls outside `packages/mobile-app/src/core/http/http-client.ts`
 
-## Python rules (beer-label-ai)
+## Python rules (beer-encyclopedia)
 
 - Type hints required on all function signatures and return types
 - Pydantic models for all request/response boundaries (no raw dicts)
 - No `typing.Any` without justification
 - No hardcoded file paths — use relative paths or env vars
-- Must pass `ruff check` (config in `packages/beer-label-ai/ruff.toml`)
+- Must pass `ruff check` (config in `packages/beer-encyclopedia/ruff.toml`)
 
 ## Security — always flag
 

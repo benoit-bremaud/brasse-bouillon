@@ -1,4 +1,4 @@
-# Ruff configuration for beer-label-ai
+# Ruff configuration for beer-encyclopedia
 # https://docs.astral.sh/ruff/
 
 target-version = "py312"

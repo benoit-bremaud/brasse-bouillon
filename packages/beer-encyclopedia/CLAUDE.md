@@ -1,10 +1,10 @@
-# CLAUDE.md — packages/beer-label-ai
+# CLAUDE.md — packages/beer-encyclopedia
 
 ## Package Overview
 
-**Name:** @brasse-bouillon/beer-label-ai
-**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + Pydantic
-**Purpose:** ML pipeline for beer label scanning — detection, OCR, field extraction, and recipe recommendation
+**Name:** @brasse-bouillon/beer-encyclopedia
+**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + PostgreSQL + SQLAlchemy + Pydantic
+**Purpose:** Comprehensive beer encyclopedia with ML label scanning, brewery/beer database, and recipe recommendation
 
 ---
 

@@ -1,6 +1,6 @@
 # ==============================================================================
 # Brasse-Bouillon — Unified CI Pipeline
-# Runs path-filtered jobs for mobile-app, api, website, and beer-label-ai
+# Runs path-filtered jobs for mobile-app, api, website, and beer-encyclopedia
 # on every PR to main.
 #
 # Quality gates:
@@ -36,7 +36,7 @@ jobs:
       mobile-app: ${{ steps.filter.outputs.mobile-app }}
       api: ${{ steps.filter.outputs.api }}
       website: ${{ steps.filter.outputs.website }}
-      beer-label-ai: ${{ steps.filter.outputs.beer-label-ai }}
+      beer-encyclopedia: ${{ steps.filter.outputs.beer-encyclopedia }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -49,8 +49,8 @@ jobs:
               - 'packages/api/**'
             website:
               - 'packages/website/**'
-            beer-label-ai:
-              - 'packages/beer-label-ai/**'
+            beer-encyclopedia:
+              - 'packages/beer-encyclopedia/**'
 
   # ============================================================================
   # Mobile App: lint + typecheck + format + tests + coverage gate
@@ -169,15 +169,15 @@ jobs:
           fi
 
   # ============================================================================
-  # Beer Label AI: ruff lint + compile check + tests + coverage
+  # Beer Encyclopedia: ruff lint + compile check + tests + coverage
   # ============================================================================
-  beer-label-ai:
+  beer-encyclopedia:
     needs: changes
-    if: needs.changes.outputs.beer-label-ai == 'true'
+    if: needs.changes.outputs.beer-encyclopedia == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/beer-label-ai
+        working-directory: packages/beer-encyclopedia
     steps:
       - uses: actions/checkout@v4
 
@@ -219,8 +219,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: beer-label-ai-coverage
-          path: packages/beer-label-ai/coverage/lcov.info
+          name: beer-encyclopedia-coverage
+          path: packages/beer-encyclopedia/coverage/lcov.info
           retention-days: 7
 
   # ============================================================================

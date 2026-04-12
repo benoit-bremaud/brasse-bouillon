@@ -4,7 +4,7 @@
 
 **Name:** Brasse-Bouillon
 **Type:** npm workspaces monorepo
-**Packages:** `packages/mobile-app`, `packages/api`, `packages/website`, `packages/beer-label-ai`
+**Packages:** `packages/mobile-app`, `packages/api`, `packages/website`, `packages/beer-encyclopedia`
 **Node:** 20.x (enforced via `.nvmrc` and `engines` field)
 **Language:** English only — all code, comments, commits, docs, and issues in English
 
@@ -18,7 +18,7 @@ brasse-bouillon/
     mobile-app/   React Native + Expo SDK 54 + Router v6 + TypeScript (strict)
     api/          NestJS 11 + TypeORM + SQLite + TypeScript
     website/      Static HTML/CSS/JS marketing site + Python quality gate
-    beer-label-ai/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR ML pipeline
+    beer-encyclopedia/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR + PostgreSQL beer encyclopedia
   docs/           Project documentation
   _archive/       Pre-monorepo code (read-only reference)
   .github/        CI workflows
@@ -31,7 +31,7 @@ Each package has its own CLAUDE.md with detailed conventions:
 
 - **Mobile App:** [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)
 - **API:** No CLAUDE.md yet — follow NestJS conventions, TypeORM patterns, and the rules below
-- **Beer Label AI:** [packages/beer-label-ai/CLAUDE.md](packages/beer-label-ai/CLAUDE.md)
+- **Beer Encyclopedia:** [packages/beer-encyclopedia/CLAUDE.md](packages/beer-encyclopedia/CLAUDE.md)
 
 ---
 

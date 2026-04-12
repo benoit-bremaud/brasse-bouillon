@@ -1,6 +1,0 @@
-{
-  "name": "@brasse-bouillon/beer-label-ai",
-  "version": "0.1.0",
-  "private": true,
-  "description": "ML pipeline for beer label scanning: detection (YOLOv8), OCR (EasyOCR), extraction, and recipe recommendation"
-}

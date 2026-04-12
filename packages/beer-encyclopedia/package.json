@@ -1,0 +1,6 @@
+{
+  "name": "@brasse-bouillon/beer-encyclopedia",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Beer encyclopedia with ML label scanning, brewery/beer database, and recipe recommendation"
+}

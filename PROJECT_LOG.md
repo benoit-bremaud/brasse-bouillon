@@ -7,6 +7,34 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-12
 
+### Data models: 10-table encyclopedia schema + pg_trgm search + style seed (#544)
+
+Step 3 of the beer-encyclopedia epic (#541). Designed and implemented the full
+encyclopedia data model on top of the PostgreSQL infrastructure added in #543.
+
+**10 ORM models** (`db/models/`): `Style`, `Brewery`, `Beer`, `Ingredient` +
+`BeerIngredient` junction, `TastingProfile` (1-to-1 with Beer), `Media`
+(polymorphic on beer_id/brewery_id), `Source` + `EntitySource` for
+provenance tracking with JSONB raw_data (JSON fallback on SQLite),
+`CommunityCorrection` for moderation queue.
+
+**Hand-written initial migration** (`migrations/versions/001_initial_schema.py`):
+all 10 tables with FK cascades (`ON DELETE CASCADE` for dependent rows,
+`ON DELETE SET NULL` for `beers.brewery_id`/`style_id` so historical records
+survive), CHECK constraints (ABV ranges on styles, 1–5 scales on tasting
+profiles, media parent required), B-tree indexes on common filter paths
+(city/country/brewery_type/FKs/abv/moderation-queue), and PostgreSQL-only
+steps guarded by `_is_postgres()`: `CREATE EXTENSION pg_trgm` + GIN
+trigram indexes on `breweries.name` and `beers.name` for fuzzy search.
+
+**Style seeder** (`scripts/seed_styles.py`): idempotent upsert of 15 styles
+(the 8 slugs recognized by `ml/extract.py` + 7 mainstream additions:
+porter, pilsner, hefeweizen, dubbel, quadrupel, barleywine, blonde ale).
+
+**14 new tests** covering relationships, cascades, unique constraints,
+check constraints, and seeder idempotence. Total: 30/30 passing on SQLite
+in-memory. Ruff clean. Migration upgrade + downgrade validated on SQLite.
+
 ### Infrastructure: PostgreSQL + async SQLAlchemy + Alembic + Docker Compose (#543)
 
 Step 2 of the beer-encyclopedia epic (#541). Added the persistence infrastructure the upcoming data models will rely on: async SQLAlchemy 2.0 engine + session factory (`db/engine.py`), ORM `Base` with `UUIDMixin` and `TimestampMixin` (`db/models/base.py`), async-aware Alembic scaffolding (`alembic.ini`, `migrations/env.py`, `migrations/script.py.mako`), and local Docker Compose stack with PostgreSQL 16 + pgAdmin (`docker-compose.yml`, `.env.example`).

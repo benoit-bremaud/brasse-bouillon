@@ -11,7 +11,11 @@
 ## Architecture
 
 ```
-api/              FastAPI HTTP layer (/health, /scan endpoints)
+api/              FastAPI HTTP layer (router-based)
+  ├── main.py         App factory + lifespan (graceful engine shutdown)
+  ├── dependencies.py FastAPI dependency providers (re-exports get_db)
+  ├── routers/        One module per domain (scan; breweries/beers/styles in #546)
+  └── schemas/        Pydantic API models (re-export ML schemas where reused)
 ml/               Core ML pipeline
   ├── pipeline.py     Orchestration (scan_image entry point)
   ├── infer.py        YOLOv8 label detection + full-image fallback

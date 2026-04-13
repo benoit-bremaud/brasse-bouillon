@@ -1,57 +1,42 @@
+"""FastAPI application factory for the beer-encyclopedia HTTP layer.
+
+The app is built from the routers under ``api/routers/`` (currently only
+``scan``; CRUD + search routers land in #546). The lifespan only handles
+graceful shutdown — the database engine is initialized lazily on the first
+``get_db()`` call (see ``db/engine.py``), which keeps cold starts fast and
+lets tests inject in-memory engines without forcing a real connection at
+import time.
+"""
+
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI
 
-from ml.pipeline import scan_image
-from ml.schemas import ScanResponse
-
-app = FastAPI(
-    title="Brasse-Bouillon Beer Label AI API",
-    version="0.1.0",
-    description="Beer label scanning and closest recipe recommendation API.",
-)
+from api.routers import scan
+from db.engine import dispose_engine
 
 
-@app.get("/health")
-def healthcheck() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.post("/scan", response_model=ScanResponse)
-async def scan_endpoint(
-    file: UploadFile = File(...),
-    model_path: str | None = None,
-    recipes_path: str = "data/recipes.sample.json",
-    top_n: int = 3,
-) -> ScanResponse:
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file must be an image.",
-        )
-
-    suffix = Path(file.filename or "upload.jpg").suffix or ".jpg"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp_path = Path(tmp.name)
-        content = await file.read()
-        tmp.write(content)
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    """Application lifespan: yield immediately, dispose engine on shutdown."""
 
     try:
-        response = scan_image(
-            image_path=tmp_path,
-            recipes_path=recipes_path,
-            model_path=model_path,
-            top_n=top_n,
-        )
-        return response
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(
-            status_code=500,
-            detail=f"Scan pipeline failed: {exc}",
-        ) from exc
+        yield
     finally:
-        if tmp_path.exists():
-            tmp_path.unlink(missing_ok=True)
+        await dispose_engine()
+
+
+app = FastAPI(
+    title="Brasse-Bouillon Beer Encyclopedia API",
+    version="0.3.0",
+    description=(
+        "Beer encyclopedia HTTP API: label scanning + recipe recommendation, "
+        "with brewery/beer/style endpoints landing in a follow-up."
+    ),
+    lifespan=lifespan,
+)
+
+app.include_router(scan.router)

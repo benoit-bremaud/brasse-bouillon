@@ -208,8 +208,12 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.ForeignKeyConstraint(["beer_id"], ["beers.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["brewery_id"], ["breweries.id"], ondelete="CASCADE"),
+        # XOR — each media row belongs to exactly one parent (beer or brewery,
+        # never both, never neither). Enforcing it in SQL keeps the polymorphic
+        # invariant safe even when rows are created outside the ORM.
         sa.CheckConstraint(
-            "beer_id IS NOT NULL OR brewery_id IS NOT NULL",
+            "(beer_id IS NOT NULL AND brewery_id IS NULL) OR "
+            "(beer_id IS NULL AND brewery_id IS NOT NULL)",
             name="ck_media_parent_required",
         ),
     )
@@ -267,7 +271,12 @@ def upgrade() -> None:
         sa.Column("old_value", sa.Text(), nullable=True),
         sa.Column("new_value", sa.Text(), nullable=False),
         sa.Column("reason", sa.Text(), nullable=True),
-        sa.Column("status", sa.String(length=20), nullable=False, server_default="pending"),
+        sa.Column(
+            "status",
+            sa.String(length=20),
+            nullable=False,
+            server_default=sa.text("'pending'"),
+        ),
         sa.Column("submitted_by", sa.String(length=100), nullable=True),
         sa.Column("reviewed_by", sa.String(length=100), nullable=True),
         sa.Column("reviewed_at", sa.DateTime(timezone=True), nullable=True),

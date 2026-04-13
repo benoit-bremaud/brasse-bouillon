@@ -26,7 +26,8 @@ class Media(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "media"
     __table_args__ = (
         CheckConstraint(
-            "beer_id IS NOT NULL OR brewery_id IS NOT NULL",
+            "(beer_id IS NOT NULL AND brewery_id IS NULL) OR "
+            "(beer_id IS NULL AND brewery_id IS NOT NULL)",
             name="ck_media_parent_required",
         ),
     )

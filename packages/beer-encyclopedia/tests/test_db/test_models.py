@@ -151,7 +151,9 @@ async def test_beer_ingredients_composite_primary_key(db_session: AsyncSession) 
         await db_session.commit()
 
 
-async def test_media_requires_beer_or_brewery(db_session: AsyncSession) -> None:
+async def test_media_rejects_no_parent(db_session: AsyncSession) -> None:
+    """XOR parent check — media with neither beer nor brewery is rejected."""
+
     db_session.add(
         Media(
             beer_id=None,
@@ -162,6 +164,44 @@ async def test_media_requires_beer_or_brewery(db_session: AsyncSession) -> None:
     )
     with pytest.raises(IntegrityError):
         await db_session.commit()
+
+
+async def test_media_rejects_both_parents(db_session: AsyncSession) -> None:
+    """XOR parent check — media cannot belong to both a beer and a brewery."""
+
+    brewery = Brewery(name="Dual Owner Brewing", slug="dual-owner-brewing")
+    beer = Beer(name="Dual Owner IPA", slug="dual-owner-ipa")
+    db_session.add_all([brewery, beer])
+    await db_session.flush()
+
+    db_session.add(
+        Media(
+            beer_id=beer.id,
+            brewery_id=brewery.id,
+            media_type="label_photo",
+            url="https://example.com/both.jpg",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        await db_session.commit()
+
+
+async def test_media_accepts_single_parent(db_session: AsyncSession) -> None:
+    """XOR parent check — media with exactly one parent is accepted."""
+
+    brewery = Brewery(name="Solo Brewing", slug="solo-brewing")
+    beer = Beer(name="Solo IPA", slug="solo-ipa")
+    db_session.add_all([brewery, beer])
+    await db_session.flush()
+
+    db_session.add_all(
+        [
+            Media(beer_id=beer.id, media_type="label_photo", url="https://x/1.jpg"),
+            Media(brewery_id=brewery.id, media_type="logo", url="https://x/2.jpg"),
+        ]
+    )
+    await db_session.commit()
+    # No IntegrityError — both rows commit cleanly.
 
 
 async def test_entity_sources_triplet_is_unique(db_session: AsyncSession) -> None:
@@ -234,3 +274,47 @@ async def test_deleting_beer_cascades_to_tasting_profile_and_ingredients(
     assert links == []
     # The ingredient itself survives — it's shared across beers.
     assert (await db_session.execute(select(Ingredient))).scalar_one().name == "Amarillo"
+
+
+async def test_deleting_beer_cascades_to_media(db_session: AsyncSession) -> None:
+    """Regression test for PR #550: without cascade on Beer.media, deleting a
+    beer with attached media would leave (NULL, NULL) rows that violate the
+    XOR parent check. With passive_deletes + delete-orphan, the media rows
+    are removed via ON DELETE CASCADE without touching the session state."""
+
+    beer = Beer(name="Short-Lived IPA", slug="short-lived-ipa")
+    db_session.add(beer)
+    await db_session.flush()
+
+    db_session.add_all(
+        [
+            Media(beer_id=beer.id, media_type="label_photo", url="https://x/a.jpg"),
+            Media(beer_id=beer.id, media_type="bottle_photo", url="https://x/b.jpg"),
+        ]
+    )
+    await db_session.commit()
+
+    await db_session.delete(beer)
+    await db_session.commit()
+
+    remaining = (await db_session.execute(select(Media))).scalars().all()
+    assert remaining == []
+
+
+async def test_deleting_brewery_cascades_to_media(db_session: AsyncSession) -> None:
+    """Symmetric regression test for Brewery.media cascade."""
+
+    brewery = Brewery(name="Short-Lived Brewery", slug="short-lived-brewery")
+    db_session.add(brewery)
+    await db_session.flush()
+
+    db_session.add(
+        Media(brewery_id=brewery.id, media_type="logo", url="https://x/logo.jpg")
+    )
+    await db_session.commit()
+
+    await db_session.delete(brewery)
+    await db_session.commit()
+
+    remaining = (await db_session.execute(select(Media))).scalars().all()
+    assert remaining == []

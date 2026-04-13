@@ -42,4 +42,6 @@ class Brewery(Base, UUIDMixin, TimestampMixin):
     media: Mapped[list[Media]] = relationship(
         back_populates="brewery",
         primaryjoin="Brewery.id == Media.brewery_id",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )

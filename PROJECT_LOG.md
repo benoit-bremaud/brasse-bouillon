@@ -5,6 +5,34 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-13
+
+### API refactor: router-based architecture with FastAPI lifespan (#545)
+
+Step 4 of the beer-encyclopedia epic (#541). Restructured the FastAPI app
+from inline endpoints into a router-based architecture without changing
+any externally-visible behavior.
+
+Layout (`packages/beer-encyclopedia/api/`):
+- `main.py` — app factory + minimal lifespan that disposes the engine on
+  shutdown (engine itself is lazy-init via `get_db()` for fast cold starts
+  and easy test injection)
+- `dependencies.py` — re-exports `get_db` so route handlers stay decoupled
+  from `db.engine` directly
+- `routers/scan.py` — hosts `/health` and `/scan` (moved verbatim from
+  the original `api/main.py`)
+- `schemas/scan.py` — re-exports `ScanResponse` & friends from
+  `ml/schemas.py`; the indirection is in place so a future API/ML schema
+  divergence touches only this module
+
+Backward compatibility preserved: `/health` and `/scan` keep the same
+paths, parameters, status codes, and response model. `uvicorn api.main:app`
+remains the entrypoint.
+
+5 new tests in `tests/test_api/test_scan.py` covering the HTTP contract
+(health 200, missing file 422, non-image 400, missing content-type 400,
+routes mounted at root). Total: 39/39 passing, ruff clean.
+
 ## 2026-04-12
 
 ### Data models: 10-table encyclopedia schema + pg_trgm search + style seed (#544)

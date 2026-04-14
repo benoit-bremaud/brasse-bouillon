@@ -194,7 +194,11 @@ jobs:
         run: ruff check .
 
       - name: Python compile sanity
-        run: python -m py_compile api/main.py ml/*.py db/*.py db/models/*.py scripts/*.py
+        run: |
+          python -m py_compile \
+            api/main.py api/dependencies.py \
+            api/routers/*.py api/schemas/*.py \
+            ml/*.py db/*.py db/models/*.py scripts/*.py
 
       - name: Run tests with coverage
         run: |

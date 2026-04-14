@@ -1,11 +1,12 @@
-"""FastAPI application factory for the beer-encyclopedia HTTP layer.
+"""FastAPI application module for the beer-encyclopedia HTTP layer.
 
-The app is built from the routers under ``api/routers/`` (currently only
-``scan``; CRUD + search routers land in #546). The lifespan only handles
-graceful shutdown — the database engine is initialized lazily on the first
-``get_db()`` call (see ``db/engine.py``), which keeps cold starts fast and
-lets tests inject in-memory engines without forcing a real connection at
-import time.
+Exposes a single module-level ``app`` instance (consumed by
+``uvicorn api.main:app``) assembled from the routers under
+``api/routers/`` (currently only ``scan``; CRUD + search routers land
+in #546). The lifespan only handles graceful shutdown — the database
+engine is initialized lazily on the first ``get_db()`` call (see
+``db/engine.py``), which keeps cold starts fast and lets tests inject
+in-memory engines without forcing a real connection at import time.
 """
 
 from __future__ import annotations

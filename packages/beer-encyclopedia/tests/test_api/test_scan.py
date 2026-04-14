@@ -10,6 +10,7 @@ and /scan's failure paths short-circuit before reaching the pipeline.
 from __future__ import annotations
 
 import io
+from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -18,8 +19,12 @@ from api.main import app
 
 
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(app)
+def client() -> Iterator[TestClient]:
+    # Use TestClient as a context manager so FastAPI runs the app's
+    # startup + shutdown lifespan around each test (the shutdown disposes
+    # the database engine and prevents resource leaks across tests).
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 def test_health_returns_ok(client: TestClient) -> None:

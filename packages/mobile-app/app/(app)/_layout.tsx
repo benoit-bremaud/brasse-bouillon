@@ -1,6 +1,6 @@
 import { colors, spacing, typography } from "@/core/theme";
 import { Redirect, Tabs } from "expo-router";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ImageBackground, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { BrandLogo } from "@/core/ui/BrandLogo";
@@ -23,15 +23,21 @@ export default function AppLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <ImageBackground
+      source={require("@/../assets/images/Yellow_Background.png")}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
       <View style={{ flex: 1 }}>
         <Tabs
           screenOptions={{
+            sceneStyle: { backgroundColor: "transparent" },
             headerShown: true,
+            headerTransparent: true,
             headerStyle: {
               height: 152,
             },
-            tabBarStyle: { display: "none" },
+            tabBarStyle: { display: "none", position: "absolute" },
             headerTitle: () => (
               <View style={styles.headerTitleContainer}>
                 <BrandLogo variant="icon" size={120} />
@@ -121,7 +127,7 @@ export default function AppLayout() {
         </Tabs>
       </View>
       <NavigationFooter />
-    </View>
+    </ImageBackground>
   );
 }
 

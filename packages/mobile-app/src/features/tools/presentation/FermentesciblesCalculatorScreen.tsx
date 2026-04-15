@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateOgFromFermentables,
   calculateRequiredMaltKgForTargetOg,
@@ -39,6 +40,7 @@ type RecipeMalt = {
 };
 
 export function FermentesciblesCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
   const [recipeMalts, setRecipeMalts] = useState<RecipeMalt[]>([
     { id: "1", malt: fermentableMaltCatalog[0], weightKg: 4 },
@@ -166,7 +168,7 @@ export function FermentesciblesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {activeTab === "rapide" && (
           <>
             {/* Paramètres de base */}
@@ -450,8 +452,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   FlatList,
   Pressable,
@@ -42,6 +43,7 @@ const getVisibilityVariant = (
 };
 
 export function RecipesScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: recipes = [],
@@ -146,8 +148,7 @@ export function RecipesScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
-    paddingHorizontal: spacing.sm,
+        paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

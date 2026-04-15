@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Card } from "@/core/ui/Card";
@@ -10,6 +11,7 @@ import { Screen } from "@/core/ui/Screen";
 import { useRouter } from "expo-router";
 
 export function ExploreScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   return (
@@ -29,7 +31,7 @@ export function ExploreScreen() {
       </Card>
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
       >
         {DISCOVERY_SPACES.map((space) => (
@@ -74,8 +76,7 @@ export function ExploreScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.md,
-  },
+      },
   positioningCard: {
     marginBottom: spacing.sm,
     borderColor: colors.brand.secondary,

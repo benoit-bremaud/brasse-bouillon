@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateBrewhouseEfficiencyPercent,
   calculateTargetPreBoilVolumeLiters,
@@ -30,6 +31,7 @@ type GrainLine = {
 };
 
 export function RendementCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rendement");
 
   const [actualOg, setActualOg] = useState(1.06);
@@ -155,7 +157,7 @@ export function RendementCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {activeTab === "rendement" && (
           <>
             <Card style={styles.card}>
@@ -425,8 +427,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

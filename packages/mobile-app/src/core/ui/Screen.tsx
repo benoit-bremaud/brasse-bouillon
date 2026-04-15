@@ -1,6 +1,7 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   ActivityIndicator,
+  ImageBackground,
   Pressable,
   StyleSheet,
   Text,
@@ -9,6 +10,8 @@ import {
 
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { usePathname } from "expo-router";
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -23,39 +26,51 @@ export function Screen({
   error = null,
   onRetry,
 }: ScreenProps) {
+  const pathname = usePathname();
+  // Don't add header padding on login/auth routes.
+  const isAuth = pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.includes("auth");
+  const topPadding = isAuth ? spacing.md : 120; // 120px clears the transparent header
+
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.container, styles.center]}>
-          <ActivityIndicator color={colors.brand.secondary} />
-        </View>
-      </SafeAreaView>
+      <ImageBackground source={require("@/../assets/images/Yellow_Background.png")} style={styles.background} resizeMode="cover">
+        <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+          <View style={[styles.container, styles.center, { paddingTop: topPadding }]}>
+            <ActivityIndicator color={colors.brand.secondary} />
+          </View>
+        </SafeAreaView>
+      </ImageBackground>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {error ? (
-          <View style={styles.errorCard}>
-            <Text style={styles.errorText}>{error}</Text>
-            {onRetry ? (
-              <Pressable onPress={onRetry} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>Réessayer</Text>
-              </Pressable>
-            ) : null}
-          </View>
-        ) : null}
-        {children}
-      </View>
-    </SafeAreaView>
+    <ImageBackground source={require("@/../assets/images/Yellow_Background.png")} style={styles.background} resizeMode="cover">
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <View style={[styles.container, { paddingTop: topPadding }]}>
+          {error ? (
+            <View style={styles.errorCard}>
+              <Text style={styles.errorText}>{error}</Text>
+              {onRetry ? (
+                <Pressable onPress={onRetry} style={styles.retryButton}>
+                  <Text style={styles.retryButtonText}>Réessayer</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+          {children}
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.brand.background,
+    backgroundColor: "transparent",
   },
   container: {
     flex: 1,

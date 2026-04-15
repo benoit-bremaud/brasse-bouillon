@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -37,6 +38,7 @@ const styleRanges: StyleCo2Range[] = [
 ];
 
 export function CarbonatationCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("priming");
   const [sugarType, setSugarType] = useState<SugarType>("dextrose");
 
@@ -130,7 +132,7 @@ export function CarbonatationCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {activeTab === "priming" && (
           <>
             <Card style={styles.card}>
@@ -347,8 +349,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

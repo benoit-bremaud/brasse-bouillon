@@ -1,4 +1,5 @@
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
@@ -21,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 export function IngredientsScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: categories = [],
@@ -133,8 +135,7 @@ export function IngredientsScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
-    paddingHorizontal: spacing.sm,
+        paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

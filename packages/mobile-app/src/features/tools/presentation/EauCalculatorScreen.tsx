@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -281,6 +282,7 @@ function calculateSaltCorrections(
 }
 
 export function EauCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("profil");
 
   // Ion values (in ppm)
@@ -436,7 +438,7 @@ export function EauCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {/* ── TAB PROFIL ── */}
         {activeTab === "profil" && (
           <>
@@ -828,8 +830,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

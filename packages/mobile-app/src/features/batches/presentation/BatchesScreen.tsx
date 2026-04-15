@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   BatchStatus,
   BatchSummary,
@@ -53,6 +54,7 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 };
 
 export function BatchesScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: batches = [],
@@ -147,8 +149,7 @@ export function BatchesScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
-    paddingHorizontal: spacing.sm,
+        paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

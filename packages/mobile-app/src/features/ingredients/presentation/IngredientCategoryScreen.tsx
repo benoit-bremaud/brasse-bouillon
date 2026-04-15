@@ -463,8 +463,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   list: {
-    paddingBottom: spacing.md,
-  },
+      },
   itemCard: {
     marginBottom: spacing.sm,
   },

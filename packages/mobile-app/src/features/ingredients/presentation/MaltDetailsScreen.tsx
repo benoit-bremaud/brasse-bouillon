@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from '@/core/ui/NavigationFooter';
 import { colors, spacing, typography } from "@/core/theme";
 import {
   getMaltDetails,
@@ -84,6 +85,7 @@ export function MaltDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,

@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from '@/core/ui/NavigationFooter';
 import { colors, spacing, typography } from "@/core/theme";
 import {
   Image,
@@ -27,6 +28,7 @@ type Props = {
 
 export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const normalizedSlug = normalizeRouteParam(slugParam);
   const topic = getAcademyTopicBySlug(normalizedSlug);
 
@@ -81,7 +83,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         <Card style={styles.heroCard}>
           <View style={styles.heroRow}>
             <Image
@@ -127,7 +129,6 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.lg,
   },
   heroCard: {
     marginBottom: spacing.sm,

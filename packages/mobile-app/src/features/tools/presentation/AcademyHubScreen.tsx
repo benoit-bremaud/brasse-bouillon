@@ -1,5 +1,6 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -24,6 +25,7 @@ const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 export function AcademyHubScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   return (
@@ -33,7 +35,7 @@ export function AcademyHubScreen() {
         subtitle="Base pédagogique, scientifique et historique du brassage"
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {academyTopics.map((topic) => {
           const iconColor =
             topic.slug === "glossaire"
@@ -93,8 +95,7 @@ export function AcademyHubScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.lg,
-  },
+      },
   cardPressable: {
     borderRadius: radius.lg,
     marginBottom: spacing.sm,

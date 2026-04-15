@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
 import {
@@ -48,6 +49,7 @@ function getConversionReadinessLabel(averagePowerWkPerKg: number) {
 }
 
 export function AvancesCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("enzymes");
   const [malts, setMalts] = useState<MaltLine[]>([
     { id: "1", name: "Pilsner", weightKg: 4, diastaticPowerWk: 250 },
@@ -171,7 +173,7 @@ export function AvancesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {activeTab === "enzymes" && (
           <>
             <Card style={styles.card}>
@@ -428,8 +430,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

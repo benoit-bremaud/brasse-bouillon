@@ -10,6 +10,7 @@ import {
   normalizeIngredientReturnContextParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -84,6 +85,7 @@ export function HopDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const normalizedHopId = normalizeRouteParam(hopIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,
@@ -213,7 +215,7 @@ export function HopDetailsScreen({
         <ScrollView
           testID="hop-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
         >
           <ListHeader
             title={hop.name}
@@ -288,7 +290,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: spacing.lg,
   },
   identityCard: {
     marginBottom: spacing.sm,

@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateMCU,
   calculateRequiredMaltForTargetSRM,
@@ -48,6 +49,7 @@ function getSrmTextColor(srm: number): string {
 }
 
 export function CouleurCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
 
   // Rapide tab state
@@ -191,7 +193,7 @@ export function CouleurCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         {activeTab === "rapide" && (
           <>
             {/* Volume */}
@@ -482,8 +484,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.white,
   },
   content: {
-    paddingBottom: spacing.xl,
-  },
+      },
   card: {
     marginBottom: spacing.sm,
   },

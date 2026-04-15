@@ -1,5 +1,6 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -9,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 export function ShopScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   return (
@@ -33,7 +35,7 @@ export function ShopScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
         <Text style={styles.sectionTitle}>Catégories</Text>
 
         <View style={styles.categoriesGrid}>
@@ -89,8 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
+      },
   academyButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -108,8 +109,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   content: {
-    paddingBottom: spacing.lg,
-    paddingHorizontal: spacing.sm,
+        paddingHorizontal: spacing.sm,
     paddingTop: spacing.sm,
   },
   sectionTitle: {

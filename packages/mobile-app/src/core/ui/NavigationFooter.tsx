@@ -79,7 +79,8 @@ export function NavigationFooter() {
   const activeIndex = NAV_ITEMS.findIndex((item) =>
     isFooterItemActive(pathname, item.routePrefix),
   );
-  const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0;
+  const hasActiveItem = activeIndex >= 0;
+  const safeActiveIndex = hasActiveItem ? activeIndex : 0;
 
   const [containerWidth, setContainerWidth] = useState(0);
   const itemWidth = containerWidth / NAV_ITEMS.length;
@@ -116,7 +117,7 @@ export function NavigationFooter() {
         setContainerWidth(e.nativeEvent.layout.width - spacing.xs * 2);
       }}
     >
-      {containerWidth > 0 && (
+      {containerWidth > 0 && hasActiveItem && (
         <Animated.View
           style={[styles.activeIndicator, animatedIndicatorStyle]}
         />

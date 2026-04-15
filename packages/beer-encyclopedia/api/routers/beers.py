@@ -14,22 +14,18 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.db_utils import is_postgres
 from api.dependencies import get_db
 from api.schemas.beer import BeerCreate, BeerList, BeerRead, BeerUpdate
 from api.schemas.common import (
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
-    SEARCH_SIMILARITY_THRESHOLD,
     PaginationMeta,
 )
-from api.slug import build_unique_slug
+from api.slug import create_with_unique_slug
 from db.models import Beer, Brewery, Style
 
 router = APIRouter(prefix="/beers", tags=["beers"])
-
-
-def _is_postgres(session: AsyncSession) -> bool:
-    return session.bind is not None and session.bind.dialect.name == "postgresql"
 
 
 async def _validate_fks(
@@ -97,10 +93,11 @@ async def search_beers(
     page: int = Query(1, ge=1),
     per_page: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
 ) -> BeerList:
-    if _is_postgres(session):
-        similarity = func.similarity(Beer.name, q)
-        where_clause = similarity > SEARCH_SIMILARITY_THRESHOLD
-        order_clause = similarity.desc()
+    if is_postgres(session):
+        # `%` uses the GIN trigram index (pg_trgm.similarity_threshold gate),
+        # `similarity()` only ranks; avoids a full table scan on large data.
+        where_clause = Beer.name.op("%")(q)
+        order_clause = func.similarity(Beer.name, q).desc()
     else:
         where_clause = func.lower(Beer.name).contains(q.lower())
         order_clause = Beer.name
@@ -139,11 +136,13 @@ async def create_beer(
     session: AsyncSession = Depends(get_db),
 ) -> BeerRead:
     await _validate_fks(session, brewery_id=payload.brewery_id, style_id=payload.style_id)
-    slug = await build_unique_slug(session, column=Beer.slug, name=payload.name)
-    beer = Beer(slug=slug, **payload.model_dump())
-    session.add(beer)
-    await session.commit()
-    await session.refresh(beer)
+    beer = await create_with_unique_slug(
+        session,
+        model_cls=Beer,
+        slug_column=Beer.slug,
+        name=payload.name,
+        attributes=payload.model_dump(),
+    )
     return BeerRead.model_validate(beer)
 
 

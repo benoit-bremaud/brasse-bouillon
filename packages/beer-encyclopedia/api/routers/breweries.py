@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.db_utils import is_postgres
 from api.dependencies import get_db
 from api.schemas.brewery import (
     BreweryCreate,
@@ -25,17 +26,12 @@ from api.schemas.brewery import (
 from api.schemas.common import (
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
-    SEARCH_SIMILARITY_THRESHOLD,
     PaginationMeta,
 )
-from api.slug import build_unique_slug
+from api.slug import create_with_unique_slug
 from db.models import Brewery
 
 router = APIRouter(prefix="/breweries", tags=["breweries"])
-
-
-def _is_postgres(session: AsyncSession) -> bool:
-    return session.bind is not None and session.bind.dialect.name == "postgresql"
 
 
 @router.get("", response_model=BreweryList)
@@ -81,10 +77,11 @@ async def search_breweries(
     page: int = Query(1, ge=1),
     per_page: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
 ) -> BreweryList:
-    if _is_postgres(session):
-        similarity = func.similarity(Brewery.name, q)
-        where_clause = similarity > SEARCH_SIMILARITY_THRESHOLD
-        order_clause = similarity.desc()
+    if is_postgres(session):
+        # `%` uses the GIN trigram index (pg_trgm.similarity_threshold gate),
+        # `similarity()` only ranks; avoids a full table scan on large data.
+        where_clause = Brewery.name.op("%")(q)
+        order_clause = func.similarity(Brewery.name, q).desc()
     else:
         # SQLite fallback: case-insensitive substring match, alphabetical order.
         where_clause = func.lower(Brewery.name).contains(q.lower())
@@ -123,11 +120,13 @@ async def create_brewery(
     payload: BreweryCreate,
     session: AsyncSession = Depends(get_db),
 ) -> BreweryRead:
-    slug = await build_unique_slug(session, column=Brewery.slug, name=payload.name)
-    brewery = Brewery(slug=slug, **payload.model_dump())
-    session.add(brewery)
-    await session.commit()
-    await session.refresh(brewery)
+    brewery = await create_with_unique_slug(
+        session,
+        model_cls=Brewery,
+        slug_column=Brewery.slug,
+        name=payload.name,
+        attributes=payload.model_dump(),
+    )
     return BreweryRead.model_validate(brewery)
 
 

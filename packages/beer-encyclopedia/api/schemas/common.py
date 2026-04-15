@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 DEFAULT_PAGE_SIZE = 20
 MAX_PAGE_SIZE = 100
+# pg_trgm similarity threshold used by the `%` operator. Matches the
+# PostgreSQL default (set via `SET pg_trgm.similarity_threshold`); kept
+# here for documentation — the operator itself is gated server-side.
 SEARCH_SIMILARITY_THRESHOLD = 0.3
 
 

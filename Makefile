@@ -8,8 +8,16 @@ SONAR_PORT      := 9000
 SONAR_URL       := http://localhost:$(SONAR_PORT)
 
 # LAN IP used so Expo Go (phone) can reach the API running on this machine.
-# Falls back to localhost if detection fails.
-LAN_IP := $(shell hostname -I 2>/dev/null | awk '{print $$1}' || echo localhost)
+# Detection order: macOS (ipconfig Wi-Fi en0 / Ethernet en1) → Linux
+# (hostname -I) → localhost fallback. `hostname -I` does not exist on
+# macOS and its pipeline exits 0 with empty output, so it cannot be the
+# first probe.
+LAN_IP := $(shell \
+	ipconfig getifaddr en0 2>/dev/null \
+	|| ipconfig getifaddr en1 2>/dev/null \
+	|| (command -v hostname >/dev/null && hostname -I 2>/dev/null | awk 'NF{print $$1; exit}') \
+	|| echo localhost)
+LAN_IP := $(if $(strip $(LAN_IP)),$(LAN_IP),localhost)
 API_PORT := 3000
 
 .PHONY: help setup dev dev-api dev-mobile test-all lint-all \
@@ -56,8 +64,18 @@ dev: ## Start API and Expo in parallel (Ctrl+C stops both)
 		(npm -w packages/mobile-app run start:lan) & \
 		wait
 
-test-all: ## Run mobile-app and api test suites
+test-all: ## Run mobile-app + api + beer-encyclopedia test suites
 	npm run test:all
+	@if [ -x packages/beer-encyclopedia/.venv/bin/pytest ]; then \
+		echo "[test-all] Running beer-encyclopedia pytest ..."; \
+		(cd packages/beer-encyclopedia && .venv/bin/pytest -q); \
+	elif command -v pytest >/dev/null 2>&1; then \
+		echo "[test-all] Running beer-encyclopedia pytest (system pytest) ..."; \
+		(cd packages/beer-encyclopedia && pytest -q); \
+	else \
+		echo "[test-all] SKIP beer-encyclopedia — no .venv/ nor system pytest found."; \
+		echo "            Run 'pip install -e \".[ml,dev]\"' in packages/beer-encyclopedia to enable."; \
+	fi
 
 lint-all: ## Run mobile-app and api linters
 	npm run lint:all

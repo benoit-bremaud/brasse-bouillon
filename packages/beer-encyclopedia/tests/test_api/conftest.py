@@ -9,6 +9,7 @@ a real PostgreSQL instance.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Iterator
+from typing import Any
 
 import pytest
 import pytest_asyncio
@@ -19,13 +20,23 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.pool import ConnectionPoolEntry
 
 from api.dependencies import get_db
 from api.main import app
 from db.models import Base
 
 
-def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record) -> None:  # type: ignore[no-untyped-def]
+def _enable_sqlite_foreign_keys(
+    dbapi_connection: Any,
+    _connection_record: ConnectionPoolEntry,
+) -> None:
+    """SQLAlchemy ``connect`` hook: enable FK enforcement on SQLite.
+
+    ``dbapi_connection`` is the raw DB-API connection (``sqlite3.Connection``
+    or equivalent) and is typed ``Any`` because the concrete class varies
+    with the installed driver (aiosqlite wraps ``sqlite3``).
+    """
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()

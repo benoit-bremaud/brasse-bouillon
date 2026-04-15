@@ -39,7 +39,12 @@ export function ToolsHubScreen() {
         subtitle="Tes outils de calcul brassicoles"
       />
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {calculatorTopics.map((topic) => (
           <Pressable
             key={topic.slug}
@@ -86,8 +91,7 @@ export function ToolsHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-      },
+  content: {},
   cardPressable: {
     borderRadius: radius.lg,
     marginBottom: spacing.sm,

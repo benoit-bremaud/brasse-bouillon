@@ -99,7 +99,7 @@ export function BatchesScreen() {
       <FlatList
         data={batches}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
@@ -149,7 +149,7 @@ export function BatchesScreen() {
 
 const styles = StyleSheet.create({
   list: {
-        paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

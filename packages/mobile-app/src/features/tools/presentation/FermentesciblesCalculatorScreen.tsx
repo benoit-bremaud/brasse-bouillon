@@ -168,7 +168,12 @@ export function FermentesciblesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {activeTab === "rapide" && (
           <>
             {/* Paramètres de base */}
@@ -451,8 +456,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-      },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },

@@ -123,7 +123,12 @@ export function LevuresCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {activeTab === "pitch" && (
           <>
             <Card style={styles.card}>
@@ -347,8 +352,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-      },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },

@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from '@/core/ui/NavigationFooter';
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   BREWING_PHASES,
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS,
@@ -385,7 +385,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchRecipe}>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         <ListHeader
           title="My Recipe Book"
           subtitle="Recipe details"
@@ -724,7 +729,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                   style={[
                     styles.toggleChip,
                     nonPublicWaterPreference === option.id &&
-                    styles.toggleChipActive,
+                      styles.toggleChipActive,
                   ]}
                   onPress={() => setNonPublicWaterPreference(option.id)}
                 >
@@ -732,7 +737,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     style={[
                       styles.toggleChipText,
                       nonPublicWaterPreference === option.id &&
-                      styles.toggleChipTextActive,
+                        styles.toggleChipTextActive,
                     ]}
                   >
                     {option.label}
@@ -743,7 +748,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
           ) : null}
 
           {recipe?.visibility !== "public" &&
-            nonPublicWaterPreference === "style" ? (
+          nonPublicWaterPreference === "style" ? (
             <View style={styles.choiceWrap}>
               {WATER_STYLE_PRESETS.map((preset) => {
                 const isSelected = preset.id === selectedWaterStylePresetId;
@@ -852,7 +857,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                 style={[
                   styles.toggleChipText,
                   processDisplayMode === option.id &&
-                  styles.toggleChipTextActive,
+                    styles.toggleChipTextActive,
                 ]}
               >
                 {option.label}
@@ -864,11 +869,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
         <Card style={styles.sectionCard}>
           {processDisplayMode === "phases"
             ? BREWING_PHASES.map((phase) => (
-              <View key={phase.id} style={styles.phaseRow}>
-                <Text style={styles.phaseTitle}>{phase.title}</Text>
-                <Text style={styles.phaseDetails}>{phase.details}</Text>
-              </View>
-            ))
+                <View key={phase.id} style={styles.phaseRow}>
+                  <Text style={styles.phaseTitle}>{phase.title}</Text>
+                  <Text style={styles.phaseDetails}>{phase.details}</Text>
+                </View>
+              ))
             : null}
 
           {processDisplayMode === "recipe" ? (
@@ -929,8 +934,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  content: {
-  },
+  content: {},
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.md,

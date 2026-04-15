@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from '@/core/ui/NavigationFooter';
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
 import {
   getMaltDetails,
@@ -211,7 +211,10 @@ export function MaltDetailsScreen({
         <ScrollView
           testID="malt-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListHeader
             title={malt.name}

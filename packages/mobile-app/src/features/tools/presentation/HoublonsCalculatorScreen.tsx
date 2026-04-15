@@ -253,7 +253,12 @@ export function HoublonsCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {/* ─── Onglet Rapide ────────────────────────────────────────── */}
         {activeTab === "rapide" && (
           <>
@@ -635,8 +640,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-      },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },
@@ -780,7 +784,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.h2,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textSecondary,
-      },
+  },
   inputRow: {
     marginBottom: spacing.sm,
   },
@@ -875,7 +879,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.h2,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textSecondary,
-      },
+  },
   buGuRating: {
     borderRadius: radius.sm,
     padding: spacing.sm,

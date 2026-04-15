@@ -22,7 +22,7 @@ export function EquipmentScreen() {
       <FlatList
         data={demoEquipments}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <View style={styles.cardContent}>
@@ -55,7 +55,7 @@ export function EquipmentScreen() {
 
 const styles = StyleSheet.create({
   list: {
-        paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

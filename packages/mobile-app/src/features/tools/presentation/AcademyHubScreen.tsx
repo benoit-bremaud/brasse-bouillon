@@ -35,7 +35,12 @@ export function AcademyHubScreen() {
         subtitle="Base pédagogique, scientifique et historique du brassage"
       />
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {academyTopics.map((topic) => {
           const iconColor =
             topic.slug === "glossaire"
@@ -94,8 +99,7 @@ export function AcademyHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-      },
+  content: {},
   cardPressable: {
     borderRadius: radius.lg,
     marginBottom: spacing.sm,

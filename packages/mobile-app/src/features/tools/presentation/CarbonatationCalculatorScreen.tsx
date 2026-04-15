@@ -132,7 +132,12 @@ export function CarbonatationCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {activeTab === "priming" && (
           <>
             <Card style={styles.card}>
@@ -348,8 +353,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-      },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },

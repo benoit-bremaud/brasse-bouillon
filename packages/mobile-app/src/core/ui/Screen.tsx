@@ -12,6 +12,7 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { usePathname } from "expo-router";
+import yellowBackground from "@/../assets/images/Yellow_Background.png";
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -28,14 +29,27 @@ export function Screen({
 }: ScreenProps) {
   const pathname = usePathname();
   // Don't add header padding on login/auth routes.
-  const isAuth = pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.includes("auth");
+  const isAuth =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.includes("auth");
   const topPadding = isAuth ? spacing.md : 120; // 120px clears the transparent header
 
   if (isLoading) {
     return (
-      <ImageBackground source={require("@/../assets/images/Yellow_Background.png")} style={styles.background} resizeMode="cover">
+      <ImageBackground
+        source={yellowBackground}
+        style={styles.background}
+        resizeMode="cover"
+      >
         <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-          <View style={[styles.container, styles.center, { paddingTop: topPadding }]}>
+          <View
+            style={[
+              styles.container,
+              styles.center,
+              { paddingTop: topPadding },
+            ]}
+          >
             <ActivityIndicator color={colors.brand.secondary} />
           </View>
         </SafeAreaView>
@@ -44,7 +58,11 @@ export function Screen({
   }
 
   return (
-    <ImageBackground source={require("@/../assets/images/Yellow_Background.png")} style={styles.background} resizeMode="cover">
+    <ImageBackground
+      source={yellowBackground}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <View style={[styles.container, { paddingTop: topPadding }]}>
           {error ? (

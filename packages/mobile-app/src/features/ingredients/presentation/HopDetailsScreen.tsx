@@ -215,7 +215,10 @@ export function HopDetailsScreen({
         <ScrollView
           testID="hop-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListHeader
             title={hop.name}
@@ -289,8 +292,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  content: {
-  },
+  content: {},
   identityCard: {
     marginBottom: spacing.sm,
   },

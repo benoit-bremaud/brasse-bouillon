@@ -1,7 +1,11 @@
 import { Href, usePathname, useRouter } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { colors, spacing } from "@/core/theme";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -9,7 +13,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function useNavigationFooterOffset() {
   const insets = useSafeAreaInsets();
-  return (insets.bottom > 0 ? insets.bottom : spacing.md) + spacing.xs + 48 + spacing.md;
+  return (
+    (insets.bottom > 0 ? insets.bottom : spacing.md) +
+    spacing.xs +
+    48 +
+    spacing.md
+  );
 }
 
 type NavItem = {
@@ -67,7 +76,9 @@ export function NavigationFooter() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
-  const activeIndex = NAV_ITEMS.findIndex((item) => isFooterItemActive(pathname, item.routePrefix));
+  const activeIndex = NAV_ITEMS.findIndex((item) =>
+    isFooterItemActive(pathname, item.routePrefix),
+  );
   const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0;
 
   const [containerWidth, setContainerWidth] = useState(0);
@@ -102,15 +113,12 @@ export function NavigationFooter() {
       ]}
       onLayout={(e) => {
         // We calculate available width by removing padding horizontally
-        setContainerWidth(e.nativeEvent.layout.width - (spacing.xs * 2));
+        setContainerWidth(e.nativeEvent.layout.width - spacing.xs * 2);
       }}
     >
       {containerWidth > 0 && (
         <Animated.View
-          style={[
-            styles.activeIndicator,
-            animatedIndicatorStyle,
-          ]}
+          style={[styles.activeIndicator, animatedIndicatorStyle]}
         />
       )}
 
@@ -132,7 +140,9 @@ export function NavigationFooter() {
             <Ionicons
               name={item.icon}
               size={24}
-              color={isActive ? colors.neutral.white : colors.neutral.textPrimary}
+              color={
+                isActive ? colors.neutral.white : colors.neutral.textPrimary
+              }
             />
           </Pressable>
         );

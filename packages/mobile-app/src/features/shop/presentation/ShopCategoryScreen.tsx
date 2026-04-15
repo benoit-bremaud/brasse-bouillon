@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
@@ -25,6 +25,7 @@ type Props = {
 };
 
 export function ShopCategoryScreen({ categoryParam }: Props) {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const category = normalizeRouteParam(categoryParam) ?? "";
   const isValid = isShopCategory(category);
@@ -82,7 +83,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
       <FlatList
         data={mockProducts}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         ListHeaderComponent={
           <Card style={styles.infoCard}>
             <View style={styles.infoRow}>
@@ -128,8 +129,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
 }
 
 const styles = StyleSheet.create({
-  list: {
-      },
+  list: {},
   listHeader: {
     marginBottom: spacing.sm,
   },

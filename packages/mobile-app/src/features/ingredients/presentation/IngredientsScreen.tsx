@@ -78,7 +78,7 @@ export function IngredientsScreen() {
       <FlatList
         data={categories}
         keyExtractor={(item) => item.category}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => {
           const presentation =
             ingredientCategoryPresentationById[item.category];
@@ -135,7 +135,7 @@ export function IngredientsScreen() {
 
 const styles = StyleSheet.create({
   list: {
-        paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.sm,

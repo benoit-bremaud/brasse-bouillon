@@ -438,7 +438,12 @@ export function EauCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {/* ── TAB PROFIL ── */}
         {activeTab === "profil" && (
           <>
@@ -829,8 +834,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-      },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },

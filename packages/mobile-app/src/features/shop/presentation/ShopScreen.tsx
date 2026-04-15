@@ -35,7 +35,12 @@ export function ShopScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         <Text style={styles.sectionTitle}>Catégories</Text>
 
         <View style={styles.categoriesGrid}>
@@ -91,7 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: spacing.sm,
-      },
+  },
   academyButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -109,7 +114,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   content: {
-        paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.sm,
     paddingTop: spacing.sm,
   },
   sectionTitle: {

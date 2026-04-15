@@ -686,7 +686,10 @@ export function DashboardScreen() {
   return (
     <Screen isLoading={isLoading} error={error} onRetry={handleRetry}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerCard}>
@@ -1064,7 +1067,7 @@ export function DashboardScreen() {
 
 const styles = StyleSheet.create({
   content: {
-        gap: spacing.sm,
+    gap: spacing.sm,
   },
   headerCard: {
     backgroundColor: colors.neutral.white,
@@ -1361,7 +1364,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.white,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
-        gap: spacing.xs,
+    gap: spacing.xs,
   },
   sheetHandle: {
     width: 44,

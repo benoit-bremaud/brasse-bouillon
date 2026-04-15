@@ -1,11 +1,18 @@
 import { colors, spacing, typography } from "@/core/theme";
 import { Redirect, Tabs } from "expo-router";
-import { ActivityIndicator, ImageBackground, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { BrandLogo } from "@/core/ui/BrandLogo";
 import { NavigationFooter } from "@/core/ui/NavigationFooter";
 import { Ionicons } from "@expo/vector-icons";
+import yellowBackground from "@/../assets/images/Yellow_Background.png";
 
 export default function AppLayout() {
   const { session, isLoading } = useAuth();
@@ -24,7 +31,7 @@ export default function AppLayout() {
 
   return (
     <ImageBackground
-      source={require("@/../assets/images/Yellow_Background.png")}
+      source={yellowBackground}
       style={{ flex: 1 }}
       resizeMode="cover"
     >

@@ -31,7 +31,10 @@ export function ExploreScreen() {
       </Card>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {DISCOVERY_SPACES.map((space) => (
@@ -75,8 +78,7 @@ export function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-      },
+  content: {},
   positioningCard: {
     marginBottom: spacing.sm,
     borderColor: colors.brand.secondary,

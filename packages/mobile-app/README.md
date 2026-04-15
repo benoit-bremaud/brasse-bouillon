@@ -32,25 +32,27 @@ git --version
 
 ---
 
-## 2) Cloner le repo frontend
+## 2) Cloner le monorepo
 
-### Option recommandée (HTTPS)
-
-```bash
-git clone https://github.com/benoit-bremaud/brasse-bouillon-frontend.git
-cd brasse-bouillon-frontend
-```
-
-### Option SSH (si ta clé SSH GitHub est déjà configurée)
+Le mobile fait partie du monorepo `brasse-bouillon`. On clone le repo racine, pas ce package isolément.
 
 ```bash
-git clone git@github.com:benoit-bremaud/brasse-bouillon-frontend.git
-cd brasse-bouillon-frontend
+# HTTPS
+git clone https://github.com/benoit-bremaud/brasse-bouillon.git
+cd brasse-bouillon
+
+# ou SSH
+git clone git@github.com:benoit-bremaud/brasse-bouillon.git
+cd brasse-bouillon
 ```
+
+Voir le [README racine](../../README.md) pour la vue d'ensemble (prérequis macOS/Linux, API, website, beer-encyclopedia).
 
 ---
 
 ## 3) Installer les dépendances du projet
+
+Depuis la **racine du monorepo** (un seul `npm install` couvre tous les workspaces) :
 
 ```bash
 npm install
@@ -83,9 +85,9 @@ EXPO_PUBLIC_USE_DEMO_DATA=true
 
 ### Mode B — API live (backend local)
 
-1. Lancer le backend `brasse-bouillon-backend` (port 3000).
+1. Lancer le backend depuis la racine du monorepo : `make dev-api` ou `npm run dev:api` (écoute sur `http://<LAN-IP>:3000`).
 2. Mettre `EXPO_PUBLIC_USE_DEMO_DATA=false`.
-3. Remplacer `EXPO_PUBLIC_API_URL` par l’IP locale de ton PC (pas `localhost` si tu testes sur téléphone).
+3. Remplacer `EXPO_PUBLIC_API_URL` par l’IP locale de ton PC (pas `localhost` si tu testes sur téléphone). Astuce : `make setup` à la racine crée automatiquement le `.env` avec la bonne IP LAN détectée.
 
 Exemple :
 
@@ -113,37 +115,71 @@ Trouver ton IP locale :
 
 ## 6) Lancer le frontend
 
-### Recommandé pour mobile réel (LAN)
+Toutes les commandes ci-dessous se lancent **depuis la racine du monorepo**
+(`brasse-bouillon/`), pas depuis `packages/mobile-app/`. C'est important : un
+`npx expo start` lancé à la racine bundle le mauvais dossier, et un `npx expo
+start` lancé à l'intérieur du package contourne les scripts du workspace.
+
+### Chemin 1 — Wi-Fi commun sans isolation (recommandé)
 
 ```bash
-npm run start:lan
+npm run dev:mobile-app
 ```
 
-### Mode standard
+Phone et laptop doivent être sur le même Wi-Fi _et_ ce Wi-Fi ne doit pas avoir
+l'isolation client (certains réseaux pro/école l'activent). Scanner le QR code
+affiché.
+
+### Chemin 2 — Tunnel public via cloudflared (Wi-Fi isolé, hotspot, 4G)
+
+Passe par Cloudflare, donc fonctionne quel que soit le réseau (contourne les
+blocages carrier qui cassent ngrok en France).
 
 ```bash
-npm run start
+npm run dev:mobile-tunnel
 ```
 
-### Fallback réseau (si LAN bloqué)
+Prérequis : installer [cloudflared](https://developers.cloudflare.com/cloudflared/downloads/).
 
 ```bash
-npx expo start --tunnel
+# Debian / Ubuntu
+sudo apt install cloudflared
+
+# macOS
+brew install cloudflared
+```
+
+Le script démarre Metro, ouvre un tunnel public, et imprime l'URL à coller dans
+Expo Go via **Enter URL manually** (ex. `exp://xxxxx.trycloudflare.com`).
+
+### Chemin 3 — Android en USB (déterministe, pas de Wi-Fi)
+
+```bash
+# 1. Active USB debugging sur le phone et branche-le
+adb reverse tcp:8081 tcp:8081
+# 2. Dans un autre terminal
+npm run dev:mobile-app
+# 3. Dans Expo Go : Enter URL manually → exp://localhost:8081
 ```
 
 ---
 
-## 7) Voir l’application sur mobile (Expo Go + QR code)
+## 7) Voir l'application sur mobile (Expo Go + QR code)
 
-1. Vérifier que le téléphone et le PC sont sur le **même Wi-Fi**.
-2. Lancer le projet (`npm run start:lan`).
-3. Ouvrir **Expo Go** sur le téléphone.
-4. Scanner le QR code affiché dans le terminal (ou dans l’onglet web Expo).
+1. Choisir le chemin de lancement adapté à ton réseau (voir §6).
+2. Ouvrir **Expo Go** sur le téléphone.
+3. Soit scanner le QR code affiché dans le terminal (chemin 1), soit coller
+   l'URL fournie dans **Enter URL manually** (chemins 2 et 3).
 
-### Si le scan QR ne marche pas
+### Si rien ne charge et Expo Go reste bloqué sur le spinner
 
-- Dans Expo Go, utiliser **Enter URL manually**
-- Copier/coller l’URL `exp://...` affichée par Expo dans le terminal
+Dans l'ordre :
+
+- Chemin 1 → passer au **chemin 2** (le Wi-Fi bloque probablement phone↔laptop).
+- Erreur `Failed to download remote update` → même diagnostic : chemin 2.
+- Erreur `TypeError: Cannot read properties of undefined (reading 'body')` sur
+  `npx expo start --tunnel` → tu tournes sous Node 22 ; le package pinne Node 20
+  via `.tool-versions`, vérifie avec `node --version` et `asdf current nodejs`.
 
 ---
 

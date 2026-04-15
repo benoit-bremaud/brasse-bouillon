@@ -5,6 +5,66 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-15
+
+### CRUD + search API + dev-environment Makefile targets (#552)
+
+Step 5 of the beer-encyclopedia epic (#541). Closes #546. Bumps
+`packages/beer-encyclopedia` from v0.3.0 → **v0.4.0**.
+
+**14 new HTTP routes** across three resources:
+
+- `/styles` — 2 read-only routes (list, detail)
+- `/breweries` — 6 routes (list + filters `country`/`city`/`brewery_type`,
+  search, get, create, update, delete)
+- `/beers` — 6 routes (list + filters `style_id`/`brewery_id`/`abv_min`/
+  `abv_max`, search, get, create, update, delete) with FK validation at
+  POST/PATCH for clean 422s instead of DB-level 500s
+
+**Fuzzy search strategy:** on PostgreSQL, `Resource.name.op('%')(q)` in the
+WHERE clause (uses the GIN trigram index from migration 001 via
+`pg_trgm.similarity_threshold` gate), with `similarity()` only in
+ORDER BY for ranking. On SQLite (tests), case-insensitive substring
+match. Dialect detection centralized in the shared `api/db_utils.is_postgres()`.
+
+**Slug race mitigation:** `api/slug.create_with_unique_slug()` wraps
+build-then-insert in a retry loop catching `IntegrityError` (rollback, pick
+a new suffix, up to 3 attempts), closing the read-then-insert race under
+concurrent creates with the same display name.
+
+**Makefile dev targets** (visible via `make help`): `setup` bootstraps
+`.env` files with a fresh `JWT_SECRET` and auto-detected LAN IP (probe
+order: `ipconfig getifaddr en0`/`en1` on macOS → `hostname -I` on Linux →
+`localhost`), `dev-api` / `dev-mobile` / `dev` run the services with the
+correct LAN URL, `test-all` also runs the beer-encyclopedia pytest suite
+when a `.venv` is available, `lint-all` chains the existing npm linters.
+
+**Tests:** 25 new behavior tests using SQLite in-memory + dependency
+override on `get_db`; 64/64 passing. Ruff clean.
+
+### Mobile harmonization: screens + yellow background (#553)
+
+Ported Fabien's visual harmonization work on top of the monorepo mobile-app:
+consistent hub/list/detail screen scaffolding, global yellow background
+token, unified footer clearance across every route. Follow-up fixes
+landed immediately after: P1 footer clearance on remaining screens, P2
+unmatched-route wiring, nested `ImageBackground` removal to fix
+horizontal overflow on scroll (`c5ca373`, `e784fc0`, `f1cb8ab`).
+
+## 2026-04-14
+
+### API router refactor — final consolidation of #545 (#551)
+
+Merge-follow-up on the step-4 router refactor (#545). Consolidated the
+router-based architecture on main, integrating review feedback from the
+2026-04-13 batch and rebasing on top of the 2026-04-12 data-model work
+(#543, #544). No externally-visible behavior change vs #545; `uvicorn
+api.main:app` remains the entrypoint, the lazy-engine + lifespan pattern
+stands. This PR was the prerequisite for the #552 CRUD routers — they
+plug into the same `api/routers/` surface.
+
+---
+
 ## 2026-04-13
 
 ### API refactor: router-based architecture with FastAPI lifespan (#545)

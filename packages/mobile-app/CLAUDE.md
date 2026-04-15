@@ -14,7 +14,7 @@ colors, typography, spacing, radius, component patterns (list screen, detail scr
 **Name:** Brasse Bouillon — Frontend
 **Stack:** React Native + Expo SDK 54 + Expo Router v6 + TypeScript (strict)
 **Domain:** Homebrewing app — recipes, batch tracking, brewing tools & academy
-**Backend:** REST API (`brasse-bouillon-backend`) — responses wrapped as `{ success, statusCode, message, data }`, the HTTP client auto-unwraps `data`.
+**Backend:** NestJS API at `packages/api` within this monorepo — responses wrapped as `{ success, statusCode, message, data }`, the HTTP client auto-unwraps `data`.
 **Path alias:** `@/*` → `src/*` (configured in `tsconfig.json`, `jest.config.js`, `babel.config.js`)
 
 ## Key Directory Structure

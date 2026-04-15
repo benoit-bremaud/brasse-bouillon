@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   BREWING_PHASES,
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS,
@@ -84,6 +85,7 @@ const DEFAULT_WATER_STYLE_PRESET_ID: WaterStylePresetId =
 
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const [viewModel, setViewModel] = useState<RecipeDetailsViewModel | null>(
     null,
   );
@@ -383,7 +385,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={fetchRecipe}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         <ListHeader
           title="My Recipe Book"
           subtitle="Recipe details"
@@ -927,9 +934,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingBottom: spacing.lg,
-  },
+  content: {},
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.md,

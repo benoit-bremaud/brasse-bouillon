@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateIbuTinseth,
   calculateRequiredHopGramsForTargetIbu,
@@ -82,6 +83,7 @@ function getBuGuRating(ratio: number): BuGuRating {
 }
 
 export function HoublonsCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
 
   // Rapide tab state
@@ -251,7 +253,12 @@ export function HoublonsCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {/* ─── Onglet Rapide ────────────────────────────────────────── */}
         {activeTab === "rapide" && (
           <>
@@ -633,9 +640,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-    paddingBottom: spacing.xl,
-  },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },
@@ -779,7 +784,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.h2,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textSecondary,
-    paddingBottom: spacing.xs,
   },
   inputRow: {
     marginBottom: spacing.sm,
@@ -875,7 +879,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.h2,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textSecondary,
-    paddingBottom: spacing.xs,
   },
   buGuRating: {
     borderRadius: radius.sm,

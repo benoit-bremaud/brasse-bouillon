@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   BatchStatus,
   BatchSummary,
@@ -53,6 +54,7 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 };
 
 export function BatchesScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: batches = [],
@@ -97,7 +99,7 @@ export function BatchesScreen() {
       <FlatList
         data={batches}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
@@ -147,7 +149,6 @@ export function BatchesScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,
   },
   card: {

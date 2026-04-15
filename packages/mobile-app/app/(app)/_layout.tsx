@@ -23,15 +23,17 @@ export default function AppLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
+    <View style={styles.root}>
+      <View style={styles.tabsContainer}>
         <Tabs
           screenOptions={{
+            sceneStyle: { backgroundColor: "transparent" },
             headerShown: true,
+            headerTransparent: true,
             headerStyle: {
               height: 152,
             },
-            tabBarStyle: { display: "none" },
+            tabBarStyle: { display: "none", position: "absolute" },
             headerTitle: () => (
               <View style={styles.headerTitleContainer}>
                 <BrandLogo variant="icon" size={120} />
@@ -126,6 +128,12 @@ export default function AppLayout() {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  tabsContainer: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",

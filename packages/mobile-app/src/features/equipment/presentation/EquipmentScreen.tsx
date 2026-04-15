@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
@@ -10,6 +11,7 @@ import { Screen } from "@/core/ui/Screen";
 import { demoEquipments } from "@/mocks/demo-data";
 
 export function EquipmentScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   return (
     <Screen>
       <ListHeader
@@ -20,7 +22,7 @@ export function EquipmentScreen() {
       <FlatList
         data={demoEquipments}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <View style={styles.cardContent}>
@@ -53,7 +55,6 @@ export function EquipmentScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,
   },
   card: {

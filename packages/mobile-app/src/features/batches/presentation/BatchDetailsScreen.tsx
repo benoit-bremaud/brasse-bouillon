@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
 import {
   completeCurrentBatchStep,
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export function BatchDetailsScreen({ batchId }: Props) {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [mutationError, setMutationError] = React.useState<string | null>(null);
@@ -135,7 +137,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       <FlatList
         data={batch?.steps ?? []}
         keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Card style={styles.stepCard}>
             <View style={styles.stepHeader}>
@@ -189,9 +191,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
   },
-  list: {
-    paddingBottom: spacing.lg,
-  },
+  list: {},
   stepCard: {
     marginBottom: spacing.xs,
   },

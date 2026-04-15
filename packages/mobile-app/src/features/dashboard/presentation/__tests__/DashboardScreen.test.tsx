@@ -19,6 +19,7 @@ jest.mock("expo-router", () => ({
     replace: mockReplace,
     back: jest.fn(),
   }),
+  usePathname: () => "/",
 }));
 
 jest.mock("@/core/auth/auth-context", () => ({

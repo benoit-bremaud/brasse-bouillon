@@ -33,6 +33,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { getErrorMessage } from "@/core/http/http-error";
 import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
@@ -108,6 +109,7 @@ export function IngredientCategoryScreen({
   alphaMinParam,
   attenuationMinParam,
 }: Props) {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
   const initialFilters = buildIngredientCategoryInitialFilters({
@@ -373,7 +375,7 @@ export function IngredientCategoryScreen({
       <FlatList
         data={ingredients}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Pressable
             accessibilityRole="button"
@@ -462,9 +464,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.textPrimary,
     marginBottom: spacing.xs,
   },
-  list: {
-    paddingBottom: spacing.md,
-  },
+  list: {},
   itemCard: {
     marginBottom: spacing.sm,
   },

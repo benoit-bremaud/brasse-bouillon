@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   FlatList,
   Pressable,
@@ -42,6 +43,7 @@ const getVisibilityVariant = (
 };
 
 export function RecipesScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: recipes = [],
@@ -86,7 +88,7 @@ export function RecipesScreen() {
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
@@ -146,7 +148,6 @@ export function RecipesScreen() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: spacing.md,
     paddingHorizontal: spacing.sm,
   },
   card: {

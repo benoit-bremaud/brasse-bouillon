@@ -1,3 +1,4 @@
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -28,6 +29,7 @@ type TabName = "pitch" | "attenuation" | "packs";
 type FermentationType = "ale" | "lager";
 
 export function LevuresCalculatorScreen() {
+  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("pitch");
   const [fermentationType, setFermentationType] =
     useState<FermentationType>("ale");
@@ -121,7 +123,12 @@ export function LevuresCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottomPadding },
+        ]}
+      >
         {activeTab === "pitch" && (
           <>
             <Card style={styles.card}>
@@ -345,9 +352,7 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.neutral.white,
   },
-  content: {
-    paddingBottom: spacing.xl,
-  },
+  content: {},
   card: {
     marginBottom: spacing.sm,
   },

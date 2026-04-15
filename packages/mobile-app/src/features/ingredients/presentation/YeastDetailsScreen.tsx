@@ -10,6 +10,7 @@ import {
   normalizeIngredientReturnContextParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -84,6 +85,7 @@ export function YeastDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const normalizedYeastId = normalizeRouteParam(yeastIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,
@@ -213,7 +215,10 @@ export function YeastDetailsScreen({
         <ScrollView
           testID="yeast-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListHeader
             title={yeast.name}
@@ -287,9 +292,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  content: {
-    paddingBottom: spacing.lg,
-  },
+  content: {},
   identityCard: {
     marginBottom: spacing.sm,
   },

@@ -1,18 +1,11 @@
 import { colors, spacing, typography } from "@/core/theme";
 import { Redirect, Tabs } from "expo-router";
-import {
-  ActivityIndicator,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { BrandLogo } from "@/core/ui/BrandLogo";
 import { NavigationFooter } from "@/core/ui/NavigationFooter";
 import { Ionicons } from "@expo/vector-icons";
-import yellowBackground from "@/../assets/images/Yellow_Background.png";
 
 export default function AppLayout() {
   const { session, isLoading } = useAuth();
@@ -30,12 +23,8 @@ export default function AppLayout() {
   }
 
   return (
-    <ImageBackground
-      source={yellowBackground}
-      style={{ flex: 1 }}
-      resizeMode="cover"
-    >
-      <View style={{ flex: 1 }}>
+    <View style={styles.root}>
+      <View style={styles.tabsContainer}>
         <Tabs
           screenOptions={{
             sceneStyle: { backgroundColor: "transparent" },
@@ -134,11 +123,17 @@ export default function AppLayout() {
         </Tabs>
       </View>
       <NavigationFooter />
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  tabsContainer: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",

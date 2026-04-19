@@ -49,14 +49,23 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 3. À 3 ans, Eryon est : (a) toi en solo, (b) toi + 1-2 alternants/
    partenaires, (c) agence à 5-10 personnes, (d) plateforme/collectif ?
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* **Solo durablement — studio = toi + outils
+     IA.** Pas d'embauche prévue, pas d'associé. L'IA et
+     l'industrialisation compensent l'absence d'équipe. Positionnement
+     dans le pitch = **"artisan tech"** (terme fort, défendable face à
+     un jury).
 
 ### Thème B — ICP & Positionnement
 
 4. **[Priorité 2]** Client idéal précis : secteur (artisanat food ? sport ?
    culture ?), taille (0-3 salariés ? 5-10 ?), budget typique (2 k€ ?
    5 k€ ? 10 k€ par projet ?), géographie (06 uniquement ? PACA ? France ?).
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* **TPE artisanat food & boissons,
+     2-5 k€ / projet.** Boulangers, brasseurs, cavistes, traiteurs,
+     restaurateurs indépendants. **Alignement fort avec Brasse-Bouillon**
+     (vertical boissons/brassage) : le studio peut capitaliser sur
+     l'expertise métier déjà accumulée. Géographie : Alpes-Maritimes
+     au démarrage.
 
 5. Vs concurrence locale (autres freelances/agences Alpes-Maritimes), tu
    gagnes parce que : (a) prix plus bas, (b) plus rapide, (c) méthode
@@ -72,7 +81,12 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 7. **[Priorité 3]** Grille de prix : forfait site vitrine TPE (€), forfait
    blog/content (€), forfait e-commerce (€) ? Même si c'est une
    fourchette, il en faut une pour le pitch.
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* Fourchettes **prix plancher** annoncées :
+     - Site vitrine : **1,5 – 3 k€**
+     - Blog / content : **2 – 4 k€**
+     - E-commerce : **4 – 8 k€**
+     Cohérent avec l'objectif < 10 k€ an 1 (3-4 projets max possibles
+     en mixant vitrines + 1 e-commerce).
 
 8. Modèle de facturation : 100 % forfait ? Forfait + retainer mensuel
    (maintenance) ? Régie à la journée ? Mix ?
@@ -97,7 +111,10 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 11. Premier client Eryon : quelqu'un d'identifié aujourd'hui ? Si oui qui,
     si non quel créneau de prospection ?
-    - *Réponse :*
+    - *Réponse (2026-04-19) :* **Oui, un prospect concret existe.**
+      Détails à consigner plus tard (profil, secteur, timing) mais la
+      pipeline est **non vide** — dérisque la narration pitch ("premier
+      contact avancé, signature en cours").
 
 12. Brasse-Bouillon = 1er portfolio/case study d'Eryon ? Si oui, comment
     le met-on en avant (page case study dédiée, mention dans hero) ?
@@ -136,29 +153,33 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 ## Narrative pitch consolidée (à compléter au fil du brainstorming)
 
-État au 2026-04-19 (4 questions répondues sur 15) :
+État au 2026-04-19 (8 questions répondues sur 15) :
 
 > "J'ai créé mon studio web pour porter Brasse-Bouillon et accueillir
-> d'autres projets. Mon studio, c'est : **un fullstack solo, avec une
-> méthode IA-driven, qui livre des sites pour TPE, artisans et
-> associations locales des Alpes-Maritimes**. BB est le premier projet
-> interne de ce studio — à la fois vitrine technique et produit
-> central. Les missions client financeront progressivement la
-> croissance de BB. An 1, objectif modeste : < 10 k€ en amorçage,
-> 2-3 premiers clients via bouche-à-oreille et content gratuit (blog +
-> LinkedIn), pour valider l'ICP avant toute montée en charge."
+> d'autres projets. **Artisan tech en solo**, avec une méthode
+> IA-driven, je livre des sites vitrines, blogs et e-commerce à des
+> **TPE de l'artisanat food & boissons des Alpes-Maritimes** —
+> boulangers, brasseurs, cavistes, traiteurs. BB est le premier
+> projet interne du studio : vitrine technique et produit central.
+> Les missions client (site vitrine 1,5–3 k€, blog 2–4 k€, e-commerce
+> 4–8 k€) financent progressivement la croissance de BB. An 1 :
+> objectif amorçage **< 10 k€**, acquisition via **bouche-à-oreille
+> + content gratuit** (blog + LinkedIn), un **premier prospect
+> concret** déjà identifié. Pas d'embauche prévue : à 3 ans, le
+> studio reste solo, amplifié par l'IA."
 
-Éléments encore **à compléter** pour durcir la narration : nom
-définitif de la marque, ICP précis, grille de prix, jalon à 6 mois,
-statut juridique.
+Éléments encore **à compléter** : nom définitif de la marque,
+différenciation vs concurrence, articulation BB = 1er case study,
+jalon à 6 mois (futur SMART), statut juridique, anti-ICP, modèle de
+facturation, cadence de livraison.
 
 ## État du brainstorming
 
-- [x] Thème A — Vision & Branding (2/3 réponses) — reste Q3
-- [ ] Thème B — ICP & Positionnement (0/3 réponses)
-- [ ] Thème C — Offre & Pricing (0/3 réponses)
-- [x] Thème D — GTM & Acquisition (1/3 réponses) — reste Q11, Q12
-- [ ] Thème E — Stratégie & Roadmap (1/3 réponses) — reste Q14, Q15
+- [x] Thème A — Vision & Branding (3/3 réponses)
+- [x] Thème B — ICP & Positionnement (1/3 réponses) — reste Q5, Q6
+- [x] Thème C — Offre & Pricing (1/3 réponses) — reste Q8, Q9
+- [x] Thème D — GTM & Acquisition (2/3 réponses) — reste Q12
+- [x] Thème E — Stratégie & Roadmap (1/3 réponses) — reste Q14, Q15
 
 ## Références
 

@@ -13,7 +13,8 @@ docs/ydays/
 │   ├── plan-presentation-27-mai.md        plan détaillé des 30 minutes
 │   ├── audit-features-mvp.md              audit 11 features + parcours démo
 │   ├── smart-objectives-par-pole.md       36 SMART (core 6 + extended 6 × 3 pôles)
-│   └── business-model-canvas.md           BMC 9 blocs (T2)
+│   ├── business-model-canvas.md           BMC 9 blocs (T2)
+│   └── risk-analysis.md                   matrice risques + mitigations + checklist J-1
 └── debrief/                               ← décisions et historique sessions
     ├── 2026-04-15_session-decisions.md    D1-D10, R1-R6 (Q&A initial)
     └── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels

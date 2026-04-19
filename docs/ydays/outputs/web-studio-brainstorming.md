@@ -33,12 +33,19 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 1. **[Priorité 1]** Eryon est-il le nom définitif de ton agence (donc du
    brand pérenne dans ton pitch soutenance) ou un nom de travail provisoire ?
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* **Nom de travail à changer.** Dans le pitch,
+     on parle de "mon studio web" sans fixer le nom, ou on trouve un nom
+     définitif d'ici l'oral blanc 06/05. Tâche ouverte : arbitrer un nom
+     définitif avant J-21.
 
 2. Eryon sert-il d'abord à **porter Brasse-Bouillon** (BB = premier client
    interne et vitrine technique) ou est-ce une activité **parallèle**
    (BB = produit à part, Eryon = revenu parallèle type freelance agency) ?
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* **Le studio porte Brasse-Bouillon (BB = projet
+     interne).** Narration pitch = "j'ai créé mon studio web pour porter
+     BB et accueillir d'autres projets". BB = vitrine technique + produit
+     central ; les clients TPE viendront en parallèle et cofinanceront la
+     croissance de BB.
 
 3. À 3 ans, Eryon est : (a) toi en solo, (b) toi + 1-2 alternants/
    partenaires, (c) agence à 5-10 personnes, (d) plateforme/collectif ?
@@ -81,7 +88,12 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
     oreille / référrals, (b) content/SEO (blog Eryon), (c) démarchage
     direct (cold outreach), (d) partenariats (associations, CCI, clubs
     entrepreneurs locaux), (e) réseaux sociaux perso (LinkedIn) ?
-    - *Réponse :*
+    - *Réponse (2026-04-19) :* **Approche progressive, gratuite d'abord.**
+      (1) Bouche-à-oreille + réseau perso au démarrage. (2) Content/SEO
+      (blog studio + LinkedIn personnel) en parallèle, tout ce qui peut
+      être produit seul depuis le PC. (3) Budget marketing/pub envisagé
+      uniquement si traction constatée. Pas de démarchage direct, pas
+      d'investissement à l'aveugle.
 
 11. Premier client Eryon : quelqu'un d'identifié aujourd'hui ? Si oui qui,
     si non quel créneau de prospection ?
@@ -95,7 +107,10 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 13. Revenu cible an 1 (2026-04 → 2027-04), ordre de grandeur : < 10 k€ ?
     10-30 k€ ? 30-60 k€ ? > 60 k€ ? (Dépend du statut fiscal choisi.)
-    - *Réponse :*
+    - *Réponse (2026-04-19) :* **< 10 k€ an 1, phase d'amorçage, activité
+      d'appoint.** Objectif = valider l'ICP avec 2-3 premiers clients,
+      pas de pression CA, compatible micro-entreprise. Rehausse
+      progressive en an 2 si la traction est là.
 
 14. Statut juridique envisagé : micro-entreprise ? EURL ? SASU ? Autre ?
     Déjà démarré les formalités ?
@@ -119,13 +134,31 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 - **Nouveau SMART prospectif** (remplace #31) : "Livrer N premiers
   clients Eryon avant < date > avec un CA cumulé d'au moins X €."
 
+## Narrative pitch consolidée (à compléter au fil du brainstorming)
+
+État au 2026-04-19 (4 questions répondues sur 15) :
+
+> "J'ai créé mon studio web pour porter Brasse-Bouillon et accueillir
+> d'autres projets. Mon studio, c'est : **un fullstack solo, avec une
+> méthode IA-driven, qui livre des sites pour TPE, artisans et
+> associations locales des Alpes-Maritimes**. BB est le premier projet
+> interne de ce studio — à la fois vitrine technique et produit
+> central. Les missions client financeront progressivement la
+> croissance de BB. An 1, objectif modeste : < 10 k€ en amorçage,
+> 2-3 premiers clients via bouche-à-oreille et content gratuit (blog +
+> LinkedIn), pour valider l'ICP avant toute montée en charge."
+
+Éléments encore **à compléter** pour durcir la narration : nom
+définitif de la marque, ICP précis, grille de prix, jalon à 6 mois,
+statut juridique.
+
 ## État du brainstorming
 
-- [ ] Thème A — Vision & Branding (3/3 réponses)
-- [ ] Thème B — ICP & Positionnement (3/3 réponses)
-- [ ] Thème C — Offre & Pricing (3/3 réponses)
-- [ ] Thème D — GTM & Acquisition (3/3 réponses)
-- [ ] Thème E — Stratégie & Roadmap (3/3 réponses)
+- [x] Thème A — Vision & Branding (2/3 réponses) — reste Q3
+- [ ] Thème B — ICP & Positionnement (0/3 réponses)
+- [ ] Thème C — Offre & Pricing (0/3 réponses)
+- [x] Thème D — GTM & Acquisition (1/3 réponses) — reste Q11, Q12
+- [ ] Thème E — Stratégie & Roadmap (1/3 réponses) — reste Q14, Q15
 
 ## Références
 

@@ -42,7 +42,7 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 |---|--------|---|---|------------|
 | C1 | Question jury sur chiffre non sourcé (63,3%, 1000 inscrits) | 🔴 | 🟡 | **Combler trous factuels** avant J-7 ; répondre honnêtement "estimation à valider" si chiffre incertain (préférable à un bluff) |
 | C2 | Question jury sur modèle de revenu précis | 🔴 | 🟡 | **Workshop monétisation** planifié, livrable dans BMC ; au pire, réponse "freemium + partenariats LHBS, grille tarifaire en cours de finalisation" |
-| C3 | Dépassement total des 20 min allouées à la présentation | 🔴 | 🔴 | Chronométrage strict, script minuté (T6) ; blocs 1-6 respectent les durées annoncées ; **marge de 3 min réservée en fin** |
+| C3 | Dépassement des 30 min de pitch (Q&A de 10 min à part) | 🔴 | 🔴 | Chronométrage strict sur les 30 min pleines, script minuté (T6) ; blocs 1-6 = 4/6/8/5/6/1 min ; **marge intégrée dans le bloc 4 (réductible à 4 min si dépassement)** |
 | C4 | Oubli / trou noir pendant le pitch | 🟡 | 🟡 | Pense-bête tablette ou papier A4 avec 6 mots-clés par bloc ; répétitions ≥ 3 en conditions |
 | C5 | Question sur beer-label-ai : "pourquoi pas en démo ?" | 🟡 | 🟢 | Réponse pré-préparée : "pipeline opérationnel en labo, précision non prouvée sur étiquettes réelles en conditions variables, on le garde pour la V2 post-soutenance" (KISS + YAGNI assumé) |
 | C6 | Question hostile sur concurrence (Brewfather / Little Bock) | 🟡 | 🟡 | Table comparative dans BMC prête (Markdown) ; mémoriser 3 différenciateurs clairs : FR natif, simplicité évolutive, scanner code-barre |
@@ -57,6 +57,7 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 | L3 | Matériel démo oublié chez soi | 🟢 | 🔴 | **Checklist matériel J-1** (liste ci-dessous) ; sac préparé la veille au soir |
 | L4 | Aucun autre membre de l'équipe présent / disponible | 🔴 | 🟢 | Pitch conçu pour être porté en solo (A0 hybride = voix narrative unique, interventions expertes optionnelles) ; si seul = version "1 voix" préparée en amont |
 | L5 | Jury change la durée / format le jour J | 🟢 | 🟡 | Version compacte 15 min pré-rédigée (blocs 1-6 condensés) au cas où |
+| L6 | Ynov modifie le format annoncé (30+10 → 20+10 ou autre) | 🟢 | 🟡 | Version compacte 20 min pré-rédigée (supprime bloc 4, condense 2 et 5) prête J-3 ; vérif format auprès du coach à l'oral blanc 06/05 |
 
 ## Checklist matériel J-1
 
@@ -85,8 +86,9 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 
 | Session | Date cible | Livrable |
 |---------|-----------|----------|
+| **Oral blanc Ynov** | **2026-05-06 (J-21)** | **Séance Ydays coach : présentation complète à chaud + feedback officiel — à réserver** |
 | Tournage vidéo backup démo | 2026-05-20 (J-7) | 3 vidéos : parcours démo complet + 2 micro-backups (scanner / calculateur) |
-| Répétition 1 | 2026-05-20 (J-7) | Chrono complet + feedback écrit |
+| Répétition 1 | 2026-05-20 (J-7) | Chrono complet 30 min + feedback écrit |
 | Répétition 2 | 2026-05-24 (J-3) | Chrono + test matériel complet (HDMI, télécommande) |
 | Répétition 3 | 2026-05-26 (J-1) | Chrono final + checklist matériel validée |
 

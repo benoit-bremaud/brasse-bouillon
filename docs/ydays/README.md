@@ -1,8 +1,16 @@
 # Soutenance Ydays — 2026-05-27
 
 Dossier opérationnel pour la préparation de la soutenance finale Ydays du projet
-Brasse-Bouillon. Tous les livrables, décisions et drafts liés à la présentation
-orale du 27 mai 2026 vivent ici.
+Brasse-Bouillon.
+
+## Format officiel (email Ynov 2026-04-19)
+
+- **Durée : 30 minutes de pitch + 10 minutes de Q&A = 40 minutes total**
+- **Salle : 0.301 (R+3, campus Ynov)**
+- **Catégorie : Pitch Entrepreneurial**
+- **Support à déposer sur Moodle après le passage à l'oral**
+- **Séance Ydays du 2026-05-06** : dernière opportunité d'oral blanc
+  auprès du coach (à réserver en amont)
 
 ## Structure
 
@@ -15,9 +23,12 @@ docs/ydays/
 │   ├── smart-objectives-par-pole.md       36 SMART (core 6 + extended 6 × 3 pôles)
 │   ├── business-model-canvas.md           BMC 9 blocs (T2)
 │   └── risk-analysis.md                   matrice risques + mitigations + checklist J-1
-└── debrief/                               ← décisions et historique sessions
-    ├── 2026-04-15_session-decisions.md    D1-D10, R1-R6 (Q&A initial)
-    └── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels
+├── debrief/                               ← décisions et historique sessions
+│   ├── 2026-04-15_session-decisions.md    D1-D10, R1-R6 (Q&A initial)
+│   ├── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels
+│   └── 2026-04-19_session-decisions.md    format Ynov officiel, pivot web-studio
+└── references/                            ← documents officiels Ynov
+    └── README.md                          emails coach, grilles d'évaluation, consignes Moodle
 ```
 
 ## Décisions figées
@@ -56,3 +67,6 @@ traçabilité.
 - 2026-04-15 — Q&A initiale, D1–D10 décisions, R1–R6 points en revue
 - 2026-04-16 — Audit features re-produit, décisions A0 + A1 figées,
   méthode de dérivation SMART repo-sourced
+- 2026-04-19 — Format Ynov officiel reçu (30+10 min, salle 0.301),
+  pivot Perspectives RH #5 : recrutement marketing → vision agence
+  web-studio (brainstorming à programmer)

@@ -86,18 +86,20 @@ systématiquement le matériel produit en session.
 Avant la soutenance (fenêtre utile : avant J-7 = 2026-05-20). Ces trous
 bloquent la clôture de SMART ou de blocs du plan.
 
-| # | Question | Impact | Priorité |
-|---|----------|--------|----------|
-| 1 | Durée officielle présentation vs Q&A (20+10 ? 15+15 ?) | Plan 30 min | Haute |
-| 2 | Sondage interne "63,3 % / 54 répondants / 2 personas validés" — traçable dans le repo ? | SMART #29, slide Marketing | Haute |
-| 3 | Landing page live — existence, URL, KPI trackés ? | SMART #34, plan Bloc 6 | Haute |
-| 4 | Tagline canonique Brasse-Bouillon — emplacement de référence ? | SMART #30, identité visuelle | Moyenne |
-| 5 | Statut recrutement pôle Marketing (confirmé / en cours / non démarré) ? | SMART #31, Perspectives RH | Haute |
-| 6 | Niveau d'accessibilité actuel (WCAG 2.1) ? | SMART #21 | Basse |
-| 7 | Décompte exact des wireframes livrés (11 attendus) | SMART #13 | Moyenne |
-| 8 | Modèle de monétisation précis (freemium, prix, CA année 1) | BMC, Perspectives budget | Haute |
-| 9 | Analyse concurrentielle formalisée (hors `target_audience.md`) ? | Pitch, Q&A | Moyenne |
-| 10 | Réaliste d'atteindre 1 000 pré-inscriptions avant V1.0 ? | SMART #34 | Moyenne |
+| # | Question | Impact | Priorité | Statut |
+|---|----------|--------|----------|--------|
+| 1 | Durée officielle présentation vs Q&A | Plan 30 min | Haute | ✅ **Résolu 2026-04-19 : 30+10** |
+| 2 | Sondage interne "63,3 % / 54 répondants / 2 personas validés" — traçable dans le repo ? | SMART #29, slide Marketing | Haute | 🟡 User a la source (Drive/Slack), à persister |
+| 3 | Landing page live — existence, URL, KPI trackés ? | SMART #34, plan Bloc 6 | Haute | 🟠 Concept à clarifier avec user |
+| 4 | Tagline canonique Brasse-Bouillon — emplacement de référence ? | SMART #30, identité visuelle | Moyenne | Ouvert |
+| 5 | Statut recrutement pôle Marketing | SMART #31, Perspectives RH | Haute | ✅ **Pivoté 2026-04-19 : pas de recrutement, vision agence web-studio** |
+| 6 | Niveau d'accessibilité actuel (WCAG 2.1) ? | SMART #21 | Basse | Ouvert |
+| 7 | Décompte exact des wireframes livrés (11 attendus) | SMART #13 | Moyenne | Ouvert |
+| 8 | Modèle de monétisation précis (freemium, prix, CA année 1) | BMC, Perspectives budget | Haute | Workshop dédié à programmer |
+| 9 | Analyse concurrentielle formalisée (hors `target_audience.md`) ? | Pitch, Q&A | Moyenne | Ouvert |
+| 10 | Réaliste d'atteindre 1 000 pré-inscriptions avant V1.0 ? | SMART #34 | Moyenne | Dépend de #3 |
+| 11 | Récupérer les 3 grilles d'évaluation Ynov (PJ email 19/04) | #522-#528 mapping | Haute | Nouveau — à archiver dans `docs/ydays/references/` |
+| 12 | Réserver le créneau d'oral blanc Ydays 2026-05-06 | Calendrier répétitions | Haute | Nouveau — à demander au coach |
 
 ## Tâches restantes ordonnées
 

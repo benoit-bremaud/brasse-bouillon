@@ -123,16 +123,45 @@ cible.
 ### Bloc 5 — Business Model + Perspectives + vision agence web-studio (6 min)
 
 - **BM Canvas synthétisé** (9 blocs → 3 slides resserrées) — cf.
-  [business-model-canvas.md](business-model-canvas.md) (T2 à livrer)
-- Monétisation (freemium + partenariats LHBS) — *[trou factuel : modèle
-  précis à caler]*
+  [business-model-canvas.md](business-model-canvas.md).
+- Monétisation (freemium + partenariats LHBS) — *[trou factuel :
+  workshop monétisation dédié à programmer pour caler prix/CA]*.
+
 - **Perspectives structurées** (critère #526 : légal / RH / GTM / budget) :
-  - Légal : conformité RGPD, pen test OWASP (SMART #10).
-  - RH : recrutement référent Marketing (SMART #31), onboarding
-    contributeurs open-source (SMART #12).
-  - GTM : 3 canaux × 3 personas, 3 partenariats LHBS, 1 000
-    pré-inscriptions (SMART #32-34).
-  - Budget : infra prod (SMART #11), 3 dossiers financement (SMART #36).
+  - **Légal** : conformité RGPD, pen test OWASP (SMART #10).
+  - **RH** : **pas de recrutement externe — je crée mon propre studio
+    web pour porter BB**. Narration pivot (décision 2026-04-19, cf.
+    [web-studio-brainstorming.md](web-studio-brainstorming.md)) :
+
+    > "Pendant les Ydays, nous avons dû bâtir Brasse-Bouillon sans
+    > pouvoir faire correctement l'étude de marché et le marketing
+    > demandés. Pour donner à BB ses vraies chances, je lance après
+    > la soutenance mon studio web : **artisan tech solo + méthode
+    > IA-driven**, livraison en 2-3 semaines, cible **TPE food et
+    > boissons Alpes-Maritimes** (boulangers, brasseurs, cavistes,
+    > traiteurs), grille plancher affichée (1,5–3 k€ vitrine,
+    > 2–4 k€ blog, 4–8 k€ e-commerce). Le revenu finance mes outils
+    > d'IA pour accélérer ; le temps ainsi dégagé va au
+    > développement sérieux de BB — vraie étude marché, vrai
+    > marketing, itérations produit. An 1 en micro-entreprise,
+    > objectif amorçage < 10 k€, un premier prospect identifié."
+
+    SMART associé (remplace #31) — variante B retenue par défaut :
+    livrer 3 sites clients (dont 2 vitrines food/boissons) avant
+    le 2026-11-30 pour CA ≥ 6 000 € + site studio publié.
+    Justification statut micro-entreprise via matrice de comparaison
+    (micro / EURL / SASU) détaillée dans
+    [web-studio-brainstorming.md](web-studio-brainstorming.md).
+
+  - **GTM** : 3 canaux × 3 personas BB, 3 partenariats LHBS,
+    1 000 pré-inscriptions (SMART #32-34). Studio en acquisition
+    progressive : bouche-à-oreille + content gratuit (blog +
+    LinkedIn), budget marketing uniquement si traction.
+
+  - **Budget** : infra prod BB (SMART #11), studio auto-financé,
+    3 dossiers financement envisagés si la traction le justifie
+    (SMART #36).
+
 - **beer-label-ai** : 1 phrase R&D ("pipeline ML YOLOv8 + OCR opérationnel
   en laboratoire, objectif reconnaissance automatique d'étiquettes
   déployable courant 2027").

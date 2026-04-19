@@ -261,10 +261,20 @@ d'un sondage interne non trouvé dans le repo → voir `[trou factuel]`.
 
 ### Prospectifs (extended 6)
 
-31. **Recruter ou mandater un référent Marketing dédié avant le
-    2026-09-30 (horizon 3 mois post-soutenance) pour porter le go-to-market.**
-    - *Source* : **[trou factuel]** — statut du recrutement pôle marketing
-      à confirmer avec le user
+31. **Lancer un studio web personnel en micro-entreprise après la
+    soutenance, livrer 3 sites clients (dont 2 sites vitrines TPE
+    food/boissons) avant 2026-11-30 pour un CA cumulé ≥ 6 000 €,
+    et publier le site du studio avec sa grille de prix
+    transparente.**
+    - *Source* : pivot décidé 2026-04-19 (cf.
+      [web-studio-brainstorming.md](web-studio-brainstorming.md) et
+      [../debrief/2026-04-19_session-decisions.md](../debrief/2026-04-19_session-decisions.md))
+      — remplace l'ancien SMART "recruter un référent Marketing".
+      Logique : le studio **finance** le développement sérieux de
+      Brasse-Bouillon (étude marché et marketing non tenus en
+      Ydays). Variante B (équilibrée) retenue, 2 autres variantes
+      (A prudente, C ambitieuse) disponibles pour arbitrage à
+      l'oral blanc 06/05.
     - *Critère grille* : Perspectives RH (#526, 20 pts)
 
 32. **Définir un plan GTM avec 3 canaux priorisés par persona (9 couples

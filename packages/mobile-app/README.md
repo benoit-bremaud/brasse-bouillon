@@ -135,10 +135,6 @@ affiché.
 Passe par Cloudflare, donc fonctionne quel que soit le réseau (contourne les
 blocages carrier qui cassent ngrok en France).
 
-```bash
-npm run dev:mobile-tunnel
-```
-
 Prérequis : installer [cloudflared](https://developers.cloudflare.com/cloudflared/downloads/).
 
 ```bash
@@ -149,8 +145,18 @@ sudo apt install cloudflared
 brew install cloudflared
 ```
 
-Le script démarre Metro, ouvre un tunnel public, et imprime l'URL à coller dans
-Expo Go via **Enter URL manually** (ex. `exp://xxxxx.trycloudflare.com`).
+Lancer en deux terminaux depuis la racine du monorepo :
+
+```bash
+# Terminal 1 — Metro (Expo)
+npm run dev:mobile-app
+
+# Terminal 2 — tunnel Cloudflare vers Metro (port 8081)
+cloudflared tunnel --url http://localhost:8081
+```
+
+Cloudflare imprime une URL `https://xxxxx.trycloudflare.com`. Dans Expo Go,
+choisir **Enter URL manually** et coller `exp://xxxxx.trycloudflare.com`.
 
 ### Chemin 3 — Android en USB (déterministe, pas de Wi-Fi)
 

@@ -1,11 +1,24 @@
-# Plan de la soutenance Ydays — 2026-05-27 (30 min)
+# Plan de la soutenance Ydays — 2026-05-27 (30 + 10 min)
 
 ## Finalité
 
 Soutenance finale "Pitch Entrepreneurial" Ydays Ynov. Jury composite,
-évaluation sur 7 critères (issues #522–#528), **30 minutes** dont 20 min
-de présentation + 10 min Q&A approximatifs (à confirmer avec l'école —
-*[trou factuel : durée exacte Q&A]*).
+évaluation sur 7 critères (issues #522–#528) — **3 grilles d'évaluation
+officielles Ynov** à récupérer auprès du coach (mentionnées en pièce
+jointe de l'email Ynov 2026-04-19, non encore stockées dans le repo).
+
+**Format officiel (confirmé par email Ynov 2026-04-19)** :
+
+- **Présentation : 30 minutes pleines**
+- **Questions / Réponses : 10 minutes**
+- **Total : 40 minutes**
+- **Salle : 0.301** (R+3, campus Ynov)
+- **Catégorie : Pitch Entrepreneurial**
+- Support à déposer sur Moodle **après le passage à l'oral**
+
+**Dernière séance Ydays avant la soutenance : 2026-05-06** — oraux blancs
+organisés par les coachs sur demande. **Réserver un créneau d'oral blanc
+est une priorité haute** (feedback ultime avant J-21).
 
 ## Principes directeurs
 
@@ -19,19 +32,20 @@ de présentation + 10 min Q&A approximatifs (à confirmer avec l'école —
 - Chaque bloc thématique associe : une voix narrative principale + une
   intervention experte focalisée sur le différenciant produit.
 
-### Table de maillage parcours → voix → expert
+### Table de maillage parcours → voix → expert (ajusté 30 min pleines)
 
 | Bloc | Durée | Parcours utilisateur | Voix principale | Intervention experte (1-2 min) |
 |------|-------|----------------------|-----------------|--------------------------------|
-| 1 | 3 min | Hook — accroche + problème | Pitch (rôle Marketing) | **Marketing** : étude de marché (5 sources, gap FR) |
-| 2 | 5 min | Avant brassage — préparation | Narration UX (rôle Création) | **Création** : 3 personas + charte graphique |
-| 3 | 7 min | Pendant brassage — exécution | Démo live | **Dev** : architecture monorepo + CI + 97 tests |
-| 4 | 5 min | Après brassage — valorisation | Narration produit | **Création / Marketing** : Academy, communauté |
-| 5 | 4 min | Business Model + Perspectives | Pitch clôture | **Marketing** : BMC + GTM ; mention R&D beer-label-ai |
-| 6 | 1 min | Conclusion | Pitch unifié | — |
+| 1 | 4 min | Hook — accroche + problème + cible | Pitch (rôle Marketing) | **Marketing** : étude de marché (5 sources, gap FR) |
+| 2 | 6 min | Avant brassage — préparation | Narration UX (rôle Création) | **Création** : 3 personas + design system |
+| 3 | 8 min | Pendant brassage — démo live | Démo live | **Dev** : architecture monorepo + CI + 97 tests |
+| 4 | 5 min | Après brassage — valorisation | Narration produit | **Création** : Academy, communauté, labels |
+| 5 | 6 min | Business Model + Perspectives + vision agence | Pitch clôture | **Marketing** : BMC + GTM + pivot web-studio |
+| 6 | 1 min | Conclusion + CTA | Pitch unifié | — |
 
-Total narratif ~25 min, marges pour Q&A ~5 min (à ajuster selon durée
-officielle confirmée).
+Total narratif 30 min pile. Marge de sécurité : bloc 4 (5 min) peut être
+réduit à 4 min en repli si un bloc précédent déborde. **Q&A 10 min** à
+part, pas imputé sur les 30 min.
 
 ### A1 — USP démontrable en live (figé 2026-04-16)
 
@@ -44,7 +58,7 @@ officielle confirmée).
 
 ## Blocs détaillés
 
-### Bloc 1 — Hook + Problème (3 min)
+### Bloc 1 — Hook + Problème + cible (4 min)
 
 **Objectif** : capter le jury en 30 secondes, poser le problème et la
 cible.
@@ -59,7 +73,7 @@ cible.
 
 *Critère visé* : Elevator Pitch (#522, 15 pts) + contexte BM (#524).
 
-### Bloc 2 — Avant brassage (5 min)
+### Bloc 2 — Avant brassage (6 min)
 
 **Parcours** : utilisateur prépare son brassin.
 
@@ -72,7 +86,7 @@ cible.
 
 *Critère visé* : BM + innovation (#524, 30 pts) + Slide deck (#527).
 
-### Bloc 3 — Pendant brassage (Démo live, 7 min)
+### Bloc 3 — Pendant brassage (Démo live, 8 min)
 
 **Parcours** : utilisateur brasse, l'appli assiste.
 
@@ -106,7 +120,7 @@ cible.
 
 *Critère visé* : BM + innovation (#524, 30 pts) + Perspectives (#526).
 
-### Bloc 5 — Business Model + Perspectives (4 min)
+### Bloc 5 — Business Model + Perspectives + vision agence web-studio (6 min)
 
 - **BM Canvas synthétisé** (9 blocs → 3 slides resserrées) — cf.
   [business-model-canvas.md](business-model-canvas.md) (T2 à livrer)
@@ -179,16 +193,32 @@ cible.
 - **2026-04-16** — A0 (hybride), A1 (KISS scanner), audit features
   re-produit, méthode SMART repo-sourced. Voir
   [debrief/2026-04-16_session-decisions.md](../debrief/2026-04-16_session-decisions.md).
+- **2026-04-19** — Format officiel Ynov confirmé (30+10 min, salle
+  0.301). Trou factuel #1 résolu. Durées des 6 blocs étendues pour
+  occuper les 30 min pleines. Pivot Perspectives RH #5 : pas de
+  recrutement Marketing — nouvelle orientation vision agence
+  web-studio (voir repo `web-studio`), à brainstormer.
 
 ## Trous factuels à combler
 
 Synthèse des `[trou factuel]` relevés dans ce plan et ailleurs :
 
-1. Durée officielle présentation vs Q&A (20 + 10 ? 15 + 15 ?)
-2. Sondage interne "63,3 % / 54 répondants" — retrouver ou refaire
-3. Landing page live — existence et URL
-4. Tagline canonique Brasse-Bouillon — emplacement
-5. Statut recrutement pôle marketing
-6. Niveau accessibilité actuel (WCAG)
-7. Décompte exact wireframes livrés
-8. Modèle de monétisation précis (freemium/prix/CA)
+1. ~~Durée officielle présentation vs Q&A~~ → **résolu 2026-04-19 :
+   30 min pitch + 10 min Q&A = 40 min total.**
+2. Sondage interne "63,3 % / 54 répondants" — user dispose de la source
+   (Google Drive / Slack), à persister dans le repo.
+3. Landing page live — concept à clarifier avec le user
+   *[à discuter]*.
+4. Tagline canonique Brasse-Bouillon — emplacement.
+5. ~~Statut recrutement pôle marketing~~ → **pivot 2026-04-19 :
+   pas de recrutement, remplacé par pitch de vision personnelle
+   "ouverture d'une agence web-studio" — à brainstormer dans une
+   session dédiée.**
+6. Niveau accessibilité actuel (WCAG).
+7. Décompte exact wireframes livrés.
+8. Modèle de monétisation précis (freemium/prix/CA).
+9. **Nouveau** : récupérer les 3 grilles d'évaluation officielles
+   Ynov (email coach 2026-04-19, pièces jointes à sauvegarder dans
+   `docs/ydays/references/`).
+10. **Nouveau** : réserver un créneau d'oral blanc auprès du coach
+    pour la séance Ydays du 2026-05-06.

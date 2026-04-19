@@ -7,7 +7,9 @@ NestJS API for the **Brasse-Bouillon** application (homebrewing assistant), with
 If you cloned the whole monorepo (recommended), two commands are enough:
 
 ```bash
-make setup     # generates a fresh JWT_SECRET and writes packages/api/.env
+make setup     # idempotent: creates packages/api/.env (with a fresh
+               # JWT_SECRET) only if missing. Existing .env files are
+               # left untouched.
 make dev-api   # starts NestJS in watch mode at http://<LAN-IP>:3000
 ```
 

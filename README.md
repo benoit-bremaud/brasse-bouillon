@@ -101,8 +101,9 @@ nvm use                    # reads .nvmrc → Node 20
 # 3. Install all workspaces from the root
 npm install
 
-# 4. Bootstrap local dev — creates .env files with a fresh JWT_SECRET
-#    and auto-detects your LAN IP so Expo Go on a phone can reach the API
+# 4. Bootstrap local dev — idempotent: creates missing .env files with a
+#    fresh JWT_SECRET and the auto-detected LAN IP. Existing .env files
+#    are left untouched. Run again safely to re-print the detected IP.
 make setup
 
 # 5. Start the API (terminal 1)
@@ -209,7 +210,7 @@ Full guide (Docker, migrations, env strategy): [packages/api/README.md](packages
 
 ## Running the Beer Encyclopedia
 
-Python 3.12 FastAPI service (currently at **v0.4.0**) — label scanning + encyclopedia CRUD. Requires **Docker** for the PostgreSQL container.
+Python 3.12 FastAPI service (package version **0.2.0**) — label scanning + encyclopedia CRUD. Requires **Docker** for the PostgreSQL container.
 
 ```bash
 cd packages/beer-encyclopedia

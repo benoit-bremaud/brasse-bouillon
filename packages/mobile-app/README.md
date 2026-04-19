@@ -184,8 +184,9 @@ Dans l'ordre :
 - Chemin 1 → passer au **chemin 2** (le Wi-Fi bloque probablement phone↔laptop).
 - Erreur `Failed to download remote update` → même diagnostic : chemin 2.
 - Erreur `TypeError: Cannot read properties of undefined (reading 'body')` sur
-  `npx expo start --tunnel` → tu tournes sous Node 22 ; le package pinne Node 20
-  via `.tool-versions`, vérifie avec `node --version` et `asdf current nodejs`.
+  `npx expo start --tunnel` → tu tournes sous Node 22 ; le monorepo pinne Node 20
+  via `.nvmrc` (+ `engines` dans `package.json`). Vérifie avec `node --version`
+  et aligne via `nvm use` à la racine.
 
 ---
 

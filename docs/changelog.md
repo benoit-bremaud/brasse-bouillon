@@ -9,18 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Versions are tracked per package. The table below is the current state:
 
-| Package | Version |
-|---------|---------|
-| `@brasse-bouillon/beer-encyclopedia` | 0.4.0 |
+| Package | Version (from package metadata) |
+|---------|---------------------------------|
+| `@brasse-bouillon/beer-encyclopedia` | 0.2.0 |
 | `@brasse-bouillon/api` | (unreleased — tracked via git tags) |
 | `@brasse-bouillon/mobile-app` | 1.0.0 |
 | `@brasse-bouillon/website` | (static site, no version) |
+
+> Note: the beer-encyclopedia FastAPI `app.version` was set to `0.4.0` in #552
+> ahead of a package bump. Until the `package.json` / `pyproject.toml` are
+> bumped to match, the authoritative package version stays **0.2.0**. The
+> release entry below is indexed by the content shipped, not by the
+> `app.version` string.
 
 ---
 
 ## [Unreleased]
 
-## beer-encyclopedia — [0.4.0] — 2026-04-15
+## beer-encyclopedia — 2026-04-15 — CRUD + search (under 0.2.0)
 
 ### Added
 
@@ -38,7 +44,7 @@ Versions are tracked per package. The table below is the current state:
 - FastAPI app restructured into per-domain routers (`scan`, `styles`, `breweries`, `beers`) with a graceful-shutdown lifespan; lazy engine init preserved for fast cold starts and test injection (#545, #551)
 - Dependency management moved to `pyproject.toml` as the single source of truth (`[ml]` and `[dev]` optional groups); `ml/requirements.txt` removed (#543)
 
-## beer-encyclopedia — [0.2.0] — 2026-04-12
+## beer-encyclopedia — 2026-04-12 — initial models + infra (under 0.2.0)
 
 ### Added
 
@@ -54,4 +60,4 @@ Versions are tracked per package. The table below is the current state:
 
 ---
 
-[Unreleased]: https://github.com/benoit-bremaud/brasse-bouillon/compare/HEAD...main
+[Unreleased]: https://github.com/benoit-bremaud/brasse-bouillon/commits/main

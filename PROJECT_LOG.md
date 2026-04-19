@@ -9,8 +9,10 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### CRUD + search API + dev-environment Makefile targets (#552)
 
-Step 5 of the beer-encyclopedia epic (#541). Closes #546. Bumps
-`packages/beer-encyclopedia` from v0.3.0 → **v0.4.0**.
+Step 5 of the beer-encyclopedia epic (#541). Closes #546. Bumps the
+FastAPI `app.version` string to **0.4.0** (package `version` in
+`pyproject.toml` / `package.json` still reads `0.2.0` until a formal
+release cut).
 
 **14 new HTTP routes** across three resources:
 

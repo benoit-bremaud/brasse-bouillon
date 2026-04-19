@@ -1,6 +1,6 @@
 # Brasse-Bouillon Beer Encyclopedia API
 
-Python 3.12 + FastAPI service (npm package `@brasse-bouillon/beer-encyclopedia`, currently at **v0.4.0**). Two complementary surfaces:
+Python 3.12 + FastAPI service (npm package `@brasse-bouillon/beer-encyclopedia`, package version **0.2.0**; the FastAPI `app.version` is temporarily set to 0.4.0 pending a version sync). Two complementary surfaces:
 
 1. **Encyclopedia CRUD** — brewery/beer/style catalog with fuzzy search (since PR #552)
 2. **Label scanner** — YOLOv8 detection + EasyOCR + recipe recommendation (MVP)

@@ -25,6 +25,7 @@ L’architecture est décomposée en **plusieurs modules**, chacun ayant son pro
 | [`database/`](./database) | [`database_schema.uml`](./database/database_schema.uml), [`recipes_sessions_structure.uml`](./database/recipes_sessions_structure.uml) | 🗄️ Schéma de **la base de données relationnelle (PostgreSQL/MySQL)** |
 | [`iot/`](./iot) | [`iot_architecture.uml`](./iot/iot_architecture.uml), [`iot_data_processing.uml`](./iot/iot_data_processing.uml) | 🌡️ Gestion des **capteurs IoT et stockage des mesures** |
 | [`notifications/`](./notifications) | [`notifications_system.uml`](./notifications/notifications_system.uml), [`push_notifications.uml`](./notifications/push_notifications.uml) | 📢 **Rappels et notifications mobiles** pour l’utilisateur |
+| `beer-encyclopedia` (code dans [`packages/beer-encyclopedia/`](../../packages/beer-encyclopedia/)) | Pas encore de fichier UML dédié | 🍺 **Encyclopédie de bières** et scanner d'étiquettes IA (Python 3.12 + FastAPI + YOLOv8 + EasyOCR + PostgreSQL + async SQLAlchemy 2.0). CRUD + recherche floue `pg_trgm` sur breweries/beers/styles, pipeline de scan YOLO→OCR→extraction→recommandation. Voir [`packages/beer-encyclopedia/README.md`](../../packages/beer-encyclopedia/README.md) et [`packages/beer-encyclopedia/docs/SETUP.md`](../../packages/beer-encyclopedia/docs/SETUP.md). |
 
 ---
 

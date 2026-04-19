@@ -2,6 +2,21 @@
 
 NestJS API for the **Brasse-Bouillon** application (homebrewing assistant), with JWT authentication, user management, equipment profiles, recipes, brewing batches, and fermentation reminders.
 
+## Quick start from the monorepo root
+
+If you cloned the whole monorepo (recommended), two commands are enough:
+
+```bash
+make setup     # idempotent: creates packages/api/.env (with a fresh
+               # JWT_SECRET) only if missing. Existing .env files are
+               # left untouched.
+make dev-api   # starts NestJS in watch mode at http://<LAN-IP>:3000
+```
+
+Equivalent npm invocation: `npm run dev:api` (runs `npm -w packages/api run start:dev`). Swagger UI: <http://localhost:3000/api>.
+
+The rest of this README covers the standalone package (env strategy, Docker, migrations) and applies whether you run via `make`, `npm -w`, or from inside `packages/api/` directly.
+
 ## Main Features
 
 - Authentication (`/auth`): login, register, current profile

@@ -70,7 +70,16 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 5. Vs concurrence locale (autres freelances/agences Alpes-Maritimes), tu
    gagnes parce que : (a) prix plus bas, (b) plus rapide, (c) méthode
    IA-driven, (d) expertise tech supérieure, (e) autre.
-   - *Réponse :*
+   - *Réponse (2026-04-19) :* **Triplette différenciante** :
+     - **Méthode IA-driven** — les tâches répétitives sont écrémées par
+       l'IA, le cerveau se concentre sur la valeur.
+     - **Livraison ultra-rapide** — 2-3 semaines (voire moins) vs
+       2 mois chez les concurrents locaux.
+     - **Prix plancher + transparence totale** — grille affichée,
+       pas de devis opaque à rallonge.
+     Le pitch formule la triplette en 1 phrase : *"une méthode
+     IA-driven qui divise par 4 les délais, avec des prix plancher
+     affichés en ligne."*
 
 6. Quelle vertical refuses-tu explicitement (anti-ICP) ? Ex : pas de
    restaurants, pas d'e-commerce > 100 produits, pas de SaaS B2B ?
@@ -118,7 +127,23 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 12. Brasse-Bouillon = 1er portfolio/case study d'Eryon ? Si oui, comment
     le met-on en avant (page case study dédiée, mention dans hero) ?
-    - *Réponse :*
+    - *Réponse (2026-04-19) — pivot narratif important :*
+      **Le studio FINANCE le développement de BB, et non l'inverse.**
+      Logique en cascade :
+      1. Le studio génère du revenu via la vente de sites à des TPE
+         food/boissons.
+      2. Ce revenu est **réinvesti en outils d'agents / IA** pour
+         accélérer encore les livraisons.
+      3. Le **temps gagné** grâce à la vitesse est consacré au
+         développement sérieux de Brasse-Bouillon : vraie étude
+         marché, vrai marketing, tout ce que les Ydays ont demandé
+         mais qui n'a pas pu être livré correctement pendant le
+         projet scolaire.
+      **Formulation honnête dans le pitch** : le studio est une
+      condition nécessaire pour que BB devienne un vrai produit, et
+      non un exercice académique. Mention de BB dans la com du studio
+      possible mais **pas en vitrine marketing premier rôle** — BB
+      reste le projet long terme, pas le portfolio immédiat.
 
 ### Thème E — Stratégie & Roadmap
 
@@ -131,11 +156,90 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 14. Statut juridique envisagé : micro-entreprise ? EURL ? SASU ? Autre ?
     Déjà démarré les formalités ?
-    - *Réponse :*
+    - *Réponse (2026-04-19) :* **Pas encore tranché, micro-entreprise
+      probable.** Le user demande une matrice de comparaison des
+      3 options (micro / EURL / SASU) pour justifier le choix dans le
+      pitch. Tout doit être justifié, rien au hasard.
+
+    **Matrice de comparaison — statuts juridiques pour < 10 k€ an 1**
+
+    | Critère | Micro-entreprise | EURL | SASU |
+    |---------|------------------|------|------|
+    | **Formalités de création** | Très simples (INPI, 30 min, gratuit) | Moyennes (rédaction statuts, annonce légale, ~200 €) | Moyennes (idem EURL, ~250 €) |
+    | **Comptabilité** | Ultra-simplifiée (livre de recettes) | Bilan + compte de résultat obligatoires (expert-comptable ~100 €/mois) | Idem EURL |
+    | **Plafond CA** | 77 700 € (prestations services) | Aucun | Aucun |
+    | **Cotisations sociales** | 21,2 % du CA (BNC) | ~45 % du bénéfice | ~80 % du salaire versé (mais dividendes à 17,2 % + IR) |
+    | **Imposition** | IR sur le CA (barème progressif) | IS 15 % → 25 % | IS 15 % → 25 % |
+    | **Séparation patrimoine** | Oui (depuis 2022 loi EIRL) | Oui | Oui |
+    | **Chômage (dirigeant)** | Non | Non (TNS) | Oui (assimilé salarié) |
+    | **Rémunération flexible** | Pas de notion de salaire | Salaire ou dividendes | Salaire et/ou dividendes |
+    | **TVA** | Franchise jusqu'à 37 500 € (services) | Assujettie d'emblée | Assujettie d'emblée |
+    | **Crédibilité B2B** | Faible-moyenne | Forte | Forte |
+    | **Charges an 1 estimées** | ~0 € fixes + 21 % × CA | ~1 500 € fixes + charges sur bénéf. | ~2 000 € fixes + charges |
+    | **Coût de sortie / changement** | Gratuit, réversible | Dissolution formelle (~500 €) | Idem EURL |
+
+    **Recommandation pour le pitch** : **micro-entreprise** parce que :
+
+    1. **CA an 1 < 10 k€** largement sous le plafond 77 700 €.
+    2. **Charges fixes zéro** (pas d'expert-comptable obligatoire).
+    3. **Formalités en 30 min** — compatible avec une activité de
+       lancement rapide.
+    4. **Réversibilité** : si la traction dépasse 30-40 k€ en an 2,
+       bascule vers EURL/SASU sans perte.
+    5. **Franchise TVA** utile pour les clients TPE (prix sans TVA
+       = avantage commercial).
+
+    **Justification pitch en 1 phrase** : *"J'ouvre en micro-entreprise
+    pour démarrer léger, valider l'ICP, et je passerai en EURL ou
+    SASU dès que la traction le justifie."*
 
 15. Quel jalon à 6 mois te ferait dire "Eryon est viable" : X clients
     signés ? X € de MRR ? X visites site ? Autre ?
-    - *Réponse :*
+    - *Réponse (2026-04-19) :* **Pas tranché — 3 variantes SMART
+      proposées pour arbitrage oral blanc 06/05 :**
+
+    **Variante A — Prudente (validation commerciale minimale)**
+    > "Avant le 2026-11-30, signer le premier client du studio
+    > (contrat signé, acompte encaissé) et constituer un pipeline
+    > d'au moins 5 prospects qualifiés (rendez-vous tenu + besoin
+    > identifié)."
+
+    - Mesurable : 1 contrat signé + 5 prospects documentés.
+    - Atteignable : oui — un prospect concret existe déjà (Q11).
+    - Relevant : preuve minimale que le modèle commercial fonctionne.
+    - Time-bound : 6 mois après la soutenance.
+
+    **Variante B — Équilibrée (seuil de viabilité clair)** ⭐
+    > "Avant le 2026-11-30, livrer au moins 3 sites clients (dont
+    > 2 sites vitrines TPE food/boissons) pour un CA cumulé
+    > ≥ 6 000 €, et publier le site du studio en ligne avec une
+    > grille de prix transparente."
+
+    - Mesurable : 3 projets livrés + 6 k€ facturés + site studio live.
+    - Atteignable : 3 projets à 2-3 k€ en 6 mois, faisable en solo.
+    - Relevant : valide vraiment l'ICP food/boissons et la capacité
+      de livraison rapide annoncée dans la triplette différenciante.
+    - Time-bound : 6 mois.
+    - ⭐ **Recommandé** : assez ambitieux pour être crédible, assez
+      modeste pour être atteignable sans stress irréaliste.
+
+    **Variante C — Ambitieuse (amorçage rapide)**
+    > "Avant le 2026-11-30, livrer 5 sites clients (mix vitrines +
+    > 1 e-commerce) pour un CA cumulé ≥ 10 000 €, publier le site
+    > du studio avec 2 case studies, et atteindre 500 visites
+    > organiques / mois."
+
+    - Mesurable : 5 projets + 10 k€ + 2 cases + 500 visites/mois.
+    - Atteignable : tendu — nécessite que le bouche-à-oreille + SEO
+      produisent vite des prospects qualifiés.
+    - Relevant : aligne avec un objectif an 1 revu à la hausse.
+    - Time-bound : 6 mois.
+    - Risque : objectif agressif difficile à tenir en parallèle de
+      la finition BB.
+
+    **Arbitrage à caler à l'oral blanc 06/05.** Variante B retenue
+    par défaut dans la narration pitch, révisable après feedback
+    coach.
 
 ## Intégration dans le pitch soutenance — maquette bloc 5
 
@@ -153,33 +257,46 @@ fil du brainstorming. **Priorité** = ordre d'attaque suggéré.
 
 ## Narrative pitch consolidée (à compléter au fil du brainstorming)
 
-État au 2026-04-19 (8 questions répondues sur 15) :
+**État au 2026-04-19 (12 questions répondues sur 15, pivot narratif
+majeur intégré) :**
 
-> "J'ai créé mon studio web pour porter Brasse-Bouillon et accueillir
-> d'autres projets. **Artisan tech en solo**, avec une méthode
-> IA-driven, je livre des sites vitrines, blogs et e-commerce à des
-> **TPE de l'artisanat food & boissons des Alpes-Maritimes** —
-> boulangers, brasseurs, cavistes, traiteurs. BB est le premier
-> projet interne du studio : vitrine technique et produit central.
-> Les missions client (site vitrine 1,5–3 k€, blog 2–4 k€, e-commerce
-> 4–8 k€) financent progressivement la croissance de BB. An 1 :
-> objectif amorçage **< 10 k€**, acquisition via **bouche-à-oreille
-> + content gratuit** (blog + LinkedIn), un **premier prospect
-> concret** déjà identifié. Pas d'embauche prévue : à 3 ans, le
-> studio reste solo, amplifié par l'IA."
+> "Pendant les Ydays, nous avons dû bâtir Brasse-Bouillon sans pouvoir
+> faire correctement l'étude de marché et le marketing qu'on nous
+> demandait. Pour donner à BB ses vraies chances, je lance **mon
+> propre studio web** après la soutenance. Le modèle est simple :
+> **artisan tech solo + méthode IA-driven**, je livre en 2-3 semaines
+> des sites vitrines, blogs et e-commerce à des **TPE du food & des
+> boissons dans les Alpes-Maritimes** — boulangers, brasseurs,
+> cavistes, traiteurs — avec une grille de prix plancher affichée
+> (1,5–3 k€ vitrine, 2–4 k€ blog, 4–8 k€ e-commerce). Le revenu
+> **finance** mes outils d'IA pour aller encore plus vite, et le
+> temps ainsi dégagé va au développement sérieux de BB : vraie étude
+> marché, vrai marketing, itérations produit. An 1 en
+> micro-entreprise (réversible), objectif d'amorçage < 10 k€ avec un
+> premier prospect déjà identifié, acquisition par bouche-à-oreille
+> et content gratuit. À 3 ans, le studio reste solo, amplifié par
+> l'IA — pas d'embauche prévue."
 
-Éléments encore **à compléter** : nom définitif de la marque,
-différenciation vs concurrence, articulation BB = 1er case study,
-jalon à 6 mois (futur SMART), statut juridique, anti-ICP, modèle de
-facturation, cadence de livraison.
+**Questions encore ouvertes** :
+
+- Q6 (anti-ICP) : quelles verticales tu refuses explicitement ?
+- Q8 (modèle facturation) : 100 % forfait ? Retainer mensuel ?
+- Q9 (cadence livraison) : combien de projets par trimestre en solo ?
+
+Ces 3 questions sont **moins bloquantes** pour le pitch — elles
+affinent l'opérationnel. Elles peuvent être traitées plus tard, ou
+survolées à l'oral blanc 06/05.
 
 ## État du brainstorming
 
 - [x] Thème A — Vision & Branding (3/3 réponses)
-- [x] Thème B — ICP & Positionnement (1/3 réponses) — reste Q5, Q6
+- [x] Thème B — ICP & Positionnement (2/3 réponses) — reste Q6
 - [x] Thème C — Offre & Pricing (1/3 réponses) — reste Q8, Q9
-- [x] Thème D — GTM & Acquisition (2/3 réponses) — reste Q12
-- [x] Thème E — Stratégie & Roadmap (1/3 réponses) — reste Q14, Q15
+- [x] Thème D — GTM & Acquisition (3/3 réponses)
+- [x] Thème E — Stratégie & Roadmap (3/3 réponses)
+
+**12/15 réponses capturées — base suffisante pour rédiger le bloc 5
+Perspectives du pitch.**
 
 ## Références
 

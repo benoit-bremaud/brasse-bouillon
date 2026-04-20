@@ -21,7 +21,7 @@ Ce guide s'adresse aux membres de l'équipe qui veulent **tester l'app sur leur 
 
 ## 2. Installer l'APK sur le téléphone
 
-1. Quand Chrome finit le téléchargement du `.apk`, Android te demande si tu autorises l'installation depuis une **source inconnue**. Accepte.
+1. Quand Chrome finit le téléchargement du `.apk`, Android te demande si tu autorises l'installation depuis une **source inconnue**. Accepte. Cette permission est rattachée à Chrome (ou au navigateur qui a téléchargé le fichier) — une fois l'app installée, tu peux la désactiver dans **Paramètres → Applis → Chrome → Installer applis inconnues** pour ne pas laisser ce droit actif inutilement.
 2. Tape "Installer". Ça prend ~20 secondes.
 3. L'app apparaît dans ton launcher sous le nom **Brasse Bouillon** avec le logo bonhomme brasseur 🍺.
 4. Premier lancement : environ 1-2 secondes. Le dashboard s'affiche en mode démo (des données factices remplissent les écrans).
@@ -30,12 +30,12 @@ Ce guide s'adresse aux membres de l'équipe qui veulent **tester l'app sur leur 
 
 ## 3. Ce qui arrive ensuite — les mises à jour
 
-Sur la version actuelle, les modifications côté code se propagent **automatiquement** à ton téléphone sans que tu aies à réinstaller quoi que ce soit.
+Sur la version actuelle, les mises à jour **JavaScript (OTA)** — tout ce qui touche au texte, aux écrans, aux calculs ou au design — se propagent **automatiquement** à ton téléphone sans que tu aies à réinstaller quoi que ce soit.
 
-- **Mises à jour fréquentes (texte, écrans, calculs, design) :** à chaque fois qu'un dev pousse une amélioration, l'app vérifie en s'ouvrant qu'il y a du nouveau et télécharge la mise à jour en 5-10 secondes. Tu ne fais rien, la prochaine ouverture intègre les changements.
+- **Mises à jour fréquentes (texte, écrans, calculs, design) :** dès qu'un dev publie une update OTA (commande `eas update --branch preview`, pas à chaque commit git), l'app vérifie en s'ouvrant qu'il y a du nouveau et télécharge la mise à jour en 5-10 secondes. Tu ne fais rien, la prochaine ouverture intègre les changements. Si tu ne vois pas la dernière feature annoncée, ferme puis rouvre l'app une fois — c'est au lancement que le check a lieu.
 - **Mises à jour rares (nouvelles fonctionnalités natives, icône, accès appareil) :** il faudra télécharger un nouvel APK depuis le même lien qu'en étape 1, et l'installer par-dessus. Android te proposera "Mettre à jour", tes données locales sont conservées.
 
-Tu n'as rien à configurer. On te préviendra dans **#annonces** quand un nouvel APK sort.
+Tu n'as rien à configurer. On te préviendra dans **#annonces** quand un nouvel APK sort ou quand une update OTA est publiée.
 
 ---
 

@@ -118,20 +118,20 @@ OTA update).
 
 ## Key files in the repo
 
-| File | Role |
-|---|---|
-| `packages/mobile-app/app.json` | App metadata, project id, updates URL, icon paths |
-| `packages/mobile-app/eas.json` | Build profiles (development / preview / production) |
-| `packages/mobile-app/.easignore` | Tarball exclusions (anchored patterns — see inline comment) |
-| `packages/mobile-app/.tool-versions` | Pins Node 20 via asdf |
-| `packages/mobile-app/assets/images/brasse-bouillon-logo-primary-512.png` | Launcher icon (brasseur character) |
+| File                                                                     | Role                                                        |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `packages/mobile-app/app.json`                                           | App metadata, project id, updates URL, icon paths           |
+| `packages/mobile-app/eas.json`                                           | Build profiles (development / preview / production)         |
+| `packages/mobile-app/.easignore`                                         | Tarball exclusions (anchored patterns — see inline comment) |
+| `packages/mobile-app/.tool-versions`                                     | Pins Node 20 via asdf                                       |
+| `packages/mobile-app/assets/images/brasse-bouillon-logo-primary-512.png` | Launcher icon (brasseur character)                          |
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `Your project archive is 202 MB` | Upload includes `.git` + sibling packages + docs. | Use the extracted `/tmp` workflow above (issue #555). |
-| `Unable to resolve module "@/features/tools/presentation/…"` during bundle phase | `.easignore` has `tools/` without leading slash, which strips `src/features/tools/` recursively. | Anchor to `/tools/` (already done after #555 is closed). |
-| `TypeError: Cannot read properties of undefined (reading 'body')` on `--tunnel` | `got@11` in `@expo/ngrok` crashes on Node 22. | `asdf shell nodejs 20.13.1` before running any Expo CLI. |
-| `expo doctor ... exited with non-zero code: 1` at the "Run expo doctor" EAS phase | Native-module versions drifted from the SDK 54 expected set. | `npx expo install --fix` locally, commit, rebuild. |
-| `EAI_AGAIN storage.googleapis.com` during upload | DNS flap, usually IPv6-only resolution on the current network. | Retry with `NODE_OPTIONS='--dns-result-order=ipv4first'`. |
+| Symptom                                                                           | Cause                                                                                            | Fix                                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| `Your project archive is 202 MB`                                                  | Upload includes `.git` + sibling packages + docs.                                                | Use the extracted `/tmp` workflow above (issue #555).     |
+| `Unable to resolve module "@/features/tools/presentation/…"` during bundle phase  | `.easignore` has `tools/` without leading slash, which strips `src/features/tools/` recursively. | Anchor to `/tools/` (already done after #555 is closed).  |
+| `TypeError: Cannot read properties of undefined (reading 'body')` on `--tunnel`   | `got@11` in `@expo/ngrok` crashes on Node 22.                                                    | `asdf shell nodejs 20.13.1` before running any Expo CLI.  |
+| `expo doctor ... exited with non-zero code: 1` at the "Run expo doctor" EAS phase | Native-module versions drifted from the SDK 54 expected set.                                     | `npx expo install --fix` locally, commit, rebuild.        |
+| `EAI_AGAIN storage.googleapis.com` during upload                                  | DNS flap, usually IPv6-only resolution on the current network.                                   | Retry with `NODE_OPTIONS='--dns-result-order=ipv4first'`. |

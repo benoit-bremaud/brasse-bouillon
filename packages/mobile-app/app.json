@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "brasse-bouillon-frontend",
-    "slug": "brasse-bouillon-frontend",
+    "name": "Brasse Bouillon",
+    "slug": "brasse-bouillon-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "brassebouillonfrontend",
+    "icon": "./assets/images/brasse-bouillon-logo-primary-512.png",
+    "scheme": "brassebouillonmobileapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -17,12 +17,16 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.brassebouillon.mobileapp",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/brasse-bouillon-logo-primary-512.png",
+        "backgroundColor": "#F5D547"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +36,16 @@
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a527c490-36e1-49f2-a91b-5866a2823b5f"
+      }
+    },
+    "owner": "beniot",
+    "updates": {
+      "url": "https://u.expo.dev/a527c490-36e1-49f2-a91b-5866a2823b5f"
     }
   }
 }

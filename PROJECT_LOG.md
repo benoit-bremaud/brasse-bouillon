@@ -5,67 +5,149 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
-## 2026-04-15
+## 2026-04-20
 
-### CRUD + search API + dev-environment Makefile targets (#552)
+### Mobile-app: first installable APK via EAS (preview profile)
 
-Step 5 of the beer-encyclopedia epic (#541). Closes #546. Bumps the
-FastAPI `app.version` string to **0.4.0** (package `version` in
-`pyproject.toml` / `package.json` still reads `0.2.0` until a formal
-release cut).
+First standalone Android APK shipped to the user's phone — ends the
+two-day Expo Go saga on YNOV / mobile-hotspot Wi-Fi. Credentials set up
+on `@beniot/brasse-bouillon-mobile-app` (project id
+`a527c490-36e1-49f2-a91b-5866a2823b5f`), EAS keystore auto-generated,
+three APK iterations on 2026-04-19 → 2026-04-20:
 
-**14 new HTTP routes** across three resources:
+1. **v1** — first APK, screens empty because `EXPO_PUBLIC_USE_DEMO_DATA`
+   is in a gitignored `.env` and therefore not shipped to EAS.
+2. **v2** — EAS env variable `EXPO_PUBLIC_USE_DEMO_DATA=true` registered
+   on the `preview` environment + `expo-updates` installed and configured
+   (`eas update:configure`). Demo mode works; OTA channel `preview`
+   wired. Archive down to 4.9 MB after discovering the `.easignore`
+   `tools/` bug.
+3. **v3** — launcher icon set to `brasse-bouillon-logo-primary-512.png`
+   (brasseur character) on yellow `#F5D547` adaptive-icon background.
+   Validated on device.
 
-- `/styles` — 2 read-only routes (list, detail)
-- `/breweries` — 6 routes (list + filters `country`/`city`/`brewery_type`,
-  search, get, create, update, delete)
-- `/beers` — 6 routes (list + filters `style_id`/`brewery_id`/`abv_min`/
-  `abv_max`, search, get, create, update, delete) with FK validation at
-  POST/PATCH for clean 422s instead of DB-level 500s
+Build workflow formalised in
+[packages/mobile-app/docs/EAS_BUILD.md](packages/mobile-app/docs/EAS_BUILD.md):
+direct `npx eas-cli build --profile preview --platform android` from
+`packages/mobile-app/` (Option A, preferred), with an isolated-workspace
+fallback for debugging `.easignore` rules (Option B). Both paths use
+`NODE_OPTIONS='--dns-result-order=ipv4first'` to avoid IPv6-only DNS
+flaps on `storage.googleapis.com`.
+The extracted-workspace workaround existed during investigation because
+EAS tars from the monorepo root (277 MB `.git`, 5.6 GB
+`packages/beer-encyclopedia/`, etc.) and our initial `.easignore` had a
+bare `tools/` pattern that silently excluded `src/features/tools/` and
+broke the first build. That specific bare-pattern bug is what
+[issue #555](https://github.com/benoit-bremaud/brasse-bouillon/issues/555)
+tracks, and this PR closes it by anchoring every repo-root pattern to
+`/pattern/`. With the anchored `.easignore` in place, the upload is now
+~5-15 MB from the real monorepo and the `/tmp` extraction is only a
+documented fallback.
 
-**Fuzzy search strategy:** on PostgreSQL, `Resource.name.op('%')(q)` in the
-WHERE clause (uses the GIN trigram index from migration 001 via
-`pg_trgm.similarity_threshold` gate), with `similarity()` only in
-ORDER BY for ranking. On SQLite (tests), case-insensitive substring
-match. Dialect detection centralized in the shared `api/db_utils.is_postgres()`.
+Also folded into this PR:
 
-**Slug race mitigation:** `api/slug.create_with_unique_slug()` wraps
-build-then-insert in a retry loop catching `IntegrityError` (rollback, pick
-a new suffix, up to 3 attempts), closing the read-then-insert race under
-concurrent creates with the same display name.
+- `packages/mobile-app/package.json` — realign three drift-ing deps to
+  the SDK 54 expected set (`expo-camera@~17.0.10` down from the stray
+  `^55.0.9`, `@react-native-async-storage/async-storage@2.2.0` down from
+  `^3.0.1`, `@react-native-community/slider@5.0.1` down from `^5.1.2`)
+  plus add `expo-updates@~29.0.16`. `expo doctor` was rejecting the
+  build until this was done.
+- `packages/mobile-app/.easignore` — new canonical version with every
+  repo-root directory anchored to `/pattern/`, inline comment explaining
+  the gotcha, pointer to #555.
+- `packages/mobile-app/eas.json` — development / preview / production
+  profiles, `appVersionSource: "remote"`, `cli.version >= 18.7.0`.
+- Package renamed `brasse-bouillon-frontend` → `@brasse-bouillon/mobile-app`
+  to align with the monorepo `@brasse-bouillon/*` naming.
 
-**Makefile dev targets** (visible via `make help`): `setup` bootstraps
-`.env` files with a fresh `JWT_SECRET` and auto-detected LAN IP (probe
-order: `ipconfig getifaddr en0`/`en1` on macOS → `hostname -I` on Linux →
-`localhost`), `dev-api` / `dev-mobile` / `dev` run the services with the
-correct LAN URL, `test-all` also runs the beer-encyclopedia pytest suite
-when a `.venv` is available, `lint-all` chains the existing npm linters.
+Next step (tracked separately): connect the app to the live NestJS
+backend (`packages/api`) once an endpoint host is stable — local
+cloudflared first, deployed Railway/Fly host for the 2026-05-27
+defense.
 
-**Tests:** 25 new behavior tests using SQLite in-memory + dependency
-override on `get_db`; 64/64 passing. Ruff clean.
+## 2026-04-19
 
-### Mobile harmonization: screens + yellow background (#553)
+### Soutenance prep: integrate official Ynov format + pivot web-studio
 
-Ported Fabien's visual harmonization work on top of the monorepo mobile-app:
-consistent hub/list/detail screen scaffolding, global yellow background
-token, unified footer clearance across every route. Follow-up fixes
-landed immediately after: P1 footer clearance on remaining screens, P2
-unmatched-route wiring, nested `ImageBackground` removal to fix
-horizontal overflow on scroll (`c5ca373`, `e784fc0`, `f1cb8ab`).
+Ynov coach email 2026-04-19 confirmed the defense format — **30 minutes
+pitch + 10 minutes Q&A = 40 minutes total**, room 0.301, Pitch
+Entrepreneurial category, Moodle submission required after the oral.
+Three evaluation grids attached to the email, to be archived under
+`docs/ydays/references/` (new folder introduced this session to hold
+school-side documents, separate from team-produced `outputs/` and
+internal-journal `debrief/`).
 
-## 2026-04-14
+Session deliverables on branch `docs/soutenance-27-mai`:
 
-### API router refactor — final consolidation of #545 (#551)
+- [docs/ydays/outputs/plan-presentation-27-mai.md](docs/ydays/outputs/plan-presentation-27-mai.md)
+  rebalanced to fill 30 minutes (blocs 1-6 = 4/6/8/5/6/1 min), header
+  aligned to 30+10 format, revision entry appended.
+- [docs/ydays/README.md](docs/ydays/README.md) gained a "Format
+  officiel" section (format, room, mock oral 2026-05-06) and the new
+  `references/` entry in the tree.
+- [docs/ydays/outputs/risk-analysis.md](docs/ydays/outputs/risk-analysis.md)
+  risk C3 updated (30 min scope), new risk L6 (Ynov changes the format
+  on the day), mock oral 2026-05-06 added to the rehearsal calendar.
+- [docs/ydays/debrief/2026-04-16_session-decisions.md](docs/ydays/debrief/2026-04-16_session-decisions.md)
+  factual-gap table marks gap #1 resolved and gap #5 pivoted, adds
+  gaps #11 (archive the three Ynov grids) and #12 (reserve the
+  mock-oral slot on 2026-05-06).
+- [docs/ydays/references/README.md](docs/ydays/references/README.md)
+  new index describing the expected content of the references folder
+  and usage rules (no modification of received documents).
+- [docs/ydays/debrief/2026-04-19_session-decisions.md](docs/ydays/debrief/2026-04-19_session-decisions.md)
+  records decisions D19-1…D19-5 (Ynov format, web-studio pivot,
+  references folder, propagation, mock-oral scheduling).
 
-Merge-follow-up on the step-4 router refactor (#545). Consolidated the
-router-based architecture on main, integrating review feedback from the
-2026-04-13 batch and rebasing on top of the 2026-04-12 data-model work
-(#543, #544). No externally-visible behavior change vs #545; `uvicorn
-api.main:app` remains the entrypoint, the lazy-engine + lifespan pattern
-stands. This PR was the prerequisite for the #552 CRUD routers — they
-plug into the same `api/routers/` surface.
+Pivot on gap #5 (Marketing recruitment): dropped in favour of a
+personal vision to open a web-studio agency to support Brasse-Bouillon
+and future projects. Brainstorming session to come — assistant will
+prepare structured questions after exploring the existing `web-studio`
+repo.
 
----
+## 2026-04-16
+
+### Soutenance prep: persist Phase 0 + T1 into `docs/ydays/`
+
+Consigned the full preparation material for the Ydays defense of
+2026-05-27 under `docs/ydays/` on branch `docs/soutenance-27-mai`.
+Deliverables:
+
+- [docs/ydays/README.md](docs/ydays/README.md) — operational index for
+  the defense folder, frozen decisions summary, grading-grid mapping
+  (#522-#528).
+- [docs/ydays/outputs/audit-features-mvp.md](docs/ydays/outputs/audit-features-mvp.md)
+  — factual audit of the 11 MVP features (8 stable, 2 partial,
+  1 R&D) produced by an Explore agent; 5-minute recommended demo
+  path (Auth → Recipes read-only → Barcode scanner → ABV calculator
+  → Batch timeline); pre-production checklist J-7/J-3/J-1.
+- [docs/ydays/outputs/smart-objectives-par-pole.md](docs/ydays/outputs/smart-objectives-par-pole.md)
+  — 36 SMART objectives (6 retrospective + 6 prospective × 3 pôles
+  Dev/Création/Marketing), each sourced to a traceable repo file;
+  six unverifiable claims flagged `[trou factuel]` for user
+  validation before J-7.
+- [docs/ydays/outputs/plan-presentation-27-mai.md](docs/ydays/outputs/plan-presentation-27-mai.md)
+  — 30-minute presentation plan structured around decision A0
+  (hybrid user-journey + 1-2 min expert interventions per bloc) and
+  decision A1 (barcode scanner as live demo USP, beer-label-ai kept
+  as R&D slide only); six blocs with timings, narrative voice, cited
+  SMART and targeted grading-grid criterion.
+- [docs/ydays/debrief/2026-04-15_session-decisions.md](docs/ydays/debrief/2026-04-15_session-decisions.md)
+  — partially reconstituted debrief (original session content was
+  not persisted; D1-D4 and R1-R6 reconstituted from what is frozen
+  today).
+- [docs/ydays/debrief/2026-04-16_session-decisions.md](docs/ydays/debrief/2026-04-16_session-decisions.md)
+  — records A0/A1 decisions, the repo-sourced SMART derivation
+  method, the operational persistence rule, ten tabulated factual
+  gaps with impact/priority, and the ordered remaining tasks
+  (T2 BMC → T3 hook → T4 personas check → T6 demo script
+  → T12 rehearsals → T14 Moodle submission).
+
+Operational rule established in the session: **persist every piece
+of rich session material to disk at the time it's produced** — drafts,
+decisions, analyses, SMART, canvases, scripts. No more long-term
+storage in conversation memory alone. Target folder: `docs/ydays/`.
+Commit cadence: one commit per deliverable on the dedicated branch.
 
 ## 2026-04-13
 
@@ -76,6 +158,7 @@ from inline endpoints into a router-based architecture without changing
 any externally-visible behavior.
 
 Layout (`packages/beer-encyclopedia/api/`):
+
 - `main.py` — app factory + minimal lifespan that disposes the engine on
   shutdown (engine itself is lazy-init via `get_db()` for fast cold starts
   and easy test injection)

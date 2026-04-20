@@ -1,0 +1,48 @@
+# .easignore — what EAS Build should exclude from the upload tarball.
+# Syntax is the same as .gitignore.
+#
+# GOTCHA: patterns without a leading "/" match ANY directory with that name
+# anywhere in the tree. So `tools/` (without slash) would also match
+# `src/features/tools/` and break the JS bundle. Always anchor repo-root
+# directories with a leading slash (e.g. `/_archive/`, `/docs/`) and reserve
+# globs like `**/foo/` for things you really want recursively excluded.
+#
+# Issue #555 tracks the history of this file (first version shipped bare
+# `tools/` and broke the first APK build).
+
+# Repo-root heavy directories (anchored — see gotcha above)
+/.git/
+/_archive/
+/docs/
+/tools/
+/.github/
+/.claude/
+/.codex
+/*.pdf
+
+# Sibling monorepo packages — irrelevant for the mobile-app build
+/packages/api/
+/packages/website/
+/packages/beer-encyclopedia/
+
+# Dependencies — EAS reinstalls on its servers from the lockfile
+node_modules/
+
+# Python / ML environments possibly present under sibling packages
+**/.venv/
+**/venv/
+**/__pycache__/
+
+# Local artifacts (can appear in either workspace or package)
+.expo/
+coverage/
+dist/
+build/
+*.log
+*.tar.gz
+*.zip
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

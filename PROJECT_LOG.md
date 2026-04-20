@@ -28,17 +28,21 @@ three APK iterations on 2026-04-19 → 2026-04-20:
 
 Build workflow formalised in
 [packages/mobile-app/docs/EAS_BUILD.md](packages/mobile-app/docs/EAS_BUILD.md):
-extract `packages/mobile-app/` to `/tmp/bb-mobile-build/mobile-app/`,
-`npm install`, `git init`, then `npx eas-cli build --profile preview
---platform android` with `NODE_OPTIONS='--dns-result-order=ipv4first'`.
-The extracted-workspace workaround exists because EAS tarballs from the
-monorepo root (277 MB `.git`, 5.6 GB `packages/beer-encyclopedia/`, etc.)
-no matter what `.easignore` we provide, pushing the upload to 202 MB
-over flaky DNS. Tracked as part of the same PR (re-anchored `.easignore`
-paths), and as
+direct `npx eas-cli build --profile preview --platform android` from
+`packages/mobile-app/` (Option A, preferred), with an isolated-workspace
+fallback for debugging `.easignore` rules (Option B). Both paths use
+`NODE_OPTIONS='--dns-result-order=ipv4first'` to avoid IPv6-only DNS
+flaps on `storage.googleapis.com`.
+The extracted-workspace workaround existed during investigation because
+EAS tars from the monorepo root (277 MB `.git`, 5.6 GB
+`packages/beer-encyclopedia/`, etc.) and our initial `.easignore` had a
+bare `tools/` pattern that silently excluded `src/features/tools/` and
+broke the first build. That specific bare-pattern bug is what
 [issue #555](https://github.com/benoit-bremaud/brasse-bouillon/issues/555)
-for the underlying bare-pattern bug that silently excluded
-`src/features/tools/` and broke the very first build.
+tracks, and this PR closes it by anchoring every repo-root pattern to
+`/pattern/`. With the anchored `.easignore` in place, the upload is now
+~5-15 MB from the real monorepo and the `/tmp` extraction is only a
+documented fallback.
 
 Also folded into this PR:
 
@@ -154,6 +158,7 @@ from inline endpoints into a router-based architecture without changing
 any externally-visible behavior.
 
 Layout (`packages/beer-encyclopedia/api/`):
+
 - `main.py` — app factory + minimal lifespan that disposes the engine on
   shutdown (engine itself is lazy-init via `get_db()` for fast cold starts
   and easy test injection)

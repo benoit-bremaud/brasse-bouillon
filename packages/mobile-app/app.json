@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/brasse-bouillon-logo-primary-512.png",
-    "scheme": "brassebouillonfrontend",
+    "scheme": "brassebouillonmobileapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {

@@ -34,11 +34,26 @@ npx --yes eas-cli init --non-interactive --force
 
 ## Build an APK (preview profile)
 
-> There is a known monorepo upload blocker tracked by
-> [issue #555](https://github.com/benoit-bremaud/brasse-bouillon/issues/555).
-> Until that is closed, build from an **extracted copy** of the mobile-app,
-> not from the monorepo root — otherwise EAS tarballs the 277 MB `.git`
-> history plus sibling packages.
+### Option A — Direct build from the monorepo (preferred)
+
+With the anchored `.easignore` landed in this PR, EAS tars only
+~5-15 MB. You can build directly from the package:
+
+```bash
+cd packages/mobile-app
+NODE_OPTIONS='--dns-result-order=ipv4first' \
+  PATH=~/.asdf/installs/nodejs/20.13.1/bin:$PATH \
+  npx --yes eas-cli build --profile preview --platform android --non-interactive
+```
+
+If your upload ever balloons back to 100+ MB, that's a sign a new
+bare-directory pattern got added to `.easignore` — re-read the inline
+comment at the top of `.easignore` before fixing.
+
+### Option B — Isolated-workspace fallback
+
+Useful when debugging `.easignore` rules or when the repo has
+uncommitted experimental state you do not want to ship:
 
 ```bash
 # 1. Copy packages/mobile-app into /tmp (standalone workspace).
@@ -46,11 +61,9 @@ rm -rf /tmp/bb-mobile-build
 mkdir -p /tmp/bb-mobile-build
 cp -R packages/mobile-app /tmp/bb-mobile-build/
 
-# 2. Install deps in the extracted copy (EAS CLI needs them locally
-#    to resolve Expo config and plugins; the upload strips node_modules).
+# 2. Reproducible install (uses the committed package-lock.json).
 cd /tmp/bb-mobile-build/mobile-app
-rm -rf node_modules package-lock.json
-PATH=~/.asdf/installs/nodejs/20.13.1/bin:$PATH npm install
+PATH=~/.asdf/installs/nodejs/20.13.1/bin:$PATH npm ci
 
 # 3. Init a fresh minimal git history (EAS requires a git repo).
 git init -q
@@ -65,7 +78,7 @@ NODE_OPTIONS='--dns-result-order=ipv4first' \
 
 Expected timings on the free tier:
 
-- Upload tarball: ~1 min (5 MB after all the excludes).
+- Upload tarball: ~1 min (5-15 MB after all the excludes).
 - EAS queue: 0-15 min depending on load.
 - Android compile + bundle + sign: ~6 min.
 
@@ -128,10 +141,10 @@ OTA update).
 
 ## Troubleshooting
 
-| Symptom                                                                           | Cause                                                                                            | Fix                                                       |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| `Your project archive is 202 MB`                                                  | Upload includes `.git` + sibling packages + docs.                                                | Use the extracted `/tmp` workflow above (issue #555).     |
-| `Unable to resolve module "@/features/tools/presentation/…"` during bundle phase  | `.easignore` has `tools/` without leading slash, which strips `src/features/tools/` recursively. | Anchor to `/tools/` (already done after #555 is closed).  |
-| `TypeError: Cannot read properties of undefined (reading 'body')` on `--tunnel`   | `got@11` in `@expo/ngrok` crashes on Node 22.                                                    | `asdf shell nodejs 20.13.1` before running any Expo CLI.  |
-| `expo doctor ... exited with non-zero code: 1` at the "Run expo doctor" EAS phase | Native-module versions drifted from the SDK 54 expected set.                                     | `npx expo install --fix` locally, commit, rebuild.        |
-| `EAI_AGAIN storage.googleapis.com` during upload                                  | DNS flap, usually IPv6-only resolution on the current network.                                   | Retry with `NODE_OPTIONS='--dns-result-order=ipv4first'`. |
+| Symptom                                                                           | Cause                                                                                                         | Fix                                                                                  |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `Your project archive is 202 MB`                                                  | `.easignore` is missing, stale, or uses bare directory names that don't match the repo root.                  | Review the anchored patterns in `.easignore`; fall back to Option B above if unsure. |
+| `Unable to resolve module "@/features/tools/presentation/…"` during bundle phase  | `.easignore` has `tools/` without leading slash, which strips `src/features/tools/` recursively (issue #555). | Anchor to `/tools/` — already done in this file; preserve this rule on every edit.   |
+| `TypeError: Cannot read properties of undefined (reading 'body')` on `--tunnel`   | `got@11` in `@expo/ngrok` crashes on Node 22.                                                                 | `asdf shell nodejs 20.13.1` before running any Expo CLI.                             |
+| `expo doctor ... exited with non-zero code: 1` at the "Run expo doctor" EAS phase | Native-module versions drifted from the SDK 54 expected set.                                                  | `npx expo install --fix` locally, commit, rebuild.                                   |
+| `EAI_AGAIN storage.googleapis.com` during upload                                  | DNS flap, usually IPv6-only resolution on the current network.                                                | Retry with `NODE_OPTIONS='--dns-result-order=ipv4first'`.                            |

@@ -1,14 +1,18 @@
 # Script présentateur — Bloc 4 Après brassage (5 min)
 
-**Contexte** : bloc 4 du pitch, 18:00 → 23:00. Suit directement la
+**Contexte** : bloc 4 du pitch, 16:00 → 21:00. Suit directement la
 transition du bloc 3 démo ("Brasser ce n'est pas tout. L'application
 accompagne le brasseur avant, pendant, **après**. Regardons ça.").
 Couvre la phase **Après brassage** du parcours utilisateur : la
 valorisation du brassin, l'apprentissage continu, le partage
 communautaire.
 
+**Timecodes révisés 2026-04-21** : bloc 3 compressé de 8 à 5 min, donc
+bloc 4 glisse de −2 min (départ 16:00 au lieu de 18:00). Durée
+inchangée à 5 min.
+
 **Slide à l'écran** :
-- 18:00 → 23:00 : **S11 — Academy + Labels + Communauté**
+- 16:00 → 21:00 : **S11 — Academy + Labels + Communauté**
 
 **Critères grille ciblés** : #524 Business model + innovation
 (30 pts) et #526 Perspectives (20 pts) — le bloc 4 démontre la
@@ -24,13 +28,13 @@ Little Bock (FR, communauté limitée).
 
 | Séquence | Timecode | Contenu | Durée |
 |----------|----------|---------|-------|
-| 1. Ouverture | 18:00-18:30 | "Après brassage = valorisation" | 0:30 |
-| 2. Labels personnalisés | 18:30-19:30 | Étiquettes custom, fierté produit | 1:00 |
-| 3. Historique batches | 19:30-20:15 | Traçabilité, reproduire ce qu'on a aimé | 0:45 |
-| 4. Academy | 20:15-21:30 | Apprentissage continu intégré | 1:15 |
-| 5. Communauté | 21:30-22:30 | Partage, différenciation concurrence | 1:00 |
-| 6. Transition bloc 5 | 22:30-23:00 | Vers BM + Perspectives | 0:30 |
-| **Total** | 18:00-23:00 | | **5:00** |
+| 1. Ouverture | 16:00-16:30 | "Après brassage = valorisation" | 0:30 |
+| 2. Labels personnalisés | 16:30-17:30 | Étiquettes custom, fierté produit | 1:00 |
+| 3. Historique batches | 17:30-18:15 | Traçabilité, reproduire ce qu'on a aimé | 0:45 |
+| 4. Academy | 18:15-19:30 | Apprentissage continu intégré | 1:15 |
+| 5. Communauté | 19:30-20:30 | Partage, différenciation concurrence | 1:00 |
+| 6. Transition bloc 5 | 20:30-21:00 | Vers BM + Perspectives | 0:30 |
+| **Total** | 16:00-21:00 | | **5:00** |
 
 ## Séquence 1 — Ouverture (30 s, ~70 mots)
 

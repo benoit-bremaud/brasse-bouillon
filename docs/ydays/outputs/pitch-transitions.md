@@ -24,19 +24,33 @@ Au-delà, on a écrit un mini-bloc déguisé en transition — à ré-écrire.
 
 ## Tableau récapitulatif
 
+**Timecodes révisés 2026-04-21** : saynète V1-cut passe de 2:30 à
+1:50, bloc 1 étendu à 5 min, bloc 3 compressé à 5 min, bloc 5 étendu
+à 7 min, marge flottante 1 min insérée entre bloc 5 et bloc 6.
+Séquencement global : 0:00-1:50 saynète / 1:50-5:00 cadrage /
+5:00-11:00 bloc 2 / 11:00-16:00 bloc 3 / 16:00-21:00 bloc 4 /
+21:00-28:00 bloc 5 / 28:00-29:00 marge / 29:00-30:00 bloc 6.
+
 | # | De → Vers | Timecode | Durée | Objectif |
 |---|-----------|----------|-------|----------|
-| T0 | Saynète → Bloc 1 | 2:30-2:40 | ~10 s | Passer de la mise en scène au pitch structuré |
-| T1 | Bloc 1 → Bloc 2 | 3:35-3:45 | ~10 s | Du cadrage au parcours Avant brassage |
-| T2 | Bloc 2 → Bloc 3 | 9:35-9:50 | ~15 s | De l'UX au moment clé de la démo live |
-| T3 | Bloc 3 → Bloc 4 | 17:50-18:00 | ~10 s | De la démo au Après brassage |
-| T4 | Bloc 4 → Bloc 5 | 22:30-23:00 | ~30 s | Du produit au business model |
-| T5 | Bloc 5 → Bloc 6 | 28:45-29:00 | ~15 s | Du BM à la conclusion |
-| | **Total** | | **~1:30** | |
+| T0 | Saynète → Bloc 1 cadrage | 1:45-1:50 | ~5 s | Passer de la mise en scène au pitch structuré |
+| T1 | Bloc 1 → Bloc 2 | 4:50-5:00 | ~10 s | Du cadrage au parcours Avant brassage |
+| T2 | Bloc 2 → Bloc 3 | 10:45-11:00 | ~15 s | De l'UX au moment clé de la démo live |
+| T3 | Bloc 3 → Bloc 4 | 15:50-16:00 | ~10 s | De la démo au Après brassage |
+| T4 | Bloc 4 → Bloc 5 | 20:30-21:00 | ~30 s | Du produit au business model |
+| T5 | Bloc 5 → Bloc 6 | 27:45-28:00 | ~15 s | Du BM à la conclusion |
+| | **Marge flottante** | 28:00-29:00 | ~60 s | Absorber les dérives chrono des blocs 1-5 |
+| | **Total transitions** | | **~1:25** | |
 
 > Note : T4 est plus longue que les autres **à dessein** — c'est le
 > pivot le plus important du pitch (du produit au business), elle
 > mérite un peu d'air. Compensée par T0/T1/T3 plus brèves.
+>
+> Note 2 : la **marge flottante** 28:00-29:00 n'est pas une
+> transition narrative, c'est une **réserve chronométrique**. Si les
+> blocs précédents tiennent leurs durées, elle peut être utilisée
+> pour une respiration avant la conclusion (silence de 10-20 s
+> pendant la bascule vers S14) ou laissée silencieuse.
 
 ---
 

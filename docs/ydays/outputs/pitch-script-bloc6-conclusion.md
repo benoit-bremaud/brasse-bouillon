@@ -102,6 +102,14 @@ section "CTA final" ci-dessous pour les spécifications.
 Triple canal de rétention retenu : QR code + cartes de visite + APK
 direct. Chaque canal joue un rôle différent dans le parcours post-pitch.
 
+**4e canal en cours d'évaluation** : **tablier floqué Brasse-Bouillon**
+distribué en sortie de salle et potentiellement porté par l'équipe
+Ydays pendant la soutenance. Production au Fablab Grasse, spec complète
+dans [tabliers-floques-specs.md](tabliers-floques-specs.md). Décision
+finale dépend du devis Fablab (attendu cette semaine). Si validé, la
+slide S14 ajoute une 4e mention et P1 portera le tablier pendant la
+saynète bloc 1.
+
 ### 1. QR code sur slide S14
 
 - **Cible** : une page landing minimale listant les 3 actions (installer

@@ -40,9 +40,9 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 
 | # | Risque | P | I | Mitigation |
 |---|--------|---|---|------------|
-| C1 | Question jury sur chiffre non sourcé (63,3%, 1000 inscrits) | 🔴 | 🟡 | **Combler trous factuels** avant J-7 ; répondre honnêtement "estimation à valider" si chiffre incertain (préférable à un bluff) |
+| C1 | Question jury sur la volumétrie "1 000 pré-inscriptions" (SMART #34) | 🟡 | 🟡 | Landing [brasse-bouillon.com](https://brasse-bouillon.com) live avec newsletter + questionnaire actifs ; répondre "objectif 6 mois post-V1, correspondant à 3 % de la base Little Bock (35 000 brasseurs actifs) — cohérent" ; si pression, préciser "landing live, métrique trackée, revue trimestrielle". **Le chiffre "63,3 % / 54 répondants" a été retiré du pitch le 2026-04-21 (estimations, pas une enquête réelle).** |
 | C2 | Question jury sur modèle de revenu précis | 🔴 | 🟡 | **Workshop monétisation** planifié, livrable dans BMC ; au pire, réponse "freemium + partenariats LHBS, grille tarifaire en cours de finalisation" |
-| C3 | Dépassement des 30 min de pitch (Q&A de 10 min à part) | 🔴 | 🔴 | Chronométrage strict sur les 30 min pleines, script minuté (T6) ; blocs 1-6 = 4/6/8/5/6/1 min ; **marge intégrée dans le bloc 4 (réductible à 4 min si dépassement)** |
+| C3 | Dépassement des 30 min de pitch (Q&A de 10 min à part) | 🔴 | 🔴 | Chronométrage strict sur les 30 min pleines, scripts minutés par bloc ; budget révisé 2026-04-21 = **5/6/5/5/7/1 min + 1 min marge flottante** (28:00-29:00) ; la marge absorbe les dérives des blocs 1-5 sans rogner sur la conclusion ; fallbacks documentés dans chaque script (ex. bloc 5 séq. 5 compressible si bloc 3 déborde) |
 | C4 | Oubli / trou noir pendant le pitch | 🟡 | 🟡 | Pense-bête tablette ou papier A4 avec 6 mots-clés par bloc ; répétitions ≥ 3 en conditions |
 | C5 | Question sur beer-label-ai : "pourquoi pas en démo ?" | 🟡 | 🟢 | Réponse pré-préparée : "pipeline opérationnel en labo, précision non prouvée sur étiquettes réelles en conditions variables, on le garde pour la V2 post-soutenance" (KISS + YAGNI assumé) |
 | C6 | Question hostile sur concurrence (Brewfather / Little Bock) | 🟡 | 🟡 | Table comparative dans BMC prête (Markdown) ; mémoriser 3 différenciateurs clairs : FR natif, simplicité évolutive, scanner code-barre |

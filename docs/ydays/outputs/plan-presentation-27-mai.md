@@ -32,20 +32,29 @@ est une priorité haute** (feedback ultime avant J-21).
 - Chaque bloc thématique associe : une voix narrative principale + une
   intervention experte focalisée sur le différenciant produit.
 
-### Table de maillage parcours → voix → expert (ajusté 30 min pleines)
+### Table de maillage parcours → voix → expert (révisé 2026-04-21 pour aligner sur la consigne coach "5 min démo")
 
 | Bloc | Durée | Parcours utilisateur | Voix principale | Intervention experte (1-2 min) |
 |------|-------|----------------------|-----------------|--------------------------------|
-| 1 | 4 min | Hook — accroche + problème + cible | Pitch (rôle Marketing) | **Marketing** : étude de marché (5 sources, gap FR) |
+| 1 | 5 min | Hook — accroche + problème + cible | Pitch (rôle Marketing) | **Marketing** : étude de marché (5 sources, gap FR) |
 | 2 | 6 min | Avant brassage — préparation | Narration UX (rôle Création) | **Création** : 3 personas + design system |
-| 3 | 8 min | Pendant brassage — démo live | Démo live | **Dev** : architecture monorepo + CI + 97 tests |
+| 3 | 5 min | Pendant brassage — **démo live (5 min)** | Démo live | **Dev** : architecture monorepo + CI + 97 tests (inclus dans les 5 min) |
 | 4 | 5 min | Après brassage — valorisation | Narration produit | **Création** : Academy, communauté, labels |
-| 5 | 6 min | Business Model + Perspectives + vision agence | Pitch clôture | **Marketing** : BMC + GTM + pivot web-studio |
+| 5 | 7 min | Business Model + Perspectives + vision agence | Pitch clôture | **Marketing** : BMC + GTM + pivot web-studio |
 | 6 | 1 min | Conclusion + CTA | Pitch unifié | — |
+| Marge | 1 min | Tampon chronométrage | — | — |
 
-Total narratif 30 min pile. Marge de sécurité : bloc 4 (5 min) peut être
-réduit à 4 min en repli si un bloc précédent déborde. **Q&A 10 min** à
-part, pas imputé sur les 30 min.
+Total narratif 30 min pile. **Changement vs version précédente** : bloc 3
+passe de 8 à 5 min (consigne coach 2026-03-25, cf.
+[../references/2026-03-25_coach-session-summary.md](../references/2026-03-25_coach-session-summary.md)) ;
+3 min redistribuées → +1 bloc 1 (accroche renforcée), +1 bloc 5 (perspectives
+= 20 pts de la grille), +1 marge flottante. **Q&A 10 min** à part, pas imputé
+sur les 30 min.
+
+**Alignement grille** : Pitch (15 pts) = bloc 1 (5 min). Production (30 pts)
+= blocs 2+3+4 (16 min). Perspective (20 pts) = bloc 5 (7 min). Qualité orale
+(15 pts) = transversal. Voir
+[../references/grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md).
 
 ### A1 — USP démontrable en live (figé 2026-04-16)
 
@@ -58,12 +67,19 @@ part, pas imputé sur les 30 min.
 
 ## Blocs détaillés
 
-### Bloc 1 — Hook + Problème + cible (4 min)
+### Bloc 1 — Hook + Problème + cible (5 min)
 
 **Objectif** : capter le jury en 30 secondes, poser le problème et la
-cible.
+cible. Budget étendu de 4 à 5 min pour laisser place à une accroche
+aboutie (feedback coach 2026-03-25 : "accroche plus aboutie que première
+soutenance").
 
-- Accroche : *[à rédiger en T3 — accroche % de brasseurs frustrés]*
+- Accroche : 5 variantes rédigées dans
+  [pitch-hook-variants.md](pitch-hook-variants.md), V4 storytelling
+  recommandée (arbitrage avant 2026-04-23).
+- Saynète d'ouverture V1 chronométrée ≤ 2:30 min
+  ([pitch-hook-saynete-v1.md](pitch-hook-saynete-v1.md)) suivie de 2:30
+  cadrage marché + proposition de valeur + annonce SMART.
 - Problème : gestion dispersée recettes / calculs techniques complexes /
   absence communauté FR / vieillissement marché (source :
   [target_audience.md](../../design/01_target-audience/target_audience.md)).
@@ -71,7 +87,7 @@ cible.
 - **Transition** : "Voyons comment on accompagne ce brasseur sur son
   parcours, de la première idée de recette à la valorisation du brassin".
 
-*Critère visé* : Elevator Pitch (#522, 15 pts) + contexte BM (#524).
+*Catégorie grille* : **Pitch (15 pts)** — accroche + raison d'être + PV + SMART.
 
 ### Bloc 2 — Avant brassage (6 min)
 
@@ -86,25 +102,32 @@ cible.
 
 *Critère visé* : BM + innovation (#524, 30 pts) + Slide deck (#527).
 
-### Bloc 3 — Pendant brassage (Démo live, 8 min)
+### Bloc 3 — Pendant brassage (Démo live, 5 min)
 
-**Parcours** : utilisateur brasse, l'appli assiste.
+**Parcours** : utilisateur brasse, l'appli assiste. **Durée révisée de 8
+à 5 min** pour respecter la consigne coach (2026-03-25 : "5 min
+réservées à la démo finale"). Le parcours démo est comprimé et
+l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 
-- Démo live sur téléphone mobile (projection miroir).
-- Séquence détaillée dans [audit-features-mvp.md](audit-features-mvp.md)
-  § Parcours démo recommandé :
-  1. Auth (30 s)
-  2. Recettes list + detail (1 min)
-  3. Scanner code-barre sur une bière réelle (1:30)
-  4. Calculateur ABV (45 s)
-  5. Timeline Batch (15 s)
-  6. Marge + transition (2 min)
-- **Intervention Dev** (1-2 min) : monorepo npm workspaces, CI
-  path-filtered, 97 tests automatisés, stack NestJS + React Native Expo +
-  FastAPI + PostgreSQL.
+- Démo live sur téléphone mobile (projection miroir). Séquence comprimée
+  (voir [pitch-script-bloc3-demo-live.md](pitch-script-bloc3-demo-live.md)
+  pour le script seconde-par-seconde à mettre à jour pour 5 min) :
+  1. Auth éclair + recette ouverte d'avance (30 s)
+  2. Scanner code-barre sur 2 bières réelles (1:30)
+  3. Calculateur ABV live (45 s)
+  4. Timeline Batch + preuves archi (1:00) — slides backup en incrustation
+     (monorepo, CI path-filtered, 97 tests, stack NestJS / RN-Expo / FastAPI)
+  5. Transition vers bloc 4 (15 s)
+  **Total : 4:00 démo + 1:00 commentaire = 5:00 strict.**
+- L'intervention Dev (architecture + tests) est **affichée en slide
+  pendant la démo** plutôt qu'en bloc séparé — évite d'empiéter sur les
+  5 min.
+- **Vidéo backup obligatoire** (risque D1) : 3 min encodée 1080p à
+  tourner avant 2026-05-20. Voir
+  [risk-analysis.md](risk-analysis.md) §D1.
 - **SMART rétro cité** : #2 (8/11 features stables), #3 (≥ 95 tests), #4 (CI).
 
-*Critère visé* : Démo live (#525, 30 pts) + BM innovation (#524).
+*Catégorie grille* : **Production (30 pts)** — démo + innovation technique.
 
 ### Bloc 4 — Après brassage (5 min)
 
@@ -227,6 +250,17 @@ cible.
   occuper les 30 min pleines. Pivot Perspectives RH #5 : pas de
   recrutement Marketing — nouvelle orientation vision agence
   web-studio (voir repo `web-studio`), à brainstormer.
+- **2026-04-21** — Archivage grille Ynov officielle
+  ([references/grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md))
+  + résumé coach 2026-03-25
+  ([references/2026-03-25_coach-session-summary.md](../references/2026-03-25_coach-session-summary.md)).
+  Grille réelle = **80 pts / 4 catégories** (Pitch 15 / Production 30 /
+  Perspective 20 / Qualité orale 15 + coup de cœur +1), pas le mapping
+  fictif #522–#528 qui traçait des livrables GitHub internes. **Bloc 3
+  démo comprimé de 8 à 5 min** (consigne coach "5 min réservées à la
+  démo finale") — 3 min redistribuées : +1 bloc 1 (5 min), +1 bloc 5
+  (7 min), +1 marge flottante. Trous factuels #9 et #10 partiellement
+  levés (grille récupérée ; oral blanc 06/05 toujours à réserver).
 
 ## Trous factuels à combler
 
@@ -246,8 +280,11 @@ Synthèse des `[trou factuel]` relevés dans ce plan et ailleurs :
 6. Niveau accessibilité actuel (WCAG).
 7. Décompte exact wireframes livrés.
 8. Modèle de monétisation précis (freemium/prix/CA).
-9. **Nouveau** : récupérer les 3 grilles d'évaluation officielles
-   Ynov (email coach 2026-04-19, pièces jointes à sauvegarder dans
-   `docs/ydays/references/`).
+9. ~~Récupérer les 3 grilles d'évaluation officielles Ynov~~ →
+   **partiellement résolu 2026-04-21** : grille Pitch Entrepreneurial
+   archivée ([grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md)).
+   Les 2 autres grilles mentionnées dans l'email coach 2026-04-19
+   restent à récupérer (jury pluridisciplinaire — grilles
+   complémentaires possibles).
 10. **Nouveau** : réserver un créneau d'oral blanc auprès du coach
     pour la séance Ydays du 2026-05-06.

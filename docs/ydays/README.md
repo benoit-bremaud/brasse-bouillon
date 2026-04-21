@@ -28,7 +28,10 @@ docs/ydays/
 │   ├── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels
 │   └── 2026-04-19_session-decisions.md    format Ynov officiel, pivot web-studio
 └── references/                            ← documents officiels Ynov
-    └── README.md                          emails coach, grilles d'évaluation, consignes Moodle
+    ├── README.md                          index du dossier références
+    ├── grille-pitch-entrepreneurial.md    transcription grille officielle (80 pts / 4 cat.)
+    ├── grille-pitch-entrepreneurial.pdf   PDF original de la grille (coach 2026-04-19)
+    └── 2026-03-25_coach-session-summary.md  consignes orales + format détaillé
 ```
 
 ## Décisions figées
@@ -41,19 +44,40 @@ docs/ydays/
   (déjà intégré mobile, audit feature ✅). `beer-label-ai` reste en R&D,
   mentionné une phrase en Perspectives — pas de démo live.
 
-## Références grille Pitch Entrepreneurial
+## Grille d'évaluation officielle (80 points + 1 coup de cœur)
 
-Sous-issues #522–#528 mappées aux critères d'évaluation (`sprint:6`) :
+Grille reçue du coach Ynov (PDF + transcription archivés sous
+[references/grille-pitch-entrepreneurial.md](references/grille-pitch-entrepreneurial.md)) :
 
-| Issue | Critère | Points |
-|-------|---------|--------|
-| #522 | Elevator pitch | 15 |
-| #523 | Objectifs SMART | 15 |
-| #524 | Business model + innovation | 30 |
-| #525 | Démo live | 30 |
-| #526 | Perspectives (légal / RH / GTM / budget) | 20 |
-| #527 | Slide deck | 15 |
-| #528 | Répétitions | 15 |
+| Catégorie | Barème | Contenu évalué |
+|-----------|--------|----------------|
+| **Pitch** | **15** | Accroche percutante, ton, raison d'être, PV, SMART |
+| **Production** | **30** | Business model, projet innovant, démo, réalisations, argumentation |
+| **Perspective** | **20** | Statut juridique, RH, commercialisation, développement, investissement |
+| **Qualité orale** | **15** | Niveau de langue, éloquence, aisance, préparation, gestion du temps, support esthétique |
+| **Coup de cœur** | +1 | Bonus jury (Oui / Non) |
+| **Total** | **80** (+1) | |
+
+Pondération : **Production = 37,5 %** (la plus lourde) → blocs 2, 3, 4 concentrent 16 min
+sur 30. **Perspective = 25 %** → bloc 5. **Pitch = 18,75 %** → bloc 1. **Qualité orale = 18,75 %**
+transversal (dépend des répétitions et du support Canva).
+
+### Suivi interne issues GitHub (sprint:6)
+
+Les sous-issues #522–#528 tracent les **livrables internes**, pas des critères de la grille.
+Utilisées pour découper le travail en tâches, elles ne correspondent pas à la pondération
+officielle.
+
+## Consignes orales (séance coach 2026-03-25)
+
+Voir [references/2026-03-25_coach-session-summary.md](references/2026-03-25_coach-session-summary.md).
+Points saillants qui complètent la grille :
+
+- **5 min réservées à la démo finale** dans les 30 min de pitch → impact bloc 3
+- **Vidéo backup démo obligatoire** — les excuses techniques ne sont pas acceptables
+- **Jury pluridisciplinaire** (tech / créa / market-com / audio-visuel) → vulgarisation + preuves
+- **Ne pas lire ses notes** → mémorisation + supports mots-clés
+- **Soutenance blanche 35 min** à réserver auprès du coach pour le 2026-05-06
 
 ## Règle de session
 

@@ -161,7 +161,7 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 
 *Critère visé* : BM + innovation (#524, 30 pts) + Perspectives (#526).
 
-### Bloc 5 — Business Model + Perspectives + vision agence web-studio (6 min)
+### Bloc 5 — Business Model + Perspectives + vision agence web-studio (7 min)
 
 - **BM Canvas synthétisé** (9 blocs → 3 slides resserrées) — cf.
   [business-model-canvas.md](business-model-canvas.md).
@@ -211,13 +211,17 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 
 ### Bloc 6 — Conclusion (1 min)
 
-- Rappel proposition de valeur en 1 phrase.
-- Appel à l'action : lien landing page / repo / démo privée.
-- Remerciements équipe + jury.
+- Tagline canonique figée (2026-04-21) : **"Brasser. Partager. Recommencer."**
+- Triple CTA : QR code → `brasse-bouillon.com/jury`, APK Android direct,
+  cartes de visite distribuées après le pitch.
+- 4e canal conditionnel : tabliers floqués portés par les membres de
+  l'équipe Ydays (logo + QR) — à confirmer selon Fablab Grasse et budget.
+  Voir [tabliers-floques-specs.md](tabliers-floques-specs.md) + issue #559.
+- Remerciements équipe (8 personnes) + jury.
 
-*Critère visé* : Slide deck (#527, 15 pts).
+*Critère visé* : Pitch (15 pts) — clôture percutante + coup de cœur (+1).
 
-## Après les 20-25 min — Q&A
+## Après les 30 min — Q&A
 
 - **Matière disponible** : les 30 SMART extended + 6 trous factuels
   documentés + BMC 9 blocs.
@@ -243,16 +247,21 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
   [smart-objectives-par-pole.md](smart-objectives-par-pole.md) § Synthèse
   pitch).
 
-## Tâches restantes ordonnées (post 2026-04-16)
+## Tâches restantes ordonnées (mis à jour 2026-04-21)
 
-| Ordre | Tâche | Output |
-|-------|-------|--------|
-| T2 | Business Model Canvas 9 blocs | `outputs/business-model-canvas.md` |
-| T3 | Accroche pitch (15 mots max) | intégrée dans ce plan Bloc 1 |
-| T4 | Valider / actualiser les 3 personas (3e persona "Marc" existe déjà) | `docs/personas/user_personas.md` |
-| T6 | Script détaillé démo live (timings seconde par seconde) | annexe de ce plan |
-| T12 | Répétitions chronométrées (J-7, J-3, J-1) | checklist `audit-features-mvp.md` § Pré-production |
-| T14 | Dépôt Moodle (slides + PDF + vidéo backup démo) | dossier de dépôt |
+| Ordre | Tâche | Statut | Output |
+|-------|-------|--------|--------|
+| T2 | Business Model Canvas 9 blocs | ✅ livré | `outputs/business-model-canvas.md` |
+| T3 | Accroche pitch (saynète V1-cut) | ✅ livré | `outputs/pitch-hook-saynete-v1-cut.md` |
+| T4 | Valider / actualiser les 3 personas | 🟡 user | `docs/personas/user_personas.md` |
+| T6 | Script détaillé démo live 5 min (seconde par seconde) | ✅ livré | `outputs/pitch-script-bloc3-demo-live.md` |
+| T7 | Étendre cadrage bloc 1 post-saynète à ~3:10 | 🔴 à faire | `outputs/pitch-script-bloc1-cadrage.md` |
+| T8 | Produire 6 slides Canva saynète (S1-S6) | 🔴 à faire | Canva — design system BB |
+| T9 | Tourner vidéo backup démo 3 min (deadline 2026-05-20) | 🔴 à faire | issue #533 |
+| T10 | Réserver oral blanc coach 2026-05-06 | 🔴 urgent | issue #536 |
+| T11 | Identifier binôme P1/P2 saynète | 🔴 urgent | issue #560 |
+| T12 | Répétitions chronométrées (J-21, J-7, J-3, J-1) | 🔴 à planifier | issue #528 |
+| T14 | Dépôt Moodle (slides + PDF + vidéo backup) | 🔴 J-day | après soutenance |
 
 ## Révisions
 
@@ -293,6 +302,12 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
     sur la base réelle, CTA QR bloc 6 pointe sur `brasse-bouillon.com/jury`
     (à construire) ou redirect README. Domaine corrigé dans tous les
     fichiers (était `brasse-bouillon.fr`, maintenant `.com`).
+- **2026-04-21 (suite 3)** — Relecture complète du plan : correction
+  "Bloc 5 = 7 min" dans le titre du bloc (le corps et la table étaient
+  déjà à 7 min) ; "Après les 20-25 min" → "Après les 30 min" ; bloc 6
+  enrichi (tagline A figée, triple CTA + 4e canal tabliers) ; table
+  "Tâches restantes" mise à jour (T2/T3/T6 ✅, T7-T14 avec statuts et
+  références issues #533/536/560) ; trou factuel #10 marqué "en cours".
 - **2026-04-21 (suite)** — Décision **Path B** sur la saynète bloc 1 :
   les mentions **boutique intégrée + ratio prix maison/commerce** sont
   retirées (features non construites, ~25 h dev avant 2026-05-03 jugés
@@ -342,5 +357,6 @@ Synthèse des `[trou factuel]` relevés dans ce plan et ailleurs :
    Les 2 autres grilles mentionnées dans l'email coach 2026-04-19
    restent à récupérer (jury pluridisciplinaire — grilles
    complémentaires possibles).
-10. **Nouveau** : réserver un créneau d'oral blanc auprès du coach
-    pour la séance Ydays du 2026-05-06.
+10. ~~Réserver un créneau d'oral blanc auprès du coach pour la séance
+    Ydays du 2026-05-06~~ → **en cours** : issue #536 créée, action à
+    mener cette semaine (J-46, délai court).

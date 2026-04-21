@@ -74,20 +74,38 @@ cible. Budget étendu de 4 à 5 min pour laisser place à une accroche
 aboutie (feedback coach 2026-03-25 : "accroche plus aboutie que première
 soutenance").
 
-- Accroche : 5 variantes rédigées dans
-  [pitch-hook-variants.md](pitch-hook-variants.md), V4 storytelling
-  recommandée (arbitrage avant 2026-04-23).
-- Saynète d'ouverture V1 chronométrée ≤ 2:30 min
-  ([pitch-hook-saynete-v1.md](pitch-hook-saynete-v1.md)) suivie de 2:30
-  cadrage marché + proposition de valeur + annonce SMART.
-- Problème : gestion dispersée recettes / calculs techniques complexes /
-  absence communauté FR / vieillissement marché (source :
-  [target_audience.md](../../design/01_target-audience/target_audience.md)).
-- Cible primaire : brasseurs FR 30-50 ans, 2-10 ans d'expérience.
-- **Transition** : "Voyons comment on accompagne ce brasseur sur son
-  parcours, de la première idée de recette à la valorisation du brassin".
+**Structure finalisée 2026-04-21 (décision Path B + format live) :**
 
-*Catégorie grille* : **Pitch (15 pts)** — accroche + raison d'être + PV + SMART.
+- **Saynète V1-cut live 2 voix** (~1:50 min, ~240 mots) —
+  [pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md). P1 + P2
+  joués par deux membres de l'équipe Ydays (8 personnes — binôme à
+  identifier). Parcours : `scan → recette équivalente → ajustement
+  volume 20 L → 8 L → "Je commence quand ?"`. **Pas de mention boutique
+  ni ratio prix** (features non construites, coupées pour sécuriser).
+- **Cadrage marché + founder-fit + annonce plan** (~1:40 min) — Benoît
+  face jury enchaîne directement après la saynète : chiffres 10 M
+  Français / 1,5 Md€ marché européen, positionnement vs Brewfather et
+  Little Bock, annonce des 3 points à venir (livré / différenciateur /
+  modèle + perspectives).
+- **Annonce SMART implicite** (~30 s, incluse dans le cadrage) :
+  SMART #2 (8/11 features stables), #3 (97 tests automatisés), #25
+  (étude marché 5 sources).
+- **Marge + silence théâtral** (~1:00) : pause 5-10 s après la punchline
+  P1, respiration naturelle du cadrage, transition sereine vers bloc 2.
+- **Transition** : *"Voyons comment on accompagne ce brasseur sur son
+  parcours, de la première idée de recette à la valorisation du
+  brassin — commençons par l'avant brassage."*
+
+**Variantes accroche ≤ 15 mots ABANDONNÉES** : le fichier
+[pitch-hook-variants.md](pitch-hook-variants.md) (V1–V5) servait
+d'alternative courte à la saynète. La saynète étant retenue comme
+accroche principale, les variantes ne sont plus utilisées — conservées
+en repli si le format saynète tombe en dernière minute (fallback
+extrême, non prévu).
+
+*Catégorie grille* : **Pitch (15 pts)** — accroche percutante + raison
+d'être (founder-fit dans le cadrage) + PV (la saynète la démontre) +
+SMART (annoncés dans le cadrage).
 
 ### Bloc 2 — Avant brassage (6 min)
 
@@ -261,6 +279,21 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
   démo finale") — 3 min redistribuées : +1 bloc 1 (5 min), +1 bloc 5
   (7 min), +1 marge flottante. Trous factuels #9 et #10 partiellement
   levés (grille récupérée ; oral blanc 06/05 toujours à réserver).
+  **Script bloc 3 réécrit pour 5 min** avec overlay S10 permanent
+  (preuves techniques affichées pendant la démo, plus de segment Dev
+  séparé).
+- **2026-04-21 (suite)** — Décision **Path B** sur la saynète bloc 1 :
+  les mentions **boutique intégrée + ratio prix maison/commerce** sont
+  retirées (features non construites, ~25 h dev avant 2026-05-03 jugés
+  non-prioritaires vs la sécurisation du reste). Nouveau livrable
+  [pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md) — 1:50
+  min, ~240 mots, parcours resserré `scan → recette → ajustement volume
+  → "Je commence quand ?"`. **Format retenu** : Option 3 live 2 voix
+  jouée par deux membres de l'équipe Ydays (équipe = 8 personnes, binôme
+  à identifier). La V1 complète est conservée pour historique mais
+  n'est plus la version de travail. Variantes accroche ≤ 15 mots
+  ([pitch-hook-variants.md](pitch-hook-variants.md)) abandonnées —
+  la saynète V1-cut **est** l'accroche.
 
 ## Trous factuels à combler
 

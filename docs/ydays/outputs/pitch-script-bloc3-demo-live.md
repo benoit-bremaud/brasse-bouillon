@@ -1,217 +1,177 @@
-# T6 — Script démo live seconde-par-seconde (bloc 3, 8 min)
+# T6 — Script démo live seconde-par-seconde (bloc 3, 5 min)
 
-**Contexte** : bloc 3 du pitch, 10:00 → 18:00. C'est le bloc le plus
-chronométré du pitch, et le plus évalué : critère **#525 Démo live
-= 30 pts**. On y démontre Brasse-Bouillon en action devant le jury,
-sur un vrai téléphone, via miroir d'écran.
+**Contexte** : bloc 3 du pitch. C'est le bloc le plus chronométré, et le
+plus pondéré de la catégorie **Production (30 pts)** de la grille Ynov
+(voir [../references/grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md)).
+On y démontre Brasse-Bouillon en action devant le jury, sur un vrai
+téléphone, via miroir d'écran.
+
+**Durée révisée 2026-04-21 : 5:00** (compression de 8:00 → 5:00 pour
+honorer la consigne coach 2026-03-25 "5 min réservées à la démo finale",
+cf. [../references/2026-03-25_coach-session-summary.md](../references/2026-03-25_coach-session-summary.md)).
+Les 3 minutes libérées sont redistribuées dans le
+[plan](plan-presentation-27-mai.md) — +1 bloc 1, +1 bloc 5, +1 marge flottante.
 
 **Différenciation vs saynète bloc 1** : la saynète a déjà montré
 `scan → recette → ajustement volume → liste → ratio`. Le bloc 3
 revisite le parcours **sous un angle différent** :
-- On entre par **l'authentification** (nouveau vs saynète).
-- On montre une **vue profonde d'une recette** (ingrédients + étapes +
-  calculs).
+
+- On entre par **l'authentification** (nouveau vs saynète, 20 s).
+- On montre une **vue profonde d'une recette** (11 calculs, 30 s).
 - On refait un **scan avec une bière différente** pour prouver la
-  robustesse.
+  robustesse (1:15).
 - On isole un **calculateur ABV** standalone pour démontrer la
-  précision.
-- On conclut sur la **timeline batch** (nouveau vs saynète).
+  précision (30 s).
+- On conclut sur la **timeline batch avec incrustation stats archi**
+  (1:00, l'intervention Dev est **diluée en slide overlay** plutôt
+  qu'en segment séparé — gagne 1:30 sans perdre les preuves techniques).
 
-Ce double usage est volontaire : la saynète a raconté une histoire,
-le bloc 3 démontre la maturité produit.
+Ce double usage est volontaire : la saynète raconte une histoire, le
+bloc 3 démontre la maturité produit.
 
-**Slides à l'écran** :
-- 10:00 → 11:00 : **S9 — Architecture tech**
-- 11:00 → 16:30 : **S10 — "Démonstration live"** (volontairement sobre,
-  on bascule sur le miroir téléphone)
-- 16:30 → 18:00 : **S9 maintenu ou retour S10** avec les chiffres
-  techniques
+## Slides à l'écran
 
-**Durée cible** : 8:00 min.
-**Budget mots** : ~1 075 mots à 135 mpm.
+- **Ouverture (15 s)** : **S9 — Architecture tech** (schéma monorepo + stack)
+- **11:15 → 15:45** : bascule sur **miroir téléphone**, avec **S10 en
+  overlay réduit** affichant en permanence les preuves techniques
+  (97 tests, 11 calculateurs, 10 tables PG, zéro `any`, 6 sprints)
+- **15:45 → 16:00** : retour S9 ou bascule S11 pour la transition bloc 4
 
-## Structure du bloc
+## Structure du bloc (5:00)
 
 | Séquence | Timecode | Rôle | Durée |
 |----------|----------|------|-------|
-| 1. Ouverture tech | 10:00-11:00 | Présentateur + slide S9 | 1:00 |
-| 2. Démo Auth | 11:00-11:30 | Mirror téléphone | 0:30 |
-| 3. Démo recette profonde | 11:30-12:30 | Mirror téléphone | 1:00 |
-| 4. Démo scanner | 12:30-14:00 | Mirror téléphone | 1:30 |
-| 5. Démo calculateur isolé | 14:00-14:45 | Mirror téléphone | 0:45 |
-| 6. Démo batch timeline | 14:45-15:30 | Mirror téléphone | 0:45 |
-| 7. Marge + stats tech | 15:30-17:00 | Slide + présentateur | 1:30 |
-| 8. Transition bloc 4 | 17:00-18:00 | Présentateur | 1:00 |
-| **Total** | 10:00-18:00 | | **8:00** |
+| 1. Ouverture tech éclair | 0:00-0:15 | Présentateur + S9 | 0:15 |
+| 2. Auth + dashboard | 0:15-0:35 | Mirror téléphone | 0:20 |
+| 3. Recette profonde | 0:35-1:05 | Mirror téléphone | 0:30 |
+| 4. Scanner bière B | 1:05-2:20 | Mirror téléphone | 1:15 |
+| 5. Calculateur ABV isolé | 2:20-2:50 | Mirror téléphone | 0:30 |
+| 6. Timeline batch + overlay archi | 2:50-3:50 | Mirror + overlay S10 | 1:00 |
+| 7. Transition bloc 4 | 3:50-4:50 | Présentateur + S9 | 1:00 |
+| Marge | 4:50-5:00 | — | 0:10 |
+| **Total** | 0:00-5:00 | | **5:00** |
 
-## Séquence 1 — Ouverture tech (60 s, ~135 mots)
+**Budget mots** : ~675 mots à 135 mpm (vs 1 075 dans la version 8 min —
+compression de ~37 %).
 
-**Slide à l'écran** : **S9 — Architecture tech** (schéma monorepo
-4 packages + stack).
+## Séquence 1 — Ouverture tech éclair (15 s, ~35 mots)
 
-**Posture** : Benoît face jury, pas en avant, ton confiant mais
-posé. Le présentateur pointe les éléments de la slide quand il les
-nomme.
+**Slide** : **S9 — Architecture tech** (schéma monorepo 4 packages + stack).
+**Posture** : Benoît face jury, geste large vers la slide.
 
-> "Avant de vous montrer l'application en direct, je veux vous dire
-> comment elle est construite.
->
-> Brasse-Bouillon, c'est un **monorepo** de quatre packages :
-> l'application mobile **React Native**, l'API **NestJS** en
-> TypeScript strict, l'encyclopédie des bières en **Python FastAPI
-> avec PostgreSQL**, et le site vitrine. **Quatre-vingt-dix-sept tests
-> automatisés**, une CI GitHub Actions qui ne teste que les packages
-> modifiés, **zéro `any` TypeScript** autorisé dans le code.
->
-> Ce n'est pas du prototype, c'est du **code industriel**. Et
-> maintenant, vous allez le voir en action sur un vrai téléphone,
-> avec des vraies données, en direct.
->
-> **(Geste vers le projecteur.)** On bascule sur l'écran du
-> téléphone."
+> "Avant la démo, **l'architecture en dix secondes** : monorepo, quatre
+> packages, React Native, NestJS, FastAPI, PostgreSQL. **Quatre-vingt-dix-sept
+> tests automatisés**, zéro `any` TypeScript. Du code industriel, pas un
+> prototype. **(geste vers le projecteur)** Je bascule sur le téléphone."
 
-**→ Transition visuelle** : bascule source vidéo vers **mirror
-téléphone**. Slide S10 affiche "Démonstration live" en sobre derrière,
-invisible pendant le mirror.
+**→ Transition visuelle** : bascule source vidéo vers mirror téléphone,
+overlay S10 affiche les chiffres clés en permanence.
 
-## Séquence 2 — Démo Auth (30 s, ~65 mots)
+## Séquence 2 — Auth + dashboard (20 s, ~45 mots)
 
-**Slide** : mirror téléphone. Application BB fermée, icône sur home
-screen.
-
-**Actions & narration** :
-
-| T | Action physique | Narration |
-|---|----------------|-----------|
-| 0:00 | Tap sur icône BB | "J'ouvre l'application." |
-| 0:03 | Écran Login apparaît | "L'écran d'accueil, c'est le login. Email, mot de passe, **authentification JWT** côté serveur." |
-| 0:08 | Entrer email démo | "J'entre mon compte démo…" |
-| 0:15 | Entrer mot de passe | "…mon mot de passe…" |
-| 0:20 | Tap "Se connecter" | "…et je me connecte." |
-| 0:25 | Home dashboard | "Je suis sur le tableau de bord. Mes recettes, mes brassins, mes outils. Tout est là." |
-
-**Fallback si login échoue** : bascule immédiate sur un compte démo
-de backup (deuxième paire d'identifiants pré-enregistrée dans le
-téléphone).
-
-## Séquence 3 — Démo recette profonde (60 s, ~140 mots)
-
-**Actions & narration** :
+**Slide** : mirror + overlay chiffres.
 
 | T | Action | Narration |
 |---|--------|-----------|
-| 0:00 | Tap onglet Recettes | "Je vais dans ma bibliothèque de recettes. Voici les miennes." |
-| 0:06 | Liste recettes visible | "Ma *IPA du dimanche*, ma *Pale Ale session*, ma *Stout d'hiver*." |
-| 0:12 | Tap sur "IPA du dimanche" | "Je rentre dans l'IPA." |
-| 0:15 | Vue détail recette | "Vous voyez tout : les **ingrédients** avec leurs quantités précises, les **étapes** du brassage, les **températures et durées**." |
-| 0:30 | Scroll vers les calculs | "Et en bas, les **calculs automatiques** : densité initiale, densité finale, **degré d'alcool à 5,8 %**, **amertume à 42 IBU**, couleur estimée en **SRM 8**." |
-| 0:45 | Pointer les chiffres | "Ces chiffres sont **recalculés à la volée** à chaque fois que je change un ingrédient. Onze calculateurs brassicoles intégrés, tous testés unitairement." |
+| 0:00 | App ouverte sur écran Login | "J'ouvre l'appli." |
+| 0:05 | Tap "Se connecter" (champs pré-remplis) | "**Authentification JWT**, compte démo." |
+| 0:10 | Home dashboard | "Tableau de bord : mes recettes, mes brassins, mes outils. Tout est là." |
+| 0:18 | Tap onglet Recettes | "On entre par les recettes." |
 
-**Fallback si la recette ne charge pas** : garder une recette
-statique en mémoire locale (mode offline), démontrer les calculs sur
-cette recette.
+**Fallback login** : identifiants pré-saisis dans le mobile ; en cas
+d'échec, basculer directement vers l'écran Recettes déjà ouvert dans
+l'historique d'app.
 
-## Séquence 4 — Démo scanner (90 s, ~200 mots)
-
-**Actions & narration** :
+## Séquence 3 — Recette profonde (30 s, ~70 mots)
 
 | T | Action | Narration |
 |---|--------|-----------|
-| 0:00 | Tap onglet Scan | "Maintenant on scanne. J'ai une bouteille ici." |
-| 0:05 | Sortir bouteille #2 (différente de la saynète) | "Pas celle du début du pitch — une autre, pour vous prouver que ça marche plusieurs fois." |
-| 0:12 | Écran scan ouvert | "L'appareil photo s'active. Je vise le code-barre." |
-| 0:20 | Scanner le code | "*(bip de scan)* Et voilà." |
-| 0:25 | Fiche bière s'affiche | "La fiche bière remonte : **nom**, **brasserie**, **style**, **degré d'alcool**, **amertume**, **provenance**, **date de brassage si disponible**." |
-| 0:45 | Scroll fiche bière | "C'est alimenté par notre **beer-encyclopedia**, notre propre base PostgreSQL avec quinze styles seedés et une recherche floue trigrammes pour gérer les fautes de frappe ou les codes-barres proches." |
-| 1:05 | Tap "Recettes similaires" | "Et sous la fiche, je propose des **recettes équivalentes** : la même bière reproductible chez moi." |
-| 1:20 | Liste recettes équivalentes | "Ce lien **scan → recette**, c'est notre différenciateur produit. Aucun concurrent francophone ne le propose." |
+| 0:00 | Liste recettes visible | "Ma bibliothèque. *IPA du dimanche*, *Pale Ale session*, *Stout d'hiver*." |
+| 0:06 | Tap "IPA du dimanche" | "Je rentre dans l'IPA." |
+| 0:10 | Vue détail | "**Ingrédients**, **étapes**, **températures**, **durées**. Tout est structuré." |
+| 0:18 | Scroll vers calculs | "Et en bas, les **onze calculs automatiques** : densité, **ABV 5,8 %**, **IBU 42**, SRM 8." |
+| 0:26 | Pointer chiffres | "**Recalculés à la volée**. Onze calculateurs, tous testés unitairement." |
 
-**Fallback si le scan échoue** :
-1. Premier échec → retenter 1 fois avec un meilleur angle.
-2. Deuxième échec → **bascule immédiate sur mode photo** (feature
-   fallback intégrée, audit #10).
-3. Troisième échec → annoncer "je reprends la démo sur le
-   calculateur" et passer à la séquence 5 sans s'attarder.
+**Fallback** : recette statique en cache local, les calculs restent
+fonctionnels offline.
 
-## Séquence 5 — Démo calculateur isolé (45 s, ~100 mots)
+## Séquence 4 — Scanner bière B (1:15, ~170 mots)
 
-**Actions & narration** :
+**Séquence cœur** de la démo — le différenciateur produit. **Prendre le
+temps nécessaire ici** ; toute surconsommation vole sur la marge finale.
 
 | T | Action | Narration |
 |---|--------|-----------|
-| 0:00 | Tap onglet Outils → Calculateurs | "Les calculateurs, on peut aussi les utiliser indépendamment, sans passer par une recette." |
-| 0:10 | Tap "ABV" | "Le plus simple : l'**ABV**, degré d'alcool." |
-| 0:15 | Écran calculateur ABV | "Je rentre ma densité initiale…" |
-| 0:20 | Entrer 1.050 | "…1.050." |
-| 0:25 | Entrer densité finale 1.010 | "Ma densité finale, 1.010." |
-| 0:30 | Affichage ABV : 5,25% | "Et j'obtiens **cinq virgule vingt-cinq pour cent d'alcool**. Calculé **instantanément**, sans réseau, totalement déterministe. **Onze tests unitaires** garantissent le résultat." |
+| 0:00 | Tap onglet Scan + sortir bière B | "On scanne. **Une autre bière que celle de la saynète**, pour prouver la robustesse." |
+| 0:10 | Écran scan ouvert, caméra active | "La caméra s'active. Je vise le code-barre." |
+| 0:18 | Scan *(bip)* | "*(bip)* Et voilà." |
+| 0:25 | Fiche bière apparaît | "La fiche remonte : **nom**, **brasserie**, **style**, **ABV**, **IBU**, **provenance**." |
+| 0:40 | Scroll fiche | "Alimenté par notre **beer-encyclopedia** : PostgreSQL, dix tables, **recherche floue pg_trgm** pour gérer fautes de frappe et codes-barres proches." |
+| 0:55 | Tap "Recettes similaires" | "Et sous la fiche, les **recettes équivalentes** : cette bière, reproductible chez moi." |
+| 1:08 | Liste recettes équivalentes | "**Scan → recette** : notre différenciateur. Aucun concurrent francophone ne le propose." |
 
-**Fallback** : rien à dire, le calculateur est offline et
-déterministe — le risque d'échec est quasi-nul.
+**Fallback scanner** :
 
-## Séquence 6 — Démo batch timeline (45 s, ~100 mots)
+1. Premier échec → réessayer 1 fois avec meilleur angle.
+2. Deuxième échec → **bascule mode photo** (fallback intégré, audit #10).
+3. Troisième échec → "je passe au calculateur" et sauter à la séquence 5.
 
-**Actions & narration** :
+## Séquence 5 — Calculateur ABV isolé (30 s, ~70 mots)
 
 | T | Action | Narration |
 |---|--------|-----------|
-| 0:00 | Tap onglet Brassins | "Quand j'ai lancé un brassin, je le suis ici." |
-| 0:05 | Liste batches | "Chaque brassin a sa **timeline**." |
-| 0:12 | Tap batch "IPA-2026-03" | "Mon IPA du mois dernier." |
-| 0:15 | Timeline affichée | "Vous voyez : **date de brassage**, **densité mesurée**, **évolution de fermentation**, **mise en bouteille prévue**." |
-| 0:28 | Pointer un jalon | "Chaque étape est **datée et notée**. Si je veux reproduire exactement, j'ai toute l'histoire." |
-| 0:40 | Retour dashboard | "Voilà le parcours complet : de la recette au brassin terminé." |
+| 0:00 | Tap Outils → Calculateurs → ABV | "Les calculateurs marchent **indépendamment**, sans recette. Le plus simple : **l'ABV**." |
+| 0:10 | Entrer densité initiale 1.050 | "Densité initiale, 1.050." |
+| 0:17 | Entrer densité finale 1.010 | "Finale, 1.010." |
+| 0:22 | Résultat affiché : 5,25 % | "**Cinq virgule vingt-cinq pour cent**. Instantané, offline, déterministe. **Onze tests unitaires** garantissent ce résultat." |
+
+**Fallback** : aucun — calculateur 100 % offline et déterministe.
+
+## Séquence 6 — Timeline batch + overlay archi (1:00, ~180 mots)
+
+**Slide** : mirror + **overlay S10 agrandi** affichant les chiffres
+archi (97 tests, CI < 3 min, 0 `any`, 6 sprints, 8/11 features stables).
+
+L'intervention Dev (architecture + tests + méthodologie) **se lit dans
+l'overlay pendant que Benoît commente la timeline** — gagne 1:30 vs la
+version 8 min où c'était un segment séparé.
+
+| T | Action | Narration |
+|---|--------|-----------|
+| 0:00 | Tap onglet Brassins | "Les brassins lancés, je les suis ici." |
+| 0:08 | Liste batches + tap IPA-2026-03 | "Chacun a sa **timeline**. Mon IPA du mois dernier." |
+| 0:15 | Timeline affichée | "**Date de brassage**, **densités mesurées**, **évolution fermentation**, **mise en bouteille prévue**." |
+| 0:30 | Pointer un jalon + geste vers overlay | "Chaque étape est datée. Et pendant que je vous montre ça, regardez l'écran : **97 tests**, **CI GitHub Actions sous 3 minutes**, **zéro `any` TypeScript**, **six sprints documentés Scrum**." |
+| 0:50 | Retour dashboard | "**Huit fonctionnalités sur onze** sont déjà stables. Ce n'est pas un proof-of-concept. **C'est du produit.**" |
 
 **Fallback** : si la timeline ne charge pas, rester sur la liste
-batches et commenter oralement.
+batches et commenter oralement ; l'overlay fournit déjà les preuves
+techniques.
 
-## Séquence 7 — Marge + stats tech (90 s, ~200 mots)
+## Séquence 7 — Transition bloc 4 (1:00, ~135 mots)
 
-**→ Transition visuelle** : **bascule source vidéo vers slide S9**
-(ou S10 avec chiffres techniques).
+**Slide** : retour **S9** ou pivot direct vers S11 "Après brassage".
 
-**Posture** : Benoît revient face jury, pose le téléphone, ton
-récapitulatif confiant.
+**Posture** : Benoît repose le téléphone, face jury, ton récapitulatif
+confiant.
 
-> "Ce que vous venez de voir, c'est **huit fonctionnalités MVP sur
-> onze déjà stables en production interne**.
+> "Ce que vous venez de voir, c'est **huit fonctionnalités sur onze**
+> déjà stables. Du code industriel, **six mois de travail itératif**,
+> livré en méthode **Scrum** documentée — *Definition of Done*,
+> *Definition of Ready*, revues régulières, six sprints.
 >
-> **Quatre-vingt-dix-sept tests** automatisés valident chaque commit.
-> La **CI GitHub Actions** tourne en moins de trois minutes parce
-> qu'elle ne teste que les packages modifiés. **Zéro `any` TypeScript**
-> toléré.
->
-> La **beer-encyclopedia** tourne sur PostgreSQL avec un modèle de
-> données à dix tables et une recherche floue **pg_trgm** en
-> production. L'API **NestJS** a son propre jeu de tests de contrat.
-> Le mobile a son design system unifié, zéro valeur en dur.
->
-> Ce n'est pas un proof-of-concept qu'on a monté la semaine dernière.
-> C'est **six mois de travail itératif**, livré selon une méthode
-> **Scrum** documentée, avec six sprints, une *Definition of Done*,
-> une *Definition of Ready*, des revues régulières.
->
-> Le produit est là. Il est solide. Il est prêt à être utilisé."
-
-## Séquence 8 — Transition bloc 4 (60 s, ~140 mots)
-
-**Slide** : S9 maintenue.
-
-> "Mais brasser, ce n'est pas seulement **produire** une bière.
+> Mais brasser, ce n'est pas seulement **produire** une bière.
 >
 > Un brasseur amateur veut aussi **apprendre**, **progresser**,
 > **partager**, **personnaliser** ce qu'il a créé.
 >
 > C'est pourquoi Brasse-Bouillon ne s'arrête pas à la marmite.
-> L'application accompagne le brasseur **avant** — vous l'avez vu —
-> **pendant** — vous venez de le voir — et **après** le brassage.
+> L'application accompagne le brasseur **avant** — vous l'avez vu dans
+> la saynète — **pendant** — vous venez de le voir — et **après** le
+> brassage.
 >
 > **L'après-brassage**, c'est là où se joue la différenciation durable
-> par rapport à **Brewfather** et à **Little Bock**. C'est
-> l'**Academy**, ce sont les **labels personnalisés**, c'est la
-> **communauté**.
->
-> Regardons ça."
+> face à **Brewfather** et **Little Bock**. Regardons ça."
 
 **→ Transition visuelle** : bascule vers **slide S11 — Après brassage
 Academy + Labels + Communauté**.
@@ -220,31 +180,51 @@ Academy + Labels + Communauté**.
 
 | Séquence | Secondes |
 |----------|----------|
-| 1. Ouverture tech | 60 |
-| 2. Démo Auth | 30 |
-| 3. Démo recette | 60 |
-| 4. Démo scanner | 90 |
-| 5. Démo calculateur | 45 |
-| 6. Démo batch | 45 |
-| 7. Marge + stats | 90 |
-| 8. Transition | 60 |
-| **Total** | **480 s = 8:00** |
+| 1. Ouverture tech éclair | 15 |
+| 2. Auth + dashboard | 20 |
+| 3. Recette profonde | 30 |
+| 4. Scanner bière B | 75 |
+| 5. Calculateur ABV | 30 |
+| 6. Timeline batch + overlay | 60 |
+| 7. Transition bloc 4 | 60 |
+| Marge absorption | 10 |
+| **Total** | **300 s = 5:00** |
 
-Exactement 8 min. Zéro marge naturelle — d'où la **marge à la
-séquence 7** qui peut absorber 10-20 s de retard cumulé des
-séquences démo.
+**Exactement 5 min.** 10 s de marge naturelle (séquence "marge
+absorption" en fin), plus les 1:15 de la séquence 4 qui peuvent céder
+5-10 s si le scanner prend trop de temps.
+
+## Ce qui a été coupé vs version 8 min
+
+- **Séquence 1 "Ouverture tech" (60 → 15 s)** : l'architecture détaillée
+  est maintenant **en overlay S10 permanent** pendant la démo, pas en
+  narration dédiée.
+- **Séquence 2 "Auth" (30 → 20 s)** : champs pré-remplis, pas de
+  commentaire JWT détaillé (la mention JWT tient en 2 s).
+- **Séquence 3 "Recette" (60 → 30 s)** : moins de scroll, concentration
+  sur les 11 calculs (point-clé) plutôt que sur les ingrédients/étapes
+  exhaustifs.
+- **Séquence 4 "Scanner" (90 → 75 s)** : compression serrée, la
+  séquence reste la plus longue du bloc car c'est le différenciateur.
+- **Séquence 5 "Calculateur" (45 → 30 s)** : narration condensée.
+- **Séquence 6 "Batch" (45 → 60 s)** : +15 s car on fusionne avec les
+  stats archi de l'ancienne séquence 7 via l'overlay.
+- **Séquence 7 "Marge + stats"** : **supprimée en tant que segment**,
+  diluée dans l'overlay S10 pendant les séquences 4–6.
+- **Séquence 8 "Transition" (60 → 60 s)** : inchangée, même texte
+  légèrement ré-agencé (inclut maintenant le récap "6 mois / Scrum /
+  6 sprints" qui était dans l'ex-séquence 7).
 
 ## Préparation technique pré-soutenance
 
 ### Dispositif téléphone
 
-- **Téléphone démo dédié** (pas le téléphone perso), mode avion
-  activé après le seed des données, wifi manuel pour l'API mobile.
-- **Luminosité à 100 %** pour la captation vidéo mirror.
-- **Notifications désactivées** sur toutes les applications.
-- **Verrouillage auto désactivé**.
-- **Compte démo seedé** : 3 recettes nommées, 1 brassin sur la
-  timeline avec mesures, 2 bières de référence scannables.
+- **Téléphone démo dédié** (pas le perso), mode avion activé après
+  seed, wifi manuel pour l'API mobile.
+- **Luminosité 100 %** pour la captation mirror.
+- **Notifications désactivées**, verrouillage auto désactivé.
+- **Compte démo seedé** : 3 recettes nommées, 1 brassin timeline avec
+  mesures, 2 bières de référence scannables.
 - **Mirror testé** sur projecteur HDMI **avant chaque répétition**.
 
 ### Jeu de données démo reproductible
@@ -254,32 +234,30 @@ chaque répétition :
 
 - Utilisateur `demo@brasse-bouillon.fr` / mot de passe connu.
 - Recettes : "IPA du dimanche", "Pale Ale session", "Stout d'hiver".
-- Brassin "IPA-2026-03" avec 4 mesures de densité réparties sur
-  2 semaines.
-- Beer-encyclopedia pré-peuplée avec 15 styles + 30 bières connues
-  (dont 2 testées pour le scanner).
+- Brassin "IPA-2026-03" avec 4 mesures de densité sur 2 semaines.
+- Beer-encyclopedia pré-peuplée : 15 styles + 30 bières (dont 2
+  testées scanner).
 
 **⚠️ Ce seed est à produire dans un autre chat (dev). Ici on fait
 rédaction uniquement.**
 
 ### Bières de test scanner
 
-- **Bière A** : celle utilisée dans la saynète du bloc 1 (code-barre
-  pré-testé, recette équivalente existante).
-- **Bière B** : une deuxième différente (pour la séquence 4 du
-  bloc 3), code-barre également pré-testé.
-- **Bière C** : backup au cas où A ou B échoue à la soutenance.
+- **Bière A** : utilisée dans la saynète bloc 1 (code-barre pré-testé).
+- **Bière B** : différente, pour la séquence 4 du bloc 3 (code-barre
+  pré-testé).
+- **Bière C** : backup si A ou B échoue.
 
-### Fallback global bloc 3
+### Vidéo backup — priorité P0
 
-Si **l'API tombe pendant la démo** :
+Fallback global du bloc 3 si l'API / le téléphone / le mirror tombent
+pendant la démo :
 
-1. Terminer la séquence en cours avec les données déjà en mémoire
-   (recettes et calculs fonctionnent offline).
-2. Passer directement au calculateur ABV (séquence 5, zéro
-   dépendance).
-3. Si tout le téléphone est HS : basculer sur la **vidéo backup
-   pré-enregistrée** (à tourner en J-7, cf.
+1. Terminer la séquence en cours avec les données en mémoire (recettes
+   et calculs offline).
+2. Passer au calculateur ABV (séquence 5, zéro dépendance).
+3. Si tout est HS : basculer sur **vidéo backup pré-enregistrée**
+   (3 min encodée 1080p, à tourner avant **2026-05-20**, cf.
    [risk-analysis.md](risk-analysis.md) risque D1).
 
 ## Chiffres et sources
@@ -288,44 +266,47 @@ Si **l'API tombe pendant la démo** :
 |---|---|---|
 | 97 tests automatisés | [audit-features-mvp.md](audit-features-mvp.md) | ✅ Sourcé |
 | 8/11 features stables | [audit-features-mvp.md](audit-features-mvp.md) | ✅ Sourcé |
-| CI GitHub Actions < 3 min | À vérifier dans .github/workflows/ci.yml | 🟡 À confirmer |
+| CI GitHub Actions < 3 min | À vérifier dans `.github/workflows/ci.yml` | 🟡 À confirmer |
 | 11 calculateurs brassicoles | [audit-features-mvp.md](audit-features-mvp.md) #4 | ✅ Sourcé |
 | 15 styles seedés beer-encyclopedia | [PROJECT_LOG.md](../../../PROJECT_LOG.md) #544 | ✅ Sourcé |
 | Recherche floue pg_trgm | [PROJECT_LOG.md](../../../PROJECT_LOG.md) #544 | ✅ Sourcé |
 | 6 sprints exécutés | [sprint-definition.md](../../project-management/sprint-definition.md) | ✅ Sourcé |
 | 10 tables beer-encyclopedia | [PROJECT_LOG.md](../../../PROJECT_LOG.md) #544 | ✅ Sourcé |
+| Zéro `any` TypeScript | [CLAUDE.md](../../../CLAUDE.md) | ✅ Sourcé |
 
 ## Notes de direction scénique
 
-- **Tenir le téléphone bas** pendant la démo pour que la caméra de
-  mirror capte bien — ne pas l'agiter.
-- **Pointer avec le doigt** les éléments à l'écran mirror, en
-  regardant alternativement le téléphone et le jury.
-- **Respirer entre les séquences** — 1 seconde de pause signale la
-  fin d'une fonctionnalité au jury.
-- **Éviter les "voilà", "et donc", "du coup"** qui alourdissent
-  un script déjà dense.
-- **Bannir les jargons inutiles** : "JWT côté serveur" OK (vérifiable,
-  bref), mais pas "méthode POST à l'endpoint /auth/login" qui perd
-  un jury non-dev.
+- **Tenir le téléphone bas** pendant la démo pour que la caméra mirror
+  capte bien — ne pas l'agiter.
+- **Pointer avec le doigt** les éléments à l'écran mirror, en regardant
+  alternativement le téléphone et le jury.
+- **Respirer entre les séquences** — 1 s de pause signale la fin d'une
+  fonctionnalité.
+- **Éviter "voilà", "et donc", "du coup"** qui alourdissent un script
+  déjà dense.
+- **Bannir les jargons inutiles** : "JWT" OK (bref, vérifiable), mais
+  pas "méthode POST à /auth/login".
+- **Overlay S10** : Benoît pointe une fois du regard pendant la
+  séquence 6 ("pendant que je vous montre ça, regardez l'écran") —
+  permet au jury de lire les chiffres sans que le présentateur les
+  énumère tous à l'oral.
 
 ## À arbitrer par le user
 
-- [ ] Valider le parcours démo bloc 3 (Auth → Recette profonde →
-  Scanner bière B → Calculateur ABV isolé → Batch timeline).
+- [ ] Valider le parcours 5 min (Auth → Recette → Scanner B →
+  Calculateur ABV → Timeline batch + overlay archi).
 - [ ] Commander le jeu de données démo seedé dans l'autre chat (dev).
-- [ ] Identifier les 3 bières test (A / B / C backup) — prévoir
-  achat si pas sous la main.
-- [ ] Chronométrer une **vraie répétition** avec l'app ouverte pour
-  vérifier que les timings tiennent (objectif : avant l'oral blanc
-  06/05).
-- [ ] Tourner la **vidéo backup** (fallback D1) en J-7 maximum.
+- [ ] Identifier les 3 bières test (A / B / C backup).
+- [ ] Valider l'approche **overlay S10 permanent** vs **segment stats
+  dédié** pour la narration Dev.
+- [ ] Chronométrer une **vraie répétition** avant l'oral blanc du
+  2026-05-06.
+- [ ] Tourner la **vidéo backup** (fallback D1) avant **2026-05-20**.
 
 ## Prochaines étapes logiques
 
-1. Rédiger le **script bloc 4** (Après brassage, 5 min) — continuité
-   directe de la transition 8.
-2. Rédiger le **script bloc 5** (BM + Perspectives + studio,
-   6 min) — grosse matière déjà prête dans le brainstorming.
-3. Rédiger le **script bloc 6** (conclusion + CTA, 1 min) — court.
-4. Anticiper les **questions Q&A** les plus probables.
+1. Répéter le bloc avec un proxy / tiers en public pour validation
+   chrono (objectif : avant oral blanc 06/05).
+2. Tourner la vidéo backup démo (J-7 ≤ 2026-05-20).
+3. Intégrer l'accroche arbitrée (cf.
+   [pitch-hook-variants.md](pitch-hook-variants.md)) dans le bloc 1.

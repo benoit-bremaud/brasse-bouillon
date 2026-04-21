@@ -448,12 +448,19 @@ Priorité à la lisibilité — abréger sans trahir.
 
 **Visuels** : icônes Lucide / Phosphor uniquement.
 
-## S14 — Conclusion + tagline + CTA
+## S14 — Conclusion + tagline + CTA triple canal
 
 **Ancrage** : [bloc 6 conclusion](pitch-script-bloc6-conclusion.md)
 (28:50-30:00) puis **persiste pendant la Q&A** (30:00-40:00).
 
-**Layout** : minimaliste, tagline centrée.
+**Layout** : minimaliste, tagline centrée, CTA triple canal en zone
+basse (QR + APK + cartes distribuées).
+
+**Décisions figées 2026-04-21** :
+
+- Tagline **A** : "Brasser. Partager. Recommencer."
+- CTA **triple canal** : QR code + cartes de visite + APK Android
+  téléchargeable en direct.
 
 **Contenu exact** :
 
@@ -463,21 +470,43 @@ Priorité à la lisibilité — abréger sans trahir.
   - `Partager.` (Inter Bold, 120 pt, noir)
   - `Recommencer.` (Inter Bold, 120 pt, noir)
   - 3 lignes empilées, centrées, interligne aéré.
-- **Zone basse (contacts)** — 3 colonnes discrètes (corps 24 pt) :
-  - Colonne 1 : `@brassebouillon` (LinkedIn perso à confirmer)
-  - Colonne 2 : `benoit.bremaud@ynov.com`
-  - Colonne 3 : QR code vers repo GitHub public (si le repo passe
-    public avant le 27/05 — sinon retirer).
+- **Zone médiane (mention CTA — corps 28 pt, noir, centré)** :
+  `Installez l'app · Lisez le code · Écrivez-moi.`
+- **Zone basse (bloc CTA triple canal)** :
+  - **Colonne gauche — QR code** : QR pointant vers la landing page
+    jury (`brasse-bouillon.fr/jury` ou redirect README GitHub).
+    Encadré blanc, ~15 % largeur slide, libellé sous le QR :
+    `Scan → l'app + le code + mes contacts` (corps 16 pt).
+  - **Colonne centrale — APK Android** : icône Android stylisée
+    (Lucide) + texte `APK Android prêt · Preview build` (corps 20 pt)
+    + URL courte lisible (fallback si le QR ne scanne pas, e.g.
+    `bit.ly/brasse-bouillon-apk`).
+  - **Colonne droite — Cartes distribuées** : icône carte de visite
+    (Lucide) + texte `Carte de visite sur la table` (corps 20 pt).
+- **Zone contacts (corps 18 pt, gris foncé, ligne discrète sous les
+  colonnes CTA)** :
+  - LinkedIn : `linkedin.com/in/benoit-bremaud` (à confirmer)
+  - Email : `benoit.bremaud@vev.com`
+  - Repo GitHub : `github.com/benoit-bremaud/brasse-bouillon`
 - **Bande tout en bas (corps 20 pt, gris)** : `Merci — des questions ?`
 
-**⚠️ Décisions à arbitrer par user** :
+**Répétition du design sur les cartes de visite** : le verso des cartes
+reprend la même structure (tagline + QR + URL courte + contacts) pour
+assurer la cohérence visuelle entre slide S14 et les objets que le
+jury emporte.
 
-- [ ] Choisir la tagline finale (A retenue = "Brasser. Partager.
-  Recommencer.", cf.
-  [bloc 6 script](pitch-script-bloc6-conclusion.md) §Variantes).
-- [ ] Valider le QR code repo (risque PR si le repo contient des
-  secrets ou des fichiers internes non nettoyés).
-- [ ] Confirmer le LinkedIn / email affichés.
+**⚠️ Décisions restantes** :
+
+- [ ] **Construire la landing page `brasse-bouillon.fr/jury`** (2-3 h)
+  OU **décider d'utiliser le README GitHub** comme cible du QR (zéro
+  prod). Lié au trou factuel #3.
+- [ ] **Valider la visibilité du repo** au 27/05 (public vs privé) —
+  cf. [CLAUDE.md](../../../CLAUDE.md) §Repository Visibility,
+  checklist gitleaks à passer.
+- [ ] **Confirmer l'URL LinkedIn** exacte de Benoît.
+- [ ] **Commander les cartes de visite** avant **2026-05-13** (J-14)
+  — cf. [bloc 6 script](pitch-script-bloc6-conclusion.md) §CTA final
+  pour les specs.
 
 ## Checklist de production Canva
 

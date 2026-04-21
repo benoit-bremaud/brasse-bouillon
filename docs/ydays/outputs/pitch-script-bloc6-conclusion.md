@@ -49,29 +49,110 @@ chaque mot compte. Pas de gestuelle parasite.
 >
 > **Brasser. Partager. Recommencer.**"
 
-### Variantes de tagline (à arbitrer par le user)
+### Tagline retenue (arbitrage 2026-04-21)
 
-| # | Tagline | Mots | Note |
-|---|---------|------|------|
-| **A** (retenue ci-dessus) | Brasser. Partager. Recommencer. | 3 | Triptyque, évoque le cycle artisanal. Se retient facilement. |
-| B | Brasse-Bouillon : l'outil français qui fait grandir les brasseurs. | 11 | Factuel, cible FR, mot "grandir" cohérent avec simplicité évolutive. |
-| C | Brasse-Bouillon : parce que faire sa bière mérite un vrai outil. | 11 | Défensive (mérite), joue sur la dignité du brasseur. |
-| D | Brasse-Bouillon : brassez français, pensez francophone. | 6 | Fort sur l'ancrage FR, mais plus politique que produit. |
-| E | Brasse-Bouillon : du grain à la bouteille, pas à pas. | 9 | Métaphore process complet, moins "punchline". |
+**A — Brasser. Partager. Recommencer.** (3 mots)
 
-Recommandation : **A — Brasser. Partager. Recommencer.** Trois
-mots, trois temps, couvre le parcours Avant/Pendant/Après sans le
-dire explicitement. Le jury retiendra ça 5 min après le pitch.
+Triptyque qui couvre le parcours Avant/Pendant/Après sans le dire
+explicitement, évoque le cycle artisanal brassicole, se retient
+facilement. Décomposition scénique obligatoire :
+
+- "Brasser." [pause 0,5 s]
+- "Partager." [pause 0,5 s]
+- "Recommencer."
+
+Trois impacts séparés, pas une phrase fluide. Slide S14 affiche les
+trois mots en grand, idéalement alignés verticalement pour imiter le
+rythme oral.
+
+### Variantes non retenues (archive — pour historique seulement)
+
+| # | Tagline | Mots | Raison non retenue |
+|---|---------|------|--------------------|
+| B | Brasse-Bouillon : l'outil français qui fait grandir les brasseurs. | 11 | Factuel mais moins percutant que A. |
+| C | Brasse-Bouillon : parce que faire sa bière mérite un vrai outil. | 11 | Ton défensif, implique agressivement que Brewfather/Little Bock ne sont pas "vrais". |
+| D | Brasse-Bouillon : brassez français, pensez francophone. | 6 | Trop politique, moins produit. |
+| E | Brasse-Bouillon : du grain à la bouteille, pas à pas. | 9 | Poétique mais manque de punch entrepreneurial. |
 
 ## Séquence 4 — Remerciements + appel Q&A (15 s, ~30 mots)
 
 > **(Le présentateur lève les yeux vers le jury, regarde chaque
-> membre brièvement.)**
+> membre brièvement. Slide S14 reste affichée avec tagline + QR code
+> + mention APK téléchargeable + cartes distribuées.)**
 >
 > "Merci aux coachs Ydays, merci à l'équipe pédagogique, merci à
-> vous pour votre attention.
+> vous pour votre attention. Le **QR code** sur l'écran et les
+> **cartes distribuées** vous amènent au projet, à mes contacts —
+> et vous pouvez **installer Brasse-Bouillon sur votre téléphone
+> dès maintenant**, l'APK est prêt.
 >
 > Je prends vos questions."
+
+**Note CTA physique** (arbitrage 2026-04-21) : triple canal retenu —
+**QR code sur S14** (lien APK + repo GitHub + email contact) +
+**cartes de visite** distribuées au jury + **APK Android
+téléchargeable en direct** (EAS preview profile, PR #558,
+[packages/mobile-app/docs/EAS_BUILD.md](../../../packages/mobile-app/docs/EAS_BUILD.md)).
+Le QR code S14 peut pointer vers une page landing simple listant les
+3 actions : installer l'APK, voir le repo, contacter Benoît. Voir
+section "CTA final" ci-dessous pour les spécifications.
+
+## CTA final — spécifications (arbitrage 2026-04-21)
+
+Triple canal de rétention retenu : QR code + cartes de visite + APK
+direct. Chaque canal joue un rôle différent dans le parcours post-pitch.
+
+### 1. QR code sur slide S14
+
+- **Cible** : une page landing minimale listant les 3 actions (installer
+  l'APK, voir le repo GitHub, contacter Benoît). URL courte lisible
+  recommandée — e.g. `brasse-bouillon.fr/jury` ou, à défaut, un lien
+  GitHub Pages hébergé depuis le repo.
+- **Position S14** : bas à droite, ~15 % de la largeur de slide, encadré
+  blanc pour contraster avec la tagline en grand au centre.
+- **Texte sous le QR** : "Scan → installez l'app, lisez le code, écrivez-moi."
+- **Fallback si pas de landing dédiée** : QR pointe directement vers le
+  README du repo GitHub (il contient déjà les liens APK via
+  [packages/mobile-app/docs/EAS_BUILD.md](../../../packages/mobile-app/docs/EAS_BUILD.md)).
+
+### 2. Cartes de visite (~15-20 exemplaires)
+
+- **Quantité** : prévoir pour le jury (3-5 personnes) + coachs + invités
+  éventuels. Bilan ~20 cartes.
+- **Recto** : logo Brasse-Bouillon + tagline "Brasser. Partager. Recommencer."
+- **Verso** : nom + rôle (Benoît Bremaud, fondateur) + email + URL repo
+  + URL APK + QR code identique à S14.
+- **Prod** : commande imprimerie en ligne (Moo, Vistaprint, etc.), délai
+  48-72 h, coût ~15-25 €. **À commander avant 2026-05-13** (J-14) pour
+  marge de sécurité.
+- **Distribution** : déposées sur la table du jury à l'entrée, ou
+  remises à la main en début de pitch. **Pas distribuées en plein
+  pitch** (distrait).
+
+### 3. APK Android téléchargeable en direct
+
+- **Source** : EAS preview profile, ship depuis 2026-04-20 (PR #558).
+  Docs install : [packages/mobile-app/docs/APK_INSTALL.md](../../../packages/mobile-app/docs/APK_INSTALL.md).
+- **Lien** : à inclure dans la landing page ciblée par le QR.
+- **Pitch pendant le Q&A** : si un jury installe pendant la Q&A,
+  laisser faire. Mention "l'APK est prêt" en séquence 4 invite
+  naturellement à ce geste.
+- **Points forts à valoriser si la question vient en Q&A** :
+  - Signature code + keystore EAS
+  - Mises à jour OTA via canal `preview`
+  - Archive < 5 MB (optimisé `.easignore`)
+  - Compte démo accessible sans création (`EXPO_PUBLIC_USE_DEMO_DATA=true`)
+
+### Risques CTA
+
+- **QR code défectueux** : tester l'impression en grand et le scan avec
+  3 téléphones différents la veille. Garder une URL courte en texte
+  lisible sous le QR comme backup ("brasse-bouillon.fr/jury").
+- **Cartes pas livrées** : commande 2 semaines avant (deadline
+  2026-05-13). Plan B : impression maison en A4 pré-découpée la veille.
+- **APK install bloqué** : téléphones Android only. Pour un jury iOS,
+  rediriger vers la démo live (bloc 3) et le repo GitHub. Ne pas
+  promettre iOS.
 
 ## Vérification budget mots et timing
 
@@ -164,14 +245,20 @@ opérationnelles :
 
 ## À arbitrer par le user
 
-- [ ] **Choisir la tagline** parmi les 5 variantes (recommandation :
-  A).
+- [x] ~~**Choisir la tagline**~~ → **A — Brasser. Partager. Recommencer.**
+  (arbitré 2026-04-21).
+- [x] ~~**Décider du CTA physique**~~ → **Triple canal : QR code S14 +
+  cartes de visite + APK téléchargeable** (arbitré 2026-04-21). Voir
+  section "CTA final" pour les specs.
 - [ ] **Valider les 3 engagements six semaines** (studio ouvre,
   bêta fermée, dossiers financement) — cohérent avec ta capacité
   d'exécution ?
-- [ ] **Décider du CTA physique** : une carte de visite à
-  distribuer ? Un QR code sur S14 vers le repo GitHub ou une
-  landing page si elle existe ? Pour l'instant rien prévu.
+- [ ] **Commander les cartes de visite** avant 2026-05-13 (J-14).
+  Imprimerie en ligne, ~15-25 €, 20 exemplaires.
+- [ ] **Décider de la landing page cible du QR** : page dédiée
+  `brasse-bouillon.fr/jury` (à construire, 2-3 h) ou redirect direct
+  README GitHub (zéro prod). Lié au trou factuel #3 (landing page
+  existence).
 - [ ] Confirmer "Merci aux coachs Ydays, merci à l'équipe
   pédagogique" — si tu préfères citer des noms (Mme/M. X, Y),
   remplacer.

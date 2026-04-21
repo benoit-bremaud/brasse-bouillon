@@ -1,18 +1,25 @@
-# Script présentateur — Bloc 5 BM + Perspectives + studio web (6 min)
+# Script présentateur — Bloc 5 BM + Perspectives + studio web (7 min)
 
-**Contexte** : bloc 5 du pitch, 23:00 → 29:00. Suit la transition
+**Contexte** : bloc 5 du pitch, 21:00 → 28:00. Suit la transition
 du bloc 4 ("Parlons maintenant de comment Brasse-Bouillon gagne de
 l'argent, et de la vision que j'ai pour porter ce projet après la
-soutenance."). C'est le **bloc le plus chargé en valeur** :
-critères **#524 BM + innovation (30 pts)** et **#526 Perspectives
-(20 pts)** = **50 points cumulés sur 145**.
+soutenance."). C'est le **bloc le plus chargé en valeur** de la grille
+officielle Ynov : la catégorie **Perspective (20 pts)** est presque
+entièrement évaluée ici, et ce bloc contribue aussi à **Production
+(30 pts)** via le business model et à **Pitch (15 pts)** via les
+objectifs SMART cités.
+
+**Budget révisé 2026-04-21** : bloc étendu de 6 à 7 min, la minute
+supplémentaire est allouée à la séquence 5 (Perspectives RH — pivot
+studio web) parce que c'est le cœur de la catégorie Perspective — elle
+passe de 1:40 à 2:40.
 
 **Slides à l'écran** :
-- 23:00 → 26:00 : **S12 — Business Model Canvas synthétisé**
-- 26:00 → 29:00 : **S13 — Perspectives + pivot studio web**
+- 21:00 → 24:00 : **S12 — Business Model Canvas synthétisé**
+- 24:00 → 28:00 : **S13 — Perspectives + pivot studio web**
 
-**Durée cible** : 6:00 min.
-**Budget mots** : ~810 mots à 135 mpm.
+**Durée cible** : 7:00 min.
+**Budget mots** : ~945 mots à 135 mpm.
 **Posture** : ton posé, structuré, assumé. C'est le bloc où le user
 doit **démontrer qu'il a réfléchi au projet au-delà de l'exercice
 scolaire**.
@@ -21,13 +28,13 @@ scolaire**.
 
 | Séquence | Timecode | Contenu | Durée |
 |----------|----------|---------|-------|
-| 1. Ouverture BM | 23:00-23:20 | Cadre business | 0:20 |
-| 2. Cible + proposition de valeur | 23:20-24:10 | Segments + UVP | 0:50 |
-| 3. Revenus + innovation | 24:10-25:30 | Freemium + scanner USP | 1:20 |
-| 4. Perspectives légales + budget | 25:30-26:20 | RGPD, infra, financement | 0:50 |
-| 5. Perspectives RH — pivot studio web | 26:20-28:00 | Studio + lien BB | 1:40 |
-| 6. GTM + transition bloc 6 | 28:00-29:00 | Canaux + conclusion | 1:00 |
-| **Total** | 23:00-29:00 | | **6:00** |
+| 1. Ouverture BM | 21:00-21:20 | Cadre business | 0:20 |
+| 2. Cible + proposition de valeur | 21:20-22:10 | Segments + UVP | 0:50 |
+| 3. Revenus + innovation | 22:10-23:30 | Freemium + scanner USP | 1:20 |
+| 4. Perspectives légales + budget | 23:30-24:20 | RGPD, infra, financement | 0:50 |
+| 5. Perspectives RH — pivot studio web | 24:20-27:00 | Studio + lien BB | 2:40 |
+| 6. GTM + transition bloc 6 | 27:00-28:00 | Canaux + conclusion | 1:00 |
+| **Total** | 21:00-28:00 | | **7:00** |
 
 ## Séquence 1 — Ouverture BM (20 s, ~45 mots)
 
@@ -107,7 +114,7 @@ scolaire**.
 > Côté financement, **trois dossiers à déposer d'ici fin 2026** :
 > BPI, concours French Tech, incubateur régional."
 
-## Séquence 5 — Perspectives RH — pivot studio web (100 s, ~225 mots)
+## Séquence 5 — Perspectives RH — pivot studio web (160 s, ~360 mots)
 
 > **(Le présentateur pointe le quadrant RH sur la slide S13 —
 > mis en avant visuellement avec la narration studio.)**
@@ -131,15 +138,34 @@ scolaire**.
 > et des boissons des Alpes-Maritimes** — boulangers, brasseurs,
 > cavistes, traiteurs.
 >
+> **Concrètement, la première semaine** après la soutenance :
+> publication du site studio avec la grille transparente, lancement
+> d'une première mission pilote chez le prospect déjà identifié,
+> ouverture de la micro-entreprise. **À trois mois** : deux sites
+> clients livrés, une première étude marché Brasse-Bouillon
+> relancée sur base des vingt à trente répondants attendus du
+> questionnaire communauté. **À six mois** : trois clients au
+> compteur, un début de track record, et le temps récupéré
+> entièrement réinjecté dans BB.
+>
 > **Le studio finance le développement sérieux de
 > Brasse-Bouillon.** Les revenus paient mes outils d'IA pour aller
 > plus vite, et le temps ainsi dégagé va à ce qu'on n'a pas fini
-> ici : étude marché, marketing, itérations produit.
+> ici : étude marché, marketing, itérations produit. La boucle est
+> **explicite** : chaque mission studio bouclée = x jours récupérés
+> pour BB.
 >
 > **Micro-entreprise au démarrage**, justifiée par une matrice de
-> comparaison documentée dans le repo. Objectif an 1 : **moins de
-> 10 000 € de chiffre d'affaires**, 3 sites clients livrés avant
-> le 30 novembre 2026. Un **premier prospect est déjà identifié**."
+> comparaison — micro, EURL, SASU — documentée dans le repo. Zéro
+> charge fixe, franchise de TVA jusqu'à 37 500 €, réversibilité
+> complète si la traction dépasse l'an 1. Objectif an 1 : **moins
+> de 10 000 € de chiffre d'affaires**, trois sites clients livrés
+> avant le 30 novembre 2026. **Un premier prospect est déjà
+> identifié.**
+>
+> Ce n'est pas un plan B. C'est une **stratégie consciente** pour
+> porter Brasse-Bouillon sans en diluer la propriété ni dépendre
+> d'un recrutement externe que je ne peux pas piloter aujourd'hui."
 
 ## Séquence 6 — GTM + transition bloc 6 (60 s, ~130 mots)
 
@@ -171,12 +197,14 @@ scolaire**.
 | 2. Cible + UVP | 115 | 51 |
 | 3. Revenus + innovation | 180 | 80 |
 | 4. Légal + budget | 115 | 51 |
-| 5. RH — studio web | 225 | 100 |
+| 5. RH — studio web | 360 | 160 |
 | 6. GTM + transition | 130 | 58 |
-| **Total** | **~810** | **~360 = 6:00** |
+| **Total** | **~945** | **~420 = 7:00** |
 
-**Pile 6 min** — zéro marge. Donc il faut **ne pas ralentir** sur
-les chiffres.
+**Exactement 7 min** — la minute ajoutée par rapport à la version
+précédente étoffe la séquence 5 (studio web) avec la roadmap
+semaine / 3 mois / 6 mois et la formulation "stratégie consciente, pas
+plan B". Le reste du bloc est inchangé.
 
 ## Chiffres et sources
 
@@ -193,6 +221,8 @@ les chiffres.
 | Studio < 10 k€ an 1 | [web-studio-brainstorming.md](web-studio-brainstorming.md) Q13 | ✅ Sourcé |
 | Studio 3 sites avant 2026-11-30 | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #31 (B) | ✅ Sourcé |
 | Premier prospect identifié | [web-studio-brainstorming.md](web-studio-brainstorming.md) Q11 | ✅ Sourcé |
+| Franchise TVA 37 500 € | [web-studio-brainstorming.md](web-studio-brainstorming.md) § matrice juridique | ✅ Sourcé |
+| Questionnaire communauté 20-30 répondants | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #29 (révisé 2026-04-21) + landing [brasse-bouillon.com](https://brasse-bouillon.com) | ✅ Sourcé |
 | Gitleaks + CodeQL en CI | [CLAUDE.md](../../../CLAUDE.md) § CI Security Tooling | ✅ Sourcé |
 | Grille tarifaire freemium | **Workshop à programmer** | ⚠️ Formulation prudente "se cale en atelier entrepreneurial" |
 
@@ -200,6 +230,7 @@ les chiffres.
 
 - **#10** — Pen test OWASP / RGPD (séquence 4).
 - **#11** — Infrastructure prod PostgreSQL (séquence 4).
+- **#29** — Questionnaire communauté, première base marché post-soutenance (séquence 5, évoqué dans la roadmap 3 mois).
 - **#31 variante B** — Studio lancement + 3 clients + CA ≥ 6 k€
   (séquence 5, explicite).
 - **#32** — Plan GTM 3 canaux × 3 personas (séquence 6).
@@ -223,6 +254,10 @@ les chiffres.
   victimisation.
 - **Ne pas s'excuser** pendant le pivot studio — c'est une vision
   assumée, pas un plan B.
+- **Ralentir légèrement** sur la roadmap "semaine / 3 mois / 6 mois"
+  (séquence 5, vers la fin) — chaque jalon doit tomber net.
+- **Appuyer "stratégie consciente, pas un plan B"** — phrase-pivot
+  qui doit rester en mémoire du jury pour la Q&A.
 
 ## Points sensibles et fallbacks Q&A
 
@@ -269,16 +304,23 @@ Différenciateur produit réel."
   en séquence 5 — un peu tranchante mais cohérente avec
   l'honnêteté pitch. Sinon reformuler "ce n'est pas une excuse,
   c'est la réalité".
+- [ ] Valider la formulation "stratégie consciente, pas un plan B"
+  (clôture séquence 5) — posture assumée ou à adoucir selon la
+  sensibilité du jury.
 - [ ] Confirmer le wording "Brewfather" et "Little Bock" à citer
   nommément (risque PR mineur mais défendable puisque sourcé).
-- [ ] Valider que le script tient 6 min **au chrono** et pas en
+- [ ] Valider que le script tient 7 min **au chrono** et pas en
   lecture silencieuse — dès répétition.
 
 ## Prochaines étapes logiques
 
-1. Rédiger le **script bloc 6** (conclusion + CTA, 1 min) — court,
-   impactant, tagline finale.
-2. Rédiger le **Q&A anticipées** consolidées (15-20 questions)
-   — déjà 4 amorcées dans ce script.
-3. Rédiger les **transitions entre blocs** en document unifié.
-4. Détailler le contenu exact des slides Canva S1-S14.
+1. Répéter le bloc **au chrono** avec la nouvelle séquence 5 à 2:40
+   min — cible l'oral blanc 2026-05-06.
+2. Valider les 3 jalons roadmap (semaine / 3 mois / 6 mois) en
+   cohérence avec [smart-objectives-par-pole.md](smart-objectives-par-pole.md)
+   #29 et #31.
+3. Le **script bloc 6** est déjà rédigé
+   ([pitch-script-bloc6-conclusion.md](pitch-script-bloc6-conclusion.md))
+   et intègre la tagline A + le CTA triple canal.
+4. Détailler le contenu exact des slides Canva S12 et S13 (4
+   quadrants Perspective, pivot studio mis en avant).

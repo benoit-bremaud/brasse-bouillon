@@ -282,6 +282,17 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
   **Script bloc 3 réécrit pour 5 min** avec overlay S10 permanent
   (preuves techniques affichées pendant la démo, plus de segment Dev
   séparé).
+- **2026-04-21 (suite 2)** — Trous factuels #2 et #3 levés :
+  - **#2 sondage 63,3 %** : jamais mené, retiré de tous les supports
+    (QA, slides outline, Canva S5). Le questionnaire communauté live
+    sur [brasse-bouillon.com](https://brasse-bouillon.com) peut être
+    diffusé avant l'oral blanc 2026-05-06 pour produire une base
+    réelle.
+  - **#3 landing page** : **brasse-bouillon.com** live via GitHub Pages
+    (CNAME ok, newsletter + questionnaire actifs). SMART #34 reformulé
+    sur la base réelle, CTA QR bloc 6 pointe sur `brasse-bouillon.com/jury`
+    (à construire) ou redirect README. Domaine corrigé dans tous les
+    fichiers (était `brasse-bouillon.fr`, maintenant `.com`).
 - **2026-04-21 (suite)** — Décision **Path B** sur la saynète bloc 1 :
   les mentions **boutique intégrée + ratio prix maison/commerce** sont
   retirées (features non construites, ~25 h dev avant 2026-05-03 jugés
@@ -301,18 +312,30 @@ Synthèse des `[trou factuel]` relevés dans ce plan et ailleurs :
 
 1. ~~Durée officielle présentation vs Q&A~~ → **résolu 2026-04-19 :
    30 min pitch + 10 min Q&A = 40 min total.**
-2. Sondage interne "63,3 % / 54 répondants" — user dispose de la source
-   (Google Drive / Slack), à persister dans le repo.
-3. Landing page live — concept à clarifier avec le user
-   *[à discuter]*.
-4. Tagline canonique Brasse-Bouillon — emplacement.
+2. ~~Sondage interne "63,3 % / 54 répondants"~~ → **résolu 2026-04-21** :
+   les chiffres n'étaient pas issus d'une enquête réelle, c'était des
+   estimations. **Retirés du pitch** (QA, slides, deck outline). Le
+   questionnaire communauté live sur
+   [brasse-bouillon.com](https://brasse-bouillon.com) peut être diffusé
+   avant l'oral blanc 2026-05-06 pour produire une base défendable si
+   besoin.
+3. ~~Landing page live~~ → **résolu 2026-04-21** : **brasse-bouillon.com**
+   déployé via GitHub Pages, CNAME ok, formulaire newsletter +
+   questionnaire communauté actifs. Source :
+   [packages/website/README.md](../../../packages/website/README.md).
+4. ~~Tagline canonique Brasse-Bouillon~~ → **résolu 2026-04-21** :
+   A = "Brasser. Partager. Recommencer." Propagation CLAUDE.md /
+   landing site à valider.
 5. ~~Statut recrutement pôle marketing~~ → **pivot 2026-04-19 :
    pas de recrutement, remplacé par pitch de vision personnelle
    "ouverture d'une agence web-studio" — à brainstormer dans une
    session dédiée.**
-6. Niveau accessibilité actuel (WCAG).
-7. Décompte exact wireframes livrés.
-8. Modèle de monétisation précis (freemium/prix/CA).
+6. Niveau accessibilité actuel (WCAG) — **non bloquant**, SMART #21
+   prospectif suffit.
+7. Décompte exact wireframes livrés — **non bloquant**, SMART #13
+   sourcé sur repo actuel.
+8. Modèle de monétisation précis (freemium/prix/CA) — à travailler en
+   workshop dédié post-oral blanc.
 9. ~~Récupérer les 3 grilles d'évaluation officielles Ynov~~ →
    **partiellement résolu 2026-04-21** : grille Pitch Entrepreneurial
    archivée ([grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md)).

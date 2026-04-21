@@ -114,7 +114,7 @@ saynète bloc 1.
 
 - **Cible** : une page landing minimale listant les 3 actions (installer
   l'APK, voir le repo GitHub, contacter Benoît). URL courte lisible
-  recommandée — e.g. `brasse-bouillon.fr/jury` ou, à défaut, un lien
+  recommandée — e.g. `brasse-bouillon.com/jury` ou, à défaut, un lien
   GitHub Pages hébergé depuis le repo.
 - **Position S14** : bas à droite, ~15 % de la largeur de slide, encadré
   blanc pour contraster avec la tagline en grand au centre.
@@ -155,7 +155,7 @@ saynète bloc 1.
 
 - **QR code défectueux** : tester l'impression en grand et le scan avec
   3 téléphones différents la veille. Garder une URL courte en texte
-  lisible sous le QR comme backup ("brasse-bouillon.fr/jury").
+  lisible sous le QR comme backup ("brasse-bouillon.com/jury").
 - **Cartes pas livrées** : commande 2 semaines avant (deadline
   2026-05-13). Plan B : impression maison en A4 pré-découpée la veille.
 - **APK install bloqué** : téléphones Android only. Pour un jury iOS,
@@ -264,7 +264,7 @@ opérationnelles :
 - [ ] **Commander les cartes de visite** avant 2026-05-13 (J-14).
   Imprimerie en ligne, ~15-25 €, 20 exemplaires.
 - [ ] **Décider de la landing page cible du QR** : page dédiée
-  `brasse-bouillon.fr/jury` (à construire, 2-3 h) ou redirect direct
+  `brasse-bouillon.com/jury` (à construire, 2-3 h) ou redirect direct
   README GitHub (zéro prod). Lié au trou factuel #3 (landing page
   existence).
 - [ ] Confirmer "Merci aux coachs Ydays, merci à l'équipe

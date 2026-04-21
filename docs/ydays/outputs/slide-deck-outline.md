@@ -191,15 +191,17 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
 
 ### Données chiffrées à vérifier avant figement
 
-- **10 millions de Français** buveurs de bière artisanale
-  *[trou factuel à sourcer — `target_audience.md` ? sondage
-  externe ?]*.
+- **10 millions de Français** buveurs de bière artisanale — sourcer
+  dans `target_audience.md` avant J-7 ; si non trouvé, basculer vers
+  "plusieurs millions" ou citer une source externe (IRI France, Brassiers
+  Indépendants FR).
 - Chiffres marché (1,5 Md€ 2024, 3 Md€ 2033) — sourcés depuis
   `target_audience.md` ✅.
 - 97 tests automatisés — sourcé depuis
   [audit-features-mvp.md](audit-features-mvp.md) ✅.
-- Ratio prix 3× moins cher — à **calculer** une fois la boutique
-  livrée avec prix réels.
+- ~~Ratio prix 3× moins cher~~ — **retiré du pitch 2026-04-21** :
+  feature boutique non livrée (décision Path B sur saynète). Ne plus
+  citer de chiffre prix dans les slides.
 - CA studio cible < 10 k€ an 1 — sourcé depuis
   [web-studio-brainstorming.md](web-studio-brainstorming.md) ✅.
 

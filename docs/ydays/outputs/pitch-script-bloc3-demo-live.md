@@ -232,7 +232,7 @@ absorption" en fin), plus les 1:15 de la séquence 4 qui peuvent céder
 À produire en **commande Make** (`make seed-demo`) exécutée avant
 chaque répétition :
 
-- Utilisateur `demo@brasse-bouillon.fr` / mot de passe connu.
+- Utilisateur `demo@brasse-bouillon.com` / mot de passe connu.
 - Recettes : "IPA du dimanche", "Pale Ale session", "Stout d'hiver".
 - Brassin "IPA-2026-03" avec 4 mesures de densité sur 2 semaines.
 - Beer-encyclopedia pré-peuplée : 15 styles + 30 bières (dont 2

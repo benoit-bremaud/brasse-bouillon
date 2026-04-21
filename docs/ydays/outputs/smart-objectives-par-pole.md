@@ -244,13 +244,21 @@ d'un sondage interne non trouvé dans le repo → voir `[trou factuel]`.
       § Canaux d'acquisition prioritaires
     - *Critère grille* : BM + innovation (#524, 30 pts)
 
-29. **Réaliser un sondage interne auprès de la cible prospective brasseurs
-    amateurs francophones avec ≥ 50 répondants avant le 2026-05-27.**
-    - *Source* : **[trou factuel]** — le sondage n'est pas trouvé dans
-      le repo ; les chiffres "63,3 % / 54 répondants / 2 personas validés"
-      mentionnés en session doivent être recherchés ou produits. Voir
-      debrief 16/04.
-    - *Critère grille* : BM + innovation (#524, 30 pts)
+29. **Collecter les premières réponses au questionnaire communauté live
+    sur [brasse-bouillon.com](https://brasse-bouillon.com) avant le
+    2026-05-27 — objectif minimum 30 répondants pour disposer d'une
+    base défendable en Q&A.**
+    - *Source* : questionnaire communauté déployé dans le package
+      website ([packages/website/index.html](../../../packages/website/index.html)
+      §`questionnaireFr`) — 4 sections (profil, pratique, attentes,
+      contact). **Les chiffres "63,3 % / 54 répondants / 2 personas
+      validés" évoqués dans les sessions antérieures étaient des
+      estimations, pas des résultats d'enquête** — à retirer des
+      supports. Le sondage réel reste à conduire (diffusion via
+      réseau personnel + Discord brasseurs + Reddit r/Brasserie FR
+      avant oral blanc 2026-05-06).
+    - *Critère grille* : Production (30 pts) — validation marché
+      honnête et traçable.
 
 30. **Poser une identité de marque (nom Brasse-Bouillon, tagline, visuels
     associés) cohérente avec la cible francophone.**
@@ -292,13 +300,17 @@ d'un sondage interne non trouvé dans le repo → voir `[trou factuel]`.
       § Partenariats LHBS
     - *Critère grille* : Perspectives GTM (#526, 20 pts)
 
-34. **Atteindre 1 000 pré-inscriptions sur une landing page dédiée avant
-    le lancement public V1.0 (horizon 6 mois).**
+34. **Atteindre 1 000 pré-inscriptions newsletter sur
+    [brasse-bouillon.com](https://brasse-bouillon.com) avant le
+    lancement public V1.0 (horizon 6 mois post-soutenance).**
     - *Source* : KPI de succès repris de
       [vision.md](../../vision/vision.md) § Indicateurs — 1 000 utilisateurs
-      actifs dans les 6 mois. *[trou factuel : existence d'une landing
-      page live à vérifier]*
-    - *Critère grille* : Perspectives GTM (#526, 20 pts)
+      actifs dans les 6 mois. **Landing live** — package
+      [packages/website](../../../packages/website/README.md) déployé sur
+      GitHub Pages, domaine `brasse-bouillon.com`, formulaire newsletter
+      actif (`#newsletterFr`) + questionnaire communauté
+      (`#questionnaireFr`). CNAME = `brasse-bouillon.com`.
+    - *Critère grille* : Perspectives GTM (20 pts)
 
 35. **Publier 10 contenus éducatifs bilingues Fr/technique (Academy)
     entre 2026-06 et 2026-12 pour soutenir l'acquisition organique.**
@@ -335,9 +347,23 @@ deck + repo).
 Listés aussi dans
 [debrief/2026-04-16_session-decisions.md](../debrief/2026-04-16_session-decisions.md) :
 
-1. Sondage interne "63,3 % / 54 répondants" — introuvable dans le repo.
-2. Landing page live — existence et URL à confirmer.
-3. Tagline canonique Brasse-Bouillon — emplacement dans le repo.
-4. Statut recrutement pôle marketing — confirmé ? en cours ? non démarré ?
-5. Niveau d'accessibilité actuel (WCAG) — à auditer.
+1. ~~Sondage interne "63,3 % / 54 répondants"~~ → **résolu 2026-04-21** :
+   les chiffres n'étaient pas issus d'un vrai sondage mais d'estimations.
+   **Retirés de tous les supports**. Le questionnaire communauté est
+   live sur [brasse-bouillon.com](https://brasse-bouillon.com) et peut
+   être diffusé avant l'oral blanc 2026-05-06 pour produire une base
+   réelle (objectif 30 répondants min).
+2. ~~Landing page live~~ → **résolu 2026-04-21** : **brasse-bouillon.com**
+   déployé via GitHub Pages (CNAME ok), formulaire newsletter + questionnaire
+   actifs. Source : [packages/website/README.md](../../../packages/website/README.md).
+3. ~~Tagline canonique Brasse-Bouillon~~ → **résolu 2026-04-21** :
+   tagline A = "Brasser. Partager. Recommencer." arbitrée dans
+   [pitch-script-bloc6-conclusion.md](pitch-script-bloc6-conclusion.md).
+   À propager dans CLAUDE.md / README / landing site si pas déjà fait.
+4. ~~Statut recrutement pôle marketing~~ → **résolu 2026-04-19** :
+   pivot abandonné, remplacé par vision studio web personnel (cf.
+   [web-studio-brainstorming.md](web-studio-brainstorming.md)).
+5. Niveau d'accessibilité actuel (WCAG) — à auditer. **Non bloquant
+   soutenance** ; SMART #21 prospectif suffit.
 6. Wireframes — compter factuellement le nombre livré (11 attendus).
+   **Non bloquant** ; SMART #13 sourcé sur repo actuel.

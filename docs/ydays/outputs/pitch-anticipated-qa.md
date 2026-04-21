@@ -145,9 +145,10 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > ciblée, c'est cohérent. Les canaux d'acquisition sont
 > identifiés : magasins spécialisés, YouTubers brassicoles FR,
 > communautés Reddit et Facebook, salons CRAB et Saint-Malo.
-> Je n'ai **pas encore** de landing page live — c'est le
-> deuxième trou factuel du pitch, à combler dans les 2
-> premières semaines post-soutenance."
+> La **landing page est déjà en ligne** sur
+> **brasse-bouillon.com** avec formulaire newsletter et
+> questionnaire communauté actifs — la phase d'acquisition
+> commence dès l'ouverture post-soutenance."
 
 ## 3. Technique & architecture
 

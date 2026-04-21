@@ -206,11 +206,13 @@ en J-7.
 - **Tagline bas (corps, 28 pt, gris clair `#CCCCCC`)** : `Aucune
   app française ne les accompagne. Jusqu'ici.`
 
-**⚠️ Trou factuel** : le chiffre "10 millions" doit être **sourcé
-avant figement**. Soit depuis `target_audience.md` (marché 1,5 Md€
-EU), soit depuis un sondage externe à citer. Si non sourçable avant
-J-7, remplacer par `3 millions de brasseurs amateurs en Europe`
-(chiffre défendable via Brülosophy 2024 + marchés sectoriels).
+**⚠️ À sourcer avant J-7** : vérifier "10 millions de Français" dans
+`target_audience.md`. Pas de sondage interne à citer (confirmé
+2026-04-21 : les chiffres 63,3 % / 54 répondants étaient des
+estimations, pas des résultats d'enquête — retirés). Si "10 M" non
+défendable, replier sur "**plusieurs millions de Français**" ou
+"**3 millions de brasseurs amateurs en Europe**" (Brülosophy 2024 +
+marchés sectoriels).
 
 ## S6 — Cible + gap marché
 
@@ -474,7 +476,7 @@ basse (QR + APK + cartes distribuées).
   `Installez l'app · Lisez le code · Écrivez-moi.`
 - **Zone basse (bloc CTA triple canal)** :
   - **Colonne gauche — QR code** : QR pointant vers la landing page
-    jury (`brasse-bouillon.fr/jury` ou redirect README GitHub).
+    jury (`brasse-bouillon.com/jury` ou redirect README GitHub).
     Encadré blanc, ~15 % largeur slide, libellé sous le QR :
     `Scan → l'app + le code + mes contacts` (corps 16 pt).
   - **Colonne centrale — APK Android** : icône Android stylisée
@@ -497,7 +499,7 @@ jury emporte.
 
 **⚠️ Décisions restantes** :
 
-- [ ] **Construire la landing page `brasse-bouillon.fr/jury`** (2-3 h)
+- [ ] **Construire la landing page `brasse-bouillon.com/jury`** (2-3 h)
   OU **décider d'utiliser le README GitHub** comme cible du QR (zéro
   prod). Lié au trou factuel #3.
 - [ ] **Valider la visibilité du repo** au 27/05 (public vs privé) —

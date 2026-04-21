@@ -62,9 +62,11 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > l'expert, interface dense, paramètres techniques partout.
 > Brasse-Bouillon offre **trois niveaux** — Nicolas débutant,
 > Claire créative, Marc expert.
-> **Scanner code-barre** : Brasse-Bouillon scanne une bière
-> commerciale et propose une recette équivalente. Brewfather ne
-> le fait pas, Little Bock non plus, Untappd scanne pour noter,
+> **Scanner code-barre couplé à l'encyclopedia** :
+> Brasse-Bouillon scanne une bière commerciale, affiche sa
+> fiche (brasserie, style, ABV, format) et suggère jusqu'à
+> 3 recettes proches dans l'app. Brewfather ne
+> scanne pas, Little Bock non plus, Untappd scanne pour noter,
 > pas pour créer."
 
 ### Q4. "Le scanner code-barre, il marche vraiment ? Ou c'est une démo ?"
@@ -72,12 +74,16 @@ anticipe **20 questions** probables avec **réponses prêtes de
 **Réponse (~30 s)** :
 
 > "Il marche vraiment — vous l'avez vu live tout à l'heure sur
-> une vraie bière. **Fallback photo** intégré si le code-barre
-> n'est pas lu du premier coup. Feature stable, tests unitaires
-> côté API et côté mobile, déployée sur la branche main.
-> Architecture : lecture locale par le SDK Expo Camera, puis
-> requête sur la table `beers` du beer-encyclopedia avec
-> recherche trigramme PostgreSQL."
+> une vraie bière. Ce n'est pas une slide : le **parcours de
+> scan existe réellement**. Côté mobile, Expo Camera lit le
+> code-barre, demande 5 lectures identiques avant validation,
+> puis affiche une fiche bière si la référence est reconnue.
+> Si elle ne l'est pas, **fallback photo** avant/arrière pour
+> poursuivre l'analyse. Le flux est couvert par des tests côté
+> mobile, et le module `scan` existe côté API sur la branche
+> `main`. Pour la soutenance, je sécurise un happy path démo
+> sur des références préparées plutôt que de prétendre couvrir
+> tout le marché."
 
 ### Q5. "Vos 3 personas sont documentés mais pas validés par des utilisateurs réels, non ?"
 
@@ -118,8 +124,10 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > sur Brasse-Bouillon. Si l'an 1 valide l'ICP — 3 clients
 > livrés, retours positifs — l'an 2 vise 30 à 60 k€, et là le
 > financement sérieux de BB démarre. **C'est une courbe, pas un
-> cliquet.** Plus les 3 dossiers de financement BPI et French
-> Tech qui partent dans 6 semaines, sans attendre le studio."
+> cliquet.** En parallèle, je prévois de déposer **3 dossiers
+> de financement** — BPI, concours French Tech, incubateur
+> régional — dans les 6 semaines post-soutenance,
+> indépendamment du studio."
 
 ### Q8. "Qu'est-ce qui prouve qu'il y a un marché francophone pour ça ?"
 
@@ -204,11 +212,11 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > "Non. La traduction ne suffit pas — c'est ce que Little Bock
 > prouve à l'envers : une app FR qui vieillit faute
 > d'**ancrage communautaire**. Ce qu'on construit c'est un
-> **écosystème FR** : partenariats magasins, contenus Academy
-> culturellement pertinents, ingrédients locaux référencés,
-> intégration dans la vie des clubs de brasseurs amateurs FR.
-> Brewfather traduit resterait un outil isolé. Nous, on joue
-> la communauté."
+> **écosystème FR** : contenus Academy culturellement pertinents,
+> ingrédients locaux référencés dans la beer-encyclopedia,
+> **partenariats à nouer** avec magasins spécialisés (LHBS) et
+> clubs de brasseurs amateurs FR. Brewfather traduit resterait
+> un outil isolé. Nous, on joue la communauté."
 
 ### Q14. "Untappd a 109 000 utilisateurs FR, pourquoi vous ne partez pas plutôt sur la notation de bières ?"
 
@@ -228,17 +236,16 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 **Réponse (~45 s)** :
 
-> "Vraie faiblesse que j'assume. Pendant les Ydays, on nous
-> demandait une vraie étude de marché — **le pôle marketing
-> de l'équipe n'a pas livré**, et je n'ai pas compensé moi-même
-> parce que j'étais sur le produit. Je préfère vous le dire
-> directement plutôt que de présenter une étude bâclée.
-> **C'est exactement pour ça que je lance le studio web** :
-> dégager du temps et du budget pour refaire ce qui manque,
-> sérieusement, dans les 3 à 6 mois qui viennent. Le pitch
-> cite une recherche documentaire solide — Brülosophy, AHA,
-> données européennes. Mais le terrain qualitatif, je n'ai
-> pas su le faire dans le cadre Ydays."
+> "Vraie faiblesse assumée. Les rendus étude de marché terrain
+> ont été incomplets dans le cadre Ydays, et je n'ai pas eu
+> la bande passante produit pour les compenser moi-même. Je
+> préfère vous le dire directement plutôt que de présenter une
+> étude bâclée. **C'est exactement pour ça que je lance le
+> studio web** : dégager du temps et du budget pour refaire ce
+> qui manque, sérieusement, dans les 3 à 6 mois qui viennent.
+> Le pitch s'appuie sur une recherche documentaire solide —
+> Brülosophy, AHA, données européennes. Le qualitatif terrain
+> reste à construire post-soutenance."
 
 ## 5. Équipe & parcours Ydays
 
@@ -246,15 +253,16 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 **Réponse (~35 s)** :
 
-> "Équipe de 3 pôles sur le papier : Développement, Création,
-> Marketing. **Le pôle Dev a livré**, en volume : monorepo 4
-> packages, 97 tests, 6 sprints Scrum documentés, CI
-> industrialisée, authentification, 8 features stables.
-> **Les pôles Création et Marketing** ont délivré partiellement
-> — charte graphique et wireframes, étude documentaire,
-> mais pas les itérations qu'on aurait voulu. Je prends le
-> relais post-soutenance avec le studio web pour combler ce
-> qui manque."
+> "Équipe de 8 personnes organisée en 3 pôles : Développement,
+> Création, Marketing. Côté **Dev**, livraison en volume :
+> monorepo 4 packages, 97 tests, 6 sprints Scrum documentés,
+> CI industrialisée, authentification, 8 features stables.
+> Côté **Création** : charte graphique, wireframes, design
+> system. Côté **Marketing** : étude documentaire, personas.
+> Certaines itérations prévues n'ont pas pu aboutir dans le
+> calendrier Ydays — je prends le relais post-soutenance via
+> le studio web pour combler ce qui manque, sans dépendre d'un
+> recrutement externe."
 
 ### Q17. "Qu'est-ce que vous avez appris des Ydays en tant que chef de projet ?"
 
@@ -284,9 +292,10 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > 3 semaines. **Positionnement écrit** — artisan tech solo,
 > méthode IA-driven, cible TPE food et boissons des
 > Alpes-Maritimes, grille prix 1 500 à 8 000 €. **Premier
-> prospect concret identifié**. Premier devis dans les 6
-> semaines post-soutenance. Ce n'est pas une idée, c'est un
-> projet engagé, documenté dans
+> prospect qualifié** (restaurateur local, site vitrine 2-3 k€),
+> contact en cours. Premier devis dans les 6 semaines
+> post-soutenance. Ce n'est pas une idée, c'est un projet
+> engagé, documenté dans
 > `docs/ydays/outputs/web-studio-brainstorming.md`."
 
 ### Q19. "Pourquoi micro-entreprise et pas SASU directement ?"
@@ -353,6 +362,80 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > construit une tour d'ivoire brassicole, j'ai construit une
 > stack généraliste avec un vertical food appliqué."
 
+### Q24. "Quel feedback avez-vous eu de vrais brasseurs sur l'app ?"
+
+**Réponse (~35 s)** :
+
+> "Honnêtement, **peu de feedback qualitatif terrain** à date —
+> c'est une limite que j'assume. Ce que nous avons : le
+> **questionnaire communauté** live sur brasse-bouillon.com, qui
+> commence à recueillir des réponses ; des **échanges informels**
+> avec des brasseurs amateurs de mon entourage pendant la
+> conception des 3 personas ; et la base documentaire Brülosophy
+> sur 2 200 brasseurs. Le chantier interviews semi-dirigées —
+> **15 brasseurs, 5 par persona** — démarre dès la diffusion du
+> questionnaire élargie post-oral blanc."
+
+### Q25. "Comment protégez-vous les données utilisateur côté RGPD spécifiquement ?"
+
+**Réponse (~35 s)** :
+
+> "Trois mesures concrètes, et une perspective.
+> **Minimisation** : on ne collecte qu'email et pseudo à
+> l'inscription — rien de plus pour l'instant.
+> **Stockage** : SQLite sur volume Fly.io, région `cdg`
+> (Paris / UE), mots de passe hachés avec bcrypt.
+> **Consentement** : le module scan demande un accord explicite
+> avec durée de rétention paramétrable côté mobile.
+> **Perspective** : audit RGPD externe + pen test OWASP avant
+> ouverture publique. Registre des traitements, procédure
+> d'accès et suppression restent à formaliser avant ouverture
+> grand public."
+
+### Q26. "Pourquoi croire que vous livrerez en 1 an ce que vous n'avez pas livré en Ydays ?"
+
+**Réponse (~40 s)** :
+
+> "Question légitime. Trois différences structurelles.
+> **Scope** : en Ydays, je coordonnais 3 pôles dont je ne
+> contrôlais pas le rythme. Post-soutenance, je pilote seul le
+> périmètre produit, avec un studio qui finance le temps.
+> **Outillage** : tout le chantier structurel est fait —
+> monorepo, CI, tests, auth, architecture. Ce qui reste à
+> livrer, c'est du produit incrémental sur des rails solides.
+> **Cadence** : les 6 sprints Scrum documentés dans
+> `docs/project-management/` montrent une vélocité réelle
+> mesurée, pas projetée. Je ne promets pas tout — je promets
+> les 3 features manquantes (SMART #7) et les interviews
+> utilisateurs d'ici fin septembre."
+
+### Q27. "Le prospect studio identifié — qui, quel secteur ?"
+
+**Réponse (~25 s)** :
+
+> "Restaurateur indépendant dans les Alpes-Maritimes, besoin
+> site vitrine + réservation simple, enveloppe 2-3 k€. Contact
+> déjà identifié, échange commercial prévu post-soutenance.
+> Je n'entre pas dans le détail nominatif par respect du cadre
+> commercial avant signature — mais le dossier est concret,
+> pas un plan sur la comète."
+
+### Q28. "Votre 'méthode IA-driven', c'est pas juste 'j'utilise ChatGPT' ?"
+
+**Réponse (~40 s)** :
+
+> "Non, c'est plus structuré que ça. Trois couches.
+> **Outils** : Claude Code comme orchestrateur principal, MCP
+> Chrome DevTools pour l'inspection live, Git worktrees pour
+> paralléliser les chantiers, pre-commit hooks pour la
+> qualité.
+> **Méthode** : mémoire persistante du projet dans
+> `PROJECT_LOG.md`, conventions documentées dans `CLAUDE.md`
+> par package, revues PR automatisées avant merge humain.
+> **Garde-fous** : jamais de merge sans CI verte et review
+> Copilot adressée, jamais de `--no-verify`. L'IA accélère,
+> elle ne dispense pas de la rigueur — elle l'outille."
+
 ## Méthode de préparation aux répétitions
 
 **Pré-exercice J-7 / J-3** : demander à un proche (Fabien, Thomas,
@@ -370,14 +453,18 @@ pas de relecture). Chronométrer.
 | Honnêteté | 1 "je ne sais pas" toléré sur 10 Q |
 | Précision | 0 chiffre inventé |
 
-## À arbitrer par le user
+## Points de vigilance pour la répétition
 
-- [ ] Valider les formulations sur Q15 ("pôle marketing n'a pas
-  livré") et Q16 — tranchées mais défendables.
-- [ ] Ajouter des questions spécifiques si le user anticipe un
-  profil jury particulier (ex : un jury RH, un jury technique,
-  un jury marketing).
-- [ ] Réviser les chiffres cités (SMART numbers, montants k€)
+- Verrouiller le **happy path scanner** sur une référence
+  préparée pour la soutenance ; si le live n'est pas stable à
+  J-3, garder un fallback vidéo.
+- Si le jury demande les **3 dossiers de financement**, les
+  présenter comme des dépôts planifiés post-soutenance, pas
+  comme des dossiers déjà instruits.
+- Si le jury creuse le **prospect studio**, rester anonyme sur
+  le nom mais être précis sur le secteur, le besoin et
+  l'enveloppe.
+- Réviser les chiffres cités (SMART numbers, montants k€)
   après les répétitions si certains se révèlent imprécis.
 
 ## Prochaines étapes logiques

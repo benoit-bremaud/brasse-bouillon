@@ -7,53 +7,93 @@ révisé. La saynète V1-cut
 cible, la taille du marché, le founder-fit, l'annonce SMART et le gap
 concurrentiel avant de basculer sur le bloc 2 "Avant brassage".
 
-**Note** : les **1:05 de cadrage** ci-dessous étaient calibrés pour le
-budget historique (bloc 1 = 4 min, saynète = 2:55). Le script reste
-utilisable comme **noyau** du cadrage ; il faut l'étoffer de ~2 min de
-cadrage supplémentaire pour atteindre les 3:10 disponibles — roadmap
-dans le plan bloc 1 de [plan-presentation-27-mai.md](plan-presentation-27-mai.md).
-
-**Point d'entrée** : juste après la réplique du présentateur en
-fin de saynète "…Voilà pourquoi j'ai construit Brasse-Bouillon"
-(cf. storyboard plan #14).
+**Point d'entrée** : juste après la punchline P1 de la saynète
+V1-cut ("OK. Je commence quand ?"), suivie de la sortie des deux
+comédiens et d'un silence scénique de 2-3 secondes.
 
 **Slide à l'écran pendant ce cadrage** : **S6 — Cible + gap marché**
 (carte France + tableau comparatif Brewfather / Little Bock / BB) —
 cf. [slide-deck-outline.md](slide-deck-outline.md).
 
-**Durée cible** : 1:00 à 1:05 min.
-**Budget mots** : ~140 mots à 135 mpm.
+**Durée cible** : 3:10 min (1:50 → 5:00 dans le pitch global).
+**Budget mots** : ~400 mots à 135 mpm + ~12 s cumulés de silences
+et respirations = **~3:10**.
 **Posture** : Benoît face jury, ton posé, rythme légèrement plus
 grave que la saynète, pour marquer le changement de registre.
+**Structure** : 5 segments A-E (écho saynète → chiffres marché →
+founder-fit → 3 piliers + SMART → transition T1).
 
-## Script — version V1 (140 mots)
+## Script — version V2 (~400 mots, ~3:10 min)
 
-> **(2-3 secondes de silence, laisser la saynète s'installer dans
-> les têtes.)**
+### Segment A — Écho saynète (~15 mots, 5-10 s)
+
+> **(Les deux comédiens sortent côté cour. Benoît revient seul face
+> jury. 2-3 secondes de silence — laisser la scène s'installer.)**
 >
-> "Ce couple, ce sont **dix millions de Français** qui boivent
-> régulièrement de la bière artisanale. Mais leur profil est précis :
-> trente à cinquante ans, deux à dix ans de pratique, technophiles,
-> urbains, francophones.
+> "Cette scène que vous venez de voir — c'est celle de **dix millions
+> de Français**."
+
+### Segment B — Chiffres marché + gap FR (~125 mots, ~55 s)
+
+> "Leur profil est précis : **trente à cinquante ans**, **deux à dix
+> ans de pratique**, technophiles, urbains, francophones.
 >
 > Aujourd'hui, ils brassent de manière désorganisée — recettes sur
-> papier, calculs à la main, matériel éparpillé, aucune communauté
-> pour s'inspirer.
+> papier, calculs à la main, matériel éparpillé, **aucune communauté
+> pour s'inspirer**.
 >
 > Le marché européen du brassage amateur pèse **un milliard et demi
 > d'euros en 2024**, et il grossit de **huit virgule cinq pour cent
 > par an** jusqu'en 2033.
 >
-> Et pourtant — c'est exactement notre opportunité — **Brewfather
-> domine ce marché en anglais**, **Little Bock a vieilli**. Aucune
-> application française moderne ne répond aux besoins spécifiques
-> de cette cible.
+> Et pourtant — **Brewfather domine ce marché en anglais**, **Little
+> Bock a vieilli**. Aucune application française moderne ne répond
+> aux besoins spécifiques de cette cible. **C'est exactement notre
+> opportunité.**"
+
+### Segment C — Founder-fit artisan tech (~110 mots, ~50 s)
+
+> "Ce gap, **je ne l'ai pas découvert dans un rapport. Je l'ai vécu.**
 >
-> **C'est le gap que Brasse-Bouillon vient combler.** Voyons
-> maintenant, concrètement, comment nous accompagnons ce brasseur à
-> chaque étape."
+> Je suis **Benoît Bremaud**, développeur depuis une décennie,
+> brasseur amateur à mes heures. Quand j'ai voulu structurer mes
+> propres brassins, aucun outil francophone ne m'a convaincu — soit
+> anglophone, soit vieillissant, soit trop complexe pour un amateur.
 >
-> **(Transition vers bloc 2. Slide bascule sur S7 — 3 personas.)**
+> J'ai donc commencé à construire ce qui me manquait.
+>
+> Brasse-Bouillon, c'est un outil d'**artisan tech** : pensé en
+> français, **méthode IA-driven** pour accélérer, ancré dans le
+> quotidien de cette cible. Et porté ensuite par un studio que je
+> lance dans les Alpes-Maritimes — pour lui donner toutes ses chances
+> au-delà de cette soutenance."
+
+### Segment D — 3 piliers + SMART (~110 mots, ~45 s)
+
+> "Voilà ce que je vais vous montrer, en trois temps.
+>
+> **Un** — ce que nous avons déjà livré : **huit features sur onze**
+> stables et démontrables en live, adossées à **quatre-vingt-dix-sept
+> tests automatisés**. La preuve par le code.
+>
+> **Deux** — le différenciant : dans dix minutes, vous verrez **un
+> scan de bouteille déclencher une recette équivalente, en français**
+> — ce qu'aucune application francophone ne fait aujourd'hui. Gap
+> documenté avec **cinq sources externes** croisées.
+>
+> **Trois** — le modèle économique, le statut juridique, et la
+> trajectoire entrepreneuriale — je les pose en clôture."
+
+### Segment E — Transition vers bloc 2 (T1, ~35 mots, ~15 s)
+
+> "Voilà le cadre. Maintenant, **suivons un brasseur sur son parcours
+> complet**. Trois étapes : **avant** qu'il brasse, **pendant** son
+> brassage, **après** son brassin.
+>
+> Commençons par l'**avant**."
+>
+> **(Geste : main gauche qui compte un-deux-trois sur "avant, pendant,
+> après". Slide bascule de S6 vers S7 — 3 personas.)**
 
 ## Chiffres et sources
 
@@ -129,8 +169,11 @@ Variantes possibles selon ton et rythme :
 
 ## Prochaines étapes logiques dans la rédaction
 
-1. Rédiger le script du bloc 2 (Avant brassage, 6 min) — continuité
-   naturelle.
-2. Rédiger le script du bloc 3 (démo live, 8 min) — le plus
-   technique et le plus chronométré.
-3. Les blocs 4-5-6 peuvent s'enchaîner dans la foulée.
+1. Chronométrer le script V2 à voix haute (cible 3:05-3:15 min).
+   Si >3:20, couper segment C (founder-fit) en priorité.
+2. Résoudre le trou factuel "10 millions de Français" ou basculer
+   sur un repli (options ci-dessus) avant l'oral blanc 2026-05-06.
+3. Produire la slide **S6** dans Canva (carte FR + tableau comparatif
+   Brewfather / Little Bock / BB) — voir issue T8.
+4. Répéter l'enchaînement saynète V1-cut → cadrage V2 avec le binôme
+   P1/P2 (issue #560) pour valider la bascule 1:50 → 1:50-5:00.

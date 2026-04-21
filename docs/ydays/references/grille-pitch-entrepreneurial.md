@@ -20,8 +20,8 @@ soutenance Ydays du 2026-05-27. **Total : 80 points + 1 point "coup de cœur" op
 ## Lecture pondération
 
 - **Production (30 pts) = 37,5 % du barème** — la plus grosse catégorie. Business model + démo + argumentation sont évalués ensemble. Justifie d'investir le temps le plus important ici (blocs 2, 3, 4 du plan = 16 min sur 30).
-- **Perspective (20 pts) = 25 %** — statut juridique, RH, commercialisation, développement, investissement. Traité dans bloc 5 (6 min sur 30).
-- **Pitch (15 pts) = 18,75 %** — accroche + raison d'être + proposition de valeur + SMART. Traité dans bloc 1 (4 min sur 30).
+- **Perspective (20 pts) = 25 %** — statut juridique, RH, commercialisation, développement, investissement. Traité dans bloc 5 (**7 min sur 30**, révisé 2026-04-21 depuis 6 min pour étoffer le pivot studio web).
+- **Pitch (15 pts) = 18,75 %** — accroche + raison d'être + proposition de valeur + SMART. Traité dans bloc 1 (**5 min sur 30**, révisé 2026-04-21 depuis 4 min pour laisser place à la saynète V1-cut et au cadrage founder-fit).
 - **Qualité orale (15 pts) = 18,75 %** — transversal, noté sur l'ensemble de la prestation (éloquence, aisance, support esthétique, gestion du temps). Dépend directement des répétitions et du support Canva.
 
 ## Mapping plan → catégories

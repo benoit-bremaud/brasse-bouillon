@@ -4,9 +4,12 @@
 pitch en découle. Choix assumé par le user le 2026-04-19 malgré les
 alertes sur le timing et les features à livrer.
 
-**Contrainte de timing** : la saynète doit tenir **≤ 2:30 min** dans le
-bloc 1 (4 min total) pour laisser 1:30 min au cadrage cible + marché
-avant d'enchaîner sur le bloc 2.
+**Contrainte de timing** (révisée 2026-04-21) : bloc 1 étendu à **5 min**
+et saynète désormais fixée à **1:50 min** dans la V1-cut
+([pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md)) retenue
+sur la décision Path B. Reste **~3:10** pour le cadrage cible + marché +
+founder-fit + annonce SMART + transition vers bloc 2. Ce fichier (V0)
+est conservé pour historique uniquement.
 
 **Contrainte de scope produit** : plusieurs features mentionnées dans la
 saynète d'origine ne sont pas encore live dans l'app (audit du 16/04).

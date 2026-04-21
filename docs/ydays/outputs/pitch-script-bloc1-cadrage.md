@@ -1,9 +1,17 @@
-# Script présentateur — Bloc 1 cadrage (1:05 après saynète)
+# Script présentateur — Bloc 1 cadrage (après saynète V1-cut)
 
-**Contexte** : dans le plan, le bloc 1 fait 4 min. La saynète
-(2:55 avec intro + transition) est suivie d'un cadrage présentateur
-d'environ 1:05 pour poser la cible, la taille du marché et le gap
-concurrentiel, avant de basculer sur le bloc 2 "Avant brassage".
+**Contexte** (révisé 2026-04-21) : bloc 1 fait **5 min** dans le budget
+révisé. La saynète V1-cut
+([pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md)) tient en
+**~1:50**, laissant **~3:10** au cadrage présentateur pour poser la
+cible, la taille du marché, le founder-fit, l'annonce SMART et le gap
+concurrentiel avant de basculer sur le bloc 2 "Avant brassage".
+
+**Note** : les **1:05 de cadrage** ci-dessous étaient calibrés pour le
+budget historique (bloc 1 = 4 min, saynète = 2:55). Le script reste
+utilisable comme **noyau** du cadrage ; il faut l'étoffer de ~2 min de
+cadrage supplémentaire pour atteindre les 3:10 disponibles — roadmap
+dans le plan bloc 1 de [plan-presentation-27-mai.md](plan-presentation-27-mai.md).
 
 **Point d'entrée** : juste après la réplique du présentateur en
 fin de saynète "…Voilà pourquoi j'ai construit Brasse-Bouillon"

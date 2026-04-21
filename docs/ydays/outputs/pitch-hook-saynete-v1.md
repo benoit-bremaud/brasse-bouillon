@@ -1,7 +1,14 @@
 # Saynète V1 — version chronométrée pitch soutenance
 
-**Cible timing** : 2:30 min maximum (bloc 1 de 4 min, reste 1:30 pour
-cadrage marché + transition).
+> **Statut 2026-04-21 — Archivée**. La V1 complète (2:30 min, mentionne
+> boutique + ratio prix) est remplacée par la V1-cut (~1:50 min, sans
+> boutique/ratio) depuis la décision Path B. Voir
+> [pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md) pour la
+> version de travail. Ce fichier est conservé pour historique.
+
+**Cible timing (historique V1)** : 2:30 min maximum (bloc 1 faisait
+4 min à l'époque, révisé à 5 min depuis ; V1-cut tient en 1:50 min
+pour laisser ~3:10 au cadrage marché + transition).
 **Style** : rythme serré, un échange par problème levé, voix off
 autorisée pour raccourcir. Lecture neutre = 130-140 mots par minute.
 **Budget de mots** : ~320-340 mots pour 2:30 min.

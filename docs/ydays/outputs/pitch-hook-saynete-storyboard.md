@@ -65,9 +65,12 @@ bloc 1 (reste 1:20 pour cadrage marché + transition).
 **Durée totale** : **2:55 min** (20 s intro + 2:35 dialogue +
 20 s transition présentateur).
 
-Le bloc 1 fait 4 min. Il reste **1:05 min** pour enchaîner sur le
-cadrage "qui est cette cible exactement" + "pourquoi le gap français
-est une opportunité économique" + transition vers bloc 2.
+**Ce storyboard a été écrit pour la saynète V1 complète (~2:35 min).**
+Depuis la décision Path B du 2026-04-21, la saynète retenue est la
+V1-cut (~1:50 min, voir [pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md)),
+et le bloc 1 fait désormais 5 min. Il reste donc **~3:10 min** après
+la saynète pour le cadrage cible + gap français + founder-fit +
+annonce SMART + transition vers bloc 2 — marge confortable.
 
 ## Inventaire des slides de support à produire (dans Canva)
 

@@ -1,8 +1,15 @@
 # T3 — Accroche pitch soutenance (5 variantes ≤ 15 mots)
 
+> **Statut 2026-04-21 — Archivé / non utilisé**. Décision Path B :
+> la saynète V1-cut ([pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md))
+> **est** l'accroche du pitch. Les 5 variantes ci-dessous sont
+> conservées comme filet de sécurité extrême (si le format saynète
+> tombe en dernière minute) mais ne sont plus la version de travail.
+
 **Date** : 2026-04-19
-**Finalité** : ouvrir le bloc 1 du pitch (Hook + Problème + cible, 4 min)
-avec une phrase qui capte le jury dans les 10 premières secondes.
+**Finalité** : ouvrir le bloc 1 du pitch (Hook + Problème + cible,
+5 min dans le budget révisé) avec une phrase qui capte le jury dans
+les 10 premières secondes.
 Contrainte : **≤ 15 mots**, français, accessible à un jury non-tech,
 ancré sur la cible brasseurs amateurs FR et/ou le différenciant
 Brasse-Bouillon.

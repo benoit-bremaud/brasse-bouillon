@@ -1,0 +1,14 @@
+{
+  "name": "@brasse-bouillon/ydays-docs",
+  "private": true,
+  "type": "module",
+  "description": "VitePress site for the Ydays 2026-05-27 defense documentation",
+  "scripts": {
+    "docs:dev": "vitepress dev .",
+    "docs:build": "vitepress build . && cp .vitepress/public/_headers .vitepress/dist/_headers",
+    "docs:preview": "vitepress preview ."
+  },
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  }
+}

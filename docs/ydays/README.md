@@ -22,7 +22,9 @@ docs/ydays/
 │   ├── audit-features-mvp.md              audit 11 features + parcours démo
 │   ├── smart-objectives-par-pole.md       36 SMART (core 6 + extended 6 × 3 pôles)
 │   ├── business-model-canvas.md           BMC 9 blocs (T2)
-│   └── risk-analysis.md                   matrice risques + mitigations + checklist J-1
+│   ├── risk-analysis.md                   matrice risques + mitigations + checklist J-1
+│   ├── soutenance-27-mai-status-checklist.md tableau de bord : fait / à faire / non bloquant
+│   └── vitepress-site-backlog.md          epic + sous-tâches pour publier la doc Ydays en site VitePress
 ├── debrief/                               ← décisions et historique sessions
 │   ├── 2026-04-15_session-decisions.md    D1-D10, R1-R6 (Q&A initial)
 │   ├── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels
@@ -86,6 +88,43 @@ canvas) doit être persisté ici au fil de l'eau. Rien en mémoire de conversati
 uniquement — commit sur la branche dédiée `docs/soutenance-27-mai` pour
 traçabilité.
 
+## Site VitePress
+
+Un squelette VitePress autonome est désormais prévu directement dans
+`docs/ydays/` pour faciliter la lecture et la revue d'équipe.
+
+### Lancement local
+
+Depuis `docs/ydays/` :
+
+```bash
+npm install
+npm run docs:dev
+```
+
+### Build local
+
+```bash
+npm run docs:build
+npm run docs:preview
+```
+
+### Sortie attendue
+
+- source docs : `docs/ydays/`
+- config VitePress : `docs/ydays/.vitepress/config.mjs`
+- build statique : `docs/ydays/.vitepress/dist/`
+
+### Déploiement cible
+
+- **Cloudflare Pages**
+- racine projet : `docs/ydays`
+- commande de build : `npm run docs:build`
+- dossier de sortie : `.vitepress/dist`
+
+**Attention** : le mode d'accès (**public** ou **protégé**) doit être
+tranché avant diffusion large de la documentation de soutenance.
+
 ## Historique
 
 - 2026-04-15 — Q&A initiale, D1–D10 décisions, R1–R6 points en revue
@@ -94,3 +133,8 @@ traçabilité.
 - 2026-04-19 — Format Ynov officiel reçu (30+10 min, salle 0.301),
   pivot Perspectives RH #5 : recrutement marketing → vision agence
   web-studio (brainstorming à programmer)
+- 2026-04-21 — Backlog dédié au site VitePress de la soutenance ajouté
+  pour préparer une diffusion lisible de `docs/ydays/` à l'équipe
+- 2026-04-21 — Checklist de statut opérationnelle ajoutée pour
+  distinguer clairement le fond déjà prêt des tâches d'exécution
+  encore ouvertes avant le 2026-05-27

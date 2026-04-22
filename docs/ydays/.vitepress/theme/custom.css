@@ -1,0 +1,38 @@
+:root {
+  --vp-c-brand-1: #c89d00;
+  --vp-c-brand-2: #e0b400;
+  --vp-c-brand-3: #ffd600;
+  --vp-c-brand-soft: rgba(255, 214, 0, 0.16);
+  --vp-home-hero-name-color: #1a1a1a;
+  --vp-home-hero-image-background-image:
+    radial-gradient(circle at 30% 20%, rgba(255, 214, 0, 0.26), transparent 38%),
+    radial-gradient(circle at 80% 30%, rgba(200, 157, 0, 0.22), transparent 35%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 246, 205, 0.9));
+  --vp-home-hero-image-filter: blur(0);
+}
+
+.vp-doc .status-chip {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  margin-right: 0.4rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba(26, 26, 26, 0.08);
+}
+
+.vp-doc .status-chip--ok {
+  background: rgba(24, 135, 84, 0.14);
+  color: #0f6b41;
+}
+
+.vp-doc .status-chip--todo {
+  background: rgba(184, 72, 0, 0.14);
+  color: #8d3d00;
+}
+
+.vp-doc .status-chip--later {
+  background: rgba(58, 82, 138, 0.12);
+  color: #324e8a;
+}

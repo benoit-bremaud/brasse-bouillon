@@ -52,12 +52,31 @@ Vote sur Discord (thread dédié canal Ydays). Au-delà de cette date, les
 previews côté Canva risquent d'expirer.
 :::
 
-Le 2026-04-22, Canva AI a généré **4 variations** du même deck à partir
-de la spec S0-S14. **Même contenu textuel dans les 15 slides** ; seule
-la mise en page change (typographie, alignements, couleurs d'accent,
-choix d'icônes). On choisit la variation qu'on veut matérialiser comme
-deck de travail définitif — l'équipe poursuivra ensuite l'édition
-collaborative dessus.
+::: danger Ce sont des générations IA brutes, pas des designs finis
+Le 2026-04-22, Canva AI a produit **4 propositions automatiques** à
+partir d'un prompt texte. Ce sont des **points de départ
+approximatifs**, pas des designs soignés :
+
+- Le contenu textuel des slides est générique, souvent mal formulé.
+- Les visuels et icônes sont choisis au hasard par l'IA.
+- La charte Brasse-Bouillon (jaune doré, ardoise, caractère du
+  brasseur) n'est **pas appliquée**.
+- Aucune capture réelle de l'application mobile n'a été intégrée.
+
+**Voter pour "le moins mauvais" est une option**. Voter pour
+**"aucun des 4"** en est une autre, tout aussi valable — on repart
+alors d'une base propre en s'inspirant de :
+
+- **l'ancien deck Ydays** (charte graphique déjà maîtrisée, lien
+  plus bas) ;
+- **les captures V0 de l'application mobile** (à venir — elles
+  donneront le vrai vocabulaire visuel du produit).
+:::
+
+## Les 4 propositions IA
+
+**Même contenu textuel dans les 15 slides** — seule la mise en page
+change (typographie, alignements, couleurs d'accent, choix d'icônes).
 
 | # | Preview Canva | Notes éventuelles |
 |---|---|---|
@@ -71,11 +90,17 @@ collaborative dessus.
 1. Ouvre les 4 previews dans 4 onglets (clic milieu sur chaque lien).
 2. Compare visuellement — le contenu est identique, seule la forme
    change.
-3. Vote sur le thread Discord dédié en mentionnant le numéro :
-   `Vote : Candidat 3` (avec un mot d'argument bienvenu).
-4. Une fois la deadline passée, le numéro le plus voté est matérialisé
-   comme deck de travail définitif (URL d'édition publique partagée
-   ici).
+3. **Vote sur le thread Discord dédié** en mentionnant :
+   - `Vote : Candidat 1` / `2` / `3` / `4` si une proposition te
+     convient (avec un mot d'argument bienvenu) ;
+   - `Vote : Aucun` si tu préfères repartir de zéro sur la base de
+     l'ancien deck + captures V0. Mentionne ce qui te plaisait
+     dans l'ancien design si possible.
+4. **Deadline : mercredi 2026-04-24 23h59.**
+5. Si une majorité vote "Aucun" ou si les votes sont très éparpillés,
+   l'admin annonce jeudi matin qu'on repart d'un canvas vide (lui
+   aussi matérialisé + partagé), et l'équipe peuple directement
+   depuis la spec + la charte Brasse-Bouillon.
 
 ### Critères de jugement suggérés
 

@@ -5,6 +5,82 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-22
+
+### Root README refactor for dev onboarding ([PR #572](https://github.com/benoit-bremaud/brasse-bouillon/pull/572))
+
+Rewrote the root `README.md` so it works as a clear entry point for a
+new contributor. Structure reorganised around the journey (What is it →
+Monorepo at a glance → Prerequisites → Quick Start → Running each
+package → Scripts → Testing → CI → Docs → Team), drift between the
+repo state and the README closed:
+
+- Corrected the "70% coverage gate" wording — the CI only emits
+  `::warning::` today, so it is documented as a target with a CI
+  warning, not a blocking gate.
+- Corrected the `discord-notifications.yml` description — it routes
+  issue/PR lifecycle events by `scope:*` label, it does not post build
+  events.
+- Removed the `docs/ydays/` footnote (that directory only lives on the
+  soutenance branch, not on `main`).
+- Documentation table extended with 8 entries that existed in `docs/`
+  but were not linked (CONVENTIONS, roadmap, DoD, DoR, sprint,
+  scrum-roles, migrations-sequelize, meeting-types).
+- Node range clarified (`>=20 <21`), Make sonar targets fully
+  qualified, Quick Start mock-data path now includes a launch command.
+
+Line count 389 → 361; all 21 internal links verified against the
+filesystem. Review comments from Copilot + chatgpt-codex-connector
+were all addressed inline (5 Must/Should fixes in commit `8db8a65`,
+1 follow-up clarification in `b1255be`).
+
+### SonarCloud CI analysis wired on every PR ([PR #573](https://github.com/benoit-bremaud/brasse-bouillon/pull/573))
+
+Enabled server-side Quality Gate enforcement on every PR and every
+push to `main`. Previously the repo had Sonar config (properties file
++ `tools/ci/sonar-scan.sh` + Makefile targets) but **zero** Sonar jobs
+in GitHub Actions — analysis was local-only via a Dockerized SonarQube
+Community Edition, so it only ran when a developer chose to.
+
+What this PR changed:
+
+- New [`.github/workflows/sonarcloud.yml`](.github/workflows/sonarcloud.yml)
+  — installs `packages/mobile-app` + `packages/api`, runs each Jest
+  suite with coverage, then invokes
+  `SonarSource/sonarqube-scan-action@v6.0.0` (SHA-pinned). Checkout
+  uses `fetch-depth: 0` so Sonar can compute blame annotations. Job
+  skips on fork PRs (secrets aren't shared with forks) and triggers
+  only on PRs targeting `main`.
+- [`sonar-project.properties`](sonar-project.properties) — migrated
+  from the local project key `brasse-bouillon` to the SonarCloud
+  format `benoit-bremaud_brasse-bouillon`, added
+  `sonar.organization=benoit-bremaud`, removed the hardcoded
+  `sonar.host.url=http://localhost:9000`. Local Docker analysis via
+  `make sonar-scan` still works — `tools/ci/sonar-scan.sh` already
+  defaults `SONAR_HOST_URL` to localhost when unset.
+- README CI/CD section updated to describe the new workflow.
+
+Pragmatic choice: SonarCloud (managed) instead of SonarQube
+self-hosted on Klouders. The Klouders provisioning was still pending
+and the soutenance deadline was approaching — managed service was
+~30 min of setup vs. a day's work for a hardened self-host. The
+migration path to Klouders later is trivial (same scanner, override
+URL and token in the workflow). Noted in a PR comment for
+`@clemoune-tech`, `@Moooniie`, `@astronas`.
+
+First Quality Gate run on this PR passed: 0 new issues, 0 security
+hotspots, 0.0% coverage on new code (expected — the PR only touches
+YAML/properties). SHA-pinning the three Actions addressed a
+`githubactions:S7637` hotspot flagged by Sonar on the first scan.
+
+Tech debt opened as follow-up issues:
+- Pin all actions in `ci.yml` + `discord-notifications.yml` by SHA
+  (same hotspot will fire there once Sonar scans those files).
+- Reuse `ci.yml`'s uploaded `lcov.info` artifacts in
+  `sonarcloud.yml` to avoid running Jest twice per PR.
+
+---
+
 ## 2026-04-20
 
 ### Mobile-app: first installable APK via EAS (preview profile)

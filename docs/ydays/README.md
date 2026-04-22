@@ -94,6 +94,9 @@ traçabilité.
 Un squelette VitePress autonome est désormais prévu directement dans
 `docs/ydays/` pour faciliter la lecture et la revue d'équipe.
 
+**Site en ligne** : <https://brasse-bouillon-ydays.pages.dev>
+(production Cloudflare Pages, non indexé, diffusion par lien).
+
 ### Lancement local
 
 Depuis `docs/ydays/` :

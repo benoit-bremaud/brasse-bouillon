@@ -5,6 +5,53 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-22
+
+### Ydays: defense review site published to Cloudflare Pages
+
+The `docs/ydays/` VitePress site is now live at
+<https://brasse-bouillon-ydays.pages.dev> so the 8 project members can
+read the defense craft ahead of the 2026-05-06 dress-run coaching slot
+and leave feedback on Discord before slides/scripts get polished further.
+
+Deployment method : **Wrangler Direct Upload** (CLI). The plan originally
+targeted Cloudflare's dashboard Git-integration, but the unified
+"Workers & Pages" UI now defaults new projects to the Workers flow
+(`wrangler deploy`, no "Build output directory" field), which is wrong
+for a static VitePress site. Pivoted to CLI from the local machine:
+`npx wrangler pages project create brasse-bouillon-ydays
+--production-branch=docs-soutenance-27-mai` then
+`npx wrangler pages deploy .vitepress/dist
+--project-name=brasse-bouillon-ydays --branch=docs-soutenance-27-mai`.
+Cloudflare never sees the monorepo — only the 140 built files get
+uploaded. `_headers` carries `X-Robots-Tag: noindex`, meta robots
+`noindex, nofollow` is present in the rendered HTML, and all 6 key
+pages return HTTP 200 (`/`, `/read-first`, `/feedback-guide`,
+`/outputs/plan-presentation-27-mai`, `/outputs/pitch-anticipated-qa`,
+`/outputs/soutenance-27-mai-status-checklist`).
+
+Iteration cycle until the defense: re-run `npm run docs:build &&
+wrangler pages deploy .vitepress/dist …` from `docs/ydays/` after each
+content commit. Out of scope for this session but queued: a GitHub
+Action that auto-deploys on push to `docs/soutenance-27-mai` once the
+cadence justifies the `CLOUDFLARE_API_TOKEN` secret setup. Custom
+domain and access protection explicitly deferred — the noindex + link-
+only distribution is enough for this review stage.
+
+Docs updated to reflect the new reality:
+[docs/ydays/outputs/cloudflare-pages-deployment.md](docs/ydays/outputs/cloudflare-pages-deployment.md)
+rewritten with exact CLI commands, why the dashboard path was
+abandoned, and the production/deployment URL distinction ;
+[docs/ydays/README.md](docs/ydays/README.md) surfaces the live URL at
+the top of its "Site VitePress" section so team members can find it
+without digging.
+
+No PR — doc-only work continues directly on the
+`docs/soutenance-27-mai` branch, same pattern as the recent Ydays doc
+commits.
+
+---
+
 ## 2026-04-20
 
 ### Mobile-app: first installable APK via EAS (preview profile)

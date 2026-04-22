@@ -17,8 +17,9 @@ jointe de l'email Ynov 2026-04-19, non encore stockées dans le repo).
 - Support à déposer sur Moodle **après le passage à l'oral**
 
 **Dernière séance Ydays avant la soutenance : 2026-05-06** — oraux blancs
-organisés par les coachs sur demande. **Réserver un créneau d'oral blanc
-est une priorité haute** (feedback ultime avant J-21).
+organisés par les coachs sur demande. **Demander aux profs / coachs un
+créneau de pré-présentation / oral blanc est une priorité haute**
+(feedback ultime avant J-21).
 
 ## Principes directeurs
 

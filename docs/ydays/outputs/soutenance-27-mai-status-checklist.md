@@ -29,7 +29,7 @@ verrouillée sur l'exécution**.
 Pour considérer la soutenance comme réellement prête, il faut au
 minimum :
 
-1. réserver l'oral blanc du **2026-05-06** ;
+1. demander aux profs / coachs un créneau de **pré-présentation / oral blanc** le **2026-05-06** ;
 2. produire le deck Canva réel ;
 3. verrouiller la démo live 5 min ;
 4. tourner la vidéo backup ;
@@ -97,7 +97,7 @@ pas être considérée comme verrouillée.
 
 | Priorité | Tâche | Statut | Deadline cible | Pourquoi c'est critique | Source |
 |---|---|---|---|---|---|
-| P0 | Réserver l'oral blanc coach | À faire | **2026-05-06** | Point de contrôle majeur avant J-21 | [plan-presentation-27-mai.md](plan-presentation-27-mai.md), [risk-analysis.md](risk-analysis.md) |
+| P0 | Demander aux profs / coachs un créneau de pré-présentation / oral blanc | À faire | **2026-05-06** | Point de contrôle majeur avant J-21 | [plan-presentation-27-mai.md](plan-presentation-27-mai.md), [risk-analysis.md](risk-analysis.md) |
 | P0 | Produire le deck Canva réel S0-S14 | À faire | avant répétition complète | Sans slides réelles, impossible de répéter sérieusement | [canva-slides-detail.md](canva-slides-detail.md) |
 | P0 | Verrouiller le parcours démo 5 min | À faire | avant oral blanc | La démo est une partie centrale de la note | [pitch-script-bloc3-demo-live.md](pitch-script-bloc3-demo-live.md) |
 | P0 | Obtenir / valider le seed de démo | À faire | avant répétition démo | Réduit fortement le risque D7 | [pitch-script-bloc3-demo-live.md](pitch-script-bloc3-demo-live.md) |
@@ -164,7 +164,7 @@ Ces sujets ne doivent pas retarder le chemin critique.
 La soutenance du 27 mai peut être considérée **prête** si et seulement
 si les points ci-dessous sont vrais :
 
-- [ ] oral blanc du **2026-05-06** réservé et passé
+- [ ] pré-présentation / oral blanc du **2026-05-06** demandé, réservé et passé
 - [ ] deck Canva réel produit
 - [ ] PDF exporté et testé offline
 - [ ] démo 5 min verrouillée sur un parcours précis
@@ -178,7 +178,7 @@ si les points ci-dessous sont vrais :
 
 ## 7. Ordre d'action recommandé a partir de maintenant
 
-1. **Réserver l'oral blanc**
+1. **Demander puis réserver la pré-présentation / l'oral blanc**
 2. **Produire le deck Canva**
 3. **Verrouiller la démo 5 min**
 4. **Obtenir le seed + choisir les bières**

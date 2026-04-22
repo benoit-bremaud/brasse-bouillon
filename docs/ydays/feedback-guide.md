@@ -47,3 +47,14 @@ Si une information est encore marquée `À confirmer` dans le site,
 tu peux quand même faire un retour sur la **structure** ou la
 **pertinence** de la section.
 :::
+
+## Canal utilisé pour l'instant
+
+Pour le MVP de revue, les commentaires et retours passent **sur
+Discord**.
+
+Le widget feedback sera intégré plus tard, une fois le site déployé et
+partagé à l'équipe.
+
+Le site lui-même est prévu en **public non indexé** : ne le diffuse pas
+au-delà du cercle projet sans arbitrage explicite.

@@ -6,6 +6,10 @@ const debriefPrefix = "/debrief";
 export default {
   title: "Brasse-Bouillon",
   description: "Documentation de préparation de la soutenance Ydays du 27 mai 2026.",
+  head: [
+    ["meta", { name: "robots", content: "noindex, nofollow" }],
+    ["meta", { name: "googlebot", content: "noindex, nofollow" }]
+  ],
   cleanUrls: true,
   lastUpdated: true,
   ignoreDeadLinks: true,

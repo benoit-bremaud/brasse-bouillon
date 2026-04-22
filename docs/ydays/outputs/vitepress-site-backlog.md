@@ -14,6 +14,9 @@ et produire des retours exploitables avant le 2026-05-27.
   les organise, sans recréer inutilement le contenu.
 - **Déploiement cible** : Cloudflare Pages, une fois le build local
   validé.
+- **Mode de diffusion retenu** : **public non indexé**, partage par
+  lien direct, sans exposition depuis le site principal.
+- **Canal de review initial** : **Discord**.
 - **Widget feedback** : hors périmètre MVP ; intégration envisagée
   **uniquement après** mise en ligne du site et validation du parcours
   de lecture.
@@ -36,8 +39,8 @@ permette à un collègue du projet de :
 - la navigation reflète le vrai parcours de préparation ;
 - les documents pivots sont accessibles en moins de 2 clics ;
 - le site est lisible sur desktop ;
-- le mode d'accès (**public** ou **protégé**) est explicitement tranché
-  avant diffusion large.
+- le mode de diffusion retenu est documenté et cohérent avec la
+  sensibilité des contenus.
 
 **Hors périmètre MVP** :
 
@@ -256,19 +259,22 @@ techniques.
 - le build de prod est reproductible ;
 - une preview déployée fonctionne.
 
-### YD-VP-11 — Trancher le mode d'accès : public ou protégé
+### YD-VP-11 — Formaliser le mode d'accès retenu
 
-**But** : éviter de publier accidentellement une documentation sensible.
+**But** : documenter clairement l'arbitrage de diffusion retenu.
 
-**Options** :
+**Décision retenue** :
 
-- site public assumé ;
-- site protégé par Cloudflare Access ;
-- diffusion limitée par lien de preview temporaire.
+- site **public non indexé** ;
+- diffusion **contrôlée par lien direct** ;
+- pas de lien depuis le site public principal ;
+- bascule vers Cloudflare Access seulement si le cercle de diffusion
+  s'élargit.
 
 **Definition of Done** :
 
-- une décision explicite est prise avant partage large ;
+- la décision est écrite dans la documentation ;
+- les garde-fous `noindex` sont présents ;
 - le mode de diffusion est cohérent avec la sensibilité des contenus.
 
 ### YD-VP-12 — Valider le site avec 1 à 2 lecteurs internes

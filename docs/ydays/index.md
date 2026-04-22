@@ -34,6 +34,12 @@ contiennent encore des éléments **à confirmer** ou des placeholders
 assumés pour accélérer la relecture collective.
 :::
 
+::: info Diffusion
+Le site est pensé pour un **déploiement public non indexé**, partagé
+par lien direct à l'équipe projet. Il ne doit pas être relié au site
+principal Brasse-Bouillon à ce stade.
+:::
+
 ## Commencer ici
 
 - [Lire d'abord](/read-first) : le parcours de lecture recommandé pour un collègue qui découvre le dossier.
@@ -54,4 +60,14 @@ temporairement mockés ou marqués `À confirmer`.
 
 Pour la **soutenance elle-même**, les claims qui seront dits au jury
 doivent rester strictement factuels.
+:::
+
+## Canal de revue actuel
+
+::: info Feedback temporaire
+Avant l'intégration du widget feedback, les retours de l'équipe sur ce
+site passent **par Discord**.
+
+Le site sert de base de lecture commune ; Discord sert de canal de
+discussion et de revue.
 :::

@@ -24,7 +24,8 @@ docs/ydays/
 │   ├── business-model-canvas.md           BMC 9 blocs (T2)
 │   ├── risk-analysis.md                   matrice risques + mitigations + checklist J-1
 │   ├── soutenance-27-mai-status-checklist.md tableau de bord : fait / à faire / non bloquant
-│   └── vitepress-site-backlog.md          epic + sous-tâches pour publier la doc Ydays en site VitePress
+│   ├── vitepress-site-backlog.md          epic + sous-tâches pour publier la doc Ydays en site VitePress
+│   └── cloudflare-pages-deployment.md     guide de déploiement du site de revue
 ├── debrief/                               ← décisions et historique sessions
 │   ├── 2026-04-15_session-decisions.md    D1-D10, R1-R6 (Q&A initial)
 │   ├── 2026-04-16_session-decisions.md    A0 (hybride), A1 (KISS scanner), trous factuels
@@ -121,9 +122,24 @@ npm run docs:preview
 - racine projet : `docs/ydays`
 - commande de build : `npm run docs:build`
 - dossier de sortie : `.vitepress/dist`
+- canal de revue initial : **Discord**
 
-**Attention** : le mode d'accès (**public** ou **protégé**) doit être
-tranché avant diffusion large de la documentation de soutenance.
+### Mode de diffusion retenu
+
+- **déploiement public**
+- **non indexé** (`X-Robots-Tag` + meta robots)
+- **diffusion contrôlée par lien**
+- **aucun lien public depuis le site principal**
+- **retours centralisés sur Discord** tant que le widget feedback n'est
+  pas intégré
+
+Ce choix privilégie la vitesse de circulation avant l'oral blanc du
+**2026-05-06**, sans exposer volontairement la documentation aux moteurs
+de recherche.
+
+Voir aussi :
+
+- [outputs/cloudflare-pages-deployment.md](outputs/cloudflare-pages-deployment.md)
 
 ## Historique
 

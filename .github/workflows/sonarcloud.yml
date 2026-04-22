@@ -16,6 +16,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -26,6 +27,14 @@ jobs:
   sonarcloud:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
+    # Skip on pull requests from forks: secrets.SONAR_TOKEN is not shared
+    # with forked repositories by GitHub Actions, so the scan step would
+    # fail with a misleading error. Forked PRs can still be analyzed by
+    # an authorized maintainer who re-runs the workflow on a branch of
+    # this repo (or merges after a local rebase).
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout (full history for Sonar blame)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1

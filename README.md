@@ -275,9 +275,10 @@ GitHub Actions runs automatically on every PR to `main` and every push to `main`
   - **api** — lint + build + tests (70% coverage target — CI warning)
   - **website** — Python quality gate
   - **beer-encyclopedia** — ruff lint + compile check + pytest (70% coverage target — CI warning)
+- [`.github/workflows/sonarcloud.yml`](.github/workflows/sonarcloud.yml) — runs SonarCloud analysis on every PR and on pushes to `main`. Installs mobile-app + api, runs both Jest suites with coverage, then feeds the `lcov.info` reports into SonarCloud. Quality Gate is enforced server-side on the `benoit-bremaud_brasse-bouillon` project.
 - [`.github/workflows/discord-notifications.yml`](.github/workflows/discord-notifications.yml) — routes issue and pull-request lifecycle events (`issues:opened`, `pull_request:opened|closed`) to Discord channels based on `scope:*` labels.
 
-Each job uploads its `lcov.info` as a GitHub Actions artifact. There is **no SonarQube job in CI** today — Sonar analysis is local-only, driven by `make sonar-scan` against a local SonarQube Community Edition running in Docker (see `sonar-project.properties`).
+`ci.yml` also uploads each `lcov.info` as a GitHub Actions artifact (7-day retention). Local SonarQube Community Edition analysis remains available via `make sonar-scan` — see the [Testing & Quality](#testing--quality) section.
 
 ---
 

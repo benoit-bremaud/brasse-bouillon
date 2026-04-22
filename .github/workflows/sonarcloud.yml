@@ -1,0 +1,73 @@
+# ==============================================================================
+# Brasse-Bouillon — SonarCloud Analysis
+# Runs on PRs to main and pushes to main.
+# Scans packages/mobile-app + packages/api with Jest lcov coverage reports.
+# Quality Gate is enforced by SonarCloud (configurable at sonarcloud.io).
+#
+# Requirements:
+#   - GitHub secret SONAR_TOKEN (user token from sonarcloud.io/account/security)
+#   - Project must exist in SonarCloud under the benoit-bremaud organization
+#   - Automatic Analysis must be OFF in the SonarCloud project settings
+# ==============================================================================
+
+name: SonarCloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for Sonar blame)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            packages/mobile-app/package-lock.json
+            packages/api/package-lock.json
+
+      # ────────────────────────────────────────────────────────────────────────
+      # Mobile App — install + test with coverage
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Install mobile-app dependencies
+        working-directory: packages/mobile-app
+        run: npm ci
+
+      - name: Run mobile-app tests with coverage
+        working-directory: packages/mobile-app
+        run: npm run test:coverage
+
+      # ────────────────────────────────────────────────────────────────────────
+      # API — install + test with coverage
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Install api dependencies
+        working-directory: packages/api
+        run: npm ci
+
+      - name: Run api tests with coverage
+        working-directory: packages/api
+        run: npm run test:cov
+
+      # ────────────────────────────────────────────────────────────────────────
+      # SonarCloud scan — reads sonar-project.properties at repo root
+      # ────────────────────────────────────────────────────────────────────────
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

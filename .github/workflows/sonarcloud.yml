@@ -28,12 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (full history for Sonar blame)
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: npm
@@ -64,10 +64,13 @@ jobs:
         run: npm run test:cov
 
       # ────────────────────────────────────────────────────────────────────────
-      # SonarCloud scan — reads sonar-project.properties at repo root
+      # SonarCloud scan — reads sonar-project.properties at repo root.
+      # Uses the unified sonarqube-scan-action (works for both SonarCloud
+      # and self-hosted SonarQube). Pinned to a full commit SHA per the
+      # project's "Actions pinned by SHA" CI security policy.
       # ────────────────────────────────────────────────────────────────────────
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3.1.0
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

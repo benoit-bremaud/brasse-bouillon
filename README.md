@@ -125,7 +125,7 @@ make dev-api               # terminal 1 — NestJS at http://<LAN-IP>:3000
 make dev-mobile            # terminal 2 — Expo in LAN mode (scan QR)
 ```
 
-Skip steps 4–5 if you only want the mobile app with mock data — set `EXPO_PUBLIC_USE_DEMO_DATA=true` in `packages/mobile-app/.env`.
+Just want the mobile app with mock data? Skip the API: set `EXPO_PUBLIC_USE_DEMO_DATA=true` in `packages/mobile-app/.env`, then launch Expo with `make dev-mobile` (or `npm run dev:mobile-app`).
 
 Run `make help` at any time to list every available target.
 
@@ -227,7 +227,7 @@ Every package ships an `.env.example`. `make setup` creates the `.env` files for
 | `make dev` | Run API + Expo in parallel under one `Ctrl+C` |
 | `make test-all` | Run mobile-app + api + beer-encyclopedia test suites |
 | `make lint-all` | Run mobile-app + api linters |
-| `make sonar-start` / `sonar-stop` / `sonar-status` / `sonar-scan` | Local SonarQube lifecycle |
+| `make sonar-start` / `make sonar-stop` / `make sonar-status` / `make sonar-scan` | Local SonarQube lifecycle |
 
 ### npm scripts (root)
 
@@ -246,12 +246,14 @@ Every package ships an `.env.example`. `make setup` creates the `.env` files for
 
 ## Testing & Quality
 
-| Package | Suite | Count | Coverage gate |
-|---------|-------|-------|---------------|
-| mobile-app | Jest + @testing-library/react-native | **407 tests** | 70% |
-| api | Jest | **238 tests** | 70% |
-| beer-encyclopedia | pytest | — | 70% |
+| Package | Suite | Count | Coverage target |
+|---------|-------|-------|-----------------|
+| mobile-app | Jest + @testing-library/react-native | **407 tests** | 70% (CI warning) |
+| api | Jest | **238 tests** | 70% (CI warning) |
+| beer-encyclopedia | pytest | — | 70% (CI warning) |
 | website | Python quality gate (no unit tests) | — | — |
+
+> The 70% threshold is currently enforced as a CI **warning** (`::warning::` in `ci.yml`), not a hard gate — jobs pass even if coverage drops below. Promoting this to a blocking gate is tracked separately.
 
 Tests are mandatory for every new feature. Run everything with `make test-all`.
 
@@ -269,11 +271,11 @@ make sonar-scan SONAR_TOKEN=sqp_xxx       # scan the monorepo
 GitHub Actions runs automatically on every PR to `main` and every push to `main`:
 
 - [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — **path-filtered** pipeline. Only changed packages run:
-  - **mobile-app** — lint + typecheck + format check + tests (70% coverage gate)
-  - **api** — lint + build + tests (70% coverage gate)
+  - **mobile-app** — lint + typecheck + format check + tests (70% coverage target — CI warning, not a hard gate)
+  - **api** — lint + build + tests (70% coverage target — CI warning)
   - **website** — Python quality gate
-  - **beer-encyclopedia** — ruff lint + compile check + pytest (70% coverage gate)
-- [`.github/workflows/discord-notifications.yml`](.github/workflows/discord-notifications.yml) — posts build/PR events to Discord.
+  - **beer-encyclopedia** — ruff lint + compile check + pytest (70% coverage target — CI warning)
+- [`.github/workflows/discord-notifications.yml`](.github/workflows/discord-notifications.yml) — routes issue and pull-request lifecycle events (`issues:opened`, `pull_request:opened|closed`) to Discord channels based on `scope:*` labels.
 
 Coverage artifacts are uploaded for SonarQube integration.
 
@@ -323,8 +325,6 @@ Full conventions: [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)
 | Architecture docs | [docs/architecture/](docs/architecture/) |
 | API docs | [docs/api/](docs/api/) |
 | Project management | [docs/project-management/](docs/project-management/) |
-
-> Internal defense prep lives in `docs/ydays/` — not part of the product and not required to contribute.
 
 ---
 

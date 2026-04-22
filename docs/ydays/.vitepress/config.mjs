@@ -16,7 +16,7 @@ export default {
   lang: "fr-FR",
   themeConfig: {
     siteTitle: "Soutenance Ydays",
-    logo: "/logo-primary.svg",
+    logo: "/logo-primary-512x512.png",
     nav: [
       { text: "Accueil", link: "/" },
       { text: "Lire d'abord", link: "/read-first" },

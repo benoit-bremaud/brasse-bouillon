@@ -1,5 +1,23 @@
 # Deck Canva — fichier de travail 27 mai
 
+::: tip C'est quoi cette page ?
+Le **deck** = la **présentation Canva de 15 slides** qu'on projettera
+devant le jury le **2026-05-27**.
+
+Canva AI a produit **4 propositions de design** (même contenu
+textuel, 4 mises en page différentes). L'équipe vote sur Discord
+pour choisir la préférée, deadline **mercredi 2026-04-24 23h59**.
+
+Après le vote, le design gagnant devient un **vrai fichier Canva
+éditable à plusieurs** (comme Google Slides). Son URL d'édition
+apparaîtra à la place du "_à confirmer_" ci-dessous, et l'équipe
+pourra peupler le contenu détaillé des 15 slides en s'appuyant sur
+la spec [Détail Canva S0-S14](canva-slides-detail.md).
+
+**Ton action aujourd'hui** : ouvre les 4 previews (plus bas), choisis,
+vote sur Discord. **Ça prend 3 minutes.**
+:::
+
 **Finalité** : point d'entrée unique pour la production collaborative
 du deck de soutenance du 2026-05-27. Cette page centralise les liens
 d'édition (nouveau deck de travail) et de référence (ancien deck Ydays).
@@ -75,6 +93,36 @@ Le contenu textuel des slides (titres, bullets) n'est PAS définitif —
 il est issu d'un prompt brut. L'équipe l'affinera après matérialisation
 en s'appuyant sur [canva-slides-detail.md](canva-slides-detail.md).
 On vote sur la **forme**, pas sur le **fond**.
+:::
+
+## Ce qui se passera après mercredi 23h59
+
+Une fois le vote fermé, voici le déroulé :
+
+1. **Jeudi matin 2026-04-25 (< 30 min)** — Benoît (admin du projet)
+   lance une commande dans son agent Claude Code. L'agent utilise le
+   MCP Canva pour **matérialiser** le candidat gagnant : c'est-à-dire
+   convertir le brouillon IA en un **vrai fichier Canva éditable**,
+   rangé automatiquement dans le dossier Canva
+   `Brasse-Bouillon — Soutenance Ydays`.
+2. **Partage public** — Benoît ouvre le nouveau fichier Canva, clique
+   sur **Share** → coche "Anyone with the link can edit", copie
+   l'URL.
+3. **Mise à jour du site** — Benoît colle l'URL dans cette page (à la
+   place du "_à confirmer_" en haut), fait un `git commit` + un
+   redéploiement sur Cloudflare Pages. Prend ~2 minutes.
+4. **Notification Discord** — Benoît ping l'équipe sur le thread
+   Ydays : "Deck gagnant matérialisé, URL sur le site, à vos slides."
+5. **L'édition collaborative démarre** — chaque membre ouvre le lien,
+   les 8 peuvent éditer en même temps (comme Google Slides). L'équipe
+   suit l'ordre de production recommandé plus bas + la spec
+   [canva-slides-detail.md](canva-slides-detail.md).
+
+::: warning Si un candidat plait mais pas complètement
+Rien n'empêche de matérialiser le gagnant puis de piquer dans un
+autre candidat un élément spécifique (un visuel, une slide, une
+couleur) pour le coller dans le fichier final. Canva permet
+d'importer une slide depuis une autre design.
 :::
 
 ## Référence — ancien deck Ydays

@@ -8,9 +8,12 @@ directement dans les détails Canva.
 
 ## Lire dans cet ordre
 
-1. [Squelette du deck](/outputs/slide-deck-outline)
-2. [Détail Canva S0 à S14](/outputs/canva-slides-detail)
-3. [Checklist de statut](/outputs/soutenance-27-mai-status-checklist)
+1. [**Deck Canva — fichier de travail**](/outputs/canva-working-deck)
+   — point d'entrée pour l'équipe : vote en cours + URL du futur
+   fichier Canva éditable à plusieurs
+2. [Squelette du deck](/outputs/slide-deck-outline)
+3. [Détail Canva S0 à S14](/outputs/canva-slides-detail)
+4. [Checklist de statut](/outputs/soutenance-27-mai-status-checklist)
 
 ## Ce qui est déjà stabilisé
 

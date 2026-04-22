@@ -1,5 +1,13 @@
 # Détail slides Canva — S0 à S14
 
+::: tip Production collaborative
+Le **fichier Canva de travail** et le **deck Ydays de référence**
+sont centralisés sur la page dédiée
+[Deck Canva — fichier de travail](canva-working-deck.md).
+Consulter cette page pour récupérer les URLs d'édition, les règles
+d'accès et l'ordre de production recommandé.
+:::
+
 **Finalité** : spécification exhaustive du contenu de chaque slide
 pour production Canva. Chaque entrée ci-dessous donne **titre,
 contenu exact, layout, visuels, ancrage script, durée d'affichage**.

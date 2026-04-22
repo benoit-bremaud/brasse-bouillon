@@ -16,7 +16,7 @@ export default {
   lang: "fr-FR",
   themeConfig: {
     siteTitle: "Soutenance Ydays",
-    logo: "/logo-mark.svg",
+    logo: "/logo-primary.svg",
     nav: [
       { text: "Accueil", link: "/" },
       { text: "Lire d'abord", link: "/read-first" },
@@ -45,6 +45,7 @@ export default {
       {
         text: "Slides et narration",
         items: [
+          { text: "Deck Canva — fichier de travail", link: `${outputsPrefix}/canva-working-deck` },
           { text: "Deck overview", link: "/slides-overview" },
           { text: "Squelette du deck", link: `${outputsPrefix}/slide-deck-outline` },
           { text: "Détail Canva", link: `${outputsPrefix}/canva-slides-detail` },

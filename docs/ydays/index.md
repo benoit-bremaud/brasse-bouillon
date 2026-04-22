@@ -6,7 +6,7 @@ hero:
   text: "Brasse-Bouillon — 27 mai 2026"
   tagline: "Un point d'entrée lisible pour relire le pitch, le deck, la démo et le Q&A sans naviguer à l'aveugle dans le repo."
   image:
-    src: /logo-mark.svg
+    src: /logo-primary.svg
     alt: Logo Brasse-Bouillon
   actions:
     - theme: brand

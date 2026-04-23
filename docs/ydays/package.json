@@ -1,6 +1,6 @@
 {
   "name": "@brasse-bouillon/ydays-docs",
-  "version": "2026.04.23-5",
+  "version": "2026.04.23-6",
   "private": true,
   "type": "module",
   "description": "VitePress site for the Ydays 2026-05-27 defense documentation",

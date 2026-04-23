@@ -7,6 +7,36 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-6
+
+**Audit Bloc 5 — Références et historique + clôture audit global**
+
+- history-overview : ajout d'un encart info en tête expliquant que les
+  debriefs sont des snapshots datés non maintenus rétrospectivement.
+  Les références à des issues abandonnées ou à des formats remplacés
+  dans les debriefs reflètent la réalité historique. Pointe vers la
+  checklist de statut comme source de vérité courante.
+- Références / grille / coach summary / 3 debriefs (04-15, 04-16,
+  04-19) : **aucune modification** — documents historiques (debriefs)
+  ou de référence (grille, résumé coach), conservés tels quels.
+
+**Clôture de la relecture complète (audit Option B)**
+
+Blocs 1 à 5 audités, 16 findings 🟡 corrigés au total, 0 bloqueur :
+
+- Bloc 1 → v2026.04.23-2 : vote dates, parcours de lecture
+- Bloc 2 → v2026.04.23-3 : plan (3 items) + risk-analysis (2 items) +
+  deadline vote repoussée à lundi 2026-05-04 23h59
+- Bloc 3 → v2026.04.23-4 : dates canva-working-deck, ratio prix S4,
+  mapping table, T2 "huit → cinq minutes"
+- Bloc 4 → v2026.04.23-5 : storyboard archivé, BMC/SMART refs fictives
+- Bloc 5 → v2026.04.23-6 : note historique sur history-overview
+
+**Non audités dans cette passe** : les 6 scripts blocs
+(pitch-script-bloc1 à bloc6) — passe ciblée sur chiffres + durées à
+programmer séparément. Items P1 content reportés (chiffre "10M",
+overlay S10, formulations bloc 5) aux sessions avec collaborateurs.
+
 ## 2026.04.23-5
 
 **Audit Bloc 4 — Ouverture et support**

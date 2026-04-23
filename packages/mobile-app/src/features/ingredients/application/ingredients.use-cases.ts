@@ -11,7 +11,12 @@ import {
 } from "@/features/ingredients/domain/ingredient.types";
 
 import { dataSource } from "@/core/data/data-source";
-import { demoIngredients } from "@/mocks/demo-data";
+import {
+  demoHops,
+  demoIngredients,
+  demoMalts,
+  demoYeasts,
+} from "@/mocks/demo-data";
 
 function isIngredientCategory(value: string): value is IngredientCategory {
   const categories: readonly IngredientCategory[] = ["malt", "hop", "yeast"];
@@ -75,13 +80,16 @@ export async function listIngredientCategoriesSummary(): Promise<
   IngredientCategorySummary[]
 > {
   if (dataSource.useDemoData) {
-    const categories = ["malt", "hop", "yeast"] as const;
-
-    return categories.map((category) => ({
-      category,
-      count: demoIngredients.filter((item) => item.category === category)
-        .length,
-    }));
+    // Count from the category-specific demo arrays so the Ingredients
+    // home counter matches the items shown on each category list
+    // screen. Using demoIngredients would under-count malts (4 vs
+    // 10 in demoMalts) because demoIngredients is a thin secondary
+    // array used by the recipe ingredient catalog.
+    return [
+      { category: "malt", count: demoMalts.length },
+      { category: "hop", count: demoHops.length },
+      { category: "yeast", count: demoYeasts.length },
+    ];
   }
 
   return listIngredientCategoriesSummaryApi();

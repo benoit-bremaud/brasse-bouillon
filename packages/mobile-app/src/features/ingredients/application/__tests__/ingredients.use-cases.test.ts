@@ -8,6 +8,7 @@ import {
   listIngredientCategoriesSummaryApi,
   listIngredientsByCategoryApi,
 } from "@/features/ingredients/data/ingredients.api";
+import { demoHops, demoMalts, demoYeasts } from "@/mocks/demo-data";
 
 import { dataSource } from "@/core/data/data-source";
 
@@ -44,19 +45,22 @@ describe("ingredients use-cases", () => {
     mockedGetIngredientDetailsApi.mockReset();
   });
 
-  it("returns categories summary with counts", async () => {
+  it("returns categories summary with counts matching the per-category demo arrays", async () => {
     const summary = await listIngredientCategoriesSummary();
 
-    expect(summary).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ category: "malt" }),
-        expect.objectContaining({ category: "hop" }),
-        expect.objectContaining({ category: "yeast" }),
-      ]),
+    // Counts must match the arrays that power the category LIST screens
+    // (demoMalts, demoHops, demoYeasts) — not demoIngredients, which
+    // under-counts malts. Regression guard for issue #623.
+    const byCategory = Object.fromEntries(
+      summary.map((item) => [item.category, item.count] as const),
     );
 
-    const total = summary.reduce((acc, item) => acc + item.count, 0);
-    expect(total).toBeGreaterThan(0);
+    expect(byCategory).toEqual({
+      malt: demoMalts.length,
+      hop: demoHops.length,
+      yeast: demoYeasts.length,
+    });
+
     expect(mockedListIngredientCategoriesSummaryApi).not.toHaveBeenCalled();
   });
 

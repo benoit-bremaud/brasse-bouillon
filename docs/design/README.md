@@ -33,7 +33,13 @@ docs/design/
 * All documentation must be written in **English**.
 * Use **kebab-case** for file and folder names (e.g., `logo-primary.svg`).
 * Store all large design files (Figma exports, Illustrator, PSD) inside the `/assets/` directory.
-* Use Git LFS for managing large binary files if necessary.
+* **PNG size policy** — every PNG committed under `docs/design/` must stay under **2 MB**. This keeps Claude Code / AI-agent API requests below the 32 MB per-request limit. Before committing a new PNG, run the compression helper from the repo root:
+
+  ```bash
+  python3 tools/compress-design-pngs.py docs/design
+  ```
+
+  The script walks the folder, quantizes each PNG to a 256-color adaptive palette, and rewrites in place. Quality loss is acceptable for moodboard and reference material. For the rare case where preserving full fidelity matters (logo export, print-ready asset), keep the source file outside the repo and commit a compressed preview.
 * Each subfolder must contain a `README.md` explaining its purpose, organization, and maintenance responsibilities.
 * Only finalized or validated assets and documentation should be committed.
 * Prefix drafts with `wip_` or `draft_` inside `/assets` to distinguish work-in-progress files.

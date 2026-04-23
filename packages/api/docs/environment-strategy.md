@@ -97,6 +97,7 @@ Real environment files ignored by Git:
 - **No local `.env` files** on the host
 - Variables injected at runtime (platform/CI/CD)
 - Regular secret rotation
+- Fly.io hosts the production API — non-secret env lives in [fly.toml](../fly.toml); secrets via `fly secrets set`. Full runbook: [docs/fly-deploy.md](./fly-deploy.md).
 
 ## 8) Secret Management
 

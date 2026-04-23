@@ -1,0 +1,52 @@
+app = "brasse-bouillon-api"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  APP_ENV = "production"
+  NODE_ENV = "production"
+  PORT = "8080"
+  DATABASE_PATH = "/app/data/brasse-bouillon.db"
+  TYPEORM_MIGRATIONS_RUN = "true"
+  TYPEORM_SYNCHRONIZE = "false"
+  TYPEORM_LOGGING = "false"
+  SWAGGER_ENABLED = "false"
+  SEED_ENDPOINTS_ENABLED = "false"
+  WATER_PROVIDER_DEFAULT = "hubeau"
+  HUBEAU_BASE_URL = "https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable"
+  HUBEAU_TIMEOUT_MS = "8000"
+  HUBEAU_CACHE_TTL_SECONDS = "3600"
+  HUBEAU_MAX_SAMPLES = "50"
+  HUBEAU_COMMUNES_UDI_SIZE = "10"
+  HUBEAU_RESULTATS_DIS_SIZE = "100"
+
+[[mounts]]
+  source = "bb_data"
+  destination = "/app/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 200
+    soft_limit = 150
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1

@@ -7,6 +7,48 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-7
+
+**Refonte charte graphique alignée sur l'app V0 réelle**
+
+Audit visuel de 10 screenshots représentatifs de l'app mobile V0
+([public/screenshots/v0/](./public/screenshots/v0/) — auth, dashboard,
+recipes, calculateur, scan, label éditeur, academy, explore hub,
+erreur réseau). Réconciliation entre 3 sources de vérité visuelle
+qui dérivaient (charte officielle, palette JSON, deck Canva).
+
+- **VitePress custom.css** : palette refondue. Primary brun cuivre
+  `#A06A3A` au lieu du faux `#FFD600` jaune citron. Hero name color
+  noir. Hero background = vrai pattern `Yellow_Background.png` (asset
+  réutilisé depuis `packages/mobile-app/assets/`) avec gradient doré
+  `#F4BD3F`. Tip color = olive `#7D8C3A` (couleur du nav actif et des
+  cartes résultats du calculateur).
+- **design-charter.md §8** : section Color System refondue avec
+  ajout du Hero Yellow `#F4BD3F` (manquant dans toutes les versions
+  précédentes !), correction de l'olive Success `#6B6B2C` → `#7D8C3A`
+  pour matcher l'app réelle, ajout d'une section "Watermark Layer"
+  documentant l'asset `Yellow_Background.png`, ajout d'une section
+  "Mascot Signature" actant que la mascotte chef-bière reste telle
+  quelle sur tous les supports, note de réconciliation avec
+  `colors.json` (à aligner dans une PR séparée).
+- **canva-brand-kit.md (NEW)** : nouveau document `docs/design/`
+  qui spécifie le Brand Kit Canva à importer (8 couleurs, 2 polices,
+  3 logos), un guide d'application slide par slide S0 à S14, les
+  règles générales (spacing, hiérarchie, contraste, watermark
+  policy), le workflow de production en équipe, la checklist J-7/J-3
+  /J-1, et une section "automation MCP" pour usage futur quand le
+  serveur Canva MCP sera reconnecté.
+
+**Hors scope cette session** :
+
+- Site vitrine `packages/website/` — alignement à faire dans une PR
+  dédiée.
+- App mobile `packages/mobile-app/src/core/theme/` — la palette V0
+  observée vient déjà de cette source, juste à valider les tokens.
+- Refonte logo / mascotte — explicitement non, on garde l'existant.
+- Optimisation `Yellow_Background.png` (1.9 MB → idéalement < 300 KB
+  pour le web) — à programmer dans une issue séparée.
+
 ## 2026.04.23-6
 
 **Audit Bloc 5 — Références et historique + clôture audit global**

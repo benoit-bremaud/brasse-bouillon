@@ -1,14 +1,39 @@
+/*
+ * Brasse-Bouillon brand theme for the Ydays VitePress site.
+ *
+ * Palette aligned 2026-04-23 with the V0 mobile app screenshots:
+ * - Hero Yellow      #F4BD3F   (signature golden background)
+ * - Primary brown    #A06A3A   (CTAs, brand title)
+ * - Secondary brown  #8D5832   (hover, close icons)
+ * - Background beige #E0D3AA   (chips, KPI tiles)
+ * - Olive            #7D8C3A   (active nav, success surfaces)
+ *
+ * Source-of-truth: docs/design/06_design-charter/design-charter.md §8.
+ */
+
 :root {
-  --vp-c-brand-1: #c89d00;
-  --vp-c-brand-2: #e0b400;
-  --vp-c-brand-3: #ffd600;
-  --vp-c-brand-soft: rgba(255, 214, 0, 0.16);
-  --vp-home-hero-name-color: #1a1a1a;
+  /* Brand primary = brown copper (CTAs, links, hover) */
+  --vp-c-brand-1: #a06a3a;
+  --vp-c-brand-2: #8d5832;
+  --vp-c-brand-3: #b7824b;
+  --vp-c-brand-soft: rgba(160, 106, 58, 0.14);
+
+  /* Hero name uses near-black like the app H1 ("Brasse Bouillon") */
+  --vp-home-hero-name-color: #1e1e1e;
+
+  /* Hero background = signature golden yellow with the brewing watermark
+     pattern from the mobile app, dimmed slightly for site readability. */
   --vp-home-hero-image-background-image:
-    radial-gradient(circle at 30% 20%, rgba(255, 214, 0, 0.26), transparent 38%),
-    radial-gradient(circle at 80% 30%, rgba(200, 157, 0, 0.22), transparent 35%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 246, 205, 0.9));
+    linear-gradient(135deg, rgba(244, 189, 63, 0.78), rgba(232, 174, 44, 0.72)),
+    url("/Yellow_Background.png");
   --vp-home-hero-image-filter: blur(0);
+}
+
+/* Optional: tint the hero name action button and badges with the warm olive
+   used by the active bottom-nav bubble in the mobile app. */
+:root {
+  --vp-c-tip-1: #7d8c3a;
+  --vp-c-tip-soft: rgba(125, 140, 58, 0.14);
 }
 
 .vp-doc .status-chip {

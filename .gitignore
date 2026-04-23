@@ -127,3 +127,9 @@ Chapitre*_*.md
 .cache/
 .temp
 .tmp
+
+# Codex CLI artifacts (empty marker file)
+.codex
+
+# Claude Code local settings (user-specific overrides)
+.claude/settings.local.json

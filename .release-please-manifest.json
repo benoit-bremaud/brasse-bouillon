@@ -1,0 +1,6 @@
+{
+  "packages/mobile-app": "0.1.0-alpha1",
+  "packages/api": "0.0.1",
+  "packages/website": "0.0.1",
+  "packages/beer-encyclopedia": "0.0.1"
+}

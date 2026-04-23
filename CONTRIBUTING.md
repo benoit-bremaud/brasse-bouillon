@@ -63,6 +63,117 @@ ci(monorepo): add SonarQube quality gate to CI pipeline
 docs(readme): update getting started section
 ```
 
+### Scopes used by release-please
+
+The scope in a Conventional Commit drives which package gets
+released. Use these exact scopes to benefit from automation:
+
+| Scope | Package bumped | Notes |
+|-------|----------------|-------|
+| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard` | `packages/mobile-app` | Also bumps `packages/api` (lockstep group "app") |
+| `api` | `packages/api` | Also bumps `packages/mobile-app` (lockstep group "app") |
+| `website` | `packages/website` | Independent |
+| `encyclopedia` | `packages/beer-encyclopedia` | Independent |
+| `ydays`, `root`, `ci`, `monorepo` | No package — stays unreleased | Doc / infra only |
+
+Bump semantics (release-please computes automatically):
+
+- `feat(<scope>):` → **minor** bump (0.1.0 → 0.2.0)
+- `fix(<scope>):` → **patch** bump (0.1.0 → 0.1.1)
+- `feat(<scope>)!:` or `BREAKING CHANGE:` in body → **major** bump
+  (stays minor while `0.x.y`, per the `bump-minor-pre-major` setting)
+- `chore:`, `docs:`, `test:`, `ci:`, `build:`, `style:`, `refactor:`
+  → no bump (but `refactor:` + `docs:` appear in the CHANGELOG)
+
+While we ship `v0.1.0-alphaN`, every fix/feat bumps the `alphaN`
+counter (`alpha1 → alpha2 → alpha3`). To leave the alpha cycle,
+merge a commit with the body `Release-As: 0.1.0-beta1` (or
+`0.1.0-rc1`, `0.1.0`) on the release PR.
+
+---
+
+## Release Workflow
+
+Automated via **release-please** ([Google GitHub Action](https://github.com/googleapis/release-please-action))
+defined in `.github/workflows/release-please.yml` with the config
+in `release-please-config.json` and manifest in
+`.release-please-manifest.json`.
+
+### Monorepo grouping (hybrid)
+
+- **Group "app"** (lockstep): `packages/mobile-app` + `packages/api`
+  share a single `vX.Y.Z`. A commit touching either package bumps
+  both together, tag format `mobile-app-vX.Y.Z` + `api-vX.Y.Z`.
+- **Independent**: `packages/website` (tag `website-vX.Y.Z`),
+  `packages/beer-encyclopedia` (tag `encyclopedia-vX.Y.Z`). Each
+  evolves at its own rhythm.
+
+### Day-to-day flow
+
+1. Work on a feature branch (`feat/<scope>`, `fix/<scope>`, …).
+2. Commit with Conventional Commits — release-please reads these
+   messages to derive the next version.
+3. Open PR, review, merge into `main`.
+4. release-please **automatically opens / updates** a release PR
+   titled `chore(main): release <package> X.Y.Z` for each affected
+   package. Never close it manually.
+5. When you want to cut a release:
+   - Review the release PR (CHANGELOG entries, version bump)
+   - Optionally, add a `Release-As: X.Y.Z` footer commit to force a
+     specific version (e.g. transition from alpha to beta)
+   - Merge the release PR
+   - release-please automatically tags + creates the GitHub Release
+
+### What NOT to do
+
+- **Never `git tag` manually.** All tags are created by release-please.
+- **Never bump `package.json` / `app.json` / CHANGELOG by hand.**
+  Always let release-please generate the bump via the release PR.
+- **Never close a release PR.** Update it via new commits.
+- **Never push to `main` directly.** Even release PRs go through the
+  PR / merge flow.
+
+### Tag protection
+
+Ruleset `refs/tags/v*` + scoped component tags (`mobile-app-v*`,
+`api-v*`, `website-v*`, `encyclopedia-v*`) block non-admin
+creation / update / deletion. Admin bypass (`RepositoryRole: Admin`)
+is the only escape hatch for emergency corrections. See
+[.github/tag-protection.md](.github/tag-protection.md) for the apply /
+verify / remove commands.
+
+### Signing
+
+Tag signing is currently optional (private repo). Becomes **mandatory**
+before any public release (see `## Security — Public Release Checklist`
+below).
+
+### Pre-soutenance milestone schedule (2026-05-27)
+
+**Milestone-driven with a single final safety cap.** Tag as soon as
+the milestone is reached — no date pressure. The only hard cap is
+`v0.1.0` on **2026-05-26** (J-1 before soutenance) because the APK
+must be installed on the demo phone by then.
+
+Expected sequence (target, no date caps except the last one):
+
+1. `mobile-app-v0.1.0-alpha1` + `api-v0.1.0-alpha1` — audit baseline
+   (current, pending tag on first main merge)
+2. `v0.1.0-alpha2` — Auth backend wired (B-13 bis resolved)
+3. `v0.1.0-alpha3` — Scan pipeline MVP (barcode → match)
+4. `v0.1.0-beta1` — feature-complete (scan + Mes Brassins rewrite +
+   labels UI bugs fixed)
+5. `v0.1.0-rc1` — QA passed, zero known blocking bug
+6. `v0.1.0` — **2026-05-26 CAP**, cut + EAS build + APK install
+
+Self-discipline safeguards (no intermediate cap forces the call):
+
+- Auth not wired by 2026-05-10 → pivot to "Connexion démo" only
+- Scan still capture-only by 2026-05-17 → simulated recognition
+  with hardcoded demo data (jury informed honestly)
+- `beta1` not reached by 2026-05-20 → cut remaining features
+- `rc1` not reached by 2026-05-24 → panic mode, fix-bugs-only
+
 ---
 
 ## Issue Types & Templates

@@ -66,6 +66,7 @@ permette à un collègue du projet de :
 | YD-VP-11 | Task | P0 | 1 SP | YD-VP-10 | Trancher le mode d'accès : public ou protégé |
 | YD-VP-12 | Task | P2 | 2 SP | YD-VP-10, YD-VP-11 | Valider le site avec 1 à 2 lecteurs internes |
 | YD-VP-13 | Feature | P2 | 5 SP | YD-VP-10, YD-VP-12 | Intégrer le widget feedback en toute fin si le temps le permet |
+| YD-VP-14 | Feature | P2 | 2 SP | YD-VP-10 | Afficher la version du site + page changelog accessible depuis la nav (issue #579) |
 
 ## Détail des sous-issues
 

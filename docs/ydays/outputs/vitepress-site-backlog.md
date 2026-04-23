@@ -57,7 +57,7 @@ permette à un collègue du projet de :
 | YD-VP-02 | Feature | P0 | 3 SP | YD-VP-01 | Créer le squelette VitePress dans `docs/ydays/` |
 | YD-VP-03 | Docs | P0 | 3 SP | YD-VP-01 | Concevoir la navigation et l'ordre de lecture |
 | YD-VP-04 | Docs | P0 | 3 SP | YD-VP-03 | Créer la homepage orientée prise en main |
-| YD-VP-05 | Docs | P1 | 5 SP | YD-VP-03 | Créer les pages d'index et parcours guidés |
+| YD-VP-05 | Docs | P1 | 5 SP | YD-VP-03 | Créer les pages d'index et parcours guidés ✅ |
 | YD-VP-06 | Docs | P0 | 3 SP | YD-VP-02, YD-VP-03 | Brancher les documents Ydays existants dans le site |
 | YD-VP-07 | Docs | P1 | 3 SP | YD-VP-05, YD-VP-06 | Lisser l'expérience de lecture |
 | YD-VP-08 | Docs | P1 | 2 SP | YD-VP-04 | Ajouter une page "comment faire un bon retour" |

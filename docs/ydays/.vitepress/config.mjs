@@ -37,7 +37,9 @@ export default {
         text: "Soutenance",
         items: [
           { text: "Plan de soutenance", link: `${outputsPrefix}/plan-presentation-27-mai` },
+          { text: "Risques overview", link: "/risks-overview" },
           { text: "Risques et mitigations", link: `${outputsPrefix}/risk-analysis` },
+          { text: "Q&A overview", link: "/qa-overview" },
           { text: "Q&A anticipées", link: `${outputsPrefix}/pitch-anticipated-qa` },
           { text: "Audit MVP", link: `${outputsPrefix}/audit-features-mvp` }
         ]
@@ -45,6 +47,7 @@ export default {
       {
         text: "Slides et narration",
         items: [
+          { text: "Pitch overview", link: "/pitch-overview" },
           { text: "Deck Canva — fichier de travail", link: `${outputsPrefix}/canva-working-deck` },
           { text: "Deck overview", link: "/slides-overview" },
           { text: "Squelette du deck", link: `${outputsPrefix}/slide-deck-outline` },

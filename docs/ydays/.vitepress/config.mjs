@@ -1,6 +1,10 @@
+import pkg from "../package.json" with { type: "json" };
+
 const outputsPrefix = "/outputs";
 const referencesPrefix = "/references";
 const debriefPrefix = "/debrief";
+
+const siteVersion = pkg.version;
 
 /** @type {import('vitepress').UserConfig} */
 export default {
@@ -21,7 +25,8 @@ export default {
       { text: "Accueil", link: "/" },
       { text: "Lire d'abord", link: "/read-first" },
       { text: "Statut", link: `${outputsPrefix}/soutenance-27-mai-status-checklist` },
-      { text: "Q&A", link: `${outputsPrefix}/pitch-anticipated-qa` }
+      { text: "Q&A", link: `${outputsPrefix}/pitch-anticipated-qa` },
+      { text: `v${siteVersion}`, link: "/changelog" }
     ],
     sidebar: [
       {
@@ -30,7 +35,8 @@ export default {
           { text: "Accueil", link: "/" },
           { text: "Lire d'abord", link: "/read-first" },
           { text: "Faire un bon retour", link: "/feedback-guide" },
-          { text: "Statut opérationnel", link: `${outputsPrefix}/soutenance-27-mai-status-checklist` }
+          { text: "Statut opérationnel", link: `${outputsPrefix}/soutenance-27-mai-status-checklist` },
+          { text: "Changelog du site", link: "/changelog" }
         ]
       },
       {
@@ -91,7 +97,7 @@ export default {
       { icon: "github", link: "https://github.com/benoit-bremaud/brasse-bouillon" }
     ],
     footer: {
-      message: "Documentation de travail pour la soutenance Ydays du 27 mai 2026.",
+      message: `Documentation de travail pour la soutenance Ydays du 27 mai 2026. <a href="/changelog">Version ${siteVersion}</a>`,
       copyright: "Brasse-Bouillon"
     },
     search: {

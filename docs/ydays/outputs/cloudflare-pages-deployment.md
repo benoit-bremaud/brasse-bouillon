@@ -46,6 +46,16 @@ npx wrangler@latest pages project create brasse-bouillon-ydays \
 
 ### Déploiement (à relancer à chaque itération)
 
+Avant chaque redéploiement **significatif** (ajout de page, changement de
+nav, update de script, nouveau doc pivot) :
+
+1. **Bumper la version** dans [package.json](../package.json) au format
+   `YYYY.MM.DD-N` où `N` est le numéro de déploiement du jour.
+   Exemple : 1er déploiement du 23 avril = `2026.04.23-1`, 2e = `2026.04.23-2`.
+2. **Ajouter une entrée** en haut de [changelog.md](../changelog.md) décrivant
+   ce qui change (1-3 bullets suffisent).
+3. Builder et déployer :
+
 ```bash
 cd docs/ydays
 npm run docs:build
@@ -54,6 +64,9 @@ npx wrangler@latest pages deploy .vitepress/dist \
   --branch=docs-soutenance-27-mai \
   --commit-dirty=true
 ```
+
+Les typo et micro-corrections peuvent sauter les étapes 1-2 mais
+doivent quand même être redéployées.
 
 Durée : ~30 secondes par redeploy. Sortie :
 

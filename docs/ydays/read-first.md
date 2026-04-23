@@ -7,7 +7,7 @@ est d'aller du **cadre global** vers le **script**, puis vers la
 ::: warning Action urgente — vote sur le design du deck
 Le **deck** (la présentation Canva de 15 slides qu'on projettera le
 27 mai) a 4 propositions de design en lice. **L'équipe choisit avant
-dimanche 2026-05-03 23h59**, pour valider le design avant l'oral blanc
+lundi 2026-05-04 23h59**, pour valider le design avant l'oral blanc
 du 6 mai. Ça prend 3 minutes.
 
 👉 [**Aller voter : Deck Canva — fichier de travail**](/outputs/canva-working-deck)

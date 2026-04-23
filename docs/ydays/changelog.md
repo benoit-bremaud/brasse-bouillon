@@ -7,6 +7,28 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-3
+
+**Audit Bloc 2 — Soutenance cœur stratégique**
+
+- Plan : retrait de la référence aux "7 critères (issues #522-#528)"
+  obsolètes (mapping fictif), remplacée par les 4 catégories réelles
+  de la grille Pitch Entrepreneurial (Pitch / Production / Perspective
+  / Qualité orale + coup de cœur).
+- Plan : script bloc 3 marqué comme "à mettre à jour pour 5 min" est
+  maintenant simplement cité comme "seconde-par-seconde 5 min" (le
+  script a déjà été réécrit).
+- Plan : tracking oral blanc T10 pointe désormais sur issue #577
+  (action concrète) avec l'épic #536 en référence.
+- Risk-analysis : D8 corrigé "90 s" → "5 min" (le budget bloc 3 a
+  changé depuis la rédaction initiale du risque).
+- Risk-analysis : L6 corrigé "06/05" → "2026-05-06" pour cohérence.
+
+**Deadline vote deck Canva**
+
+- Reportée au **lundi 2026-05-04 23h59** (au lieu de dimanche 05-03)
+  pour laisser un jour ouvré avant l'oral blanc du 6 mai.
+
 ## 2026.04.23-2
 
 **Audit Bloc 1 — Entrée et prise en main**

@@ -3,9 +3,12 @@
 ## Finalité
 
 Soutenance finale "Pitch Entrepreneurial" Ydays Ynov. Jury composite,
-évaluation sur 7 critères (issues #522–#528) — **3 grilles d'évaluation
-officielles Ynov** à récupérer auprès du coach (mentionnées en pièce
-jointe de l'email Ynov 2026-04-19, non encore stockées dans le repo).
+évaluation sur **4 catégories de la grille Pitch Entrepreneurial**
+(Pitch 15 / Production 30 / Perspective 20 / Qualité orale 15 + coup
+de cœur +1). Grille archivée dans
+[references/grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md) ;
+2 grilles complémentaires mentionnées en pièce jointe de l'email Ynov
+2026-04-19 restent à récupérer auprès du coach (cf. issue #564).
 
 **Format officiel (confirmé par email Ynov 2026-04-19)** :
 
@@ -130,7 +133,7 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 
 - Démo live sur téléphone mobile (projection miroir). Séquence comprimée
   (voir [pitch-script-bloc3-demo-live.md](pitch-script-bloc3-demo-live.md)
-  pour le script seconde-par-seconde à mettre à jour pour 5 min) :
+  pour le script seconde-par-seconde 5 min) :
   1. Auth éclair + recette ouverte d'avance (30 s)
   2. Scanner code-barre sur 2 bières réelles (1:30)
   3. Calculateur ABV live (45 s)
@@ -259,7 +262,7 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 | T7 | Étendre cadrage bloc 1 post-saynète à ~3:10 | 🔴 à faire | `outputs/pitch-script-bloc1-cadrage.md` |
 | T8 | Produire 6 slides Canva saynète (S1-S6) | 🔴 à faire | Canva — design system BB |
 | T9 | Tourner vidéo backup démo 3 min (deadline 2026-05-20) | 🔴 à faire | issue #533 |
-| T10 | Réserver oral blanc coach 2026-05-06 | 🔴 urgent | issue #536 |
+| T10 | Réserver oral blanc coach 2026-05-06 | 🔴 urgent | issue #577 (action) / #536 (épic) |
 | T11 | Identifier binôme P1/P2 saynète | 🔴 urgent | issue #560 |
 | T12 | Répétitions chronométrées (J-21, J-7, J-3, J-1) | 🔴 à planifier | issue #528 |
 | T14 | Dépôt Moodle (slides + PDF + vidéo backup) | 🔴 J-day | après soutenance |

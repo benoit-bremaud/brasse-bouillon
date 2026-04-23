@@ -34,7 +34,7 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 | D5 | Téléphone se verrouille au milieu de la démo | 🟡 | 🟢 | Désactiver verrouillage auto (réglages → jamais) J-1 ; mode "Ne pas déranger" activé |
 | D6 | Notification perso intrusive (SMS, appel) pendant la démo | 🟡 | 🟢 | Mode avion activé avant la démo ; wifi/Bluetooth manuel si nécessaire |
 | D7 | Jeu de données démo corrompu (recette manquante) | 🟢 | 🔴 | **Script de seed reproductible** (`make seed-demo`) exécuté J-1 ; vérif manuelle des 3-5 recettes + 1 brassin timeline |
-| D8 | La démo dépasse les 90 s annoncées | 🟡 | 🟡 | Chronométrage strict aux répétitions J-7/J-3/J-1 ; script T6 seconde-par-seconde |
+| D8 | La démo dépasse les 5 min annoncées | 🟡 | 🟡 | Chronométrage strict aux répétitions J-7/J-3/J-1 ; script T6 seconde-par-seconde |
 
 ## Risques liés au contenu / pitch
 
@@ -57,7 +57,7 @@ nourrit directement les choix de backup (vidéos démo, export PDF offline,
 | L3 | Matériel démo oublié chez soi | 🟢 | 🔴 | **Checklist matériel J-1** (liste ci-dessous) ; sac préparé la veille au soir |
 | L4 | Aucun autre membre de l'équipe présent / disponible | 🔴 | 🟢 | Pitch conçu pour être porté en solo (A0 hybride = voix narrative unique, interventions expertes optionnelles) ; si seul = version "1 voix" préparée en amont |
 | L5 | Jury change la durée / format le jour J | 🟢 | 🟡 | Version compacte 15 min pré-rédigée (blocs 1-6 condensés) au cas où |
-| L6 | Ynov modifie le format annoncé (30+10 → 20+10 ou autre) | 🟢 | 🟡 | Version compacte 20 min pré-rédigée (supprime bloc 4, condense 2 et 5) prête J-3 ; vérif format auprès du coach à l'oral blanc 06/05 |
+| L6 | Ynov modifie le format annoncé (30+10 → 20+10 ou autre) | 🟢 | 🟡 | Version compacte 20 min pré-rédigée (supprime bloc 4, condense 2 et 5) prête J-3 ; vérif format auprès du coach à l'oral blanc 2026-05-06 |
 
 ## Checklist matériel J-1
 

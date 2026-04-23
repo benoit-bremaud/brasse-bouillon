@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "prerelease": true,
+  "prerelease-type": "alpha",
+  "include-v-in-tag": true,
+  "include-component-in-tag": true,
+  "separate-pull-requests": true,
+  "changelog-sections": [
+    { "type": "feat", "section": "Features", "hidden": false },
+    { "type": "fix", "section": "Bug Fixes", "hidden": false },
+    { "type": "perf", "section": "Performance", "hidden": false },
+    { "type": "refactor", "section": "Refactors", "hidden": false },
+    { "type": "docs", "section": "Documentation", "hidden": false },
+    { "type": "test", "section": "Tests", "hidden": true },
+    { "type": "build", "section": "Build", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "Chores", "hidden": true },
+    { "type": "style", "section": "Style", "hidden": true }
+  ],
+  "packages": {
+    "packages/mobile-app": {
+      "release-type": "node",
+      "package-name": "@brasse-bouillon/mobile-app",
+      "component": "mobile-app",
+      "extra-files": ["app.json"]
+    },
+    "packages/api": {
+      "release-type": "node",
+      "package-name": "@brasse-bouillon/api",
+      "component": "api"
+    },
+    "packages/website": {
+      "release-type": "node",
+      "package-name": "@brasse-bouillon/website",
+      "component": "website"
+    },
+    "packages/beer-encyclopedia": {
+      "release-type": "python",
+      "package-name": "beer-encyclopedia",
+      "component": "encyclopedia"
+    }
+  },
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "app",
+      "components": ["mobile-app", "api"]
+    }
+  ]
+}

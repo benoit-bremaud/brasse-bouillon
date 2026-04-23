@@ -65,12 +65,24 @@ bloc 1 (reste 1:20 pour cadrage marché + transition).
 **Durée totale** : **2:55 min** (20 s intro + 2:35 dialogue +
 20 s transition présentateur).
 
-**Ce storyboard a été écrit pour la saynète V1 complète (~2:35 min).**
-Depuis la décision Path B du 2026-04-21, la saynète retenue est la
-V1-cut (~1:50 min, voir [pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md)),
-et le bloc 1 fait désormais 5 min. Il reste donc **~3:10 min** après
-la saynète pour le cadrage cible + gap français + founder-fit +
-annonce SMART + transition vers bloc 2 — marge confortable.
+::: danger Storyboard archivé — version V1 complète
+Ce storyboard décrit la **saynète V1 complète** (~2:35 min) qui
+incluait la boutique intégrée et le ratio prix. Depuis la décision
+**Path B du 2026-04-21**, ces deux éléments ont été coupés (features
+non construites, ~25 h de dev non prioritaires).
+
+**Version active** : V1-cut (~1:50 min),
+[pitch-hook-saynete-v1-cut.md](pitch-hook-saynete-v1-cut.md). La
+V1-cut se termine par « Tu commences quand ? » (fin avant la démo
+boutique + ratio prix).
+
+Ce storyboard reste archivé pour trace ; les plans 10-12 (boutique +
+ratio prix) et les pré-requis associés ne seront **pas construits**.
+:::
+
+Le bloc 1 fait désormais 5 min. Il reste donc **~3:10 min** après la
+saynète pour le cadrage cible + gap français + founder-fit + annonce
+SMART + transition vers bloc 2 — marge confortable.
 
 ## Inventaire des slides de support à produire (dans Canva)
 
@@ -119,19 +131,20 @@ Pour que la démo live mentionnée en plans 6-11 fonctionne à l'oral :
   fonctionnalité "le scan propose une recette équivalente" existe ?
   → tâche d'audit code à programmer.
 - ✅ Ajustement volume 20 → 8 L — live via calculateurs.
-- 🔨 **Boutique + ingrédients dans la liste de courses** — à
-  construire d'ici J-21 (scope minimal défini dans
-  [pitch-hook-saynete.md](pitch-hook-saynete.md)).
-- 🔨 **Ratio prix maison vs commerce** — à construire d'ici J-21.
+- ❌ **Boutique + ingrédients dans la liste de courses** — **coupé par
+  Path B 2026-04-21**, ne sera pas dans la V1-cut.
+- ❌ **Ratio prix maison vs commerce** — **coupé par Path B 2026-04-21**,
+  remplacé par la punchline P2 « Tu commences quand ? ».
 
 ## Ce qu'il reste à faire
 
 1. **Confirmer Kévin** — message à lui envoyer aujourd'hui.
 2. **Audit "scan → recette"** — vérifier dans le code si cette
    transition existe ou si c'est à implémenter.
-3. **Construire boutique + liste de courses + ratio prix** — voir
-   todo list dev.
-4. **Produire les 6 slides Canva** (S1-S6) au design system BB.
+3. ~~Construire boutique + liste de courses + ratio prix~~ —
+   **coupé par Path B 2026-04-21**, plus au backlog.
+4. **Produire les 6 slides Canva** (S1-S6) au design system BB — voir
+   [canva-slides-detail.md](canva-slides-detail.md).
 5. **Enregistrer le jeu de données démo** reproductible : 1 bière
    "exemple" qui donne une recette connue, mesures seedées pour
    l'ajustement 20 → 8 L, liste de courses pré-peuplée.

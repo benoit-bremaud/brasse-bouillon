@@ -1,9 +1,9 @@
 # Business Model Canvas — Brasse-Bouillon
 
 **Finalité** : matière pour le bloc 5 (BM + Perspectives) du plan
-soutenance et pour le critère d'évaluation #524 (BM + innovation,
-30 pts). Version synthétique = 3 slides ; version détaillée = ce
-document (Q&A + annexes).
+soutenance et pour la catégorie **Production (30 pts)** de la grille
+Pitch Entrepreneurial (BM + innovation). Version synthétique = 3
+slides ; version détaillée = ce document (Q&A + annexes).
 
 **Sources** : chaque bloc cite ses sources repo. Les hypothèses non
 sourcées sont marquées `[hypothèse — à valider]` et remontées en trous
@@ -182,7 +182,7 @@ Table synthétique exploitable en slide ou en Q&A :
 | Open-source / transparence | Non | Non | Oui (potentiel) |
 | Ancrage marché FR (LHBS) | Non | Partiel | Cible primaire |
 
-## Innovation — axes à mettre en avant (#524)
+## Innovation — axes à mettre en avant (catégorie Production)
 
 - **Scanner code-barre intégré** (audit feature ✅ stable) — pont entre
   bière commerciale et expérimentation amateur.

@@ -7,6 +7,23 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-5
+
+**Audit Bloc 4 — Ouverture et support**
+
+- pitch-hook-saynete-storyboard : warning box "archivé — V1 complète"
+  plus visible ; pré-requis produit marqués "❌ coupé par Path B" pour
+  boutique et ratio prix ; item "à construire" barré dans
+  la liste "ce qu'il reste à faire".
+- business-model-canvas : remplacement des 2 références à l'issue
+  fictive #524 par la catégorie réelle "Production (30 pts)" de la
+  grille Pitch Entrepreneurial.
+- smart-objectives-par-pole : ajout d'un encart warning en haut du
+  document qui explique que les 36 annotations `#52X-pts` sont un
+  mapping historique (avant récupération de la grille réelle le
+  2026-04-21) avec table de correspondance vers les 4 catégories
+  réelles. Pas de réécriture ligne par ligne — 1 note globale suffit.
+
 ## 2026.04.23-4
 
 **Audit Bloc 3 — Slides et narration**

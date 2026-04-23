@@ -2,8 +2,26 @@
 
 **Date de rédaction** : 2026-04-16
 **Finalité** : fournir la matière pour la slide "Objectifs SMART" du pitch
-(critère grille Ydays #523, 15 pts) et pour répondre aux questions du jury
-sur la mesurabilité de ce qui a été livré et ce qui est planifié.
+et pour répondre aux questions du jury sur la mesurabilité de ce qui a été
+livré et ce qui est planifié.
+
+::: warning Références `#522-#528` = mapping historique, pas la grille réelle
+Les annotations *Critère grille* qui apparaissent ci-dessous (`#522`,
+`#523`, `#524`, `#525`, `#526`, `#527`, `#528`) renvoient à un **mapping
+fictif** d'issues GitHub internes utilisé avant que la grille Ynov
+officielle ne soit récupérée (2026-04-21). Elles sont conservées telles
+quelles pour éviter de réécrire 36 annotations, mais **la grille réelle**
+est la grille **Pitch Entrepreneurial** à 4 catégories :
+
+- **Pitch (15 pts)** ← #522
+- **Production (30 pts)** ← #524, #525, #527 (BM + innovation + démo + slide deck)
+- **Perspective (20 pts)** ← #526
+- **Qualité orale (15 pts)** ← #523 (transversal)
+- **coup de cœur (+1)** ← #528
+
+Référence canonique :
+[references/grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md).
+:::
 
 ## Méthode de dérivation
 

@@ -104,6 +104,7 @@ pas être considérée comme verrouillée.
 | P0 | Choisir les bières test A / B / C | À faire | avant répétition démo | Réduit le risque scanner D2 | [pitch-script-bloc3-demo-live.md](pitch-script-bloc3-demo-live.md) |
 | P0 | Tourner la vidéo backup | À faire | **2026-05-20** max | Exigence coach + mitigation D1 | [README.md](../README.md), [risk-analysis.md](risk-analysis.md) |
 | P0 | Faire une répétition complète chrono | À faire | avant oral blanc | Réduit le risque C3 (dépassement) | [risk-analysis.md](risk-analysis.md) |
+| P0 | Valider l'hébergement backend (Klouders A / Fly.io B activable) | En cours | **2026-05-20** | La démo live suppose une API joignable depuis internet | [hosting-strategy.md](hosting-strategy.md) |
 
 ## 3. Tâches importantes mais non encore fermées
 
@@ -165,6 +166,7 @@ La soutenance du 27 mai peut être considérée **prête** si et seulement
 si les points ci-dessous sont vrais :
 
 - [ ] pré-présentation / oral blanc du **2026-05-06** demandé, réservé et passé
+- [ ] hébergement backend validé (Klouders actif OU Fly.io déployé)
 - [ ] deck Canva réel produit
 - [ ] PDF exporté et testé offline
 - [ ] démo 5 min verrouillée sur un parcours précis

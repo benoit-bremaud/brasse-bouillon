@@ -37,6 +37,7 @@ export default {
         text: "Soutenance",
         items: [
           { text: "Plan de soutenance", link: `${outputsPrefix}/plan-presentation-27-mai` },
+          { text: "Stratégie d'hébergement", link: `${outputsPrefix}/hosting-strategy` },
           { text: "Risques overview", link: "/risks-overview" },
           { text: "Risques et mitigations", link: `${outputsPrefix}/risk-analysis` },
           { text: "Q&A overview", link: "/qa-overview" },

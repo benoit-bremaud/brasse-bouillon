@@ -28,10 +28,11 @@ features:
     details: L'objectif n'est pas de commenter chaque mot, mais de challenger le fond, la crédibilité, les transitions et les risques de soutenance.
 ---
 
-::: warning Vote en cours — deadline mercredi 2026-04-24 23h59
+::: warning Vote en cours — deadline dimanche 2026-05-03 23h59
 L'équipe vote sur le **design du deck de soutenance** (la présentation
 Canva des 15 slides du 27 mai). 4 propositions générées par Canva AI,
-on choisit la préférée. Ça prend **3 minutes**.
+on choisit la préférée avant l'oral blanc du 6 mai. Ça prend
+**3 minutes**.
 
 👉 [**Aller voter**](/outputs/canva-working-deck)
 :::

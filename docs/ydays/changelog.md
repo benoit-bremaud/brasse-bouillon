@@ -7,6 +7,19 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-2
+
+**Audit Bloc 1 — Entrée et prise en main**
+
+- Home : vote deck Canva deadline reportée au **dimanche 2026-05-03
+  23h59** (avant oral blanc du 6 mai) au lieu du 24 avril désormais
+  obsolète.
+- Read-first : parcours de lecture mis à jour pour intégrer les 3
+  nouveaux sas (`/pitch-overview`, `/qa-overview`, `/risks-overview`),
+  `/outputs/hosting-strategy` et `/changelog`. Retrait du lien
+  `/README` redondant avec la home.
+- Read-first : vote deck aligné sur la même deadline 2026-05-03.
+
 ## 2026.04.23-1
 
 **Feature — site version + changelog**

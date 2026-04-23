@@ -7,22 +7,23 @@ est d'aller du **cadre global** vers le **script**, puis vers la
 ::: warning Action urgente — vote sur le design du deck
 Le **deck** (la présentation Canva de 15 slides qu'on projettera le
 27 mai) a 4 propositions de design en lice. **L'équipe choisit avant
-mercredi 2026-04-24 23h59.** Ça prend 3 minutes.
+dimanche 2026-05-03 23h59**, pour valider le design avant l'oral blanc
+du 6 mai. Ça prend 3 minutes.
 
 👉 [**Aller voter : Deck Canva — fichier de travail**](/outputs/canva-working-deck)
 :::
 
 ## Parcours recommandé
 
-1. [README Ydays](/README)
-2. [Grille Pitch Entrepreneurial](/references/grille-pitch-entrepreneurial)
-3. [Résumé de la session coach](/references/2026-03-25_coach-session-summary)
-4. [Plan de soutenance](/outputs/plan-presentation-27-mai)
-5. [Checklist de statut](/outputs/soutenance-27-mai-status-checklist)
-6. [Deck overview](/slides-overview)
-7. [Scripts overview](/scripts-overview)
-8. [Q&A anticipées](/outputs/pitch-anticipated-qa)
-9. [Risques et mitigations](/outputs/risk-analysis)
+1. [Grille Pitch Entrepreneurial](/references/grille-pitch-entrepreneurial)
+2. [Résumé de la session coach](/references/2026-03-25_coach-session-summary)
+3. [Plan de soutenance](/outputs/plan-presentation-27-mai)
+4. [Checklist de statut](/outputs/soutenance-27-mai-status-checklist)
+5. [Stratégie d'hébergement](/outputs/hosting-strategy)
+6. [Pitch overview](/pitch-overview) → puis [Deck overview](/slides-overview) et [Scripts overview](/scripts-overview)
+7. [Q&A overview](/qa-overview) → puis [Q&A anticipées](/outputs/pitch-anticipated-qa)
+8. [Risques overview](/risks-overview) → puis [Risques et mitigations](/outputs/risk-analysis)
+9. [Changelog du site](/changelog) pour voir ce qui a évolué depuis ta dernière lecture
 
 ## Si tu n'as que 10 minutes
 

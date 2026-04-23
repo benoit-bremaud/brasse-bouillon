@@ -6,7 +6,7 @@ devant le jury le **2026-05-27**.
 
 Canva AI a produit **4 propositions de design** (même contenu
 textuel, 4 mises en page différentes). L'équipe vote sur Discord
-pour choisir la préférée, deadline **mercredi 2026-04-24 23h59**.
+pour choisir la préférée, deadline **lundi 2026-05-04 23h59**.
 
 Après le vote, le design gagnant devient un **vrai fichier Canva
 éditable à plusieurs** (comme Google Slides). Son URL d'édition
@@ -47,7 +47,7 @@ espace Canva personnel.
 
 ## Vote équipe — choix de la mise en page
 
-::: warning Deadline de vote : mercredi 2026-04-24 23h59
+::: warning Deadline de vote : lundi 2026-05-04 23h59
 Vote sur Discord (thread dédié canal Ydays). Au-delà de cette date, les
 previews côté Canva risquent d'expirer.
 :::
@@ -96,7 +96,7 @@ change (typographie, alignements, couleurs d'accent, choix d'icônes).
    - `Vote : Aucun` si tu préfères repartir de zéro sur la base de
      l'ancien deck + captures V0. Mentionne ce qui te plaisait
      dans l'ancien design si possible.
-4. **Deadline : mercredi 2026-04-24 23h59.**
+4. **Deadline : lundi 2026-05-04 23h59.**
 5. Si une majorité vote "Aucun" ou si les votes sont très éparpillés,
    l'admin annonce jeudi matin qu'on repart d'un canvas vide (lui
    aussi matérialisé + partagé), et l'équipe peuple directement
@@ -120,11 +120,11 @@ en s'appuyant sur [canva-slides-detail.md](canva-slides-detail.md).
 On vote sur la **forme**, pas sur le **fond**.
 :::
 
-## Ce qui se passera après mercredi 23h59
+## Ce qui se passera après lundi 23h59
 
 Une fois le vote fermé, voici le déroulé :
 
-1. **Jeudi matin 2026-04-25 (< 30 min)** — Benoît (admin du projet)
+1. **Mardi matin 2026-05-05 (< 30 min)** — Benoît (admin du projet)
    lance une commande dans son agent Claude Code. L'agent utilise le
    MCP Canva pour **matérialiser** le candidat gagnant : c'est-à-dire
    convertir le brouillon IA en un **vrai fichier Canva éditable**,

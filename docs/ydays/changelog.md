@@ -7,6 +7,31 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-4
+
+**Audit Bloc 3 — Slides et narration**
+
+- canva-working-deck : alignement de toutes les dates de vote sur la
+  nouvelle deadline lundi 2026-05-04 (matérialisation mardi 2026-05-05),
+  cohérent avec la home et read-first.
+- slide-deck-outline : retrait du bullet "Ratio prix 2,10€/L vs 6€/L"
+  dans S4 (résidu pré-Path B), remplacé par la punchline P2 « Tu
+  commences quand ? » qui correspond à la saynète V1-cut réelle.
+- slide-deck-outline : mapping table refondu sur les 4 catégories
+  réelles de la grille Pitch Entrepreneurial (Pitch / Production /
+  Perspective / Qualité orale + coup de cœur), au lieu des références
+  fictives #522-#527.
+- slide-deck-outline : workflow de production daté du 2026-04-19 marqué
+  "partiellement dépassé" avec un encart pointant vers la checklist de
+  statut comme source de vérité courante. D+15 réaligné sur la deadline
+  vote 2026-05-04, D+17 ajouté pour l'oral blanc 2026-05-06.
+- pitch-transitions : T2 "Pendant huit minutes" corrigé en "Pendant
+  cinq minutes" (le bloc 3 a été comprimé à 5 min).
+
+Note : les 6 scripts blocs (pitch-script-bloc1 à bloc6) **n'ont pas été
+audités en profondeur** dans cette passe — passe ciblée à programmer
+plus tard sur cohérence chiffres + durées.
+
 ## 2026.04.23-3
 
 **Audit Bloc 2 — Soutenance cœur stratégique**

@@ -124,7 +124,7 @@ slide pendant la démo).
 > "Assez de slides. **Il est temps de voir l'application en action.**
 >
 > Je vais maintenant vous montrer **Brasse-Bouillon sur un vrai
-> téléphone**. Pendant huit minutes, nous allons suivre un brasseur
+> téléphone**. Pendant cinq minutes, nous allons suivre un brasseur
 > réel sur une vraie recette, avec **une vraie bière** qu'il va
 > scanner."
 

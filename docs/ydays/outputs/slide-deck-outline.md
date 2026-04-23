@@ -65,7 +65,7 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
   - Recette équivalente proposée
   - Ajustement volume 20 → 8 L
   - Liste ingrédients + matériel
-  - **Ratio prix : 2,10 €/L chez toi vs 6 €/L supermarché**
+  - **Punchline P2** : *« Tu commences quand ? »* (P1 sourit, accepte)
 - **Objectif** : démontrer live l'app en condition dialogue.
 
 ### S5 — Transition présentateur (bloc 1 — 2:40-3:00)
@@ -161,21 +161,24 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
 - "Merci — des questions ?"
 - **Objectif** : sortir fort, laisser une image mémorisable.
 
-## Mapping slides ↔ blocs ↔ critères d'évaluation
+## Mapping slides ↔ blocs ↔ catégories grille Pitch Entrepreneurial
 
-| Slide | Bloc | Temps | Critère grille |
-|-------|------|-------|----------------|
+Catégories réelles de la grille (cf. [grille-pitch-entrepreneurial.md](../references/grille-pitch-entrepreneurial.md)) :
+**Pitch (15 pts)**, **Production (30 pts)**, **Perspective (20 pts)**, **Qualité orale (15 pts)**, **coup de cœur (+1)**.
+
+| Slide | Bloc | Temps | Catégorie grille |
+|-------|------|-------|------------------|
 | S0 | Avant-pitch | 0-0 | — |
-| S1-S5 | Bloc 1 (saynète) | 0-3 | #522 (elevator, 15) + #525 (démo live dans la saynète, 30) |
-| S6 | Bloc 1 (cadrage) | 3-4 | #524 (BM innovation, 30) |
-| S7-S8 | Bloc 2 | 4-10 | #524 + #527 (slide deck, 15) |
-| S9 | Bloc 3 (setup) | 10-11 | #524 + #525 |
-| S10 | Bloc 3 (démo) | 11-17 | #525 (démo live, 30) |
-| S11 | Bloc 4 | 17-22 | #524 + #526 (perspectives, 20) |
-| S12 | Bloc 5 (BM) | 22-25 | #524 |
-| S13 | Bloc 5 (perspectives) | 25-28 | #526 (20) |
-| S14 | Bloc 6 | 28-30 | #522 + #527 |
-| — | Q&A | 30-40 | toutes |
+| S1-S5 | Bloc 1 (saynète) | 0-3 | Pitch (accroche) + Production (démo live intégrée) |
+| S6 | Bloc 1 (cadrage) | 3-4 | Pitch (cible + founder-fit) |
+| S7-S8 | Bloc 2 | 4-10 | Production (UX, design system) |
+| S9 | Bloc 3 (setup) | 10-11 | Production (architecture tech) |
+| S10 | Bloc 3 (démo) | 11-17 | Production (démo live = pièce maîtresse) |
+| S11 | Bloc 4 | 17-22 | Production + Perspective (Academy / communauté) |
+| S12 | Bloc 5 (BM) | 22-25 | Production (BMC) |
+| S13 | Bloc 5 (perspectives) | 25-28 | Perspective (légal / RH / GTM / budget) |
+| S14 | Bloc 6 | 28-30 | Pitch (clôture) + coup de cœur |
+| — | Q&A | 30-40 | toutes (Qualité orale = transversal) |
 
 ## Ressources à produire / récupérer
 
@@ -216,6 +219,14 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
 
 ## Workflow de production
 
+::: warning Workflow initial — partiellement dépassé
+La planification ci-dessous a été établie le 2026-04-19. Plusieurs
+jalons (D+1 à D+7) sont passés. Pour le **statut réel des slides** au
+jour le jour, voir
+[soutenance-27-mai-status-checklist.md](soutenance-27-mai-status-checklist.md).
+La séquence cible reste valide pour les jalons à venir.
+:::
+
 1. **D+1 (2026-04-20)** : créer le brand kit Canva + S0 + S14
    (squelette extrêmes).
 2. **D+2-3** : produire S1 à S6 (saynète) — haute priorité car
@@ -224,11 +235,13 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
 4. **D+6** : produire S12-S13 (BM + Perspectives).
 5. **D+7 (2026-04-26)** : relecture complète deck, cohérence visuelle,
    chronométrage visuel par slide.
-6. **D+8-14** : itérations fines + ajustements après oral blanc 06/05.
-7. **D+14 (2026-05-03)** : version "feature complete" avant oral blanc.
-8. **D+21 (2026-05-10)** : corrections post-oral blanc.
-9. **D+24 (2026-05-13)** : export PDF offline + clé USB.
-10. **J-1 (2026-05-26)** : version finale gelée.
+6. **D+8-14** : itérations fines + ajustements après vote design.
+7. **D+15 (2026-05-04)** : deadline vote design + version "feature
+   complete" avant l'oral blanc du 6 mai.
+8. **D+17 (2026-05-06)** : oral blanc — feedback coach intégré.
+9. **D+21 (2026-05-10)** : corrections post-oral blanc.
+10. **D+24 (2026-05-13)** : export PDF offline + clé USB.
+11. **J-1 (2026-05-26)** : version finale gelée.
 
 **Charge estimée totale slide deck** : ~20 h sur 3 semaines.
 

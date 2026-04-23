@@ -112,12 +112,9 @@ Thumbs.db
 *_structure.txt
 tree.txt
 
-# Design assets (tracked in LFS or external)
-docs/design/02_inspiration/moodboard/colors
-docs/design/02_inspiration/moodboard/icons
-docs/design/02_inspiration/moodboard/typography
-docs/design/02_inspiration/moodboard/layouts
-docs/design/assets/brasse-bouillon
+# Design assets policy: PNGs under docs/design/ are tracked but must stay
+# under 2 MB each to keep Claude Code API requests below the 32 MB limit.
+# Run tools/compress-design-pngs.py on any new addition. See docs/design/README.md.
 
 # Local working docs (AI/notes)
 Guide_Complet_Calculs_Brassage_*.md

@@ -29,7 +29,7 @@
     },
     "packages/api": {
       "release-type": "node",
-      "package-name": "@brasse-bouillon/api",
+      "package-name": "brasse-bouillon-backend",
       "component": "api"
     },
     "packages/website": {

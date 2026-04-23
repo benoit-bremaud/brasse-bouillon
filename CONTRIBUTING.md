@@ -27,13 +27,13 @@ We use **trunk-based development** with `main` as the single production branch. 
 
 Every task requires a dedicated branch from `main`:
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Feature | `feat/<scope>` | `feat/ibu-calculator` |
-| Bug fix | `fix/<scope>` | `fix/login-redirect` |
+| Type     | Pattern            | Example                |
+| -------- | ------------------ | ---------------------- |
+| Feature  | `feat/<scope>`     | `feat/ibu-calculator`  |
+| Bug fix  | `fix/<scope>`      | `fix/login-redirect`   |
 | Refactor | `refactor/<scope>` | `refactor/http-client` |
-| Chore | `chore/<scope>` | `chore/update-deps` |
-| Docs | `docs/<scope>` | `docs/readme-update` |
+| Chore    | `chore/<scope>`    | `chore/update-deps`    |
+| Docs     | `docs/<scope>`     | `docs/readme-update`   |
 
 ```bash
 git checkout main
@@ -56,6 +56,7 @@ type(scope): short description
 **Scope:** the affected area (`auth`, `recipes`, `tools`, `backend`, `frontend`, `monorepo`, `ci`, `sonar`)
 
 Examples:
+
 ```
 feat(recipes): add recipe duplication use-case
 fix(auth): handle expired refresh token gracefully
@@ -63,18 +64,32 @@ ci(monorepo): add SonarQube quality gate to CI pipeline
 docs(readme): update getting started section
 ```
 
-### Scopes used by release-please
+### Scopes and package selection (release-please)
 
-The scope in a Conventional Commit drives which package gets
-released. Use these exact scopes to benefit from automation:
+**Package selection is driven by the file path touched**, not by the
+Conv Commit scope. release-please's `manifest` mode walks each package
+directory declared in `release-please-config.json` and only considers
+commits whose diff touches files under that path. The scope **does
+not bump a package on its own** — if no file inside the package path
+changed, the scope has no effect on that package's version.
 
-| Scope | Package bumped | Notes |
-|-------|----------------|-------|
-| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard` | `packages/mobile-app` | Also bumps `packages/api` (lockstep group "app") |
-| `api` | `packages/api` | Also bumps `packages/mobile-app` (lockstep group "app") |
-| `website` | `packages/website` | Independent |
-| `encyclopedia` | `packages/beer-encyclopedia` | Independent |
-| `ydays`, `root`, `ci`, `monorepo` | No package — stays unreleased | Doc / infra only |
+The scope's job is therefore to describe **semantics + CHANGELOG
+classification** (which section the commit lands in), not to force a
+release. Use scopes consistent with the file path for clarity.
+
+Conventional scopes for this monorepo:
+
+| Scope                                                                                                                | Typical path touched            | Effect                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard` | `packages/mobile-app/**`        | Bumps `mobile-app` (and `api` via lockstep group "app" if the commit also touches `packages/api/**`)        |
+| `api`                                                                                                                | `packages/api/**`               | Bumps `api` (and `mobile-app` via lockstep group "app" if the commit also touches `packages/mobile-app/**`) |
+| `website`                                                                                                            | `packages/website/**`           | Bumps `website` independently                                                                               |
+| `encyclopedia`                                                                                                       | `packages/beer-encyclopedia/**` | Bumps `encyclopedia` independently                                                                          |
+| `ydays`, `root`, `ci`, `monorepo`                                                                                    | anything outside `packages/**`  | No package bump — doc / infra commits only                                                                  |
+
+**Lockstep group "app"**: a single commit that touches files in both
+`packages/mobile-app` and `packages/api` will bump both packages to the
+same version under a linked release PR.
 
 Bump semantics (release-please computes automatically):
 
@@ -136,11 +151,16 @@ in `release-please-config.json` and manifest in
 ### Tag protection
 
 Ruleset `refs/tags/v*` + scoped component tags (`mobile-app-v*`,
-`api-v*`, `website-v*`, `encyclopedia-v*`) block non-admin
-creation / update / deletion. Admin bypass (`RepositoryRole: Admin`)
-is the only escape hatch for emergency corrections. See
-[.github/tag-protection.md](.github/tag-protection.md) for the apply /
-verify / remove commands.
+`api-v*`, `website-v*`, `encyclopedia-v*`) block **`update`** and
+**`deletion`** for everyone except admins. Creation is **not blocked**
+so that release-please (running as `github-actions[bot]`) can cut the
+release tags automatically on merge of the release PR. The trade-off
+and future tightening path (PAT with Integration bypass) are
+documented in [.github/tag-protection.md](.github/tag-protection.md).
+
+Result: tags are **immutable once created** (no rewrite, no delete
+except by admin emergency bypass), but creation flows freely through
+the automation.
 
 ### Signing
 
@@ -180,15 +200,15 @@ Self-discipline safeguards (no intermediate cap forces the call):
 
 Every GitHub issue must use a template. When creating an issue, GitHub will prompt you to pick one.
 
-| Template | Label | Title convention | When to use |
-|----------|-------|-----------------|-------------|
-| **User Story** | `type:user-story` | `feat(<scope>): as <persona>, I want...` | Feature from the user's perspective (INVEST model) |
-| **Feature** | `type:feature` | `feat(<scope>): <description>` | Technical task implementing a feature |
-| **Bug Report** | `type:bug` | `fix(<scope>): <description>` | Report a bug or unexpected behavior |
-| **Test** | `type:test` | `test(<scope>): <description>` | Write or improve tests |
-| **Refactor** | `type:refactor` | `refactor(<scope>): <description>` | Code restructuring, no functional change |
-| **Task / Chore** | `type:chore` | `chore(<scope>): <description>` | Config, tooling, dependencies, maintenance |
-| **Epic** | `type:epic` | `epic(<scope>): <description>` | Large body of work grouping User Stories |
+| Template         | Label             | Title convention                         | When to use                                        |
+| ---------------- | ----------------- | ---------------------------------------- | -------------------------------------------------- |
+| **User Story**   | `type:user-story` | `feat(<scope>): as <persona>, I want...` | Feature from the user's perspective (INVEST model) |
+| **Feature**      | `type:feature`    | `feat(<scope>): <description>`           | Technical task implementing a feature              |
+| **Bug Report**   | `type:bug`        | `fix(<scope>): <description>`            | Report a bug or unexpected behavior                |
+| **Test**         | `type:test`       | `test(<scope>): <description>`           | Write or improve tests                             |
+| **Refactor**     | `type:refactor`   | `refactor(<scope>): <description>`       | Code restructuring, no functional change           |
+| **Task / Chore** | `type:chore`      | `chore(<scope>): <description>`          | Config, tooling, dependencies, maintenance         |
+| **Epic**         | `type:epic`       | `epic(<scope>): <description>`           | Large body of work grouping User Stories           |
 
 ### User Stories & Sub-issues
 
@@ -213,16 +233,16 @@ Sub-issues inherit scope labels from their parent. GitHub auto-tracks completion
 
 All labels use a **prefixed namespace** for consistency.
 
-| Prefix | Purpose | Examples |
-|--------|---------|---------|
-| `priority:` | MoSCoW prioritization | `must-have`, `should-have`, `nice-to-have` |
-| `size:` | T-shirt estimation (Fibonacci mapping) | `XS` (1 SP), `S` (2), `M` (3), `L` (5), `XL` (8), `XXL` (13) |
-| `scope:` | Which part of the codebase | `frontend`, `backend`, `charte`, `devops`, `website`, `monorepo` |
-| `type:` | Nature of work | `feature`, `bug`, `test`, `refactor`, `docs`, `chore`, `ci`, `epic`, `user-story` |
-| `sprint:` | Sprint assignment | `sprint:4`, `sprint:5`, `sprint:6` |
-| `area:` | Cross-cutting concern | `api`, `security`, `a11y`, `ux`, `architecture`, `theme` |
-| `epic:` | Epic tracking | `auth`, `recipes`, `batches`, `calculators`, etc. |
-| `status:` | Workflow state | `planned`, `in-progress`, `done` |
+| Prefix      | Purpose                                | Examples                                                                          |
+| ----------- | -------------------------------------- | --------------------------------------------------------------------------------- |
+| `priority:` | MoSCoW prioritization                  | `must-have`, `should-have`, `nice-to-have`                                        |
+| `size:`     | T-shirt estimation (Fibonacci mapping) | `XS` (1 SP), `S` (2), `M` (3), `L` (5), `XL` (8), `XXL` (13)                      |
+| `scope:`    | Which part of the codebase             | `frontend`, `backend`, `charte`, `devops`, `website`, `monorepo`                  |
+| `type:`     | Nature of work                         | `feature`, `bug`, `test`, `refactor`, `docs`, `chore`, `ci`, `epic`, `user-story` |
+| `sprint:`   | Sprint assignment                      | `sprint:4`, `sprint:5`, `sprint:6`                                                |
+| `area:`     | Cross-cutting concern                  | `api`, `security`, `a11y`, `ux`, `architecture`, `theme`                          |
+| `epic:`     | Epic tracking                          | `auth`, `recipes`, `batches`, `calculators`, etc.                                 |
+| `status:`   | Workflow state                         | `planned`, `in-progress`, `done`                                                  |
 
 **Excluded from daily workflow:** `persona:*` (product design only), `bloc:*` and `ref:*` (deprecated).
 
@@ -232,16 +252,16 @@ All labels use a **prefixed namespace** for consistency.
 
 GitHub events are automatically routed to specialized Discord channels based on `scope:*` labels:
 
-| Discord channel | Scope label |
-|----------------|-------------|
-| `#app-mobile` | `scope:frontend` |
-| `#api-backend` | `scope:backend` |
-| `#design-system` | `scope:charte` |
-| `#devops` | `scope:devops` |
-| `#site-vitrine` | `scope:website` |
-| `#secu-cyber` | `scope:security` |
-| `#devops` | `scope:infrastructure` |
-| `#général` | Fallback (no scope label) |
+| Discord channel  | Scope label               |
+| ---------------- | ------------------------- |
+| `#app-mobile`    | `scope:frontend`          |
+| `#api-backend`   | `scope:backend`           |
+| `#design-system` | `scope:charte`            |
+| `#devops`        | `scope:devops`            |
+| `#site-vitrine`  | `scope:website`           |
+| `#secu-cyber`    | `scope:security`          |
+| `#devops`        | `scope:infrastructure`    |
+| `#général`       | Fallback (no scope label) |
 
 Notifications display a compact, color-coded embed with: event type, priority, size, scope, sprint, parent reference (for sub-issues), and a clickable title.
 
@@ -296,6 +316,7 @@ git push -u origin feat/issue-description
 ```
 
 Create a PR targeting `main` with:
+
 - A clear title following Conventional Commits format
 - A summary of what changed and why
 - A checklist of acceptance criteria
@@ -306,6 +327,7 @@ Create a PR targeting `main` with:
 After creating the PR, post an **informational comment** that mentions team members for visibility. This is separate from requested reviewers (which remain for blocking reviews).
 
 The comment must:
+
 - Be written in **plain, non-technical language** so that all team members (designers, product, etc.) can understand it
 - Explain **what was done** and **why**
 - Explain **what changes concretely** for the project or the product
@@ -367,11 +389,11 @@ The list of people to mention should be suggested based on the PR context (scope
 
 Tests are mandatory for every new feature.
 
-| Package | Test framework | Location |
-|---------|---------------|----------|
+| Package    | Test framework                       | Location                                         |
+| ---------- | ------------------------------------ | ------------------------------------------------ |
 | Mobile App | Jest + @testing-library/react-native | `src/features/<feature>/presentation/__tests__/` |
-| Mobile App | Jest (unit) | `src/features/<feature>/application/__tests__/` |
-| API | Jest | `src/**/*.spec.ts` and `test/**/*.e2e-spec.ts` |
+| Mobile App | Jest (unit)                          | `src/features/<feature>/application/__tests__/`  |
+| API        | Jest                                 | `src/**/*.spec.ts` and `test/**/*.e2e-spec.ts`   |
 
 ```bash
 # Run specific test file

@@ -1,8 +1,8 @@
 # Tag Protection — Brasse-Bouillon
 
-This repository enforces strict tag-protection on release tags to
-prevent accidental rewrites. Applied via a GitHub repository ruleset
-scoped to every tag pattern used by release-please.
+This repository enforces tag-protection on release tags to prevent
+accidental rewrites or deletions. Applied via a GitHub repository
+ruleset scoped to every tag pattern used by release-please.
 
 ## Tag patterns protected
 
@@ -14,14 +14,34 @@ Per the hybrid monorepo release strategy (see [CONTRIBUTING.md](../CONTRIBUTING.
 - `encyclopedia-v*` — independent
 - `v*` — reserved for repo-wide anchors (audit snapshots, milestones)
 
-## Ruleset policy
+## Ruleset policy (current, active)
 
-- Rules: `creation`, `update`, `deletion` — **all blocked**
+- Rules: **`update`**, **`deletion`** — blocked
+- Rules: `creation` — **not blocked** (intentional, see below)
 - Enforcement: `active`
 - Bypass: `RepositoryRole: Admin` (`actor_id: 5`), mode `always`
-- Rationale: only release-please (running as a GitHub App / bot) and
-  the repo owner (admin) can create tags. Prevents accidental rewrites
-  from feature branches or CI mishaps.
+- Ruleset id: `15481614`
+
+### Why `creation` is not blocked
+
+release-please runs inside GitHub Actions as `github-actions[bot]` and
+uses the default `GITHUB_TOKEN`. That token is **not** an admin and
+cannot bypass an admin-only creation rule. Blocking creation while
+still wanting automated release tags creates a deadlock.
+
+Two possible resolutions were considered:
+
+1. **Allow creation for everyone** (chosen for v0) — creation rule
+   removed from the ruleset. Tags become immutable once created
+   (`update` + `deletion` still blocked), which preserves the audit
+   integrity goal. The small risk of rogue tag creation is
+   acceptable for a private solo-dev repo.
+2. **Use a PAT with Integration bypass** (future option) — generate
+   a PAT with `contents: write` + `workflows: write`, store as
+   `secrets.RELEASE_PLEASE_TOKEN`, pass to the release-please action
+   via `token:`. Add the PAT owner as a bypass actor. More secure
+   but adds setup complexity. Track as tech-debt if the repo goes
+   public.
 
 ## Apply (one-time, by owner)
 
@@ -46,7 +66,6 @@ gh api repos/benoit-bremaud/brasse-bouillon/rulesets \
     }
   },
   "rules": [
-    { "type": "creation" },
     { "type": "update" },
     { "type": "deletion" }
   ],

@@ -1,14 +1,20 @@
 # Changelog — @brasse-bouillon/mobile-app
 
-Every user-visible change lands here. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) +
-strict semver prefixed `v` (`vMAJOR.MINOR.PATCH`, prereleases `-alphaN` /
-`-betaN` / `-rcN` per the repo-wide tag convention in the root
-[CONTRIBUTING.md](../../CONTRIBUTING.md) and global CLAUDE rules).
+Every user-visible change lands here. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+with strict semver prereleases (`-alphaN` / `-betaN` / `-rcN`).
+
+Tags for this package follow the monorepo component pattern
+**`mobile-app-vX.Y.Z`** (not plain `vX.Y.Z`) — see the release
+workflow in the root [CONTRIBUTING.md](../../CONTRIBUTING.md#release-workflow)
+for the full convention.
 
 Tag lifecycle:
 
-- Lightweight or annotated tags created from `main` only, after the
-  release PR merges the version bump + this CHANGELOG.
+- Tags are created **automatically by release-please** when the release
+  PR is merged into `main`. Do not create tags manually.
+- Once created, tags are immutable (update / deletion blocked by
+  repository ruleset — see
+  [.github/tag-protection.md](../../.github/tag-protection.md)).
 - Failed publishes keep their tag as an audit marker — never delete,
   always bump to the next version.
 - No tag reuse, ever.
@@ -17,10 +23,10 @@ Tag lifecycle:
 
 ### Planned for `v0.1.0`
 
-See the full backlog in the plan file
-`~/.claude/plans/si-tu-te-souviens-sorted-lark.md` (69 items B-01 → B-69)
-and the 9 dedicated brainstorms. Top items blocking the soutenance
-2026-05-27 demo:
+Tracked as GitHub issues on the [Brasse-Bouillon project board](https://github.com/users/benoit-bremaud/projects/38)
+with the `audit:v0` label (74 issues from the v0 mobile-app screenshot
+audit, organised in 8 user-journey tiers). Top items blocking the
+soutenance 2026-05-27 demo:
 
 - **B-39** Scan recognition + recipe match + community + import pipeline
   (⭐ demo hero — currently capture-only)
@@ -64,12 +70,20 @@ The audit drives the entire refactor backlog.
 
 ### Notes
 
-- No `v0.1.0-alpha1` git tag has been created yet. Per the global tag
-  convention, the tag cuts from `main` only, after the release PR
-  merges. The owner creates the tag via CLI (`git tag v0.1.0-alpha1 &&
-git push origin v0.1.0-alpha1`).
+- No `mobile-app-v0.1.0-alpha1` git tag has been created yet. Tags
+  are created **automatically by release-please** once a release PR
+  merges into `main`. Since `0.1.0-alpha1` was the manifest baseline
+  (not a release), it has no tag; the first auto-tag will be
+  `mobile-app-v0.1.0-alpha2` after the first fix/feat commit lands
+  on main.
 - Android `versionName` / `versionCode` + iOS `CFBundle*` are managed
-  by Expo at build time; no manual override needed at this stage.
+  by Expo at build time; no manual override needed at this stage. Note
+  that the `-alphaN` prerelease suffix in `expo.version` is tolerated
+  for Android but not a valid `CFBundleShortVersionString` for iOS —
+  not an issue for the 2026-05-27 soutenance (Android demo only), but
+  a future iOS build will need Expo's
+  [runtime-version policy](https://docs.expo.dev/eas-update/runtime-versions/)
+  to translate the prerelease into a valid bundle short version.
 - The "About" version line inside the app (Compte & Paramètres screen)
   is scoped with the merged screen (B-45 / B-46) and will ship with
   `v0.1.0-alpha2` or later.

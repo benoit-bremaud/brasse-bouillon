@@ -67,7 +67,7 @@ The audit drives the entire refactor backlog.
 - No `v0.1.0-alpha1` git tag has been created yet. Per the global tag
   convention, the tag cuts from `main` only, after the release PR
   merges. The owner creates the tag via CLI (`git tag v0.1.0-alpha1 &&
-  git push origin v0.1.0-alpha1`).
+git push origin v0.1.0-alpha1`).
 - Android `versionName` / `versionCode` + iOS `CFBundle*` are managed
   by Expo at build time; no manual override needed at this stage.
 - The "About" version line inside the app (Compte & Paramètres screen)

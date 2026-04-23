@@ -5,6 +5,80 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-23
+
+### Mobile-app: v0 screenshot audit frozen (204 files across 13 features)
+
+Full visual audit of the mobile app captured and organised under
+[docs/ydays/public/screenshots/v0/](docs/ydays/public/screenshots/v0/).
+Two goals served:
+
+1. **Short-term**: feed the Canva deck for the 2026-05-27 soutenance,
+   notably slide S8 "UX Avant brassage".
+2. **Long-term**: architectural inventory that drives the refactor
+   backlog. The parallel plan file
+   `~/.claude/plans/si-tu-te-souviens-sorted-lark.md` (outside repo)
+   holds 69 backlog items (B-01 → B-69) and 9 dedicated brainstorms
+   (Mes Brassins, Equipment, Ingredients, Labels, Scan, Compte &
+   Paramètres, Shop, Calculateurs, Dashboard).
+
+**Source**: 14 sequential capture batches exported from the user's
+Android phone between 18:53 and 21:47 local time, using the `Connexion
+démo` path (Marie / demo data). The backend is not wired to the
+frontend (B-13 bis), so real login / signup / password reset all fail
+with "Network request failed".
+
+**Output**: 204 JPEGs kept out of 239 source files (35 duplicates /
+re-captures skipped), organised into 13 top-level feature folders:
+
+```
+01-auth/       7 files   Login + signup + forgot password
+02-dashboard/  4 files   Accueil + Voir plus sheet
+03-batches/    8 files   Mes Brassins list + batch detail (b-demo-1/2/3)
+04-recipes/    24 files  My Recipes + Session IPA Citra full tour + Witbier alt
+05-shop/       7 files   Ma Boutique home + 6 categories
+06-tools/      44 files  Calculators list + 8 calculator details
+07-academy/    40 files  Académie list + 11 articles (1 stub + 10 full)
+08-equipment/  1 file    L'Office (read-only stub)
+09-ingredients/ 18 files Catalogue Malterie / Houblonnière / Fermentoir
+10-labels/     24 files  Atelier d'étiquettes (home + selection + editor + detail)
+11-scan/       21 files  Scanner — barcode + bottle + pending + consent  (DEMO PRIORITY ⭐)
+12-account/    5 files   Profil (read-only)
+13-explore-hub/ 1 file   Explore hub (candidate for removal — B-65)
+```
+
+See
+[docs/ydays/public/screenshots/v0/README.md](docs/ydays/public/screenshots/v0/README.md)
+for the full manifest (capture metadata, sub-folder layout, 12 key
+findings at a glance, source-batch mapping, versioning & freeze
+rules).
+
+**Top findings flagged for action**:
+
+- B-39 Scan recognition / match / community / import pipeline missing
+  — **demo blocker** (the wow-effect for the jury is precisely what's
+  not built yet)
+- B-13 bis Auth backend not wired
+- B-08 Mes Brassins detail rewrite (core feature, currently only a
+  3-step hardcoded timeline)
+- B-28 / B-29 Labels UI bugs (validation CTA and live preview clipped
+  by tab bar)
+- B-66 Mobile app has no semver / git tag / CHANGELOG — to baseline as
+  `v0.1.0-alpha.1` before the soutenance
+- B-69 "Période d'analyse" doesn't belong on the home (belongs in a
+  dedicated Statistiques section)
+
+**Freeze rule**: `v0/` is immutable. Future capture sessions land under
+`v1/`, `v2/`, etc. Optional git tag `screenshots-v0` after this lands
+on main (B-68).
+
+Next steps queued: (T5) mobile-app versioning baseline, (T6) triage the
+69 backlog items into GitHub Issues on the Brasse-Bouillon project,
+(T7) user-profiles Q&A session in a separate plan file, (T8) refactor
+plan consuming the 9 brainstorms.
+
+---
+
 ## 2026-04-22
 
 ### Ydays: defense review site published to Cloudflare Pages

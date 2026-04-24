@@ -236,9 +236,13 @@ committing.
 Ruleset `refs/tags/v*` + scoped component tags (`mobile-app-v*`,
 `api-v*`, `website-v*`, `encyclopedia-v*`) block **`update`** and
 **`deletion`** for everyone except admins. Creation is **not blocked**
-so that release-please (running as `github-actions[bot]`) can cut the
-release tags automatically on merge of the release PR. The trade-off
-and future tightening path (PAT with Integration bypass) are
+so that release-please can cut the release tags automatically on merge
+of the release PR.
+
+As of 2026-04-24, release-please authenticates via the
+`RELEASE_PLEASE_TOKEN` PAT (owner `@benoit-bremaud`, an admin), so
+tags it creates are attributed to the PAT owner rather than to
+`github-actions[bot]`. Full rationale and the transition history are
 documented in [.github/tag-protection.md](.github/tag-protection.md).
 
 Result: tags are **immutable once created** (no rewrite, no delete

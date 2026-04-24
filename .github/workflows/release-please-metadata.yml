@@ -25,8 +25,9 @@ jobs:
     name: Apply metadata to release-please PR
     # Guard on three conditions:
     # 1. PR branch follows the release-please naming convention (stable
-    #    regardless of the author — GITHUB_TOKEN would author as
-    #    `github-actions[bot]`, a PAT authors as the PAT owner).
+    #    regardless of the author — with GITHUB_TOKEN, PRs are authored
+    #    by `github-actions[bot]`; with a PAT, PRs are authored by the
+    #    PAT owner).
     # 2. PR has the autorelease: pending marker.
     # 3. When triggered by the `labeled` action, only react to the marker
     #    label itself — otherwise the workflow would re-trigger on every

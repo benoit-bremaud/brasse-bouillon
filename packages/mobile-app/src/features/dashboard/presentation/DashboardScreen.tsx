@@ -189,6 +189,35 @@ function renderMoreSectionItem(
   );
 }
 
+type HeaderActionButtonProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+};
+
+function HeaderActionButton({
+  icon,
+  label,
+  accessibilityLabel,
+  onPress,
+}: HeaderActionButtonProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.headerActionButton,
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name={icon} size={18} color={colors.brand.secondary} />
+      <Text style={styles.headerActionButtonText}>{label}</Text>
+    </Pressable>
+  );
+}
+
 const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
   "En retard": 0,
   Urgent: 1,
@@ -553,39 +582,18 @@ export function DashboardScreen() {
           </View>
 
           <View style={styles.headerActions}>
-            <Pressable
-              accessibilityRole="button"
+            <HeaderActionButton
+              icon="person-circle-outline"
+              label="Profil"
               accessibilityLabel="Ouvrir le profil"
               onPress={handleOpenProfilePanel}
-              style={({ pressed }) => [
-                styles.headerActionButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons
-                name="person-circle-outline"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.headerActionButtonText}>Profil</Text>
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
+            />
+            <HeaderActionButton
+              icon="grid-outline"
+              label="Voir plus"
               accessibilityLabel="Voir plus de sections"
               onPress={() => setIsMoreSheetVisible(true)}
-              style={({ pressed }) => [
-                styles.headerActionButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons
-                name="grid-outline"
-                size={18}
-                color={colors.brand.secondary}
-              />
-              <Text style={styles.headerActionButtonText}>Voir plus</Text>
-            </Pressable>
+            />
           </View>
         </View>
 

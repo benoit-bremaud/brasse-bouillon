@@ -82,9 +82,10 @@ Concretely:
   TTL on the Scan responses in v0.1).
 - **Backend becomes a single point of failure.** If our NestJS API is
   down, mobile cannot scan even if OpenFoodFacts is up. Mitigated
-  short-term by bundling six demo beers in the app (see `scan-2026-04-24.md`
-  § 4.3) and by the 1-hour memory cache; long-term by health-check
-  monitoring and autoscaling.
+  short-term by bundling six demo beers in the app (see
+  `docs/product/brainstorms/scan-2026-04-24.md` § 4.3) and by the
+  1-hour memory cache; long-term by health-check monitoring and
+  autoscaling.
 - **Server cost.** Proxying every call means we pay compute and
   bandwidth for traffic that could have gone peer-to-peer with OFF.
   Acceptable at v0.1 volumes; revisit if the scan volume crosses
@@ -101,9 +102,12 @@ Concretely:
 - **v0.2** — add Wikipedia enrichment + a real beer DB for
   hand-curated official recipes (BrewDog DIY Dog, Chouffe, Rochefort,
   Karmeliet). Redis cache replaces in-memory.
-- **v0.3+** — Untappd / RateBeer integrations (paid APIs) flipped on
-  with a feature flag that actually gates a running feature (per
-  ADR-0001 anti-pattern #1 exception).
+- **v0.3+** — Untappd / RateBeer integrations (paid APIs) ship behind
+  a feature flag that **actually gates a running feature**, not a
+  speculative one — so the flag complies with ADR-0001's
+  "Feature flags for non-existent features" anti-pattern (the
+  feature exists and the flag controls its exposure, which is a
+  legitimate usage, not an exception).
 
 ---
 

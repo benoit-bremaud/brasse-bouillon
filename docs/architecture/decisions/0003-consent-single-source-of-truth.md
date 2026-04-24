@@ -46,10 +46,25 @@ interface ConsentDecision {
 }
 ```
 
-- **Axis** is a stable identifier, namespaced by feature prefix when
-  the axis is feature-local (`scan.barcode`, `scan.photos`,
-  `scan.metadata`) and un-prefixed when it crosses features
-  (`ml.training`, `telemetry`).
+- **Axis** is a stable identifier, namespaced by feature prefix
+  when the axis is feature-local and un-prefixed when it crosses
+  features. The canonical axes for v0.1 are:
+  - `scan.barcode` — feature-local, barcode value storage.
+  - `scan.photos` — feature-local, front/back label photo storage.
+  - `scan.metadata` — feature-local, capture timestamps and device
+    info.
+  - `scan.training` — feature-local, opt-in for ML training on
+    scan data specifically (captured inline during the scan
+    onboarding modal because that is the first context where the
+    user is asked).
+  - `ml.training` — global, opt-in for any ML training on user
+    data (captured in the `Compte` privacy section). Supersedes
+    `scan.training` when more recent — see the read contract below.
+  - `telemetry` — global, opt-in for anonymous usage telemetry
+    (captured in the `Compte` privacy section).
+
+  New axes — both feature-local and global — are added with a new
+  ADR or a documented entry in the ADR roadmap.
 - **Source** records *where* the decision was taken, for audit
   purposes (the user flipped telemetry off from the Settings screen;
   the user granted scan.training from the onboarding modal).
@@ -60,19 +75,33 @@ interface ConsentDecision {
   future surface) **must** go through the `consent.use-cases.ts`
   use-case. Direct writes to `AsyncStorage` / `SQLite` are forbidden.
 - **Readers** query the use-case for the latest decision per axis.
-  If a feature needs both a feature-local axis and the global axis,
-  it reads both (e.g. ML training in Scan reads `scan.training` OR
-  `ml.training`, falling back to `false`).
+  When a feature depends on an axis that has both a feature-local
+  form and a global form (e.g. ML training exists as both
+  `scan.training` and `ml.training`), the **most recent decision
+  across both axes wins** — never an `OR` or a per-axis fallback.
+  Rationale: a global opt-out entered yesterday must supersede a
+  feature-local opt-in entered last month, and vice-versa. Encoded
+  as a single helper `canUseForTraining()` that scans the log for
+  any record matching either axis and returns the most-recent
+  `value`.
 - A decision is **never overwritten silently**. Every new write
-  appends a new `ConsentDecision` record. The current value is the
-  latest record per axis. This gives us a free consent log for GDPR.
+  appends a new `ConsentDecision` record. The current value for a
+  given axis is derived by querying the log for the latest record
+  carrying that axis. This gives us a free consent log for GDPR.
 
 ### Storage
 
-- v0.1 — local `AsyncStorage` JSON blob keyed by axis.
-- v0.2 — when auth lands (see ADR-0002's roadmap), the consent log
+- v0.1 — a single `AsyncStorage` key (`brasse.consent.log`) holding
+  a JSON array of `ConsentDecision` records, **append-only**. Each
+  write reads the current array, appends the new record, and writes
+  the array back. The shape is never a map keyed by axis — a
+  per-axis key would overwrite prior decisions and break the
+  GDPR audit trail the append-only clause above guarantees.
+- v0.2 — when auth lands (see ADR-0002's roadmap), the same log
   syncs to the backend and becomes downloadable / deletable on
-  request.
+  request. The v0.1 array shape maps 1-to-1 onto the v0.2 backend
+  table (one row per `ConsentDecision`), so there is no migration
+  semantics beyond a first-sync upload.
 
 ---
 
@@ -86,7 +115,7 @@ interface ConsentDecision {
 - **Free GDPR consent log.** The append-only store IS the consent
   history the regulator expects. Per the `Compte` brainstorm (Axis
   D, conservative cuts), the v0.1 MVP collects the log silently; v0.2
-  adds the browseable UI, but no data backfill is needed because the
+  adds the browsable UI, but no data backfill is needed because the
   v0.1 store is already the right shape.
 - **Testability.** A single use-case to mock in unit tests for Scan,
   for Settings, and for any future consent-touching feature.
@@ -97,10 +126,14 @@ interface ConsentDecision {
 
 ### Negative
 
-- **Two-axis reads.** A feature that cares about "ML training
-  allowed?" has to read both `scan.training` and `ml.training`. We
-  encapsulate this in a small helper (`canUseForTraining()`) so the
-  two-axis logic does not leak into presentation code.
+- **Two-axis reads with most-recent-wins semantics.** A feature
+  that cares about "ML training allowed?" has to scan the log for
+  the most-recent record across both `scan.training` and
+  `ml.training`. We encapsulate this in a small helper
+  (`canUseForTraining()`) so the two-axis logic does not leak into
+  presentation code. The helper never `OR`s axis values — doing so
+  would let a stale feature-local opt-in survive a more recent
+  global opt-out, which is a GDPR compliance failure.
 - **Append-only store grows.** A very chatty user could accumulate
   hundreds of records over time. Acceptable at v0.1 volumes. v0.2
   compaction (keep only the last N records per axis for display,
@@ -114,7 +147,7 @@ interface ConsentDecision {
 - **v0.1 (pre-defense)** — single `AsyncStorage` store, two writers
   (Scan onboarding, Settings privacy), namespaced axes.
 - **v0.2** — backend sync when auth is wired (B-13 bis resolved),
-  browseable consent log UI in the Settings screen, real GDPR
+  browsable consent log UI in the Settings screen, real GDPR
   export.
 - **v0.3+** — compaction policy for old records; export format
   negotiation with any external regulator reporting requirement.

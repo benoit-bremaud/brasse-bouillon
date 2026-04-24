@@ -117,6 +117,14 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     category: "business",
   },
   {
+    id: "ingredients",
+    label: "Ingrédients",
+    icon: "leaf-outline",
+    href: "/(app)/ingredients",
+    type: "route",
+    category: "business",
+  },
+  {
     id: "academy",
     label: "Académie",
     icon: "school-outline",
@@ -550,7 +558,7 @@ export function DashboardScreen() {
               accessibilityLabel="Ouvrir le profil"
               onPress={handleOpenProfilePanel}
               style={({ pressed }) => [
-                styles.profileButton,
+                styles.headerActionButton,
                 pressed && styles.pressed,
               ]}
             >
@@ -559,7 +567,7 @@ export function DashboardScreen() {
                 size={18}
                 color={colors.brand.secondary}
               />
-              <Text style={styles.profileButtonText}>Profil</Text>
+              <Text style={styles.headerActionButtonText}>Profil</Text>
             </Pressable>
 
             <Pressable
@@ -567,7 +575,7 @@ export function DashboardScreen() {
               accessibilityLabel="Voir plus de sections"
               onPress={() => setIsMoreSheetVisible(true)}
               style={({ pressed }) => [
-                styles.profileButton,
+                styles.headerActionButton,
                 pressed && styles.pressed,
               ]}
             >
@@ -576,7 +584,7 @@ export function DashboardScreen() {
                 size={18}
                 color={colors.brand.secondary}
               />
-              <Text style={styles.profileButtonText}>Voir plus</Text>
+              <Text style={styles.headerActionButtonText}>Voir plus</Text>
             </Pressable>
           </View>
         </View>
@@ -909,7 +917,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },
-  profileButton: {
+  headerActionButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xxs,
@@ -918,7 +926,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  profileButtonText: {
+  headerActionButtonText: {
     fontSize: typography.size.caption,
     color: colors.brand.secondary,
     fontWeight: typography.weight.medium,

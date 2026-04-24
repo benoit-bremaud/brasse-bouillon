@@ -7,9 +7,9 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
-### PROJECT_LOG enrichment for PR #688 ([PR #689](https://github.com/benoit-bremaud/brasse-bouillon/pull/689))
+### Log entry enrichment for PR #688 ([PR #689](https://github.com/benoit-bremaud/brasse-bouillon/pull/689))
 
-Small follow-up PR to bring the Compte & settings entry (above) in
+Small follow-up PR to bring the `Compte` & settings entry (above) in
 line with the per-merge logging convention: adds the PR #688 link,
 the merge SHA `6a518b0`, the branch name, and the review-cycle
 narrative (1 Codex P2 on a contradictory MVP estimate, 5 Copilot
@@ -27,7 +27,7 @@ phrase" in commit `4e2d558`; the English referents (`GDPR`,
 Also introduces a new repeatable process rule on this project: an
 **end-of-review summary comment** is now posted on every PR before
 the user merges (CI state, reviews received, resolution commit SHAs,
-explicit "prêt à merger" line). Stored as a durable convention in
+explicit "ready to merge" line). Stored as a durable convention in
 the agent's memory so all future PRs follow the pattern.
 
 ### `Compte` & settings brainstorm + MVP conservative cuts ([PR #688](https://github.com/benoit-bremaud/brasse-bouillon/pull/688))

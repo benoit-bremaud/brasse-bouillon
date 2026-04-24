@@ -7,6 +7,7 @@ import {
   shopCategoryDescriptions,
   shopCategoryLabels,
 } from "@/features/shop/presentation/shop.constants";
+import { getProductPriceUnit } from "@/features/shop/domain/shop.types";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -115,7 +116,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
                 <Text style={styles.productDesc}>{item.description}</Text>
                 <View style={styles.productMeta}>
                   <Text style={styles.productPrice}>
-                    ~{item.price.toFixed(2)} €/kg
+                    ~{item.price.toFixed(2)} {getProductPriceUnit(item)}
                   </Text>
                   <Badge label="À venir" variant="info" />
                 </View>

@@ -49,5 +49,6 @@
       "groupName": "app",
       "components": ["mobile-app", "api"]
     }
-  ]
+  ],
+  "group-pull-request-title-pattern": "chore${scope}: release app libraries ${version}"
 }

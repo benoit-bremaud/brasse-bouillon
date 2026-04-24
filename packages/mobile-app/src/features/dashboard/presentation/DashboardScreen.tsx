@@ -12,16 +12,11 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
-import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
-import { Recipe } from "@/features/recipes/domain/recipe.types";
-import { academyTopics } from "@/features/tools/data";
-import { demoIngredients } from "@/mocks/demo-data";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 
@@ -32,7 +27,6 @@ const DAY_MS = 24 * HOUR_MS;
 // Brewing defaults.
 const FERMENTATION_DAYS = 7;
 const BOTTLING_DAYS = 10;
-const MIN_RECIPE_INGREDIENTS = 3;
 
 type PeriodKey = "year" | "90d" | "30d";
 type AlertStatus = "Bientôt" | "Urgent" | "En retard";
@@ -46,21 +40,6 @@ type DashboardAlert = {
   dueAt: Date;
   status: AlertStatus;
   isCriticalQuality: boolean;
-};
-
-type NavigationCard = {
-  id: string;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  href: Href;
-  metric: string;
-  status: string;
-  color: string;
-};
-
-type IngredientsMetric = {
-  metric: string;
-  status: string;
 };
 
 type MoreSectionCategory = "business" | "account";
@@ -111,8 +90,6 @@ const BREWING_STEPS: BrewStepConfig[] = [
     isCriticalQuality: true,
   },
 ];
-
-const TOP_NAVIGATION_IDS = ["batches", "recipes", "ingredients", "tools"];
 
 const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
   {
@@ -288,12 +265,6 @@ function isWithinSelectedPeriod(
   return date >= threshold;
 }
 
-function isRecipeDraft(recipe: Recipe): boolean {
-  const ingredientCount = recipe.ingredients?.length ?? 0;
-  const hasStats = Boolean(recipe.stats);
-  return ingredientCount < MIN_RECIPE_INGREDIENTS || !hasStats;
-}
-
 function getDueAtForCurrentStep(startedAt: Date, stepIndex: number): Date {
   const totalExpectedHours = BREWING_STEPS.slice(0, stepIndex + 1).reduce(
     (total, step) => total + step.expectedHours,
@@ -378,21 +349,9 @@ export function DashboardScreen() {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const { session } = useAuth();
-  const isUsingDemoData = dataSource.useDemoData;
 
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
   const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
-
-  const {
-    data: recipes = [],
-    isLoading: isRecipesLoading,
-    isFetching: isRecipesFetching,
-    error: recipesError,
-    refetch: refetchRecipes,
-  } = useQuery<Recipe[]>({
-    queryKey: ["recipes", "list"],
-    queryFn: listRecipes,
-  });
 
   const {
     data: batches = [],
@@ -405,10 +364,9 @@ export function DashboardScreen() {
     queryFn: listBatches,
   });
 
-  const queryError = recipesError ?? batchesError;
-  const isFetching = isRecipesFetching || isBatchesFetching;
-  const isLoading =
-    isRecipesLoading || isBatchesLoading || (isFetching && Boolean(queryError));
+  const queryError = batchesError;
+  const isFetching = isBatchesFetching;
+  const isLoading = isBatchesLoading || (isFetching && Boolean(queryError));
   const error = queryError
     ? isFetching
       ? null
@@ -416,9 +374,8 @@ export function DashboardScreen() {
     : null;
 
   const handleRetry = useCallback(() => {
-    void refetchRecipes();
     void refetchBatches();
-  }, [refetchBatches, refetchRecipes]);
+  }, [refetchBatches]);
 
   const [referenceDate] = useState(() => new Date());
 
@@ -516,118 +473,6 @@ export function DashboardScreen() {
     return [...filteredActiveBatches].sort(compareBatches).slice(0, 2);
   }, [filteredActiveBatches, filteredAlertsMap]);
 
-  const filteredRecipes = useMemo(
-    () =>
-      recipes.filter((recipe) =>
-        isWithinSelectedPeriod(recipe.updatedAt, selectedPeriod, referenceDate),
-      ),
-    [recipes, referenceDate, selectedPeriod],
-  );
-
-  const draftRecipesCount = useMemo(
-    () => filteredRecipes.filter(isRecipeDraft).length,
-    [filteredRecipes],
-  );
-
-  const missingIngredientsCount = useMemo(() => {
-    if (!isUsingDemoData) {
-      return null;
-    }
-
-    const readyRecipes = filteredRecipes.filter(
-      (recipe) => !isRecipeDraft(recipe),
-    );
-    const requiredIngredientIds = new Set(
-      readyRecipes.flatMap((recipe) =>
-        (recipe.ingredients ?? []).map((ingredient) => ingredient.ingredientId),
-      ),
-    );
-
-    const availableIngredientIds = new Set(
-      demoIngredients.map((ingredient) => ingredient.id),
-    );
-
-    return [...requiredIngredientIds].filter(
-      (ingredientId) => !availableIngredientIds.has(ingredientId),
-    ).length;
-  }, [filteredRecipes, isUsingDemoData]);
-
-  const ingredientsMetric = useMemo<IngredientsMetric>(() => {
-    if (missingIngredientsCount === null) {
-      return {
-        metric: "Stock live",
-        status: "Synchronisé",
-      };
-    }
-
-    return {
-      metric: `${missingIngredientsCount} manquant${
-        missingIngredientsCount > 1 ? "s" : ""
-      }`,
-      status: missingIngredientsCount === 0 ? "Complet" : "Incomplet",
-    };
-  }, [missingIngredientsCount]);
-
-  const favoriteToolsCount = academyTopics.filter(
-    (topic) => topic.hasCalculator && topic.status === "ready",
-  ).length;
-
-  const highlightedAlert = filteredAlerts[0] ?? null;
-
-  const navigationCards = useMemo<NavigationCard[]>(
-    () => [
-      {
-        id: "batches",
-        label: "Brassins",
-        icon: "flask-outline",
-        href: "/(app)/batches",
-        metric: highlightedAlert
-          ? formatRelativeDue(highlightedAlert.dueAt, referenceDate)
-          : "Aucune échéance",
-        status: highlightedAlert?.status ?? "OK",
-        color: colors.brand.secondary,
-      },
-      {
-        id: "recipes",
-        label: "Recettes",
-        icon: "book-outline",
-        href: "/(app)/recipes",
-        metric: `${draftRecipesCount} brouillon${draftRecipesCount > 1 ? "s" : ""}`,
-        status: draftRecipesCount === 0 ? "Prêtes" : "À compléter",
-        color: colors.brand.primary,
-      },
-      {
-        id: "ingredients",
-        label: "Ingrédients",
-        icon: "leaf-outline",
-        href: "/(app)/ingredients",
-        metric: ingredientsMetric.metric,
-        status: ingredientsMetric.status,
-        color: colors.semantic.warning,
-      },
-      {
-        id: "tools",
-        label: "Outils",
-        icon: "calculator-outline",
-        href: "/(app)/tools",
-        metric: `${favoriteToolsCount} favori${favoriteToolsCount > 1 ? "s" : ""}`,
-        status: favoriteToolsCount > 0 ? "Configuré" : "À personnaliser",
-        color: colors.semantic.info,
-      },
-    ],
-    [
-      draftRecipesCount,
-      favoriteToolsCount,
-      highlightedAlert,
-      ingredientsMetric,
-      referenceDate,
-    ],
-  );
-
-  const topNavigationCards = navigationCards.filter((card) =>
-    TOP_NAVIGATION_IDS.includes(card.id),
-  );
-
   const handleOpenProfilePanel = useCallback(() => {
     setIsMoreSheetVisible(false);
     router.push("/(app)/profile");
@@ -699,22 +544,41 @@ export function DashboardScreen() {
             </View>
           </View>
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ouvrir le profil"
-            onPress={handleOpenProfilePanel}
-            style={({ pressed }) => [
-              styles.profileButton,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons
-              name="person-circle-outline"
-              size={18}
-              color={colors.brand.secondary}
-            />
-            <Text style={styles.profileButtonText}>Profil</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ouvrir le profil"
+              onPress={handleOpenProfilePanel}
+              style={({ pressed }) => [
+                styles.profileButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons
+                name="person-circle-outline"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.profileButtonText}>Profil</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Voir plus de sections"
+              onPress={() => setIsMoreSheetVisible(true)}
+              style={({ pressed }) => [
+                styles.profileButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons
+                name="grid-outline"
+                size={18}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.profileButtonText}>Voir plus</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Card style={styles.sectionCard}>
@@ -963,65 +827,6 @@ export function DashboardScreen() {
             </View>
           )}
         </Card>
-
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Navigation rapide</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Voir plus de sections"
-              onPress={() => setIsMoreSheetVisible(true)}
-              style={({ pressed }) => [
-                styles.linkButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={styles.linkButtonText}>Voir plus</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.navigationGrid}>
-            {topNavigationCards.map((card) => {
-              const statusColors = getStatusColors(card.status);
-
-              return (
-                <Pressable
-                  key={card.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Ouvrir ${card.label}`}
-                  onPress={() => router.push(card.href)}
-                  style={({ pressed }) => [
-                    styles.navigationCard,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <View style={styles.navigationTopRow}>
-                    <Ionicons name={card.icon} size={20} color={card.color} />
-                    <Text style={styles.navigationTitle}>{card.label}</Text>
-                  </View>
-
-                  <Text style={styles.navigationMetric}>{card.metric}</Text>
-
-                  <View
-                    style={[
-                      styles.statusPill,
-                      { backgroundColor: statusColors.background },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.statusPillText,
-                        { color: statusColors.foreground },
-                      ]}
-                    >
-                      {card.status}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
       </ScrollView>
 
       <Modal
@@ -1076,6 +881,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
     flex: 1,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
   },
   avatar: {
     width: 40,

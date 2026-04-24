@@ -7,6 +7,7 @@ import {
   getIconOptionById,
   getPaletteOptionById,
 } from "@/features/labels/presentation/label-palette.constants";
+import { LabelLegalDisclaimerText } from "@/features/labels/presentation/LabelLegalDisclaimerText";
 import React, { useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -172,21 +173,10 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
             >
               {draft.previewSnapshot.subtitle}
             </Text>
-            {/* Loi Évin disclaimer — mandatory on every alcohol label
-                regardless of palette. See #634 (B-35). Rendered ON the
-                visual preview so it carries through to future PDF / PNG
-                exports (#630). Uses the palette foreground color so the
-                contrast is preserved across themes. No `accessibilityLabel`
-                on purpose — the legal text itself is what screen readers
-                MUST read. */}
-            <Text
-              style={[
-                styles.previewLegalText,
-                { color: palette.foregroundColor },
-              ]}
-            >
-              {draft.previewSnapshot.legalHint}
-            </Text>
+            <LabelLegalDisclaimerText
+              text={draft.previewSnapshot.legalHint}
+              color={palette.foregroundColor}
+            />
           </Card>
 
           <Card style={styles.infoCard}>
@@ -261,18 +251,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.medium,
-  },
-  // Loi Évin disclaimer rendered ON the visual preview (#634).
-  // Smaller font + slightly translucent so it stays legible without
-  // dominating the title hierarchy. Italic distinguishes the legal
-  // mention from the editable beer name / subtitle above.
-  previewLegalText: {
-    marginTop: spacing.sm,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontStyle: "italic",
-    opacity: 0.85,
-    textAlign: "center",
   },
   infoCard: {
     marginBottom: spacing.sm,

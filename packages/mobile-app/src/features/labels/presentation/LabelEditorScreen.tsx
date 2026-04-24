@@ -17,6 +17,7 @@ import {
   getIconOptionById,
   getPaletteOptionById,
 } from "@/features/labels/presentation/label-palette.constants";
+import { LabelLegalDisclaimerText } from "@/features/labels/presentation/LabelLegalDisclaimerText";
 import {
   LABEL_BOTTLE_FORMAT_OPTIONS,
   LABEL_TEMPLATE_OPTIONS,
@@ -390,19 +391,10 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           >
             {previewSubtitle}
           </Text>
-          {/* Loi Évin disclaimer — mandatory on every alcohol label
-              (#634 / B-35). Rendered in the live editor preview so what
-              the user sees while editing matches what gets saved. No
-              `accessibilityLabel` on purpose — the legal text itself is
-              what screen readers MUST read. */}
-          <Text
-            style={[
-              styles.previewLegalText,
-              { color: selectedPalette.foregroundColor },
-            ]}
-          >
-            {DEFAULT_LABEL_LEGAL_HINT}
-          </Text>
+          <LabelLegalDisclaimerText
+            text={DEFAULT_LABEL_LEGAL_HINT}
+            color={selectedPalette.foregroundColor}
+          />
         </Card>
 
         {statusMessage ? (
@@ -520,16 +512,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.medium,
-  },
-  // Loi Évin disclaimer styling — same recipe as LabelDetailsScreen so
-  // both previews look identical.
-  previewLegalText: {
-    marginTop: spacing.sm,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontStyle: "italic",
-    opacity: 0.85,
-    textAlign: "center",
   },
   statusMessage: {
     marginBottom: spacing.sm,

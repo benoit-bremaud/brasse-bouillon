@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.5-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.4-alpha1...api-v0.1.5-alpha1) (2026-04-24)
+
+
+### Features
+
+* **recipe:** add quality fields for scan matching (Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 2/5) ([386e8b9](https://github.com/benoit-bremaud/brasse-bouillon/commit/386e8b957608d6dfd3332808cb6c94b360173c71))
+* **recipe:** add quality fields for scan matching (Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 2/5) ([#721](https://github.com/benoit-bremaud/brasse-bouillon/issues/721)) ([97729bf](https://github.com/benoit-bremaud/brasse-bouillon/commit/97729bf8d4eac5159023010c4437faf29c9b9f44))
+
+
+### Bug Fixes
+
+* **ci:** unblock SonarCloud + align @Index metadata on RecipeOrmEntity ([ea7c871](https://github.com/benoit-bremaud/brasse-bouillon/commit/ea7c871f9495dd7d9a5ad08f7f7919ff36ac3002))
+
 ## [0.1.4-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.3-alpha1...api-v0.1.4-alpha1) (2026-04-24)
 
 

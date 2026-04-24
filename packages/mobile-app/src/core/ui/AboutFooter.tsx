@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: colors.brand.secondary,
     marginBottom: spacing.xs,
-    letterSpacing: 1,
     textTransform: "uppercase",
   },
   row: {

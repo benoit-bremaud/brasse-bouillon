@@ -11,7 +11,7 @@ import {
 } from "@/features/ingredients/domain/ingredient.types";
 
 import { dataSource } from "@/core/data/data-source";
-import { demoIngredients } from "@/mocks/demo-data";
+import { demoIngredients, demoMalts } from "@/mocks/demo-data";
 
 function isIngredientCategory(value: string): value is IngredientCategory {
   const categories: readonly IngredientCategory[] = ["malt", "hop", "yeast"];
@@ -75,13 +75,28 @@ export async function listIngredientCategoriesSummary(): Promise<
   IngredientCategorySummary[]
 > {
   if (dataSource.useDemoData) {
-    const categories = ["malt", "hop", "yeast"] as const;
-
-    return categories.map((category) => ({
-      category,
-      count: demoIngredients.filter((item) => item.category === category)
-        .length,
-    }));
+    // Count from the SAME source each category list screen consumes,
+    // so the Ingredients home counter never drifts from the list it
+    // points at (regression guard for #623):
+    //   • Malts list → `listMalts()` → demoMalts (10 items)
+    //   • Hops list → `listIngredientsByCategory("hop")` → demoIngredients (4 items)
+    //   • Yeasts list → `listIngredientsByCategory("yeast")` → demoIngredients (4 items)
+    //
+    // TODO: once malts / hops / yeasts lists converge on a single
+    // source-of-truth (see B-22 ingredients catalogue rework), this
+    // per-category dispatch can be simplified.
+    return [
+      { category: "malt", count: demoMalts.length },
+      {
+        category: "hop",
+        count: demoIngredients.filter((item) => item.category === "hop").length,
+      },
+      {
+        category: "yeast",
+        count: demoIngredients.filter((item) => item.category === "yeast")
+          .length,
+      },
+    ];
   }
 
   return listIngredientCategoriesSummaryApi();

@@ -8,6 +8,7 @@ import {
   listIngredientCategoriesSummaryApi,
   listIngredientsByCategoryApi,
 } from "@/features/ingredients/data/ingredients.api";
+import { demoIngredients, demoMalts } from "@/mocks/demo-data";
 
 import { dataSource } from "@/core/data/data-source";
 
@@ -44,20 +45,62 @@ describe("ingredients use-cases", () => {
     mockedGetIngredientDetailsApi.mockReset();
   });
 
-  it("returns categories summary with counts", async () => {
-    const summary = await listIngredientCategoriesSummary();
+  describe("listIngredientCategoriesSummary", () => {
+    // Happy path — regression guard for issue #623.
+    // The counter must match the source each category list SCREEN consumes:
+    //   malt → demoMalts (via listMalts)
+    //   hop → demoIngredients (via listIngredientsByCategory)
+    //   yeast → demoIngredients (via listIngredientsByCategory)
+    it("returns demo counts aligned with each category's displayed source", async () => {
+      const summary = await listIngredientCategoriesSummary();
 
-    expect(summary).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ category: "malt" }),
-        expect.objectContaining({ category: "hop" }),
-        expect.objectContaining({ category: "yeast" }),
-      ]),
-    );
+      const byCategory = Object.fromEntries(
+        summary.map((item) => [item.category, item.count] as const),
+      );
 
-    const total = summary.reduce((acc, item) => acc + item.count, 0);
-    expect(total).toBeGreaterThan(0);
-    expect(mockedListIngredientCategoriesSummaryApi).not.toHaveBeenCalled();
+      expect(byCategory).toEqual({
+        malt: demoMalts.length,
+        hop: demoIngredients.filter((item) => item.category === "hop").length,
+        yeast: demoIngredients.filter((item) => item.category === "yeast")
+          .length,
+      });
+
+      expect(mockedListIngredientCategoriesSummaryApi).not.toHaveBeenCalled();
+    });
+
+    // Sad path — API failure should propagate (not be swallowed) so the
+    // screen can render its error state.
+    it("propagates API errors in live mode instead of falling back silently", async () => {
+      dataSource.useDemoData = false;
+      const apiError = new Error("upstream 500");
+      mockedListIngredientCategoriesSummaryApi.mockRejectedValue(apiError);
+
+      await expect(listIngredientCategoriesSummary()).rejects.toThrow(
+        "upstream 500",
+      );
+      expect(mockedListIngredientCategoriesSummaryApi).toHaveBeenCalledTimes(1);
+    });
+
+    // Edge case — always returns the 3 expected categories (never drops one).
+    it("always includes all three categories (malt, hop, yeast)", async () => {
+      const summary = await listIngredientCategoriesSummary();
+
+      expect(summary.map((item) => item.category).sort()).toEqual([
+        "hop",
+        "malt",
+        "yeast",
+      ]);
+    });
+
+    // Edge case — counts are non-negative integers.
+    it("returns non-negative integer counts for every category", async () => {
+      const summary = await listIngredientCategoriesSummary();
+
+      for (const item of summary) {
+        expect(Number.isInteger(item.count)).toBe(true);
+        expect(item.count).toBeGreaterThanOrEqual(0);
+      }
+    });
   });
 
   it("filters malts by search and EBC range", async () => {

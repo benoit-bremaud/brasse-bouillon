@@ -22,7 +22,14 @@ import {
 } from "@/features/labels/presentation/label-template.constants";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -30,6 +37,7 @@ import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 
@@ -49,6 +57,7 @@ function toButtonLabel(isSaving: boolean): string {
 
 export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
   const router = useRouter();
+  const navigationFooterOffset = useNavigationFooterOffset();
   const normalizedDraftId = normalizeRouteParam(draftIdParam) ?? "";
 
   const [draft, setDraft] = useState<LabelDraft | null>(null);
@@ -205,210 +214,225 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
         }
       />
 
-      <Card style={styles.sectionCard}>
-        <Text style={styles.sectionTitle}>Texte</Text>
-
-        <Text style={styles.fieldLabel}>Nom</Text>
-        <TextInput
-          accessibilityLabel="Modifier le nom de l’étiquette"
-          value={name}
-          onChangeText={setName}
-          placeholder="Nom de la bière"
-          placeholderTextColor={colors.neutral.muted}
-          style={styles.input}
-          autoCorrect={false}
-          autoCapitalize="words"
-        />
-
-        <Text style={styles.fieldLabel}>Sous-titre</Text>
-        <TextInput
-          accessibilityLabel="Modifier le sous-titre de l’étiquette"
-          value={subtitle}
-          onChangeText={setSubtitle}
-          placeholder="Style / variante"
-          placeholderTextColor={colors.neutral.muted}
-          style={styles.input}
-          autoCorrect={false}
-          autoCapitalize="words"
-        />
-      </Card>
-
-      <Card style={styles.sectionCard}>
-        <Text style={styles.sectionTitle}>Palette</Text>
-        <View style={styles.chipsWrap}>
-          {LABEL_PALETTE_OPTIONS.map((option) => {
-            const isSelected = option.id === selectedPaletteId;
-
-            return (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Sélectionner la palette ${option.label}`}
-                style={[styles.chip, isSelected && styles.chipSelected]}
-                onPress={() => setSelectedPaletteId(option.id)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    isSelected && styles.chipTextSelected,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Text style={styles.sectionTitle}>Icône</Text>
-        <View style={styles.chipsWrap}>
-          {LABEL_ICON_OPTIONS.map((option) => {
-            const isSelected = option.id === selectedIconId;
-
-            return (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Sélectionner l’icône ${option.label}`}
-                style={[styles.chip, isSelected && styles.chipSelected]}
-                onPress={() => setSelectedIconId(option.id)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    isSelected && styles.chipTextSelected,
-                  ]}
-                >
-                  {option.symbol} {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </Card>
-
-      <Card style={styles.sectionCard}>
-        <Text style={styles.sectionTitle}>Modèle</Text>
-
-        <View style={styles.chipsWrap}>
-          {LABEL_BOTTLE_FORMAT_OPTIONS.map((option) => {
-            const isSelected = option.id === selectedBottleFormat;
-
-            return (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Sélectionner le format ${option.label}`}
-                style={[styles.chip, isSelected && styles.chipSelected]}
-                onPress={() => setSelectedBottleFormat(option.id)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    isSelected && styles.chipTextSelected,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <View style={styles.chipsWrap}>
-          {LABEL_TEMPLATE_OPTIONS.map((option) => {
-            const isSelected = option.id === selectedTemplateId;
-
-            return (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Sélectionner le template ${option.label}`}
-                style={[styles.chip, isSelected && styles.chipSelected]}
-                onPress={() => setSelectedTemplateId(option.id)}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    isSelected && styles.chipTextSelected,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </Card>
-
-      <Card
-        style={[
-          styles.previewCard,
-          { backgroundColor: selectedPalette.backgroundColor },
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: navigationFooterOffset },
         ]}
+        showsVerticalScrollIndicator={false}
       >
-        <Text
+        <Card style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Texte</Text>
+
+          <Text style={styles.fieldLabel}>Nom</Text>
+          <TextInput
+            accessibilityLabel="Modifier le nom de l’étiquette"
+            value={name}
+            onChangeText={setName}
+            placeholder="Nom de la bière"
+            placeholderTextColor={colors.neutral.muted}
+            style={styles.input}
+            autoCorrect={false}
+            autoCapitalize="words"
+          />
+
+          <Text style={styles.fieldLabel}>Sous-titre</Text>
+          <TextInput
+            accessibilityLabel="Modifier le sous-titre de l’étiquette"
+            value={subtitle}
+            onChangeText={setSubtitle}
+            placeholder="Style / variante"
+            placeholderTextColor={colors.neutral.muted}
+            style={styles.input}
+            autoCorrect={false}
+            autoCapitalize="words"
+          />
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Palette</Text>
+          <View style={styles.chipsWrap}>
+            {LABEL_PALETTE_OPTIONS.map((option) => {
+              const isSelected = option.id === selectedPaletteId;
+
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sélectionner la palette ${option.label}`}
+                  style={[styles.chip, isSelected && styles.chipSelected]}
+                  onPress={() => setSelectedPaletteId(option.id)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected && styles.chipTextSelected,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <Text style={styles.sectionTitle}>Icône</Text>
+          <View style={styles.chipsWrap}>
+            {LABEL_ICON_OPTIONS.map((option) => {
+              const isSelected = option.id === selectedIconId;
+
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sélectionner l’icône ${option.label}`}
+                  style={[styles.chip, isSelected && styles.chipSelected]}
+                  onPress={() => setSelectedIconId(option.id)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected && styles.chipTextSelected,
+                    ]}
+                  >
+                    {option.symbol} {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+
+        <Card style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Modèle</Text>
+
+          <View style={styles.chipsWrap}>
+            {LABEL_BOTTLE_FORMAT_OPTIONS.map((option) => {
+              const isSelected = option.id === selectedBottleFormat;
+
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sélectionner le format ${option.label}`}
+                  style={[styles.chip, isSelected && styles.chipSelected]}
+                  onPress={() => setSelectedBottleFormat(option.id)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected && styles.chipTextSelected,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View style={styles.chipsWrap}>
+            {LABEL_TEMPLATE_OPTIONS.map((option) => {
+              const isSelected = option.id === selectedTemplateId;
+
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sélectionner le template ${option.label}`}
+                  style={[styles.chip, isSelected && styles.chipSelected]}
+                  onPress={() => setSelectedTemplateId(option.id)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      isSelected && styles.chipTextSelected,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+
+        <Card
           style={[
-            styles.previewIcon,
-            { color: selectedPalette.foregroundColor },
+            styles.previewCard,
+            { backgroundColor: selectedPalette.backgroundColor },
           ]}
         >
-          {selectedIcon.symbol}
-        </Text>
-        <Text
-          style={[
-            styles.previewTitle,
-            { color: selectedPalette.foregroundColor },
-          ]}
-        >
-          {previewTitle}
-        </Text>
-        <Text
-          style={[
-            styles.previewSubtitle,
-            { color: selectedPalette.foregroundColor },
-          ]}
-        >
-          {previewSubtitle}
-        </Text>
-      </Card>
+          <Text
+            style={[
+              styles.previewIcon,
+              { color: selectedPalette.foregroundColor },
+            ]}
+          >
+            {selectedIcon.symbol}
+          </Text>
+          <Text
+            style={[
+              styles.previewTitle,
+              { color: selectedPalette.foregroundColor },
+            ]}
+          >
+            {previewTitle}
+          </Text>
+          <Text
+            style={[
+              styles.previewSubtitle,
+              { color: selectedPalette.foregroundColor },
+            ]}
+          >
+            {previewSubtitle}
+          </Text>
+        </Card>
 
-      {statusMessage ? (
-        <Text style={styles.statusMessage}>{statusMessage}</Text>
-      ) : null}
+        {statusMessage ? (
+          <Text style={styles.statusMessage}>{statusMessage}</Text>
+        ) : null}
 
-      <View style={styles.actionsRow}>
-        <PrimaryButton
-          accessibilityLabel="Enregistrer le brouillon"
-          label={toButtonLabel(isSaving)}
-          disabled={!draft || isSaving}
-          style={styles.actionButton}
-          onPress={() => {
-            void handleSave();
-          }}
-        />
+        <View style={styles.actionsRow}>
+          <PrimaryButton
+            accessibilityLabel="Enregistrer le brouillon"
+            label={toButtonLabel(isSaving)}
+            disabled={!draft || isSaving}
+            style={styles.actionButton}
+            onPress={() => {
+              void handleSave();
+            }}
+          />
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ouvrir la fiche du brouillon"
-          style={styles.secondaryButton}
-          disabled={!draft || isSaving}
-          onPress={() => {
-            if (!draft) {
-              return;
-            }
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ouvrir la fiche du brouillon"
+            style={styles.secondaryButton}
+            disabled={!draft || isSaving}
+            onPress={() => {
+              if (!draft) {
+                return;
+              }
 
-            router.push(buildLabelDetailsRoute(draft.id));
-          }}
-        >
-          <Text style={styles.secondaryButtonText}>Voir la fiche</Text>
-        </Pressable>
-      </View>
+              router.push(buildLabelDetailsRoute(draft.id));
+            }}
+          >
+            <Text style={styles.secondaryButtonText}>Voir la fiche</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    gap: spacing.sm,
+  },
   sectionCard: {
     marginBottom: spacing.sm,
     gap: spacing.xs,

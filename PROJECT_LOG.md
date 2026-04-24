@@ -50,12 +50,11 @@ Branch `docs/compte-parametres-brainstorm-2026-04-24`, merged as
 estimate — Section 2 read `~18 days` while Section 10 chunks
 totalled `~7-8 days`; reconciled to Section 10 as the authoritative
 number) and five Copilot comments on `docs/CONVENTIONS.md`
-compliance (French quote `"soyons fou"` in a heading, French
-acronym `RGPD` used instead of `GDPR`, French phrase
-`mentions légales`, the PROJECT_LOG heading in French, and a
-root-level `CHANGELOG.md` reference that should point at
-`packages/mobile-app/CHANGELOG.md` per §3). All six comments
-addressed in `761f4d8`.
+compliance (a French quote in a heading, a French data-privacy
+acronym used instead of `GDPR`, a French legal-notice phrase, the
+PROJECT_LOG heading in French, and a root-level `CHANGELOG.md`
+reference that should point at `packages/mobile-app/CHANGELOG.md`
+per §3). All six comments addressed in `761f4d8`.
 
 ### Scan brainstorm + product decisions framing ([PR #686](https://github.com/benoit-bremaud/brasse-bouillon/pull/686))
 

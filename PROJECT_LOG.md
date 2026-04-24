@@ -7,7 +7,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
-### `Compte` & settings brainstorm + MVP conservative cuts
+### `Compte` & settings brainstorm + MVP conservative cuts ([PR #688](https://github.com/benoit-bremaud/brasse-bouillon/pull/688))
 
 Morning session continuation — 45-minute structured Q&A on the
 merged `Compte` screen, which consolidates `Profil` and `Paramètres
@@ -44,6 +44,17 @@ Key MVP scope for v0.1.0:
 Decomposed into 7 codable chunks (~7-8 focused dev days) to execute
 in parallel with Scan Tranche 2. Principle confirmed: *"Build for
 today, design for tomorrow"* (pending ADR-001).
+
+Branch `docs/compte-parametres-brainstorm-2026-04-24`, merged as
+`6a518b0`. Review cycle: one Codex **P2** (contradictory MVP
+estimate — Section 2 read `~18 days` while Section 10 chunks
+totalled `~7-8 days`; reconciled to Section 10 as the authoritative
+number) and five Copilot comments on `docs/CONVENTIONS.md`
+compliance (a French quote in a heading, a French data-privacy
+acronym used instead of `GDPR`, a French legal-notice phrase, the
+PROJECT_LOG heading in French, and a root-level `CHANGELOG.md`
+reference that should point at `packages/mobile-app/CHANGELOG.md`
+per §3). All six comments addressed in `761f4d8`.
 
 ### Scan brainstorm + product decisions framing ([PR #686](https://github.com/benoit-bremaud/brasse-bouillon/pull/686))
 

@@ -16,8 +16,9 @@ from sqlalchemy import (
     SmallInteger,
     String,
     Text,
+    text,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from db.models.base import Base, TimestampMixin, UUIDMixin
 
@@ -57,8 +58,12 @@ class Beer(Base, UUIDMixin, TimestampMixin):
 
     __tablename__ = "beers"
     __table_args__ = (
+        # Constraint expression is derived from BEER_SOURCE_VALUES so the
+        # Python tuple and the DDL WHERE-clause can never drift.
         CheckConstraint(
-            "source IN ('openfoodfacts', 'internal', 'community')",
+            "source IN ({})".format(
+                ", ".join(f"'{v}'" for v in BEER_SOURCE_VALUES)
+            ),
             name="ck_beers_source_valid",
         ),
     )
@@ -81,11 +86,14 @@ class Beer(Base, UUIDMixin, TimestampMixin):
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Provenance fields (ADR-0001 clause 2: shapes anticipate evolution).
+    # ``server_default`` uses ``text("'internal'")`` so the emitted DDL is
+    # ``DEFAULT 'internal'`` with the quotes — a bare ``"internal"`` would
+    # be interpreted as a raw SQL expression and fail on PostgreSQL/SQLite.
     source: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
         default="internal",
-        server_default="internal",
+        server_default=text("'internal'"),
     )
     # ``contributed_by`` is a loose UUID link to the users table in
     # packages/api (NestJS). No FK because the two services run against
@@ -116,3 +124,20 @@ class Beer(Base, UUIDMixin, TimestampMixin):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
+    @validates("source")
+    def _validate_source(self, _key: str, value: str) -> str:
+        """Reject invalid ``source`` values at the ORM layer.
+
+        The DB CHECK constraint catches raw-SQL inserts, but without this
+        validator an ORM assignment like ``beer.source = "typo"`` would
+        travel silently to flush time and then raise an
+        ``IntegrityError``. Validating here surfaces the error at the
+        point of assignment with a readable message.
+        """
+        if value not in BEER_SOURCE_VALUES:
+            valid = ", ".join(BEER_SOURCE_VALUES)
+            raise ValueError(
+                f"Beer.source must be one of ({valid}), got {value!r}"
+            )
+        return value

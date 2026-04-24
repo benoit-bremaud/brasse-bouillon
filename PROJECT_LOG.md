@@ -19,8 +19,9 @@ Key takeaways frozen in the audit:
 
 - NestJS recipe domain is ~90% ready (7 Recipe entities already cover
   header / fermentables / hops / yeasts / water / additives / steps).
-- 13 nullable columns to add on `recipes` for this epic, 1 on
-  `recipe_hops` (`attribute`), 1 on `recipe_steps` (`duration_min`,
+- 13 columns to add on `recipes` for this epic (12 nullable + required
+  `source VARCHAR(20) NOT NULL DEFAULT 'user_authored'` with CHECK),
+  1 on `recipe_hops` (`attribute`), 1 on `recipe_steps` (`duration_min`,
   surfaced as a real gap by Copilot).
 - 4 quality columns (`avg_rating`, `brew_count`, `last_brewed_at`,
   `is_official`) explicitly kept out of scope — routed to Epic #693

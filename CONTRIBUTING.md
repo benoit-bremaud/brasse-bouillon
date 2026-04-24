@@ -148,6 +148,36 @@ in `release-please-config.json` and manifest in
 - **Never push to `main` directly.** Even release PRs go through the
   PR / merge flow.
 
+### Release PR metadata (automated)
+
+Every release-please PR automatically receives — via
+`.github/workflows/release-please-metadata.yml` — the same metadata
+triptych as a regular PR:
+
+- **Assignee** — `benoit-bremaud`
+- **Labels** — `type:chore` + `priority:medium` + scope label derived
+  from the head ref:
+  - `*--components--encyclopedia` → `scope:backend`
+  - `*--components--website` → `scope:website`
+  - `*--components--mobile-app` → `scope:frontend`
+  - `*--components--api` → `scope:backend`
+  - `*--groups--app` (lockstep) → `scope:monorepo`
+- **Project** — Brasse-Bouillon (`PVT_kwHOB8rwIc4AuVew`); requires a
+  PAT with `project` scope stored as `PROJECT_TOKEN` (falls back to
+  `GITHUB_TOKEN` and skips the project add silently if scope missing).
+
+Reviewers are NOT applied by this workflow — CODEOWNERS handles that
+automatically.
+
+### Format check on release PRs
+
+`packages/mobile-app/CHANGELOG.md` and `packages/mobile-app/app.json`
+are owned and rewritten by release-please at every release. They are
+listed in `packages/mobile-app/.prettierignore` so the `format:check`
+step in CI does not fail on the unformatted output of release-please.
+If you ever modify these files by hand, format them yourself before
+committing.
+
 ### Tag protection
 
 Ruleset `refs/tags/v*` + scoped component tags (`mobile-app-v*`,

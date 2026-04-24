@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+.expo/
+dist/
+coverage/
+
+# Owned by release-please (auto-generated, not formatted)
+CHANGELOG.md
+app.json

@@ -7,6 +7,7 @@ import {
   getIconOptionById,
   getPaletteOptionById,
 } from "@/features/labels/presentation/label-palette.constants";
+import { LabelLegalDisclaimerText } from "@/features/labels/presentation/LabelLegalDisclaimerText";
 import React, { useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -172,6 +173,10 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
             >
               {draft.previewSnapshot.subtitle}
             </Text>
+            <LabelLegalDisclaimerText
+              text={draft.previewSnapshot.legalHint}
+              color={palette.foregroundColor}
+            />
           </Card>
 
           <Card style={styles.infoCard}>

@@ -70,6 +70,33 @@ describe("LabelDetailsScreen", () => {
     });
   });
 
+  // Compliance regression guard — Loi Évin (article L.3323-4 du Code
+  // de la santé publique) requires the disclaimer on every alcohol
+  // label. See #634. If this assertion ever breaks, we are shipping a
+  // legally non-compliant rendered label.
+  it("renders the Loi Évin disclaimer on the visual preview", async () => {
+    const draft = buildLabelDraft();
+    mockedGetLabelDraftById.mockResolvedValue(draft);
+
+    render(<LabelDetailsScreen draftIdParam="draft-1" />);
+
+    await screen.findByText("Détails du brouillon");
+
+    // Asserts the exact legal-mention text from the snapshot. Using
+    // getAllByText because the disclaimer is rendered TWICE on this
+    // screen by design:
+    //   1. on the visual preview Card (the legally compliant render
+    //      that ships to the future PDF / PNG export)
+    //   2. inside the "Informations" metadata card (documentation
+    //      surface for the user reviewing the saved draft)
+    // Asserting `>= 2` catches a regression on EITHER render — if a
+    // future change accidentally drops one of the two, this test
+    // fails immediately. `>= 1` would silently let one-render
+    // regressions through.
+    const occurrences = screen.getAllByText(draft.previewSnapshot.legalHint);
+    expect(occurrences.length).toBeGreaterThanOrEqual(2);
+  });
+
   it("deletes draft and routes to labels home", async () => {
     mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
     mockedRemoveLabelDraft.mockResolvedValue(undefined);

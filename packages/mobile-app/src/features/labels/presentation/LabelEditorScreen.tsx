@@ -3,6 +3,7 @@ import {
   getLabelDraftById,
   updateLabelDraft,
 } from "@/features/labels/application/labels.use-cases";
+import { DEFAULT_LABEL_LEGAL_HINT } from "@/features/labels/domain/label.constants";
 import {
   LabelBottleFormat,
   LabelDraft,
@@ -16,6 +17,7 @@ import {
   getIconOptionById,
   getPaletteOptionById,
 } from "@/features/labels/presentation/label-palette.constants";
+import { LabelLegalDisclaimerText } from "@/features/labels/presentation/LabelLegalDisclaimerText";
 import {
   LABEL_BOTTLE_FORMAT_OPTIONS,
   LABEL_TEMPLATE_OPTIONS,
@@ -389,6 +391,10 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           >
             {previewSubtitle}
           </Text>
+          <LabelLegalDisclaimerText
+            text={DEFAULT_LABEL_LEGAL_HINT}
+            color={selectedPalette.foregroundColor}
+          />
         </Card>
 
         {statusMessage ? (

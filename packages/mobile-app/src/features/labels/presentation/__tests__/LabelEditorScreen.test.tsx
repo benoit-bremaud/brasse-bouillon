@@ -2,6 +2,7 @@ import {
   getLabelDraftById,
   updateLabelDraft,
 } from "@/features/labels/application/labels.use-cases";
+import { DEFAULT_LABEL_LEGAL_HINT } from "@/features/labels/domain/label.constants";
 import {
   fireEvent,
   render,
@@ -95,6 +96,27 @@ describe("LabelEditorScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Ouvrir la fiche du brouillon"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels/draft-1");
+  });
+
+  // Compliance regression guard — Loi Évin (article L.3323-4 du Code
+  // de la santé publique) requires the disclaimer on every alcohol
+  // label. The Editor live-preview MUST render the same exact
+  // disclaimer that gets saved on the draft. See #634. If this
+  // assertion ever breaks, we are shipping a non-compliant editor.
+  it("renders the Loi Évin disclaimer in the live preview", async () => {
+    mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
+
+    render(<LabelEditorScreen draftIdParam="draft-1" />);
+
+    // Wait for the editor to mount with the loaded draft.
+    await screen.findByDisplayValue("Saison");
+
+    // Imported as a top-level static import (not via mock-bypass)
+    // because `domain/label.constants` is the canonical source of
+    // truth and is intentionally NOT mocked — see #634 reviewer
+    // discussion. Any drift between the constant and the rendered
+    // preview is caught here.
+    expect(screen.getByText(DEFAULT_LABEL_LEGAL_HINT)).toBeTruthy();
   });
 
   it("routes back to labels home from header action", async () => {

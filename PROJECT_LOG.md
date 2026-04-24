@@ -7,6 +7,57 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### PR #712 merged (`499f91c`) — Recipe schema audit (Epic #708 Phase 1)
+
+Phase 1 of Epic #708 ships as docs-only — a 383-line gap analysis
+between the current Brasse-Bouillon schema (Python encyclopedia + NestJS
+api) and the fields a DIY DOG recipe requires. Reference material:
+BrewDog DIY DOG 2019 v8 (4 recipes sampled: Punk IPA V1/V2, Santa Paws,
+AB:09).
+
+Key takeaways frozen in the audit:
+
+- NestJS recipe domain is ~90% ready (7 Recipe entities already cover
+  header / fermentables / hops / yeasts / water / additives / steps).
+- 13 columns to add on `recipes` for this epic (12 nullable + required
+  `source VARCHAR(20) NOT NULL DEFAULT 'user_authored'` with CHECK),
+  1 on `recipe_hops` (`attribute`), 1 on `recipe_steps` (`duration_min`,
+  surfaced as a real gap by Copilot).
+- 4 quality columns (`avg_rating`, `brew_count`, `last_brewed_at`,
+  `is_official`) explicitly kept out of scope — routed to Epic #693
+  part 2/n.
+
+Review cycle — 2 rounds: Codex P2 (1 comment, fixed in `78db7b8`) and
+Copilot (7 valid comments, all fixed in `2684142`). Fixes verified
+against the actual ORM entities (`addition_stage`, `addition_step`,
+`type` are the real column names, not `use_timing` / `usage_stage` /
+`form`). 6 open questions parked for Phase 2 brainstorm. No schema
+change in the PR — audit only.
+
+- **Decisions**:
+  - `storage in metric, display in user-preferred units` — multi-valued
+    fields use JSON-serialized TEXT so SQLite and PostgreSQL share the
+    same schema without divergence.
+  - `13-column scope frozen for this epic` — the 4 quality columns from
+    Epic #693 part 2/n are listed for context only, held out of the
+    numbered list so Phase 3 migration scope is unambiguous.
+
+### Epic #713 created — App-wide metric ⇄ imperial unit conversion
+
+Surfaced during PR #712 review (Copilot flagged a wrong kg→lb
+conversion in a reference example). User reaction on 2026-04-24:
+*"je l'avais complètement oublié ! Il faut prendre en compte et gérer
+les conversions d'unité entre métrique et impérial !"*. Converted into
+a dedicated epic covering 8 dimensions (weight, volume, small-volume,
+temperature, color EBC↔SRM, density SG↔Plato, pressure, unitless
+percentages), with a storage-in-metric / display-layer-toggle contract.
+
+Milestone: v0.1.0-beta1. Dependencies: #644 / #645 (merged Compte &
+Paramètres screen hosts the toggle), #660 (calculators-scoped existing
+issue folded under #713 as sub-task), #708 Q3 (recipe schema unit
+duality decision informed by this epic). Effort: ~3-4 days, best
+sequenced after the Compte & Paramètres screen ships.
+
 ### Personas review — 5 personas + drêches bonus planned
 
 Morning session final brainstorm (fourth of four) — full personas

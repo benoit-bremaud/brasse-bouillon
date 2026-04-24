@@ -7,6 +7,94 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### Scan brainstorm + product decisions framing ([PR #686](https://github.com/benoit-bremaud/brasse-bouillon/pull/686))
+
+Morning session structured as a 60-minute Q&A with the product owner
+to lock in the product decisions for the Scan feature — the **demo
+hero** of the 2026-05-27 defense. 18 decisions taken and validated,
+documented in a new reference file
+[`docs/product/brainstorms/scan-2026-04-24.md`](docs/product/brainstorms/scan-2026-04-24.md).
+
+Key decisions:
+
+- **Primary persona** — curious amateur who wants to learn to brew
+  (not the experienced brewer persona); drives all UX choices.
+- **Product metaphor** — pharmacy: official brewery recipe as the
+  brand-name medicine, community recipes as generics. Structures
+  vocabulary, visuals, and embedded pedagogy.
+- **UX structure** — Hero photo + essentials + recipes visible
+  without scroll + technical details and brewery story in
+  lazy-loaded folds. Sections with fewer than 3 filled fields
+  auto-hide.
+- **Matching algorithm** — multi-criteria score:
+  `Similarity × 70% + Quality × 30%` where Similarity combines
+  Style/ABV/Bitterness/Color weighted 50/25/15/10 (with weight
+  renormalization when a criterion is missing), and Quality combines
+  AvgRating/BrewCount_confidence/Recency weighted 60/30/10. Official
+  recipes have Similarity = 100% by definition.
+- **Little-known beers strategy** — hybrid vision: read-only display
+  + discreet `mailto:` for correction suggestions. No community
+  backend in MVP, but the data model is prepared for V2 (source,
+  contributedBy, contributedAt fields; stub endpoints returning
+  `501 Not Implemented`).
+- **Architecture API** — centralized NestJS backend, mobile talks to
+  a single API, backend proxies OpenFoodFacts and future sources
+  (Wikipedia, Untappd). API keys stay server-side.
+- **Demo fallback strategy** — 6 demo beers hard-coded in the app
+  (offline-ready), 1-hour memory cache for any other beer scanned
+  live.
+- **Demo script** — 90-second scripted flow (amateur → scan →
+  discovery → match → import), enriched with a "jury beer" variant
+  that covers 4 adaptive scenarios (known / unknown / unreadable
+  barcode / not-a-beer).
+- **Project principle validated** — *"Build for today, design for
+  tomorrow"*. To be formalized as **ADR-001** in the upcoming
+  Architecture session.
+
+Copilot review on #686 caught two real issues: the document was
+originally written in French (violates `docs/CONVENTIONS.md` §1
+requiring English) and had a naming drift (`Brassins_log` vs
+`Confiance_brassins` for the same metric). Both fixed in commit
+`562aecc`. Two other Copilot comments (about literal `|-` list
+prefixes and `||` table starts) were false positives — the markdown
+uses standard GitHub-flavored table syntax (`|---|---|`).
+
+### Repository cleanup
+
+Post-session repo hygiene after last night's 8-PR release-please
+activation:
+
+- Reverted an accidental `app.json` drift introduced by
+  `eas update --branch preview` (a top-level `expo.runtimeVersion`
+  that we had fixed in #683 and that the OTA command re-wrote
+  locally).
+- Deleted 4 local branches whose work is already on `main`:
+  `feat/beer-encyclopedia-crud-api`, `docs/sync-post-552`,
+  `docs/audit-chantier-1`, `feat/api-fly-deploy`, plus the stale
+  `release-please--branches--main--components--website`.
+- Dropped 6 ephemeral stashes tied to merged or deleted branches.
+  Kept 11 stashes relevant to the active `docs/soutenance-27-mai`
+  craft PR #578 and to the unmerged
+  `fix/mobile-app-monorepo-expo-workflow` branch (which remains to
+  be audited in a future session).
+
+Working tree clean, 4 local branches remain (main,
+`docs/soutenance-27-mai`, 2 unmerged to audit, and the
+release-please group branch managed by the bot).
+
+### Follow-up items identified
+
+- **DB schema epic** — the matching algorithm decided in the
+  brainstorm requires significant database work (beer enrichment
+  schema in `beer-encyclopedia`, recipe rating + brew log in
+  `packages/api`, cross-package API contracts, seed data for the 6
+  demo beers + equivalent recipes). To be tracked as a GitHub epic
+  blocking the Scan Tranche 2 backend chunk.
+- **ADR-001** — draft *"Build for today, design for tomorrow"* as a
+  project-wide convention during the Architecture session.
+- **Jury request** — formal mention to the pre-defense coach asking
+  whether the jury can bring empty bottles to test the Scan live.
+
 ### Release-please pipeline activation + first releases ([PR #667](https://github.com/benoit-bremaud/brasse-bouillon/pull/667), [#668](https://github.com/benoit-bremaud/brasse-bouillon/pull/668), [#669](https://github.com/benoit-bremaud/brasse-bouillon/pull/669), [#670](https://github.com/benoit-bremaud/brasse-bouillon/pull/670), [#671](https://github.com/benoit-bremaud/brasse-bouillon/pull/671), [#672](https://github.com/benoit-bremaud/brasse-bouillon/pull/672), [#675](https://github.com/benoit-bremaud/brasse-bouillon/pull/675), [#676](https://github.com/benoit-bremaud/brasse-bouillon/pull/676))
 
 End-to-end activation of the release-please automation, with 4 packages

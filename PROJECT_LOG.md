@@ -5,6 +5,50 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-24
+
+### Release-please pipeline activation + first releases ([PR #667](https://github.com/benoit-bremaud/brasse-bouillon/pull/667), [#668](https://github.com/benoit-bremaud/brasse-bouillon/pull/668), [#669](https://github.com/benoit-bremaud/brasse-bouillon/pull/669), [#670](https://github.com/benoit-bremaud/brasse-bouillon/pull/670), [#671](https://github.com/benoit-bremaud/brasse-bouillon/pull/671), [#672](https://github.com/benoit-bremaud/brasse-bouillon/pull/672), [#675](https://github.com/benoit-bremaud/brasse-bouillon/pull/675), [#676](https://github.com/benoit-bremaud/brasse-bouillon/pull/676))
+
+End-to-end activation of the release-please automation, with 4 packages
+going through their first automated release cycle. Sequence of PRs:
+
+- #667 — set up `release-please-config.json`, manifest, workflow, and
+  the `refs/tags/v*` tag-protection ruleset.
+- #668 — fix #623 Ingredients home counter + fix CI coverage reporter
+  (`--coverageReporters=lcov,text` split into two flags).
+- #669 — first release-please-generated PR: `encyclopedia-v0.2.1` cut.
+- #670 — `website-v0.1.1` cut (manifest merge conflict resolved
+  manually because release-please did not auto-rebase).
+- #672 — auto-apply metadata workflow on release PRs + Prettier
+  ignore for CHANGELOG/app.json (unblocks mobile-app CI on release
+  PRs).
+- #671 — app libs release PR merged; **release-please aborted** with
+  "There are untagged, merged release PRs outstanding" because the
+  default group PR title template (`chore${scope}: release ${component}`)
+  omits `${version}`, so release-please could not parse the merged PR
+  title. Tags `mobile-app-v0.1.1-alpha1` and `api-v0.1.1-alpha1` had
+  to be created manually via `gh release create` at commit `3240639`,
+  and PR #671 label flipped `autorelease: pending` →
+  `autorelease: tagged`.
+- #675 — add `workflow_dispatch` to release-please.yml so operators
+  can retry manually via `gh workflow run "Release Please"` if the
+  state machine gets stuck.
+- #676 — fix the group PR title template
+  (`chore${scope}: release app libraries ${version}`) so future
+  app-group releases produce parseable titles and do not need manual
+  tagging.
+
+Also opened 2 tracking follow-ups from Copilot review:
+- #673 — align `packages/beer-encyclopedia/package.json` version with
+  `pyproject.toml` (drift every release).
+- #674 — delete vestigial per-package `packages/*/package-lock.json`
+  files (npm workspaces uses only the root lockfile; these are
+  pre-monorepo leftovers).
+
+Tags produced today (all immutable via `refs/tags/v*` ruleset):
+`encyclopedia-v0.2.1`, `website-v0.1.1`, `mobile-app-v0.1.1-alpha1`,
+`api-v0.1.1-alpha1`.
+
 ## 2026-04-22
 
 ### Root README refactor for dev onboarding ([PR #572](https://github.com/benoit-bremaud/brasse-bouillon/pull/572))

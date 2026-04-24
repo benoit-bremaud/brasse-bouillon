@@ -16,7 +16,7 @@ Every DIY DOG page is a **single recipe on one A4 sheet**. The structure is rema
 |---|---|---|
 | Recipe number | `#1`, `#49`, `#50` | Sequential within the book — not necessarily a schema concern. |
 | Beer name | `PUNK IPA`, `SANTA PAWS`, `AB:09` | |
-| Version era / lifecycle tag | `2007 - 2010`, `2010 - CURRENT`, empty | Multiple versions of the same beer exist as **distinct** recipe records. See §3 versioning. |
+| Version era / lifecycle tag | `2007 - 2010`, `2010 - CURRENT`, empty | Multiple versions of the same beer exist as **distinct** recipe records. See Open Questions (Q1) on versioning. |
 | First brewed | `APRIL 2007`, `OCTOBER 2010`, `NOVEMBER 2010` | Month + year. Not edited after creation. |
 | Tagline / style line | `POST MODERN CLASSIC. SPIKY. TROPICAL. HOPPY.`, `CHRISTMAS SCOTCH ALE.`, `CRANACHAN IMPERIAL STOUT.` | Free-text marketing copy. One sentence + flavour descriptors. |
 | Header metrics | `ABV 6%`, `IBU 60`, `OG 1056` | Summary row — the three numbers a brewer scans first. |
@@ -54,7 +54,7 @@ Extra Pale           5.3kg   11.7lb
 Extra Pale           4.38kg  9.6lb
 Caramalt             0.25kg  0.55lb
 Carafa Special Malt Type 3   0.13kg   0.28lb
-Weyermann Beech Smoked       0.63kg   0.14lb
+Weyermann Beech Smoked       0.63kg   1.39lb
 ```
 
 **Hops**: variety + weight (g) + Add (timing stage) + Attribute (purpose). Variable-length. Example rows:
@@ -132,11 +132,11 @@ The NestJS api models **per-user recipes and brewing batches**. It has a surpris
 |---|---|---|
 | `RecipeOrmEntity` | id, owner_id, name, description, visibility, version, root_recipe_id, parent_recipe_id, batch_size_l, boil_time_min, og_target, fg_target, abv_estimated, ibu_target, ebc_target, efficiency_target | Header + "This beer is" + "Basics" (partial) |
 | `RecipeFermentableOrmEntity` | recipe_id, name, (type), weight_g, potential_gravity, color_ebc | "Ingredients → Malt" |
-| `RecipeHopOrmEntity` | recipe_id, variety, (form), weight_g, alpha_acid_percent, (use_timing), addition_time_min | "Ingredients → Hops" |
-| `RecipeYeastOrmEntity` | recipe_id, name, (form), amount_g, attenuation_percent, temperature_min_c, temperature_max_c | "Ingredients → Yeast" |
+| `RecipeHopOrmEntity` | recipe_id, variety, type: `RecipeHopType`, weight_g, alpha_acid_percent, addition_stage: `RecipeHopAdditionStage`, addition_time_min | "Ingredients → Hops" |
+| `RecipeYeastOrmEntity` | recipe_id, name, type: `RecipeYeastType`, amount_g, attenuation_percent, temperature_min_c, temperature_max_c | "Ingredients → Yeast" |
 | `RecipeWaterOrmEntity` | recipe_id (PK), mash_volume_l, sparge_volume_l, mash_temperature_c, sparge_temperature_c, calcium_ppm, magnesium_ppm, sulfate_ppm, chloride_ppm, ph_target | "Method → Mash" + water chemistry (going beyond DIY DOG, which does not surface water chem) |
-| `RecipeAdditiveOrmEntity` | recipe_id, name, (kind), amount_g, (usage_stage), addition_time_min | "Twist" — exactly the right shape for honey, lactose, fruits, spices. |
-| `RecipeStepOrmEntity` | recipe_id (PK), step_order (PK), (step_type), label, description | Free-form procedural steps. Covers mash holds, boil notes, fermentation milestones. |
+| `RecipeAdditiveOrmEntity` | recipe_id, name, type: `RecipeAdditiveType`, amount_g, addition_step: `RecipeStepType`, addition_time_min | "Twist" — exactly the right shape for honey, lactose, fruits, spices. |
+| `RecipeStepOrmEntity` | recipe_id (PK), step_order (PK), type: `RecipeStepType`, label, description | Free-form procedural steps. Covers mash holds, boil notes, fermentation milestones. |
 
 **Diagnosis** — the NestJS side is **90% ready** for recipe ingestion. Most DIY DOG fields already have a home. The gaps (§3 below) are targeted additions, not a re-architecture.
 
@@ -195,7 +195,7 @@ Recipes therefore live in `packages/api/`. The encyclopedia's `Beer` record poin
 
 | DIY DOG field | Status | Target | Required change |
 |---|---|---|---|
-| Mash temp + duration (single step) | ✅ | `recipe_water.mash_temperature_c` + a `recipe_step` with `step_type='mash'` + duration | none for the simple case. For multi-step mashes, `recipe_step` scales. |
+| Mash temp + duration (single step) | 🔧 | `recipe_water.mash_temperature_c` covers the temperature, but `recipe_steps` has no structured duration field today (only `type`, `label`, `description`) | Add `recipe_steps.duration_min` (nullable INTEGER) so mash / boil / fermentation durations are queryable. Multi-step mashes then become multiple timed `recipe_step` rows. |
 | Fermentation temp | 🔧 | `recipe_yeast.temperature_min_c` / `max_c` cover the yeast's viable range — not the **target** the brewer should hold | Add `recipes.fermentation_target_c` (nullable REAL) for the brewer's chosen temperature within the yeast's range. |
 | Boil time | ✅ | `recipes.boil_time_min` | none |
 
@@ -215,10 +215,10 @@ Recipes therefore live in `packages/api/`. The encyclopedia's `Beer` record poin
 |---|---|---|---|
 | Variety | ✅ | `recipe_hop.variety` | none |
 | Weight (g) | ✅ | `recipe_hop.weight_g` | none |
-| Add (`Start`/`Middle`/`End`/`Dry Hop`) | 🔧 | schema has `use_timing` column with an enum-like string | Need to check the current enum values — they must include those four + their interaction with `addition_time_min`. Propose canonical set: `start`, `middle`, `end`, `whirlpool`, `dry_hop`. **Decision needed.** |
+| Add (`Start`/`Middle`/`End`/`Dry Hop`) | ✅ | `recipe_hop.addition_stage` (`RecipeHopAdditionStage`) + `recipe_hop.addition_time_min` | The current schema already represents these values: `Start` / `Middle` / `End` map to `addition_stage = boil` with different `addition_time_min` values, and `Dry Hop` maps to `addition_stage = dry_hop`. Extra stages `whirlpool` and `first_wort` are broader than DIY DOG — not a gap. No schema change needed unless a source uses a hop-use value that cannot be expressed as stage + time. |
 | Attribute (`Bitter`/`Flavour`/`Aroma`) | ➕ | — | Add `recipe_hop.attribute` (nullable VARCHAR with CHECK: `bitter` / `flavour` / `aroma`). Documentary — the algorithm infers bitterness / flavour from addition time already, but preserving the authoring intent is useful for UX and for the matching algo (§ADR-0001: shapes anticipate evolution). |
 | Alpha acid % | ✅ | `recipe_hop.alpha_acid_percent` | nullable; DIY DOG doesn't expose it but the ingestion can look it up from the `ingredient` catalog where possible. |
-| Addition time (min) | ✅ | `recipe_hop.addition_time_min` | derivable from `Add` stage + boil time (Start = full boil, End = 0 min, Dry Hop = N/A). |
+| Addition time (min) | ✅ | `recipe_hop.addition_time_min` | Store explicit minutes for boil additions (`Start` = full boil duration, `Middle` = intermediate, `End` ≈ 0). For `Dry Hop`, `addition_time_min` is typically null — the stage itself is carried by `addition_stage`. |
 
 ### 3.7 Ingredients — Yeast
 
@@ -238,8 +238,8 @@ The DIY DOG "Twist" maps **directly** to `RecipeAdditiveOrmEntity`:
 |---|---|---|---|
 | Name (`Honey`, `Lactose`, `Raspberries`) | ✅ | `recipe_additive.name` | none |
 | Amount (g) | ✅ | `recipe_additive.amount_g` | none |
-| Stage (`FV` = Fermentation Vessel) | 🔧 | `recipe_additive.usage_stage` exists | Confirm enum values include `fermentation`, `boil`, `secondary`, `bottling`. If not, expand. **Verify in Phase 2.** |
-| Kind (fruit / spice / sugar / other) | 🔧 | `recipe_additive.kind` exists | Confirm enum values cover DIY DOG's range (fruit, sugar, dairy, honey, spice, herb). |
+| Stage (`FV` = Fermentation Vessel) | 🔧 | `recipe_additive.addition_step` (`RecipeStepType`) | Confirm `RecipeStepType` can represent DIY DOG adjunct timing (`fermentation` / FV, `boil`, `secondary`, `bottling` / packaging). If gaps, extend or define a mapping. **Verify in Phase 2.** |
+| Kind (fruit / spice / sugar / other) | 🔧 | `recipe_additive.type` (`RecipeAdditiveType`) | Confirm `RecipeAdditiveType` covers DIY DOG adjunct categories (fruit, sugar, dairy / lactose, honey, spice, herb). If gaps, extend or define a mapping in Phase 2. |
 
 ### 3.9 Food pairing
 
@@ -265,28 +265,33 @@ The DIY DOG "Twist" maps **directly** to `RecipeAdditiveOrmEntity`:
 
 ## 4. Consolidated gap — what needs to change
 
-**On `recipes`** — 13 new columns for this epic (items 1-13 below, mostly nullable scalars, 1 nullable FK). 4 additional quality columns (item 14) are tracked in Epic #693 part 2/n and listed here only for context — they are **not** in scope for this epic:
+**On `recipes`** — 13 new columns in scope for this epic (mostly nullable scalars, 1 nullable UUID link). Stored as cross-DB-safe shapes (JSON-serialized TEXT for multi-valued fields so the same schema runs on SQLite + PostgreSQL without divergence):
 
 1. `version_label` VARCHAR(50) nullable — human readable era ("2007 - 2010")
 2. `first_brewed_at` DATE nullable
 3. `tagline` VARCHAR(200) nullable
-4. `flavour_descriptors` TEXT nullable (JSON array OR comma-joined)
+4. `flavour_descriptors` TEXT nullable (JSON array serialized as TEXT)
 5. `boil_size_l` REAL nullable
 6. `srm_target` REAL nullable — **OR** computed from `ebc_target` at query time (brainstorm decision)
 7. `ph_target_wort` REAL nullable
 8. `attenuation_target_percent` REAL nullable
 9. `fermentation_target_c` REAL nullable
-10. `food_pairings` TEXT nullable (JSON array OR newline-joined)
+10. `food_pairings` TEXT nullable (JSON array serialized as TEXT)
 11. `brewer_tip` TEXT nullable
 12. `beer_id` UUID nullable (loose link to encyclopedia, no FK)
 13. `source` VARCHAR(20) NOT NULL DEFAULT 'user_authored' + CHECK (extends Epic #693 pattern)
-14. `avg_rating`, `brew_count`, `last_brewed_at`, `is_official` — tracked in Epic #693 part 2/n (not this epic).
+
+**On `recipe_steps`** — 1 new column:
+
+1. `duration_min` INTEGER nullable — surfaces mash / boil / fermentation duration so it's queryable (currently `recipe_steps` only has `type`, `label`, `description`).
 
 **On `recipe_hops`** — 1 new column:
 
 1. `attribute` VARCHAR(20) nullable + CHECK (`bitter` / `flavour` / `aroma`)
 
-**On `recipe_hops.use_timing` / `recipe_additive.usage_stage`** — verify enum values match DIY DOG. If gaps, extend.
+**Not in scope for this epic (context only)** — 4 quality columns on `recipes` (`avg_rating`, `brew_count`, `last_brewed_at`, `is_official`) are tracked in Epic #693 part 2/n. Listed here so the Phase 2 brainstorm can sequence migrations, but excluded from Phase 3 scope.
+
+**Enum verification** — `RecipeHopAdditionStage` already covers DIY DOG hop-use values (§3.6). `RecipeStepType` and `RecipeAdditiveType` need a Phase 2 check against DIY DOG adjunct taxonomy (fermentation / boil / secondary / bottling; fruit / sugar / dairy / honey / spice / herb) — extend only if gaps surface.
 
 **On `recipe_yeasts.product_code`** — optional (deferred).
 

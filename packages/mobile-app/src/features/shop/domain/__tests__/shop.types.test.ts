@@ -1,8 +1,8 @@
 import {
   DEFAULT_PRICE_UNIT_BY_CATEGORY,
-  Product,
   getProductPriceUnit,
 } from "@/features/shop/domain/shop.types";
+import type { Product } from "@/features/shop/domain/shop.types";
 
 function buildProduct(overrides: Partial<Product> = {}): Product {
   return {

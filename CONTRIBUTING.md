@@ -147,7 +147,16 @@ deliberately refuses to trigger `pull_request` workflows on events created
 by its own internal `GITHUB_TOKEN` (to prevent infinite loops). Without a
 user PAT, every release-please PR would get stuck `BLOCKED` by branch
 protection because the required CI checks (`changes`, `mobile-app`, `api`,
-`SonarCloud Scan`) never start.
+`security-audit`, `SonarCloud Scan`, `SonarCloud Code Analysis`) never
+start.
+
+Because the workflow uses `RELEASE_PLEASE_TOKEN`, the resulting PRs,
+tags, and releases are attributed to the **PAT owner** (not to
+`github-actions[bot]`). Downstream workflows that detect release-please
+PRs must therefore guard on the branch name pattern
+`release-please--*` + the `autorelease: pending` label, not on
+`user.login == 'github-actions[bot]'`. See
+`.github/workflows/release-please-metadata.yml` for the canonical guard.
 
 The current PAT is scoped to this repository only with the following
 permissions:
@@ -167,8 +176,11 @@ permissions:
 4. Update the expiration date in this document and in the inline comment
    of `.github/workflows/release-please.yml`.
 
-Missing the rotation means release-please workflows fail silently on the
-next release cycle until the PAT is renewed. Set a calendar reminder for
+Missing the rotation means the `Release Please` workflow will fail with
+an **authentication error** on the next release cycle until the PAT is
+renewed. The error is visible as a failed run on the Actions tab, but
+can go unnoticed if no one checks — the usual symptom is that no
+release PR appears after a merge. Set a calendar reminder for
 `2027-03-24` (one month before expiration).
 
 ### What NOT to do

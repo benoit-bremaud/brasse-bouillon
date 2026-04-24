@@ -24,24 +24,37 @@ Per the hybrid monorepo release strategy (see [CONTRIBUTING.md](../CONTRIBUTING.
 
 ### Why `creation` is not blocked
 
-release-please runs inside GitHub Actions as `github-actions[bot]` and
-uses the default `GITHUB_TOKEN`. That token is **not** an admin and
-cannot bypass an admin-only creation rule. Blocking creation while
-still wanting automated release tags creates a deadlock.
+As of 2026-04-24, release-please authenticates with a **fine-grained
+Personal Access Token** stored as the `RELEASE_PLEASE_TOKEN` secret
+(see `CONTRIBUTING.md` §Release Workflow → Authentication). The PRs
+and tags it creates are therefore attributed to the **PAT owner**
+(`@benoit-bremaud`, an admin), not to `github-actions[bot]`.
 
-Two possible resolutions were considered:
+The PAT owner is an admin with `always` bypass on this ruleset, so
+they could cross an admin-only creation rule. We still keep `creation`
+unblocked to preserve two properties:
 
-1. **Allow creation for everyone** (chosen for v0) — creation rule
-   removed from the ruleset. Tags become immutable once created
-   (`update` + `deletion` still blocked), which preserves the audit
-   integrity goal. The small risk of rogue tag creation is
-   acceptable for a private solo-dev repo.
-2. **Use a PAT with Integration bypass** (future option) — generate
-   a PAT with `contents: write` + `workflows: write`, store as
-   `secrets.RELEASE_PLEASE_TOKEN`, pass to the release-please action
-   via `token:`. Add the PAT owner as a bypass actor. More secure
-   but adds setup complexity. Track as tech-debt if the repo goes
-   public.
+1. **Determinism** — tags always appear promptly without any admin
+   bypass step at release time.
+2. **No infrastructure deadlock** — should the PAT ever be swapped for
+   a GitHub App (e.g. if the repo goes public and we want automation
+   that does not depend on a personal credential), the creation rule
+   would already be compatible.
+
+Tags remain **immutable once created** (`update` + `deletion` still
+blocked with admin-only bypass), which preserves the audit integrity
+goal. The small risk of rogue tag creation is acceptable for a
+private solo-dev repo.
+
+### Historical note
+
+The previous setup (before 2026-04-24) used the default `GITHUB_TOKEN`
+with release-please running as `github-actions[bot]`. That setup
+worked for tags, but had a separate side-effect: CI workflows did not
+trigger on release-please PRs (GitHub refuses to trigger
+`pull_request` workflows from events created by its own internal
+token, to prevent infinite loops). The PAT switch fixes both concerns
+in one change.
 
 ## Apply (one-time, by owner)
 

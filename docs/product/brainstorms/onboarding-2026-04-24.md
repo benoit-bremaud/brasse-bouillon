@@ -2,13 +2,13 @@
 
 **Session** — ~90 min structured Q&A with the product owner.
 **Status** — 20 decisions taken and validated across 3 phases (scope / identity / scan auth pattern). 2 phases parked for a future session (UX redesign + stack selection).
-**Next step** — Phase 3 (UX redesign of the signup/login forms) and Phase 4 (auth stack selection: Custom NestJS JWT vs Supabase vs Clerk vs Firebase). Both in a future session, then translate into GitHub sub-issues for pre-soutenance execution.
+**Next step** — Phase 4 (UX redesign of the signup/login forms) and Phase 5 (auth stack selection: Custom NestJS JWT vs Supabase vs Clerk vs Firebase). Both in a future session, then translate into GitHub sub-issues for pre-soutenance execution.
 
 ---
 
 ## Product context
 
-The Onboarding journey is Tier 1 in the demo narrative (see memory `feedback_journey_driven_planning.md`). It is the first screen the jury will see on 2026-05-27. Today, the auth page is a 3-tab form (login / signup / forgot-password) that is not wired to the backend (B-13 bis) and that the product owner flagged as *"nulle à chier"* — to be redesigned from scratch.
+The Onboarding journey is Tier 1 in the demo narrative. It is the first screen the jury will see on 2026-05-27. Today, the auth page is a 3-tab form (login / signup / forgot-password) that is not wired to the backend (B-13 bis) and that the product owner flagged as *"nulle à chier"* — to be redesigned from scratch.
 
 This session does **not** redesign pixels. It scopes what an account is *for*, how it is acquired, what it requires, and how the scan hero (Tier 1 journey #2) interacts with it. The UX redesign and the stack selection happen in a follow-up session, once the scope is unambiguous.
 
@@ -287,7 +287,7 @@ Three architectural costs hidden behind β, flagged for the stack selection:
 
 ## 4. Parked for future sessions
 
-### 4.1 Phase 3 — UX redesign of signup / login / reset
+### 4.1 Phase 4 — UX redesign of signup / login / reset
 
 Out of scope of this session. To tackle in a follow-up brainstorm:
 
@@ -299,9 +299,9 @@ Out of scope of this session. To tackle in a follow-up brainstorm:
 - Onboarding skippable screen layout (single-scroll vs multi-step).
 - Accessibility (contrast, screen reader, reduced motion).
 
-### 4.2 Phase 4 — Auth stack selection
+### 4.2 Phase 5 — Auth stack selection
 
-Out of scope of this session. To tackle after Phase 3:
+Out of scope of this session. To tackle after Phase 4:
 
 - **Custom NestJS JWT + bcrypt + Passport** — full control, most code, highest alignment with the current `packages/api/`. Maximum flexibility but slowest to ship.
 - **Supabase Auth** — managed Postgres + auth + Row Level Security. Drop-in, strong ecosystem, generous free tier. Requires rethinking how `packages/api/` coexists with Supabase as the source of truth.
@@ -311,9 +311,9 @@ Out of scope of this session. To tackle after Phase 3:
 
 Decision matrix will weigh: time to ship vs control vs cost vs fit with the current NestJS monorepo vs scan backend anonymity (MH4) vs Mes Brassins local-first compatibility.
 
-### 4.3 Phase 5 — Onboarding full journey implementation
+### 4.3 Phase 6 — Onboarding full journey implementation
 
-Out of scope until Phase 3 + 4 are done. Will be decomposed into GitHub issues per screen (login, signup, Google OAuth callback, password reset, email verification, onboarding skippable) and scheduled for pre-soutenance execution.
+Out of scope until Phase 4 + 5 are done. Will be decomposed into GitHub issues per screen (login, signup, Google OAuth callback, password reset, email verification, onboarding skippable) and scheduled for pre-soutenance execution.
 
 ---
 
@@ -323,17 +323,17 @@ The decisions in this session have the following impact on the existing backlog:
 
 | Backlog item | Impact |
 |---|---|
-| **B-13 bis — Auth backend not wired** | Fully scoped. Ready for execution once stack is chosen in Phase 4. |
+| **B-13 bis — Auth backend not wired** | Fully scoped. Ready for execution once stack is chosen in Phase 5. |
 | **#602 — feat(auth): wire login endpoint + JWT expo-secure-store** | Confirmed approach: short access + long refresh, both via expo-secure-store. No change to the issue description. |
 | **#603 — feat(auth): wire signup + forgot-password endpoints** | Signup content expanded: email + password OR Google, followed by skippable onboarding. Forgot-password = standard email link. |
-| **#604 — fix(auth): error states polish** | Confirmed in scope. Phase 3 will detail the visual states. |
+| **#604 — fix(auth): error states polish** | Confirmed in scope. Phase 4 will detail the visual states. |
 | **#644 — Merge Paramètres into Profil** | Impact: the merged screen hosts the "Add provider" / "Add password to Google account" flows defined in §2.3. Hosts the unit toggle binding for Epic #713. |
 | **#645 — Complete Profil (editable fields, avatar, password, stats, RGPD)** | Confirmed. The onboarding skippable (§2.5) generates default values; the user edits them here. |
 | **#647 — About footer line (version + commit + build date)** | Unchanged, still ships with B-70. |
 | **#593 — Epic auth wiring (login / signup / forgot-password)** | This brainstorm is the product scoping for #593. Next step: translate §4.1 + §4.2 into sub-issues. |
 | **#713 — Epic unit conversion** | Linked: the unit toggle is set in the onboarding skippable (§2.5). |
 | **#598 / #599 / #600 / #601 — Scan tranche 2 sub-issues** | Confirmed: scan is anonymous backend (§3.5 implication #2), login wall at import (§3.4). |
-| **#694 — Epic merge nav + account** | Unchanged. |
+| **#611 — Epic unify 3 overlapping nav layers** | Unchanged. The auth flow lands on a cleaned navigation shell whose scope is owned by #611. |
 
 New backlog items to open after this brainstorm ships:
 
@@ -343,12 +343,12 @@ New backlog items to open after this brainstorm ships:
 
 ---
 
-## 6. Open questions (for Phase 3 + Phase 4 sessions)
+## 6. Open questions (for Phase 4 + Phase 5 sessions)
 
 1. **Wireframe of the signup screen** — single-screen vs multi-step? Google button above or below the email field?
 2. **Wireframe of the post-signup onboarding** — single long scroll vs 3 swipeable cards?
 3. **Stack selection** — which of the 5 candidates in §4.2 wins the decision matrix?
 4. **Email deliverability strategy** — which SMTP provider (SendGrid / Postmark / SES / Mailjet / Resend)? Or does the stack choice already ship with one (Supabase: yes; Clerk: yes; Custom NestJS: no)?
 5. **Biometric re-auth in v0.2** — confirmed deferred, but worth a design sketch.
-6. **i18n of all auth copy (FR/EN)** — deferred until after soutenance per memory `feedback_ui_french_only.md` and the v0.2 roadmap.
+6. **i18n of all auth copy (FR/EN)** — deferred until after soutenance; v0.1 keeps French-only copy, full FR/EN internationalization moved to the v0.2 roadmap.
 7. **Analytics of the funnel** — how do we measure signup drop-off (which step, what error)? Is PostHog / Plausible / Mixpanel in scope for v0.1?

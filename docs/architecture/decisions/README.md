@@ -44,6 +44,7 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0001](0001-build-for-today-design-for-tomorrow.md) | Build for today, design for tomorrow | Accepted | 2026-04-24 |
 | [0002](0002-centralized-nestjs-backend.md) | Centralized NestJS backend for all external data sources | Accepted | 2026-04-24 |
 | [0003](0003-consent-single-source-of-truth.md) | Consent as a single source of truth | Accepted | 2026-04-24 |
+| [0004](0004-data-locality-hybrid-principle.md) | Data locality: hybrid principle | Accepted | 2026-04-24 |
 
 ---
 

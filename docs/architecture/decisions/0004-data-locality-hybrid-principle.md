@@ -90,12 +90,16 @@ decomposition) plus its direct dependencies:
   free-text notes, photos).
 - Equipment checklist for the selected batch.
 
-The passive fermentation and maturation tails (brew phases 8–11:
-secondary fermentation, maturation, bottling, carbonation / storage)
-can tolerate occasional network use because the user interaction is
-ad-hoc. Bottling (phase 10) stays within the local-first boundary
-because the priming-sugar calculation and sanitization checklist
-happen in a single active session similar to the brew day.
+Brew phases **2 to 10 remain entirely within the local-first
+boundary**, including the lower-interaction tail of secondary
+fermentation, maturation, and bottling. In phases 8 and 9, sync may
+happen opportunistically when connectivity exists, but the
+user-visible critical path MUST still work 100 % offline. Bottling
+(phase 10) is explicitly included in that boundary because the
+priming-sugar calculation and sanitization checklist happen in a
+single active session similar to the brew day. Only phase 11
+(carbonation / storage) sits outside the local-first scope and may
+rely on occasional network use.
 
 ### Scope of cloud-first (v0.1)
 
@@ -125,8 +129,8 @@ Everything else is cloud-first with HTTP cache:
   and therefore benefits from a simple request/response model without
   sync-engine complexity.
 - **Demo resilience** — the 2026-05-27 defense can show the scan + import
-  flow on cloud-first while the Mes Brassins demo can be shown with a
-  toggled-off wifi to highlight offline capability.
+  flow on cloud-first while the Mes Brassins demo can be shown with
+  Wi-Fi turned off to highlight offline capability.
 - **Scales to v0.2 community** — the cloud-first half naturally grows
   into a multi-device + community platform without re-architecting.
 
@@ -135,8 +139,8 @@ Everything else is cloud-first with HTTP cache:
 - **Two implementations of many features** — recipe read, ingredient
   read, calculators: one version in NestJS (cloud-first) and one
   cached in the mobile app (local-first). Duplication risk mitigated
-  by strict domain alignment (same Pydantic / TypeScript types on
-  both sides).
+  by strict domain alignment (same TypeScript domain types and
+  contracts on both sides).
 - **Sync engine required for Mes Brassins** — the mobile app must
   eventually reconcile local-first batch data with the NestJS backend
   (for multi-device, for the community "I brewed this recipe" signal).
@@ -181,7 +185,7 @@ they MUST NOT build a sync engine on top of the cache.
 
 ---
 
-## Links
+## References
 
 - `docs/product/brainstorms/onboarding-2026-04-24.md` — §1.3 to §1.7,
   the brainstorm where this principle was validated.

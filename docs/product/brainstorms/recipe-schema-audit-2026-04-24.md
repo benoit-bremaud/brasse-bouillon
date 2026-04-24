@@ -265,7 +265,7 @@ The DIY DOG "Twist" maps **directly** to `RecipeAdditiveOrmEntity`:
 
 ## 4. Consolidated gap — what needs to change
 
-**On `recipes`** — 10 new columns (mostly nullable scalars, 1 nullable FK):
+**On `recipes`** — 13 new columns for this epic (items 1-13 below, mostly nullable scalars, 1 nullable FK). 4 additional quality columns (item 14) are tracked in Epic #693 part 2/n and listed here only for context — they are **not** in scope for this epic:
 
 1. `version_label` VARCHAR(50) nullable — human readable era ("2007 - 2010")
 2. `first_brewed_at` DATE nullable

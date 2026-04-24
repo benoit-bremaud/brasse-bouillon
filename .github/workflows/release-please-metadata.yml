@@ -24,14 +24,17 @@ jobs:
   apply-metadata:
     name: Apply metadata to release-please PR
     # Guard on three conditions:
-    # 1. PR authored by release-please
-    # 2. PR has the autorelease: pending marker
+    # 1. PR branch follows the release-please naming convention (stable
+    #    regardless of the author — with GITHUB_TOKEN, PRs are authored
+    #    by `github-actions[bot]`; with a PAT, PRs are authored by the
+    #    PAT owner).
+    # 2. PR has the autorelease: pending marker.
     # 3. When triggered by the `labeled` action, only react to the marker
     #    label itself — otherwise the workflow would re-trigger on every
     #    label it adds (type:chore, scope:*, priority:medium), wasting
     #    runs and API calls.
     if: >
-      github.event.pull_request.user.login == 'github-actions[bot]' &&
+      startsWith(github.event.pull_request.head.ref, 'release-please--') &&
       contains(github.event.pull_request.labels.*.name, 'autorelease: pending') &&
       (github.event.action != 'labeled' || github.event.label.name == 'autorelease: pending')
     runs-on: ubuntu-latest

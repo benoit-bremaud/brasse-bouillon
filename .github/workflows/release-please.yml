@@ -20,9 +20,21 @@ jobs:
     name: Release Please
     runs-on: ubuntu-latest
     steps:
+      # Use a fine-grained PAT stored as RELEASE_PLEASE_TOKEN. The default
+      # GITHUB_TOKEN cannot be used here because GitHub deliberately refuses
+      # to trigger `pull_request` workflows on events created by its own
+      # internal token (to prevent infinite loops). Consequence with the
+      # default token: every release-please PR gets stuck `BLOCKED` because
+      # the required CI checks (changes / mobile-app / api / SonarCloud)
+      # never start. With a user PAT, the PR is seen as created by a real
+      # user and the CI runs normally.
+      #
+      # Rotation: the PAT expires on 2027-04-24. See issue #703 and
+      # CONTRIBUTING.md §Release workflow for the rotation procedure.
       - uses: googleapis/release-please-action@v4
         id: release
         with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: main

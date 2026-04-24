@@ -139,6 +139,38 @@ in `release-please-config.json` and manifest in
    - Merge the release PR
    - release-please automatically tags + creates the GitHub Release
 
+### Authentication — fine-grained PAT
+
+release-please uses a **fine-grained Personal Access Token** stored as the
+`RELEASE_PLEASE_TOKEN` secret, not the default `GITHUB_TOKEN`. GitHub
+deliberately refuses to trigger `pull_request` workflows on events created
+by its own internal `GITHUB_TOKEN` (to prevent infinite loops). Without a
+user PAT, every release-please PR would get stuck `BLOCKED` by branch
+protection because the required CI checks (`changes`, `mobile-app`, `api`,
+`SonarCloud Scan`) never start.
+
+The current PAT is scoped to this repository only with the following
+permissions:
+
+- `Contents: Read and write`
+- `Pull requests: Read and write`
+- `Issues: Read and write`
+- `Metadata: Read-only` (auto-required)
+
+**Rotation** — the PAT expires on **2027-04-24**. Before that date:
+
+1. Open [GitHub → Settings → Personal access tokens → Fine-grained tokens](https://github.com/settings/personal-access-tokens).
+2. Regenerate the `Brasse-Bouillon release-please` token with the same
+   permissions above and a new expiration date (recommended: 1 year).
+3. Copy the new token, go to [Repo Settings → Secrets and variables → Actions](https://github.com/benoit-bremaud/brasse-bouillon/settings/secrets/actions)
+   and update the `RELEASE_PLEASE_TOKEN` secret value.
+4. Update the expiration date in this document and in the inline comment
+   of `.github/workflows/release-please.yml`.
+
+Missing the rotation means release-please workflows fail silently on the
+next release cycle until the PAT is renewed. Set a calendar reminder for
+`2027-03-24` (one month before expiration).
+
 ### What NOT to do
 
 - **Never `git tag` manually.** All tags are created by release-please.

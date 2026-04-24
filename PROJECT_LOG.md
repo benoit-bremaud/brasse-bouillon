@@ -46,8 +46,8 @@ All 5 valid, all fixed in `235c6a0`:
   Stack Phase 5, Implementation Phase 6).
 - 2 agent-memory file references dropped and inlined (they live
   outside the repo, readers could not resolve them).
-- `#694` mismap corrected to `#611` (the actual navigation-unify epic;
-  `#694` is the merged B-70 About footer PR).
+- `#694` mis-mapping corrected to `#611` (the actual navigation-unify
+  epic; `#694` is the merged B-70 About footer PR).
 
 Impacts 11 existing backlog items and opens 3 new follow-ups for a
 future session (guest session storage + migration, dual route
@@ -70,10 +70,11 @@ merge of PR #712 (recipe schema audit) and for the new Epic #713
 (unit conversion). Branch `chore/project-log-2026-04-24-pr712`.
 
 Review cycle — 1 round: Copilot flagged that the log wording said
-"13 nullable columns" while the audit actually declares `source
-VARCHAR(20) NOT NULL DEFAULT`. Fixed in `f22d1e7` by splitting the
-claim into "13 columns (12 nullable + required `source`)" so the log
-entry stays factually aligned with the audit document.
+"13 nullable columns" while the audit actually declares the `source`
+column as `VARCHAR(20) NOT NULL DEFAULT 'user_authored'`. Fixed in
+`f22d1e7` by splitting the claim into "13 columns (12 nullable +
+required `source`)" so the log entry stays factually aligned with the
+audit document.
 
 ### PR #712 merged (`499f91c`) — Recipe schema audit (Epic #708 Phase 1)
 

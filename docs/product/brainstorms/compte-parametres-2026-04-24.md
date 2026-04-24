@@ -31,7 +31,7 @@ axis. Each axis is taken one by one with an explicit cut policy for the MVP.
 | A | Identity (account level) | Display name + bio + **text-only avatar** |
 | B | Brewer identity (stats + level + badges) | Stats + Level (N2) — badges deferred |
 | C | Preferences (theme, units, notifications, privacy) | Theme full + Units **stub on one screen** + Notifications/Privacy stubs |
-| D | Data & RGPD | Export stub + Delete real + **Consent collection only** |
+| D | Data & GDPR | Export stub + Delete real + **Consent collection only** |
 | E | Social / community | **None in MVP** |
 | F | About / support | Full "About" panel (version + commit + build + OTA info) |
 | G | Demo readiness | Reviewed during rehearsal session |
@@ -51,10 +51,12 @@ five concrete items to v0.2 :
 | Browseable consent log | Silent consent collection into storage | ~1 day |
 | Badges (complete set) | Level only (N2), no badge grid | ~2 days |
 | Avatar upload | Text-only initial avatar | ~0.5 day |
-| RGPD ZIP export (real build) | "Coming soon" stub message | ~1 day |
+| GDPR ZIP export (real build) | "Coming soon" stub message | ~1 day |
 
-**Net MVP estimate** : ~18 days of focused work for the merged screen, fitting within
-the 24-day runway once Scan Tranche 2 is factored in.
+**Net MVP estimate** : ~7-8 days of focused work for the merged screen
+(see Section 10 for the chunk-level breakdown). The cuts above bring the
+full-scope ballpark (25-36 days) down to this chunk-level number, which
+fits alongside Scan Tranche 2 within the 24-day runway.
 
 ---
 
@@ -112,7 +114,7 @@ notification system — all of that is discretionary for v0.1.
 
 ---
 
-## 5. Axis C — Preferences ("soyons fou")
+## 5. Axis C — Preferences (ambitious scope)
 
 ### Scope — MVP
 
@@ -147,7 +149,7 @@ dispatch infrastructure.
 
 ---
 
-## 6. Axis D — Data & RGPD
+## 6. Axis D — Data & GDPR
 
 ### Scope — MVP
 
@@ -170,7 +172,7 @@ dispatch infrastructure.
 
 ### Rationale
 
-The RGPD obligation that matters for the defense is **the ability to delete
+The GDPR obligation that matters for the defense is **the ability to delete
 an account**. Export is a "coming soon" message that keeps the regulator
 happy without a build cost. Consent is collected silently — the legal trace
 exists, the UI to browse it is nice-to-have.
@@ -207,10 +209,11 @@ ships, there is nothing to surface on this screen.
 - **Build date**, injected at build time.
 - **OTA channel info** (release channel + last OTA update timestamp), read
   from Expo Updates APIs.
-- **What's new** link pointing at `CHANGELOG.md` (external link in MVP).
-- **Legal** : terms, privacy policy, mentions légales — pages exist as
-  static screens with placeholder copy, real text lands during the defense
-  rehearsal week.
+- **What's new** link pointing at `packages/mobile-app/CHANGELOG.md`
+  (external link in MVP).
+- **Legal** : terms, privacy policy, legal notice (`Mentions légales` in
+  the French UI) — pages exist as static screens with placeholder copy,
+  real text lands during the defense rehearsal week.
 - **Acknowledgements** : credits + open-source licences auto-generated.
 
 ### Deferred to v0.2
@@ -269,7 +272,7 @@ MVP — fits alongside Scan Tranche 2 within the remaining runway.
 | 5 | Axis B deferred | Badges grid + authored recipes list + public profile → v0.2 |
 | 6 | Axis C (prefs) | Theme full + Units stub (one screen) + Notifications/Privacy stubs |
 | 7 | Axis C deferred | Units on every screen + real notification pipelines → v0.2 |
-| 8 | Axis D (RGPD) | Export stub message + Delete real + Consent collection only |
+| 8 | Axis D (GDPR) | Export stub message + Delete real + Consent collection only |
 | 9 | Axis D deferred | Real ZIP export + browseable consent log → v0.2 |
 | 10 | Axis E (social) | None in MVP |
 | 11 | Axis F (about) | Full panel : version + commit + build + OTA channel |

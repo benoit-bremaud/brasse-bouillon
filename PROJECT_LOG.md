@@ -15,24 +15,24 @@ hero** of the 2026-05-27 defense. 18 decisions taken and validated,
 documented in a new reference file
 [`docs/product/brainstorms/scan-2026-04-24.md`](docs/product/brainstorms/scan-2026-04-24.md).
 
-Key decisions :
+Key decisions:
 
 - **Primary persona** — curious amateur who wants to learn to brew
   (not the experienced brewer persona); drives all UX choices.
-- **Product metaphor** — pharmacy : official brewery recipe as the
+- **Product metaphor** — pharmacy: official brewery recipe as the
   brand-name medicine, community recipes as generics. Structures
   vocabulary, visuals, and embedded pedagogy.
 - **UX structure** — Hero photo + essentials + recipes visible
   without scroll + technical details and brewery story in
   lazy-loaded folds. Sections with fewer than 3 filled fields
   auto-hide.
-- **Matching algorithm** — multi-criteria score :
+- **Matching algorithm** — multi-criteria score:
   `Similarity × 70% + Quality × 30%` where Similarity combines
   Style/ABV/Bitterness/Color weighted 50/25/15/10 (with weight
   renormalization when a criterion is missing), and Quality combines
   AvgRating/BrewCount_confidence/Recency weighted 60/30/10. Official
   recipes have Similarity = 100% by definition.
-- **Little-known beers strategy** — hybrid vision : read-only display
+- **Little-known beers strategy** — hybrid vision: read-only display
   + discreet `mailto:` for correction suggestions. No community
   backend in MVP, but the data model is prepared for V2 (source,
   contributedBy, contributedAt fields; stub endpoints returning
@@ -51,7 +51,7 @@ Key decisions :
   tomorrow"*. To be formalized as **ADR-001** in the upcoming
   Architecture session.
 
-Copilot review on #686 caught two real issues : the document was
+Copilot review on #686 caught two real issues: the document was
 originally written in French (violates `docs/CONVENTIONS.md` §1
 requiring English) and had a naming drift (`Brassins_log` vs
 `Confiance_brassins` for the same metric). Both fixed in commit
@@ -62,13 +62,13 @@ uses standard GitHub-flavored table syntax (`|---|---|`).
 ### Repository cleanup
 
 Post-session repo hygiene after last night's 8-PR release-please
-activation :
+activation:
 
 - Reverted an accidental `app.json` drift introduced by
   `eas update --branch preview` (a top-level `expo.runtimeVersion`
   that we had fixed in #683 and that the OTA command re-wrote
   locally).
-- Deleted 4 local branches whose work is already on `main` :
+- Deleted 4 local branches whose work is already on `main`:
   `feat/beer-encyclopedia-crud-api`, `docs/sync-post-552`,
   `docs/audit-chantier-1`, `feat/api-fly-deploy`, plus the stale
   `release-please--branches--main--components--website`.

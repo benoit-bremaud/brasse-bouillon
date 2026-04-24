@@ -52,6 +52,20 @@ describe("ProfileScreen", () => {
     expect(screen.getByText("user")).toBeTruthy();
   });
 
+  // Guard rail — B-70: the About footer must be mounted on the Profil
+  // screen so the jury can verify at a glance which build they are
+  // testing. If a future refactor removes the footer, this assertion
+  // fails immediately. See docs/product/brainstorms/scan-2026-04-24.md
+  // (B-70) for the UX requirement.
+  it("mounts the About footer with version / commit / build date", () => {
+    render(<ProfileScreen />);
+
+    expect(screen.getByLabelText("À propos de l'application")).toBeTruthy();
+    expect(screen.getByTestId("about-footer-version")).toBeTruthy();
+    expect(screen.getByTestId("about-footer-commit")).toBeTruthy();
+    expect(screen.getByTestId("about-footer-build-date")).toBeTruthy();
+  });
+
   it("refreshes profile and shows success feedback", async () => {
     mockRefreshProfile.mockResolvedValue(undefined);
 

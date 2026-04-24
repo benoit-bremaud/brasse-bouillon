@@ -7,6 +7,74 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### PR #715 merged (`600b6e2`) — Onboarding & auth brainstorm
+
+Consolidation of a 90-minute Q&A session with the product owner on the
+Onboarding journey (Tier 1 demo-essential). Branch
+`docs/onboarding-brainstorm-2026-04-24`. Ships as a 354-line doc
+`docs/product/brainstorms/onboarding-2026-04-24.md` following the same
+structure as the 3 previous brainstorms (scan, compte, recipe-schema
+audit).
+
+Key decisions frozen (20 total):
+
+- **Three values of an account** — persist user-owned data + sync
+  multi-device + participate in community (all three in scope, not
+  just one).
+- **Hybrid gating** — app is usable in guest mode; login wall appears
+  only at realised-value actions (import, rate, publish).
+- **Data locality principle** — local-first for the brewing assistant
+  critical path (Mes Brassins + dependencies), cloud-first with HTTP
+  cache for everything else. Derived from a 4-level criticality
+  framework applied to 15 user journeys and 11 brewing phases.
+- **Signup philosophy** — progressive mix: minimal email+password (or
+  Google OAuth) + skippable onboarding (display name, avatar,
+  experience level, preferred styles, unit system).
+- **OAuth + password rule** — simplified v0.1: one account per email,
+  providers stored as an array, manual add-provider from Settings, no
+  auto-merge until v0.2 (requires solid email verification first).
+- **Session** — 30-day refresh token via `expo-secure-store` with
+  silent refresh.
+- **Scan auth pattern β Hybrid** — validated by 8/8 MUST HAVEs,
+  derived mechanically from the constraint matrix (α Full gated scores
+  2/8, γ Fully open scores 7/8).
+
+Review cycle — 1 round: Codex (1 P2 comment) + Copilot (4 comments).
+All 5 valid, all fixed in `235c6a0`:
+
+- Phase numbering reconciled (3 phases locked → UX becomes Phase 4,
+  Stack Phase 5, Implementation Phase 6).
+- 2 agent-memory file references dropped and inlined (they live
+  outside the repo, readers could not resolve them).
+- `#694` mismap corrected to `#611` (the actual navigation-unify epic;
+  `#694` is the merged B-70 About footer PR).
+
+Impacts 11 existing backlog items and opens 3 new follow-ups for a
+future session (guest session storage + migration, dual route
+conventions for auth-protected vs anonymous endpoints, formal ADR on
+the data locality principle).
+
+- **Decisions**:
+  - `hybrid data locality principle` — the brewing assistant must
+    function 100% offline for 5-6 continuous hours (phases 2-6 of the
+    brew day), every other journey is cloud-first. This is the
+    architectural rule that shapes every upcoming technical choice.
+  - `scan stays guest-friendly` — chosen mechanically via 8/8 MUST
+    HAVEs, not by preference; the pattern satisfies the demo wow
+    effect without compromising identity-required journeys.
+
+### PR #714 merged (`96f2f5c`) — Project log entry for PR #712 + Epic #713
+
+Small follow-up PR that adds the `PROJECT_LOG.md` entries for today's
+merge of PR #712 (recipe schema audit) and for the new Epic #713
+(unit conversion). Branch `chore/project-log-2026-04-24-pr712`.
+
+Review cycle — 1 round: Copilot flagged that the log wording said
+"13 nullable columns" while the audit actually declares `source
+VARCHAR(20) NOT NULL DEFAULT`. Fixed in `f22d1e7` by splitting the
+claim into "13 columns (12 nullable + required `source`)" so the log
+entry stays factually aligned with the audit document.
+
 ### PR #712 merged (`499f91c`) — Recipe schema audit (Epic #708 Phase 1)
 
 Phase 1 of Epic #708 ships as docs-only — a 383-line gap analysis

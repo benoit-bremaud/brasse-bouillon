@@ -14,6 +14,10 @@ lerna-debug.log*
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+# npm workspaces — only the root package-lock.json is canonical.
+# Per-package lockfiles drift silently (we caught one in #674 still
+# named brasse-bouillon-frontend, pre-monorepo). Block them at source.
+packages/*/package-lock.json
 
 # ===========================
 # Logs & diagnostics

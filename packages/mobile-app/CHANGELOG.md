@@ -19,6 +19,13 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.5-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.4-alpha1...mobile-app-v0.1.5-alpha1) (2026-04-24)
+
+
+### Chores
+
+* **mobile-app:** Synchronize app versions
+
 ## [0.1.4-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.3-alpha1...mobile-app-v0.1.4-alpha1) (2026-04-24)
 
 

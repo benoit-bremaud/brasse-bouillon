@@ -1,6 +1,6 @@
 {
-  "packages/mobile-app": "0.1.4-alpha1",
-  "packages/api": "0.1.4-alpha1",
+  "packages/mobile-app": "0.1.5-alpha1",
+  "packages/api": "0.1.5-alpha1",
   "packages/website": "0.1.1",
   "packages/beer-encyclopedia": "0.2.2"
 }

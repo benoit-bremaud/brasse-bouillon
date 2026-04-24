@@ -19,6 +19,14 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.4-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.3-alpha1...mobile-app-v0.1.4-alpha1) (2026-04-24)
+
+
+### Features
+
+* **mobile-app:** add About footer exposing version, commit, build date ([dbeb2df](https://github.com/benoit-bremaud/brasse-bouillon/commit/dbeb2dfb0a6e1de815c3e45d3c11dffa04f62766))
+* **mobile-app:** B-70 add About footer (version, commit, build date) ([#694](https://github.com/benoit-bremaud/brasse-bouillon/issues/694)) ([7d98b09](https://github.com/benoit-bremaud/brasse-bouillon/commit/7d98b09f29ccd589be8456edce1fabbc22a8bb5e))
+
 ## [0.1.3-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.2-alpha1...mobile-app-v0.1.3-alpha1) (2026-04-24)
 
 

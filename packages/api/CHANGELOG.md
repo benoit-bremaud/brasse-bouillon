@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.3-alpha1...api-v0.1.4-alpha1) (2026-04-24)
+
+
+### Chores
+
+* **api:** Synchronize app versions
+
 ## [0.1.3-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.2-alpha1...api-v0.1.3-alpha1) (2026-04-24)
 
 

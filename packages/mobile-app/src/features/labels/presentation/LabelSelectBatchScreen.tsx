@@ -20,6 +20,7 @@ import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { useRouter } from "expo-router";
@@ -51,6 +52,7 @@ export function resolveSelectedBatchId(
 
 export function LabelSelectBatchScreen() {
   const router = useRouter();
+  const navigationFooterOffset = useNavigationFooterOffset();
   const [candidates, setCandidates] = useState<LabelBatchCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
@@ -231,14 +233,16 @@ export function LabelSelectBatchScreen() {
         />
       )}
 
-      <PrimaryButton
-        accessibilityLabel="Créer un brouillon d’étiquette"
-        label={isCreating ? "Création..." : "Créer le brouillon"}
-        disabled={!selectedBatchId || isCreating}
-        onPress={() => {
-          void handleCreateDraft();
-        }}
-      />
+      <View style={{ marginBottom: navigationFooterOffset }}>
+        <PrimaryButton
+          accessibilityLabel="Créer un brouillon d’étiquette"
+          label={isCreating ? "Création..." : "Créer le brouillon"}
+          disabled={!selectedBatchId || isCreating}
+          onPress={() => {
+            void handleCreateDraft();
+          }}
+        />
+      </View>
     </Screen>
   );
 }

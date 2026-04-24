@@ -12,16 +12,11 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
-import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
-import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
-import { Recipe } from "@/features/recipes/domain/recipe.types";
-import { academyTopics } from "@/features/tools/data";
-import { demoIngredients } from "@/mocks/demo-data";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 
@@ -32,7 +27,6 @@ const DAY_MS = 24 * HOUR_MS;
 // Brewing defaults.
 const FERMENTATION_DAYS = 7;
 const BOTTLING_DAYS = 10;
-const MIN_RECIPE_INGREDIENTS = 3;
 
 type PeriodKey = "year" | "90d" | "30d";
 type AlertStatus = "Bientôt" | "Urgent" | "En retard";
@@ -46,21 +40,6 @@ type DashboardAlert = {
   dueAt: Date;
   status: AlertStatus;
   isCriticalQuality: boolean;
-};
-
-type NavigationCard = {
-  id: string;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  href: Href;
-  metric: string;
-  status: string;
-  color: string;
-};
-
-type IngredientsMetric = {
-  metric: string;
-  status: string;
 };
 
 type MoreSectionCategory = "business" | "account";
@@ -112,66 +91,56 @@ const BREWING_STEPS: BrewStepConfig[] = [
   },
 ];
 
-const TOP_NAVIGATION_IDS = ["batches", "recipes", "ingredients", "tools"];
+// Factory helpers — keep each row declarative (just the variable
+// fields) and bake the cross-cutting type/category in one place.
+// DRY + OCP: adding a new business route below is a one-liner; the
+// `type: "route"` + `category: "business"` invariants cannot drift
+// between rows. Also kills the SonarCloud "duplicated lines" hot-spot
+// (each MoreSectionItem literal was 8 near-identical lines).
+function businessRoute(
+  id: string,
+  label: string,
+  icon: keyof typeof Ionicons.glyphMap,
+  href: Href,
+): MoreSectionItem {
+  return { id, label, icon, href, type: "route", category: "business" };
+}
+
+function accountAction(
+  id: string,
+  label: string,
+  icon: keyof typeof Ionicons.glyphMap,
+): MoreSectionItem {
+  return { id, label, icon, type: "profile", category: "account" };
+}
 
 const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
-  {
-    id: "scan",
-    label: "Scanner",
-    icon: "qr-code-outline",
-    href: "/(app)/dashboard/scan",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "labels",
-    label: "Mes étiquettes",
-    icon: "pricetags-outline",
-    href: "/(app)/dashboard/labels",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "equipment",
-    label: "Équipements",
-    icon: "construct-outline",
-    href: "/(app)/equipment",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "academy",
-    label: "Académie",
-    icon: "school-outline",
-    href: "/(app)/academy",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "shop",
-    label: "Boutique",
-    icon: "cart-outline",
-    href: "/(app)/shop",
-    type: "route",
-    category: "business",
-  },
+  businessRoute("scan", "Scanner", "qr-code-outline", "/(app)/dashboard/scan"),
+  businessRoute(
+    "labels",
+    "Mes étiquettes",
+    "pricetags-outline",
+    "/(app)/dashboard/labels",
+  ),
+  businessRoute(
+    "equipment",
+    "Équipements",
+    "construct-outline",
+    "/(app)/equipment",
+  ),
+  businessRoute(
+    "ingredients",
+    "Ingrédients",
+    "leaf-outline",
+    "/(app)/ingredients",
+  ),
+  businessRoute("academy", "Académie", "school-outline", "/(app)/academy"),
+  businessRoute("shop", "Boutique", "cart-outline", "/(app)/shop"),
 ];
 
 const MORE_ACCOUNT_SECTIONS: MoreSectionItem[] = [
-  {
-    id: "profile",
-    label: "Profil",
-    icon: "person-circle-outline",
-    type: "profile",
-    category: "account",
-  },
-  {
-    id: "settings",
-    label: "Paramètres globaux",
-    icon: "settings-outline",
-    type: "profile",
-    category: "account",
-  },
+  accountAction("profile", "Profil", "person-circle-outline"),
+  accountAction("settings", "Paramètres globaux", "settings-outline"),
 ];
 
 const MORE_SECTION_CONFIGS: MoreSectionConfig[] = [
@@ -200,6 +169,35 @@ function renderMoreSectionItem(
       <Ionicons name={item.icon} size={18} color={colors.brand.secondary} />
       <Text style={styles.sheetItemLabel}>{item.label}</Text>
       <Ionicons name="chevron-forward" size={16} color={colors.neutral.muted} />
+    </Pressable>
+  );
+}
+
+type HeaderActionButtonProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+};
+
+function HeaderActionButton({
+  icon,
+  label,
+  accessibilityLabel,
+  onPress,
+}: HeaderActionButtonProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.headerActionButton,
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name={icon} size={18} color={colors.brand.secondary} />
+      <Text style={styles.headerActionButtonText}>{label}</Text>
     </Pressable>
   );
 }
@@ -288,12 +286,6 @@ function isWithinSelectedPeriod(
   return date >= threshold;
 }
 
-function isRecipeDraft(recipe: Recipe): boolean {
-  const ingredientCount = recipe.ingredients?.length ?? 0;
-  const hasStats = Boolean(recipe.stats);
-  return ingredientCount < MIN_RECIPE_INGREDIENTS || !hasStats;
-}
-
 function getDueAtForCurrentStep(startedAt: Date, stepIndex: number): Date {
   const totalExpectedHours = BREWING_STEPS.slice(0, stepIndex + 1).reduce(
     (total, step) => total + step.expectedHours,
@@ -378,21 +370,9 @@ export function DashboardScreen() {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const { session } = useAuth();
-  const isUsingDemoData = dataSource.useDemoData;
 
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
   const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
-
-  const {
-    data: recipes = [],
-    isLoading: isRecipesLoading,
-    isFetching: isRecipesFetching,
-    error: recipesError,
-    refetch: refetchRecipes,
-  } = useQuery<Recipe[]>({
-    queryKey: ["recipes", "list"],
-    queryFn: listRecipes,
-  });
 
   const {
     data: batches = [],
@@ -405,10 +385,9 @@ export function DashboardScreen() {
     queryFn: listBatches,
   });
 
-  const queryError = recipesError ?? batchesError;
-  const isFetching = isRecipesFetching || isBatchesFetching;
-  const isLoading =
-    isRecipesLoading || isBatchesLoading || (isFetching && Boolean(queryError));
+  const queryError = batchesError;
+  const isFetching = isBatchesFetching;
+  const isLoading = isBatchesLoading || (isFetching && Boolean(queryError));
   const error = queryError
     ? isFetching
       ? null
@@ -416,9 +395,8 @@ export function DashboardScreen() {
     : null;
 
   const handleRetry = useCallback(() => {
-    void refetchRecipes();
     void refetchBatches();
-  }, [refetchBatches, refetchRecipes]);
+  }, [refetchBatches]);
 
   const [referenceDate] = useState(() => new Date());
 
@@ -516,118 +494,6 @@ export function DashboardScreen() {
     return [...filteredActiveBatches].sort(compareBatches).slice(0, 2);
   }, [filteredActiveBatches, filteredAlertsMap]);
 
-  const filteredRecipes = useMemo(
-    () =>
-      recipes.filter((recipe) =>
-        isWithinSelectedPeriod(recipe.updatedAt, selectedPeriod, referenceDate),
-      ),
-    [recipes, referenceDate, selectedPeriod],
-  );
-
-  const draftRecipesCount = useMemo(
-    () => filteredRecipes.filter(isRecipeDraft).length,
-    [filteredRecipes],
-  );
-
-  const missingIngredientsCount = useMemo(() => {
-    if (!isUsingDemoData) {
-      return null;
-    }
-
-    const readyRecipes = filteredRecipes.filter(
-      (recipe) => !isRecipeDraft(recipe),
-    );
-    const requiredIngredientIds = new Set(
-      readyRecipes.flatMap((recipe) =>
-        (recipe.ingredients ?? []).map((ingredient) => ingredient.ingredientId),
-      ),
-    );
-
-    const availableIngredientIds = new Set(
-      demoIngredients.map((ingredient) => ingredient.id),
-    );
-
-    return [...requiredIngredientIds].filter(
-      (ingredientId) => !availableIngredientIds.has(ingredientId),
-    ).length;
-  }, [filteredRecipes, isUsingDemoData]);
-
-  const ingredientsMetric = useMemo<IngredientsMetric>(() => {
-    if (missingIngredientsCount === null) {
-      return {
-        metric: "Stock live",
-        status: "Synchronisé",
-      };
-    }
-
-    return {
-      metric: `${missingIngredientsCount} manquant${
-        missingIngredientsCount > 1 ? "s" : ""
-      }`,
-      status: missingIngredientsCount === 0 ? "Complet" : "Incomplet",
-    };
-  }, [missingIngredientsCount]);
-
-  const favoriteToolsCount = academyTopics.filter(
-    (topic) => topic.hasCalculator && topic.status === "ready",
-  ).length;
-
-  const highlightedAlert = filteredAlerts[0] ?? null;
-
-  const navigationCards = useMemo<NavigationCard[]>(
-    () => [
-      {
-        id: "batches",
-        label: "Brassins",
-        icon: "flask-outline",
-        href: "/(app)/batches",
-        metric: highlightedAlert
-          ? formatRelativeDue(highlightedAlert.dueAt, referenceDate)
-          : "Aucune échéance",
-        status: highlightedAlert?.status ?? "OK",
-        color: colors.brand.secondary,
-      },
-      {
-        id: "recipes",
-        label: "Recettes",
-        icon: "book-outline",
-        href: "/(app)/recipes",
-        metric: `${draftRecipesCount} brouillon${draftRecipesCount > 1 ? "s" : ""}`,
-        status: draftRecipesCount === 0 ? "Prêtes" : "À compléter",
-        color: colors.brand.primary,
-      },
-      {
-        id: "ingredients",
-        label: "Ingrédients",
-        icon: "leaf-outline",
-        href: "/(app)/ingredients",
-        metric: ingredientsMetric.metric,
-        status: ingredientsMetric.status,
-        color: colors.semantic.warning,
-      },
-      {
-        id: "tools",
-        label: "Outils",
-        icon: "calculator-outline",
-        href: "/(app)/tools",
-        metric: `${favoriteToolsCount} favori${favoriteToolsCount > 1 ? "s" : ""}`,
-        status: favoriteToolsCount > 0 ? "Configuré" : "À personnaliser",
-        color: colors.semantic.info,
-      },
-    ],
-    [
-      draftRecipesCount,
-      favoriteToolsCount,
-      highlightedAlert,
-      ingredientsMetric,
-      referenceDate,
-    ],
-  );
-
-  const topNavigationCards = navigationCards.filter((card) =>
-    TOP_NAVIGATION_IDS.includes(card.id),
-  );
-
   const handleOpenProfilePanel = useCallback(() => {
     setIsMoreSheetVisible(false);
     router.push("/(app)/profile");
@@ -699,22 +565,20 @@ export function DashboardScreen() {
             </View>
           </View>
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ouvrir le profil"
-            onPress={handleOpenProfilePanel}
-            style={({ pressed }) => [
-              styles.profileButton,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons
-              name="person-circle-outline"
-              size={18}
-              color={colors.brand.secondary}
+          <View style={styles.headerActions}>
+            <HeaderActionButton
+              icon="person-circle-outline"
+              label="Profil"
+              accessibilityLabel="Ouvrir le profil"
+              onPress={handleOpenProfilePanel}
             />
-            <Text style={styles.profileButtonText}>Profil</Text>
-          </Pressable>
+            <HeaderActionButton
+              icon="grid-outline"
+              label="Voir plus"
+              accessibilityLabel="Voir plus de sections"
+              onPress={() => setIsMoreSheetVisible(true)}
+            />
+          </View>
         </View>
 
         <Card style={styles.sectionCard}>
@@ -963,65 +827,6 @@ export function DashboardScreen() {
             </View>
           )}
         </Card>
-
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Navigation rapide</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Voir plus de sections"
-              onPress={() => setIsMoreSheetVisible(true)}
-              style={({ pressed }) => [
-                styles.linkButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={styles.linkButtonText}>Voir plus</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.navigationGrid}>
-            {topNavigationCards.map((card) => {
-              const statusColors = getStatusColors(card.status);
-
-              return (
-                <Pressable
-                  key={card.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Ouvrir ${card.label}`}
-                  onPress={() => router.push(card.href)}
-                  style={({ pressed }) => [
-                    styles.navigationCard,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <View style={styles.navigationTopRow}>
-                    <Ionicons name={card.icon} size={20} color={card.color} />
-                    <Text style={styles.navigationTitle}>{card.label}</Text>
-                  </View>
-
-                  <Text style={styles.navigationMetric}>{card.metric}</Text>
-
-                  <View
-                    style={[
-                      styles.statusPill,
-                      { backgroundColor: statusColors.background },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.statusPillText,
-                        { color: statusColors.foreground },
-                      ]}
-                    >
-                      {card.status}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
       </ScrollView>
 
       <Modal
@@ -1077,6 +882,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     flex: 1,
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   avatar: {
     width: 40,
     height: 40,
@@ -1099,7 +909,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },
-  profileButton: {
+  headerActionButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xxs,
@@ -1108,7 +918,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  profileButtonText: {
+  headerActionButtonText: {
     fontSize: typography.size.caption,
     color: colors.brand.secondary,
     fontWeight: typography.weight.medium,

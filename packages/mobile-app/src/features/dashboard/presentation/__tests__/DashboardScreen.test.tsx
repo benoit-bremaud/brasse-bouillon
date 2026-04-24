@@ -112,7 +112,6 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Vue d’ensemble")).toBeTruthy();
     expect(screen.getByText("Alertes & échéances")).toBeTruthy();
     expect(screen.getAllByText("Brassins actifs").length).toBeGreaterThan(0);
-    expect(screen.getByText("Navigation rapide")).toBeTruthy();
 
     fireEvent.press(screen.getByLabelText("Voir plus de sections"));
     expect(screen.getByText("Sections métier")).toBeTruthy();

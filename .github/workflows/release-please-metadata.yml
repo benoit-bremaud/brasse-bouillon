@@ -1,8 +1,11 @@
 name: Release Please Metadata
 
 # Auto-apply assignee + scope/type/priority labels + add to project on every
-# release-please PR. Triggered when release-please opens (or updates) a PR
-# with the `autorelease: pending` label.
+# release-please PR. Fires on `opened` / `reopened` (the cases where the PR
+# enters triage for the first time) and on `labeled` when the marker label
+# lands — never on `synchronize`, because the metadata is applied once at
+# open and every operation is idempotent, so reacting to every branch
+# update would add API cost with no functional benefit.
 #
 # Why: release-please leaves PRs bare (only its own marker label). Without
 # this workflow, every release PR would need manual triage to match the
@@ -53,9 +56,12 @@ jobs:
       - name: Apply assignee + labels
         # Fail loud if either call fails — silent success is worse than
         # noisy failure when the purpose of the job is exactly these
-        # updates. The idempotent POSTs below can legitimately return
-        # 422 if the resource is already present, so we accept that
-        # single case only (check HTTP status explicitly).
+        # writes. Both endpoints (POST /issues/:n/assignees and
+        # POST /issues/:n/labels) are natively idempotent: adding an
+        # already-present assignee / label returns 200/201, not 422.
+        # Combined with the `labeled`-action guard above (only re-fires
+        # on the marker label), the job runs at most once per release
+        # PR so idempotence is mostly a safety net anyway.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

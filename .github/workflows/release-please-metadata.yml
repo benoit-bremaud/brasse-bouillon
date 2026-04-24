@@ -20,9 +20,17 @@ permissions:
 jobs:
   apply-metadata:
     name: Apply metadata to release-please PR
+    # Guard on three conditions:
+    # 1. PR authored by release-please
+    # 2. PR has the autorelease: pending marker
+    # 3. When triggered by the `labeled` action, only react to the marker
+    #    label itself — otherwise the workflow would re-trigger on every
+    #    label it adds (type:chore, scope:*, priority:medium), wasting
+    #    runs and API calls.
     if: >
       github.event.pull_request.user.login == 'github-actions[bot]' &&
-      contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+      contains(github.event.pull_request.labels.*.name, 'autorelease: pending') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'autorelease: pending')
     runs-on: ubuntu-latest
     steps:
       - name: Determine scope from branch name
@@ -43,26 +51,41 @@ jobs:
           esac
 
       - name: Apply assignee + labels
+        # Fail loud if either call fails — silent success is worse than
+        # noisy failure when the purpose of the job is exactly these
+        # updates. The idempotent POSTs below can legitimately return
+        # 422 if the resource is already present, so we accept that
+        # single case only (check HTTP status explicitly).
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           SCOPE_LABEL: ${{ steps.scope.outputs.label }}
         run: |
+          set -euo pipefail
+
           gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/assignees" \
-            -X POST -f 'assignees[]=benoit-bremaud' || true
+            -X POST -f 'assignees[]=benoit-bremaud'
 
           gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
             -X POST \
             -f 'labels[]=type:chore' \
             -f "labels[]=${SCOPE_LABEL}" \
-            -f 'labels[]=priority:medium' || true
+            -f 'labels[]=priority:medium'
 
       - name: Add PR to Brasse-Bouillon project
+        # Project-add is the one legitimately tolerant step: Projects v2
+        # is user-scoped and unreachable from GITHUB_TOKEN at all. A PAT
+        # with the `project` scope (classic PAT) or Projects Read/Write
+        # (fine-grained PAT) stored as PROJECT_TOKEN is required. If the
+        # token is missing, the PR still ships with full assignee +
+        # labels — project add is a nice-to-have, not a blocker.
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
           PR_NODE_ID: ${{ github.event.pull_request.node_id }}
         run: |
-          gh api graphql \
+          if ! gh api graphql \
             -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
             -f p="PVT_kwHOB8rwIc4AuVew" \
-            -f c="$PR_NODE_ID" || echo "Project add failed (non-fatal — likely token missing projects:write scope)"
+            -f c="$PR_NODE_ID"; then
+            echo "::warning::Project add failed — ensure PROJECT_TOKEN secret holds a PAT with 'project' scope (classic) or Projects Read/Write (fine-grained)."
+          fi

@@ -162,12 +162,21 @@ triptych as a regular PR:
   - `*--components--mobile-app` → `scope:frontend`
   - `*--components--api` → `scope:backend`
   - `*--groups--app` (lockstep) → `scope:monorepo`
-- **Project** — Brasse-Bouillon (`PVT_kwHOB8rwIc4AuVew`); requires a
-  PAT with `project` scope stored as `PROJECT_TOKEN` (falls back to
-  `GITHUB_TOKEN` and skips the project add silently if scope missing).
+- **Project** — Brasse-Bouillon (`PVT_kwHOB8rwIc4AuVew`). Projects v2
+  is user-scoped and cannot be reached from the default `GITHUB_TOKEN`
+  at all. A PAT with the `project` scope (classic PAT) or Projects
+  Read/Write access (fine-grained PAT) stored as the `PROJECT_TOKEN`
+  secret is required. When missing, the assignee + labels still apply
+  and the workflow emits a GitHub Actions warning — the PR ships
+  usable, just not yet in the project.
 
 Reviewers are NOT applied by this workflow — CODEOWNERS handles that
 automatically.
+
+If assignee or label application fails, the workflow fails loud
+(non-zero exit) so the regression is visible in CI — the whole point
+of the workflow is that these fields are never missing on a release
+PR. Only the project-add step is tolerant.
 
 ### Format check on release PRs
 

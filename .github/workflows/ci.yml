@@ -69,9 +69,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: packages/mobile-app/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
+      - name: Install dependencies (npm workspaces — root lockfile)
+        working-directory: .
         run: npm ci
 
       - name: Lint + Typecheck + Format check
@@ -113,9 +114,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: packages/api/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
+      - name: Install dependencies (npm workspaces — root lockfile)
+        working-directory: .
         run: npm ci
 
       - name: Lint check

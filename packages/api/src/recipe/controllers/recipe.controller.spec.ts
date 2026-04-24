@@ -37,6 +37,10 @@ describe('RecipeController', () => {
     ibu_target: 50,
     ebc_target: 15,
     efficiency_target: 75,
+    avg_rating: null,
+    brew_count: 0,
+    last_brewed_at: null,
+    is_official: false,
     created_at: new Date(),
     updated_at: new Date(),
   };

@@ -7,6 +7,29 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### Log entry enrichment for PR #688 ([PR #689](https://github.com/benoit-bremaud/brasse-bouillon/pull/689))
+
+Small follow-up PR to bring the `Compte` & settings entry (above) in
+line with the per-merge logging convention: adds the PR #688 link,
+the merge SHA `6a518b0`, the branch name, and the review-cycle
+narrative (1 Codex P2 on a contradictory MVP estimate, 5 Copilot
+comments on `docs/CONVENTIONS.md` compliance, all addressed in
+commit `761f4d8`).
+
+Branch `docs/project-log-pr-688`, merged as `56a861d`. Review
+cycle: one Copilot comment flagging that even the meta-commentary
+naming the flagged French terms (by quoting them verbatim) itself
+violates `docs/CONVENTIONS.md` §1. Paraphrased as "a French quote
+in a heading / a French data-privacy acronym / a French legal-notice
+phrase" in commit `4e2d558`; the English referents (`GDPR`,
+`packages/mobile-app/CHANGELOG.md`) stay as code spans.
+
+Also introduces a new repeatable process rule on this project: an
+**end-of-review summary comment** is now posted on every PR before
+the user merges (CI state, reviews received, resolution commit SHAs,
+explicit "ready to merge" line). Stored as a durable convention in
+the agent's memory so all future PRs follow the pattern.
+
 ### `Compte` & settings brainstorm + MVP conservative cuts ([PR #688](https://github.com/benoit-bremaud/brasse-bouillon/pull/688))
 
 Morning session continuation — 45-minute structured Q&A on the

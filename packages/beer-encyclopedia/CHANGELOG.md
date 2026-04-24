@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.2](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.1...encyclopedia-v0.2.2) (2026-04-24)
+
+
+### Features
+
+* **encyclopedia:** add provenance fields to Beer model (epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 1/n) ([9d10920](https://github.com/benoit-bremaud/brasse-bouillon/commit/9d10920cc535810dd7a30c7393344f9934f042b6))
+* **encyclopedia:** add provenance fields to Beer model (epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 1/n) ([#706](https://github.com/benoit-bremaud/brasse-bouillon/issues/706)) ([67f46af](https://github.com/benoit-bremaud/brasse-bouillon/commit/67f46afa984512e8efeafbbc7d2d46ce6f11a23d))
+
+
+### Bug Fixes
+
+* **encyclopedia:** address Copilot + Codex review on PR [#706](https://github.com/benoit-bremaud/brasse-bouillon/issues/706) ([2e4ba2e](https://github.com/benoit-bremaud/brasse-bouillon/commit/2e4ba2ee181891f842b8781a8f9d0ad4cb1831db))
+
 ## [0.2.1](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.0...encyclopedia-v0.2.1) (2026-04-24)
 
 

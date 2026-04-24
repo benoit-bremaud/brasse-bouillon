@@ -140,14 +140,6 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     category: "business",
   },
   {
-    id: "explore",
-    label: "Explore",
-    icon: "compass-outline",
-    href: "/(app)/explore",
-    type: "route",
-    category: "business",
-  },
-  {
     id: "academy",
     label: "Académie",
     icon: "school-outline",

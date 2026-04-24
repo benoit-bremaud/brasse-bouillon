@@ -46,28 +46,24 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: |
-            packages/mobile-app/package-lock.json
-            packages/api/package-lock.json
+          cache-dependency-path: package-lock.json
 
       # ────────────────────────────────────────────────────────────────────────
-      # Mobile App — install + test with coverage
+      # Install all workspaces in one shot (npm workspaces — root lockfile)
       # ────────────────────────────────────────────────────────────────────────
-      - name: Install mobile-app dependencies
-        working-directory: packages/mobile-app
+      - name: Install workspace dependencies
         run: npm ci
 
+      # ────────────────────────────────────────────────────────────────────────
+      # Mobile App — test with coverage
+      # ────────────────────────────────────────────────────────────────────────
       - name: Run mobile-app tests with coverage
         working-directory: packages/mobile-app
         run: npm run test:coverage
 
       # ────────────────────────────────────────────────────────────────────────
-      # API — install + test with coverage
+      # API — test with coverage
       # ────────────────────────────────────────────────────────────────────────
-      - name: Install api dependencies
-        working-directory: packages/api
-        run: npm ci
-
       - name: Run api tests with coverage
         working-directory: packages/api
         run: npm run test:cov

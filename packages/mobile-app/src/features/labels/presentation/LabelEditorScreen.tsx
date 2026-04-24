@@ -221,6 +221,7 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           { paddingBottom: navigationFooterOffset },
         ]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <Card style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Texte</Text>
@@ -434,7 +435,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   sectionCard: {
-    marginBottom: spacing.sm,
     gap: spacing.xs,
   },
   sectionTitle: {

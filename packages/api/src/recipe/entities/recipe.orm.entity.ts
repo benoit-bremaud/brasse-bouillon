@@ -13,6 +13,9 @@ import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 @Index(['owner_id'])
 @Index(['visibility'])
 @Index(['root_recipe_id'])
+@Index(['is_official'])
+@Index(['brew_count'])
+@Index(['last_brewed_at'])
 export class RecipeOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -68,6 +71,21 @@ export class RecipeOrmEntity {
 
   @Column({ type: 'real', nullable: true })
   efficiency_target?: number | null;
+
+  // Quality fields feeding the scan matching algorithm (Epic #693 part 2).
+  // Denormalized aggregates + flag maintained by the recipe / batch / rating
+  // pipelines; consumed by the matching score (see scan-2026-04-24.md §3).
+  @Column({ type: 'numeric', precision: 3, scale: 2, nullable: true })
+  avg_rating?: number | null;
+
+  @Column({ type: 'integer', nullable: false, default: 0 })
+  brew_count: number;
+
+  @Column({ type: 'datetime', nullable: true })
+  last_brewed_at?: Date | null;
+
+  @Column({ type: 'boolean', nullable: false, default: false })
+  is_official: boolean;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

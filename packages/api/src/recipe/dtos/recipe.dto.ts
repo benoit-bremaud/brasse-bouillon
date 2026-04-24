@@ -56,23 +56,27 @@ export class RecipeDto {
   // Quality fields feeding the scan matching algorithm (Epic #693 part 2).
   @ApiPropertyOptional({
     nullable: true,
-    description: 'Average community rating in [1.00, 5.00]. Null when never rated.',
+    description:
+      'Average community rating in [1.00, 5.00]. Null when never rated.',
   })
   avg_rating?: number | null;
 
   @ApiProperty({
-    description: 'Count of batches brewed from this recipe. Feeds the log-confidence component.',
+    description:
+      'Count of batches brewed from this recipe. Feeds the log-confidence component.',
   })
   brew_count: number;
 
   @ApiPropertyOptional({
     nullable: true,
-    description: 'Timestamp of the most recent batch started on this recipe. Feeds the recency decay component.',
+    description:
+      'Timestamp of the most recent batch started on this recipe. Feeds the recency decay component.',
   })
   last_brewed_at?: Date | null;
 
   @ApiProperty({
-    description: 'True for brewery-published recipes (e.g. BrewDog DIY Dog). Matching algo forces similarity = 100%.',
+    description:
+      'True for brewery-published recipes (e.g. BrewDog DIY Dog). Matching algo forces similarity = 100%.',
   })
   is_official: boolean;
 

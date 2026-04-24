@@ -2,7 +2,9 @@ import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 import { RecipeDto } from './recipe.dto';
 
-function buildEntity(overrides: Partial<RecipeOrmEntity> = {}): RecipeOrmEntity {
+function buildEntity(
+  overrides: Partial<RecipeOrmEntity> = {},
+): RecipeOrmEntity {
   const base: RecipeOrmEntity = {
     id: 'recipe-1',
     owner_id: 'owner-1',
@@ -78,8 +80,12 @@ describe('RecipeDto.fromEntity — quality fields (Epic #693 part 2)', () => {
 
   describe('edge cases', () => {
     it('preserves rating boundary values (1.00 and 5.00)', () => {
-      expect(RecipeDto.fromEntity(buildEntity({ avg_rating: 1.0 })).avg_rating).toBe(1.0);
-      expect(RecipeDto.fromEntity(buildEntity({ avg_rating: 5.0 })).avg_rating).toBe(5.0);
+      expect(
+        RecipeDto.fromEntity(buildEntity({ avg_rating: 1.0 })).avg_rating,
+      ).toBe(1.0);
+      expect(
+        RecipeDto.fromEntity(buildEntity({ avg_rating: 5.0 })).avg_rating,
+      ).toBe(5.0);
     });
 
     it('preserves very large brew_count values (community popular recipe)', () => {

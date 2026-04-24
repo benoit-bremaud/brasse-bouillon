@@ -66,13 +66,15 @@ Ce document a pour but de synthétiser les retours issus du questionnaire Google
 
 ---
 
-### 🌱 4. Enjeux écologiques et durables
+### 🌱 4. Sustainability and ecology concerns
 
-Les répondants manifestent un intérêt fort pour des outils aidant à :
+Survey respondents expressed strong interest in tools that support more sustainable brewing practices. These needs are carried by the **`EcoResponsible` persona — Zoé la Brasseuse Éco-responsable** (see [docs/personas/user_personas.md](../personas/user_personas.md)).
 
-- Valoriser les drêches (recettes zéro déchet, recyclage).
-- Calculer l’empreinte carbone de leurs brassins.
-- Localiser des fournisseurs responsables à proximité.
+| Item | Description | Version status |
+|---|---|---|
+| ♻️ Spent-grain valorization (drêches) | Zero-waste recipes / composting / animal feed | **v0.1 — planned bonus (~0.5-1 day)** |
+| 🌍 Carbon footprint | Per-batch estimate (ingredients, transport, energy) | v0.2+ |
+| 🏪 Responsible suppliers | Locate local, sustainable partners | v0.2+ (depends on Shop feature) |
 
 ---
 

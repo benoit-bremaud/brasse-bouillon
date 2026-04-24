@@ -117,34 +117,10 @@ Ce document décrit les scénarios critiques identifiés pour chaque interaction
 
 ---
 
-### **7. Ajouter ou modifier une recette publique**
+## Note on back-office roles
 
-#### Acteur : Administrateur
+The scenarios about the **Administrator** (public recipe management, user management) were removed from this document during the 2026-04-24 personas debrief. The admin is not a brewer persona in the Brasse-Bouillon product sense — it is a distinct back-office operator role.
 
-#### Étapes
+These scenarios will be documented separately in **version 2 (v0.2+)**, alongside the arrival of the **Community** feature (public recipe moderation, registered user management). A dedicated GitHub epic will be created (`TBD: epic "Community moderation v0.2+"`) to carry this vision.
 
-1. L’administrateur accède à l’interface "Gestion des recettes publiques".
-2. Il sélectionne une recette existante ou clique sur "Ajouter une recette".
-3. Pour une nouvelle recette, il saisit les informations suivantes :
-   - Titre de la recette.
-   - Liste des ingrédients avec quantités.
-   - Étapes détaillées de brassage.
-4. Pour une recette existante, il modifie les informations nécessaires ou supprime la recette.
-5. Une fois terminé, il valide les changements, qui sont publiés pour tous les utilisateurs.
-6. Un journal des modifications est mis à jour pour garder une trace des actions.
-
----
-
-### **8. Gérer les utilisateurs**
-
-#### Acteur : Administrateur
-
-#### Étapes
-
-1. L’administrateur accède à l’interface "Gestion des utilisateurs".
-2. Il recherche un utilisateur via son nom ou adresse email.
-3. L’administrateur peut :
-   - Ajouter un nouvel utilisateur avec les informations nécessaires.
-   - Modifier les droits ou informations d’un utilisateur existant.
-   - Supprimer un utilisateur en cas de besoin.
-4. Chaque action est sauvegardée dans un journal d’administration pour assurer la traçabilité.
+See the personas sheet [docs/personas/user_personas.md](../personas/user_personas.md) for the up-to-date mapping of brewer roles (`Discovery` / `Novice` / `Amateur` / `EcoResponsible` / `Expert`).

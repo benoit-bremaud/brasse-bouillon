@@ -7,12 +7,82 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
-### Architecture session — three ADRs accepted
+### Personas review — 5 personas + drêches bonus planned
+
+Morning session final brainstorm (fourth of four) — full personas
+review triggered by the user's request to reconcile the existing
+[docs/personas/user_personas.md](docs/personas/user_personas.md)
+(3 personas: Nicolas / Claire / Marc) with the product decisions
+taken earlier in the day (Scan brainstorm introduced a "curious
+amateur" primary persona, Compte brainstorm used an unnamed
+"Marie" brewer in examples, Google Forms survey surfaced a strong
+ecology axis with zero feature ship).
+
+Method: debrief by tensions, five tensions resolved one by one
+with clickable Q&A:
+
+- **Tension 1 (vocabulary)** — proper names (Léa, Nicolas, Claire,
+  Zoé, Marc) stay in the personas file for storytelling; technical
+  roles (Discovery / Novice / Amateur / Eco-responsible / Expert)
+  are used in user stories, user scenarios, GitHub tickets, and
+  code comments.
+- **Tension 2 (Scan brainstorm's "curious amateur")** — promoted
+  to a distinct 4th persona **Léa la Curieuse** (25-32, young urban
+  active, discovered a beer socially, no brewing equipment). Becomes
+  the primary persona for the 2026-05-27 defense (scan demo hero).
+- **Tension 3 (gaps personas → features)** — aligned on the P0-P4
+  priority already validated; each persona has at least one v0.1
+  feature served (Léa: full scan; Nicolas: Académie Glossaire;
+  Claire: labels + UI fluidity; Zoé: drêches bonus; Marc: CSV
+  export bonus), everything else roadmapped v0.2+.
+- **Tension 4 (admin persona)** — Admin dropped from the brewer
+  personas (not a brewer). The two admin user scenarios (public
+  recipe management, user management) were removed from
+  [docs/user_scenarios/user_scenarios.md](docs/user_scenarios/user_scenarios.md)
+  with a note redirecting to a future v0.2+ epic "Community
+  moderation".
+- **Tension 5 (ecology)** — created a 5th persona **Zoé la
+  Brasseuse Éco-responsable** (28-40, ecology-adjacent profession,
+  1-2 years of brewing) and committed to ship a minimal
+  **drêches (spent grain) valorization** feature in v0.1 as a
+  planned bonus (~0.5-1j: an end-of-batch card suggesting 3-5
+  hand-written recipes to reuse the spent grain).
+  [docs/requirements/user_needs.md](docs/requirements/user_needs.md)
+  §4 rewritten as a table with explicit version status per item
+  (drêches v0.1, carbon footprint v0.2+, local suppliers v0.2+).
+
+Final personas: 5 (Léa primary + Nicolas + Claire + Zoé + Marc),
+mapping table + reference rule added at the top of the personas
+file. Version bumped to v2 with a versioning history block.
+
+**Side effect**: the user adopted *"Build for today, design for
+tomorrow"* (ADR-0001 title) as a structuring catchphrase for the
+rest of the defense preparation — the phrase now ties the Scan
+brainstorm, the Compte brainstorm, the three ADRs, and the personas
+priority table into a single coherent narrative.
+
+### Architecture session — three ADRs accepted ([PR #691](https://github.com/benoit-bremaud/brasse-bouillon/pull/691))
 
 Morning session continuation (third of four brainstorms scheduled for
 the day) — structured Q&A to formalize three architectural decisions
 that already governed the code informally and needed a written
-contract. All three land as accepted ADRs under a new folder
+contract.
+
+Branch `docs/adr-001-002-003`, merged as `148da08`. Review cycle:
+two Codex **P1 (Must Have)** comments on ADR-0003 revealing real
+logic bugs — (a) the read contract `scan.training OR ml.training`
+preserved a stale opt-in over a newer global opt-out (GDPR
+compliance failure), rewritten as "most recent decision across
+both axes wins" with a single helper scanning the append-only log;
+(b) v0.1 storage described as "AsyncStorage keyed by axis"
+contradicted the append-only clause — rewritten as a single
+`brasse.consent.log` key holding a JSON array of `ConsentDecision`
+records. Seven Copilot comments on ADR-0002 (broken path reference,
+garbled "anti-pattern exception" wording) and ADR-0003 (incomplete
+canonical axis list missing `scan.training`, two `browseable`
+typos) — three unique + four duplicates, all grouped with
+cross-references. All nine addressed in commit `508bab2`.
+ All three land as accepted ADRs under a new folder
 [`docs/architecture/decisions/`](docs/architecture/decisions/) with a
 README explaining the template (Michael Nygard format) and the
 mutability policy (append-only once accepted, supersession via a new

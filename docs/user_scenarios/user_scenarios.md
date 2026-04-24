@@ -117,34 +117,10 @@ Ce document décrit les scénarios critiques identifiés pour chaque interaction
 
 ---
 
-### **7. Ajouter ou modifier une recette publique**
+## Note sur les rôles back-office
 
-#### Acteur : Administrateur
+Les scénarios concernant l'**Administrateur** (gestion des recettes publiques, gestion des utilisateurs) ont été retirés de ce document lors du debrief personas du 2026-04-24. L'Admin n'est pas un persona brasseur au sens du produit Brasse-Bouillon : c'est un rôle opérateur back-office distinct.
 
-#### Étapes
+Ces scénarios seront documentés séparément en **version 2 (v0.2+)**, en lien avec l'arrivée de la feature **Community** (modération des recettes publiques, gestion des utilisateurs inscrits). Un epic GitHub dédié sera créé (`TBD : epic "Community moderation v0.2+"`) pour porter cette vision.
 
-1. L’administrateur accède à l’interface "Gestion des recettes publiques".
-2. Il sélectionne une recette existante ou clique sur "Ajouter une recette".
-3. Pour une nouvelle recette, il saisit les informations suivantes :
-   - Titre de la recette.
-   - Liste des ingrédients avec quantités.
-   - Étapes détaillées de brassage.
-4. Pour une recette existante, il modifie les informations nécessaires ou supprime la recette.
-5. Une fois terminé, il valide les changements, qui sont publiés pour tous les utilisateurs.
-6. Un journal des modifications est mis à jour pour garder une trace des actions.
-
----
-
-### **8. Gérer les utilisateurs**
-
-#### Acteur : Administrateur
-
-#### Étapes
-
-1. L’administrateur accède à l’interface "Gestion des utilisateurs".
-2. Il recherche un utilisateur via son nom ou adresse email.
-3. L’administrateur peut :
-   - Ajouter un nouvel utilisateur avec les informations nécessaires.
-   - Modifier les droits ou informations d’un utilisateur existant.
-   - Supprimer un utilisateur en cas de besoin.
-4. Chaque action est sauvegardée dans un journal d’administration pour assurer la traçabilité.
+Voir la fiche personas [docs/personas/user_personas.md](../personas/user_personas.md) pour la cartographie à jour des rôles brasseurs (Découverte / Débutant / Amateur / Éco-responsable / Expert).

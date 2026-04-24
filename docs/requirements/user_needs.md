@@ -68,11 +68,13 @@ Ce document a pour but de synthétiser les retours issus du questionnaire Google
 
 ### 🌱 4. Enjeux écologiques et durables
 
-Les répondants manifestent un intérêt fort pour des outils aidant à :
+Les répondants manifestent un intérêt fort pour des outils aidant à une pratique plus durable. Ces besoins sont incarnés par la **persona Zoé la Brasseuse Éco-responsable** (voir [docs/personas/user_personas.md](../personas/user_personas.md)).
 
-- Valoriser les drêches (recettes zéro déchet, recyclage).
-- Calculer l’empreinte carbone de leurs brassins.
-- Localiser des fournisseurs responsables à proximité.
+| Item | Description | Statut version |
+|---|---|---|
+| ♻️ Valoriser les drêches | Recettes zéro déchet / recyclage / compost | **v0.1 — bonus prévu (~0,5-1j)** |
+| 🌍 Empreinte carbone | Calcul par brassin (ingrédients, transport, énergie) | v0.2+ |
+| 🏪 Fournisseurs responsables | Localiser des partenaires proches et responsables | v0.2+ (dépend de Boutique) |
 
 ---
 

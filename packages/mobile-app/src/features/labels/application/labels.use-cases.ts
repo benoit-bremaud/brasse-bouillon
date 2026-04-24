@@ -1,5 +1,6 @@
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { labelsStorage } from "@/features/labels/data/labels.repository";
+import { DEFAULT_LABEL_LEGAL_HINT } from "@/features/labels/domain/label.constants";
 import {
   DEFAULT_LABEL_ICON_ID,
   DEFAULT_LABEL_PALETTE_ID,
@@ -17,12 +18,6 @@ import {
 import { listRecipes } from "@/features/recipes/application/recipes.use-cases";
 
 const DEFAULT_BREWERY_NAME = "Brasse Bouillon";
-// Loi Évin disclaimer — mandatory on every alcoholic beverage label
-// in France (article L.3323-4 of the Code de la santé publique).
-// Exported so the Editor preview can render it live before the
-// previewSnapshot is computed at save time. See #634 (B-35).
-export const DEFAULT_LABEL_LEGAL_HINT =
-  "L’abus d’alcool est dangereux pour la santé, à consommer avec modération.";
 
 export interface CreateLabelDraftInput {
   batchId: string;

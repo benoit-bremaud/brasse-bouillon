@@ -1,9 +1,9 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
-  DEFAULT_LABEL_LEGAL_HINT,
   getLabelDraftById,
   updateLabelDraft,
 } from "@/features/labels/application/labels.use-cases";
+import { DEFAULT_LABEL_LEGAL_HINT } from "@/features/labels/domain/label.constants";
 import {
   LabelBottleFormat,
   LabelDraft,
@@ -392,9 +392,10 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           </Text>
           {/* Loi Évin disclaimer — mandatory on every alcohol label
               (#634 / B-35). Rendered in the live editor preview so what
-              the user sees while editing matches what gets saved. */}
+              the user sees while editing matches what gets saved. No
+              `accessibilityLabel` on purpose — the legal text itself is
+              what screen readers MUST read. */}
           <Text
-            accessibilityLabel="Mention légale Loi Évin"
             style={[
               styles.previewLegalText,
               { color: selectedPalette.foregroundColor },

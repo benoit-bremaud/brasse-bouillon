@@ -176,9 +176,10 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
                 regardless of palette. See #634 (B-35). Rendered ON the
                 visual preview so it carries through to future PDF / PNG
                 exports (#630). Uses the palette foreground color so the
-                contrast is preserved across themes. */}
+                contrast is preserved across themes. No `accessibilityLabel`
+                on purpose — the legal text itself is what screen readers
+                MUST read. */}
             <Text
-              accessibilityLabel="Mention légale Loi Évin"
               style={[
                 styles.previewLegalText,
                 { color: palette.foregroundColor },

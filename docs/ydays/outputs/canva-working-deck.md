@@ -52,38 +52,37 @@ Vote sur Discord (thread dédié canal Ydays). Au-delà de cette date, les
 previews côté Canva risquent d'expirer.
 :::
 
-::: danger Ce sont des générations IA brutes, pas des designs finis
-Le 2026-04-22, Canva AI a produit **4 propositions automatiques** à
-partir d'un prompt texte. Ce sont des **points de départ
-approximatifs**, pas des designs soignés :
+::: tip Régénérés le 2026-04-23 avec brand kit appliqué
+Les **4 propositions ci-dessous ont été régénérées le 2026-04-23** via
+Canva AI + MCP avec un brief explicite incluant la palette officielle
+du brand kit ([docs/design/canva-brand-kit.md](../../design/canva-brand-kit.md)) :
+jaune doré `#F4BD3F`, brun cuivre `#A06A3A`, beige `#E0D3AA`, olive
+`#7D8C3A`, polices Manrope (titres) + Inter (corps), avec mention de
+la mascotte chef-bière + pattern watermark à appliquer sur les slides
+titres.
 
-- Le contenu textuel des slides est générique, souvent mal formulé.
-- Les visuels et icônes sont choisis au hasard par l'IA.
-- La charte Brasse-Bouillon (jaune doré, ardoise, caractère du
-  brasseur) n'est **pas appliquée**.
-- Aucune capture réelle de l'application mobile n'a été intégrée.
+Les **anciennes propositions du 2026-04-22** ont été archivées dans le
+sous-dossier Canva `_archived-2026-04-23-pre-charte` du dossier projet.
+Elles ne sont plus à voter.
 
-**Voter pour "le moins mauvais" est une option**. Voter pour
-**"aucun des 4"** en est une autre, tout aussi valable — on repart
-alors d'une base propre en s'inspirant de :
-
-- **l'ancien deck Ydays** (charte graphique déjà maîtrisée, lien
-  plus bas) ;
-- **les captures V0 de l'application mobile** (à venir — elles
-  donneront le vrai vocabulaire visuel du produit).
+**Le contenu textuel reste générique** (issu du prompt) — il sera
+affiné après matérialisation du gagnant en s'appuyant sur la spec
+[Détail Canva S0-S14](canva-slides-detail.md). On vote sur la **forme**
+(mise en page, hiérarchie, lisibilité), pas sur le **fond**.
 :::
 
-## Les 4 propositions IA
+## Les 4 propositions (v2 — alignées brand kit)
 
 **Même contenu textuel dans les 15 slides** — seule la mise en page
-change (typographie, alignements, couleurs d'accent, choix d'icônes).
+change (typographie, alignements, choix d'icônes au sein de la palette
+brand kit).
 
-| # | Preview Canva | Notes éventuelles |
-|---|---|---|
-| 1 | <https://www.canva.com/d/UVCLyhsVime9-Wp> | |
-| 2 | <https://www.canva.com/d/DarT7uRYaEnQKIg> | |
-| 3 | <https://www.canva.com/d/jEXQ-3wOAWbhThy> | |
-| 4 | <https://www.canva.com/d/Dwvs2HKA7lsDbab> | |
+| # | Design Canva | Design ID | Notes éventuelles |
+|---|---|---|---|
+| 1 | <https://www.canva.com/d/Vs557vMfbBIWqkz> | `DAHHuAoG5_A` | |
+| 2 | <https://www.canva.com/d/XkW7FyqPQPBfxLn> | `DAHHuI2hqqo` | |
+| 3 | <https://www.canva.com/d/y0oPqdBwCZ0mUtv> | `DAHHuE30t8A` | |
+| 4 | <https://www.canva.com/d/okSI4v5aH8zbzar> | `DAHHuGPXl-c` | |
 
 ### Comment voter
 

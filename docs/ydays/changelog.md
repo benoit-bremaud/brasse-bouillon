@@ -7,6 +7,54 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.23-8
+
+**Régénération des 4 candidats Canva avec brand kit appliqué (via MCP)**
+
+Application opérationnelle du brand kit défini en v2026.04.23-7 sur les
+candidats du deck de soutenance. Exécution via MCP Canva en parallèle :
+
+- **Audit Canva courant** : 0 Brand Kit existant (à créer manuellement
+  côté UI Canva par le user, ~10 min, voir
+  [canva-brand-kit.md §1](../../design/canva-brand-kit.md)). 1 dossier
+  projet `Brasse-Bouillon — Soutenance Ydays` confirmé. 5 anciens
+  candidats trouvés (1 doublon vs les 4 attendus).
+- **Archivage** des 5 anciens candidats pré-charte dans un sous-dossier
+  Canva `_archived-2026-04-23-pre-charte` (MCP n'a pas de
+  `delete-design`, le déplacement suffit).
+- **Upload assets** dans Canva : `Yellow_Background.png` (pattern
+  watermark V0, asset ID `MAHHuDRYjXw`) + mascotte chef-bière 512×512
+  (asset ID `MAHHuNH-1BM`), tous deux servis depuis Cloudflare Pages.
+- **Génération** des 4 nouveaux candidats via `generate-design` Canva
+  (1 seul appel = 4 candidats retournés, design type `presentation`,
+  length `balanced` = 15 slides). Brief incluant la palette HEX, les
+  polices, le découpage S0-S14 et le ton soutenance.
+- **Matérialisation** des 4 candidats en designs persistants
+  (`DAHHuAoG5_A`, `DAHHuI2hqqo`, `DAHHuE30t8A`, `DAHHuGPXl-c`),
+  rangés dans le dossier projet.
+- **Commentaires** identiques courts et factuels postés sur chacun des
+  4 nouveaux designs : explication du brand kit, deadline vote
+  lundi 2026-05-04 23h59, lien vers la spec.
+- **canva-working-deck.md** mis à jour avec les 4 nouvelles URLs +
+  remplacement de l'encart `::: danger` (qui prétendait que la charte
+  n'était pas appliquée) par un encart `::: tip` documentant la
+  régénération brand-aligned du 2026-04-23.
+
+**Correction asset path VitePress** : `Yellow_Background.png` était
+initialement copié dans `.vitepress/public/` mais VitePress build
+utilise `docs/ydays/public/` comme source statique → l'asset n'était
+pas servi (404). Déplacé au bon endroit, redéployé, accessible.
+
+**Hors scope cette session** :
+
+- **Création du Brand Kit dans Canva UI** reste manuelle (MCP n'a pas
+  de `create-brand-kit`). Voir [canva-brand-kit.md §1](../../design/canva-brand-kit.md).
+- **Application slide par slide** des couleurs/polices au design
+  vainqueur post-vote : se fait après matérialisation, manuellement
+  (MCP n'a pas de `update-slide` / `set-color`).
+- **Suppression définitive des 5 anciens candidats** : à faire
+  manuellement depuis l'UI Canva si souhaité (sont juste archivés).
+
 ## 2026.04.23-7
 
 **Refonte charte graphique alignée sur l'app V0 réelle**

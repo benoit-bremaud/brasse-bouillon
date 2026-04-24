@@ -19,6 +19,33 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.3-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.2-alpha1...mobile-app-v0.1.3-alpha1) (2026-04-24)
+
+
+### Features
+
+* **labels:** render Loi Évin disclaimer on every label preview ([4215722](https://github.com/benoit-bremaud/brasse-bouillon/commit/42157225017f0249ce1f5f8b0a373783f1b16a25)), closes [#634](https://github.com/benoit-bremaud/brasse-bouillon/issues/634)
+* **labels:** render Loi Évin disclaimer on every label preview ([#684](https://github.com/benoit-bremaud/brasse-bouillon/issues/684)) ([a19de8f](https://github.com/benoit-bremaud/brasse-bouillon/commit/a19de8f93d3353dc4f3609ec0433e52a22d69b07)), closes [#634](https://github.com/benoit-bremaud/brasse-bouillon/issues/634)
+
+
+### Bug Fixes
+
+* **dashboard:** restore Ingrédients access + rename header action styles ([e975444](https://github.com/benoit-bremaud/brasse-bouillon/commit/e9754442b30a4e5638fb5ce89abc159f7b326e89))
+* **labels:** address Copilot R1 — a11y, constants module, compliance tests ([81ead12](https://github.com/benoit-bremaud/brasse-bouillon/commit/81ead126d0588058c78b9f9d74d80044d3208227))
+* **mobile-app:** drop accidental top-level expo.runtimeVersion in app.json ([10c0afa](https://github.com/benoit-bremaud/brasse-bouillon/commit/10c0afad566bae0759db76e8dacfc018d8829c09))
+* **shop:** category-aware price unit instead of hardcoded €/kg ([#683](https://github.com/benoit-bremaud/brasse-bouillon/issues/683)) ([93686de](https://github.com/benoit-bremaud/brasse-bouillon/commit/93686de7f8ff2a7bca99759bbb3211e6114e7ba8)), closes [#649](https://github.com/benoit-bremaud/brasse-bouillon/issues/649)
+* **shop:** use category-aware price unit instead of hardcoded €/kg ([c9fe484](https://github.com/benoit-bremaud/brasse-bouillon/commit/c9fe4841239eeda34d663a6c7c6d625b7c0a6fcb)), closes [#649](https://github.com/benoit-bremaud/brasse-bouillon/issues/649)
+* **shop:** use interface for Product + iterate map keys in test ([6837295](https://github.com/benoit-bremaud/brasse-bouillon/commit/6837295a0e23a26dd28d6d2d49febd8280dff820))
+
+
+### Refactors
+
+* **dashboard:** extract HeaderActionButton to drop SonarQube duplication ([5d9af9c](https://github.com/benoit-bremaud/brasse-bouillon/commit/5d9af9ca3b646cd328c0ffb56881502fc90521b0))
+* **dashboard:** factorize MORE_SECTIONS via factory helpers (DRY) ([03945ab](https://github.com/benoit-bremaud/brasse-bouillon/commit/03945abc3079393746fffda40158f0c8e790bfd4))
+* **dashboard:** remove Navigation rapide cards from home ([f0f8597](https://github.com/benoit-bremaud/brasse-bouillon/commit/f0f8597d1c33179712ac53876636eb892533ad31))
+* **dashboard:** remove Navigation rapide cards from home ([#682](https://github.com/benoit-bremaud/brasse-bouillon/issues/682)) ([ad9bd2b](https://github.com/benoit-bremaud/brasse-bouillon/commit/ad9bd2bd9cf2f0f6b31263089dcd8f38027e3c15)), closes [#614](https://github.com/benoit-bremaud/brasse-bouillon/issues/614)
+* **labels:** extract LabelLegalDisclaimerText to drop SonarQube duplication ([3772295](https://github.com/benoit-bremaud/brasse-bouillon/commit/377229558edd0a07fa7901a678dd0e25322fea85))
+
 ## [0.1.2-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.1-alpha1...mobile-app-v0.1.2-alpha1) (2026-04-24)
 
 

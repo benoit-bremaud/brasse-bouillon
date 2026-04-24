@@ -13,7 +13,7 @@ is the only file tracked in this folder.
 
 | File | Source | Purpose |
 |---|---|---|
-| `diy-dog-brewdog-2019-v8.pdf` | [BrewDog — DIY DOG](https://www.brewdog.com/uk/community/culture/diy-dog) | Open-source recipe book from BrewDog. ~27 MB. Used as a reference for (a) the Scan Tranche 2 demo (Punk IPA official recipe matching), (b) the beer encyclopedia seed data, and (c) product decisions about how to present official vs community recipes (pharmacy metaphor, ADR-0001 roadmap). |
+| `brewdog-diy-dog-2019-v8.pdf` | [BrewDog — DIY DOG](https://www.brewdog.com/uk/community/culture/diy-dog) | Open-source recipe book from BrewDog. ~27 MB. Used as a reference for (a) the Scan Tranche 2 demo (Punk IPA official recipe matching), (b) the beer encyclopedia seed data, and (c) product decisions about how to present official vs community recipes (pharmacy metaphor, ADR-0001 roadmap). |
 
 ## How to add a new reference
 

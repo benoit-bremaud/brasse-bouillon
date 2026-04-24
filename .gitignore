@@ -124,11 +124,19 @@ tree.txt
 Guide_Complet_Calculs_Brassage_*.md
 Chapitre*_*.md
 
-# External reference PDFs — tracked as local copies only, never versioned.
-# Reference material we consult for product / encyclopedia / scan work but
+# External reference material — tracked as local copies only, never
+# versioned. Files we consult for product / encyclopedia / scan work but
 # that we do not own (copyright stays with the original publisher).
-# Examples: BrewDog's DIY DOG recipe book, brewery recipe decks, etc.
-docs/product/references/*.pdf
+# Examples: BrewDog's DIY DOG recipe book, brewery decks, datasheets,
+# images, archives, etc.
+#
+# Ignore everything in the folder by default, then re-include only the
+# tracked metadata files (README). This is broader than a `*.pdf` rule
+# and covers the full "PDFs and assets" scope described in the README:
+# zip archives, images, mp4 walkthroughs, anything a contributor might
+# legitimately drop in for reference.
+docs/product/references/*
+!docs/product/references/README.md
 
 # Misc
 .cache/

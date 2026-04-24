@@ -7,6 +7,44 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### Compte & Paramètres brainstorm + MVP conservative cuts
+
+Morning session continuation — 45-minute structured Q&A on the
+merged "Compte" screen that consolidates `Profil` and `Paramètres
+globaux` into a single surface (backlog item **B-45**, decided on
+2026-04-23). 7 axes scoped (A→G) and captured in a new reference
+file [`docs/product/brainstorms/compte-parametres-2026-04-24.md`](docs/product/brainstorms/compte-parametres-2026-04-24.md).
+
+Budget synthesis showed the full scope at 25-36 days against 24
+working days available before the defense. Product owner chose the
+**conservative cuts** strategy, saving ~7-8 days by deferring to
+v0.2: app-wide Units toggle (kept as single-screen stub), browseable
+consent log (collection only kept), full badge grid (Level N2 kept),
+avatar upload (text-only initial kept), and real RGPD ZIP export
+(stub message kept).
+
+Key MVP scope for v0.1.0:
+
+- **Axis A (identity)** — display name + bio editable, text-only
+  initial avatar. Email / password change deferred.
+- **Axis B (brewer)** — stats card + level (Apprenti / Brasseur /
+  Maître Brasseur). Badges grid deferred.
+- **Axis C (preferences)** — theme full (system / light / dark) +
+  units stub on one representative screen + notifications and
+  privacy stubs with switches persisted locally.
+- **Axis D (RGPD)** — delete account real with 30-day grace period,
+  export stub message, consent collection silently plumbed to the
+  same consent store used by Scan.
+- **Axis E (social)** — none in MVP.
+- **Axis F (about)** — full panel: version + commit + build date +
+  OTA channel info. Ships alongside B-70 (version display) planned
+  for this afternoon.
+- **Axis G (demo)** — reserved for defense rehearsal.
+
+Decomposed into 7 codable chunks (~7-8 focused dev days) to execute
+in parallel with Scan Tranche 2. Principle confirmed: *"Build for
+today, design for tomorrow"* (pending ADR-001).
+
 ### Scan brainstorm + product decisions framing ([PR #686](https://github.com/benoit-bremaud/brasse-bouillon/pull/686))
 
 Morning session structured as a 60-minute Q&A with the product owner

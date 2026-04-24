@@ -13,6 +13,9 @@ import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 @Index(['owner_id'])
 @Index(['visibility'])
 @Index(['root_recipe_id'])
+@Index(['is_official'])
+@Index(['brew_count'])
+@Index(['last_brewed_at'])
 export class RecipeOrmEntity {
   @PrimaryColumn('uuid')
   id: string;

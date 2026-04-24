@@ -117,10 +117,10 @@ Ce document décrit les scénarios critiques identifiés pour chaque interaction
 
 ---
 
-## Note sur les rôles back-office
+## Note on back-office roles
 
-Les scénarios concernant l'**Administrateur** (gestion des recettes publiques, gestion des utilisateurs) ont été retirés de ce document lors du debrief personas du 2026-04-24. L'Admin n'est pas un persona brasseur au sens du produit Brasse-Bouillon : c'est un rôle opérateur back-office distinct.
+The scenarios about the **Administrator** (public recipe management, user management) were removed from this document during the 2026-04-24 personas debrief. The admin is not a brewer persona in the Brasse-Bouillon product sense — it is a distinct back-office operator role.
 
-Ces scénarios seront documentés séparément en **version 2 (v0.2+)**, en lien avec l'arrivée de la feature **Community** (modération des recettes publiques, gestion des utilisateurs inscrits). Un epic GitHub dédié sera créé (`TBD : epic "Community moderation v0.2+"`) pour porter cette vision.
+These scenarios will be documented separately in **version 2 (v0.2+)**, alongside the arrival of the **Community** feature (public recipe moderation, registered user management). A dedicated GitHub epic will be created (`TBD: epic "Community moderation v0.2+"`) to carry this vision.
 
-Voir la fiche personas [docs/personas/user_personas.md](../personas/user_personas.md) pour la cartographie à jour des rôles brasseurs (Découverte / Débutant / Amateur / Éco-responsable / Expert).
+See the personas sheet [docs/personas/user_personas.md](../personas/user_personas.md) for the up-to-date mapping of brewer roles (`Discovery` / `Novice` / `Amateur` / `EcoResponsible` / `Expert`).

@@ -10,23 +10,26 @@ Ce document présente les profils types d'utilisateurs cibles de l'application B
 
 ### Rôles utilisateur de l'application
 
-| Rôle (technique) | Persona (narrative) | Statut v0.1 |
-|---|---|---|
-| Découverte / Curieuse | **Léa la Curieuse** | ⭐ **Persona primaire de la soutenance** (demo hero) |
-| Débutant | **Nicolas le Débutant** | Cible secondaire — servi par Scan + onboarding |
-| Amateur créatif | **Claire l'Amatrice Créative** | Cible secondaire — journal brassage partiel (B-08 v0.2) |
-| Éco-responsable | **Zoé la Brasseuse Éco-responsable** | Cible secondaire — servie par la valorisation des drêches |
-| Expert | **Marc le Brasseur Expert** | Vision v0.2 — export CSV possible en bonus |
+| Role ID (EN, canonical) | Libellé FR (display) | Persona (narrative FR) | Statut v0.1 |
+|---|---|---|---|
+| `Discovery` | Découverte / Curieuse | **Léa la Curieuse** | ⭐ **Persona primaire de la soutenance** (demo hero) |
+| `Novice` | Débutant | **Nicolas le Débutant** | Cible secondaire — servi par Scan + onboarding |
+| `Amateur` | Amateur créatif | **Claire l'Amatrice Créative** | Cible secondaire — journal brassage partiel (B-08 v0.2) |
+| `EcoResponsible` | Éco-responsable | **Zoé la Brasseuse Éco-responsable** | Cible secondaire — servie par la valorisation des drêches |
+| `Expert` | Expert | **Marc le Brasseur Expert** | Vision v0.2 — export CSV possible en bonus |
 
-### Règle de référence
+### Règle de référence — bilingue assumée
 
-Les **noms propres** (Léa, Nicolas, Claire, Zoé, Marc) sont utilisés dans cette fiche personas et dans le storytelling (soutenance, deck ydays, supports de communication) pour humaniser les utilisateurs cibles.
+Cette fiche personas est volontairement bilingue. Elle porte à la fois le **storytelling** (destiné au jury francophone, au deck ydays, aux supports de communication) et les **identifiants techniques** utilisés dans le code et les tickets.
 
-Les **rôles techniques** (Découverte / Débutant / Amateur / Éco-responsable / Expert) sont utilisés dans les documents techniques (user stories, user scenarios, user_needs, tickets GitHub, commentaires de code) pour garder une indépendance vis-à-vis des renommages.
+- **Role IDs (en anglais)** — `Discovery`, `Novice`, `Amateur`, `EcoResponsible`, `Expert` — à utiliser dans les user stories, les user scenarios, les tickets GitHub, les commentaires de code, les constantes TypeScript (`enum UserPersonaRole`). Canoniques et stables.
+- **Noms propres (en français)** — Léa, Nicolas, Claire, Zoé, Marc — à utiliser dans la fiche personas ci-dessous, le storytelling soutenance, le deck ydays, les supports de communication. Humanisent les utilisateurs cibles.
+- **Libellés FR display** — Découverte, Débutant, Amateur créatif, Éco-responsable, Expert — à utiliser dans l'UI francophone quand un libellé de rôle doit être affiché à l'utilisateur.
 
-Exemple :
-- Dans le pitch soutenance : *"Léa vient de scanner une Punk IPA..."*
-- Dans un ticket GitHub : *"As a Curious user, I want to scan a bottle..."*
+Exemples :
+- Dans le pitch soutenance (narrative FR) : *"Léa vient de scanner une Punk IPA..."*
+- Dans un ticket GitHub (technical EN) : *"As a `Discovery` user, I want to scan a bottle..."*
+- Dans le code TypeScript : `UserPersonaRole.Discovery`
 
 ---
 

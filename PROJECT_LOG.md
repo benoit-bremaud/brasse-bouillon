@@ -82,7 +82,8 @@ garbled "anti-pattern exception" wording) and ADR-0003 (incomplete
 canonical axis list missing `scan.training`, two `browseable`
 typos) — three unique + four duplicates, all grouped with
 cross-references. All nine addressed in commit `508bab2`.
- All three land as accepted ADRs under a new folder
+
+All three land as accepted ADRs under a new folder
 [`docs/architecture/decisions/`](docs/architecture/decisions/) with a
 README explaining the template (Michael Nygard format) and the
 mutability policy (append-only once accepted, supersession via a new

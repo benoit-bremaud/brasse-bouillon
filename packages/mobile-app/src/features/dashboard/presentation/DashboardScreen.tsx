@@ -91,72 +91,56 @@ const BREWING_STEPS: BrewStepConfig[] = [
   },
 ];
 
+// Factory helpers — keep each row declarative (just the variable
+// fields) and bake the cross-cutting type/category in one place.
+// DRY + OCP: adding a new business route below is a one-liner; the
+// `type: "route"` + `category: "business"` invariants cannot drift
+// between rows. Also kills the SonarCloud "duplicated lines" hot-spot
+// (each MoreSectionItem literal was 8 near-identical lines).
+function businessRoute(
+  id: string,
+  label: string,
+  icon: keyof typeof Ionicons.glyphMap,
+  href: Href,
+): MoreSectionItem {
+  return { id, label, icon, href, type: "route", category: "business" };
+}
+
+function accountAction(
+  id: string,
+  label: string,
+  icon: keyof typeof Ionicons.glyphMap,
+): MoreSectionItem {
+  return { id, label, icon, type: "profile", category: "account" };
+}
+
 const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
-  {
-    id: "scan",
-    label: "Scanner",
-    icon: "qr-code-outline",
-    href: "/(app)/dashboard/scan",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "labels",
-    label: "Mes étiquettes",
-    icon: "pricetags-outline",
-    href: "/(app)/dashboard/labels",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "equipment",
-    label: "Équipements",
-    icon: "construct-outline",
-    href: "/(app)/equipment",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "ingredients",
-    label: "Ingrédients",
-    icon: "leaf-outline",
-    href: "/(app)/ingredients",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "academy",
-    label: "Académie",
-    icon: "school-outline",
-    href: "/(app)/academy",
-    type: "route",
-    category: "business",
-  },
-  {
-    id: "shop",
-    label: "Boutique",
-    icon: "cart-outline",
-    href: "/(app)/shop",
-    type: "route",
-    category: "business",
-  },
+  businessRoute("scan", "Scanner", "qr-code-outline", "/(app)/dashboard/scan"),
+  businessRoute(
+    "labels",
+    "Mes étiquettes",
+    "pricetags-outline",
+    "/(app)/dashboard/labels",
+  ),
+  businessRoute(
+    "equipment",
+    "Équipements",
+    "construct-outline",
+    "/(app)/equipment",
+  ),
+  businessRoute(
+    "ingredients",
+    "Ingrédients",
+    "leaf-outline",
+    "/(app)/ingredients",
+  ),
+  businessRoute("academy", "Académie", "school-outline", "/(app)/academy"),
+  businessRoute("shop", "Boutique", "cart-outline", "/(app)/shop"),
 ];
 
 const MORE_ACCOUNT_SECTIONS: MoreSectionItem[] = [
-  {
-    id: "profile",
-    label: "Profil",
-    icon: "person-circle-outline",
-    type: "profile",
-    category: "account",
-  },
-  {
-    id: "settings",
-    label: "Paramètres globaux",
-    icon: "settings-outline",
-    type: "profile",
-    category: "account",
-  },
+  accountAction("profile", "Profil", "person-circle-outline"),
+  accountAction("settings", "Paramètres globaux", "settings-outline"),
 ];
 
 const MORE_SECTION_CONFIGS: MoreSectionConfig[] = [

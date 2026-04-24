@@ -169,3 +169,28 @@ This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — a chronological, a
 | Sprint structure | [docs/project-management/sprint-definition.md](docs/project-management/sprint-definition.md) |
 | API docs | [docs/api/](docs/api/) |
 | Architecture | [docs/architecture/](docs/architecture/) |
+| Architecture Decision Records | [docs/architecture/decisions/](docs/architecture/decisions/) |
+
+---
+
+## Architecture Decision Records — mandatory context for every PR review
+
+Every agent (Copilot, Codex, and any human reviewer) MUST read the
+accepted ADRs under [docs/architecture/decisions/](docs/architecture/decisions/)
+before reviewing code. These documents define the structural rules of
+this project.
+
+**Active accepted ADRs** (as of 2026-04-24):
+
+- [ADR-0001 — Build for today, design for tomorrow](docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md)
+  — Five-clause rule, four forbidden anti-patterns, three tolerated
+  exceptions. Applies to every new piece of code.
+- [ADR-0002 — Centralized NestJS backend for all external data sources](docs/architecture/decisions/0002-centralized-nestjs-backend.md)
+  — Mobile talks only to our NestJS API; no direct third-party calls
+  from the mobile bundle.
+- [ADR-0003 — Consent as a single source of truth](docs/architecture/decisions/0003-consent-single-source-of-truth.md)
+  — One canonical consent store on the mobile app; feature-namespaced,
+  append-only, GDPR-compliant by construction.
+
+When reviewing a PR, flag any diff that violates these ADRs. Cite the
+ADR number and clause in the review comment.

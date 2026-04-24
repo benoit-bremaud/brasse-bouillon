@@ -7,6 +7,46 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-24
 
+### Architecture session — three ADRs accepted
+
+Morning session continuation (third of four brainstorms scheduled for
+the day) — structured Q&A to formalize three architectural decisions
+that already governed the code informally and needed a written
+contract. All three land as accepted ADRs under a new folder
+[`docs/architecture/decisions/`](docs/architecture/decisions/) with a
+README explaining the template (Michael Nygard format) and the
+mutability policy (append-only once accepted, supersession via a new
+ADR).
+
+- **ADR-0001 — Build for today, design for tomorrow.** Five-clause
+  rule (minimal implementation, shapes anticipate evolution, `501 Not
+  Implemented` stubs for deferred endpoints, components extensible by
+  default, one ADR per structural choice), four forbidden anti-patterns
+  (feature flags for non-existent features, phantom lifecycle hooks,
+  premature abstraction without the rule of three, `TODO v2` without
+  a trace), three tolerated exceptions (kill switches on demo-critical
+  paths, abstractions imposed by Clean Architecture, dated transient
+  TODO markers). Enforcement at PR-review time via the AI reviewers
+  (Copilot, Codex) reading the ADR through `CLAUDE.md`.
+- **ADR-0002 — Centralized NestJS backend.** Mobile talks only to
+  our NestJS API; the backend proxies OpenFoodFacts today and
+  Wikipedia / Untappd / RateBeer / brewery scrapers tomorrow.
+  Response normalisation, server-side caching, and credentials
+  management all live server-side. Aligned with ADR-0001 on the
+  `source` discriminant and the `501` stubs.
+- **ADR-0003 — Consent as a single source of truth.** One canonical
+  append-only consent store on the mobile app, feature-namespaced
+  axes (`scan.barcode`, `scan.photos`, `scan.metadata`, `ml.training`,
+  `telemetry`, …), two writers in v0.1 (Scan onboarding, Settings
+  privacy). Resolves the Scan / Settings consent overlap flagged in
+  the two earlier brainstorms. GDPR-compliant by construction.
+
+Root `CLAUDE.md` now carries a mandatory "Architecture Decision
+Records" section linking the three ADRs, so every agent starting a
+session reads them before reviewing code. Violations should be
+flagged at PR-review time with an explicit ADR number + clause
+citation.
+
 ### Log entry enrichment for PR #688 ([PR #689](https://github.com/benoit-bremaud/brasse-bouillon/pull/689))
 
 Small follow-up PR to bring the `Compte` & settings entry (above) in

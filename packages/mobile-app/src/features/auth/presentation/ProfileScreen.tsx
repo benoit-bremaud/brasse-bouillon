@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 
+import { AboutFooter } from "@/core/ui/AboutFooter";
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
@@ -126,6 +127,8 @@ export function ProfileScreen() {
         >
           <Text style={styles.secondaryActionText}>Se déconnecter</Text>
         </Pressable>
+
+        <AboutFooter />
       </ScrollView>
 
       <Modal

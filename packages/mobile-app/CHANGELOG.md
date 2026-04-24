@@ -19,6 +19,15 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.2-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.1-alpha1...mobile-app-v0.1.2-alpha1) (2026-04-24)
+
+
+### Bug Fixes
+
+* **labels:** clear bottom tab bar on Sélection CTA and Éditeur preview ([c988b4e](https://github.com/benoit-bremaud/brasse-bouillon/commit/c988b4e9415c8dbe123444ff5f3a499458d9ee8f)), closes [#596](https://github.com/benoit-bremaud/brasse-bouillon/issues/596) [#597](https://github.com/benoit-bremaud/brasse-bouillon/issues/597)
+* **labels:** clear bottom tab bar on Sélection CTA and Éditeur preview ([#677](https://github.com/benoit-bremaud/brasse-bouillon/issues/677)) ([81d43db](https://github.com/benoit-bremaud/brasse-bouillon/commit/81d43db1b2ecd8a59ce7537e42e411bb44c0f2b1)), closes [#596](https://github.com/benoit-bremaud/brasse-bouillon/issues/596) [#597](https://github.com/benoit-bremaud/brasse-bouillon/issues/597)
+* **labels:** keyboardShouldPersistTaps + drop double card spacing ([42f44cc](https://github.com/benoit-bremaud/brasse-bouillon/commit/42f44cc4a2b847ede53b51ad3144208831e60733))
+
 ## [0.1.1-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.0-alpha1...mobile-app-v0.1.1-alpha1) (2026-04-24)
 
 

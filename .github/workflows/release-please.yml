@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  # Manual escape hatch — needed when a merged release PR is left with
+  # `autorelease: pending` (race condition in release-please-action that
+  # occasionally aborts with "There are untagged, merged release PRs
+  # outstanding"). Re-triggering the workflow picks up the pending PRs
+  # and cuts the tags.
+  workflow_dispatch:
 
 permissions:
   contents: write

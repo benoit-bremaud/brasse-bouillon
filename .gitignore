@@ -124,6 +124,12 @@ tree.txt
 Guide_Complet_Calculs_Brassage_*.md
 Chapitre*_*.md
 
+# External reference PDFs — tracked as local copies only, never versioned.
+# Reference material we consult for product / encyclopedia / scan work but
+# that we do not own (copyright stays with the original publisher).
+# Examples: BrewDog's DIY DOG recipe book, brewery recipe decks, etc.
+docs/product/references/*.pdf
+
 # Misc
 .cache/
 .temp

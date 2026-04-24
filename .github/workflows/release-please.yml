@@ -25,7 +25,8 @@ jobs:
       # to trigger `pull_request` workflows on events created by its own
       # internal token (to prevent infinite loops). Consequence with the
       # default token: every release-please PR gets stuck `BLOCKED` because
-      # the required CI checks (changes / mobile-app / api / SonarCloud)
+      # the required CI checks (changes / mobile-app / api /
+      # SonarCloud Scan / SonarCloud Code Analysis / security-audit)
       # never start. With a user PAT, the PR is seen as created by a real
       # user and the CI runs normally.
       #

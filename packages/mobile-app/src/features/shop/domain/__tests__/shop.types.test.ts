@@ -41,19 +41,19 @@ describe("getProductPriceUnit", () => {
     );
   });
 
-  // Edge case — every category in the type union has a default mapping
-  // (regression guard so adding a new category to ShopCategory without
-  // updating DEFAULT_PRICE_UNIT_BY_CATEGORY trips a TS error AND this
-  // test if it slips through).
-  it("has a default unit registered for every shop category", () => {
-    const categories: Array<keyof typeof DEFAULT_PRICE_UNIT_BY_CATEGORY> = [
-      "malts",
-      "houblons",
-      "levures",
-      "materiel",
-      "accessoires",
-      "kits",
-    ];
+  // Edge case — every key actually present in
+  // DEFAULT_PRICE_UNIT_BY_CATEGORY maps to a valid €-prefixed unit.
+  // Iterating from Object.keys (instead of a hardcoded list) keeps
+  // this assertion honest as a regression guard: adding a category
+  // to the map without giving it a real €-prefixed unit will trip
+  // here automatically. The Record<ShopCategory, PriceUnit> typing
+  // already gives us a TS-level guarantee that every ShopCategory
+  // member has SOME entry; this test guards the value shape.
+  it("has a valid €-prefixed unit registered for every entry of the map", () => {
+    const categories = Object.keys(DEFAULT_PRICE_UNIT_BY_CATEGORY) as Array<
+      keyof typeof DEFAULT_PRICE_UNIT_BY_CATEGORY
+    >;
+    expect(categories.length).toBeGreaterThan(0);
     for (const category of categories) {
       expect(DEFAULT_PRICE_UNIT_BY_CATEGORY[category]).toMatch(/^€\//);
     }

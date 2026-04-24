@@ -48,6 +48,9 @@
     "owner": "beniot",
     "updates": {
       "url": "https://u.expo.dev/a527c490-36e1-49f2-a91b-5866a2823b5f"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

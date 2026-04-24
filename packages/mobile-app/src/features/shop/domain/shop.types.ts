@@ -20,7 +20,9 @@ export const DEFAULT_PRICE_UNIT_BY_CATEGORY: Record<ShopCategory, PriceUnit> = {
   kits: "€/pièce",
 };
 
-export type Product = {
+// `interface` for object shapes per the repo convention (CLAUDE.md
+// §TypeScript). `type` stays for unions like ShopCategory / PriceUnit.
+export interface Product {
   id: string;
   name: string;
   description: string;
@@ -31,7 +33,7 @@ export type Product = {
   category: ShopCategory;
   image?: string;
   inStock: boolean;
-};
+}
 
 export function getProductPriceUnit(product: Product): PriceUnit {
   return product.priceUnit ?? DEFAULT_PRICE_UNIT_BY_CATEGORY[product.category];

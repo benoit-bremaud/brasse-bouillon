@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -10,8 +16,10 @@ import { ApiProperty } from '@nestjs/swagger';
  * raw token and looks it up against `users.password_reset_token_hash`,
  * verifies the expiry, then writes the new password.
  *
- * Password rules (8-128 chars) match the existing change-password DTO
- * to keep validation consistent across all password-setting flows.
+ * Password rules match the existing ChangePasswordDto / CreateUserDto
+ * (min 8 chars + 1 uppercase + 1 lowercase + 1 digit + 1 special char
+ * in `!@#$%^&*`) so a user cannot use the reset flow as a backdoor to
+ * set a weaker password than every other password-setting flow allows.
  */
 export class ResetPasswordDto {
   @ApiProperty({
@@ -24,7 +32,8 @@ export class ResetPasswordDto {
   token: string;
 
   @ApiProperty({
-    description: 'New password (8-128 characters)',
+    description:
+      'New password (min 8 chars, must contain uppercase, lowercase, number, and special char in !@#$%^&*)',
     example: 'NewSecurePass123!',
     minLength: 8,
     maxLength: 128,
@@ -33,5 +42,9 @@ export class ResetPasswordDto {
   @IsNotEmpty({ message: 'New password is required' })
   @MinLength(8, { message: 'New password must be at least 8 characters long' })
   @MaxLength(128, { message: 'New password must not exceed 128 characters' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/, {
+    message:
+      'New password must contain uppercase, lowercase, number, and special character (!@#$%^&*)',
+  })
   new_password: string;
 }

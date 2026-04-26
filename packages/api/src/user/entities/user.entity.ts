@@ -170,11 +170,15 @@ export class User {
   is_active: boolean;
 
   /**
-   * Bcrypt hash of the password-reset token currently in flight for
+   * SHA-256 hash of the password-reset token currently in flight for
    * this user. Null when no reset is requested. Storing the hash
    * (not the raw token) means a leaked DB snapshot cannot be used to
-   * complete a reset directly. Cleared on successful reset, on a new
-   * reset request (single-use), and on direct password change.
+   * complete a reset directly. SHA-256 (deterministic) is used here
+   * instead of bcrypt because the raw token is a high-entropy UUIDv4
+   * with a 1-hour lifetime: bcrypt's salt would prevent the
+   * single-roundtrip lookup we want at reset time. Cleared on
+   * successful reset, on a new reset request (single-use), and on
+   * direct password change via UserService.changePassword.
    *
    * @type {string | null}
    */

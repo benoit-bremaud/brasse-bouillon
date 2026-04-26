@@ -735,8 +735,13 @@ export class UserService {
     const hashedNewPassword =
       await this.passwordService.hashPassword(newPassword);
 
-    // ✅ DATABASE UPDATE: Update password and timestamp
+    // ✅ DATABASE UPDATE: Update password and timestamp.
+    // Also clear any in-flight password-reset token so an attacker
+    // who is mid-reset-flow loses their window when the user changes
+    // their password through the legitimate change-password flow.
     user.password_hash = hashedNewPassword;
+    user.password_reset_token_hash = null;
+    user.password_reset_expires_at = null;
     user.updated_at = new Date();
 
     // ✅ DATABASE PERSISTENCE
@@ -893,22 +898,29 @@ export class UserService {
   }
 
   /**
-   * Complete a password reset: write the new password hash and clear
-   * the reset-token fields atomically. After this call, the previously
-   * issued token is no longer usable (the hash is gone), and the user
-   * can authenticate with the new password.
+   * Complete a password reset atomically: write the new password hash
+   * and clear the reset-token fields in a single SQL UPDATE that is
+   * conditional on the expected token hash still being present.
+   *
+   * Returning a boolean lets the caller (`AuthService.resetPassword`)
+   * detect a lost race: if two concurrent requests submit the same
+   * valid token, the first UPDATE clears the hash and the second one
+   * matches 0 rows and gets `false` — so only one reset succeeds and
+   * the other surfaces as a generic 400.
    */
   async completePasswordReset(
     userId: string,
+    expectedTokenHash: string,
     newPasswordHash: string,
-  ): Promise<void> {
-    await this.userRepository.update(
-      { id: userId },
+  ): Promise<boolean> {
+    const result = await this.userRepository.update(
+      { id: userId, password_reset_token_hash: expectedTokenHash },
       {
         password_hash: newPasswordHash,
         password_reset_token_hash: null,
         password_reset_expires_at: null,
       },
     );
+    return (result.affected ?? 0) > 0;
   }
 }

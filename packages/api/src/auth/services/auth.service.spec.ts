@@ -277,8 +277,11 @@ describe('AuthService', () => {
         // SHA-256 of a UUIDv4 hex string is exactly 64 hex chars.
         expect(storedHash).toMatch(/^[a-f0-9]{64}$/);
         const ttlMs = storedExpiry.getTime() - Date.now();
-        expect(ttlMs).toBeGreaterThan(59 * 60 * 1000);
-        expect(ttlMs).toBeLessThanOrEqual(60 * 60 * 1000 + 100);
+        // 1h target ± 5s tolerance — wide enough that slow CI runners
+        // can still pass the check, narrow enough that we'd notice a
+        // bug that doubled or halved the TTL.
+        expect(ttlMs).toBeGreaterThan(60 * 60 * 1000 - 5_000);
+        expect(ttlMs).toBeLessThanOrEqual(60 * 60 * 1000 + 5_000);
       });
     });
 
@@ -325,7 +328,7 @@ describe('AuthService', () => {
           .mockResolvedValue('new-bcrypt-hash');
         const completeResetSpy = jest
           .spyOn(userService, 'completePasswordReset')
-          .mockResolvedValue(undefined);
+          .mockResolvedValue(true);
 
         const response = await service.resetPassword(
           rawToken,
@@ -336,9 +339,34 @@ describe('AuthService', () => {
         expect(hashPasswordSpy).toHaveBeenCalledWith('NewSecurePass123!');
         expect(completeResetSpy).toHaveBeenCalledWith(
           user.id,
+          tokenHash,
           'new-bcrypt-hash',
         );
         expect(response.message).toMatch(/successfully/);
+      });
+
+      it('throws BadRequestException when the atomic UPDATE matches 0 rows (race lost)', async () => {
+        const rawToken = '6f4e5b2a-7c3d-4f10-9b3e-1c8f7d2a3e0f';
+        const tokenHash = sha256(rawToken);
+        const user = makeUser({
+          password_reset_token_hash: tokenHash,
+          password_reset_expires_at: new Date(Date.now() + 30 * 60 * 1000),
+        });
+        jest
+          .spyOn(userService, 'findByValidPasswordResetTokenHash')
+          .mockResolvedValue(user);
+        jest
+          .spyOn(passwordService, 'hashPassword')
+          .mockResolvedValue('new-bcrypt-hash');
+        // Simulate the race: another request consumed the token
+        // between our SELECT and our UPDATE — affected = 0.
+        jest
+          .spyOn(userService, 'completePasswordReset')
+          .mockResolvedValue(false);
+
+        await expect(
+          service.resetPassword(rawToken, 'NewSecurePass123!'),
+        ).rejects.toThrow(BadRequestException);
       });
     });
 

@@ -4,16 +4,23 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * Adds password-reset fields to the `users` table (Issue #603a).
  *
  * Two columns:
- * - `password_reset_token_hash` VARCHAR(255) nullable — bcrypt hash of
- *   the raw token. Storing the hash (not the raw token) prevents a
- *   leaked DB snapshot from being directly usable to reset accounts.
+ * - `password_reset_token_hash` VARCHAR(255) nullable — SHA-256 hash of
+ *   the raw token, stored for deterministic single-roundtrip lookup.
+ *   Storing the hash (not the raw token) prevents a leaked DB snapshot
+ *   from being directly usable to reset accounts. SHA-256 is used here
+ *   rather than bcrypt because the raw token is a UUIDv4 (122 bits of
+ *   entropy) with a 1-hour lifetime — bcrypt's salt would force a
+ *   candidate-scan at reset time and bring no security benefit on
+ *   high-entropy single-use tokens.
  * - `password_reset_expires_at` DATETIME nullable — UTC timestamp at
  *   which the token expires (1 hour after issuance per the onboarding
  *   brainstorm §2.7).
  *
  * Both fields stay NULL when no reset is in-flight. They are cleared
  * on successful reset, on a new reset request (single-use semantics),
- * and on password change via the existing change-password flow.
+ * and on direct password change via UserService.changePassword (so an
+ * in-flight reset window closes the moment the legitimate user
+ * changes their password through any other flow).
  *
  * Index on `password_reset_token_hash` so reset attempts can locate
  * the user efficiently when they POST the token to /auth/reset-password.

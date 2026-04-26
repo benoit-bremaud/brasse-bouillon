@@ -170,6 +170,33 @@ export class User {
   is_active: boolean;
 
   /**
+   * SHA-256 hash of the password-reset token currently in flight for
+   * this user. Null when no reset is requested. Storing the hash
+   * (not the raw token) means a leaked DB snapshot cannot be used to
+   * complete a reset directly. SHA-256 (deterministic) is used here
+   * instead of bcrypt because the raw token is a high-entropy UUIDv4
+   * with a 1-hour lifetime: bcrypt's salt would prevent the
+   * single-roundtrip lookup we want at reset time. Cleared on
+   * successful reset, on a new reset request (single-use), and on
+   * direct password change via UserService.changePassword.
+   *
+   * @type {string | null}
+   */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password_reset_token_hash?: string | null;
+
+  /**
+   * Expiration timestamp (UTC) of the in-flight password-reset token.
+   * Null when no reset is requested. Tokens older than this timestamp
+   * are rejected by the reset endpoint. Per the onboarding brainstorm
+   * §2.7, the lifetime is 1 hour.
+   *
+   * @type {Date | null}
+   */
+  @Column({ type: 'datetime', nullable: true })
+  password_reset_expires_at?: Date | null;
+
+  /**
    * Validates a plain text password against the stored hashed password.
    * Uses bcrypt.compare() for secure comparison that resists timing attacks.
    *

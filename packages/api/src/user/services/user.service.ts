@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
@@ -735,8 +735,13 @@ export class UserService {
     const hashedNewPassword =
       await this.passwordService.hashPassword(newPassword);
 
-    // ✅ DATABASE UPDATE: Update password and timestamp
+    // ✅ DATABASE UPDATE: Update password and timestamp.
+    // Also clear any in-flight password-reset token so an attacker
+    // who is mid-reset-flow loses their window when the user changes
+    // their password through the legitimate change-password flow.
     user.password_hash = hashedNewPassword;
+    user.password_reset_token_hash = null;
+    user.password_reset_expires_at = null;
     user.updated_at = new Date();
 
     // ✅ DATABASE PERSISTENCE
@@ -851,5 +856,71 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password_hash, ...userWithoutPassword } = user;
     return userWithoutPassword as User;
+  }
+
+  /**
+   * Persist an in-flight password-reset token on a user. Stores the
+   * hash (not the raw token) and the expiry timestamp. Overwrites any
+   * previous in-flight token (single-use semantics: the latest request
+   * wins, the previous one becomes invalid).
+   *
+   * Used by AuthService.requestPasswordReset.
+   */
+  async setPasswordResetToken(
+    userId: string,
+    tokenHash: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.userRepository.update(
+      { id: userId },
+      {
+        password_reset_token_hash: tokenHash,
+        password_reset_expires_at: expiresAt,
+      },
+    );
+  }
+
+  /**
+   * Look up a user by an active (non-expired) password-reset token
+   * hash. Returns null when no match (no user with that hash, or the
+   * token has expired). Used by AuthService.resetPassword to validate
+   * the token sent by the client.
+   */
+  async findByValidPasswordResetTokenHash(
+    tokenHash: string,
+  ): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: {
+        password_reset_token_hash: tokenHash,
+        password_reset_expires_at: MoreThan(new Date()),
+      },
+    });
+  }
+
+  /**
+   * Complete a password reset atomically: write the new password hash
+   * and clear the reset-token fields in a single SQL UPDATE that is
+   * conditional on the expected token hash still being present.
+   *
+   * Returning a boolean lets the caller (`AuthService.resetPassword`)
+   * detect a lost race: if two concurrent requests submit the same
+   * valid token, the first UPDATE clears the hash and the second one
+   * matches 0 rows and gets `false` — so only one reset succeeds and
+   * the other surfaces as a generic 400.
+   */
+  async completePasswordReset(
+    userId: string,
+    expectedTokenHash: string,
+    newPasswordHash: string,
+  ): Promise<boolean> {
+    const result = await this.userRepository.update(
+      { id: userId, password_reset_token_hash: expectedTokenHash },
+      {
+        password_hash: newPasswordHash,
+        password_reset_token_hash: null,
+        password_reset_expires_at: null,
+      },
+    );
+    return (result.affected ?? 0) > 0;
   }
 }

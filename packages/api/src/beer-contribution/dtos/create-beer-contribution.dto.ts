@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 /**
@@ -49,9 +49,9 @@ export class CreateBeerContributionDto {
   @IsString()
   notes?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
-      'EAN-13 barcode of the beer being contributed. Stored on the eventual scan_catalog_items row when the contribution is approved.',
+      'EAN-13 barcode of the beer being contributed. Stored on the eventual scan_catalog_items row when the contribution is approved. Optional in the v0.1 stub (the whole DTO is permissive); will likely become required when the v0.2+ service ships.',
   })
   @IsOptional()
   @IsString()

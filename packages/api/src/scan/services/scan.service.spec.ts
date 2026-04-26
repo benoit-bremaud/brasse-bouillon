@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryFailedError, Repository } from 'typeorm';
 
+import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
 import { ScanImageFace } from '../domain/enums/scan-image-face.enum';
 import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
@@ -68,6 +69,9 @@ const createCatalogItem = (
   is_ibu_estimated: false,
   is_color_ebc_estimated: false,
   is_style_estimated: false,
+  source: ScanCatalogSource.SEED,
+  fetched_at: null,
+  raw_payload: null,
   created_at: new Date('2026-01-01T00:00:00.000Z'),
   updated_at: new Date('2026-01-01T00:00:00.000Z'),
   ...overrides,
@@ -369,7 +373,7 @@ describe('ScanService', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
     });
 
-    test('edge case: creates a new catalog item when barcode is unknown', async () => {
+    test('edge case: creates a new catalog item with source=MANUAL when barcode is unknown', async () => {
       const scanRequest = createScanRequest({ id: 'scan-1' });
       const queue = createReviewQueue({ scan_request_id: 'scan-1' });
 
@@ -384,9 +388,17 @@ describe('ScanService', () => {
         );
       catalogItemRepository.findOne
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(createCatalogItem({ id: 'catalog-new' }));
+        .mockResolvedValueOnce(
+          createCatalogItem({
+            id: 'catalog-new',
+            source: ScanCatalogSource.MANUAL,
+          }),
+        );
       catalogItemRepository.create.mockReturnValue(
-        createCatalogItem({ id: 'catalog-new' }),
+        createCatalogItem({
+          id: 'catalog-new',
+          source: ScanCatalogSource.MANUAL,
+        }),
       );
 
       const result = await service.adminResolveReview('admin-1', 'scan-1', {
@@ -397,7 +409,11 @@ describe('ScanService', () => {
         fermentation_type: ScanFermentationType.ALE,
       });
 
-      expect(catalogItemRepository.create).toHaveBeenCalled();
+      // Provenance must be MANUAL on admin-curated rows; the migration's
+      // DEFAULT 'seed' would otherwise mislabel them.
+      expect(catalogItemRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ source: ScanCatalogSource.MANUAL }),
+      );
       expect(result.status).toBe(ScanRequestStatus.RESOLVED);
     });
   });

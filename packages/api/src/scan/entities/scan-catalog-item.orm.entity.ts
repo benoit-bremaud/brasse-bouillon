@@ -7,12 +7,15 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
 
 @Entity('scan_catalog_items')
 @Index('UQ_scan_catalog_items_barcode', ['barcode'], { unique: true })
 @Index('IDX_scan_catalog_items_name', ['name'])
 @Index('IDX_scan_catalog_items_style', ['style'])
+@Index('IDX_scan_catalog_items_source', ['source'])
+@Index('IDX_scan_catalog_items_fetched_at', ['fetched_at'])
 export class ScanCatalogItemOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -64,6 +67,32 @@ export class ScanCatalogItemOrmEntity {
 
   @Column({ type: 'boolean', nullable: false, default: false })
   is_style_estimated: boolean;
+
+  // OpenFoodFacts cache bridge (Epic #693 part 3/5). Tracks where the
+  // row came from so the proxy can decide between cache hit, cache
+  // miss, and never-refresh (manual / seed entries).
+  @Column({
+    type: 'varchar',
+    length: 20,
+    enum: ScanCatalogSource,
+    nullable: false,
+    default: ScanCatalogSource.SEED,
+  })
+  source: ScanCatalogSource;
+
+  // ISO-8601 timestamp of the last successful fetch from the upstream
+  // source. Drives the 1-hour cache TTL: rows older than 1 h trigger
+  // a background refresh on next access (rows with NULL fetched_at are
+  // either seed data — never refetched — or fresh manual inserts).
+  @Column({ type: 'datetime', nullable: true })
+  fetched_at?: Date | null;
+
+  // Raw upstream response, stored as JSON-serialized TEXT to stay
+  // cross-DB-safe (per ADR-0004 storage convention). Useful for
+  // debugging discrepancies and for re-deriving structured fields if
+  // the parsing logic evolves.
+  @Column({ type: 'text', nullable: true })
+  raw_payload?: string | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

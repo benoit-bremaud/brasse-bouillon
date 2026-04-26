@@ -28,6 +28,10 @@ import { LoginDto } from '../dtos/login.dto';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { ChangePasswordResponseDto } from '../dtos/change-password-response.dto';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
+import { ForgotPasswordResponseDto } from '../dtos/forgot-password-response.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { ResetPasswordResponseDto } from '../dtos/reset-password-response.dto';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 
@@ -150,5 +154,52 @@ export class AuthController {
   async deleteMe(@CurrentUser() user: User): Promise<{ message: string }> {
     await this.userService.delete(user.id);
     return { message: 'User deleted successfully' };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({
+    summary: 'Request a password-reset link by email',
+    description:
+      'Always returns 200 with a generic message regardless of whether the email exists, to prevent account enumeration. When the email is registered, a single-use token (1h lifetime) is issued and emitted to the application log (v0.1) — operators forward it manually until the email infrastructure ships in v0.2.',
+  })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 200, type: ForgotPasswordResponseDto })
+  @ApiBadRequestResponse({ description: 'Email format invalid' })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many reset requests in a short window',
+  })
+  async forgotPassword(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: ForgotPasswordDto,
+  ): Promise<ForgotPasswordResponseDto> {
+    return this.authService.requestPasswordReset(dto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({
+    summary: 'Complete a password reset using a token from the email',
+    description:
+      'Validates the token (SHA-256 hash matched against the user table, expiry ≥ now), updates the password, and clears the in-flight reset state. Generic 400 if the token is unknown / expired / already used / belongs to a deactivated account.',
+  })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, type: ResetPasswordResponseDto })
+  @ApiBadRequestResponse({
+    description:
+      'Token invalid or expired, or new password fails validation rules',
+  })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many reset attempts in a short window',
+  })
+  async resetPassword(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: ResetPasswordDto,
+  ): Promise<ResetPasswordResponseDto> {
+    return this.authService.resetPassword(dto.token, dto.new_password);
   }
 }

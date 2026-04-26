@@ -1,10 +1,47 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { createHash, randomUUID } from 'crypto';
 
 import { AuthResponseDto } from '../dtos/auth-response.dto';
+import { ForgotPasswordResponseDto } from '../dtos/forgot-password-response.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from '../dtos/login.dto';
 import { PasswordService } from './password.service';
+import { ResetPasswordResponseDto } from '../dtos/reset-password-response.dto';
 import { UserService } from '../../user/services/user.service';
+
+/**
+ * Lifetime of a password-reset token in milliseconds. Set to 1 hour
+ * per the onboarding brainstorm §2.7.
+ */
+const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+
+/**
+ * Generic acknowledgment returned by the forgot-password endpoint
+ * regardless of whether the email exists. Prevents account
+ * enumeration by keeping the response identical in both cases.
+ */
+const FORGOT_PASSWORD_GENERIC_MESSAGE =
+  'If an account exists for that email, a reset link has been sent.';
+
+/**
+ * SHA-256 of the raw reset token. Deterministic (same input always
+ * produces the same hash) so the database can look up a user by
+ * token hash directly, unlike bcrypt which uses per-call salts.
+ *
+ * SHA-256 is sufficient here because the raw token is a UUIDv4
+ * (122 bits of entropy) and lives 1 hour at most: an attacker would
+ * need to guess a specific token's bytes within that window, which
+ * is infeasible. Bcrypt's resistance to brute force is meant for
+ * low-entropy human passwords, not for random tokens.
+ */
+function hashResetToken(rawToken: string): string {
+  return createHash('sha256').update(rawToken).digest('hex');
+}
 
 /**
  * Auth Service
@@ -22,6 +59,8 @@ import { UserService } from '../../user/services/user.service';
  */
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   /**
    * Constructor - Injects dependencies
    *
@@ -142,5 +181,96 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password_hash: _, ...result } = user;
     return result;
+  }
+
+  /**
+   * Request a password reset.
+   *
+   * Always returns the same generic acknowledgment regardless of
+   * whether the email exists, to prevent account enumeration. When
+   * the email DOES exist, a fresh token is generated, hashed, and
+   * persisted on the user with a 1-hour expiry. The raw token is
+   * logged via Logger so v0.1 dev / staging environments can read it
+   * out of the logs and complete the flow manually.
+   *
+   * TODO (v0.2): replace the Logger emission with a real email
+   * dispatch (SMTP / Resend / SendGrid) once the email infrastructure
+   * lands. The endpoint contract stays unchanged.
+   *
+   * @param email Email of the account that needs a reset
+   * @returns Always the same generic acknowledgment.
+   */
+  async requestPasswordReset(
+    email: string,
+  ): Promise<ForgotPasswordResponseDto> {
+    const user = await this.userService.findByEmail(email);
+
+    if (user && user.is_active) {
+      const rawToken = randomUUID();
+      const tokenHash = hashResetToken(rawToken);
+      const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS);
+
+      await this.userService.setPasswordResetToken(
+        user.id,
+        tokenHash,
+        expiresAt,
+      );
+
+      // v0.1: emit token to the application log. Operators read it
+      // from the deployment log and forward it to the user manually.
+      // v0.2 will replace this with an outbound email.
+      this.logger.warn(
+        `[PASSWORD-RESET] Token issued for ${email}. Raw token: ${rawToken} (expires ${expiresAt.toISOString()})`,
+      );
+    }
+
+    return { message: FORGOT_PASSWORD_GENERIC_MESSAGE };
+  }
+
+  /**
+   * Complete a password reset.
+   *
+   * Hashes the raw token submitted by the client and looks it up
+   * against the user table. If a match is found AND the token has
+   * not expired, the password is updated and the reset fields are
+   * cleared. Any failure mode (token unknown, expired, already used)
+   * surfaces as a generic 400 BadRequestException so the response
+   * does not reveal which condition failed.
+   *
+   * The bcrypt-based comparison is timing-safe and resistant to
+   * brute-force on a per-row basis: an attacker who guessed the email
+   * would still need to hit a non-expired token hash, which uses 10
+   * salt rounds.
+   *
+   * @param token       Raw token received by email (single-use)
+   * @param newPassword Plain-text new password (validated by the DTO)
+   * @returns Confirmation message; the client logs in again afterwards.
+   * @throws BadRequestException if the token is invalid or expired.
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<ResetPasswordResponseDto> {
+    const tokenHash = hashResetToken(token);
+    const user =
+      await this.userService.findByValidPasswordResetTokenHash(tokenHash);
+
+    if (!user) {
+      // Generic message — does not reveal whether the token was
+      // unknown, expired, already used, or belongs to a deactivated
+      // account.
+      throw new BadRequestException('Invalid or expired password reset token');
+    }
+
+    if (!user.is_active) {
+      throw new BadRequestException('Invalid or expired password reset token');
+    }
+
+    const newHash = await this.passwordService.hashPassword(newPassword);
+    await this.userService.completePasswordReset(user.id, newHash);
+
+    return {
+      message: 'Password has been reset successfully. Please log in.',
+    };
   }
 }

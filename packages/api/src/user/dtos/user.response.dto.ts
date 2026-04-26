@@ -129,4 +129,33 @@ export class UserResponseDto {
    */
   @Exclude()
   password_hash?: string;
+
+  /**
+   * Password-reset token hash — EXCLUDED from responses.
+   *
+   * Internal field used by the forgot-password / reset-password
+   * flows. Even though it's a SHA-256 hash (not the raw token),
+   * exposing it lets a client confirm whether a reset is in flight
+   * for an account, breaking the anti-enumeration guarantee of
+   * forgot-password. Always exclude.
+   *
+   * @type {string | null | undefined}
+   * @private
+   * @security This is never exposed to API consumers
+   */
+  @Exclude()
+  password_reset_token_hash?: string | null;
+
+  /**
+   * Password-reset token expiry — EXCLUDED from responses.
+   *
+   * Internal field. Same reason as `password_reset_token_hash`:
+   * exposing the expiry would also leak that a reset is in flight.
+   *
+   * @type {Date | null | undefined}
+   * @private
+   * @security This is never exposed to API consumers
+   */
+  @Exclude()
+  password_reset_expires_at?: Date | null;
 }

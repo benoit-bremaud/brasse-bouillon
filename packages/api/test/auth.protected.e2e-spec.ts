@@ -92,6 +92,19 @@ describe('GET /auth/me (JWT protected)', () => {
         is_active: true,
       }),
     );
+
+    // Regression assertions — none of these sensitive fields must
+    // ever leak through UserResponseDto. The original /auth/me
+    // response body was found to expose password_reset_token_hash
+    // and password_reset_expires_at; @Exclude() decorators were
+    // added to fix it (see PR #728). These checks turn that fix
+    // into a contract: any future regression that drops an
+    // @Exclude() — or a new endpoint that returns a User entity
+    // without going through plainToInstance(UserResponseDto, …) —
+    // will trip this test rather than silently re-leak the data.
+    expect(response.body).not.toHaveProperty('password_hash');
+    expect(response.body).not.toHaveProperty('password_reset_token_hash');
+    expect(response.body).not.toHaveProperty('password_reset_expires_at');
   });
 
   it('should deny access with an invalid token', async () => {

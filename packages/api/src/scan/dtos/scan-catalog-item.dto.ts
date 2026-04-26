@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { ScanCatalogItemOrmEntity } from '../entities/scan-catalog-item.orm.entity';
+import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
 
 export class ScanCatalogItemDto {
@@ -49,6 +50,28 @@ export class ScanCatalogItemDto {
   @ApiProperty()
   is_style_estimated: boolean;
 
+  // OpenFoodFacts cache bridge fields (Epic #693 part 3/5).
+  @ApiProperty({
+    enum: ScanCatalogSource,
+    description:
+      'Provenance of the catalog entry: seed (shipped data), openfoodfacts (proxy cache), manual (admin insert).',
+  })
+  source: ScanCatalogSource;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    description:
+      'Last successful upstream fetch timestamp. Drives the 1-hour cache TTL. Null for seed and fresh manual entries.',
+  })
+  fetched_at?: Date | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    description:
+      'Raw upstream payload (JSON serialized as TEXT). Stored for debugging and re-derivation if parsing logic evolves.',
+  })
+  raw_payload?: string | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -72,6 +95,9 @@ export class ScanCatalogItemDto {
       is_ibu_estimated: entity.is_ibu_estimated,
       is_color_ebc_estimated: entity.is_color_ebc_estimated,
       is_style_estimated: entity.is_style_estimated,
+      source: entity.source,
+      fetched_at: entity.fetched_at ?? null,
+      raw_payload: entity.raw_payload ?? null,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
     };

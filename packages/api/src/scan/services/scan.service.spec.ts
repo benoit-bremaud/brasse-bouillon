@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryFailedError, Repository } from 'typeorm';
 
+import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
 import { ScanImageFace } from '../domain/enums/scan-image-face.enum';
 import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
@@ -68,6 +69,9 @@ const createCatalogItem = (
   is_ibu_estimated: false,
   is_color_ebc_estimated: false,
   is_style_estimated: false,
+  source: ScanCatalogSource.SEED,
+  fetched_at: null,
+  raw_payload: null,
   created_at: new Date('2026-01-01T00:00:00.000Z'),
   updated_at: new Date('2026-01-01T00:00:00.000Z'),
   ...overrides,

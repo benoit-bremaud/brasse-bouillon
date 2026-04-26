@@ -33,48 +33,41 @@ function buildEntity(
 
 describe('ScanCatalogItemDto.fromEntity — bridge fields (Epic #693 part 3/5)', () => {
   describe('happy path', () => {
-    it('maps an OpenFoodFacts cache entry with all bridge fields populated', () => {
+    it('maps an OpenFoodFacts cache entry with source + fetched_at exposed', () => {
       const fetchedAt = new Date('2026-04-26T13:30:00.000Z');
-      const rawPayload = JSON.stringify({
-        product: { code: '5060277380011', product_name: 'Punk IPA' },
-      });
       const entity = buildEntity({
         source: ScanCatalogSource.OPENFOODFACTS,
         fetched_at: fetchedAt,
-        raw_payload: rawPayload,
+        raw_payload: JSON.stringify({ product: { code: '5060277380011' } }),
       });
 
       const dto = ScanCatalogItemDto.fromEntity(entity);
 
       expect(dto.source).toBe(ScanCatalogSource.OPENFOODFACTS);
       expect(dto.fetched_at).toEqual(fetchedAt);
-      expect(dto.raw_payload).toBe(rawPayload);
     });
   });
 
   describe('sad path — defaults and nulls', () => {
-    it('defaults source to SEED and propagates null fetched_at / raw_payload for shipped data', () => {
+    it('defaults source to SEED and propagates null fetched_at for shipped data', () => {
       const entity = buildEntity();
 
       const dto = ScanCatalogItemDto.fromEntity(entity);
 
       expect(dto.source).toBe(ScanCatalogSource.SEED);
       expect(dto.fetched_at).toBeNull();
-      expect(dto.raw_payload).toBeNull();
     });
 
     it('handles a manual admin insert with null cache metadata', () => {
       const entity = buildEntity({
         source: ScanCatalogSource.MANUAL,
         fetched_at: null,
-        raw_payload: null,
       });
 
       const dto = ScanCatalogItemDto.fromEntity(entity);
 
       expect(dto.source).toBe(ScanCatalogSource.MANUAL);
       expect(dto.fetched_at).toBeNull();
-      expect(dto.raw_payload).toBeNull();
     });
   });
 
@@ -84,27 +77,26 @@ describe('ScanCatalogItemDto.fromEntity — bridge fields (Epic #693 part 3/5)',
       const entity = buildEntity({
         source: ScanCatalogSource.OPENFOODFACTS,
         fetched_at: stale,
-        raw_payload: '{"stale":true}',
       });
 
       const dto = ScanCatalogItemDto.fromEntity(entity);
 
       expect(dto.fetched_at).toEqual(stale);
-      expect(dto.raw_payload).toBe('{"stale":true}');
     });
 
-    it('preserves a very large raw_payload without truncation', () => {
-      const big = JSON.stringify({ huge: 'x'.repeat(50_000) });
+    it('does not expose raw_payload to clients (server-side only)', () => {
       const entity = buildEntity({
         source: ScanCatalogSource.OPENFOODFACTS,
         fetched_at: new Date('2026-04-26T13:00:00.000Z'),
-        raw_payload: big,
+        raw_payload: JSON.stringify({ huge: 'x'.repeat(50_000) }),
       });
 
       const dto = ScanCatalogItemDto.fromEntity(entity);
 
-      expect(dto.raw_payload).toBe(big);
-      expect(dto.raw_payload?.length).toBe(big.length);
+      // raw_payload is intentionally absent from the public DTO shape.
+      // Asserting absence via JSON.stringify keeps the test type-safe
+      // without leaking an `any` cast.
+      expect(JSON.stringify(dto)).not.toContain('raw_payload');
     });
 
     it('exposes the canonical enum values for source', () => {

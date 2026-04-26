@@ -26,8 +26,15 @@ export class AddScanCatalogBridgeFields1777000000000 implements MigrationInterfa
   name = 'AddScanCatalogBridgeFields1777000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // CHECK clause inlined here intentionally rather than imported from
+    // `SCAN_CATALOG_SOURCE_VALUES`: TypeORM migrations are infrastructure
+    // and must not depend on the domain layer (Clean Architecture). The
+    // string values stay in lockstep with the enum because both are
+    // governed by ADR-0001 ("shapes anticipate evolution") — any change
+    // here goes through a new migration that reads the enum at the
+    // application boundary.
     await queryRunner.query(
-      `ALTER TABLE "scan_catalog_items" ADD COLUMN "source" varchar(20) NOT NULL DEFAULT 'seed'`,
+      `ALTER TABLE "scan_catalog_items" ADD COLUMN "source" varchar(20) NOT NULL DEFAULT 'seed' CHECK ("source" IN ('seed', 'openfoodfacts', 'manual'))`,
     );
     await queryRunner.query(
       `ALTER TABLE "scan_catalog_items" ADD COLUMN "fetched_at" datetime`,

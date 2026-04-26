@@ -16,8 +16,14 @@ export enum ScanCatalogSource {
 }
 
 /**
- * Module-level constant exposing the canonical source values, so the
- * CHECK constraint emitted by the migration and any runtime validation
- * cite a single source of truth and never drift.
+ * Module-level constant exposing the canonical source values for callers
+ * that need to validate or constrain supported scan catalog sources at
+ * the application layer (DTO validation, service-layer guards, tests).
+ *
+ * The DB-level CHECK constraint emitted by migration 1777000000000
+ * inlines the same string set rather than importing this constant: per
+ * Clean Architecture, the migration (infrastructure) must not depend on
+ * the domain layer. Drift is prevented by ADR-0001 — any new value
+ * lands as a new migration alongside the enum update.
  */
 export const SCAN_CATALOG_SOURCE_VALUES = Object.values(ScanCatalogSource);

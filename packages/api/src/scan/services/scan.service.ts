@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { QueryFailedError, Repository } from 'typeorm';
 
+import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanImageFace } from '../domain/enums/scan-image-face.enum';
 import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
 import { ScanReviewStatus } from '../domain/enums/scan-review-status.enum';
@@ -295,7 +296,14 @@ export class ScanService {
 
     const catalogItem = existingCatalogItem
       ? existingCatalogItem
-      : this.catalogItemRepository.create({ id: randomUUID() });
+      : this.catalogItemRepository.create({
+          id: randomUUID(),
+          // New catalog items created via admin review resolution are
+          // by definition operator-curated, not seed data. The default
+          // 'seed' clause from migration 1777000000000 would otherwise
+          // mislabel them and corrupt cache / matching provenance.
+          source: ScanCatalogSource.MANUAL,
+        });
 
     catalogItem.barcode = barcode;
     catalogItem.name = dto.name;

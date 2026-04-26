@@ -373,7 +373,7 @@ describe('ScanService', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
     });
 
-    test('edge case: creates a new catalog item when barcode is unknown', async () => {
+    test('edge case: creates a new catalog item with source=MANUAL when barcode is unknown', async () => {
       const scanRequest = createScanRequest({ id: 'scan-1' });
       const queue = createReviewQueue({ scan_request_id: 'scan-1' });
 
@@ -388,9 +388,17 @@ describe('ScanService', () => {
         );
       catalogItemRepository.findOne
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(createCatalogItem({ id: 'catalog-new' }));
+        .mockResolvedValueOnce(
+          createCatalogItem({
+            id: 'catalog-new',
+            source: ScanCatalogSource.MANUAL,
+          }),
+        );
       catalogItemRepository.create.mockReturnValue(
-        createCatalogItem({ id: 'catalog-new' }),
+        createCatalogItem({
+          id: 'catalog-new',
+          source: ScanCatalogSource.MANUAL,
+        }),
       );
 
       const result = await service.adminResolveReview('admin-1', 'scan-1', {
@@ -401,7 +409,11 @@ describe('ScanService', () => {
         fermentation_type: ScanFermentationType.ALE,
       });
 
-      expect(catalogItemRepository.create).toHaveBeenCalled();
+      // Provenance must be MANUAL on admin-curated rows; the migration's
+      // DEFAULT 'seed' would otherwise mislabel them.
+      expect(catalogItemRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ source: ScanCatalogSource.MANUAL }),
+      );
       expect(result.status).toBe(ScanRequestStatus.RESOLVED);
     });
   });

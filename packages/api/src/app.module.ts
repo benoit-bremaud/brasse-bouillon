@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BatchModule } from './batch/batch.module';
+import { BeerContributionModule } from './beer-contribution/beer-contribution.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
@@ -82,6 +83,10 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     WaterModule,
     LabelModule,
     ScanModule,
+
+    // Beer contribution module - 501 stubs anticipating the v0.2+
+    // community contribution flow (Epic #693 part 4/5, ADR-0001 clause 3).
+    BeerContributionModule,
   ],
 
   // Controllers that handle HTTP requests at root level

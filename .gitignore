@@ -142,3 +142,16 @@ docs/product/references/*
 .cache/
 .temp
 .tmp
+
+# ===========================
+# Claude Code harness — local-only files
+# ===========================
+# `.claude/settings.json` carries machine-specific allow-lists (absolute
+# paths, personal email) that the harness updates whenever a Bash
+# command is approved. `.claude/scheduled_tasks.lock` is a runtime
+# lock file used by the ScheduleWakeup mechanism. Both are
+# per-machine: tracking them pollutes diffs and leaks PII. Anything
+# else under `.claude/` (e.g. a future shared `CLAUDE.md`) stays
+# trackable.
+.claude/settings.json
+.claude/scheduled_tasks.lock

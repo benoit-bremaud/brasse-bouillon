@@ -16,6 +16,7 @@ import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 @Index(['is_official'])
 @Index(['brew_count'])
 @Index(['last_brewed_at'])
+@Index(['imported_from_recipe_id'])
 export class RecipeOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -86,6 +87,15 @@ export class RecipeOrmEntity {
 
   @Column({ type: 'boolean', nullable: false, default: false })
   is_official: boolean;
+
+  // Import provenance fields (Issue #601). Populated when a user imports
+  // a community recipe via POST /recipes/import-from-community/:id.
+  // Both null on user-created recipes.
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  imported_from_recipe_id?: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  import_provenance?: string | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

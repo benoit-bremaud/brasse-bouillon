@@ -80,6 +80,20 @@ export class RecipeDto {
   })
   is_official: boolean;
 
+  @ApiPropertyOptional({
+    nullable: true,
+    description:
+      'If this recipe was imported from a community recipe (Issue #601), the source recipe id. Null otherwise.',
+  })
+  imported_from_recipe_id?: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    description:
+      'Human-readable provenance line surfaced by the UI when the recipe was imported (e.g. "Importée de Punk IPA Clone le 27 avril 2026").',
+  })
+  import_provenance?: string | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -108,6 +122,8 @@ export class RecipeDto {
       brew_count: e.brew_count,
       last_brewed_at: e.last_brewed_at ?? null,
       is_official: e.is_official,
+      imported_from_recipe_id: e.imported_from_recipe_id ?? null,
+      import_provenance: e.import_provenance ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
     };

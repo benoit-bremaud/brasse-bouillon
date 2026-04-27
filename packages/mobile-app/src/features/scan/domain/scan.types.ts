@@ -119,3 +119,60 @@ export interface ScanResultDetailsViewModel {
   result: ScanResolvedResult;
   details: ScanProductDetails | null;
 }
+
+/**
+ * Provenance of the data returned by the backend `GET /scan/lookup/:ean`
+ * endpoint (Epic #594 chunk #1, backend issue #696).
+ */
+export type ScanLookupSource =
+  | "cache_hit_fresh"
+  | "cache_hit_stale"
+  | "cache_miss_fetched";
+
+/**
+ * Source the backend assigned when the row was originally created in
+ * `scan_catalog_items`. `seed` and `manual` rows never expire;
+ * `openfoodfacts` rows respect the 1-hour TTL.
+ */
+export type ScanCatalogItemOrigin = "seed" | "openfoodfacts" | "manual";
+
+/**
+ * Domain shape of a single beer entry returned by the lookup endpoint.
+ * snake_case backend fields are normalised to camelCase here to keep
+ * presentation/use-case code idiomatic React Native.
+ */
+export interface ScanCatalogItem {
+  id: string;
+  barcode: string;
+  name: string;
+  brewery: string;
+  style: string;
+  abv: number | null;
+  ibu: number | null;
+  colorEbc: number | null;
+  fermentationType: string;
+  aromaticTags: string | null;
+  notesSource: string | null;
+  isAbvEstimated: boolean;
+  isIbuEstimated: boolean;
+  isColorEbcEstimated: boolean;
+  isStyleEstimated: boolean;
+  origin: ScanCatalogItemOrigin;
+  fetchedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Response shape for the lookup use-case. Mirrors the backend
+ * `ScanLookupResultDto`: `item` is the resolved beer, `source` tells
+ * the caller where the data came from so the UI can render "from
+ * cache" vs "fetched live" cues, `rawPayloadAvailable` exposes that
+ * the backend has the raw OpenFoodFacts response server-side (the
+ * raw payload itself is never returned to the client).
+ */
+export interface ScanLookupResult {
+  item: ScanCatalogItem;
+  source: ScanLookupSource;
+  rawPayloadAvailable: boolean;
+}

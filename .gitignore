@@ -64,8 +64,8 @@ expo-env.d.ts
 # NestJS / backend
 # ===========================
 /tmp
-data/
-data/*.db
+/packages/api/data/
+/packages/api/data/*.db
 
 # ===========================
 # Tests & coverage

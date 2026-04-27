@@ -1,0 +1,157 @@
+import { dataSource } from "@/core/data/data-source";
+import { HttpError } from "@/core/http/http-error";
+import {
+  ScanLookupBeerNotFoundError,
+  ScanLookupInvalidBarcodeError,
+  ScanLookupServiceUnavailableError,
+  lookupBeerByBarcode,
+} from "@/features/scan/application/scan-lookup.use-cases";
+import { lookupBeerByBarcode as fetchLookupFromApi } from "@/features/scan/data/scan-lookup.api";
+
+jest.mock("@/core/data/data-source", () => ({
+  dataSource: { useDemoData: false },
+}));
+
+jest.mock("@/features/scan/data/scan-lookup.api", () => ({
+  lookupBeerByBarcode: jest.fn(),
+}));
+
+const mockFetchLookup = fetchLookupFromApi as jest.MockedFunction<
+  typeof fetchLookupFromApi
+>;
+
+describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
+  beforeEach(() => {
+    mockFetchLookup.mockReset();
+    dataSource.useDemoData = false;
+  });
+
+  describe("input normalisation", () => {
+    it("trims whitespace and strips non-digits before hitting the API", async () => {
+      mockFetchLookup.mockResolvedValueOnce({
+        item: { barcode: "5060277380011" } as never,
+        source: "cache_hit_fresh",
+        rawPayloadAvailable: false,
+      });
+
+      await lookupBeerByBarcode("  5060-277 380011  ");
+
+      expect(mockFetchLookup).toHaveBeenCalledWith("5060277380011");
+    });
+
+    it("throws ScanLookupInvalidBarcodeError when the barcode is empty", async () => {
+      await expect(lookupBeerByBarcode("")).rejects.toBeInstanceOf(
+        ScanLookupInvalidBarcodeError,
+      );
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+    });
+
+    it("throws ScanLookupInvalidBarcodeError when the barcode has no digit", async () => {
+      await expect(lookupBeerByBarcode("   abc---  ")).rejects.toBeInstanceOf(
+        ScanLookupInvalidBarcodeError,
+      );
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("demo mode", () => {
+    beforeEach(() => {
+      dataSource.useDemoData = true;
+    });
+
+    it("returns the matching demo entry without hitting the network", async () => {
+      const result = await lookupBeerByBarcode("5060277380011");
+
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+      expect(result.item.name).toBe("Punk IPA");
+      expect(result.item.brewery).toBe("BrewDog");
+      expect(result.source).toBe("cache_hit_fresh");
+      expect(result.rawPayloadAvailable).toBe(false);
+    });
+
+    it("throws ScanLookupBeerNotFoundError when the demo catalogue has no match", async () => {
+      await expect(lookupBeerByBarcode("0000000000000")).rejects.toBeInstanceOf(
+        ScanLookupBeerNotFoundError,
+      );
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("real API mode — error mapping", () => {
+    it("translates a 404 HttpError to ScanLookupBeerNotFoundError", async () => {
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(404, "Beer not found"),
+      );
+
+      await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
+        ScanLookupBeerNotFoundError,
+      );
+    });
+
+    it("translates a 503 HttpError to ScanLookupServiceUnavailableError", async () => {
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(503, "OFF unreachable"),
+      );
+
+      await expect(lookupBeerByBarcode("5060277380011")).rejects.toBeInstanceOf(
+        ScanLookupServiceUnavailableError,
+      );
+    });
+
+    it("re-throws HttpError for other statuses (401, 429, 500…)", async () => {
+      const rateLimited = new HttpError(429, "Too many requests");
+      mockFetchLookup.mockRejectedValueOnce(rateLimited);
+
+      await expect(lookupBeerByBarcode("5060277380011")).rejects.toBe(
+        rateLimited,
+      );
+    });
+
+    it("re-throws non-HttpError exceptions untouched (network failures)", async () => {
+      const networkError = new Error("Network request failed");
+      mockFetchLookup.mockRejectedValueOnce(networkError);
+
+      await expect(lookupBeerByBarcode("5060277380011")).rejects.toBe(
+        networkError,
+      );
+    });
+
+    it("returns the API result when the call succeeds", async () => {
+      mockFetchLookup.mockResolvedValueOnce({
+        item: {
+          id: "id-1",
+          barcode: "5060277380011",
+          name: "Punk IPA",
+        } as never,
+        source: "cache_miss_fetched",
+        rawPayloadAvailable: true,
+      });
+
+      const result = await lookupBeerByBarcode("5060277380011");
+
+      expect(result.item.name).toBe("Punk IPA");
+      expect(result.source).toBe("cache_miss_fetched");
+      expect(result.rawPayloadAvailable).toBe(true);
+    });
+  });
+
+  describe("custom error classes", () => {
+    it("ScanLookupBeerNotFoundError exposes the queried barcode", () => {
+      const err = new ScanLookupBeerNotFoundError("5060277380011");
+      expect(err.barcode).toBe("5060277380011");
+      expect(err.name).toBe("ScanLookupBeerNotFoundError");
+    });
+
+    it("ScanLookupServiceUnavailableError exposes the queried barcode", () => {
+      const err = new ScanLookupServiceUnavailableError("5060277380011");
+      expect(err.barcode).toBe("5060277380011");
+      expect(err.name).toBe("ScanLookupServiceUnavailableError");
+    });
+
+    it("ScanLookupInvalidBarcodeError truncates very long input in the message", () => {
+      const err = new ScanLookupInvalidBarcodeError("a".repeat(200));
+      expect(err.message.length).toBeLessThan(120);
+      expect(err.name).toBe("ScanLookupInvalidBarcodeError");
+    });
+  });
+});

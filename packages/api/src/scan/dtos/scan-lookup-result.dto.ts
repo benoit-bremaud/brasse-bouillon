@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { ScanCatalogItemDto } from './scan-catalog-item.dto';
 
@@ -7,9 +7,12 @@ import { ScanCatalogItemDto } from './scan-catalog-item.dto';
  *
  * - `cache_hit_fresh` — row in `scan_catalog_items`, `fetched_at`
  *   younger than the TTL (or seed/manual rows that never expire).
- * - `cache_hit_stale` — row exists but `fetched_at` is older than the
- *   TTL; the response carries the cached row AND a background refresh
- *   was triggered (or will be triggered, depending on impl).
+ * - `cache_hit_stale` — row existed but `fetched_at` was older than
+ *   the TTL when the lookup started, OR the upstream returned no data
+ *   on this call so we degraded to the existing row. The returned
+ *   `item` is the persisted row (refreshed if OFF responded with
+ *   richer data, otherwise unchanged). Refresh is **synchronous** in
+ *   v0.1; a background-refresh strategy may land later.
  * - `cache_miss_fetched` — no row before the call, fetched OFF
  *   successfully and persisted as `source = 'openfoodfacts'`.
  */
@@ -41,10 +44,9 @@ export class ScanLookupResultDto {
   })
   source: ScanLookupSource;
 
-  @ApiPropertyOptional({
-    nullable: true,
+  @ApiProperty({
     description:
-      'Original raw_payload kept for debugging when the entry was fetched from OpenFoodFacts. Never returned for seed/manual rows.',
+      'True when the underlying scan_catalog_items row carries a non-null raw_payload (typically OpenFoodFacts cache rows). False for seed and manual rows. The raw_payload itself is never returned to clients — see UserResponseDto + ScanCatalogItemDto Exclude rules.',
   })
   rawPayloadAvailable: boolean;
 }

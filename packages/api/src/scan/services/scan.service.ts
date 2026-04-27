@@ -523,14 +523,19 @@ export class ScanService {
       );
     }
 
-    if (!lookup.found) {
+    if (!lookup.found || !lookup.isBeer) {
+      // OFF lost the product OR returned a non-beer item (cider /
+      // food / soft drink). Either way, do not pollute the
+      // beer-only scan_catalog_items table with a placeholder row.
+      // Codex P2 #729: dropping isBeer filtering would let any
+      // food barcode create a beer entry with style = 'Unknown'.
       if (cached) {
-        // OFF lost the product but we still have a cache row — return
-        // it as stale (better degraded than 404).
+        // We still have a cache row — return as stale (better
+        // degraded than 404 / a hard refusal).
         return this.buildLookupResult(cached, 'cache_hit_stale');
       }
       throw new NotFoundException(
-        `Barcode ${barcode} not found in OpenFoodFacts and not in the local catalog.`,
+        `Barcode ${barcode} not found as a beer in OpenFoodFacts and not in the local catalog.`,
       );
     }
 
@@ -570,14 +575,30 @@ export class ScanService {
     target.name = lookup.name ?? target.name ?? 'Unknown';
     target.brewery = lookup.brewery ?? target.brewery ?? 'Unknown';
     target.style = target.style ?? 'Unknown';
-    target.abv = lookup.abv ?? target.abv ?? null;
+    // is_abv_estimated must reflect whether the FINAL persisted ABV
+    // is fresh OFF data or fallback. If OFF brought a real number,
+    // we use it and clear the estimate flag. If OFF brought null
+    // and we already have a cached number, we keep the cached
+    // number AND its previous estimate flag (don't relabel a real
+    // value as estimated just because OFF was silent on this call).
+    if (lookup.abv != null) {
+      target.abv = lookup.abv;
+      target.is_abv_estimated = false;
+    } else {
+      target.abv = target.abv ?? null;
+      // Keep target.is_abv_estimated as-is. For a brand-new row
+      // (no existing) it defaults to false on the entity column;
+      // explicitly set it true since we have no real value.
+      if (existing == null) {
+        target.is_abv_estimated = true;
+      }
+    }
     target.ibu = target.ibu ?? null;
     target.color_ebc = target.color_ebc ?? null;
     target.fermentation_type =
       target.fermentation_type ?? ScanFermentationType.UNKNOWN;
     target.aromatic_tags = target.aromatic_tags ?? null;
     target.notes_source = target.notes_source ?? 'openfoodfacts.org';
-    target.is_abv_estimated = lookup.abv == null;
     target.is_ibu_estimated = true;
     target.is_color_ebc_estimated = true;
     target.is_style_estimated = true;
@@ -585,7 +606,38 @@ export class ScanService {
     target.fetched_at = new Date();
     target.raw_payload = JSON.stringify(lookup.payload);
 
-    return this.catalogItemRepository.save(target);
+    try {
+      return await this.catalogItemRepository.save(target);
+    } catch (error) {
+      // Codex P1 #729: TOCTOU on cache miss — two concurrent requests
+      // for the same uncached barcode both pass `findOne(null)` then
+      // both `INSERT`. The second INSERT violates the UNIQUE index on
+      // `barcode` and would otherwise bubble up as a 500. We catch
+      // the unique-constraint failure, re-read the row inserted by
+      // the racing request, and return it. Other DB errors keep
+      // propagating.
+      if (
+        error instanceof QueryFailedError &&
+        this.isUniqueConstraintViolation(error)
+      ) {
+        const winner = await this.catalogItemRepository.findOne({
+          where: { barcode },
+        });
+        if (winner) {
+          return winner;
+        }
+      }
+      throw error;
+    }
+  }
+
+  private isUniqueConstraintViolation(error: QueryFailedError): boolean {
+    const message = error.message?.toLowerCase() ?? '';
+    return (
+      message.includes('unique constraint') ||
+      message.includes('unique violation') ||
+      message.includes('sqlite_constraint')
+    );
   }
 
   private buildLookupResult(

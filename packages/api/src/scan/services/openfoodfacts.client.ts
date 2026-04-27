@@ -51,9 +51,19 @@ const USER_AGENT = 'brasse-bouillon/0.1 (https://brassebouillon.app)';
  * part 3/5 and ADR-0004 hybrid storage principle). Retries can be
  * layered on later if OFF turns flaky in production.
  *
- * Errors are surfaced via the return value (`found: false`) rather
- * than thrown, so the caller can decide between a 404 (not in OFF),
- * a 503 (OFF down) and a cache-write skip without juggling try/catch.
+ * Error contract — two failure modes, two channels:
+ *
+ * - **Product genuinely missing from OFF** (200 OK with `status: 0`):
+ *   surfaced via the return value as `{ found: false, ... }`. The
+ *   caller treats this as "not in OFF" and decides between 404 and
+ *   degraded cache reads.
+ * - **Transport / upstream failure** (network down, timeout, non-2xx
+ *   HTTP status, malformed JSON): **thrown** as `Error`. The caller
+ *   wraps the call in `try/catch` and decides between 503 and
+ *   degraded cache reads.
+ *
+ * This split lets the caller distinguish "OFF says no" from "OFF is
+ * unreachable" without having to inspect error subtypes.
  */
 @Injectable()
 export class OpenFoodFactsClient {
@@ -139,7 +149,7 @@ export class OpenFoodFactsClient {
   private parseAbv(payload: OpenFoodFactsRawProduct): number | null {
     const raw = payload.product?.alcohol_by_volume_value;
     if (raw == null) return null;
-    const num = typeof raw === 'string' ? parseFloat(raw) : raw;
+    const num = typeof raw === 'string' ? Number.parseFloat(raw) : raw;
     return Number.isFinite(num) && num >= 0 && num <= 100 ? num : null;
   }
 

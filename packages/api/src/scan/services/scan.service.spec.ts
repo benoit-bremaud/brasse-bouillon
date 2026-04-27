@@ -619,5 +619,85 @@ describe('ScanService', () => {
       ).rejects.toBeInstanceOf(BadRequestException);
       expect(openFoodFactsClient.lookupByBarcode).not.toHaveBeenCalled();
     });
+
+    test('race — concurrent INSERT trips UNIQUE → re-read winner row', async () => {
+      const winner = createCatalogItem({
+        id: 'cat-winner',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(),
+      });
+      catalogItemRepository.findOne
+        .mockResolvedValueOnce(null) // initial cache check
+        .mockResolvedValueOnce(winner); // re-read after UNIQUE error
+
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+
+      const uniqueError = new QueryFailedError(
+        'INSERT INTO scan_catalog_items',
+        [],
+        new Error('UNIQUE constraint failed: scan_catalog_items.barcode'),
+      );
+      catalogItemRepository.save.mockRejectedValueOnce(uniqueError);
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_miss_fetched');
+      expect(result.item.id).toBe('cat-winner');
+    });
+
+    test('upsert — OFF returns abv:null on cache miss → row marked is_abv_estimated', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Mystery Beer',
+        brewery: 'Unknown Brewery',
+        abv: null,
+        isBeer: true,
+      });
+      catalogItemRepository.create.mockImplementation(
+        (seed) =>
+          ({
+            ...seed,
+            id: 'cat-no-abv',
+          }) as ScanCatalogItemOrmEntity,
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_miss_fetched');
+      const saved = catalogItemRepository.save.mock.calls[0][0];
+      expect(saved.abv).toBeNull();
+      expect(saved.is_abv_estimated).toBe(true);
+    });
+
+    test('race — non-unique DB error is re-thrown', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+
+      const otherError = new QueryFailedError(
+        'INSERT INTO scan_catalog_items',
+        [],
+        new Error('disk I/O error'),
+      );
+      catalogItemRepository.save.mockRejectedValueOnce(otherError);
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBe(otherError);
+    });
   });
 });

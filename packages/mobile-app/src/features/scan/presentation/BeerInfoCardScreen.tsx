@@ -179,12 +179,12 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
         />
 
         <Collapsible
-          title="▾ Détails techniques"
+          title="Détails techniques"
           renderContent={() => <TechnicalDetails result={status.result} />}
         />
 
         <Collapsible
-          title="▾ Histoire de la brasserie"
+          title="Histoire de la brasserie"
           renderContent={() => (
             <BreweryStory brewery={status.result.item.brewery} />
           )}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
@@ -7,14 +7,15 @@ type CollapsibleProps = {
   title: string;
   /**
    * Lazy content factory. NOT a `children` prop on purpose: the
-   * function is only called the first time the user expands the
-   * fold, so any heavy work (eg. a `useQuery` started in the
-   * returned subtree, a Markdown parser, a chart) is deferred to
-   * the user's actual intent.
+   * function is invoked exactly once — the first time the user
+   * expands the fold — and the produced node is cached for the
+   * lifetime of the component. Heavy work in the factory (a
+   * `useQuery` started in the returned subtree, a Markdown parser,
+   * a chart) therefore runs at most once per screen mount.
    *
    * This implements the GoF "Lazy Initialization" pattern called
    * out by issue #698: the content object is created on first
-   * access, not at parent render time.
+   * access, then memoised.
    */
   renderContent: () => React.ReactNode;
   initiallyExpanded?: boolean;
@@ -26,11 +27,11 @@ type CollapsibleProps = {
  * content. First render of the screen does NOT mount the content
  * subtree — that only happens after the user opens the fold once.
  *
- * Once opened, the content stays mounted (subsequent collapse only
- * hides it via `display: none` so reopening is instant). This is a
- * deliberate tradeoff: a tiny memory cost in exchange for
- * preserving any state the content might have accumulated (scroll
- * position, fetched data, form input).
+ * Once opened, the rendered ReactNode is cached in a ref so the
+ * factory is invoked exactly once. Subsequent collapses only hide
+ * the subtree via `display: none`; reopening reuses the same node.
+ * Net effect: the lazy promise holds even across unrelated parent
+ * re-renders.
  */
 export function Collapsible({
   title,
@@ -40,9 +41,19 @@ export function Collapsible({
 }: CollapsibleProps) {
   const [expanded, setExpanded] = useState<boolean>(initiallyExpanded);
   const [hasOpened, setHasOpened] = useState<boolean>(initiallyExpanded);
+  const cachedContentRef = useRef<React.ReactNode>(null);
+
+  // Initial mount when `initiallyExpanded` is true: produce the
+  // cached node synchronously so it's available on the very first
+  // render (matches the non-initially-expanded path which produces
+  // the node inside the toggle handler).
+  if (hasOpened && cachedContentRef.current === null) {
+    cachedContentRef.current = renderContent();
+  }
 
   const toggle = () => {
     if (!hasOpened) {
+      cachedContentRef.current = renderContent();
       setHasOpened(true);
     }
     setExpanded((prev) => !prev);
@@ -67,7 +78,7 @@ export function Collapsible({
       </Pressable>
       {hasOpened ? (
         <View style={[styles.content, expanded ? null : styles.hidden]}>
-          {renderContent()}
+          {cachedContentRef.current}
         </View>
       ) : null}
     </View>

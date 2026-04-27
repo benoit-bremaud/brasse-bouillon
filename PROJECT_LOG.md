@@ -7,7 +7,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-27
 
-### PR #?? opened — Mobile UI: beer info card with hero + lazy folds (Issue #698)
+### PR #732 opened — Mobile UI: beer info card with hero + lazy folds (Issue #698)
 
 Branch `feat/mobile-scan-info-card-issue-698`. Third link of the
 demo-hero scan chain (after #696 backend / #697 data layer): the

@@ -170,7 +170,7 @@ describe("BeerInfoCardScreen", () => {
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
-        screen.getByRole("button", { name: "▾ Détails techniques" }),
+        screen.getByRole("button", { name: "Détails techniques" }),
       );
 
       expect(screen.getByText("Notes aromatiques")).toBeTruthy();
@@ -184,7 +184,7 @@ describe("BeerInfoCardScreen", () => {
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
-        screen.getByRole("button", { name: "▾ Histoire de la brasserie" }),
+        screen.getByRole("button", { name: "Histoire de la brasserie" }),
       );
 
       expect(screen.getByText(/Fondée en 2007 à Fraserburgh/)).toBeTruthy();
@@ -199,7 +199,7 @@ describe("BeerInfoCardScreen", () => {
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
-        screen.getByRole("button", { name: "▾ Histoire de la brasserie" }),
+        screen.getByRole("button", { name: "Histoire de la brasserie" }),
       );
 
       expect(screen.getByText(/Histoire à venir/)).toBeTruthy();

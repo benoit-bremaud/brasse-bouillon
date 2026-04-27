@@ -2697,14 +2697,16 @@ export function getDemoBreweryStory(brewery: string): string | null {
 }
 
 /**
- * Helper that returns up to 3 demo equivalent recipes for an EAN
- * (or an empty array). Mirrors the future #699 API contract:
- * caller doesn't have to know about the keys, just calls the
- * helper.
+ * Helper that returns up to 3 demo equivalent recipes for an EAN,
+ * sorted by `score` descending so the highest-confidence match
+ * comes first. Mirrors the future #699 API contract: caller
+ * doesn't have to know about the keys or the underlying ordering.
  */
 export function getDemoEquivalentRecipes(
   barcode: string,
 ): ReadonlyArray<ScanRecipeMatch> {
   const matches = demoEquivalentRecipes[barcode] ?? [];
-  return matches.slice(0, 3);
+  return [...matches]
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3);
 }

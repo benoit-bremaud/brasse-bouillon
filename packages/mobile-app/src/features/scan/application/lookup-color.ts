@@ -13,7 +13,13 @@
  * The function picks the closest reference stop and returns its hex
  * code (no interpolation — keeps the output deterministic and the
  * palette readable).
+ *
+ * Falls back to theme tokens (`colors.brand.primary`,
+ * `colors.neutral.white`, `colors.neutral.textPrimary`) so the hero
+ * stays in sync with a future theme change rather than drifting on
+ * a hardcoded hex.
  */
+import { colors } from "@/core/theme";
 
 interface PaletteStop {
   ebc: number;
@@ -43,17 +49,15 @@ const PALETTE: ReadonlyArray<PaletteStop> = [
   { ebc: 138, hex: "#26110A" }, // Black
 ];
 
-const FALLBACK_HEX = "#B7824B"; // colors.brand.primary — neutral when EBC null
-
 /**
  * Returns a CSS hex colour for the given EBC value. Returns the
- * brand primary when EBC is unknown / NaN / negative so the hero
- * still renders something brand-coherent rather than a glitched
- * background.
+ * brand primary token when EBC is unknown / NaN / negative so the
+ * hero still renders something brand-coherent rather than a glitched
+ * background, and tracks future theme changes automatically.
  */
 export function ebcToHex(ebc: number | null): string {
   if (ebc == null || Number.isNaN(ebc) || ebc < 0) {
-    return FALLBACK_HEX;
+    return colors.brand.primary;
   }
 
   let closest = PALETTE[0];
@@ -72,11 +76,13 @@ export function ebcToHex(ebc: number | null): string {
  * Returns the hex colour the foreground (text, chips) should use to
  * stay readable on top of the hero background. White for darker
  * beers, near-black for pale ones — the threshold approximates a
- * WCAG AA contrast minimum without measuring it precisely.
+ * WCAG AA contrast minimum without measuring it precisely. Sourced
+ * from theme tokens so a future neutral palette tweak propagates
+ * here automatically.
  */
 export function foregroundOnEbc(ebc: number | null): string {
   if (ebc == null || Number.isNaN(ebc) || ebc < 0) {
-    return "#FFFFFF";
+    return colors.neutral.white;
   }
-  return ebc <= 18 ? "#1E1E1E" : "#FFFFFF";
+  return ebc <= 18 ? colors.neutral.textPrimary : colors.neutral.white;
 }

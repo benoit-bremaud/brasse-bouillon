@@ -33,21 +33,21 @@ describe("Collapsible", () => {
     expect(screen.getByText("▾")).toBeTruthy();
   });
 
-  it("does NOT re-invoke renderContent on subsequent toggles (state preserved)", () => {
+  it("invokes renderContent exactly once across multiple open/close cycles", () => {
     const renderContent = jest.fn(() => <Text>secret</Text>);
     render(<Collapsible title="Détails" renderContent={renderContent} />);
 
     fireEvent.press(screen.getByRole("button", { name: "Détails" })); // open
     fireEvent.press(screen.getByRole("button", { name: "Détails" })); // close
     fireEvent.press(screen.getByRole("button", { name: "Détails" })); // reopen
+    fireEvent.press(screen.getByRole("button", { name: "Détails" })); // close
+    fireEvent.press(screen.getByRole("button", { name: "Détails" })); // reopen
 
-    // Render is allowed to be invoked once at initial mount of the
-    // subtree; React's reconciler may re-run the function on
-    // unrelated state changes. Spec: it must be called at LEAST
-    // once and never before the first open.
-    expect(renderContent).toHaveBeenCalled();
-    const callsAfterMultiToggles = renderContent.mock.calls.length;
-    expect(callsAfterMultiToggles).toBeGreaterThanOrEqual(1);
+    // True Lazy Initialization: the factory runs once when the
+    // subtree first mounts, the resulting node is cached, and
+    // subsequent toggles reuse it. Avoids re-running expensive
+    // work (useQuery, parsers, charts) in the consumer's factory.
+    expect(renderContent).toHaveBeenCalledTimes(1);
   });
 
   it("respects initiallyExpanded by mounting the content immediately", () => {

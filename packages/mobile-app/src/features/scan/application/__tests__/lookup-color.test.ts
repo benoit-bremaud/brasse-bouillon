@@ -1,3 +1,4 @@
+import { colors } from "@/core/theme";
 import {
   ebcToHex,
   foregroundOnEbc,
@@ -28,16 +29,16 @@ describe("lookup-color", () => {
       expect(darkR).toBeLessThan(lightR);
     });
 
-    it("returns the fallback brand hex when EBC is null", () => {
-      expect(ebcToHex(null)).toBe("#B7824B");
+    it("returns the brand primary token when EBC is null", () => {
+      expect(ebcToHex(null)).toBe(colors.brand.primary);
     });
 
-    it("returns the fallback brand hex when EBC is NaN", () => {
-      expect(ebcToHex(Number.NaN)).toBe("#B7824B");
+    it("returns the brand primary token when EBC is NaN", () => {
+      expect(ebcToHex(Number.NaN)).toBe(colors.brand.primary);
     });
 
-    it("returns the fallback brand hex when EBC is negative (defensive)", () => {
-      expect(ebcToHex(-5)).toBe("#B7824B");
+    it("returns the brand primary token when EBC is negative (defensive)", () => {
+      expect(ebcToHex(-5)).toBe(colors.brand.primary);
     });
 
     it("clamps very high EBC values to the darkest stop", () => {
@@ -47,23 +48,23 @@ describe("lookup-color", () => {
   });
 
   describe("foregroundOnEbc", () => {
-    it("returns dark text for pale beers (EBC <= 18)", () => {
-      expect(foregroundOnEbc(8)).toBe("#1E1E1E");
-      expect(foregroundOnEbc(18)).toBe("#1E1E1E");
+    it("returns the dark text token for pale beers (EBC <= 18)", () => {
+      expect(foregroundOnEbc(8)).toBe(colors.neutral.textPrimary);
+      expect(foregroundOnEbc(18)).toBe(colors.neutral.textPrimary);
     });
 
-    it("returns white text for amber-and-darker beers (EBC > 18)", () => {
-      expect(foregroundOnEbc(19)).toBe("#FFFFFF");
-      expect(foregroundOnEbc(70)).toBe("#FFFFFF");
+    it("returns the white token for amber-and-darker beers (EBC > 18)", () => {
+      expect(foregroundOnEbc(19)).toBe(colors.neutral.white);
+      expect(foregroundOnEbc(70)).toBe(colors.neutral.white);
     });
 
-    it("returns white text when EBC is null (fallback hero is brand brown)", () => {
-      expect(foregroundOnEbc(null)).toBe("#FFFFFF");
+    it("returns the white token when EBC is null (fallback hero is brand brown)", () => {
+      expect(foregroundOnEbc(null)).toBe(colors.neutral.white);
     });
 
-    it("returns white text on NaN or negative input (defensive)", () => {
-      expect(foregroundOnEbc(Number.NaN)).toBe("#FFFFFF");
-      expect(foregroundOnEbc(-1)).toBe("#FFFFFF");
+    it("returns the white token on NaN or negative input (defensive)", () => {
+      expect(foregroundOnEbc(Number.NaN)).toBe(colors.neutral.white);
+      expect(foregroundOnEbc(-1)).toBe(colors.neutral.white);
     });
   });
 });

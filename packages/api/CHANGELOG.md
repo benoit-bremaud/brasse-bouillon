@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.1.6-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.5-alpha1...api-v0.1.6-alpha1) (2026-04-27)
+
+
+### Features
+
+* **api:** close Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) with 501 stubs + seed skeleton (parts 4/5 + 5/5) ([6e17eaa](https://github.com/benoit-bremaud/brasse-bouillon/commit/6e17eaa73002e2cf3c37e5a6fdc2c4f4209fe9bb))
+* **api:** close Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) with 501 stubs + seed skeleton (parts 4/5 + 5/5) ([#725](https://github.com/benoit-bremaud/brasse-bouillon/issues/725)) ([b60b07b](https://github.com/benoit-bremaud/brasse-bouillon/commit/b60b07b1b954befa0421a37b2f166ec27b6ab5aa))
+* **auth:** add forgot-password + reset-password endpoints ([#603](https://github.com/benoit-bremaud/brasse-bouillon/issues/603)a) ([5bb9445](https://github.com/benoit-bremaud/brasse-bouillon/commit/5bb94452f2d79d6ce4135076f93b93d983d8ab71))
+* **auth:** add forgot-password + reset-password endpoints ([#603](https://github.com/benoit-bremaud/brasse-bouillon/issues/603)a) ([#727](https://github.com/benoit-bremaud/brasse-bouillon/issues/727)) ([cd40c4c](https://github.com/benoit-bremaud/brasse-bouillon/commit/cd40c4c00a29d6cfe8be0cab36e8cdea38974099))
+* **recipes:** import-from-community endpoint with provenance (Issue [#601](https://github.com/benoit-bremaud/brasse-bouillon/issues/601)) ([4171cab](https://github.com/benoit-bremaud/brasse-bouillon/commit/4171cab6d40dc8731459d2c16c21c42705954ecb)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+* **recipes:** import-from-community endpoint with provenance (Issue [#601](https://github.com/benoit-bremaud/brasse-bouillon/issues/601)) ([#742](https://github.com/benoit-bremaud/brasse-bouillon/issues/742)) ([ee8a601](https://github.com/benoit-bremaud/brasse-bouillon/commit/ee8a601f0f95615f2fe89e64e206a62498199c27)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+* **scan:** add scan_catalog bridge fields for OFF cache (Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 3/5) ([c7ce800](https://github.com/benoit-bremaud/brasse-bouillon/commit/c7ce800a60be9563418cfb2e54cb1d22fe33d2d7))
+* **scan:** add scan_catalog bridge fields for OFF cache (Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 3/5) ([#724](https://github.com/benoit-bremaud/brasse-bouillon/issues/724)) ([349e978](https://github.com/benoit-bremaud/brasse-bouillon/commit/349e978bf20dce448a65beb0bbe54c09337195c6))
+* **scan:** OpenFoodFacts proxy + 1h cache (Issue [#696](https://github.com/benoit-bremaud/brasse-bouillon/issues/696)) ([d4dcc4a](https://github.com/benoit-bremaud/brasse-bouillon/commit/d4dcc4abede9c76bdd0d7c60fece5f1e66e789fb))
+* **scan:** OpenFoodFacts proxy + 1h cache (Issue [#696](https://github.com/benoit-bremaud/brasse-bouillon/issues/696)) ([#729](https://github.com/benoit-bremaud/brasse-bouillon/issues/729)) ([dfaa2d6](https://github.com/benoit-bremaud/brasse-bouillon/commit/dfaa2d6283e87052369988ab20d3b530555e5170))
+
+
+### Bug Fixes
+
+* **auth:** address Codex P1 + Copilot review on PR [#727](https://github.com/benoit-bremaud/brasse-bouillon/issues/727) ([3c4b07f](https://github.com/benoit-bremaud/brasse-bouillon/commit/3c4b07fb8cb6163279a25dec4eb3198981776575))
+* **beer-contribution:** mark barcode @ApiPropertyOptional in stub DTO ([280df70](https://github.com/benoit-bremaud/brasse-bouillon/commit/280df70dfada741635335bbf50bc95036e1685b2))
+* **recipes:** add FK constraint on imported_from_recipe_id (Codex P2) ([8b210fd](https://github.com/benoit-bremaud/brasse-bouillon/commit/8b210fd365553522ad56b0b832a55dfa93af515e))
+* **scan:** address Codex P1/P2 + Copilot review on PR [#729](https://github.com/benoit-bremaud/brasse-bouillon/issues/729) ([31580c0](https://github.com/benoit-bremaud/brasse-bouillon/commit/31580c0e12f42aa18962d81dc18a08cdd93c6f4c))
+* **scan:** address Copilot + Codex review on Epic [#693](https://github.com/benoit-bremaud/brasse-bouillon/issues/693) part 3/5 ([6d5ac17](https://github.com/benoit-bremaud/brasse-bouillon/commit/6d5ac174f60e4605f51cc58da6a5b1c2ba1a1dfa))
+* **security:** exclude password_reset fields from UserResponseDto ([a532bee](https://github.com/benoit-bremaud/brasse-bouillon/commit/a532bee3f75f94f9d6c129e766a43135de62bd91))
+* **security:** exclude password_reset fields from UserResponseDto ([#728](https://github.com/benoit-bremaud/brasse-bouillon/issues/728)) ([e06d491](https://github.com/benoit-bremaud/brasse-bouillon/commit/e06d491b502c091b6b09b8ccbbe2b323c4f6d944))
+
 ## [0.1.5-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.4-alpha1...api-v0.1.5-alpha1) (2026-04-24)
 
 

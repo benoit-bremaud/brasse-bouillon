@@ -19,6 +19,32 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.6-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.5-alpha1...mobile-app-v0.1.6-alpha1) (2026-04-27)
+
+
+### Features
+
+* **recipes:** import community recipe from beer info card (Issue [#601](https://github.com/benoit-bremaud/brasse-bouillon/issues/601)) ([f0efaf9](https://github.com/benoit-bremaud/brasse-bouillon/commit/f0efaf9b7923413bec1ff718777f46156dbea88a))
+* **recipes:** import community recipe from beer info card (Issue [#601](https://github.com/benoit-bremaud/brasse-bouillon/issues/601)) ([#743](https://github.com/benoit-bremaud/brasse-bouillon/issues/743)) ([c36d378](https://github.com/benoit-bremaud/brasse-bouillon/commit/c36d3787a1a9d8db58c7e94b06dd67a6cbba5e07))
+* **scan:** mobile data layer for /scan/lookup endpoint ([#697](https://github.com/benoit-bremaud/brasse-bouillon/issues/697)) ([5934f06](https://github.com/benoit-bremaud/brasse-bouillon/commit/5934f064ad38d0d293ceb08bd7299b4fe343d201)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+* **scan:** mobile data layer for /scan/lookup endpoint ([#697](https://github.com/benoit-bremaud/brasse-bouillon/issues/697)) ([#731](https://github.com/benoit-bremaud/brasse-bouillon/issues/731)) ([e2e04d7](https://github.com/benoit-bremaud/brasse-bouillon/commit/e2e04d715c896be9b0c3b52e37c1e7389c841780)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+* **scan:** mobile UI info card with hero + lazy folds (Issue [#698](https://github.com/benoit-bremaud/brasse-bouillon/issues/698)) ([1674681](https://github.com/benoit-bremaud/brasse-bouillon/commit/16746815f4dfaa2d71813a93a6a30476b5ff54ce)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+* **scan:** mobile UI info card with hero + lazy folds (Issue [#698](https://github.com/benoit-bremaud/brasse-bouillon/issues/698)) ([#732](https://github.com/benoit-bremaud/brasse-bouillon/issues/732)) ([881253b](https://github.com/benoit-bremaud/brasse-bouillon/commit/881253b3c999003be571e032098911763271bdc4)), closes [#594](https://github.com/benoit-bremaud/brasse-bouillon/issues/594)
+
+
+### Bug Fixes
+
+* **scan:** address Codex P2 + Copilot review on PR [#731](https://github.com/benoit-bremaud/brasse-bouillon/issues/731) ([5cb4353](https://github.com/benoit-bremaud/brasse-bouillon/commit/5cb435329bccc6a4f42a4cd4e14ddf02f67beda6))
+* **scan:** address Copilot review on PR [#732](https://github.com/benoit-bremaud/brasse-bouillon/issues/732) ([663e71b](https://github.com/benoit-bremaud/brasse-bouillon/commit/663e71b321f7c582b37abec6cf40e696e0534dcc)), closes [#698](https://github.com/benoit-bremaud/brasse-bouillon/issues/698)
+* **scan:** drop wordBreak style cast to lift SonarCloud Maintainability rating ([16f9d1d](https://github.com/benoit-bremaud/brasse-bouillon/commit/16f9d1de77335fb05e21d36b82c4c6c42c068a2a))
+* **scan:** map demo equivalent recipes to real demoRecipes IDs (Codex P1) ([269299b](https://github.com/benoit-bremaud/brasse-bouillon/commit/269299b225bb89911fde8c71800d613876c1ec89)), closes [#698](https://github.com/benoit-bremaud/brasse-bouillon/issues/698)
+* **scan:** minimize +html.tsx diff to lift remaining SonarCloud rating ([238c42d](https://github.com/benoit-bremaud/brasse-bouillon/commit/238c42d8522977d7e6d8ad2a8a4b27967c329d98))
+* **scan:** polish batch on BeerInfoCardScreen (closes [#734](https://github.com/benoit-bremaud/brasse-bouillon/issues/734) [#735](https://github.com/benoit-bremaud/brasse-bouillon/issues/735) [#736](https://github.com/benoit-bremaud/brasse-bouillon/issues/736) [#737](https://github.com/benoit-bremaud/brasse-bouillon/issues/737)) ([a166aba](https://github.com/benoit-bremaud/brasse-bouillon/commit/a166aba05ed560a5fe8454986880019f16435d77))
+* **scan:** polish batch on BeerInfoCardScreen (closes [#734](https://github.com/benoit-bremaud/brasse-bouillon/issues/734) [#735](https://github.com/benoit-bremaud/brasse-bouillon/issues/735) [#736](https://github.com/benoit-bremaud/brasse-bouillon/issues/736) [#737](https://github.com/benoit-bremaud/brasse-bouillon/issues/737)) ([#741](https://github.com/benoit-bremaud/brasse-bouillon/issues/741)) ([a6f448a](https://github.com/benoit-bremaud/brasse-bouillon/commit/a6f448a56f137ad2f809615ecd07653bf24d772f))
+* **scan:** remove duplicate navigation trigger from import success alert (Codex P1) ([1fb2670](https://github.com/benoit-bremaud/brasse-bouillon/commit/1fb2670edbf11b61bb5c56a51f458fbc81d1e21a))
+* **scan:** strip explanatory comments from glanceCellValue + scrollContent ([3cd2444](https://github.com/benoit-bremaud/brasse-bouillon/commit/3cd24443c931f219189f62b2f0463e61b7869ba5))
+* **scan:** unconditional wordBreak style to lift SonarCloud coverage on PR [#741](https://github.com/benoit-bremaud/brasse-bouillon/issues/741) ([61a64d6](https://github.com/benoit-bremaud/brasse-bouillon/commit/61a64d6ae851b1b242609cb328588684adad809a))
+
 ## [0.1.5-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.4-alpha1...mobile-app-v0.1.5-alpha1) (2026-04-24)
 
 

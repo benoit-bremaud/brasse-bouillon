@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { BadRequestException } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ScanController } from './scan.controller';
 import { ScanRequestDto } from '../dtos/scan-request.dto';
 import { ScanService } from '../services/scan.service';
@@ -39,10 +40,14 @@ describe('ScanController', () => {
             uploadLabelImage: jest.fn(),
             listMine: jest.fn(),
             getMineById: jest.fn(),
+            lookupByBarcode: jest.fn(),
           },
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: jest.fn().mockReturnValue(true) })
+      .compile();
 
     controller = module.get<ScanController>(ScanController);
     service = module.get<ScanService>(ScanService);
@@ -156,6 +161,27 @@ describe('ScanController', () => {
         '550e8400-e29b-41d4-a716-446655440001',
       );
       expect(result).toBe(scanResponse);
+    });
+  });
+
+  describe('lookupByBarcode()', () => {
+    it('delegates to ScanService.lookupByBarcode and returns the result', async () => {
+      const fakeResult = {
+        item: { barcode: '5060277380011' } as never,
+        source: 'cache_hit_fresh' as const,
+        rawPayloadAvailable: false,
+      };
+      const lookupSpy = jest
+        .spyOn(service, 'lookupByBarcode')
+        .mockResolvedValue(fakeResult);
+
+      const result = await controller.lookupByBarcode(
+        mockUser,
+        '5060277380011',
+      );
+
+      expect(lookupSpy).toHaveBeenCalledWith('5060277380011');
+      expect(result).toBe(fakeResult);
     });
   });
 });

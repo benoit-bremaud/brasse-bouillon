@@ -30,9 +30,11 @@ import {
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt.guard';
 import { User } from '../../user/entities/user.entity';
+import { ScanLookupResultDto } from '../dtos/scan-lookup-result.dto';
 import { ScanRequestDto } from '../dtos/scan-request.dto';
 import { SubmitScanBarcodeDto } from '../dtos/submit-scan-barcode.dto';
 import type { UploadedImageFile } from '../scan.types';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ScanService } from '../services/scan.service';
 
 @ApiTags('Scan')
@@ -122,5 +124,27 @@ export class ScanController {
     @Param('scanId', new ParseUUIDPipe()) scanId: string,
   ): Promise<ScanRequestDto> {
     return this.scanService.getMineById(user.id, scanId);
+  }
+
+  @Get('lookup/:ean')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  @ApiOperation({
+    summary:
+      'Look up a beer by EAN-13 (cache-first, falls back to OpenFoodFacts)',
+    description:
+      'Issue #696. Returns the cached scan_catalog row when fresh (seed/manual rows never expire; OFF rows are fresh for 1h). Otherwise hits OpenFoodFacts, persists the response with source = openfoodfacts, and returns the new row. Auth-protected for now; will switch to @Public once #718 lands.',
+  })
+  @ApiParam({
+    name: 'ean',
+    description: 'EAN-13 barcode (digits only)',
+    example: '5060277380011',
+  })
+  @ApiOkResponse({ type: ScanLookupResultDto })
+  async lookupByBarcode(
+    @CurrentUser() _user: User,
+    @Param('ean') ean: string,
+  ): Promise<ScanLookupResultDto> {
+    return this.scanService.lookupByBarcode(ean);
   }
 }

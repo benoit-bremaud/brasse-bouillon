@@ -8,6 +8,7 @@ import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
 import { ScanReviewStatus } from '../domain/enums/scan-review-status.enum';
 import { AdminMarkScanReviewNotFoundDto } from '../dtos/admin-mark-scan-review-not-found.dto';
 import { AdminResolveScanReviewDto } from '../dtos/admin-resolve-scan-review.dto';
+import { OpenFoodFactsClient } from './openfoodfacts.client';
 import { ScanCatalogItemOrmEntity } from '../entities/scan-catalog-item.orm.entity';
 import { ScanLabelImageOrmEntity } from '../entities/scan-label-image.orm.entity';
 import { ScanRequestOrmEntity } from '../entities/scan-request.orm.entity';
@@ -112,6 +113,7 @@ describe('ScanService', () => {
   let scanLabelImageRepository: RepoMock<ScanLabelImageOrmEntity>;
   let scanReviewQueueRepository: RepoMock<ScanReviewQueueOrmEntity>;
   let scanStorageService: { storeImage: jest.Mock };
+  let openFoodFactsClient: { lookupByBarcode: jest.Mock };
 
   beforeEach(() => {
     scanRequestRepository = createRepoMock<ScanRequestOrmEntity>();
@@ -136,12 +138,17 @@ describe('ScanService', () => {
     scanLabelImageRepository.find.mockResolvedValue([]);
     scanReviewQueueRepository.find.mockResolvedValue([]);
 
+    openFoodFactsClient = {
+      lookupByBarcode: jest.fn(),
+    };
+
     service = new ScanService(
       scanRequestRepository as unknown as Repository<ScanRequestOrmEntity>,
       catalogItemRepository as unknown as Repository<ScanCatalogItemOrmEntity>,
       scanLabelImageRepository as unknown as Repository<ScanLabelImageOrmEntity>,
       scanReviewQueueRepository as unknown as Repository<ScanReviewQueueOrmEntity>,
       scanStorageService as unknown as ScanStorageService,
+      openFoodFactsClient as unknown as OpenFoodFactsClient,
     );
   });
 
@@ -473,6 +480,224 @@ describe('ScanService', () => {
       await expect(
         service.adminMarkReviewNotFound('admin-1', 'scan-1', {}),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('lookupByBarcode (Issue #696 — OpenFoodFacts proxy + cache)', () => {
+    const VALID_EAN = '5060277380011';
+
+    test('happy path — fresh seed row → cache_hit_fresh, no upstream call', async () => {
+      const seedRow = createCatalogItem({
+        id: 'cat-seed',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.SEED,
+        fetched_at: null,
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(seedRow);
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_fresh');
+      expect(result.item.barcode).toBe(VALID_EAN);
+      expect(openFoodFactsClient.lookupByBarcode).not.toHaveBeenCalled();
+    });
+
+    test('happy path — fresh OFF row (< 1h) → cache_hit_fresh', async () => {
+      const offRow = createCatalogItem({
+        id: 'cat-off',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(Date.now() - 30 * 60 * 1000),
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(offRow);
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_fresh');
+      expect(openFoodFactsClient.lookupByBarcode).not.toHaveBeenCalled();
+    });
+
+    test('cache miss → fetch OFF → persist → cache_miss_fetched', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+      catalogItemRepository.create.mockImplementation(
+        (seed) =>
+          ({
+            ...seed,
+            id: 'cat-new',
+          }) as ScanCatalogItemOrmEntity,
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_miss_fetched');
+      expect(catalogItemRepository.save).toHaveBeenCalledTimes(1);
+      const saved = catalogItemRepository.save.mock.calls[0][0];
+      expect(saved.source).toBe(ScanCatalogSource.OPENFOODFACTS);
+      expect(saved.fetched_at).toBeInstanceOf(Date);
+      expect(saved.raw_payload).toContain(VALID_EAN);
+    });
+
+    test('stale OFF row (> 1h) → fetch OFF → upsert → cache_hit_stale', async () => {
+      const staleRow = createCatalogItem({
+        id: 'cat-stale',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(staleRow);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_stale');
+      expect(catalogItemRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    test('sad path — OFF unreachable AND no cache → 503 ServiceUnavailable', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockRejectedValueOnce(
+        new Error('upstream timeout'),
+      );
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toMatchObject({
+        status: 503,
+      });
+    });
+
+    test('degraded path — OFF unreachable BUT cache exists → return stale row, no throw', async () => {
+      const staleRow = createCatalogItem({
+        id: 'cat-stale',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(Date.now() - 5 * 60 * 60 * 1000),
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(staleRow);
+      openFoodFactsClient.lookupByBarcode.mockRejectedValueOnce(
+        new Error('upstream timeout'),
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_stale');
+      expect(catalogItemRepository.save).not.toHaveBeenCalled();
+    });
+
+    test('sad path — OFF returns not-found AND no cache → 404 NotFound', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: false,
+        payload: { code: VALID_EAN, status: 0 },
+        name: null,
+        brewery: null,
+        abv: null,
+        isBeer: false,
+      });
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+
+    test('edge case — invalid barcode rejected by domain validation → BadRequest', async () => {
+      await expect(
+        service.lookupByBarcode('not-a-barcode'),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(openFoodFactsClient.lookupByBarcode).not.toHaveBeenCalled();
+    });
+
+    test('race — concurrent INSERT trips UNIQUE → re-read winner row', async () => {
+      const winner = createCatalogItem({
+        id: 'cat-winner',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(),
+      });
+      catalogItemRepository.findOne
+        .mockResolvedValueOnce(null) // initial cache check
+        .mockResolvedValueOnce(winner); // re-read after UNIQUE error
+
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+
+      const uniqueError = new QueryFailedError(
+        'INSERT INTO scan_catalog_items',
+        [],
+        new Error('UNIQUE constraint failed: scan_catalog_items.barcode'),
+      );
+      catalogItemRepository.save.mockRejectedValueOnce(uniqueError);
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_miss_fetched');
+      expect(result.item.id).toBe('cat-winner');
+    });
+
+    test('upsert — OFF returns abv:null on cache miss → row marked is_abv_estimated', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Mystery Beer',
+        brewery: 'Unknown Brewery',
+        abv: null,
+        isBeer: true,
+      });
+      catalogItemRepository.create.mockImplementation(
+        (seed) =>
+          ({
+            ...seed,
+            id: 'cat-no-abv',
+          }) as ScanCatalogItemOrmEntity,
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_miss_fetched');
+      const saved = catalogItemRepository.save.mock.calls[0][0];
+      expect(saved.abv).toBeNull();
+      expect(saved.is_abv_estimated).toBe(true);
+    });
+
+    test('race — non-unique DB error is re-thrown', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+
+      const otherError = new QueryFailedError(
+        'INSERT INTO scan_catalog_items',
+        [],
+        new Error('disk I/O error'),
+      );
+      catalogItemRepository.save.mockRejectedValueOnce(otherError);
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBe(otherError);
     });
   });
 });

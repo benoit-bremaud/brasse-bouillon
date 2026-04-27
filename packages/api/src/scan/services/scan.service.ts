@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
@@ -24,6 +25,9 @@ import { ScanLabelImageOrmEntity } from '../entities/scan-label-image.orm.entity
 import { ScanRequestOrmEntity } from '../entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../entities/scan-review-queue.orm.entity';
 import { UploadedImageFile } from '../scan.types';
+import { OpenFoodFactsClient } from './openfoodfacts.client';
+import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
+import { ScanLookupResultDto } from '../dtos/scan-lookup-result.dto';
 import { ScanStorageService } from './scan-storage.service';
 
 @Injectable()
@@ -40,6 +44,7 @@ export class ScanService {
     @InjectRepository(ScanReviewQueueOrmEntity)
     private readonly scanReviewQueueRepository: Repository<ScanReviewQueueOrmEntity>,
     private readonly scanStorageService: ScanStorageService,
+    private readonly openFoodFactsClient: OpenFoodFactsClient,
   ) {}
 
   async submitBarcode(
@@ -467,5 +472,182 @@ export class ScanService {
         : null,
       images: images.map((image) => ScanLabelImageDto.fromEntity(image)),
     });
+  }
+
+  /**
+   * Looks up a beer by EAN-13 with the OpenFoodFacts proxy + cache
+   * (Issue #696, Epic #693 part 5/n / Scan tranche 2 chunk #1).
+   *
+   * Strategy:
+   * 1. SELECT the catalog row by barcode.
+   * 2. If a row exists AND it is fresh (`fetched_at` is null for
+   *    seed/manual rows OR younger than 1h for OFF rows) → return as
+   *    `cache_hit_fresh`. Seed/manual rows never expire (we trust
+   *    them more than OFF) — `fetched_at = null` is the marker.
+   * 3. Otherwise hit OFF, persist with `source = 'openfoodfacts'`
+   *    and `fetched_at = now()`, return as `cache_miss_fetched` (or
+   *    `cache_hit_stale` if a row was already there and we refreshed
+   *    it).
+   *
+   * Errors:
+   * - OFF responds 404 (product not in their DB) AND we have no
+   *   cache row → caller-facing 404 (raised as NotFoundException).
+   * - OFF unreachable / 5xx AND we have a stale row → return the
+   *   stale row as `cache_hit_stale` (degraded but usable).
+   * - OFF unreachable / 5xx AND we have no row → caller-facing 503
+   *   (raised as ServiceUnavailableException).
+   */
+  async lookupByBarcode(rawEan: string): Promise<ScanLookupResultDto> {
+    const barcode = this.executeDomainValidation(() =>
+      this.domainService.validateBarcode({ barcode: rawEan }),
+    );
+
+    const cached = await this.catalogItemRepository.findOne({
+      where: { barcode },
+    });
+
+    if (cached && this.isCacheFresh(cached)) {
+      return this.buildLookupResult(cached, 'cache_hit_fresh');
+    }
+
+    let lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>;
+    try {
+      lookup = await this.openFoodFactsClient.lookupByBarcode(barcode);
+    } catch {
+      // Upstream unreachable. Degraded mode if we have ANY cached row.
+      if (cached) {
+        return this.buildLookupResult(cached, 'cache_hit_stale');
+      }
+      throw new ServiceUnavailableException(
+        'OpenFoodFacts is unreachable and the barcode is not in the local cache. Try again later.',
+      );
+    }
+
+    if (!lookup.found || !lookup.isBeer) {
+      // OFF lost the product OR returned a non-beer item (cider /
+      // food / soft drink). Either way, do not pollute the
+      // beer-only scan_catalog_items table with a placeholder row.
+      // Codex P2 #729: dropping isBeer filtering would let any
+      // food barcode create a beer entry with style = 'Unknown'.
+      if (cached) {
+        // We still have a cache row — return as stale (better
+        // degraded than 404 / a hard refusal).
+        return this.buildLookupResult(cached, 'cache_hit_stale');
+      }
+      throw new NotFoundException(
+        `Barcode ${barcode} not found as a beer in OpenFoodFacts and not in the local catalog.`,
+      );
+    }
+
+    const persisted = await this.upsertFromOpenFoodFacts(
+      barcode,
+      cached,
+      lookup,
+    );
+    return this.buildLookupResult(
+      persisted,
+      cached ? 'cache_hit_stale' : 'cache_miss_fetched',
+    );
+  }
+
+  /**
+   * Cache-freshness rule:
+   * - Rows with `fetched_at = null` are seed or manual entries — they
+   *   never expire (we trust those more than OFF).
+   * - Rows with `fetched_at != null` are OFF cache entries — fresh if
+   *   younger than 1h, stale otherwise.
+   */
+  private isCacheFresh(row: ScanCatalogItemOrmEntity): boolean {
+    if (!row.fetched_at) return true;
+    const ageMs = Date.now() - row.fetched_at.getTime();
+    return ageMs < 60 * 60 * 1000;
+  }
+
+  private async upsertFromOpenFoodFacts(
+    barcode: string,
+    existing: ScanCatalogItemOrmEntity | null,
+    lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>,
+  ): Promise<ScanCatalogItemOrmEntity> {
+    const target =
+      existing ?? this.catalogItemRepository.create({ id: randomUUID() });
+
+    target.barcode = barcode;
+    target.name = lookup.name ?? target.name ?? 'Unknown';
+    target.brewery = lookup.brewery ?? target.brewery ?? 'Unknown';
+    target.style = target.style ?? 'Unknown';
+    // is_abv_estimated must reflect whether the FINAL persisted ABV
+    // is fresh OFF data or fallback. If OFF brought a real number,
+    // we use it and clear the estimate flag. If OFF brought null
+    // and we already have a cached number, we keep the cached
+    // number AND its previous estimate flag (don't relabel a real
+    // value as estimated just because OFF was silent on this call).
+    if (lookup.abv != null) {
+      target.abv = lookup.abv;
+      target.is_abv_estimated = false;
+    } else {
+      target.abv = target.abv ?? null;
+      // Keep target.is_abv_estimated as-is. For a brand-new row
+      // (no existing) it defaults to false on the entity column;
+      // explicitly set it true since we have no real value.
+      if (existing == null) {
+        target.is_abv_estimated = true;
+      }
+    }
+    target.ibu = target.ibu ?? null;
+    target.color_ebc = target.color_ebc ?? null;
+    target.fermentation_type =
+      target.fermentation_type ?? ScanFermentationType.UNKNOWN;
+    target.aromatic_tags = target.aromatic_tags ?? null;
+    target.notes_source = target.notes_source ?? 'openfoodfacts.org';
+    target.is_ibu_estimated = true;
+    target.is_color_ebc_estimated = true;
+    target.is_style_estimated = true;
+    target.source = ScanCatalogSource.OPENFOODFACTS;
+    target.fetched_at = new Date();
+    target.raw_payload = JSON.stringify(lookup.payload);
+
+    try {
+      return await this.catalogItemRepository.save(target);
+    } catch (error) {
+      // Codex P1 #729: TOCTOU on cache miss — two concurrent requests
+      // for the same uncached barcode both pass `findOne(null)` then
+      // both `INSERT`. The second INSERT violates the UNIQUE index on
+      // `barcode` and would otherwise bubble up as a 500. We catch
+      // the unique-constraint failure, re-read the row inserted by
+      // the racing request, and return it. Other DB errors keep
+      // propagating.
+      if (
+        error instanceof QueryFailedError &&
+        this.isUniqueConstraintViolation(error)
+      ) {
+        const winner = await this.catalogItemRepository.findOne({
+          where: { barcode },
+        });
+        if (winner) {
+          return winner;
+        }
+      }
+      throw error;
+    }
+  }
+
+  private isUniqueConstraintViolation(error: QueryFailedError): boolean {
+    const message = error.message?.toLowerCase() ?? '';
+    return (
+      message.includes('unique constraint') ||
+      message.includes('unique violation') ||
+      message.includes('sqlite_constraint')
+    );
+  }
+
+  private buildLookupResult(
+    row: ScanCatalogItemOrmEntity,
+    source: ScanLookupResultDto['source'],
+  ): ScanLookupResultDto {
+    return {
+      item: ScanCatalogItemDto.fromEntity(row),
+      source,
+      rawPayloadAvailable: row.raw_payload != null,
+    };
   }
 }

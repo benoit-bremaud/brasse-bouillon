@@ -5,6 +5,7 @@ import { ScanRequestOrmEntity } from './entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from './entities/scan-review-queue.orm.entity';
 import { ScanService } from './services/scan.service';
 import { Test } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 
@@ -25,6 +26,10 @@ describe('ScanModule', () => {
           synchronize: true,
           logging: false,
         }),
+        // ScanController.lookupByBarcode uses @UseGuards(ThrottlerGuard).
+        // Provide a default Throttler config so DI can resolve the
+        // guard. Real values come from AppModule in production.
+        ThrottlerModule.forRoot([{ ttl: 60_000, limit: 30 }]),
         ScanModule,
       ],
     }).compile();

@@ -186,13 +186,7 @@ describe("ScanScreen", () => {
     expect(screen.getByTestId("barcode-guidance-overlay")).toBeTruthy();
   });
 
-  it("opens fallback modal on unmatched barcode and switches to bottle mode", async () => {
-    mockedProcessScanAttempt.mockResolvedValue({
-      type: "requires-photo-capture",
-      stage: "front",
-      toastMessage: "Barcode not recognized. Capture the front of the bottle.",
-    });
-
+  it("hands a confirmed barcode off to the lookup screen (Epic #594, #698)", async () => {
     renderScreen();
 
     await waitForReadyState();
@@ -202,23 +196,16 @@ describe("ScanScreen", () => {
 
     fireEvent.press(screen.getByText("Analyze barcode"));
 
+    // The legacy `processScanAttempt` path is bypassed for the
+    // barcode-confirmed case — the new flow delegates to
+    // BeerInfoCardScreen which calls `lookupBeerByBarcode` itself
+    // and renders the recognised beer (or its NotFound state).
     await waitFor(() => {
-      expect(mockedProcessScanAttempt).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining("/(app)/dashboard/scan/lookup/"),
+      );
     });
-
-    expect(await screen.findByText("Barcode not recognized")).toBeTruthy();
-
-    fireEvent.press(screen.getByText("Passer en mode bouteille"));
-
-    expect(await screen.findByText("Front label capture")).toBeTruthy();
-
-    act(() => {
-      jest.advanceTimersByTime(1200);
-    });
-
-    expect(
-      await screen.findByText("Front label auto-captured (optimal quality)."),
-    ).toBeTruthy();
+    expect(mockedProcessScanAttempt).not.toHaveBeenCalled();
   });
 
   it("requires five identical scans before confirmation and supports scan restart", async () => {

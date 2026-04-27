@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
@@ -375,6 +368,14 @@ function BreweryStory({ brewery }: { brewery: string }) {
   return <Text style={styles.storyText}>{story}</Text>;
 }
 
+// Issue #736 — extracted constant so TS accepts the cast and SonarCloud
+// doesn't see a runtime branch (no Platform.OS check). Native silently
+// ignores `wordBreak` / `overflowWrap`; RN-web honors them.
+const WEB_TEXT_WRAP_STYLE = {
+  wordBreak: "keep-all",
+  overflowWrap: "break-word",
+};
+
 const styles = StyleSheet.create({
   scrollContent: {
     // Issue #737 — paddingBottom must clear the bottom tab bar (~80px)
@@ -421,15 +422,11 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
     // Issue #736 — RN core types don't expose `wordBreak`/`overflowWrap`
-    // but RN-web honors them at runtime. The keys are added through a
-    // cast object spread so TS accepts them; native silently ignores
-    // them (and already breaks on word boundaries by default).
-    ...(Platform.OS === "web"
-      ? ({
-          wordBreak: "keep-all",
-          overflowWrap: "break-word",
-        } as object)
-      : {}),
+    // but RN-web honors them at runtime, breaking long French words
+    // ("Légèrement amère") on a space rather than mid-word. Native
+    // silently ignores unknown style keys, so the spread is safe on
+    // every platform without a Platform.OS branch.
+    ...(WEB_TEXT_WRAP_STYLE as object),
   },
   recipesCard: {
     marginBottom: spacing.md,

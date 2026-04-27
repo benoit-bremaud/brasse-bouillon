@@ -275,12 +275,13 @@ function EquivalentRecipesSection({
           "Recette importée",
           `« ${result.name} » a été ajoutée à Mes Recettes.`,
           [
+            { text: "Plus tard", style: "cancel" },
             {
               text: "Voir la recette",
               onPress: () => onImported(result.recipeId),
             },
           ],
-          { cancelable: true, onDismiss: () => onImported(result.recipeId) },
+          { cancelable: true },
         );
       } catch {
         Alert.alert("Import impossible", IMPORT_ERROR_MESSAGE);

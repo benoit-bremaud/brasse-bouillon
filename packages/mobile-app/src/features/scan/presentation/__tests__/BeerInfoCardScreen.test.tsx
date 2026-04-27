@@ -285,10 +285,42 @@ describe("BeerInfoCardScreen", () => {
         text: string;
         onPress?: () => void;
       }>;
+      const viewButton = buttons.find((b) => b.text === "Voir la recette");
       act(() => {
-        buttons[0].onPress?.();
+        viewButton?.onPress?.();
       });
       expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/imported-uuid-1");
+    });
+
+    it("does not navigate when the user dismisses the success alert", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedImport.mockResolvedValueOnce({
+        recipeId: "imported-uuid-2",
+        name: "Session IPA Citra",
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380011" />);
+
+      const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+      await act(async () => {
+        fireEvent.press(row);
+      });
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+
+      // The "Plus tard" cancel button has no onPress handler — pressing it
+      // (or dismissing the alert by tapping outside) must NOT navigate.
+      const buttons = alertSpy.mock.calls[0][2] as Array<{
+        text: string;
+        style?: string;
+        onPress?: () => void;
+      }>;
+      const cancelButton = buttons.find((b) => b.style === "cancel");
+      expect(cancelButton).toBeDefined();
+      expect(cancelButton?.onPress).toBeUndefined();
+      expect(mockPush).not.toHaveBeenCalled();
     });
 
     it("shows an error alert when the import fails and does not navigate", async () => {

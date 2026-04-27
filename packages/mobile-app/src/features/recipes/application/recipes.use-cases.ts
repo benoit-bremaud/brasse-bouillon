@@ -1,5 +1,6 @@
 import {
   getMineById,
+  importFromCommunity,
   listMine,
   listSteps,
 } from "@/features/recipes/data/recipes.api";
@@ -62,6 +63,32 @@ export async function listRecipeSteps(recipeId: string): Promise<RecipeStep[]> {
     return demoRecipeSteps.filter((step) => step.recipeId === recipeId);
   }
   return listSteps(recipeId);
+}
+
+export type ImportRecipeResult = {
+  recipeId: string;
+  name: string;
+};
+
+/**
+ * Import a community (PUBLIC or UNLISTED) recipe into the current
+ * user's catalog. In demo mode, simulates the backend by returning
+ * the source recipe id (which already lives in `demoRecipes`) so
+ * the screen can navigate to a resolvable detail page without a
+ * real API call.
+ */
+export async function importRecipeFromCommunity(
+  sourceId: string,
+): Promise<ImportRecipeResult> {
+  if (dataSource.useDemoData) {
+    const source = demoRecipes.find((item) => item.id === sourceId);
+    if (!source) {
+      throw new Error(`Demo recipe not found: ${sourceId}`);
+    }
+    return { recipeId: source.id, name: source.name };
+  }
+  const imported = await importFromCommunity(sourceId);
+  return { recipeId: imported.id, name: imported.name };
 }
 
 export async function getRecipeDetailsViewModel(

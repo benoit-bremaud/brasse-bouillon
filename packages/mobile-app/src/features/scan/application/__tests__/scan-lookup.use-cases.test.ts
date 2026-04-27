@@ -52,6 +52,44 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       );
       expect(mockFetchLookup).not.toHaveBeenCalled();
     });
+
+    it("throws ScanLookupInvalidBarcodeError when the barcode is too short (< 8 digits)", async () => {
+      await expect(lookupBeerByBarcode("1234567")).rejects.toBeInstanceOf(
+        ScanLookupInvalidBarcodeError,
+      );
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+    });
+
+    it("throws ScanLookupInvalidBarcodeError when the barcode is too long (> 14 digits)", async () => {
+      await expect(
+        lookupBeerByBarcode("123456789012345"),
+      ).rejects.toBeInstanceOf(ScanLookupInvalidBarcodeError);
+      expect(mockFetchLookup).not.toHaveBeenCalled();
+    });
+
+    it("accepts an 8-digit barcode (lower bound — EAN-8)", async () => {
+      mockFetchLookup.mockResolvedValueOnce({
+        item: { barcode: "12345678" } as never,
+        source: "cache_hit_fresh",
+        rawPayloadAvailable: false,
+      });
+
+      await lookupBeerByBarcode("12345678");
+
+      expect(mockFetchLookup).toHaveBeenCalledWith("12345678");
+    });
+
+    it("accepts a 14-digit barcode (upper bound — GTIN-14)", async () => {
+      mockFetchLookup.mockResolvedValueOnce({
+        item: { barcode: "12345678901234" } as never,
+        source: "cache_hit_fresh",
+        rawPayloadAvailable: false,
+      });
+
+      await lookupBeerByBarcode("12345678901234");
+
+      expect(mockFetchLookup).toHaveBeenCalledWith("12345678901234");
+    });
   });
 
   describe("demo mode", () => {

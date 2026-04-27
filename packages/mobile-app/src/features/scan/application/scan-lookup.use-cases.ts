@@ -20,10 +20,22 @@ import type { ScanLookupResult } from "@/features/scan/domain/scan.types";
 import { buildDemoLookupResult, demoScanCatalog } from "@/mocks/demo-data";
 
 /**
- * Error thrown when the caller passes an obviously invalid barcode
- * (empty string, only whitespace, no digit at all). The data layer
- * would also reject these, but failing fast at the use-case layer
- * keeps a useless network round-trip from happening.
+ * Inclusive digit-count window the backend accepts on `/scan/lookup/:ean`
+ * (`^\d{8,14}$` per `ScanDomainService.validateBarcode`). Mirrored here so
+ * the use-case can fail fast on obviously malformed input (empty string,
+ * a few digits typed by mistake, a long alphanumeric paste) before
+ * burning a network round-trip.
+ */
+const BARCODE_MIN_LENGTH = 8;
+const BARCODE_MAX_LENGTH = 14;
+
+/**
+ * Error thrown when the caller passes a barcode that cannot match the
+ * backend contract (empty after normalisation, fewer than 8 digits, or
+ * more than 14). The data layer would also reject these, but failing
+ * fast at the use-case layer keeps a useless network round-trip from
+ * happening and lets the presentation layer surface a precise error
+ * message instead of a generic 4xx from the API.
  */
 export class ScanLookupInvalidBarcodeError extends Error {
   constructor(barcode: string) {
@@ -64,10 +76,12 @@ function normaliseBarcode(input: string): string {
 }
 
 /**
- * Resolves a beer by EAN-13.
+ * Resolves a beer by EAN/UPC barcode.
  *
- * @throws {ScanLookupInvalidBarcodeError} when the barcode is empty
- *         or contains no digit after normalisation.
+ * @throws {ScanLookupInvalidBarcodeError} when the normalised barcode
+ *         contains fewer than 8 digits or more than 14 (the backend
+ *         contract). Empty input and non-digit-only input both fall in
+ *         this case after normalisation.
  * @throws {ScanLookupBeerNotFoundError} when the backend reports 404.
  * @throws {ScanLookupServiceUnavailableError} when the backend
  *         reports 503 (OFF unreachable + no local cache).
@@ -79,7 +93,10 @@ export async function lookupBeerByBarcode(
   rawBarcode: string,
 ): Promise<ScanLookupResult> {
   const barcode = normaliseBarcode(rawBarcode);
-  if (barcode.length === 0) {
+  if (
+    barcode.length < BARCODE_MIN_LENGTH ||
+    barcode.length > BARCODE_MAX_LENGTH
+  ) {
     throw new ScanLookupInvalidBarcodeError(rawBarcode);
   }
 

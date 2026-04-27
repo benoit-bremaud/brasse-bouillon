@@ -2504,10 +2504,11 @@ const buildDemoScanCatalogItem = (
   colorEbc: overrides.colorEbc ?? null,
   fermentationType: overrides.fermentationType ?? "ale",
   aromaticTags: overrides.aromaticTags ?? null,
-  notesSource: overrides.notesSource ?? "demo data (mobile-app)",
-  isAbvEstimated: overrides.isAbvEstimated ?? false,
-  isIbuEstimated: overrides.isIbuEstimated ?? true,
-  isColorEbcEstimated: overrides.isColorEbcEstimated ?? true,
+  notesSource: overrides.notesSource ?? null,
+  isAbvEstimated: overrides.isAbvEstimated ?? overrides.abv == null,
+  isIbuEstimated: overrides.isIbuEstimated ?? overrides.ibu == null,
+  isColorEbcEstimated:
+    overrides.isColorEbcEstimated ?? overrides.colorEbc == null,
   isStyleEstimated: overrides.isStyleEstimated ?? false,
   origin: overrides.origin ?? "seed",
   fetchedAt: overrides.fetchedAt ?? null,
@@ -2538,6 +2539,7 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     ibu: 20,
     colorEbc: 14,
     aromaticTags: "banana, clove, coriander",
+    notesSource: "Brasserie d'Achouffe — official datasheet",
   }),
   "5410799000111": buildDemoScanCatalogItem({
     id: "demo-scan-rochefort-10",
@@ -2549,6 +2551,7 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     ibu: 28,
     colorEbc: 70,
     aromaticTags: "dark fruit, port, caramel, raisin",
+    notesSource: "Trappist Rochefort — published brewery profile",
   }),
 };
 

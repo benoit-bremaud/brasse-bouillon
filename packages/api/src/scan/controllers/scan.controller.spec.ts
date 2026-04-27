@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { BadRequestException } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ScanController } from './scan.controller';
 import { ScanRequestDto } from '../dtos/scan-request.dto';
 import { ScanService } from '../services/scan.service';
@@ -39,10 +40,14 @@ describe('ScanController', () => {
             uploadLabelImage: jest.fn(),
             listMine: jest.fn(),
             getMineById: jest.fn(),
+            lookupByBarcode: jest.fn(),
           },
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: jest.fn().mockReturnValue(true) })
+      .compile();
 
     controller = module.get<ScanController>(ScanController);
     service = module.get<ScanService>(ScanService);

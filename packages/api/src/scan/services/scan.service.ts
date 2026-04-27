@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
@@ -24,6 +25,9 @@ import { ScanLabelImageOrmEntity } from '../entities/scan-label-image.orm.entity
 import { ScanRequestOrmEntity } from '../entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../entities/scan-review-queue.orm.entity';
 import { UploadedImageFile } from '../scan.types';
+import { OpenFoodFactsClient } from './openfoodfacts.client';
+import { ScanFermentationType } from '../domain/enums/scan-fermentation-type.enum';
+import { ScanLookupResultDto } from '../dtos/scan-lookup-result.dto';
 import { ScanStorageService } from './scan-storage.service';
 
 @Injectable()
@@ -40,6 +44,7 @@ export class ScanService {
     @InjectRepository(ScanReviewQueueOrmEntity)
     private readonly scanReviewQueueRepository: Repository<ScanReviewQueueOrmEntity>,
     private readonly scanStorageService: ScanStorageService,
+    private readonly openFoodFactsClient: OpenFoodFactsClient,
   ) {}
 
   async submitBarcode(
@@ -467,5 +472,130 @@ export class ScanService {
         : null,
       images: images.map((image) => ScanLabelImageDto.fromEntity(image)),
     });
+  }
+
+  /**
+   * Looks up a beer by EAN-13 with the OpenFoodFacts proxy + cache
+   * (Issue #696, Epic #693 part 5/n / Scan tranche 2 chunk #1).
+   *
+   * Strategy:
+   * 1. SELECT the catalog row by barcode.
+   * 2. If a row exists AND it is fresh (`fetched_at` is null for
+   *    seed/manual rows OR younger than 1h for OFF rows) → return as
+   *    `cache_hit_fresh`. Seed/manual rows never expire (we trust
+   *    them more than OFF) — `fetched_at = null` is the marker.
+   * 3. Otherwise hit OFF, persist with `source = 'openfoodfacts'`
+   *    and `fetched_at = now()`, return as `cache_miss_fetched` (or
+   *    `cache_hit_stale` if a row was already there and we refreshed
+   *    it).
+   *
+   * Errors:
+   * - OFF responds 404 (product not in their DB) AND we have no
+   *   cache row → caller-facing 404 (raised as NotFoundException).
+   * - OFF unreachable / 5xx AND we have a stale row → return the
+   *   stale row as `cache_hit_stale` (degraded but usable).
+   * - OFF unreachable / 5xx AND we have no row → caller-facing 503
+   *   (raised as ServiceUnavailableException).
+   */
+  async lookupByBarcode(rawEan: string): Promise<ScanLookupResultDto> {
+    const barcode = this.executeDomainValidation(() =>
+      this.domainService.validateBarcode({ barcode: rawEan }),
+    );
+
+    const cached = await this.catalogItemRepository.findOne({
+      where: { barcode },
+    });
+
+    if (cached && this.isCacheFresh(cached)) {
+      return this.buildLookupResult(cached, 'cache_hit_fresh');
+    }
+
+    let lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>;
+    try {
+      lookup = await this.openFoodFactsClient.lookupByBarcode(barcode);
+    } catch {
+      // Upstream unreachable. Degraded mode if we have ANY cached row.
+      if (cached) {
+        return this.buildLookupResult(cached, 'cache_hit_stale');
+      }
+      throw new ServiceUnavailableException(
+        'OpenFoodFacts is unreachable and the barcode is not in the local cache. Try again later.',
+      );
+    }
+
+    if (!lookup.found) {
+      if (cached) {
+        // OFF lost the product but we still have a cache row — return
+        // it as stale (better degraded than 404).
+        return this.buildLookupResult(cached, 'cache_hit_stale');
+      }
+      throw new NotFoundException(
+        `Barcode ${barcode} not found in OpenFoodFacts and not in the local catalog.`,
+      );
+    }
+
+    const persisted = await this.upsertFromOpenFoodFacts(
+      barcode,
+      cached,
+      lookup,
+    );
+    return this.buildLookupResult(
+      persisted,
+      cached ? 'cache_hit_stale' : 'cache_miss_fetched',
+    );
+  }
+
+  /**
+   * Cache-freshness rule:
+   * - Rows with `fetched_at = null` are seed or manual entries — they
+   *   never expire (we trust those more than OFF).
+   * - Rows with `fetched_at != null` are OFF cache entries — fresh if
+   *   younger than 1h, stale otherwise.
+   */
+  private isCacheFresh(row: ScanCatalogItemOrmEntity): boolean {
+    if (!row.fetched_at) return true;
+    const ageMs = Date.now() - row.fetched_at.getTime();
+    return ageMs < 60 * 60 * 1000;
+  }
+
+  private async upsertFromOpenFoodFacts(
+    barcode: string,
+    existing: ScanCatalogItemOrmEntity | null,
+    lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>,
+  ): Promise<ScanCatalogItemOrmEntity> {
+    const target =
+      existing ?? this.catalogItemRepository.create({ id: randomUUID() });
+
+    target.barcode = barcode;
+    target.name = lookup.name ?? target.name ?? 'Unknown';
+    target.brewery = lookup.brewery ?? target.brewery ?? 'Unknown';
+    target.style = target.style ?? 'Unknown';
+    target.abv = lookup.abv ?? target.abv ?? null;
+    target.ibu = target.ibu ?? null;
+    target.color_ebc = target.color_ebc ?? null;
+    target.fermentation_type =
+      target.fermentation_type ?? ScanFermentationType.UNKNOWN;
+    target.aromatic_tags = target.aromatic_tags ?? null;
+    target.notes_source = target.notes_source ?? 'openfoodfacts.org';
+    target.is_abv_estimated = lookup.abv == null;
+    target.is_ibu_estimated = true;
+    target.is_color_ebc_estimated = true;
+    target.is_style_estimated = true;
+    target.source = ScanCatalogSource.OPENFOODFACTS;
+    target.fetched_at = new Date();
+    target.raw_payload = JSON.stringify(lookup.payload);
+
+    return this.catalogItemRepository.save(target);
+  }
+
+  private buildLookupResult(
+    row: ScanCatalogItemOrmEntity,
+    source: ScanLookupResultDto['source'],
+  ): ScanLookupResultDto {
+    return {
+      item: ScanCatalogItemDto.fromEntity(row),
+      source,
+      rawPayloadAvailable: row.raw_payload != null,
+    };
   }
 }

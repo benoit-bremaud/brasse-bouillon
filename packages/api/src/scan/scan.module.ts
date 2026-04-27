@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OpenFoodFactsClient } from './services/openfoodfacts.client';
 import { ScanAdminReviewController } from './controllers/scan-admin-review.controller';
 import { ScanCatalogItemOrmEntity } from './entities/scan-catalog-item.orm.entity';
 import { ScanController } from './controllers/scan.controller';
@@ -19,7 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ]),
   ],
   controllers: [ScanController, ScanAdminReviewController],
-  providers: [ScanService, ScanStorageService],
+  providers: [ScanService, ScanStorageService, OpenFoodFactsClient],
   exports: [ScanService],
 })
 export class ScanModule {}

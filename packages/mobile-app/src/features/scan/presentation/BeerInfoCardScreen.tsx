@@ -368,14 +368,6 @@ function BreweryStory({ brewery }: { brewery: string }) {
   return <Text style={styles.storyText}>{story}</Text>;
 }
 
-// Issue #736 — extracted constant so TS accepts the cast and SonarCloud
-// doesn't see a runtime branch (no Platform.OS check). Native silently
-// ignores `wordBreak` / `overflowWrap`; RN-web honors them.
-const WEB_TEXT_WRAP_STYLE = {
-  wordBreak: "keep-all",
-  overflowWrap: "break-word",
-};
-
 const styles = StyleSheet.create({
   scrollContent: {
     // Issue #737 — paddingBottom must clear the bottom tab bar (~80px)
@@ -421,12 +413,11 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
-    // Issue #736 — RN core types don't expose `wordBreak`/`overflowWrap`
-    // but RN-web honors them at runtime, breaking long French words
-    // ("Légèrement amère") on a space rather than mid-word. Native
-    // silently ignores unknown style keys, so the spread is safe on
-    // every platform without a Platform.OS branch.
-    ...(WEB_TEXT_WRAP_STYLE as object),
+    // Issue #736 — long French values get a chance to fit by shrinking
+    // (`adjustsFontSizeToFit` + `numberOfLines={3}` on the Text host).
+    // The native flexbox + word-aware wrapper handles the common case;
+    // narrower viewports may still occasionally clip on word break,
+    // tracked separately for post-soutenance.
   },
   recipesCard: {
     marginBottom: spacing.md,

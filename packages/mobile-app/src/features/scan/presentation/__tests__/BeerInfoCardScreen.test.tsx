@@ -91,9 +91,10 @@ describe("BeerInfoCardScreen", () => {
       expect(screen.getByText("Ambrée")).toBeTruthy();
       expect(screen.getByText("Modérément amère")).toBeTruthy();
       expect(screen.getByText("🧪 Recettes équivalentes")).toBeTruthy();
-      expect(
-        screen.getByText("Punk IPA Clone — version tropicale"),
-      ).toBeTruthy();
+      // The demo set maps Punk IPA to existing demoRecipes
+      // (r-demo-1 / r-demo-7 / r-demo-13) so taps land on real
+      // recipe detail pages.
+      expect(screen.getByText("Session IPA Citra")).toBeTruthy();
     });
 
     it("calls the use-case with the barcode from the route param", async () => {
@@ -232,19 +233,18 @@ describe("BeerInfoCardScreen", () => {
   });
 
   describe("recipe navigation", () => {
-    it("navigates to the recipe detail when a recipe row is pressed", async () => {
+    it("navigates to a real recipe detail when a recipe row is pressed", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
       render(<BeerInfoCardScreen barcodeParam="5060277380011" />);
 
-      const recipeRow = await screen.findByLabelText(
-        /Punk IPA Clone — version tropicale/,
-      );
+      const recipeRow = await screen.findByLabelText(/Session IPA Citra/);
       fireEvent.press(recipeRow);
 
-      expect(mockPush).toHaveBeenCalledWith(
-        "/(app)/recipes/demo-recipe-punk-ipa-clone",
-      );
+      // Punk IPA's first match maps to the existing r-demo-1 recipe
+      // so the navigation lands on a resolvable recipe detail page
+      // (Codex P1 fix: mocks now use real demoRecipes IDs).
+      expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-demo-1");
     });
   });
 });

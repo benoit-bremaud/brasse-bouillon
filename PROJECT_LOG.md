@@ -7,6 +7,64 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-27
 
+### PR opened — Mobile UI: import community recipe (Issue #601)
+
+Branch `feat/mobile-recipe-import-issue-601`. Mobile-side closing of
+the demo-hero scan loop, paired with the just-merged backend PR #742.
+The user can now scan a beer, see the curated equivalent recipes, and
+import one into their own catalog with a single tap — landing on the
+new recipe's detail page.
+
+Scope (mobile only):
+
+- **Data layer** `recipes.api.ts` — new
+  `importFromCommunity(sourceId): Promise<Recipe>` calling
+  `POST /recipes/import-from-community/:id`.
+- **Use-case** `recipes.use-cases.ts` — new
+  `importRecipeFromCommunity(sourceId)` with the standard
+  `dataSource.useDemoData` branch:
+  - demo: returns the source recipe id + name from `demoRecipes`
+    (lets the UI navigate to a resolvable detail page when no real
+    backend is wired);
+  - backend: delegates to the API, returns the new recipe id + name
+    from the response.
+- **Screen** `BeerInfoCardScreen.tsx` — `EquivalentRecipesSection`
+  rewritten:
+  - per-row "+ Importer" CTA replaces the previous "tap to navigate
+    to source" affordance;
+  - `importingId` local state drives `disabled` + `accessibilityState
+    busy/disabled` + a "Import…" label during the round-trip;
+  - `Alert.alert` success modal with "Voir la recette" action →
+    `router.push('/(app)/recipes/{newId}')`;
+  - `Alert.alert` failure modal with retry-friendly French copy.
+- **Tests** — 5 added across 2 suites:
+  - 3 use-case unit tests in
+    `__tests__/import-recipe.test.ts` (happy demo, sad demo, happy
+    backend with API delegation assertion);
+  - 2 screen tests in `BeerInfoCardScreen.test.tsx` `import community
+    recipe` block (happy: import called + alert posted + nav on
+    "Voir la recette"; sad: rejected import → error alert + no nav).
+- Full mobile suite stays green: 531 / 58 (was 526 / 57).
+
+Decisions:
+
+- Tap on the row IS the import action (vs. a dedicated icon-button
+  to the right) — keeps the layout dense, makes the demo flow a
+  single tap, and matches the persona of a curious brewer who already
+  trusts the curated list.
+- Source id translation lives in the use-case (not the screen) —
+  keeps the screen agnostic of demo / backend mode and follows the
+  data-source toggle convention.
+- Provenance display (the `import_provenance` text written by the
+  backend) is intentionally NOT surfaced on the recipe detail screen
+  yet — the recipe detail refonte (4 tabs) ships that surface
+  later, this PR keeps the mobile layer minimal and demo-functional.
+
+Follows up: backend-mode integration with real public recipe IDs
+(curated public seed + #700 swap) before the soutenance demo. Until
+then, real-backend mode requires the demo recipe IDs to exist in the
+DB; demo mode works end-to-end on day 1.
+
 ### PR opened — Backend import-from-community endpoint (Issue #601)
 
 Branch `feat/recipes-import-from-community-issue-601`. Closes the

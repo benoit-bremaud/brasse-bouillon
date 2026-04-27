@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
@@ -7,6 +14,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 
+import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupInvalidBarcodeError,
@@ -173,7 +181,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
 
         <EquivalentRecipesSection
           barcode={status.result.item.barcode}
-          onPickRecipe={(recipeId) =>
+          onImported={(recipeId) =>
             router.push(`/(app)/recipes/${recipeId}` as never)
           }
         />
@@ -241,16 +249,47 @@ function GlanceCell({ label, value }: { label: string; value: string }) {
   );
 }
 
+const IMPORT_ERROR_MESSAGE =
+  "Impossible d'importer cette recette pour le moment. Réessaie dans quelques instants.";
+
 function EquivalentRecipesSection({
   barcode,
-  onPickRecipe,
-}: {
+  onImported,
+}: Readonly<{
   barcode: string;
-  onPickRecipe: (recipeId: string) => void;
-}) {
+  onImported: (recipeId: string) => void;
+}>) {
   const recipes = useMemo<ReadonlyArray<ScanRecipeMatch>>(
     () => getDemoEquivalentRecipes(barcode),
     [barcode],
+  );
+  const [importingId, setImportingId] = useState<string | null>(null);
+
+  const handleImport = useCallback(
+    async (sourceId: string) => {
+      if (importingId) return;
+      setImportingId(sourceId);
+      try {
+        const result = await importRecipeFromCommunity(sourceId);
+        Alert.alert(
+          "Recette importée",
+          `« ${result.name} » a été ajoutée à Mes Recettes.`,
+          [
+            { text: "Plus tard", style: "cancel" },
+            {
+              text: "Voir la recette",
+              onPress: () => onImported(result.recipeId),
+            },
+          ],
+          { cancelable: true },
+        );
+      } catch {
+        Alert.alert("Import impossible", IMPORT_ERROR_MESSAGE);
+      } finally {
+        setImportingId(null);
+      }
+    },
+    [importingId, onImported],
   );
 
   if (recipes.length === 0) {
@@ -263,32 +302,44 @@ function EquivalentRecipesSection({
       <Text style={styles.recipesSubtitle}>
         Notées par la communauté Brasse Bouillon
       </Text>
-      {recipes.map((recipe) => (
-        <Pressable
-          key={recipe.recipeId}
-          onPress={() => onPickRecipe(recipe.recipeId)}
-          style={({ pressed }) => [
-            styles.recipeRow,
-            pressed ? styles.recipeRowPressed : null,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={`${recipe.name} par ${recipe.brewer}, noté ${recipe.rating} sur 5`}
-        >
-          <View style={styles.recipeRowLeft}>
-            <Text style={styles.recipeName} numberOfLines={2}>
-              {recipe.name}
-            </Text>
-            <Text style={styles.recipeBrewer}>
-              {recipe.brewer} · brassée {recipe.brewedCount} fois
-            </Text>
-          </View>
-          <View style={styles.recipeRowRight}>
-            <Text style={styles.recipeRating}>
-              ★ {recipe.rating.toFixed(1)}
-            </Text>
-          </View>
-        </Pressable>
-      ))}
+      {recipes.map((recipe) => {
+        const isImporting = importingId === recipe.recipeId;
+        const isDisabled = importingId !== null;
+        return (
+          <Pressable
+            key={recipe.recipeId}
+            onPress={() => handleImport(recipe.recipeId)}
+            disabled={isDisabled}
+            style={({ pressed }) => {
+              if (isImporting) return [styles.recipeRow];
+              if (isDisabled)
+                return [styles.recipeRow, styles.recipeRowDisabled];
+              return [
+                styles.recipeRow,
+                pressed ? styles.recipeRowPressed : null,
+              ];
+            }}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: isDisabled, busy: isImporting }}
+            accessibilityLabel={`Importer ${recipe.name} par ${recipe.brewer}, noté ${recipe.rating} sur 5`}
+          >
+            <View style={styles.recipeRowLeft}>
+              <Text style={styles.recipeName} numberOfLines={2}>
+                {recipe.name}
+              </Text>
+              <Text style={styles.recipeBrewer}>
+                {recipe.brewer} · brassée {recipe.brewedCount} fois · ★{" "}
+                {recipe.rating.toFixed(1)}
+              </Text>
+            </View>
+            <View style={styles.recipeRowRight}>
+              <Text style={styles.recipeAction}>
+                {isImporting ? "Import…" : "+ Importer"}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      })}
     </Card>
   );
 }
@@ -437,6 +488,9 @@ const styles = StyleSheet.create({
   recipeRowPressed: {
     opacity: 0.85,
   },
+  recipeRowDisabled: {
+    opacity: 0.5,
+  },
   recipeRowLeft: {
     flex: 1,
     paddingRight: spacing.sm,
@@ -454,7 +508,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },
-  recipeRating: {
+  recipeAction: {
     fontSize: typography.size.label,
     fontWeight: typography.weight.bold,
     color: colors.brand.primary,

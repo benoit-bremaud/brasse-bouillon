@@ -66,3 +66,11 @@ export async function listSteps(recipeId: string): Promise<RecipeStep[]> {
   const rows = await request<RecipeStepDto[]>(`/recipes/${recipeId}/steps`);
   return rows.map(mapRecipeStep);
 }
+
+export async function importFromCommunity(sourceId: string): Promise<Recipe> {
+  const row = await request<RecipeDto>(
+    `/recipes/import-from-community/${sourceId}`,
+    { method: "POST" },
+  );
+  return mapRecipe(row);
+}

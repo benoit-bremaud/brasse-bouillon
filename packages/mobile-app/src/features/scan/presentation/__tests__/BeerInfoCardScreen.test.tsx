@@ -1,7 +1,15 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { Alert } from "react-native";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import React from "react";
 
 import { BeerInfoCardScreen } from "@/features/scan/presentation/BeerInfoCardScreen";
+import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupServiceUnavailableError,
@@ -34,8 +42,15 @@ jest.mock("@/features/scan/application/scan-lookup.use-cases", () => {
   };
 });
 
+jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
+  importRecipeFromCommunity: jest.fn(),
+}));
+
 const mockedLookup = lookupBeerByBarcode as jest.MockedFunction<
   typeof lookupBeerByBarcode
+>;
+const mockedImport = importRecipeFromCommunity as jest.MockedFunction<
+  typeof importRecipeFromCommunity
 >;
 
 function buildResult(
@@ -70,10 +85,18 @@ function buildResult(
 }
 
 describe("BeerInfoCardScreen", () => {
+  let alertSpy: jest.SpyInstance;
+
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
     mockedLookup.mockReset();
+    mockedImport.mockReset();
+    alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    alertSpy.mockRestore();
   });
 
   describe("happy path", () => {
@@ -232,19 +255,92 @@ describe("BeerInfoCardScreen", () => {
     });
   });
 
-  describe("recipe navigation", () => {
-    it("navigates to a real recipe detail when a recipe row is pressed", async () => {
+  describe("import community recipe", () => {
+    it("imports the recipe and navigates to the new detail page on success", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedImport.mockResolvedValueOnce({
+        recipeId: "imported-uuid-1",
+        name: "Session IPA Citra",
+      });
 
       render(<BeerInfoCardScreen barcodeParam="5060277380011" />);
 
-      const recipeRow = await screen.findByLabelText(/Session IPA Citra/);
-      fireEvent.press(recipeRow);
+      const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+      await act(async () => {
+        fireEvent.press(row);
+      });
 
-      // Punk IPA's first match maps to the existing r-demo-1 recipe
-      // so the navigation lands on a resolvable recipe detail page
-      // (Codex P1 fix: mocks now use real demoRecipes IDs).
-      expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-demo-1");
+      await waitFor(() => {
+        expect(mockedImport).toHaveBeenCalledWith("r-demo-1");
+      });
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Recette importée",
+        expect.stringContaining("Session IPA Citra"),
+        expect.any(Array),
+        expect.any(Object),
+      );
+
+      // Trigger the "Voir la recette" button from the success alert.
+      const buttons = alertSpy.mock.calls[0][2] as Array<{
+        text: string;
+        onPress?: () => void;
+      }>;
+      const viewButton = buttons.find((b) => b.text === "Voir la recette");
+      act(() => {
+        viewButton?.onPress?.();
+      });
+      expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/imported-uuid-1");
+    });
+
+    it("does not navigate when the user dismisses the success alert", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedImport.mockResolvedValueOnce({
+        recipeId: "imported-uuid-2",
+        name: "Session IPA Citra",
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380011" />);
+
+      const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+      await act(async () => {
+        fireEvent.press(row);
+      });
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+
+      // The "Plus tard" cancel button has no onPress handler — pressing it
+      // (or dismissing the alert by tapping outside) must NOT navigate.
+      const buttons = alertSpy.mock.calls[0][2] as Array<{
+        text: string;
+        style?: string;
+        onPress?: () => void;
+      }>;
+      const cancelButton = buttons.find((b) => b.style === "cancel");
+      expect(cancelButton).toBeDefined();
+      expect(cancelButton?.onPress).toBeUndefined();
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it("shows an error alert when the import fails and does not navigate", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedImport.mockRejectedValueOnce(new Error("boom"));
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380011" />);
+
+      const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+      await act(async () => {
+        fireEvent.press(row);
+      });
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith(
+          "Import impossible",
+          expect.stringContaining("Réessaie"),
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalled();
     });
   });
 });

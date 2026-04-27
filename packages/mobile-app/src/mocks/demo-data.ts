@@ -9,6 +9,10 @@ import { User } from "@/features/auth/domain/auth.types";
 import { HopProduct } from "@/features/ingredients/domain/hop.types";
 import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
+import type {
+  ScanCatalogItem,
+  ScanLookupResult,
+} from "@/features/scan/domain/scan.types";
 import { YeastProduct } from "@/features/ingredients/domain/yeast.types";
 
 export type Equipment = {
@@ -2479,3 +2483,87 @@ export const demoBatches: Batch[] = [
     })),
   },
 ];
+
+/**
+ * Demo lookup catalogue keyed by EAN-13. Used by `lookupBeerByBarcode`
+ * use-case when `dataSource.useDemoData = true` so the scan flow
+ * works offline and during the soutenance demo. Mirrors the seed
+ * shipped on the backend (see `packages/api/src/database/seeds/scan-catalog.seed.ts`)
+ * but stays independent so the mobile demo can run without a backend.
+ */
+const buildDemoScanCatalogItem = (
+  overrides: Partial<ScanCatalogItem> & { id: string; barcode: string },
+): ScanCatalogItem => ({
+  id: overrides.id,
+  barcode: overrides.barcode,
+  name: overrides.name ?? "Unknown",
+  brewery: overrides.brewery ?? "Unknown",
+  style: overrides.style ?? "Unknown",
+  abv: overrides.abv ?? null,
+  ibu: overrides.ibu ?? null,
+  colorEbc: overrides.colorEbc ?? null,
+  fermentationType: overrides.fermentationType ?? "ale",
+  aromaticTags: overrides.aromaticTags ?? null,
+  notesSource: overrides.notesSource ?? null,
+  isAbvEstimated: overrides.isAbvEstimated ?? overrides.abv == null,
+  isIbuEstimated: overrides.isIbuEstimated ?? overrides.ibu == null,
+  isColorEbcEstimated:
+    overrides.isColorEbcEstimated ?? overrides.colorEbc == null,
+  isStyleEstimated: overrides.isStyleEstimated ?? false,
+  origin: overrides.origin ?? "seed",
+  fetchedAt: overrides.fetchedAt ?? null,
+  createdAt: overrides.createdAt ?? "2026-04-27T00:00:00.000Z",
+  updatedAt: overrides.updatedAt ?? "2026-04-27T00:00:00.000Z",
+});
+
+export const demoScanCatalog: Record<string, ScanCatalogItem> = {
+  "5060277380011": buildDemoScanCatalogItem({
+    id: "demo-scan-punk-ipa",
+    barcode: "5060277380011",
+    name: "Punk IPA",
+    brewery: "BrewDog",
+    style: "IPA",
+    abv: 5.4,
+    ibu: 35,
+    colorEbc: 14,
+    aromaticTags: "tropical, citrus, pine",
+    notesSource: "BrewDog DIY Dog 2019 (open-source recipe book)",
+  }),
+  "5410702000132": buildDemoScanCatalogItem({
+    id: "demo-scan-la-chouffe",
+    barcode: "5410702000132",
+    name: "La Chouffe",
+    brewery: "Brasserie d Achouffe",
+    style: "Belgian Strong Pale Ale",
+    abv: 8.0,
+    ibu: 20,
+    colorEbc: 14,
+    aromaticTags: "banana, clove, coriander",
+    notesSource: "Brasserie d'Achouffe — official datasheet",
+  }),
+  "5410799000111": buildDemoScanCatalogItem({
+    id: "demo-scan-rochefort-10",
+    barcode: "5410799000111",
+    name: "Rochefort 10",
+    brewery: "Abbaye Notre-Dame de Saint-Remy",
+    style: "Belgian Quadrupel",
+    abv: 11.3,
+    ibu: 28,
+    colorEbc: 70,
+    aromaticTags: "dark fruit, port, caramel, raisin",
+    notesSource: "Trappist Rochefort — published brewery profile",
+  }),
+};
+
+/**
+ * Wraps a demo catalogue entry into the lookup result shape the
+ * use-case returns. Always reports `cache_hit_fresh` because demo
+ * data lives entirely on-device.
+ */
+export const buildDemoLookupResult = (
+  item: ScanCatalogItem,
+): ScanLookupResult => ({
+  item,
+  source: "cache_hit_fresh",
+  rawPayloadAvailable: false,
+});

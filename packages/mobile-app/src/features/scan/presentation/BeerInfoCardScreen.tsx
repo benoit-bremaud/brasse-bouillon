@@ -370,9 +370,6 @@ function BreweryStory({ brewery }: { brewery: string }) {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    // Issue #737 — paddingBottom must clear the bottom tab bar (~80px)
-    // plus a comfortable gap. Without this the last fold ('Histoire de
-    // la brasserie') gets partially hidden when fully scrolled.
     paddingBottom: spacing.xxl * 3,
   },
   glanceCard: {
@@ -413,11 +410,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
-    // Issue #736 — long French values get a chance to fit by shrinking
-    // (`adjustsFontSizeToFit` + `numberOfLines={3}` on the Text host).
-    // The native flexbox + word-aware wrapper handles the common case;
-    // narrower viewports may still occasionally clip on word break,
-    // tracked separately for post-soutenance.
   },
   recipesCard: {
     marginBottom: spacing.md,

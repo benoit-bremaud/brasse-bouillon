@@ -176,3 +176,21 @@ export interface ScanLookupResult {
   source: ScanLookupSource;
   rawPayloadAvailable: boolean;
 }
+
+/**
+ * One candidate recipe surfaced under "Equivalent recipes" on the
+ * scan info card. Shape anticipates the matching backend (#699) but
+ * stays consumer-driven: today the data comes from the demo mock,
+ * tomorrow the same shape lands from the API.
+ *
+ * `score` is the matching algo's confidence (0-1). Presentation
+ * sorts by score desc and caps to the top 3.
+ */
+export interface ScanRecipeMatch {
+  recipeId: string;
+  name: string;
+  brewer: string;
+  rating: number;
+  brewedCount: number;
+  score: number;
+}

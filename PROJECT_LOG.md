@@ -5,6 +5,167 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-27
+
+### PR #732 opened — Mobile UI: beer info card with hero + lazy folds (Issue #698)
+
+Branch `feat/mobile-scan-info-card-issue-698`. Third link of the
+demo-hero scan chain (after #696 backend / #697 data layer): the
+"Beer recognised" screen the user lands on after a successful
+barcode scan, and the first thing the jury will see during the
+2026-05-27 soutenance demo.
+
+Scope:
+
+- **EBC-driven hero** — `BeerHero` renders a coloured hero whose
+  background is computed from the beer's `colorEbc` value (palette
+  mirrors the Couleur calculator's reference table). Punk IPA shows
+  amber-orange, Rochefort 10 deep brown, La Chouffe pale amber —
+  same data drives both the visual identity and the "Couleur" word
+  in the at-a-glance row.
+- **At-a-glance card in WORDS not numbers** — per persona Léa la
+  Curieuse: ABV exact (`5.4 %`) + strength word
+  ("De session" / "Standard" / "Forte"…) + style / colour
+  ("Ambrée") / bitterness ("Modérément amère") in plain French.
+  Numbers stay available in the "Détails techniques" fold.
+- **Lazy folds (GoF Lazy Initialization)** — `Collapsible` accepts
+  a `renderContent: () => ReactNode` factory called only on first
+  open. Today the fold content is already in memory (technical
+  details + curated brewery story); tomorrow when a brewery-story
+  endpoint or richer data ships, the same component swaps to a
+  network-lazy `useQuery` without changing the consumer.
+- **Demo-flow completeness** — to make the soutenance scan demo
+  testable end-to-end on day 1 (oral blanc J-9), three demo
+  equivalent recipes + three brewery stories are hardcoded in
+  `mocks/demo-data.ts` for the canonical demo beers (Punk IPA,
+  La Chouffe, Rochefort 10). Same shape as the future #699 API
+  output — when the matching backend ships, the data source swaps
+  without UI changes.
+- **Wiring** — `ScanScreen.handleAnalyzeBarcode` now navigates
+  directly to `/(app)/dashboard/scan/lookup/{barcode}` when a
+  barcode is confirmed (5/5), bypassing the legacy
+  `processScanAttempt` / label-match flow for that path. Bottle
+  mode (no barcode) keeps the legacy flow.
+- **Tests** — 32 new unit / integration tests across 5 suites
+  (formatters 41 cases, color utility 11, Collapsible 6, BeerHero
+  3, BeerInfoCardScreen 12). Covers happy / sad / edge per
+  convention plus lazy-render assertions, error states,
+  accessibility states.
+
+Decisions:
+
+- `BreweryStory` / `EquivalentRecipes` / `TechnicalDetails`
+  rendered as components within the screen file rather than
+  separate files. Keeps the screen self-contained until clear
+  reuse emerges (none in sight today).
+- `Collapsible` lives in `features/scan/presentation/components/`
+  rather than `core/ui/`. Moved to `core/` later when a second
+  feature needs it. Premature promotion is a frequent
+  over-engineering trap.
+- `getDemoEquivalentRecipes` and `getDemoBreweryStory` helpers
+  ship from `mocks/demo-data.ts` rather than each feature's
+  application layer. Per the existing `dataSource.useDemoData`
+  convention — demo helpers live in mocks/, application layer
+  stays clean.
+- Unused legacy import `processScanAttempt` left in
+  `ScanScreen.tsx` (used by bottle mode handlers) — not removed
+  to keep the wiring change minimal per the user's decision on
+  Q4 (Option A — minimum nav change).
+
+Follow-ups (out of scope for this PR):
+
+- Real recipe matching (#699) — replaces `getDemoEquivalentRecipes`
+- Real brewery story endpoint — replaces `getDemoBreweryStory`
+- Network-lazy folds (`renderContent` swaps to `useQuery`)
+- Real beer photo on the hero (when backend ships `photoUrl`)
+
+### PR #731 merged (`e2e04d7`) — Mobile data layer for `/scan/lookup` (Issue #697)
+
+Mobile counterpart of backend PR #729. Closes the data path from the
+scan UI down to the new `GET /scan/lookup/:ean` endpoint while keeping
+the demo flow working offline. Branch
+`feat/mobile-scan-lookup-data-layer-issue-697`. Ships 7 files / 746
+insertions across the 3 Clean Architecture layers + tests.
+
+Scope:
+
+- **Domain** — `ScanCatalogItem`, `ScanLookupResult`, `ScanLookupSource`,
+  `ScanCatalogItemOrigin` added to `scan.types.ts` (camelCase domain
+  shape).
+- **Data** — `scan-lookup.api.ts` calls the endpoint via the shared
+  `http-client`, maps snake_case DTO -> camelCase, URL-encodes the EAN
+  against path-traversal.
+- **Application** — `lookupBeerByBarcode` use-case: normalises barcode
+  (trim + strip non-digits), validates length against the backend
+  contract (`^\d{8,14}$`), branches on `dataSource.useDemoData` to
+  serve the on-device `demoScanCatalog` (Punk IPA, La Chouffe,
+  Rochefort 10), maps `HttpError 404 -> ScanLookupBeerNotFoundError`
+  and `503 -> ScanLookupServiceUnavailableError`, otherwise re-throws.
+- **Tests** — 22 new unit tests (5 data layer + 17 use-case layer),
+  full mobile suite at 443 passed / 52 suites.
+
+Review cycle:
+
+- 2 inline comments on the initial commit (`5934f06`):
+  - **Codex P2** — validate barcode length before lookup. Implemented
+    via `BARCODE_MIN_LENGTH = 8` / `BARCODE_MAX_LENGTH = 14` constants
+    mirroring `ScanDomainService.validateBarcode`. 4 new boundary
+    tests added. Avoids a useless network round-trip on malformed
+    input.
+  - **Copilot Should Have** — `buildDemoScanCatalogItem` defaulted
+    `is*Estimated` flags to `true` and `notesSource` to a generic
+    string even when explicit values were provided, diverging from
+    the backend seed convention. Defaults now derive from value
+    presence (`overrides.is*Estimated ?? overrides.<value> == null`),
+    `notesSource` defaults to `null`, and La Chouffe + Rochefort 10
+    entries got per-item `notesSource` strings tied to real upstream
+    documentation.
+- Both fixes shipped in `5cb4353`. End-of-review summary posted in
+  French. User merged manually from GitHub UI.
+
+Side fix bundled in this PR — the unanchored `data/` rule in
+`.gitignore` (intended for the API SQLite folder) was silently
+ignoring the mobile Clean Architecture `data/` layer folder, so any
+new file under `packages/mobile-app/src/features/<feature>/data/`
+would never be picked up by `git add`. Anchored to
+`/packages/api/data/` — backend behaviour unchanged.
+
+Decisions:
+
+- `scan-lookup.api.ts` ships with the single backend method name
+  (`lookupBeerByBarcode`) instead of the spec's `getBeerByBarcode` +
+  `getRecipesForBeer` split. Reason: the backend (#696/#729) ships a
+  single `GET /scan/lookup/:ean` endpoint; the recipe-matching half
+  is the separate vertical owned by #699. Function name mirrors the
+  backend method 1:1.
+- New domain types appended to `scan.types.ts` rather than split into
+  a dedicated `beer-data.types.ts` per spec — keeps a single domain
+  file per feature (existing convention) and no reviewer pushed back.
+- Error classes co-located with the use-case they're thrown from
+  rather than extracted to `domain/errors.ts`. Same rationale.
+
+Infra hiccup — first CI run on the PR died at runner-pickup
+(`billable.UBUNTU.total_ms = 0`, no steps executed) across all
+workflow files. Diagnosis: GitHub Actions monthly quota (3,000 min on
+GitHub Pro) exhausted on 2026-04-27 with reset 4 days away,
+unacceptable on the J-30 demo path. User added a $5 monthly Actions
+budget on the personal account (with `Stop usage when budget is
+reached` enabled — hard cap, no risk of overrun). Empty commit
+`670862c` re-triggered the workflows, all 5 checks (changes,
+mobile-app, security-audit, SonarCloud Scan, SonarCloud Code
+Analysis) passed first try after the unblock. Migration of the repo
+to the StudioB22 organization (which has a separate untouched 3,000
+min quota) was considered but deferred to post-soutenance — too risky
+during the demo sprint (SonarCloud reconfig, secrets, project
+re-link).
+
+Next link in the demo-hero scan chain: **#698** — mobile UI info
+card. Wires the use-case shipped here into the scan flow's "Beer
+recognised" presentation step. Followed by #699 (recipe match), #700
+(matching UI), #601 (import to Mes Recettes).
+
+---
+
 ## 2026-04-24
 
 ### PR #715 merged (`600b6e2`) — Onboarding & auth brainstorm

@@ -309,7 +309,7 @@ export function ScanScreen() {
     [hasConsent, isCameraVisible, scanMode],
   );
 
-  const handleAnalyzeBarcode = async () => {
+  const handleAnalyzeBarcode = () => {
     if (!barcodeVerification.confirmedValue) {
       setStatusMessage(
         `Scan the same barcode ${REQUIRED_IDENTICAL_BARCODE_SCANS} times before analysis.`,
@@ -317,21 +317,17 @@ export function ScanScreen() {
       return;
     }
 
-    setIsSubmitting(true);
+    // Demo-hero scan path (Epic #594, issue #698): a confirmed
+    // barcode hands off to BeerInfoCardScreen which calls the new
+    // `/scan/lookup/:ean` endpoint shipped in #696/#697 and renders
+    // the recognised beer. The legacy `processScanAttempt` /
+    // label-match flow stays alive for bottle mode (no barcode).
     setError(null);
-
-    try {
-      const outcome = await processScanAttempt({
-        barcodeValue: barcodeVerification.confirmedValue,
-        barcodeType: barcodeVerification.confirmedType,
-        scannedAt: new Date(),
-      });
-      handleProcessOutcome(outcome);
-    } catch (processError) {
-      setError(getErrorMessage(processError, "Unable to analyze barcode."));
-    } finally {
-      setIsSubmitting(false);
-    }
+    router.push(
+      `/(app)/dashboard/scan/lookup/${encodeURIComponent(
+        barcodeVerification.confirmedValue,
+      )}` as never,
+    );
   };
 
   const handleGrantConsent = async () => {

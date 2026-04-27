@@ -12,6 +12,7 @@ import { MaltProduct } from "@/features/ingredients/domain/malt.types";
 import type {
   ScanCatalogItem,
   ScanLookupResult,
+  ScanRecipeMatch,
 } from "@/features/scan/domain/scan.types";
 import { YeastProduct } from "@/features/ingredients/domain/yeast.types";
 
@@ -2567,3 +2568,145 @@ export const buildDemoLookupResult = (
   source: "cache_hit_fresh",
   rawPayloadAvailable: false,
 });
+
+/**
+ * Demo equivalent recipes keyed by EAN. Surfaced under the
+ * "🧪 Equivalent recipes" section of BeerInfoCardScreen when the
+ * matching backend (#699) is not yet wired. Same shape as the
+ * future API response — when #699 lands, the data source swaps
+ * (mock <-> API) without touching the presentation.
+ *
+ * `score` mimics the matching algorithm's confidence (0-1).
+ * Presentation sorts by score desc and caps at 3.
+ *
+ * Curated for the soutenance demo path — only the 3 demo beers
+ * (Punk IPA, La Chouffe, Rochefort 10) carry recipes for now.
+ */
+export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
+  // Punk IPA — closest matches in the existing demoRecipes catalog,
+  // ordered by stylistic distance (IPA family).
+  "5060277380011": [
+    {
+      recipeId: "r-demo-1",
+      name: "Session IPA Citra",
+      brewer: "Marie",
+      rating: 4.7,
+      brewedCount: 23,
+      score: 0.95,
+    },
+    {
+      recipeId: "r-demo-7",
+      name: "NEIPA Tropical",
+      brewer: "Antoine",
+      rating: 4.5,
+      brewedCount: 18,
+      score: 0.89,
+    },
+    {
+      recipeId: "r-demo-13",
+      name: "White IPA",
+      brewer: "Lucas",
+      rating: 4.3,
+      brewedCount: 12,
+      score: 0.78,
+    },
+  ],
+  // La Chouffe — Belgian Strong Pale Ale neighbours.
+  "5410702000132": [
+    {
+      recipeId: "r-demo-6",
+      name: "Belgian Tripel",
+      brewer: "Caroline",
+      rating: 4.8,
+      brewedCount: 31,
+      score: 0.93,
+    },
+    {
+      recipeId: "r-demo-9",
+      name: "Saison Farmhouse",
+      brewer: "Hugo",
+      rating: 4.6,
+      brewedCount: 19,
+      score: 0.86,
+    },
+    {
+      recipeId: "r-demo-2",
+      name: "Witbier Orange",
+      brewer: "Sophie",
+      rating: 4.2,
+      brewedCount: 9,
+      score: 0.74,
+    },
+  ],
+  // Rochefort 10 — strong dark ale neighbours.
+  "5410799000111": [
+    {
+      recipeId: "r-demo-15",
+      name: "Scotch Ale Wee Heavy",
+      brewer: "Pierre",
+      rating: 4.9,
+      brewedCount: 27,
+      score: 0.97,
+    },
+    {
+      recipeId: "r-demo-4",
+      name: "Imperial Stout",
+      brewer: "Nathalie",
+      rating: 4.7,
+      brewedCount: 22,
+      score: 0.91,
+    },
+    {
+      recipeId: "r-demo-11",
+      name: "Baltic Porter",
+      brewer: "Mehdi",
+      rating: 4.4,
+      brewedCount: 14,
+      score: 0.81,
+    },
+  ],
+};
+
+/**
+ * Demo brewery stories keyed by brewery name (the same string the
+ * backend ships in `ScanCatalogItem.brewery`). Surfaced inside the
+ * lazy-loaded "Histoire de la brasserie" fold on
+ * BeerInfoCardScreen.
+ *
+ * Sources are public, factual records (founding dates, ownership,
+ * notable products). When the backend ships a real brewery
+ * encyclopedia (#TBD), these stay as a fallback and the screen
+ * starts preferring the API string.
+ */
+export const demoBreweryStories: Record<string, string> = {
+  BrewDog:
+    "Fondée en 2007 à Fraserburgh, en Écosse, par James Watt et Martin Dickie — deux amis et leur chien. Punk IPA est née de la frustration face à la fadeur des bières britanniques de l'époque. BrewDog publie ses recettes en open source dans son livre 'DIY Dog', un geste rare dans l'industrie.",
+  "Brasserie d Achouffe":
+    "Au pied des Ardennes belges, depuis 1982. La légende veut que des elfes (les chouffes) habitent la vallée de la Wartet. Pierre Gobron et Christian Bauweraerts ont créé La Chouffe pour partager leur amour de la bière belge — la mascotte rouge du gnome est devenue une icône.",
+  "Abbaye Notre-Dame de Saint-Remy":
+    "Trappiste authentique depuis 1595, près de Rochefort en Belgique. Les moines ne brassent que pour subvenir aux besoins de l'abbaye — la production reste délibérément limitée. Rochefort 10 est leur quadruple emblématique, régulièrement classée parmi les meilleures bières du monde.",
+};
+
+/**
+ * Helper that returns the demo brewery story (or null if the
+ * brewery isn't part of the curated demo set). Keeps callers free
+ * of the lookup ergonomics.
+ */
+export function getDemoBreweryStory(brewery: string): string | null {
+  return demoBreweryStories[brewery] ?? null;
+}
+
+/**
+ * Helper that returns up to 3 demo equivalent recipes for an EAN,
+ * sorted by `score` descending so the highest-confidence match
+ * comes first. Mirrors the future #699 API contract: caller
+ * doesn't have to know about the keys or the underlying ordering.
+ */
+export function getDemoEquivalentRecipes(
+  barcode: string,
+): ReadonlyArray<ScanRecipeMatch> {
+  const matches = demoEquivalentRecipes[barcode] ?? [];
+  return [...matches]
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3);
+}

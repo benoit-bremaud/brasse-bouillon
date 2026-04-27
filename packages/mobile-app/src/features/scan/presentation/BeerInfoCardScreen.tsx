@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
@@ -229,7 +236,12 @@ function GlanceCell({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.glanceCell}>
       <Text style={styles.glanceCellLabel}>{label}</Text>
-      <Text style={styles.glanceCellValue} numberOfLines={2}>
+      <Text
+        style={styles.glanceCellValue}
+        numberOfLines={3}
+        adjustsFontSizeToFit
+        minimumFontScale={0.85}
+      >
         {value}
       </Text>
     </View>
@@ -365,7 +377,10 @@ function BreweryStory({ brewery }: { brewery: string }) {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: spacing.xxl,
+    // Issue #737 — paddingBottom must clear the bottom tab bar (~80px)
+    // plus a comfortable gap. Without this the last fold ('Histoire de
+    // la brasserie') gets partially hidden when fully scrolled.
+    paddingBottom: spacing.xxl * 3,
   },
   glanceCard: {
     marginBottom: spacing.md,
@@ -405,6 +420,16 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
+    // Issue #736 — RN core types don't expose `wordBreak`/`overflowWrap`
+    // but RN-web honors them at runtime. The keys are added through a
+    // cast object spread so TS accepts them; native silently ignores
+    // them (and already breaks on word boundaries by default).
+    ...(Platform.OS === "web"
+      ? ({
+          wordBreak: "keep-all",
+          overflowWrap: "break-word",
+        } as object)
+      : {}),
   },
   recipesCard: {
     marginBottom: spacing.md,

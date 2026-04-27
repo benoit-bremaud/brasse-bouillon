@@ -41,6 +41,8 @@ describe('RecipeController', () => {
     brew_count: 0,
     last_brewed_at: null,
     is_official: false,
+    imported_from_recipe_id: null,
+    import_provenance: null,
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -98,6 +100,7 @@ describe('RecipeController', () => {
             getMineById: jest.fn(),
             updateMine: jest.fn(),
             deleteMine: jest.fn(),
+            importFromCommunity: jest.fn(),
             listMineSteps: jest.fn(),
             updateMineStep: jest.fn(),
             estimateMineIbu: jest.fn(),
@@ -242,6 +245,42 @@ describe('RecipeController', () => {
         controller.deleteMine(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
       expect(deleteMineSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
+    });
+  });
+
+  describe('importFromCommunity() - POST /recipes/import-from-community/:id', () => {
+    it('should call the service with the source id and the current user', async () => {
+      const sourceId = '550e8400-e29b-41d4-a716-446655440099';
+      const imported: RecipeOrmEntity = {
+        ...mockRecipeOrm,
+        id: '550e8400-e29b-41d4-a716-446655440002',
+        imported_from_recipe_id: sourceId,
+        import_provenance: 'Importée de "My IPA Recipe" le 2026-04-27',
+      };
+      const importSpy = jest
+        .spyOn(service, 'importFromCommunity')
+        .mockResolvedValue(imported);
+
+      const result = await controller.importFromCommunity(mockUser, sourceId);
+
+      expect(importSpy).toHaveBeenCalledWith(mockUser.id, sourceId);
+      expect(result.id).toBe(imported.id);
+      expect(result.imported_from_recipe_id).toBe(sourceId);
+      expect(result.import_provenance).toMatch(/Importée/);
+    });
+
+    it('should propagate NotFoundException when source does not exist', async () => {
+      const importSpy = jest
+        .spyOn(service, 'importFromCommunity')
+        .mockRejectedValue(new NotFoundException('Source recipe not found'));
+
+      await expect(
+        controller.importFromCommunity(
+          mockUser,
+          '00000000-0000-0000-0000-000000000000',
+        ),
+      ).rejects.toThrow(NotFoundException);
+      expect(importSpy).toHaveBeenCalled();
     });
   });
 

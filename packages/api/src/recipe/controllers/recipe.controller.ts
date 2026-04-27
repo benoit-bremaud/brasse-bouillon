@@ -16,6 +16,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -57,6 +58,27 @@ export class RecipeController {
     dto: CreateRecipeDto,
   ): Promise<RecipeDto> {
     const saved = await this.service.create(user.id, dto);
+    return RecipeDto.fromEntity(saved);
+  }
+
+  @Post('import-from-community/:id')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      'Import a community (PUBLIC or UNLISTED) recipe into my catalog (Issue #601)',
+    description:
+      'Deep-copies the source recipe and all its satellites (steps, hops, fermentables, yeasts, additives, water) into a new private recipe owned by the current user. The new recipe carries provenance metadata (`imported_from_recipe_id` + a human-readable `import_provenance` string).',
+  })
+  @ApiCreatedResponse({ type: RecipeDto })
+  @ApiNotFoundResponse({ description: 'Source recipe not found' })
+  @ApiForbiddenResponse({
+    description: 'Source recipe is private and cannot be imported',
+  })
+  async importFromCommunity(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<RecipeDto> {
+    const saved = await this.service.importFromCommunity(user.id, id);
     return RecipeDto.fromEntity(saved);
   }
 

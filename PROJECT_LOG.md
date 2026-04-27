@@ -7,6 +7,71 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-27
 
+### PR opened — Backend import-from-community endpoint (Issue #601)
+
+Branch `feat/recipes-import-from-community-issue-601`. Closes the
+demo-hero scan loop on the backend side: when a user picks a community
+recipe from the BeerInfoCardScreen `Recettes équivalentes` section, the
+mobile UI (separate PR) will call the new endpoint to copy that recipe
+into the user's private catalog with full provenance.
+
+Scope (backend only):
+
+- **Migration** `1779000000000-AddRecipeImportProvenanceFields.ts` —
+  adds two nullable columns to `recipes`:
+  - `imported_from_recipe_id` (varchar(36), indexed) — FK pointer to
+    the source recipe for audit
+  - `import_provenance` (text) — French human-readable string
+    surfaced in the UI ("Importée de Punk IPA Clone le 2026-04-27")
+- **Entity** `recipe.orm.entity.ts` — 2 new columns + 1 index
+  (`imported_from_recipe_id`)
+- **DTO** `recipe.dto.ts` — exposes the 2 fields with explanatory
+  ApiPropertyOptional descriptions
+- **Service** `recipe.service.ts` — new `importFromCommunity(userId,
+  sourceId)` method:
+  - Refuses PRIVATE source (ForbiddenException) — only PUBLIC and
+    UNLISTED are importable
+  - Refuses unknown sourceId (NotFoundException)
+  - Generates new UUID, owns recipe to current user, sets visibility
+    PRIVATE, version 1, root_recipe_id = own id, parent_recipe_id =
+    null, brew_count = 0, avg_rating = null, last_brewed_at = null
+  - Deep-copies the 6 satellite tables (steps, hops, fermentables,
+    yeasts, additives, water) with new FKs
+  - Wraps the whole flow in a single transaction
+- **Controller** `recipe.controller.ts` — new route
+  `POST /recipes/import-from-community/:id` guarded by
+  `@JwtAuthGuard`, with Swagger annotations covering 201/404/403.
+
+Tests:
+
+- 9 new service tests (`recipe-import.service.spec.ts`) covering
+  happy / sad / edge:
+  - PUBLIC source → success with right ownership / visibility / provenance
+  - UNLISTED source → also accepted
+  - Resets community-tracking fields on the new recipe
+  - Copies recipe metrics (batch volume, OG, IBU…)
+  - PRIVATE source → ForbiddenException
+  - Unknown id → NotFoundException
+  - Steps deep-copied with new recipe_id
+  - Hops deep-copied with new ids and recipe_id
+  - Source with no satellites → empty target
+- 2 new controller tests covering route → service contract +
+  NotFoundException propagation
+- Full backend suite stays green: 312 / 41 suites (1 skipped).
+
+Decisions:
+
+- Visibility check at service layer (not DTO) — keeps the policy
+  testable in isolation and centralised regardless of caller.
+- New recipe is its own root (no lineage to source via
+  `root_recipe_id`/`parent_recipe_id`) — those keep their natural
+  meaning for user-driven forks. The import relationship lives
+  exclusively in the new `imported_from_recipe_id` column.
+- Provenance string format: `Importée de "<source.name>" le
+  YYYY-MM-DD`. Simple, French, machine-readable date for log filters.
+
+Mobile half ships in a separate PR (next step in the J-30 roadmap).
+
 ### PR opened — Polish batch on BeerInfoCardScreen (closes #734 #735 #736 #737)
 
 Branch `fix/scan-info-card-polish-batch`. Cosmetic + demo-blocker fixes

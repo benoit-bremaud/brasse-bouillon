@@ -7,6 +7,48 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-27
 
+### PR opened — Polish batch on BeerInfoCardScreen (closes #734 #735 #736 #737)
+
+Branch `fix/scan-info-card-polish-batch`. Cosmetic + demo-blocker fixes
+captured during the same-day sanity-check session on PR #732 (just-merged
+mobile UI info card). Four issues closed in one batch:
+
+- **#734** (demo-blocker) — `<meta name="color-scheme" content="light">`
+  added to `app/+html.tsx`, plus the `prefers-color-scheme: dark` body
+  override removed. Browsers with auto-dark-mode (Chrome flag, OS dark
+  theme) no longer desaturate the EBC-driven hero colors. Confirmed via
+  F12 inspect during the sanity-check that the DOM receives the right
+  hex codes; the issue was purely the rendering layer auto-inverting
+  light backgrounds. `app.json` `userInterfaceStyle` left as
+  `automatic` for now (separate concern for native iOS/Android dark
+  mode handling).
+- **#735** — at-a-glance Style cell now allows 3 lines + auto-shrinks
+  font (`adjustsFontSizeToFit` + `minimumFontScale=0.85`). Long beer
+  styles like "Belgian Strong Pale Ale" no longer truncate.
+- **#736** — at-a-glance value text honors word boundaries. Cell value
+  style adds `wordBreak: keep-all` + `overflowWrap: break-word` on web
+  via `Platform.OS === 'web'` guard (RN core types don't expose these
+  properties; cast through `as object`). "Légèrement amère" no longer
+  breaks mid-word as "Légèreme | nt amère".
+- **#737** — ScrollView `paddingBottom` raised from `spacing.xxl` (40px)
+  to `spacing.xxl * 3` (~120px) so the last fold's content
+  ("Histoire de la brasserie") clears the bottom tab bar.
+
+Side observation captured during the sanity-check: the dark-mode
+auto-invert that triggered finding A1 ("hero olive-green") was a false
+positive on the code (F12 confirmed `rgb(213, 181, 33)` reaching the
+DOM correctly for Punk IPA EBC 14). #734 is the architectural fix that
+ensures all future browsers render the EBC palette faithfully.
+
+Tests: full mobile suite still 527/527 — no new tests added (visual
+fixes only, existing tests cover behavior).
+
+Skipped from this batch: **#733** (SRM palette consolidation between
+calculator and lookup-color). The palette refactor would shift the
+visual rendering of beer hero colors; user explicitly opted to keep
+the current visuals as-is for soutenance. #733 stays open in the
+backlog for post-soutenance.
+
 ### PR #732 opened — Mobile UI: beer info card with hero + lazy folds (Issue #698)
 
 Branch `feat/mobile-scan-info-card-issue-698`. Third link of the

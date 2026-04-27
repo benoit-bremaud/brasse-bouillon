@@ -229,7 +229,12 @@ function GlanceCell({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.glanceCell}>
       <Text style={styles.glanceCellLabel}>{label}</Text>
-      <Text style={styles.glanceCellValue} numberOfLines={2}>
+      <Text
+        style={styles.glanceCellValue}
+        numberOfLines={3}
+        adjustsFontSizeToFit
+        minimumFontScale={0.85}
+      >
         {value}
       </Text>
     </View>
@@ -365,7 +370,7 @@ function BreweryStory({ brewery }: { brewery: string }) {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl * 3,
   },
   glanceCard: {
     marginBottom: spacing.md,

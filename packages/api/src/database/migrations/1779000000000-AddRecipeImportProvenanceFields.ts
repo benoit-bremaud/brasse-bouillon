@@ -21,8 +21,14 @@ export class AddRecipeImportProvenanceFields1779000000000 implements MigrationIn
   name = 'AddRecipeImportProvenanceFields1779000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // FK declared inline on `ADD COLUMN`. SQLite supports this form
+    // and applies `ON DELETE SET NULL` so deleting a source recipe
+    // turns the imported child's pointer to NULL (the import is
+    // preserved as a standalone recipe with no provenance link)
+    // rather than dangling. Mirrors the convention the
+    // `parent_recipe_id` FK uses in the InitialSchema migration.
     await queryRunner.query(
-      `ALTER TABLE "recipes" ADD COLUMN "imported_from_recipe_id" varchar(36)`,
+      `ALTER TABLE "recipes" ADD COLUMN "imported_from_recipe_id" varchar(36) REFERENCES "recipes" ("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "recipes" ADD COLUMN "import_provenance" text`,

@@ -54,7 +54,19 @@ export class RecipeMatchingService {
       score: this.computeFinalScore(beer, recipe),
     }));
 
-    scored.sort((a, b) => b.score - a.score);
+    // Deterministic ordering: primary on score desc, secondary on
+    // avg_rating desc (a higher-rated peer wins ties), tertiary on
+    // recipe id ascending (lexicographic, stable across DBs and
+    // restarts). Without these tie-breakers the ranking falls back
+    // on the DB return order which is not guaranteed — Codex P2 on
+    // PR #773.
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      const ratingDelta =
+        (b.recipe.avg_rating ?? 0) - (a.recipe.avg_rating ?? 0);
+      if (ratingDelta !== 0) return ratingDelta;
+      return a.recipe.id.localeCompare(b.recipe.id);
+    });
     return scored.slice(0, Math.max(1, Math.min(limit, 10)));
   }
 

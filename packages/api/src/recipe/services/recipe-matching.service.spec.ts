@@ -278,6 +278,56 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(ranked.map((r) => r.recipe.name)).toEqual(['Public IPA']);
     });
 
+    it('edge: equal scores resolve deterministically by avg_rating desc then id asc', async () => {
+      // Codex P2 on PR #773 — without explicit tie-breakers the
+      // ranking falls back to the DB return order, which is not
+      // guaranteed. The contract: same scores → higher avg_rating
+      // wins ; same rating → lexicographically smaller id wins.
+      const beerId = await seedBeer(catalogRepo, {
+        style: 'IPA',
+        abv: 5,
+      });
+      // Three recipes that score identically on similarity (style
+      // exact, ABV exact). Differentiate only via avg_rating + id.
+      await seedRecipeWithId(
+        recipeRepo,
+        '00000000-0000-4000-8000-aaaaaaaaaaaa',
+        {
+          name: 'Z-low-rating',
+          style: 'IPA',
+          abv_estimated: 5,
+          avg_rating: 3,
+        },
+      );
+      await seedRecipeWithId(
+        recipeRepo,
+        '00000000-0000-4000-8000-bbbbbbbbbbbb',
+        {
+          name: 'A-high-rating',
+          style: 'IPA',
+          abv_estimated: 5,
+          avg_rating: 5,
+        },
+      );
+      await seedRecipeWithId(
+        recipeRepo,
+        '00000000-0000-4000-8000-cccccccccccc',
+        {
+          name: 'A-high-rating-tie',
+          style: 'IPA',
+          abv_estimated: 5,
+          avg_rating: 5,
+        },
+      );
+
+      const ranked = await service.rankForBeer(beerId, 3);
+      expect(ranked.map((r) => r.recipe.name)).toEqual([
+        'A-high-rating', // 5★ rating, smaller id (bbbb…)
+        'A-high-rating-tie', // 5★ rating, larger id (cccc…)
+        'Z-low-rating', // 3★ rating
+      ]);
+    });
+
     it('edge: caps the limit at 10 even if a larger value is requested', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'IPA',
@@ -365,6 +415,18 @@ async function seedRecipe(
   opts: MakeRecipeOpts,
 ): Promise<string> {
   const recipe = makeRecipe(opts);
+  await repo.save(recipe);
+  return recipe.id;
+}
+
+async function seedRecipeWithId(
+  repo: Repository<RecipeOrmEntity>,
+  id: string,
+  opts: MakeRecipeOpts,
+): Promise<string> {
+  const recipe = makeRecipe(opts);
+  recipe.id = id;
+  recipe.root_recipe_id = id;
   await repo.save(recipe);
   return recipe.id;
 }

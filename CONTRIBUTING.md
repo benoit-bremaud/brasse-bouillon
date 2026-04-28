@@ -437,6 +437,32 @@ The list of people to mention should be suggested based on the PR context (scope
 - At least one reviewer must approve
 - Address review comments before merging
 
+#### AI reviewers — auto-review by default (no manual request needed)
+
+Two AI reviewers are wired on this repository. Both are GitHub Apps,
+not collaborators, so they cannot be added via the
+`requested_reviewers` API (it returns HTTP 422). They review every PR
+automatically on push:
+
+| Reviewer | Bot account | Status |
+|---|---|---|
+| Codex | `chatgpt-codex-connector[bot]` | Always active |
+| Copilot | `copilot-pull-request-reviewer[bot]` | OFF until 2026-05-01 (premium-request quota exhausted), then back on |
+
+What this means in practice:
+
+- **Do not** call `gh api ... requested_reviewers -X POST` for either
+  bot — the call fails with 422 and the bot reviews anyway.
+- **Do** wait for the review to be **posted** (not just "requested")
+  before considering the PR ready, per the PR review procedure in
+  global `~/.claude/CLAUDE.md`. Verify with:
+  `gh api repos/OWNER/REPO/pulls/PR/reviews --jq '.[].state'`.
+- **Do** address every inline comment per the Must Have / Should
+  Have / Nice to Have / Disagree taxonomy, exactly the same way as
+  for a human reviewer.
+- Human reviewers are **never** tagged as PR reviewers on this
+  project (solo dev — AI-only review policy).
+
 ---
 
 ## Code Style

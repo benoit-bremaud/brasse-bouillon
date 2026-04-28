@@ -254,9 +254,17 @@ export interface SeedPublicRecipesResult {
 /**
  * Idempotent loader for the curated public recipes above. Insert
  * if the id is unknown, update in place otherwise. Always sets
- * `visibility = PUBLIC`, `is_official = true`, and
+ * `visibility = PUBLIC`, `is_official = false`, and
  * `imported_from_recipe_id = null` (these are originals, not
  * imports). Owner is the system sentinel UUID.
+ *
+ * Note on `is_official`: the matching algorithm (Issue #699) treats
+ * `is_official = true` as a beer-specific shortcut that wins outright
+ * (score 100). Tagging the 10 seed recipes as official would make
+ * every PUBLIC row tie at 100 and collapse `rankForBeer` to insertion
+ * order — exactly the regression Codex caught on PR #773. The flag is
+ * reserved for future per-beer official clones (e.g. a brewer-endorsed
+ * Punk IPA clone for the Punk IPA bottle).
  */
 export async function seedPublicRecipes(
   repository: Repository<RecipeOrmEntity>,
@@ -289,7 +297,7 @@ export async function seedPublicRecipes(
       avg_rating: recipe.avg_rating,
       brew_count: recipe.brew_count,
       last_brewed_at: null,
-      is_official: true,
+      is_official: false,
       imported_from_recipe_id: null,
       import_provenance: null,
     };

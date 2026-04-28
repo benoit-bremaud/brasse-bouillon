@@ -44,6 +44,7 @@ export interface PublicRecipeSeed {
   id: string;
   name: string;
   description: string;
+  style: string;
   batch_size_l: number;
   boil_time_min: number;
   og_target: number;
@@ -69,6 +70,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Session IPA Citra',
     description:
       "Session IPA tropicale et désaltérante autour d'un mono-houblon Citra. Houblonnée à cru pour un nez explosif d'agrumes et de fruit de la passion.",
+    style: 'Session IPA',
     batch_size_l: 20,
     boil_time_min: 60,
     og_target: 1.045,
@@ -85,6 +87,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'NEIPA Tropical',
     description:
       'New England IPA voilée, ronde, peu amère, dominée par les esters fruités de la levure London Ale et un dry-hop massif Citra+Mosaic.',
+    style: 'NEIPA',
     batch_size_l: 20,
     boil_time_min: 60,
     og_target: 1.06,
@@ -101,6 +104,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'White IPA',
     description:
       "Hybride witbier + IPA — base wheat malt, levure belge, houblons américains. Coriandre + écorce d'orange légères pour le pont stylistique.",
+    style: 'White IPA',
     batch_size_l: 20,
     boil_time_min: 60,
     og_target: 1.054,
@@ -118,6 +122,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Belgian Tripel',
     description:
       'Tripel classique sur base pilsner + sucre candi clair. Levure belge type Westmalle pour les esters fruités et phénols poivrés. Finale sèche.',
+    style: 'Belgian Tripel',
     batch_size_l: 20,
     boil_time_min: 90,
     og_target: 1.075,
@@ -134,6 +139,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Saison Farmhouse',
     description:
       'Saison rustique inspirée des fermes du Hainaut. Levure saison à haute fermentation (28-32°C), atténuation très élevée, finale poivrée et acidulée.',
+    style: 'Saison',
     batch_size_l: 20,
     boil_time_min: 90,
     og_target: 1.055,
@@ -150,6 +156,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Witbier Orange',
     description:
       "Witbier traditionnelle 50% wheat / 50% pilsner. Coriandre + zeste d'orange amère de Curaçao en fin d'ébullition. Trouble naturel, finale acidulée.",
+    style: 'Witbier',
     batch_size_l: 20,
     boil_time_min: 60,
     og_target: 1.046,
@@ -167,6 +174,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Scotch Ale Wee Heavy',
     description:
       'Scotch Ale forte type Wee Heavy. Maltée à fond, caramel cuit, légère touche tourbée optionnelle. Maturation 3 mois recommandée.',
+    style: 'Wee Heavy',
     batch_size_l: 20,
     boil_time_min: 90,
     og_target: 1.08,
@@ -183,6 +191,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Imperial Stout',
     description:
       'Russian Imperial Stout sur base pale ale + multiples malts torréfiés (chocolate, roasted barley, black malt). Café noir, chocolat amer, vanille en arrière-plan.',
+    style: 'Imperial Stout',
     batch_size_l: 20,
     boil_time_min: 90,
     og_target: 1.09,
@@ -199,6 +208,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Baltic Porter',
     description:
       'Porter de la Baltique fermenté à froid avec une levure lager. Plus propre que le Russian Imperial Stout, notes de pruneau, café et chocolat noir.',
+    style: 'Baltic Porter',
     batch_size_l: 20,
     boil_time_min: 90,
     og_target: 1.075,
@@ -216,6 +226,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     name: 'Kölsch Tradition',
     description:
       'Kölsch de Cologne — bière hybride fermentée chaude par une levure ale puis lagering à froid. Pâle, sèche, finale légèrement noble (Tettnanger).',
+    style: 'Kölsch',
     batch_size_l: 20,
     boil_time_min: 75,
     og_target: 1.046,
@@ -243,9 +254,17 @@ export interface SeedPublicRecipesResult {
 /**
  * Idempotent loader for the curated public recipes above. Insert
  * if the id is unknown, update in place otherwise. Always sets
- * `visibility = PUBLIC`, `is_official = true`, and
+ * `visibility = PUBLIC`, `is_official = false`, and
  * `imported_from_recipe_id = null` (these are originals, not
  * imports). Owner is the system sentinel UUID.
+ *
+ * Note on `is_official`: the matching algorithm (Issue #699) treats
+ * `is_official = true` as a beer-specific shortcut that wins outright
+ * (score 100). Tagging the 10 seed recipes as official would make
+ * every PUBLIC row tie at 100 and collapse `rankForBeer` to insertion
+ * order — exactly the regression Codex caught on PR #773. The flag is
+ * reserved for future per-beer official clones (e.g. a brewer-endorsed
+ * Punk IPA clone for the Punk IPA bottle).
  */
 export async function seedPublicRecipes(
   repository: Repository<RecipeOrmEntity>,
@@ -262,6 +281,7 @@ export async function seedPublicRecipes(
       owner_id: PUBLIC_RECIPES_SYSTEM_OWNER_ID,
       name: recipe.name,
       description: recipe.description,
+      style: recipe.style,
       visibility: RecipeVisibility.PUBLIC,
       version: 1,
       root_recipe_id: recipe.id,
@@ -277,7 +297,7 @@ export async function seedPublicRecipes(
       avg_rating: recipe.avg_rating,
       brew_count: recipe.brew_count,
       last_brewed_at: null,
-      is_official: true,
+      is_official: false,
       imported_from_recipe_id: null,
       import_provenance: null,
     };

@@ -17,6 +17,7 @@ import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 @Index(['brew_count'])
 @Index(['last_brewed_at'])
 @Index(['imported_from_recipe_id'])
+@Index(['style'])
 export class RecipeOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -87,6 +88,12 @@ export class RecipeOrmEntity {
 
   @Column({ type: 'boolean', nullable: false, default: false })
   is_official: boolean;
+
+  // BJCP-flavoured style tag fed to the scan matching algorithm
+  // (Issue #699). Nullable because pre-existing user recipes have no
+  // style and the matching service degrades gracefully.
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  style?: string | null;
 
   // Import provenance fields (Issue #601). Populated when a user imports
   // a community recipe via POST /recipes/import-from-community/:id.

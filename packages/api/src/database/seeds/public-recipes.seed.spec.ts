@@ -37,7 +37,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(repo.save).toHaveBeenCalledTimes(10);
     });
 
-    it('tags every inserted row as PUBLIC + is_official + system owner', async () => {
+    it('tags every inserted row as PUBLIC + non-official + system owner', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -46,7 +46,11 @@ describe('seedPublicRecipes (Issue #701)', () => {
       for (const call of repo.create.mock.calls as unknown[][]) {
         const arg = call[0] as Record<string, unknown>;
         expect(arg.visibility).toBe(RecipeVisibility.PUBLIC);
-        expect(arg.is_official).toBe(true);
+        // Stays non-official by design — the matching algorithm
+        // (Issue #699) treats `is_official=true` as a per-beer
+        // shortcut to score 100; tagging all 10 seed rows as
+        // official would collapse `rankForBeer` to insertion order.
+        expect(arg.is_official).toBe(false);
         expect(arg.owner_id).toBe(PUBLIC_RECIPES_SYSTEM_OWNER_ID);
         expect(arg.imported_from_recipe_id).toBeNull();
         expect(arg.import_provenance).toBeNull();
@@ -78,13 +82,16 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(repo.save).toHaveBeenCalledTimes(10);
     });
 
-    it('forces visibility back to PUBLIC when overwriting a row that drifted', async () => {
+    it('forces visibility back to PUBLIC and is_official back to false when overwriting a drifted row', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockImplementation(() =>
         Promise.resolve({
           id: 'drifted',
           visibility: RecipeVisibility.PRIVATE,
-          is_official: false,
+          // Drifted to true — the seed must reset this back to false
+          // so a manually-flipped row does not silently degenerate
+          // the matching ranking next time the seed runs.
+          is_official: true,
         }),
       );
 
@@ -93,7 +100,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
       const firstSavedCall = repo.save.mock.calls[0] as unknown[];
       const savedCall = firstSavedCall[0] as Record<string, unknown>;
       expect(savedCall.visibility).toBe(RecipeVisibility.PUBLIC);
-      expect(savedCall.is_official).toBe(true);
+      expect(savedCall.is_official).toBe(false);
     });
   });
 
@@ -138,6 +145,17 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(names).toContain('Saison Farmhouse');
       expect(names).toContain('Imperial Stout');
       expect(names).toContain('Kölsch Tradition');
+    });
+
+    it('tags every seeded recipe with a non-empty style for the matching algorithm', () => {
+      // The matching service (Issue #699) leans on `style` as the
+      // 50%-weighted similarity signal — a missing or empty style
+      // would silently drop a recipe to ABV-only ranking and
+      // demote it under any IPA in the editorial top-3.
+      for (const recipe of PUBLIC_RECIPES_SEED) {
+        expect(typeof recipe.style).toBe('string');
+        expect(recipe.style.length).toBeGreaterThan(0);
+      }
     });
 
     it('uses deterministic UUIDs (sequential v4-shaped) so mobile mocks can hardcode references', () => {

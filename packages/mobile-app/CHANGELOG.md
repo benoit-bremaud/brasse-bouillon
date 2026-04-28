@@ -19,6 +19,15 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.11-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.10-alpha1...mobile-app-v0.1.11-alpha1) (2026-04-28)
+
+
+### Bug Fixes
+
+* **android:** wire usesCleartextTraffic via expo-build-properties plugin ([0d933f0](https://github.com/benoit-bremaud/brasse-bouillon/commit/0d933f0ecc2e207f31070d74dc88881a031394c1))
+* **android:** wire usesCleartextTraffic via expo-build-properties plugin ([#762](https://github.com/benoit-bremaud/brasse-bouillon/issues/762)) ([e81efc6](https://github.com/benoit-bremaud/brasse-bouillon/commit/e81efc62655aaad16635a6244e1ebe71229cbbc3))
+* **mobile:** remove accidental top-level runtimeVersion (Codex P1) ([3a9e1a2](https://github.com/benoit-bremaud/brasse-bouillon/commit/3a9e1a28fc76711596dfd45e0e984083285bf84f))
+
 ## [0.1.10-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.9-alpha1...mobile-app-v0.1.10-alpha1) (2026-04-28)
 
 

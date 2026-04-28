@@ -28,11 +28,13 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../user/entities/user.entity';
 
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
+import { RankedRecipeDto } from '../dtos/ranked-recipe.dto';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
 import { RecipeStepDto } from '../dtos/recipe-step.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
 import { UpdateRecipeStepDto } from '../dtos/update-recipe-step.dto';
+import { RecipeMatchingService } from '../services/recipe-matching.service';
 import { RecipeService } from '../services/recipe.service';
 
 /**
@@ -46,7 +48,10 @@ import { RecipeService } from '../services/recipe.service';
 @UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipeController {
-  constructor(private readonly service: RecipeService) {}
+  constructor(
+    private readonly service: RecipeService,
+    private readonly matching: RecipeMatchingService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -88,6 +93,21 @@ export class RecipeController {
   async listMine(@CurrentUser() user: User): Promise<RecipeDto[]> {
     const rows = await this.service.listMine(user.id);
     return rows.map((row) => RecipeDto.fromEntity(row));
+  }
+
+  @Get('match/:beerId')
+  @ApiOperation({
+    summary:
+      'Rank PUBLIC recipes by match score against a scanned beer (Issue #699)',
+    description:
+      'Returns the top-N PUBLIC recipes ordered by a similarity (style + ABV) and quality (avg_rating) score. The official-recipe shortcut wins outright. `limit` defaults to 3 and is capped at 10.',
+  })
+  @ApiOkResponse({ description: 'Ranked array of {recipe, score}' })
+  @ApiNotFoundResponse({ description: 'Beer catalog item not found' })
+  async matchForBeer(
+    @Param('beerId', new ParseUUIDPipe()) beerId: string,
+  ): Promise<RankedRecipeDto[]> {
+    return this.matching.rankForBeer(beerId);
   }
 
   @Get(':id')

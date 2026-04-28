@@ -6,6 +6,7 @@ import { RecipeController } from './recipe.controller';
 import { RecipeHopAdditionStage } from '../domain/enums/recipe-hop-addition-stage.enum';
 import { RecipeHopType } from '../domain/enums/recipe-hop-type.enum';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
+import { RecipeMatchingService } from '../services/recipe-matching.service';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeService } from '../services/recipe.service';
 import { RecipeStepOrmEntity } from '../entities/recipe-step.orm.entity';
@@ -19,6 +20,7 @@ import { UserRole } from '../../common/enums/role.enum';
 describe('RecipeController', () => {
   let controller: RecipeController;
   let service: RecipeService;
+  let matching: RecipeMatchingService;
 
   const mockRecipeOrm: RecipeOrmEntity = {
     id: '550e8400-e29b-41d4-a716-446655440001',
@@ -106,11 +108,18 @@ describe('RecipeController', () => {
             estimateMineIbu: jest.fn(),
           },
         },
+        {
+          provide: RecipeMatchingService,
+          useValue: {
+            rankForBeer: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<RecipeController>(RecipeController);
     service = module.get<RecipeService>(RecipeService);
+    matching = module.get<RecipeMatchingService>(RecipeMatchingService);
   });
 
   afterEach(() => {
@@ -358,6 +367,33 @@ describe('RecipeController', () => {
       expect(estimateMineIbuSpy).toHaveBeenCalledWith(
         mockUser.id,
         'invalid-id',
+      );
+    });
+  });
+
+  describe('matchForBeer() - GET /recipes/match/:beerId', () => {
+    const beerId = '00000000-0000-4000-8000-deadbeefcafe';
+
+    it('happy: returns the ranked array straight from the matching service', async () => {
+      const ranked = [
+        { recipe: mockRecipeOrm, score: 87.5 },
+        { recipe: { ...mockRecipeOrm, name: 'Other' }, score: 60 },
+      ];
+      const spy = jest.spyOn(matching, 'rankForBeer').mockResolvedValue(ranked);
+
+      const result = await controller.matchForBeer(beerId);
+
+      expect(spy).toHaveBeenCalledWith(beerId);
+      expect(result).toBe(ranked);
+    });
+
+    it('sad: propagates NotFoundException when the beer id is unknown', async () => {
+      jest
+        .spyOn(matching, 'rankForBeer')
+        .mockRejectedValue(new NotFoundException('Beer not found'));
+
+      await expect(controller.matchForBeer(beerId)).rejects.toThrow(
+        NotFoundException,
       );
     });
   });

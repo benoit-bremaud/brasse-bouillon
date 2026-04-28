@@ -140,6 +140,17 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(names).toContain('Kölsch Tradition');
     });
 
+    it('tags every seeded recipe with a non-empty style for the matching algorithm', () => {
+      // The matching service (Issue #699) leans on `style` as the
+      // 50%-weighted similarity signal — a missing or empty style
+      // would silently drop a recipe to ABV-only ranking and
+      // demote it under any IPA in the editorial top-3.
+      for (const recipe of PUBLIC_RECIPES_SEED) {
+        expect(typeof recipe.style).toBe('string');
+        expect(recipe.style.length).toBeGreaterThan(0);
+      }
+    });
+
     it('uses deterministic UUIDs (sequential v4-shaped) so mobile mocks can hardcode references', () => {
       const ids = PUBLIC_RECIPES_SEED.map((r) => r.id);
       // All IDs share the system prefix; only the last segment differs.

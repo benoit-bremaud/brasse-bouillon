@@ -75,7 +75,7 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'Brasserie d Achouffe public datasheet',
   },
   {
-    barcode: '5410799000112',
+    barcode: '5410799000115',
     name: 'Rochefort 10',
     brewery: 'Abbaye Notre-Dame de Saint-Remy',
     style: 'Belgian Quadrupel',

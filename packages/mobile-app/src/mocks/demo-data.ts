@@ -2542,9 +2542,9 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "banana, clove, coriander",
     notesSource: "Brasserie d'Achouffe — official datasheet",
   }),
-  "5410799000112": buildDemoScanCatalogItem({
+  "5410799000115": buildDemoScanCatalogItem({
     id: "demo-scan-rochefort-10",
-    barcode: "5410799000112",
+    barcode: "5410799000115",
     name: "Rochefort 10",
     brewery: "Abbaye Notre-Dame de Saint-Remy",
     style: "Belgian Quadrupel",
@@ -2639,7 +2639,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
   ],
   // Rochefort 10 — strong dark ale neighbours.
-  "5410799000112": [
+  "5410799000115": [
     {
       recipeId: "r-demo-15",
       name: "Scotch Ale Wee Heavy",

@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -46,13 +46,36 @@ export interface SeedSystemUserResult {
 /**
  * Idempotent loader for the system user. Returns whether the row
  * was actually inserted (false if it already existed).
+ *
+ * Existence is checked by id, email, *and* username — `users.email`
+ * and `users.username` both have UNIQUE indexes, so a row carrying
+ * either reserved value (even under a different id) would otherwise
+ * trip a unique-constraint failure mid-seed and abort the whole
+ * orchestration on a non-empty database. Matching on any of the
+ * three keeps the seed truly idempotent outside a fresh DB.
  */
 export async function seedSystemUser(
   repository: Repository<User>,
 ): Promise<SeedSystemUserResult> {
-  const existing = await repository.findOne({ where: { id: SYSTEM_USER_ID } });
+  const existing = await repository.findOne({
+    where: [
+      { id: SYSTEM_USER_ID },
+      { email: SYSTEM_USER_EMAIL },
+      { username: SYSTEM_USER_USERNAME },
+    ],
+  });
 
   if (existing) {
+    if (existing.id !== SYSTEM_USER_ID) {
+      // A real user account is squatting on the reserved system
+      // credentials. Refuse loudly rather than silently rewriting
+      // their row or letting the seed crash deeper down on the FK
+      // from public recipes — manual cleanup is required.
+      throw new Error(
+        `seedSystemUser: reserved system credentials (email=${SYSTEM_USER_EMAIL}, username=${SYSTEM_USER_USERNAME}) ` +
+          `are already taken by user ${existing.id}. Manual reconciliation required before seeding.`,
+      );
+    }
     return { inserted: false, user_id: SYSTEM_USER_ID };
   }
 

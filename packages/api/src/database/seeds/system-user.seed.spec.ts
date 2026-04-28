@@ -91,6 +91,75 @@ describe('seedSystemUser (Issue #701 prerequisite)', () => {
     });
   });
 
+  describe('collision guard (sad path)', () => {
+    it('treats a row matching by email (different id) as the existing system user and skips', async () => {
+      const repo = buildRepoMock();
+      // Mimic TypeORM's OR-array `where` lookup — return a row that
+      // matches the reserved email but lives under the system id.
+      // The seed must skip without throwing or recreating.
+      repo.findOne.mockResolvedValue({
+        id: SYSTEM_USER_ID,
+        email: SYSTEM_USER_EMAIL,
+        username: SYSTEM_USER_USERNAME,
+      });
+
+      const result = await seedSystemUser(repo as unknown as Repository<User>);
+
+      expect(result).toEqual({ inserted: false, user_id: SYSTEM_USER_ID });
+      expect(repo.create).not.toHaveBeenCalled();
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws a clear error if a non-system user squats the reserved email', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue({
+        id: 'real-user-uuid-not-the-sentinel',
+        email: SYSTEM_USER_EMAIL,
+        username: 'someone-else',
+      });
+
+      await expect(
+        seedSystemUser(repo as unknown as Repository<User>),
+      ).rejects.toThrow(/reserved system credentials/i);
+      expect(repo.create).not.toHaveBeenCalled();
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws a clear error if a non-system user squats the reserved username', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue({
+        id: 'real-user-uuid-not-the-sentinel',
+        email: 'someone@example.com',
+        username: SYSTEM_USER_USERNAME,
+      });
+
+      await expect(
+        seedSystemUser(repo as unknown as Repository<User>),
+      ).rejects.toThrow(/Manual reconciliation required/i);
+    });
+
+    it('looks up existence by id, email AND username (not just id)', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+
+      await seedSystemUser(repo as unknown as Repository<User>);
+
+      const calls = repo.findOne.mock.calls as unknown[][];
+      const arg = calls[0][0] as { where: unknown };
+      // OR-style lookup: an array of partial matchers covering all
+      // three reserved keys. Without this, a colliding email/username
+      // on a non-empty DB would crash the public-recipes orchestrator.
+      expect(Array.isArray(arg.where)).toBe(true);
+      expect(arg.where).toEqual(
+        expect.arrayContaining([
+          { id: SYSTEM_USER_ID },
+          { email: SYSTEM_USER_EMAIL },
+          { username: SYSTEM_USER_USERNAME },
+        ]),
+      );
+    });
+  });
+
   describe('edge cases', () => {
     it('uses a fresh random password on each new insert', async () => {
       const repo1 = buildRepoMock();

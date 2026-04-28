@@ -2554,6 +2554,18 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "dark fruit, port, caramel, raisin",
     notesSource: "Trappist Rochefort — published brewery profile",
   }),
+  "3261570000044": buildDemoScanCatalogItem({
+    id: "demo-scan-la-goudale",
+    barcode: "3261570000044",
+    name: "La Goudale",
+    brewery: "Brasserie Goudale",
+    style: "Bière Blonde à l'Ancienne",
+    abv: 7.2,
+    ibu: 22,
+    colorEbc: 16,
+    aromaticTags: "malt biscuit, honey, floral hops, soft bitterness",
+    notesSource: "Brasserie Goudale (62510 Arques, France) — official datasheet",
+  }),
 };
 
 /**
@@ -2665,6 +2677,34 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
       score: 0.81,
     },
   ],
+  // La Goudale — French Bière de Garde / blonde, 7.2% ABV. Closest
+  // matches by ABV + style (strong blondes / saisons).
+  "3261570000044": [
+    {
+      recipeId: "r-demo-6",
+      name: "Belgian Tripel",
+      brewer: "Caroline",
+      rating: 4.8,
+      brewedCount: 31,
+      score: 0.92,
+    },
+    {
+      recipeId: "r-demo-9",
+      name: "Saison Farmhouse",
+      brewer: "Hugo",
+      rating: 4.6,
+      brewedCount: 19,
+      score: 0.85,
+    },
+    {
+      recipeId: "r-demo-8",
+      name: "Kölsch Tradition",
+      brewer: "Antoine",
+      rating: 4.4,
+      brewedCount: 15,
+      score: 0.76,
+    },
+  ],
 };
 
 /**
@@ -2685,6 +2725,8 @@ export const demoBreweryStories: Record<string, string> = {
     "Au pied des Ardennes belges, depuis 1982. La légende veut que des elfes (les chouffes) habitent la vallée de la Wartet. Pierre Gobron et Christian Bauweraerts ont créé La Chouffe pour partager leur amour de la bière belge — la mascotte rouge du gnome est devenue une icône.",
   "Abbaye Notre-Dame de Saint-Remy":
     "Trappiste authentique depuis 1595, près de Rochefort en Belgique. Les moines ne brassent que pour subvenir aux besoins de l'abbaye — la production reste délibérément limitée. Rochefort 10 est leur quadruple emblématique, régulièrement classée parmi les meilleures bières du monde.",
+  "Brasserie Goudale":
+    "Brassée à Arques dans le Nord de la France depuis 1996, La Goudale rend hommage aux bières médiévales appelées 'Goudale' ou 'Good Ale' que l'on vendait deux deniers le pot. Bière blonde de haute fermentation, malt d'orge et froment de blé, houblons des Flandres — un style traditionnel français à part dans le paysage des bières de garde du Nord.",
 };
 
 /**

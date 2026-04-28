@@ -122,6 +122,18 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     aromatic_tags: 'pear, apple, dry finish, light hop',
     notes_source: 'Brouwerij Duvel Moortgat public datasheet',
   },
+  {
+    barcode: '3261570000044',
+    name: 'La Goudale',
+    brewery: 'Brasserie Goudale',
+    style: 'Bière Blonde à l Ancienne',
+    abv: 7.2,
+    ibu: 22,
+    color_ebc: 16,
+    fermentation_type: ScanFermentationType.ALE,
+    aromatic_tags: 'malt biscuit, honey, floral hops, soft bitterness',
+    notes_source: 'Brasserie Goudale public datasheet (62510 Arques, France)',
+  },
 ];
 
 /**

@@ -19,6 +19,14 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.12-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.11-alpha1...mobile-app-v0.1.12-alpha1) (2026-04-28)
+
+
+### Features
+
+* **scan:** seed 10 curated public recipes + dual-id helper for community import (Issue [#701](https://github.com/benoit-bremaud/brasse-bouillon/issues/701)) ([86f6dc0](https://github.com/benoit-bremaud/brasse-bouillon/commit/86f6dc0460c209854f816e3f3f0f40dda4615285))
+* **scan:** seed 10 curated public recipes + dual-id helper for community import (Issue [#701](https://github.com/benoit-bremaud/brasse-bouillon/issues/701)) ([#768](https://github.com/benoit-bremaud/brasse-bouillon/issues/768)) ([f2890cc](https://github.com/benoit-bremaud/brasse-bouillon/commit/f2890cc1aa8eca0451411f07eb0f1bc45854a0ba))
+
 ## [0.1.11-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.10-alpha1...mobile-app-v0.1.11-alpha1) (2026-04-28)
 
 

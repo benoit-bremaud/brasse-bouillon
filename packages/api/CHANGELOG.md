@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.12-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.11-alpha1...api-v0.1.12-alpha1) (2026-04-28)
+
+
+### Features
+
+* **scan:** seed 10 curated public recipes + dual-id helper for community import (Issue [#701](https://github.com/benoit-bremaud/brasse-bouillon/issues/701)) ([86f6dc0](https://github.com/benoit-bremaud/brasse-bouillon/commit/86f6dc0460c209854f816e3f3f0f40dda4615285))
+* **scan:** seed 10 curated public recipes + dual-id helper for community import (Issue [#701](https://github.com/benoit-bremaud/brasse-bouillon/issues/701)) ([#768](https://github.com/benoit-bremaud/brasse-bouillon/issues/768)) ([f2890cc](https://github.com/benoit-bremaud/brasse-bouillon/commit/f2890cc1aa8eca0451411f07eb0f1bc45854a0ba))
+
+
+### Bug Fixes
+
+* **api:** guard system-user seed against email/username collisions ([0bdf058](https://github.com/benoit-bremaud/brasse-bouillon/commit/0bdf058c4e2d697adf451116100b1efbdac774ca))
+* **scan:** address SonarCloud Quality Gate failures on PR [#768](https://github.com/benoit-bremaud/brasse-bouillon/issues/768) ([47c4025](https://github.com/benoit-bremaud/brasse-bouillon/commit/47c402599a44b011521b705d49638244f3183612))
+
 ## [0.1.11-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.10-alpha1...api-v0.1.11-alpha1) (2026-04-28)
 
 

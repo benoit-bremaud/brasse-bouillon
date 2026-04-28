@@ -2601,6 +2601,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   "5060277380019": [
     {
       recipeId: "r-demo-1",
+      publicRecipeId: "00000000-0000-4000-8000-000000000001",
       name: "Session IPA Citra",
       brewer: "Marie",
       rating: 4.7,
@@ -2609,6 +2610,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-7",
+      publicRecipeId: "00000000-0000-4000-8000-000000000002",
       name: "NEIPA Tropical",
       brewer: "Antoine",
       rating: 4.5,
@@ -2617,6 +2619,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-13",
+      publicRecipeId: "00000000-0000-4000-8000-000000000003",
       name: "White IPA",
       brewer: "Lucas",
       rating: 4.3,
@@ -2628,6 +2631,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   "5410702000133": [
     {
       recipeId: "r-demo-6",
+      publicRecipeId: "00000000-0000-4000-8000-000000000004",
       name: "Belgian Tripel",
       brewer: "Caroline",
       rating: 4.8,
@@ -2636,6 +2640,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-9",
+      publicRecipeId: "00000000-0000-4000-8000-000000000005",
       name: "Saison Farmhouse",
       brewer: "Hugo",
       rating: 4.6,
@@ -2644,6 +2649,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-2",
+      publicRecipeId: "00000000-0000-4000-8000-000000000006",
       name: "Witbier Orange",
       brewer: "Sophie",
       rating: 4.2,
@@ -2655,6 +2661,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   "5410799000115": [
     {
       recipeId: "r-demo-15",
+      publicRecipeId: "00000000-0000-4000-8000-000000000007",
       name: "Scotch Ale Wee Heavy",
       brewer: "Pierre",
       rating: 4.9,
@@ -2663,6 +2670,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-4",
+      publicRecipeId: "00000000-0000-4000-8000-000000000008",
       name: "Imperial Stout",
       brewer: "Nathalie",
       rating: 4.7,
@@ -2671,6 +2679,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-11",
+      publicRecipeId: "00000000-0000-4000-8000-000000000009",
       name: "Baltic Porter",
       brewer: "Mehdi",
       rating: 4.4,
@@ -2683,6 +2692,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   "3261570000044": [
     {
       recipeId: "r-demo-6",
+      publicRecipeId: "00000000-0000-4000-8000-000000000004",
       name: "Belgian Tripel",
       brewer: "Caroline",
       rating: 4.8,
@@ -2691,6 +2701,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-9",
+      publicRecipeId: "00000000-0000-4000-8000-000000000005",
       name: "Saison Farmhouse",
       brewer: "Hugo",
       rating: 4.6,
@@ -2699,6 +2710,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
     {
       recipeId: "r-demo-8",
+      publicRecipeId: "00000000-0000-4000-8000-00000000000a",
       name: "Kölsch Tradition",
       brewer: "Antoine",
       rating: 4.4,

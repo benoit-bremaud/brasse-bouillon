@@ -71,6 +71,28 @@ export type ImportRecipeResult = {
 };
 
 /**
+ * Pick the right recipe id to send to `importRecipeFromCommunity`
+ * depending on the active data source (Issue #701).
+ *
+ * - Demo mode (`useDemoData=true`) → returns `match.recipeId`
+ *   (e.g. 'r-demo-1') so the local-only flow looks up `demoRecipes`.
+ * - Backend mode → returns `match.publicRecipeId` (UUID) which
+ *   references a row in the `recipes` table seeded by
+ *   `public-recipes.seed.ts`. Falls back to `match.recipeId` if
+ *   `publicRecipeId` is missing (legacy / partial mocks) — the
+ *   import will then sad-path with 404 as before.
+ */
+export function getImportSourceId(match: {
+  recipeId: string;
+  publicRecipeId?: string;
+}): string {
+  if (dataSource.useDemoData) {
+    return match.recipeId;
+  }
+  return match.publicRecipeId ?? match.recipeId;
+}
+
+/**
  * Import a community (PUBLIC or UNLISTED) recipe into the current
  * user's catalog. In demo mode, simulates the backend by returning
  * the source recipe id (which already lives in `demoRecipes`) so

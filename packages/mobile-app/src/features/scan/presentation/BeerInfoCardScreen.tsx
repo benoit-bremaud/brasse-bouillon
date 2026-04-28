@@ -14,7 +14,10 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 
-import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
+import {
+  getImportSourceId,
+  importRecipeFromCommunity,
+} from "@/features/recipes/application/recipes.use-cases";
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupInvalidBarcodeError,
@@ -308,7 +311,7 @@ function EquivalentRecipesSection({
         return (
           <Pressable
             key={recipe.recipeId}
-            onPress={() => handleImport(recipe.recipeId)}
+            onPress={() => handleImport(getImportSourceId(recipe))}
             disabled={isDisabled}
             style={({ pressed }) => {
               if (isImporting) return [styles.recipeRow];

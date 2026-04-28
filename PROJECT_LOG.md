@@ -5,6 +5,82 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-28
+
+### PR #768 merged (`f2890cc`) — feat(scan): seed 10 curated public recipes + dual-id helper for community import (Issue #701)
+
+Branch `feat/curated-public-recipes-issue-701`. Closes the
+backend-mode community-import sad path: the mobile
+`BeerInfoCardScreen` "Recettes équivalentes" rows now resolve
+against real `PUBLIC` rows when `EXPO_PUBLIC_USE_DEMO_DATA=false`,
+instead of returning 404 from `POST /recipes/import-from-community/:id`.
+
+Scope (monorepo, both packages):
+
+- **API** `packages/api/src/database/seeds/system-user.seed.ts` —
+  new sentinel non-loginable account (`SYSTEM_USER_ID =
+  00000000-0000-4000-8000-000000000000`, email `system@brasse-bouillon.local`,
+  username `system`, `is_active=false`, role `admin`). Owns all
+  curated public content — required because `recipes.owner_id`
+  carries an FK to `users(id)`.
+- **API** `packages/api/src/database/seeds/public-recipes.seed.ts` —
+  10 curated PUBLIC recipes, deterministic UUIDs
+  `00000000-0000-4000-8000-00000000000{1..a}`, three styles per demo
+  bottle (IPA / Belgian / Strong Dark / Lager). Idempotent loader
+  (insert-or-update on id). `is_official=true`,
+  `imported_from_recipe_id=null`, `import_provenance=null`.
+- **API** `packages/api/scripts/run-public-recipes-seed.ts` — CLI
+  orchestrator: system user first, then public recipes.
+- **Mobile** `scan.types.ts` — new optional `publicRecipeId?: string`
+  on `ScanRecipeMatch`.
+- **Mobile** `recipes.use-cases.ts` — new `getImportSourceId(match)`
+  helper. In demo mode returns `match.recipeId` (resolves against
+  `demoRecipes`); in backend mode returns
+  `match.publicRecipeId ?? match.recipeId` (so the API receives the
+  real PUBLIC UUID).
+- **Mobile** `demo-data.ts` — 12 `demoEquivalentRecipes` entries get
+  the new `publicRecipeId` field wired to the seeded UUIDs.
+- **Mobile** `BeerInfoCardScreen.tsx` — uses `getImportSourceId(recipe)`
+  instead of `recipe.recipeId`.
+- **Tests** — 24 new (24 / 24 green): 9 system-user, 8 public-recipes,
+  5 `getImportSourceId`, 2 screen-level. Full backend + mobile suites
+  stay green.
+
+Review cycle (3 rounds):
+
+- Round 1 (`86f6dc0`) — Codex P2: payload duplication between insert
+  and update branches in `public-recipes.seed.ts`. Addressed by
+  extracting a shared `payload` const used by both branches.
+- Round 2 (`47c4025`) — SonarCloud Quality Gate failure: Math.random
+  usage flagged as security hotspot, 5.5% code duplication. Switched
+  password generation to `crypto.randomBytes(32)` (cryptographic
+  randomness) and confirmed the duplication fix held.
+- Round 3 (`0bdf058`) — Codex P2: `seedSystemUser` only checked
+  existence by `id`, but `users.email` and `users.username` are
+  UNIQUE. A row squatting either reserved value would crash the
+  orchestrator on a non-empty DB. Fix: extended `findOne` to OR on
+  id + email + username; collision under a different id throws a
+  clear error rather than silently rewriting the squatting row.
+
+Decisions:
+
+- `Sentinel system user, not a fake admin` — chose a dedicated
+  `SYSTEM_USER_ID` with a random unguessable bcrypt hash and
+  `is_active=false` over reusing the developer admin account, so the
+  curated content owner can never be impersonated and stays distinct
+  in audit queries.
+- `Throw on credential squat, do not silently rewrite` — when a real
+  user occupies the reserved system email/username, the seed refuses
+  loudly. Rationale: silently aligning their row to system metadata
+  would be data loss; refusing surfaces the conflict so a human can
+  reconcile before the FK from public recipes blows up downstream.
+- `Helper-in-use-case for the dual-id resolution` — `getImportSourceId`
+  lives in `recipes.use-cases.ts`, not the screen. Keeps
+  presentation agnostic of the demo/backend toggle and reuses the
+  established `dataSource.useDemoData` branching pattern.
+
+---
+
 ## 2026-04-27
 
 ### PR opened — Mobile UI: import community recipe (Issue #601)

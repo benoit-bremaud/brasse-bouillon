@@ -484,7 +484,7 @@ describe('ScanService', () => {
   });
 
   describe('lookupByBarcode (Issue #696 — OpenFoodFacts proxy + cache)', () => {
-    const VALID_EAN = '5060277380011';
+    const VALID_EAN = '5060277380019';
 
     test('happy path — fresh seed row → cache_hit_fresh, no upstream call', async () => {
       const seedRow = createCatalogItem({

@@ -8,7 +8,7 @@ function buildEntity(
 ): ScanCatalogItemOrmEntity {
   const base: ScanCatalogItemOrmEntity = {
     id: 'item-1',
-    barcode: '5060277380011',
+    barcode: '5060277380019',
     name: 'Punk IPA',
     brewery: 'BrewDog',
     style: 'IPA',
@@ -38,7 +38,7 @@ describe('ScanCatalogItemDto.fromEntity — bridge fields (Epic #693 part 3/5)',
       const entity = buildEntity({
         source: ScanCatalogSource.OPENFOODFACTS,
         fetched_at: fetchedAt,
-        raw_payload: JSON.stringify({ product: { code: '5060277380011' } }),
+        raw_payload: JSON.stringify({ product: { code: '5060277380019' } }),
       });
 
       const dto = ScanCatalogItemDto.fromEntity(entity);

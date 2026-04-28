@@ -2518,9 +2518,9 @@ const buildDemoScanCatalogItem = (
 });
 
 export const demoScanCatalog: Record<string, ScanCatalogItem> = {
-  "5060277380011": buildDemoScanCatalogItem({
+  "5060277380019": buildDemoScanCatalogItem({
     id: "demo-scan-punk-ipa",
-    barcode: "5060277380011",
+    barcode: "5060277380019",
     name: "Punk IPA",
     brewery: "BrewDog",
     style: "IPA",
@@ -2530,9 +2530,9 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "tropical, citrus, pine",
     notesSource: "BrewDog DIY Dog 2019 (open-source recipe book)",
   }),
-  "5410702000132": buildDemoScanCatalogItem({
+  "5410702000133": buildDemoScanCatalogItem({
     id: "demo-scan-la-chouffe",
-    barcode: "5410702000132",
+    barcode: "5410702000133",
     name: "La Chouffe",
     brewery: "Brasserie d Achouffe",
     style: "Belgian Strong Pale Ale",
@@ -2542,9 +2542,9 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "banana, clove, coriander",
     notesSource: "Brasserie d'Achouffe — official datasheet",
   }),
-  "5410799000111": buildDemoScanCatalogItem({
+  "5410799000115": buildDemoScanCatalogItem({
     id: "demo-scan-rochefort-10",
-    barcode: "5410799000111",
+    barcode: "5410799000115",
     name: "Rochefort 10",
     brewery: "Abbaye Notre-Dame de Saint-Remy",
     style: "Belgian Quadrupel",
@@ -2585,7 +2585,7 @@ export const buildDemoLookupResult = (
 export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   // Punk IPA — closest matches in the existing demoRecipes catalog,
   // ordered by stylistic distance (IPA family).
-  "5060277380011": [
+  "5060277380019": [
     {
       recipeId: "r-demo-1",
       name: "Session IPA Citra",
@@ -2612,7 +2612,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
   ],
   // La Chouffe — Belgian Strong Pale Ale neighbours.
-  "5410702000132": [
+  "5410702000133": [
     {
       recipeId: "r-demo-6",
       name: "Belgian Tripel",
@@ -2639,7 +2639,7 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
     },
   ],
   // Rochefort 10 — strong dark ale neighbours.
-  "5410799000111": [
+  "5410799000115": [
     {
       recipeId: "r-demo-15",
       name: "Scotch Ale Wee Heavy",

@@ -51,7 +51,7 @@ export interface ScanCatalogSeedBeer {
  */
 export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
   {
-    barcode: '5060277380011',
+    barcode: '5060277380019',
     name: 'Punk IPA',
     brewery: 'BrewDog',
     style: 'IPA',
@@ -63,7 +63,7 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'BrewDog DIY Dog 2019 (open-source recipe book)',
   },
   {
-    barcode: '5410702000132',
+    barcode: '5410702000133',
     name: 'La Chouffe',
     brewery: 'Brasserie d Achouffe',
     style: 'Belgian Strong Pale Ale',
@@ -75,7 +75,7 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'Brasserie d Achouffe public datasheet',
   },
   {
-    barcode: '5410799000111',
+    barcode: '5410799000115',
     name: 'Rochefort 10',
     brewery: 'Abbaye Notre-Dame de Saint-Remy',
     style: 'Belgian Quadrupel',

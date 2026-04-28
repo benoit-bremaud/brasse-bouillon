@@ -44,6 +44,9 @@ jest.mock("@/features/scan/application/scan-lookup.use-cases", () => {
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   importRecipeFromCommunity: jest.fn(),
+  // The screen's helper picks the right id (demo vs backend); in
+  // tests we stay in demo mode so we just return match.recipeId.
+  getImportSourceId: (match: { recipeId: string }) => match.recipeId,
 }));
 
 const mockedLookup = lookupBeerByBarcode as jest.MockedFunction<

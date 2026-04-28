@@ -187,7 +187,21 @@ export interface ScanLookupResult {
  * sorts by score desc and caps to the top 3.
  */
 export interface ScanRecipeMatch {
+  /**
+   * Demo-mode recipe id — references a row in `demoRecipes` so the
+   * UI can navigate to the resolvable detail page when the app
+   * runs in `EXPO_PUBLIC_USE_DEMO_DATA=true`.
+   */
   recipeId: string;
+  /**
+   * Backend-mode recipe id (UUID) — references a PUBLIC row in the
+   * `recipes` table seeded by `public-recipes.seed.ts` (Issue #701).
+   * Used as the source id when calling
+   * `POST /recipes/import-from-community/:id` against the real
+   * backend. Optional because legacy / partial mocks may not carry
+   * it; pickers fall back to `recipeId` if absent.
+   */
+  publicRecipeId?: string;
   name: string;
   brewer: string;
   rating: number;

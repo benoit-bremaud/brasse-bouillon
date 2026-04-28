@@ -255,59 +255,41 @@ export async function seedPublicRecipes(
   let updated = 0;
 
   for (const recipe of recipes) {
+    // Single payload shared by both insert and update branches —
+    // any drift would silently desync the two paths and is precisely
+    // what the duplication detector caught.
+    const payload = {
+      owner_id: PUBLIC_RECIPES_SYSTEM_OWNER_ID,
+      name: recipe.name,
+      description: recipe.description,
+      visibility: RecipeVisibility.PUBLIC,
+      version: 1,
+      root_recipe_id: recipe.id,
+      parent_recipe_id: null,
+      batch_size_l: recipe.batch_size_l,
+      boil_time_min: recipe.boil_time_min,
+      og_target: recipe.og_target,
+      fg_target: recipe.fg_target,
+      abv_estimated: recipe.abv_estimated,
+      ibu_target: recipe.ibu_target,
+      ebc_target: recipe.ebc_target,
+      efficiency_target: recipe.efficiency_target,
+      avg_rating: recipe.avg_rating,
+      brew_count: recipe.brew_count,
+      last_brewed_at: null,
+      is_official: true,
+      imported_from_recipe_id: null,
+      import_provenance: null,
+    };
+
     const existing = await repository.findOne({ where: { id: recipe.id } });
 
     if (existing) {
-      Object.assign(existing, {
-        owner_id: PUBLIC_RECIPES_SYSTEM_OWNER_ID,
-        name: recipe.name,
-        description: recipe.description,
-        visibility: RecipeVisibility.PUBLIC,
-        version: 1,
-        root_recipe_id: recipe.id,
-        parent_recipe_id: null,
-        batch_size_l: recipe.batch_size_l,
-        boil_time_min: recipe.boil_time_min,
-        og_target: recipe.og_target,
-        fg_target: recipe.fg_target,
-        abv_estimated: recipe.abv_estimated,
-        ibu_target: recipe.ibu_target,
-        ebc_target: recipe.ebc_target,
-        efficiency_target: recipe.efficiency_target,
-        avg_rating: recipe.avg_rating,
-        brew_count: recipe.brew_count,
-        last_brewed_at: null,
-        is_official: true,
-        imported_from_recipe_id: null,
-        import_provenance: null,
-      });
+      Object.assign(existing, payload);
       await repository.save(existing);
       updated += 1;
     } else {
-      const created = repository.create({
-        id: recipe.id,
-        owner_id: PUBLIC_RECIPES_SYSTEM_OWNER_ID,
-        name: recipe.name,
-        description: recipe.description,
-        visibility: RecipeVisibility.PUBLIC,
-        version: 1,
-        root_recipe_id: recipe.id,
-        parent_recipe_id: null,
-        batch_size_l: recipe.batch_size_l,
-        boil_time_min: recipe.boil_time_min,
-        og_target: recipe.og_target,
-        fg_target: recipe.fg_target,
-        abv_estimated: recipe.abv_estimated,
-        ibu_target: recipe.ibu_target,
-        ebc_target: recipe.ebc_target,
-        efficiency_target: recipe.efficiency_target,
-        avg_rating: recipe.avg_rating,
-        brew_count: recipe.brew_count,
-        last_brewed_at: null,
-        is_official: true,
-        imported_from_recipe_id: null,
-        import_provenance: null,
-      });
+      const created = repository.create({ id: recipe.id, ...payload });
       await repository.save(created);
       inserted += 1;
     }

@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -56,9 +57,10 @@ export async function seedSystemUser(
   }
 
   // Random unguessable password — nobody ever logs in as 'system'.
-  // Generate inside the function so each environment's hash is
-  // distinct (defense in depth in case a hash leaks in one env).
-  const randomPassword = `system-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  // Use crypto.randomBytes for cryptographic randomness (not
+  // Math.random which is predictable). 32 bytes → 64 hex chars,
+  // way beyond what bcrypt can meaningfully hash.
+  const randomPassword = randomBytes(32).toString('hex');
   const passwordHash = await bcrypt.hash(randomPassword, 10);
 
   const created = repository.create({

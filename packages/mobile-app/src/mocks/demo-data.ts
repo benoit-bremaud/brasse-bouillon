@@ -2564,7 +2564,8 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     ibu: 22,
     colorEbc: 16,
     aromaticTags: "malt biscuit, honey, floral hops, soft bitterness",
-    notesSource: "Brasserie Goudale (62510 Arques, France) — official datasheet",
+    notesSource:
+      "Brasserie Goudale (62510 Arques, France) — official datasheet",
   }),
 };
 

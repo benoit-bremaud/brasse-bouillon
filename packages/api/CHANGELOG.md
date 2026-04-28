@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.8-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.7-alpha1...api-v0.1.8-alpha1) (2026-04-28)
+
+
+### Features
+
+* **scan:** add La Goudale as a 4th demo bottle (real local bottle) ([8449ac1](https://github.com/benoit-bremaud/brasse-bouillon/commit/8449ac1314749abb6ec91822eeb80ef49d88e4f3))
+* **scan:** add La Goudale as a 4th demo bottle for live testing ([#754](https://github.com/benoit-bremaud/brasse-bouillon/issues/754)) ([ae00270](https://github.com/benoit-bremaud/brasse-bouillon/commit/ae0027093d22ee913df3413c691fa85a0ede8015))
+
+
+### Bug Fixes
+
+* **scan:** update seed test assertions + prettier format for La Goudale (7 beers) ([a8fda37](https://github.com/benoit-bremaud/brasse-bouillon/commit/a8fda370caa5ee188d892b60a947ac4b53bbb6a0))
+
 ## [0.1.7-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.6-alpha1...api-v0.1.7-alpha1) (2026-04-28)
 
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.2...encyclopedia-v0.2.3) (2026-04-28)
+
+
+### Bug Fixes
+
+* **ci:** sync stale version files (app.json, encyclopedia) + wire release-please ([#756](https://github.com/benoit-bremaud/brasse-bouillon/issues/756)) ([7ae60c0](https://github.com/benoit-bremaud/brasse-bouillon/commit/7ae60c0da47daa4fc4a8cc8f71d917da3745ac0a))
+* **ci:** sync stale version files + wire release-please for app.json + encyclopedia/package.json ([0aef8bb](https://github.com/benoit-bremaud/brasse-bouillon/commit/0aef8bbc7e7c0880c142b54312553fe7c1d7b3a7))
+
 ## [0.2.2](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.1...encyclopedia-v0.2.2) (2026-04-24)
 
 

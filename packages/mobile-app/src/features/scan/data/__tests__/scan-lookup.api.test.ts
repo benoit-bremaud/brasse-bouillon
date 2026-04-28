@@ -16,7 +16,7 @@ describe("scan-lookup.api / lookupBeerByBarcode", () => {
       mockRequest.mockResolvedValueOnce({
         item: {
           id: "id-1",
-          barcode: "5060277380011",
+          barcode: "5060277380019",
           name: "Punk IPA",
           brewery: "BrewDog",
           style: "IPA",
@@ -39,10 +39,10 @@ describe("scan-lookup.api / lookupBeerByBarcode", () => {
         rawPayloadAvailable: false,
       });
 
-      const result = await lookupBeerByBarcode("5060277380011");
+      const result = await lookupBeerByBarcode("5060277380019");
 
-      expect(mockRequest).toHaveBeenCalledWith("/scan/lookup/5060277380011");
-      expect(result.item.barcode).toBe("5060277380011");
+      expect(mockRequest).toHaveBeenCalledWith("/scan/lookup/5060277380019");
+      expect(result.item.barcode).toBe("5060277380019");
       expect(result.item.name).toBe("Punk IPA");
       expect(result.source).toBe("cache_hit_fresh");
     });
@@ -51,7 +51,7 @@ describe("scan-lookup.api / lookupBeerByBarcode", () => {
       mockRequest.mockResolvedValueOnce({
         item: {
           id: "id-2",
-          barcode: "5410702000132",
+          barcode: "5410702000133",
           name: "La Chouffe",
           brewery: "Brasserie d Achouffe",
           style: "Belgian Strong Pale Ale",
@@ -74,7 +74,7 @@ describe("scan-lookup.api / lookupBeerByBarcode", () => {
         rawPayloadAvailable: true,
       });
 
-      const result = await lookupBeerByBarcode("5410702000132");
+      const result = await lookupBeerByBarcode("5410702000133");
 
       expect(result.item.colorEbc).toBe(14);
       expect(result.item.fermentationType).toBe("ale");
@@ -163,7 +163,7 @@ describe("scan-lookup.api / lookupBeerByBarcode", () => {
       const networkError = new Error("Network request failed");
       mockRequest.mockRejectedValueOnce(networkError);
 
-      await expect(lookupBeerByBarcode("5060277380011")).rejects.toBe(
+      await expect(lookupBeerByBarcode("5060277380019")).rejects.toBe(
         networkError,
       );
     });

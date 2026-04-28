@@ -138,7 +138,7 @@ export class ScanController {
   @ApiParam({
     name: 'ean',
     description: 'EAN-13 barcode (digits only)',
-    example: '5060277380011',
+    example: '5060277380019',
   })
   @ApiOkResponse({ type: ScanLookupResultDto })
   async lookupByBarcode(

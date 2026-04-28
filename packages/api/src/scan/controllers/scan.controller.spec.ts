@@ -167,7 +167,7 @@ describe('ScanController', () => {
   describe('lookupByBarcode()', () => {
     it('delegates to ScanService.lookupByBarcode and returns the result', async () => {
       const fakeResult = {
-        item: { barcode: '5060277380011' } as never,
+        item: { barcode: '5060277380019' } as never,
         source: 'cache_hit_fresh' as const,
         rawPayloadAvailable: false,
       };
@@ -177,10 +177,10 @@ describe('ScanController', () => {
 
       const result = await controller.lookupByBarcode(
         mockUser,
-        '5060277380011',
+        '5060277380019',
       );
 
-      expect(lookupSpy).toHaveBeenCalledWith('5060277380011');
+      expect(lookupSpy).toHaveBeenCalledWith('5060277380019');
       expect(result).toBe(fakeResult);
     });
   });

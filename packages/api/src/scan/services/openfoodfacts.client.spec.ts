@@ -12,7 +12,7 @@ function buildPayload(
   overrides: Partial<OpenFoodFactsRawProduct> = {},
 ): OpenFoodFactsRawProduct {
   return {
-    code: '5060277380011',
+    code: '5060277380019',
     status: 1,
     status_verbose: 'product found',
     product: {
@@ -55,7 +55,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
     it('returns found:true with parsed name / brewery / abv / isBeer', async () => {
       mockFetchOk(buildPayload());
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.found).toBe(true);
       expect(result.name).toBe('Punk IPA');
@@ -67,11 +67,11 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
     it('hits the configured OFF URL with the EAN encoded', async () => {
       const fetchSpy = mockFetchOk(buildPayload());
 
-      await client.lookupByBarcode('5060277380011');
+      await client.lookupByBarcode('5060277380019');
 
       const calls = fetchSpy.mock.calls as unknown[][];
       const url = calls[0]?.[0] as string;
-      expect(url).toContain('5060277380011');
+      expect(url).toContain('5060277380019');
       expect(url).toContain('/product/');
     });
 
@@ -85,7 +85,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.abv).toBe(6.2);
     });
@@ -100,7 +100,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.brewery).toBe('BrewDog');
     });
@@ -115,7 +115,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.isBeer).toBe(true);
     });
@@ -137,7 +137,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
     it('returns found:false when OFF responds 200 with status:1 but product is missing', async () => {
       mockFetchOk({ status: 1 });
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.found).toBe(false);
     });
@@ -152,7 +152,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.found).toBe(true);
       expect(result.isBeer).toBe(false);
@@ -165,7 +165,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.brewery).toBeNull();
     });
@@ -177,7 +177,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.name).toBeNull();
     });
@@ -192,7 +192,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.abv).toBeNull();
     });
@@ -207,7 +207,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         }),
       );
 
-      const result = await client.lookupByBarcode('5060277380011');
+      const result = await client.lookupByBarcode('5060277380019');
 
       expect(result.abv).toBeNull();
     });
@@ -217,7 +217,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
     it('throws when OFF responds with a non-2xx HTTP status', async () => {
       mockFetchOk({}, 503);
 
-      await expect(client.lookupByBarcode('5060277380011')).rejects.toThrow(
+      await expect(client.lookupByBarcode('5060277380019')).rejects.toThrow(
         /HTTP 503/,
       );
     });
@@ -227,7 +227,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         .spyOn(globalThis, 'fetch')
         .mockRejectedValue(new Error('ECONNREFUSED'));
 
-      await expect(client.lookupByBarcode('5060277380011')).rejects.toThrow(
+      await expect(client.lookupByBarcode('5060277380019')).rejects.toThrow(
         'ECONNREFUSED',
       );
     });
@@ -239,7 +239,7 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
         json: () => Promise.reject(new Error('Unexpected token < in JSON')),
       } as unknown as Response);
 
-      await expect(client.lookupByBarcode('5060277380011')).rejects.toThrow(
+      await expect(client.lookupByBarcode('5060277380019')).rejects.toThrow(
         /Unexpected token/,
       );
     });
@@ -249,20 +249,20 @@ describe('OpenFoodFactsClient.lookupByBarcode', () => {
     it('encodes barcode characters in the URL (defence against bad input)', async () => {
       const fetchSpy = mockFetchOk(buildPayload());
 
-      await client.lookupByBarcode('5060277380011/../etc/passwd');
+      await client.lookupByBarcode('5060277380019/../etc/passwd');
 
       const calls = fetchSpy.mock.calls as unknown[][];
       const url = calls[0]?.[0] as string;
       // The slashes / dots are encoded so they cannot escape the
       // OFF /product/ path.
       expect(url).not.toContain('/../etc/passwd');
-      expect(url).toContain('5060277380011%2F..%2Fetc%2Fpasswd');
+      expect(url).toContain('5060277380019%2F..%2Fetc%2Fpasswd');
     });
 
     it('sends a User-Agent header so OFF can rate-limit politely', async () => {
       const fetchSpy = mockFetchOk(buildPayload());
 
-      await client.lookupByBarcode('5060277380011');
+      await client.lookupByBarcode('5060277380019');
 
       const calls = fetchSpy.mock.calls as unknown[][];
       const init = calls[0]?.[1] as RequestInit | undefined;

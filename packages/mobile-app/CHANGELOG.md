@@ -19,6 +19,14 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.10-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.9-alpha1...mobile-app-v0.1.10-alpha1) (2026-04-28)
+
+
+### Bug Fixes
+
+* **android:** allow cleartext HTTP traffic for LAN backend testing ([789f203](https://github.com/benoit-bremaud/brasse-bouillon/commit/789f20357bc1a5a3f960185c36b9f01e667df335))
+* **android:** allow cleartext HTTP traffic for LAN backend testing ([#759](https://github.com/benoit-bremaud/brasse-bouillon/issues/759)) ([7b4cd67](https://github.com/benoit-bremaud/brasse-bouillon/commit/7b4cd6729ef9a0a1a13d2318d0ee27677b90fae6))
+
 ## [0.1.9-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.8-alpha1...mobile-app-v0.1.9-alpha1) (2026-04-28)
 
 

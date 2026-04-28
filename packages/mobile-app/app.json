@@ -2,7 +2,7 @@
   "expo": {
     "name": "Brasse Bouillon",
     "slug": "brasse-bouillon-mobile-app",
-    "version": "0.1.0-alpha1",
+    "version": "0.1.8-alpha1",
     "orientation": "portrait",
     "icon": "./assets/images/brasse-bouillon-logo-primary-512.png",
     "scheme": "brassebouillonmobileapp",

@@ -155,3 +155,4 @@ docs/product/references/*
 # trackable.
 .claude/settings.json
 .claude/scheduled_tasks.lock
+.claude/settings.json

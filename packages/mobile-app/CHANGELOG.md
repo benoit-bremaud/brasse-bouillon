@@ -19,6 +19,15 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.7-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.6-alpha1...mobile-app-v0.1.7-alpha1) (2026-04-28)
+
+
+### Bug Fixes
+
+* **scan:** correct invalid EAN-13 check digits in demo catalog (printed labels not recognized) ([#750](https://github.com/benoit-bremaud/brasse-bouillon/issues/750)) ([9c6e4fb](https://github.com/benoit-bremaud/brasse-bouillon/commit/9c6e4fb255be0890a16410be477782eac3cde70a))
+* **scan:** correct invalid EAN-13 check digits in demo catalog + scan_catalog seed ([148a2b9](https://github.com/benoit-bremaud/brasse-bouillon/commit/148a2b99eb45b61f74018c7465b5c0af34415d09))
+* **scan:** correct Rochefort 10 EAN check digit (115 not 112) ([1e85fb4](https://github.com/benoit-bremaud/brasse-bouillon/commit/1e85fb47b9e255b56bd88ebd6e7cd82a75bc6263))
+
 ## [0.1.6-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.5-alpha1...mobile-app-v0.1.6-alpha1) (2026-04-27)
 
 

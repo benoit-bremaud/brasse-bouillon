@@ -25,7 +25,13 @@
       "release-type": "node",
       "package-name": "@brasse-bouillon/mobile-app",
       "component": "mobile-app",
-      "extra-files": ["app.json"]
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "app.json",
+          "jsonpath": "$.expo.version"
+        }
+      ]
     },
     "packages/api": {
       "release-type": "node",
@@ -40,7 +46,14 @@
     "packages/beer-encyclopedia": {
       "release-type": "python",
       "package-name": "beer-encyclopedia",
-      "component": "encyclopedia"
+      "component": "encyclopedia",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   },
   "plugins": [

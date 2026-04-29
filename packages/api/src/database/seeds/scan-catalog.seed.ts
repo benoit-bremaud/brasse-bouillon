@@ -152,11 +152,13 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
   },
   // Locally-sourced artisanal beer (Brittany microbrewery — exemplary
   // of the éco-responsable persona Zoé's preferred filière courte).
-  // Real EAN-13 from the Brasserie de Lancelot range, picked for
-  // demo flexibility (the 6th brainstorm slot was deliberately left
-  // open for whatever local beer the team can bring on stage).
+  // EAN-13 (valid checksum, computed via the standard mod-10
+  // algorithm: prefix `376021575004`, check digit `2`). Picked from
+  // the Brasserie de Lancelot range for demo flexibility — the 6th
+  // brainstorm slot was deliberately left open for whatever local
+  // beer the team can bring on stage.
   {
-    barcode: '3760215750048',
+    barcode: '3760215750042',
     name: 'Cervoise Lancelot',
     brewery: 'Brasserie de Lancelot',
     style: 'Cervoise (Bière Aromatisée Miel)',

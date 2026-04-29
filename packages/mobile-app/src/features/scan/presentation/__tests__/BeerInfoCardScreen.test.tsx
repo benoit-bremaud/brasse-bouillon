@@ -1,4 +1,4 @@
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 import {
   act,
   fireEvent,
@@ -306,6 +306,84 @@ describe("BeerInfoCardScreen", () => {
       expect(
         await screen.findByText(/temporairement indisponible/),
       ).toBeTruthy();
+    });
+
+    describe("unknown beer graceful UX (Issue #796)", () => {
+      let openUrlSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        openUrlSpy = jest
+          .spyOn(Linking, "openURL")
+          .mockResolvedValue(undefined as never);
+      });
+
+      afterEach(() => {
+        openUrlSpy.mockRestore();
+      });
+
+      it("surfaces the scanned barcode beneath the not-found message", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupBeerNotFoundError("3760215750042"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+
+        await screen.findByText(/n'est pas dans notre catalogue/);
+        expect(screen.getByText("3760215750042")).toBeTruthy();
+        expect(screen.getByText(/Code-barres scanné/i)).toBeTruthy();
+      });
+
+      it("opens a well-formed mailto when 'Suggérer une correction' is pressed", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupBeerNotFoundError("3760215750042"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+
+        const cta = await screen.findByLabelText(
+          /Suggérer une correction par email/i,
+        );
+        fireEvent.press(cta);
+
+        expect(openUrlSpy).toHaveBeenCalledTimes(1);
+        const url = openUrlSpy.mock.calls[0][0] as string;
+        expect(url).toMatch(/^mailto:contact@brasse-bouillon\.com\?/);
+        expect(url).toContain(encodeURIComponent("Suggestion de correction"));
+        expect(url).toContain("3760215750042");
+      });
+
+      it("opens a distinct mailto when 'Ajouter cette bière au catalogue' is pressed", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupBeerNotFoundError("3760215750042"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+
+        const cta = await screen.findByLabelText(
+          /Ajouter cette bière au catalogue par email/i,
+        );
+        fireEvent.press(cta);
+
+        expect(openUrlSpy).toHaveBeenCalledTimes(1);
+        const url = openUrlSpy.mock.calls[0][0] as string;
+        expect(url).toMatch(/^mailto:contact@brasse-bouillon\.com\?/);
+        expect(url).toContain(encodeURIComponent("Ajout au catalogue"));
+        expect(url).toContain("3760215750042");
+      });
+
+      it("does NOT render the unknown beer CTAs on a service-unavailable error", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupServiceUnavailableError("5060277380019"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+        await screen.findByText(/temporairement indisponible/);
+        expect(screen.queryByText(/Code-barres scanné/i)).toBeNull();
+        expect(
+          screen.queryByLabelText(/Suggérer une correction par email/i),
+        ).toBeNull();
+      });
     });
   });
 

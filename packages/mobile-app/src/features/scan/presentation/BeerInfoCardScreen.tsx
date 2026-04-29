@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -46,10 +47,18 @@ type BeerInfoCardScreenProps = {
   barcodeParam?: string | string[];
 };
 
+type ErrorVariant = "not_found" | "unavailable" | "invalid" | "generic";
+
 type ScreenStatus =
   | { kind: "loading" }
   | { kind: "ready"; result: ScanLookupResult }
-  | { kind: "error"; message: string; canRetry: boolean };
+  | {
+      kind: "error";
+      variant: ErrorVariant;
+      message: string;
+      canRetry: boolean;
+      barcode?: string;
+    };
 
 const ERROR_NOT_FOUND =
   "Cette bière n'est pas dans notre catalogue. Essaie une autre bouteille ou contribue à enrichir la base.";
@@ -59,6 +68,11 @@ const ERROR_INVALID =
   "Ce code-barres n'est pas reconnu (8 à 14 chiffres attendus). Vérifie ce que tu as scanné.";
 const ERROR_GENERIC = "Impossible de récupérer cette bière pour le moment.";
 
+// Placeholder destination for the v0.1 unknown-beer mailto CTAs
+// (#796). Will be replaced by a real catalog-suggestion form in v0.2
+// once the backend endpoint lands.
+const SUPPORT_EMAIL = "contact@brasse-bouillon.com";
+
 function resolveBarcodeParam(barcodeParam?: string | string[]): string | null {
   if (!barcodeParam) return null;
   return Array.isArray(barcodeParam) ? barcodeParam[0] : barcodeParam;
@@ -66,15 +80,71 @@ function resolveBarcodeParam(barcodeParam?: string | string[]): string | null {
 
 function mapErrorToStatus(error: unknown): ScreenStatus {
   if (error instanceof ScanLookupBeerNotFoundError) {
-    return { kind: "error", message: ERROR_NOT_FOUND, canRetry: false };
+    return {
+      kind: "error",
+      variant: "not_found",
+      message: ERROR_NOT_FOUND,
+      canRetry: false,
+      barcode: error.barcode,
+    };
   }
   if (error instanceof ScanLookupServiceUnavailableError) {
-    return { kind: "error", message: ERROR_UNAVAILABLE, canRetry: true };
+    return {
+      kind: "error",
+      variant: "unavailable",
+      message: ERROR_UNAVAILABLE,
+      canRetry: true,
+    };
   }
   if (error instanceof ScanLookupInvalidBarcodeError) {
-    return { kind: "error", message: ERROR_INVALID, canRetry: false };
+    return {
+      kind: "error",
+      variant: "invalid",
+      message: ERROR_INVALID,
+      canRetry: false,
+    };
   }
-  return { kind: "error", message: ERROR_GENERIC, canRetry: true };
+  return {
+    kind: "error",
+    variant: "generic",
+    message: ERROR_GENERIC,
+    canRetry: true,
+  };
+}
+
+function buildSuggestCorrectionMailto(barcode: string): string {
+  const subject = `Suggestion de correction — code-barres ${barcode}`;
+  const body =
+    `Bonjour,\n\n` +
+    `J'ai scanné une bière que Brasse-Bouillon ne reconnaît pas.\n\n` +
+    `Code-barres : ${barcode}\n\n` +
+    `Voici les informations que je peux fournir :\n` +
+    `• Nom de la bière : \n` +
+    `• Brasserie : \n` +
+    `• Style : \n` +
+    `• Pays / ville : \n\n` +
+    `Merci !`;
+  return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+}
+
+function buildAddBeerMailto(barcode: string): string {
+  const subject = `Ajout au catalogue — code-barres ${barcode}`;
+  const body =
+    `Bonjour,\n\n` +
+    `Je propose d'ajouter cette bière au catalogue Brasse-Bouillon.\n\n` +
+    `Code-barres : ${barcode}\n\n` +
+    `Détails :\n` +
+    `• Nom de la bière : \n` +
+    `• Brasserie : \n` +
+    `• Style : \n` +
+    `• ABV : \n` +
+    `• IBU : \n\n` +
+    `Merci !`;
+  return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
 }
 
 /**
@@ -109,6 +179,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
     if (!barcode) {
       setStatus({
         kind: "error",
+        variant: "invalid",
         message: ERROR_INVALID,
         canRetry: false,
       });
@@ -151,6 +222,9 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
             />
           }
         />
+        {status.variant === "not_found" && status.barcode ? (
+          <UnknownBeerCTAs barcode={status.barcode} />
+        ) : null}
       </Screen>
     );
   }
@@ -404,6 +478,60 @@ function MatchingRecipesSection({
           ))}
         </Card>
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * "Unknown beer" CTAs — shown beneath the not-found error message
+ * (#796, persona Léa la Curieuse). Surfaces the scanned barcode so
+ * the user can quote it, and offers two outbound mailto routes:
+ * a "Suggérer une correction" path (the scan returned the wrong
+ * data) and an "Ajouter cette bière" path (the catalog is missing
+ * an entry). Both targets are placeholders for the v0.2 catalog
+ * suggestion endpoint.
+ */
+function UnknownBeerCTAs({
+  barcode,
+}: Readonly<{
+  barcode: string;
+}>) {
+  const handleSuggest = useCallback(() => {
+    void Linking.openURL(buildSuggestCorrectionMailto(barcode));
+  }, [barcode]);
+  const handleAdd = useCallback(() => {
+    void Linking.openURL(buildAddBeerMailto(barcode));
+  }, [barcode]);
+  return (
+    <View style={styles.unknownCard}>
+      <Text style={styles.unknownLabel}>Code-barres scanné</Text>
+      <Text style={styles.unknownBarcode} accessibilityRole="text">
+        {barcode}
+      </Text>
+      <Pressable
+        onPress={handleSuggest}
+        accessibilityRole="button"
+        accessibilityLabel="Suggérer une correction par email"
+        style={({ pressed }) => [
+          styles.unknownCta,
+          pressed ? styles.unknownCtaPressed : null,
+        ]}
+      >
+        <Text style={styles.unknownCtaText}>Suggérer une correction</Text>
+      </Pressable>
+      <Pressable
+        onPress={handleAdd}
+        accessibilityRole="button"
+        accessibilityLabel="Ajouter cette bière au catalogue par email"
+        style={({ pressed }) => [
+          styles.unknownCtaSecondary,
+          pressed ? styles.unknownCtaPressed : null,
+        ]}
+      >
+        <Text style={styles.unknownCtaSecondaryText}>
+          Ajouter cette bière au catalogue
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -704,5 +832,59 @@ const styles = StyleSheet.create({
     fontSize: typography.size.label,
     color: colors.neutral.textSecondary,
     fontStyle: "italic",
+  },
+  unknownCard: {
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.neutral.white,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+  },
+  unknownLabel: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+    fontWeight: typography.weight.medium,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  unknownBarcode: {
+    marginTop: spacing.xxs,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+    fontVariant: ["tabular-nums"],
+  },
+  unknownCta: {
+    marginTop: spacing.md,
+    backgroundColor: colors.brand.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignItems: "center",
+  },
+  unknownCtaText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.medium,
+  },
+  unknownCtaSecondary: {
+    marginTop: spacing.xs,
+    backgroundColor: "transparent",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.brand.primary,
+    alignItems: "center",
+  },
+  unknownCtaSecondaryText: {
+    color: colors.brand.primary,
+    fontSize: typography.size.label,
+    fontWeight: typography.weight.medium,
+  },
+  unknownCtaPressed: {
+    opacity: 0.7,
   },
 });

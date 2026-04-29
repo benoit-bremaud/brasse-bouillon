@@ -247,8 +247,29 @@ export class UserService {
       }
     }
 
-    // Astronomically unlikely fallback: append timestamp to break ties.
-    return `${base}_${Date.now().toString(36)}`.slice(0, 20);
+    // Astronomically unlikely fallback: timestamp + extra entropy. Still
+    // verifies uniqueness via the same query — if even the timestamp
+    // collides (truncation to 20 chars can drop low-order digits when
+    // the base is already long), keep retrying with longer entropy
+    // until we find a free slot. Capped at 10 fallback attempts so the
+    // method always terminates; on the absurd worst case (every variant
+    // taken) we raise a clear domain exception rather than letting the
+    // DB unique-constraint surface as a generic 500.
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const ts = Date.now().toString(36);
+      const extra = randomBytes(2).toString('hex'); // 4 hex chars
+      const candidate = `${base}_${ts}${extra}`.slice(0, 20);
+      const collision = await this.userRepository.findOne({
+        where: { username: candidate },
+      });
+      if (!collision) {
+        return candidate;
+      }
+    }
+
+    throw new BadRequestException(
+      'Unable to generate a unique username — the username space appears saturated. Please retry or supply a custom username.',
+    );
   }
 
   /**

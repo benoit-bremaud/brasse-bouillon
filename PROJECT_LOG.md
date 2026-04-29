@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-29
 
+### PR #805 merged (`f9215f5`) — feat(scan): hidden long-press demo override menu — soutenance safety net (#642)
+
+- Sprint B chunk for #642. New `DemoOverrideMenu` modal accessible via 1.5s long-press on the help button in the scan screen header. Lists seeded beers, tap forces the result on the chosen beer (navigates to BeerInfoCardScreen). Hidden gesture, no env-var gating.
+- Codex P1 fix (commit `e5d5745`): React Native fires `onPress` on release after `onLongPress` triggers, opening the guide modal behind the override sheet. Fixed with a `useRef` flag that consumes the trailing onPress. Caught before merge — would have been catastrophic on stage.
+- SonarCloud Quality Gate fix (same commit): 4 integration tests added on ScanScreen long-press behaviour to push coverage above the 80% threshold.
+- Companion follow-up #804 captured: mobile `demoScanCatalog` (4 beers) drifted from API seed (9 beers) since PR #791. Override menu surfaces 4 entries until #804 lands.
+
 ### PR #802 merged (`86c36b9`) — docs(soutenance): demo script 90s + 4 jury variants + screencast spec + jury email (#702)
 
 - Sprint B chunk #7 of Scan Tranche 2. New `docs/product/soutenance/demo-script-2026-05-27.md` covers the writable portion of #702: 90s script (5 phases, FR speaker lines), 4 jury-beer adaptive variants (A/B/C/D) aligned with shipped PRs #799/#800/#801, screencast backup spec, jury request email draft (FR, deadline 2026-05-17), rehearsal log scaffolding.

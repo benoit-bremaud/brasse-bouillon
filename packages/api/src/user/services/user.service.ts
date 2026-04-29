@@ -247,18 +247,23 @@ export class UserService {
       }
     }
 
-    // Astronomically unlikely fallback: timestamp + extra entropy. Still
-    // verifies uniqueness via the same query — if even the timestamp
-    // collides (truncation to 20 chars can drop low-order digits when
-    // the base is already long), keep retrying with longer entropy
-    // until we find a free slot. Capped at 10 fallback attempts so the
-    // method always terminates; on the absurd worst case (every variant
-    // taken) we raise a clear domain exception rather than letting the
-    // DB unique-constraint surface as a generic 500.
+    // Astronomically unlikely fallback: shorten the base aggressively
+    // and use a wider random suffix so each retry has fresh entropy
+    // that survives the 20-char username cap. The previous
+    // timestamp-based version (Codex P2 on PR #790 — preserve fallback
+    // entropy) could truncate the random `extra` away when the base
+    // was already 14 chars, making all 10 retries produce the same
+    // candidate within a millisecond bucket. Fix: cap the base at 11
+    // chars so the 8-char hex suffix (4 random bytes) always survives
+    // — that's 16^8 ≈ 4.3 billion distinct usernames per base, ample
+    // headroom even on absurdly popular local-parts. Capped at 10
+    // fallback attempts; if that loop also saturates (basically
+    // impossible) we surface a clear domain exception rather than let
+    // the DB unique constraint hit as a generic 500.
+    const fallbackBase = base.slice(0, 11);
     for (let attempt = 0; attempt < 10; attempt += 1) {
-      const ts = Date.now().toString(36);
-      const extra = randomBytes(2).toString('hex'); // 4 hex chars
-      const candidate = `${base}_${ts}${extra}`.slice(0, 20);
+      const suffix = randomBytes(4).toString('hex'); // 8 hex chars
+      const candidate = `${fallbackBase}_${suffix}`;
       const collision = await this.userRepository.findOne({
         where: { username: candidate },
       });

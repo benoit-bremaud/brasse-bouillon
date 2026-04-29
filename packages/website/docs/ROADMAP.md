@@ -48,6 +48,7 @@ This document outlines the major stages of the **Brasse-Bouillon** mobile app de
 * Development log aligned with delivered product increments
 * FAQ and featured recipe section
 * Integration of recent backend/frontend progress (tools suite completion, dashboard/discovery refresh, recipe-detail enhancements, and product API expansion)
+* Auth experience refresh — simplified email-and-password signup, bigger brand mascot, cleaner forgot-password flow, demo connection now scoped to demo builds only (Issue #764)
 
 ### Phase 6 — Beta testing and community activation
 

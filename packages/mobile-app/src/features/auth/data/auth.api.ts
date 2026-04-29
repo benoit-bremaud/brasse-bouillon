@@ -21,10 +21,15 @@ type AuthResponse = {
   user: AuthUserDto;
 };
 
+/**
+ * Signup payload — Issue #764 simplified to email + password only.
+ * The backend auto-generates the username from the email local-part
+ * if `username` is omitted (which is now the default).
+ */
 export type SignupInput = {
   email: string;
   password: string;
-  username: string;
+  username?: string;
   firstName?: string;
   lastName?: string;
 };
@@ -76,13 +81,16 @@ export async function login(
 }
 
 export async function signup(input: SignupInput): Promise<AuthSession> {
-  const body = {
+  // Only forward optional fields when explicitly provided — the
+  // backend's CreateUserDto rejects empty strings on optional fields
+  // and auto-generates a username when omitted.
+  const body: Record<string, string> = {
     email: input.email,
     password: input.password,
-    username: input.username,
-    first_name: input.firstName,
-    last_name: input.lastName,
   };
+  if (input.username) body.username = input.username;
+  if (input.firstName) body.first_name = input.firstName;
+  if (input.lastName) body.last_name = input.lastName;
 
   try {
     const data = await request<AuthResponse>("/auth/register", {

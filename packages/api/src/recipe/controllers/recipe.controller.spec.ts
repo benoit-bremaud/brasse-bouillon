@@ -374,17 +374,34 @@ describe('RecipeController', () => {
   describe('matchForBeer() - GET /recipes/match/:beerId', () => {
     const beerId = '00000000-0000-4000-8000-deadbeefcafe';
 
-    it('happy: returns the ranked array straight from the matching service', async () => {
-      const ranked = [
-        { recipe: mockRecipeOrm, score: 87.5 },
-        { recipe: { ...mockRecipeOrm, name: 'Other' }, score: 60 },
-      ];
-      const spy = jest.spyOn(matching, 'rankForBeer').mockResolvedValue(ranked);
+    it('happy: returns the ranked envelope straight from the matching service', async () => {
+      const envelope = {
+        rankings: [
+          { recipe: mockRecipeOrm, score: 87.5 },
+          { recipe: { ...mockRecipeOrm, name: 'Other' }, score: 60 },
+        ],
+        low_confidence: false,
+      };
+      const spy = jest
+        .spyOn(matching, 'rankForBeer')
+        .mockResolvedValue(envelope);
 
       const result = await controller.matchForBeer(beerId);
 
       expect(spy).toHaveBeenCalledWith(beerId);
-      expect(result).toBe(ranked);
+      expect(result).toBe(envelope);
+    });
+
+    it('happy: surfaces low_confidence=true when the best match is weak', async () => {
+      const envelope = {
+        rankings: [{ recipe: mockRecipeOrm, score: 28 }],
+        low_confidence: true,
+      };
+      jest.spyOn(matching, 'rankForBeer').mockResolvedValue(envelope);
+
+      const result = await controller.matchForBeer(beerId);
+
+      expect(result.low_confidence).toBe(true);
     });
 
     it('sad: propagates NotFoundException when the beer id is unknown', async () => {

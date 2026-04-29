@@ -6,6 +6,7 @@ import {
 } from "@testing-library/react-native";
 
 import { LoginScreen } from "@/features/auth/presentation/LoginScreen";
+import { Alert } from "react-native";
 import React from "react";
 
 const mockLogin = jest.fn();
@@ -245,6 +246,37 @@ describe("LoginScreen (Issue #764 — simplified signup)", () => {
       await waitFor(() => {
         expect(mockLoginWithDemoAccount).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe("cosmetic Google sign-in button (Issue #765)", () => {
+    it("shows the Google button on login mode (above the email input)", () => {
+      render(<LoginScreen />);
+      expect(screen.getByText("Continuer avec Google")).toBeTruthy();
+    });
+
+    it("shows the Google button on signup mode", () => {
+      render(<LoginScreen />);
+      fireEvent.press(screen.getByText("Créer un compte"));
+      expect(screen.getByText("Continuer avec Google")).toBeTruthy();
+    });
+
+    it("hides the Google button in forgot-password mode", () => {
+      render(<LoginScreen />);
+      fireEvent.press(screen.getByText("Mot de passe oublié ?"));
+      expect(screen.queryByText("Continuer avec Google")).toBeNull();
+    });
+
+    it("opens a 'Bientôt disponible' alert on tap (cosmetic placeholder, no real OAuth)", () => {
+      const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+      render(<LoginScreen />);
+      fireEvent.press(screen.getByText("Continuer avec Google"));
+
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Bientôt disponible",
+        expect.stringContaining("Google"),
+      );
+      alertSpy.mockRestore();
     });
   });
 });

@@ -2,6 +2,7 @@ import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -130,6 +131,18 @@ export function LoginScreen() {
     }
   };
 
+  // Cosmetic-only Google sign-in button (Issue #765). Materializes the
+  // product direction (social login) on the auth screen for the
+  // soutenance demo without committing to an OAuth flow integration in
+  // v0.1. Real OAuth + backend Passport strategy come later.
+  const onGooglePressComingSoon = () => {
+    clearFeedback();
+    Alert.alert(
+      "Bientôt disponible",
+      "La connexion via Google arrive prochainement. En attendant, utilise ton email.",
+    );
+  };
+
   const onSubmit = async () => {
     if (mode === "signup") {
       await onSignupSubmit();
@@ -204,6 +217,29 @@ export function LoginScreen() {
               </Text>
             </Pressable>
           </View>
+        ) : null}
+
+        {mode !== "forgot" ? (
+          <>
+            <Pressable
+              style={({ pressed }) => [
+                styles.googleButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={onGooglePressComingSoon}
+              disabled={isLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Continuer avec Google (bientôt disponible)"
+            >
+              <Text style={styles.googleG}>G</Text>
+              <Text style={styles.googleButtonText}>Continuer avec Google</Text>
+            </Pressable>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>ou</Text>
+              <View style={styles.dividerLine} />
+            </View>
+          </>
         ) : null}
 
         <TextInput
@@ -358,6 +394,48 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.regular,
     marginTop: -spacing.xs,
     marginBottom: spacing.sm,
+  },
+  googleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    backgroundColor: colors.neutral.white,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+    ...shadows.sm,
+  },
+  googleG: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.primary,
+  },
+  googleButtonText: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.neutral.border,
+  },
+  dividerText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.regular,
   },
   linkText: {
     color: colors.brand.primary,

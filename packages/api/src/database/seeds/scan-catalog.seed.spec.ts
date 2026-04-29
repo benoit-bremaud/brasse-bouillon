@@ -20,7 +20,7 @@ function buildRepoMock(): RepoMock {
 
 describe('seedScanCatalog (Epic #693 part 5/5)', () => {
   describe('happy path', () => {
-    it('inserts all 7 demo beers when the table is empty', async () => {
+    it('inserts all 9 demo beers when the table is empty', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -28,9 +28,9 @@ describe('seedScanCatalog (Epic #693 part 5/5)', () => {
         repo as unknown as Repository<ScanCatalogItemOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 7, updated: 0, total: 7 });
-      expect(repo.create).toHaveBeenCalledTimes(7);
-      expect(repo.save).toHaveBeenCalledTimes(7);
+      expect(result).toEqual({ inserted: 9, updated: 0, total: 9 });
+      expect(repo.create).toHaveBeenCalledTimes(9);
+      expect(repo.save).toHaveBeenCalledTimes(9);
     });
 
     it('tags every inserted row with source = seed and clears cache fields', async () => {
@@ -66,9 +66,9 @@ describe('seedScanCatalog (Epic #693 part 5/5)', () => {
         repo as unknown as Repository<ScanCatalogItemOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 0, updated: 7, total: 7 });
+      expect(result).toEqual({ inserted: 0, updated: 9, total: 9 });
       expect(repo.create).not.toHaveBeenCalled();
-      expect(repo.save).toHaveBeenCalledTimes(7);
+      expect(repo.save).toHaveBeenCalledTimes(9);
     });
 
     it('forces source back to seed when overwriting an existing row that drifted', async () => {
@@ -97,7 +97,7 @@ describe('seedScanCatalog (Epic #693 part 5/5)', () => {
   describe('edge cases', () => {
     it('mixes inserts and updates when only some barcodes already exist', async () => {
       const repo = buildRepoMock();
-      // First three barcodes exist, last four do not.
+      // First three barcodes exist, last six do not.
       let counter = 0;
       repo.findOne.mockImplementation(() => {
         counter += 1;
@@ -112,7 +112,7 @@ describe('seedScanCatalog (Epic #693 part 5/5)', () => {
         repo as unknown as Repository<ScanCatalogItemOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 4, updated: 3, total: 7 });
+      expect(result).toEqual({ inserted: 6, updated: 3, total: 9 });
     });
 
     it('respects an explicit override list (e.g. tests, alternate demo data)', async () => {
@@ -129,14 +129,27 @@ describe('seedScanCatalog (Epic #693 part 5/5)', () => {
       expect(result).toEqual({ inserted: 2, updated: 0, total: 2 });
     });
 
-    it('exposes 7 demo beers covering Punk IPA + 5 Belgian classics + La Goudale (FR)', () => {
-      expect(SCAN_CATALOG_SEED_BEERS).toHaveLength(7);
+    it('exposes 9 demo beers covering the full brainstorm panel + bonus belgians', () => {
+      // Brainstorm scan-2026-04-24 §4 lists 6 reference beers; this
+      // seed ships 9 by adding 3 bonus Belgians (Westmalle, Duvel,
+      // Karmeliet) that were already curated when the brainstorm
+      // was written. The full panel covers IPA + Belgian Tripel +
+      // Belgian Quadrupel + Belgian Strong + Bière Blonde +
+      // International Pale Lager + Cervoise (artisanal honeyed
+      // local) — each persona finds at least one familiar style.
+      expect(SCAN_CATALOG_SEED_BEERS).toHaveLength(9);
       const names = SCAN_CATALOG_SEED_BEERS.map((b) => b.name);
+      // Brainstorm 6 reference beers
       expect(names).toContain('Punk IPA');
       expect(names).toContain('La Chouffe');
       expect(names).toContain('Rochefort 10');
       expect(names).toContain('Karmeliet Tripel');
+      expect(names).toContain('Heineken');
+      expect(names).toContain('Cervoise Lancelot');
+      // Bonus references already in the seed
       expect(names).toContain('La Goudale');
+      expect(names).toContain('Westmalle Tripel');
+      expect(names).toContain('Duvel');
     });
   });
 });

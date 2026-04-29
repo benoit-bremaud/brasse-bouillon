@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-29
 
+### PR #800 merged (`8cacaf0`) — feat(scan): not-a-beer detection — filter OFF by category + dedicated UI (#798)
+
+- Sub-PR 2/3 of [Epic] #794. Backend `NotABeerException` (UnprocessableEntityException 422) + scan service split (`!found` 404 vs `!isBeer` 422) + mobile UI: "Tu as scanné « X » — ce n'est pas une bière" + back-CTA.
+- Codex P1 fix (commit `8058902`): the global `HttpExceptionFilter` was stripping custom exception fields, so the mobile 422 → typed-error mapping never matched in production. Filter now spreads non-reserved fields from object exception responses; reserved keys (statusCode/error/timestamp/path) cannot be spoofed. New `http-exception.filter.spec.ts` (6 tests).
+
 ### PR #799 merged (`a984cf6`) — feat(scan): graceful UX for unknown beer — surface barcode + mailto CTAs (#796)
 
 - Sub-PR 1/3 of [Epic] #794 (scan jury edge cases B/D/C). Order locked B → D → C in scoping session 2026-04-29.

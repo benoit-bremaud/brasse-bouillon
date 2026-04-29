@@ -28,7 +28,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../user/entities/user.entity';
 
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
-import { RankedRecipeDto } from '../dtos/ranked-recipe.dto';
+import { RankedRecipeResponseDto } from '../dtos/ranked-recipe.dto';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
 import { RecipeStepDto } from '../dtos/recipe-step.dto';
@@ -100,13 +100,16 @@ export class RecipeController {
     summary:
       'Rank PUBLIC recipes by match score against a scanned beer (Issue #699)',
     description:
-      'Returns the top-N PUBLIC recipes ordered by a similarity (style + ABV) and quality (avg_rating) score. The official-recipe shortcut wins outright. `limit` defaults to 3 and is capped at 10.',
+      'Returns the top-N PUBLIC recipes ordered by a similarity (style + ABV + bitterness + color) and quality (avg_rating + brew_count + recency) score. Weights renormalize when a criterion is missing. The official-recipe shortcut wins outright on similarity. The response includes a `low_confidence` flag when the best match scores below 40. `limit` defaults to 3 and is capped at 10.',
   })
-  @ApiOkResponse({ description: 'Ranked array of {recipe, score}' })
+  @ApiOkResponse({
+    description:
+      'Response envelope `{ rankings: [{recipe, score}], low_confidence: boolean }`',
+  })
   @ApiNotFoundResponse({ description: 'Beer catalog item not found' })
   async matchForBeer(
     @Param('beerId', new ParseUUIDPipe()) beerId: string,
-  ): Promise<RankedRecipeDto[]> {
+  ): Promise<RankedRecipeResponseDto> {
     return this.matching.rankForBeer(beerId);
   }
 

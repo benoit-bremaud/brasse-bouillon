@@ -379,6 +379,33 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(low_confidence).toBe(true);
     });
 
+    it('low_confidence: still true when an irrelevant official-tagged recipe tops the ranking (Codex P1 #792)', async () => {
+      // `is_official` is global, not per-beer. A single official
+      // recipe with a style/ABV/everything mismatch should NOT
+      // suppress the low_confidence warning just because the
+      // shortcut sets its similarity to 100. The honest score
+      // (computed similarity + quality) decides.
+      const beerId = await seedBeer(catalogRepo, {
+        style: 'Pilsner',
+        abv: 4.5,
+      });
+      await seedRecipe(recipeRepo, {
+        name: 'Irrelevant Official Imperial Stout',
+        style: 'Imperial Stout',
+        abv_estimated: 9.5,
+        avg_rating: null,
+        is_official: true,
+      });
+
+      const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
+      // The headline score still reflects the shortcut (≥ 70 because
+      // similarity=100 × 0.7 + quality=0 × 0.3), so the recipe stays
+      // visually prominent.
+      expect(rankings[0].score).toBeGreaterThanOrEqual(70);
+      // But the warning still fires — the actual similarity is 0.
+      expect(low_confidence).toBe(true);
+    });
+
     it('low_confidence: false when the best match scores 40 or above', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'IPA',

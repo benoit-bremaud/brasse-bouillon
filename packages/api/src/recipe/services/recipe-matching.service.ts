@@ -97,7 +97,29 @@ export class RecipeMatchingService {
     });
 
     const top = scored.slice(0, Math.max(1, Math.min(limit, 10)));
-    const lowConfidence = top.length === 0 || top[0].score < 40;
+
+    // `low_confidence` reflects whether the best match is genuinely
+    // similar to the scanned beer — NOT the headline score after the
+    // official-shortcut. `is_official` is a GLOBAL flag (per recipe,
+    // not per beer): without a per-beer relationship, a single
+    // officially-tagged recipe irrelevant to the scanned beer would
+    // always inflate the headline score to 70 and silently suppress
+    // the warning. Codex P1 on PR #792 caught exactly this.
+    //
+    // Fix: compute the "honest" score (similarity WITHOUT the
+    // shortcut + quality) on the top recipe, and use THAT for the
+    // threshold check. The ranking itself still uses the shortcut
+    // so officials remain prominent on screen — but if they happen
+    // to be irrelevant to the beer (style/ABV mismatch), the UI
+    // honestly tells the user via the low_confidence flag.
+    let honestTopScore = 0;
+    if (top.length > 0) {
+      const best = top[0].recipe;
+      const honestSimilarity = this.computeSimilarity(beer, best);
+      const honestQuality = this.computeQuality(best);
+      honestTopScore = honestSimilarity * 0.7 + honestQuality * 0.3;
+    }
+    const lowConfidence = top.length === 0 || honestTopScore < 40;
 
     return {
       rankings: top,

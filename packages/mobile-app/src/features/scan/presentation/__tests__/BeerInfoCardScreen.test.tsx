@@ -533,7 +533,9 @@ describe("BeerInfoCardScreen", () => {
       // Official section appears.
       expect(await screen.findByText(/🏆 Recette officielle/)).toBeTruthy();
       // Warning must also appear even though there are no community equivalents.
-      expect(screen.getByText(/Aucune recette très similaire dans la base/)).toBeTruthy();
+      expect(
+        screen.getByText(/Aucune recette très similaire dans la base/),
+      ).toBeTruthy();
     });
 
     it("renders an error message when the matching API throws", async () => {

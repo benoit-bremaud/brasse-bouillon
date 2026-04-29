@@ -382,7 +382,9 @@ function MatchingRecipesSection({
       ) : null}
 
       {matching.lowConfidence ? (
-        <Text style={styles.lowConfidenceWarning}>{LOW_CONFIDENCE_MESSAGE}</Text>
+        <Text style={styles.lowConfidenceWarning}>
+          {LOW_CONFIDENCE_MESSAGE}
+        </Text>
       ) : null}
 
       {equivalentRecipes.length > 0 ? (

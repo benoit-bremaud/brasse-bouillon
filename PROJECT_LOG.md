@@ -5,6 +5,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-30
+
+### PR #806 merged (`11931fc`) — chore(mocks): sync mobile demoScanCatalog with API seed (4→9 beers, #804)
+
+- Closes #804. Ports the 5 missing entries (Karmeliet Tripel, Westmalle Tripel, Duvel, Heineken, Cervoise Lancelot) to `demoScanCatalog`. Field values mirror the API seed verbatim. Heineken correctly tagged `fermentationType: 'lager'`.
+- Self-audit during merge prep flagged that **3 EAN-13 barcodes (Karmeliet, Westmalle, Duvel) fail the standard mod-10 checksum AND are not in OpenFoodFacts** — captured as #807 (demo-blocker, milestone alpha3) for physical bottle verification before the soutenance blanche on 2026-05-06.
+- Test guard added on Karmeliet in `DemoOverrideMenu.test.tsx` as a regression guard against future drift.
+
+---
+
 ## 2026-04-29
 
 ### PR #805 merged (`f9215f5`) — feat(scan): hidden long-press demo override menu — soutenance safety net (#642)

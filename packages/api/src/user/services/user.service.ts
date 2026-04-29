@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 
@@ -149,20 +150,16 @@ export class UserService {
    */
   async create(createUserData: {
     email: string;
-    username: string;
+    username?: string;
     password: string;
     first_name?: string;
     last_name?: string;
   }): Promise<User> {
-    // ✅ VALIDATION: Check required fields
-    if (
-      !createUserData.email ||
-      !createUserData.username ||
-      !createUserData.password
-    ) {
-      throw new BadRequestException(
-        'Email, username, and password are required',
-      );
+    // ✅ VALIDATION: email + password are the only mandatory inputs
+    // (username became optional in Issue #764 — auto-generated from email
+    // local-part if omitted).
+    if (!createUserData.email || !createUserData.password) {
+      throw new BadRequestException('Email and password are required');
     }
 
     // ✅ UNIQUENESS CHECK: Email
@@ -173,12 +170,20 @@ export class UserService {
       throw new EmailAlreadyExistsException();
     }
 
-    // ✅ UNIQUENESS CHECK: Username
-    const existingUsernameUser = await this.userRepository.findOne({
-      where: { username: createUserData.username },
-    });
-    if (existingUsernameUser) {
-      throw new UsernameAlreadyExistsException();
+    // ✅ USERNAME RESOLUTION: caller-supplied or auto-generated
+    const username = createUserData.username
+      ? createUserData.username
+      : await this.generateUniqueUsernameFromEmail(createUserData.email);
+
+    // ✅ UNIQUENESS CHECK: Username (only if caller-supplied — the
+    // auto-generator already guarantees uniqueness via its retry loop).
+    if (createUserData.username) {
+      const existingUsernameUser = await this.userRepository.findOne({
+        where: { username },
+      });
+      if (existingUsernameUser) {
+        throw new UsernameAlreadyExistsException();
+      }
     }
 
     // ✅ PASSWORD HASHING: Hash password before storage
@@ -189,7 +194,7 @@ export class UserService {
     // ✅ ENTITY CREATION: Create user entity with default values
     const newUser = this.userRepository.create({
       email: createUserData.email,
-      username: createUserData.username,
+      username,
       password_hash: passwordHash,
       first_name: createUserData.first_name || null,
       last_name: createUserData.last_name || null,
@@ -202,6 +207,74 @@ export class UserService {
 
     // ✅ SECURITY: Remove password before returning
     return this.formatUserResponse(savedUser);
+  }
+
+  /**
+   * Generate a unique username from the given email.
+   *
+   * Strategy: take the local-part (before `@`), keep only
+   * alphanumeric + underscore characters, truncate to 14 chars, then
+   * append `_` + 4-char hex suffix for uniqueness. Examples:
+   *
+   * - `john.doe@example.com`     → `john_doe_3a7f`
+   * - `bbd-concept@gmail.com`    → `bbd_concept_x7k2`
+   * - `john_doe_super_long@…`    → `john_doe_super_3a7f`
+   * - `42@`                       → `u42_3a7f`  (prefixed `u` if numeric-leading)
+   *
+   * The function retries on the rare collision until it finds a free
+   * slot or hits the max attempts (5). With 16^4 ≈ 65k suffixes the
+   * collision probability is negligible.
+   */
+  private async generateUniqueUsernameFromEmail(
+    email: string,
+  ): Promise<string> {
+    const localPart = email.split('@')[0] ?? 'user';
+    let base = localPart.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    if (!/^[a-z_]/.test(base)) {
+      base = `u${base}`;
+    }
+    base = base.slice(0, 14) || 'user';
+
+    const maxAttempts = 5;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const suffix = randomBytes(2).toString('hex'); // 4 hex chars
+      const candidate = `${base}_${suffix}`.slice(0, 20);
+      const collision = await this.userRepository.findOne({
+        where: { username: candidate },
+      });
+      if (!collision) {
+        return candidate;
+      }
+    }
+
+    // Astronomically unlikely fallback: shorten the base aggressively
+    // and use a wider random suffix so each retry has fresh entropy
+    // that survives the 20-char username cap. The previous
+    // timestamp-based version (Codex P2 on PR #790 — preserve fallback
+    // entropy) could truncate the random `extra` away when the base
+    // was already 14 chars, making all 10 retries produce the same
+    // candidate within a millisecond bucket. Fix: cap the base at 11
+    // chars so the 8-char hex suffix (4 random bytes) always survives
+    // — that's 16^8 ≈ 4.3 billion distinct usernames per base, ample
+    // headroom even on absurdly popular local-parts. Capped at 10
+    // fallback attempts; if that loop also saturates (basically
+    // impossible) we surface a clear domain exception rather than let
+    // the DB unique constraint hit as a generic 500.
+    const fallbackBase = base.slice(0, 11);
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const suffix = randomBytes(4).toString('hex'); // 8 hex chars
+      const candidate = `${fallbackBase}_${suffix}`;
+      const collision = await this.userRepository.findOne({
+        where: { username: candidate },
+      });
+      if (!collision) {
+        return candidate;
+      }
+    }
+
+    throw new BadRequestException(
+      'Unable to generate a unique username — the username space appears saturated. Please retry or supply a custom username.',
+    );
   }
 
   /**

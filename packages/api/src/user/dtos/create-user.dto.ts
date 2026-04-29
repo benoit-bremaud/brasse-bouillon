@@ -89,14 +89,21 @@ export class CreateUserDto {
   email: string;
 
   /**
-   * User's username
+   * User's username (optional in v0.1+ — Issue #764)
    *
-   * Must be unique in the database.
-   * Only alphanumeric characters and underscores are allowed.
+   * Optional input. If omitted, the server auto-generates a username
+   * from the email local-part plus a 4-char hex suffix (e.g.
+   * `john.doe@example.com` → `john_doe_3a7f`). The auto-generated
+   * value satisfies the same shape constraints as user-supplied
+   * values (3-20 chars, alphanumeric + underscore, unique).
    *
-   * @type {string}
+   * Must be unique in the database when provided. Only alphanumeric
+   * characters and underscores are allowed.
+   *
+   * @type {string | undefined}
    * @validation
-   * - @IsString() - Must be a string
+   * - @IsOptional() — Field is not required in the payload
+   * - @IsString() - If provided, must be a string
    * - @MinLength(3) - Minimum 3 characters
    * - @MaxLength(20) - Maximum 20 characters
    * - @Matches(/^[a-zA-Z0-9_]+$/) - Only alphanumeric + underscore
@@ -107,11 +114,13 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'john_doe',
     description:
-      'User username (3-20 chars, alphanumeric + underscore, must be unique)',
+      'Username (optional, 3-20 chars, alphanumeric + underscore, must be unique). Auto-generated from email if omitted.',
     type: String,
     minLength: 3,
     maxLength: 20,
+    required: false,
   })
+  @IsOptional()
   @IsString({
     message: 'Username must be a string',
   })
@@ -127,7 +136,7 @@ export class CreateUserDto {
   @IsUniqueUsername({
     message: 'Username already exists. Please use a different username.',
   })
-  username: string;
+  username?: string;
 
   /**
    * User's password (plain text)

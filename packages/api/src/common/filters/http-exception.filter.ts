@@ -12,7 +12,23 @@ interface ErrorResponse {
   message: string;
   timestamp: string;
   path: string;
+  // Custom exceptions can carry structured fields (e.g.
+  // `errorCode`, domain identifiers) on their response object —
+  // those are spread alongside the standard fields. See
+  // `extractAdditionalFields` for the exact whitelist behaviour.
+  [key: string]: unknown;
 }
+
+// Fields owned by the standardized error envelope. Anything else
+// on the exception response object is treated as caller-provided
+// structured payload and forwarded to the client.
+const RESERVED_RESPONSE_KEYS = new Set([
+  'statusCode',
+  'message',
+  'timestamp',
+  'path',
+  'error',
+]);
 
 /**
  * Global HTTP Exception Filter
@@ -77,6 +93,34 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   /**
+   * Pulls any non-reserved fields off an object exception response so
+   * structured custom payloads (e.g. `NotABeerException` with
+   * `errorCode` + `barcode` + `productName`) flow through to the
+   * client instead of being silently stripped to the standard 4
+   * fields. Existing exceptions that pass a string or only put the
+   * reserved keys are unaffected.
+   */
+  private extractAdditionalFields(
+    exceptionResponse: unknown,
+  ): Record<string, unknown> {
+    if (
+      typeof exceptionResponse !== 'object' ||
+      exceptionResponse === null ||
+      Array.isArray(exceptionResponse)
+    ) {
+      return {};
+    }
+    const obj = exceptionResponse as Record<string, unknown>;
+    const extras: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (!RESERVED_RESPONSE_KEYS.has(key)) {
+        extras[key] = value;
+      }
+    }
+    return extras;
+  }
+
+  /**
    * Catches HttpException and sends standardized JSON response
    *
    * @param exception - The thrown exception (e.g., ConflictException)
@@ -96,11 +140,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Extract error message safely with type checking
     const message = this.extractMessage(exceptionResponse);
+    const additional = this.extractAdditionalFields(exceptionResponse);
 
-    // Build standardized error response
+    // Build standardized error response. Additional structured
+    // fields (e.g. `errorCode`) are merged BEFORE the timestamp /
+    // path tail so the canonical envelope keys win on collisions.
     const errorResponse: ErrorResponse = {
       statusCode: status,
       message,
+      ...additional,
       timestamp: new Date().toISOString(),
       path: request.url,
     };

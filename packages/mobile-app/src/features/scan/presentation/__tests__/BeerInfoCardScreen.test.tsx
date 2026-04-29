@@ -13,6 +13,7 @@ import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.
 import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
 import {
   ScanLookupBeerNotFoundError,
+  ScanLookupNotABeerError,
   ScanLookupServiceUnavailableError,
   lookupBeerByBarcode,
 } from "@/features/scan/application/scan-lookup.use-cases";
@@ -383,6 +384,51 @@ describe("BeerInfoCardScreen", () => {
         expect(
           screen.queryByLabelText(/Suggérer une correction par email/i),
         ).toBeNull();
+      });
+    });
+
+    describe("not-a-beer detection (Issue #798)", () => {
+      it("displays the product name and a 'Scanner une bière' CTA when the lookup throws ScanLookupNotABeerError", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupNotABeerError("5449000000996", "Coca-Cola Original"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+
+        expect(await screen.findByText(/Coca-Cola Original/i)).toBeTruthy();
+        expect(screen.getByText(/ce n'est pas une bière/i)).toBeTruthy();
+        expect(
+          screen.getByLabelText(
+            /Retourner au scan pour tenter une autre bouteille/i,
+          ),
+        ).toBeTruthy();
+      });
+
+      it("falls back to a generic message when the product name is null", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupNotABeerError("5449000000996", null),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+
+        expect(
+          await screen.findByText(/Ce produit n'est pas une bière/i),
+        ).toBeTruthy();
+      });
+
+      it("the 'Scanner une bière' CTA navigates back to the scan view", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupNotABeerError("5449000000996", "Coca-Cola Original"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+
+        const cta = await screen.findByLabelText(
+          /Retourner au scan pour tenter une autre bouteille/i,
+        );
+        fireEvent.press(cta);
+
+        expect(mockReplace).toHaveBeenCalledWith("/(app)/dashboard/scan");
       });
     });
   });

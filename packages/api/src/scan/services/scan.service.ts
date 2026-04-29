@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { QueryFailedError, Repository } from 'typeorm';
 
+import { NotABeerException } from '../exceptions/not-a-beer.exception';
 import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
 import { ScanImageFace } from '../domain/enums/scan-image-face.enum';
 import { ScanRequestStatus } from '../domain/enums/scan-request-status.enum';
@@ -523,20 +524,29 @@ export class ScanService {
       );
     }
 
-    if (!lookup.found || !lookup.isBeer) {
-      // OFF lost the product OR returned a non-beer item (cider /
-      // food / soft drink). Either way, do not pollute the
-      // beer-only scan_catalog_items table with a placeholder row.
-      // Codex P2 #729: dropping isBeer filtering would let any
-      // food barcode create a beer entry with style = 'Unknown'.
+    if (!lookup.found) {
+      // OFF lost the product. Either degrade to cache or 404.
       if (cached) {
-        // We still have a cache row — return as stale (better
-        // degraded than 404 / a hard refusal).
         return this.buildLookupResult(cached, 'cache_hit_stale');
       }
       throw new NotFoundException(
-        `Barcode ${barcode} not found as a beer in OpenFoodFacts and not in the local catalog.`,
+        `Barcode ${barcode} not found in OpenFoodFacts and not in the local catalog.`,
       );
+    }
+
+    if (!lookup.isBeer) {
+      // OFF returned a real product, but its categories_tags do
+      // not include any beer category (cider / food / soft drink).
+      // Issue #798 jury edge case D — surface the product name so
+      // the mobile client can render a dedicated "ce n'est pas une
+      // bière" screen instead of treating this as a generic 404.
+      // Codex P2 #729: never pollute the beer-only catalog with
+      // non-beer placeholder rows. Cache fallback still applies
+      // for previously-stored beer entries on the same barcode.
+      if (cached) {
+        return this.buildLookupResult(cached, 'cache_hit_stale');
+      }
+      throw new NotABeerException(barcode, lookup.name);
     }
 
     const persisted = await this.upsertFromOpenFoodFacts(

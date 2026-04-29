@@ -3,6 +3,7 @@ import { HttpError } from "@/core/http/http-error";
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupInvalidBarcodeError,
+  ScanLookupNotABeerError,
   ScanLookupServiceUnavailableError,
   lookupBeerByBarcode,
 } from "@/features/scan/application/scan-lookup.use-cases";
@@ -133,6 +134,41 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
 
       await expect(lookupBeerByBarcode("5060277380019")).rejects.toBeInstanceOf(
         ScanLookupServiceUnavailableError,
+      );
+    });
+
+    it("translates a 422 NOT_A_BEER HttpError to ScanLookupNotABeerError carrying the product name (Issue #798)", async () => {
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(422, "Not a beer", {
+          statusCode: 422,
+          errorCode: "NOT_A_BEER",
+          barcode: "5449000000996",
+          productName: "Coca-Cola Original",
+        }),
+      );
+
+      const rejected = await lookupBeerByBarcode("5449000000996").catch(
+        (e: unknown) => e,
+      );
+
+      expect(rejected).toBeInstanceOf(ScanLookupNotABeerError);
+      expect((rejected as ScanLookupNotABeerError).productName).toBe(
+        "Coca-Cola Original",
+      );
+      expect((rejected as ScanLookupNotABeerError).barcode).toBe(
+        "5449000000996",
+      );
+    });
+
+    it("re-throws a 422 HttpError that is NOT NOT_A_BEER (other validation errors)", async () => {
+      const validationError = new HttpError(422, "Some other 422", {
+        statusCode: 422,
+        message: "Validation failed",
+      });
+      mockFetchLookup.mockRejectedValueOnce(validationError);
+
+      await expect(lookupBeerByBarcode("5060277380019")).rejects.toBe(
+        validationError,
       );
     });
 

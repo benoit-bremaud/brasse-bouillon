@@ -166,7 +166,8 @@ describe("BeerInfoCardScreen", () => {
       expect(screen.getByText("De session")).toBeTruthy();
       expect(screen.getByText("Ambrée")).toBeTruthy();
       expect(screen.getByText("Modérément amère")).toBeTruthy();
-      expect(screen.getByText("🧪 Recettes équivalentes")).toBeTruthy();
+      // The matching section renders after a second async effect; wait for it.
+      expect(await screen.findByText("🧪 Recettes équivalentes")).toBeTruthy();
       // The demo set maps Punk IPA to existing demoRecipes
       // (r-demo-1 / r-demo-7 / r-demo-13) so taps land on real
       // recipe detail pages.

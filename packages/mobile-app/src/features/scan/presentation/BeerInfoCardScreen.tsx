@@ -251,6 +251,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
         {status.variant === "not_a_beer" ? (
           <NotABeerCTA onScanAgain={handleBack} />
         ) : null}
+        {status.variant === "invalid" ? <PhotoFallbackCTA /> : null}
       </Screen>
     );
   }
@@ -556,6 +557,41 @@ function UnknownBeerCTAs({
       >
         <Text style={styles.unknownCtaSecondaryText}>
           Ajouter cette bière au catalogue
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * "Photo fallback" CTA — shown beneath the invalid-barcode error
+ * (#797, sub-PR 3/3 of [Epic] #794). When the camera reads a
+ * malformed code-barres, offers the user a forward-looking "take a
+ * photo of the label" path. The real photo capture / OCR feature
+ * lives in epic #751 and lands in v0.2; for now the CTA opens an
+ * informational alert so Léa is not stuck on a dead-end screen.
+ */
+const PHOTO_FALLBACK_TITLE = "Reconnaissance visuelle de l'étiquette";
+const PHOTO_FALLBACK_BODY =
+  "Cette fonctionnalité arrive dans la v0.2 (epic #751). En attendant, scanne le code-barres ou saisis-le manuellement.";
+
+function PhotoFallbackCTA() {
+  const handlePress = useCallback(() => {
+    Alert.alert(PHOTO_FALLBACK_TITLE, PHOTO_FALLBACK_BODY, [{ text: "OK" }]);
+  }, []);
+  return (
+    <View style={styles.unknownCard}>
+      <Pressable
+        onPress={handlePress}
+        accessibilityRole="button"
+        accessibilityLabel="Photographier l'étiquette"
+        style={({ pressed }) => [
+          styles.unknownCta,
+          pressed ? styles.unknownCtaPressed : null,
+        ]}
+      >
+        <Text style={styles.unknownCtaText}>
+          Photographier l&apos;étiquette
         </Text>
       </Pressable>
     </View>

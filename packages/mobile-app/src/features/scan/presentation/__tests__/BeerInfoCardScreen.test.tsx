@@ -431,6 +431,44 @@ describe("BeerInfoCardScreen", () => {
         expect(mockReplace).toHaveBeenCalledWith("/(app)/dashboard/scan");
       });
     });
+
+    describe("photo fallback CTA on invalid barcode (Issue #797)", () => {
+      it("renders 'Photographier l'étiquette' CTA when the screen lands without a barcode param", async () => {
+        // No barcodeParam → sets ERROR_INVALID directly without hitting the lookup.
+        render(<BeerInfoCardScreen barcodeParam={undefined} />);
+
+        expect(
+          await screen.findByLabelText(/Photographier l'étiquette/i),
+        ).toBeTruthy();
+        expect(mockedLookup).not.toHaveBeenCalled();
+      });
+
+      it("opens an informational alert referencing v0.2 / epic #751 when the CTA is pressed", async () => {
+        render(<BeerInfoCardScreen barcodeParam={undefined} />);
+
+        const cta = await screen.findByLabelText(/Photographier l'étiquette/i);
+        fireEvent.press(cta);
+
+        expect(alertSpy).toHaveBeenCalledWith(
+          expect.stringMatching(/Reconnaissance visuelle/i),
+          expect.stringMatching(/v0\.2.*#751/i),
+          expect.any(Array),
+        );
+      });
+
+      it("does NOT render the photo fallback CTA on a not-found error", async () => {
+        mockedLookup.mockRejectedValueOnce(
+          new ScanLookupBeerNotFoundError("3760215750042"),
+        );
+
+        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+
+        await screen.findByText(/n'est pas dans notre catalogue/);
+        expect(
+          screen.queryByLabelText(/Photographier l'étiquette/i),
+        ).toBeNull();
+      });
+    });
   });
 
   describe("import community recipe", () => {

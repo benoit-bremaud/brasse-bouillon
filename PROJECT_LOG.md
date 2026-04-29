@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-29
 
+### PR #801 merged (`f50e599`) — feat(scan): photo fallback CTA on invalid barcode — placeholder for v0.2 photo capture (#797)
+
+- Sub-PR 3/3 of [Epic] #794 (closes the umbrella). Mobile-only: `PhotoFallbackCTA` rendered on `invalid` variant + `Alert.alert` referencing v0.2 / epic #751. Self-reviewed (no Codex review available before merge — see PR #801 thread).
+- Sprint A scan jury edge cases B+D+C complete: scan flow now demo-ready on happy + sad + edge paths.
+
 ### PR #800 merged (`8cacaf0`) — feat(scan): not-a-beer detection — filter OFF by category + dedicated UI (#798)
 
 - Sub-PR 2/3 of [Epic] #794. Backend `NotABeerException` (UnprocessableEntityException 422) + scan service split (`!found` 404 vs `!isBeer` 422) + mobile UI: "Tu as scanné « X » — ce n'est pas une bière" + back-CTA.

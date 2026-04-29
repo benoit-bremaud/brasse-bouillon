@@ -2567,6 +2567,73 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     notesSource:
       "Brasserie Goudale (62510 Arques, France) — official datasheet",
   }),
+  // Mirrors the 5 entries added to the API seed via PR #768/#791
+  // (Issue #804). Keeps the mobile demo-mode catalogue aligned with
+  // the backend seed so `EXPO_PUBLIC_USE_DEMO_DATA=true` covers the
+  // same 9-bottle demo as production. Same field order as
+  // packages/api/src/database/seeds/scan-catalog.seed.ts.
+  "5414352120063": buildDemoScanCatalogItem({
+    id: "demo-scan-karmeliet-tripel",
+    barcode: "5414352120063",
+    name: "Karmeliet Tripel",
+    brewery: "Brouwerij Bosteels",
+    style: "Belgian Tripel",
+    abv: 8.4,
+    ibu: 25,
+    colorEbc: 18,
+    aromaticTags: "wheat, oat, banana, vanilla",
+    notesSource: "Brouwerij Bosteels public datasheet",
+  }),
+  "5410702000125": buildDemoScanCatalogItem({
+    id: "demo-scan-westmalle-tripel",
+    barcode: "5410702000125",
+    name: "Westmalle Tripel",
+    brewery: "Abdij der Trappisten van Westmalle",
+    style: "Belgian Tripel",
+    abv: 9.5,
+    ibu: 30,
+    colorEbc: 16,
+    aromaticTags: "fruity esters, peppery, dry finish",
+    notesSource: "Trappist Westmalle public datasheet",
+  }),
+  "5410702000026": buildDemoScanCatalogItem({
+    id: "demo-scan-duvel",
+    barcode: "5410702000026",
+    name: "Duvel",
+    brewery: "Brouwerij Duvel Moortgat",
+    style: "Belgian Strong Pale Ale",
+    abv: 8.5,
+    ibu: 30,
+    colorEbc: 12,
+    aromaticTags: "pear, apple, dry finish, light hop",
+    notesSource: "Brouwerij Duvel Moortgat public datasheet",
+  }),
+  "8714100732007": buildDemoScanCatalogItem({
+    id: "demo-scan-heineken",
+    barcode: "8714100732007",
+    name: "Heineken",
+    brewery: "Heineken",
+    style: "International Pale Lager",
+    abv: 5.0,
+    ibu: 20,
+    colorEbc: 7,
+    fermentationType: "lager",
+    aromaticTags: "crisp, light malt, gentle hop, dry finish",
+    notesSource: "Heineken public brewery datasheet",
+  }),
+  "3760215750042": buildDemoScanCatalogItem({
+    id: "demo-scan-cervoise-lancelot",
+    barcode: "3760215750042",
+    name: "Cervoise Lancelot",
+    brewery: "Brasserie de Lancelot",
+    style: "Cervoise (Bière Aromatisée Miel)",
+    abv: 6.0,
+    ibu: 18,
+    colorEbc: 35,
+    aromaticTags: "honey, heather, herbal, malt warmth",
+    notesSource:
+      "Brasserie de Lancelot public datasheet (56460 Le Roc-Saint-André, Bretagne)",
+  }),
 };
 
 /**

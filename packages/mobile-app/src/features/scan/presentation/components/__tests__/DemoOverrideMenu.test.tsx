@@ -14,6 +14,9 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
     expect(screen.getByText("Punk IPA")).toBeTruthy();
     expect(screen.getByText("La Chouffe")).toBeTruthy();
     expect(screen.getByText("Rochefort 10")).toBeTruthy();
+    // Issue #804 — these 5 entries were API-only until the sync.
+    // Asserting on one of them guards against future drift.
+    expect(screen.getByText("Karmeliet Tripel")).toBeTruthy();
     expect(screen.getByText(/Démo — bières seedées/i)).toBeTruthy();
   });
 

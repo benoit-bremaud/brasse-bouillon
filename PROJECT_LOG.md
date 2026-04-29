@@ -7,6 +7,103 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-28
 
+### PR #788 opened — docs(product): consolidate v0.1 roadmap from J-29 sprint scoping session + personas v3
+
+Branch `docs/sprint-scoping-2026-04-28`. Captures the outcome of a
+multi-hour structured Q&A scoping session held on the J-29 marker
+day before the soutenance finale. Nine topics were debated
+sequentially with atomic Yes/No/Plus de détails/Débattons questions
+and grounded recommendations referencing the 2026-04-24 brainstorms
+(scan, onboarding, compte-parametres, recipe-schema-audit) and the
+v2 personas document. ~50 atomic decisions arbitrated.
+
+Scope of the PR:
+
+- New canonical roadmap document
+  `docs/product/roadmap-v0.1-consolidated.md` — single source of
+  truth for v0.1 scope across 9 topic groups (Auth, Scan flow,
+  Brassins, Drêches, Liste de courses, Export & Inventory, Recipe
+  Catalog, Académie, Vocabulary, Channels & share, Polish & Nav)
+  + sprint-by-sprint sequencing (Sprints A→F across J-29 → J-1)
+  + deferred v0.2 features list + cross-cutting meta-decisions
+  (vocabulary hybrid, normalized SRM/EBC colors, BrewDog DIY Dog
+  inspiration) + identified risks (effort tension at 109h vs
+  100-120h available, demo mode vs backend, soutenance blanche
+  J-21 readiness).
+- `docs/personas/user_personas.md` updated to v3 to align — most
+  notably **Brassins promoted v0.2 → v0.1 demo** per Topic #1
+  decision (Brassins included in 90s → 120s demo script, onglet
+  visible). All 5 personas now have a concrete v0.1 incarnation
+  via newly-scoped features.
+
+Companion sub-issues created from the same session (referenced
+from the roadmap):
+
+- **#774** [Epic] Inventory management (v0.2 + tease in pitch)
+- **#775** Beer mug loader animation (v0.2+ branding)
+- **#776** Drêches valorization 6th section "Aller plus loin"
+- **#777** Smart shopping list (checklist + share + drêches tease)
+- **#778** Export BeerXML 1.0 (industry standard for persona Marc)
+- **#779** Recipe Catalog mini (sub-screen Mon Carnet)
+- **#780** Seed 25 BrewDog DIY Dog recipes curated
+- **#781** Brewing assistance enrichie (9 phases + countdown timers
+  + tips pédagogiques)
+- **#782** Pre-seed Punk IPA brassin demo (BrewDog DIY Dog values)
+- **#783** Académie glossary tooltip + auto-link inline
+- **#784** Hybrid display (qualitative + numeric vocabulary)
+- **#785** vocab-mapping.md canonical doc
+- **#786** Native share recipe + brewing hashtags
+- **#787** [Epic] Brewing calculators audit (v0.2)
+
+Existing issues commented with refined scope: #595, #600, #605,
+#606, #607 (deferred v0.2), #608, #613, #616, #629, #644, #646,
+#766.
+
+Decisions:
+
+- `Sprint scoping methodology — atomic Q&A with grounded
+  recommendations` — hardened on this session via memory updates
+  (`feedback_question_format_french` v2 with explicit recommendation
+  rule and granularity range, `feedback_recadrage_clarity`,
+  `feedback_brewing_pro_vocab`, `feedback_normalized_colors`).
+- `Brassins promoted to v0.1 demo` — overrides personas v2 doc
+  which had it at v0.2. Rationale: B-08 audit (2026-04-23) flagged
+  Brassins as CRITICAL one day before personas v2 was written;
+  the personas doc inherited a stale triage. The 90s demo script is
+  extended to 120s to include the Brassins beat with the pre-seeded
+  Punk IPA brassin (#782) showcasing the BrewDog-style 9-phase
+  brewing assistance (#781).
+- `Inventory management deferred v0.2 + teased in pitch` — the
+  feature is rich (~10-15h) and would push the v0.1 effort above
+  the 120h ceiling. Capturing the epic now (#774) preserves the
+  idea and provides material for the soutenance "Perspective" slide
+  (20pts in the Jeune Pousse grading rubric).
+- `Recipe Catalog mini as a sub-screen of Mon Carnet, not a top-level
+  tab` — keeps the bottom nav lean (already under refonte via #613)
+  and aligns with the narrative "Mon Carnet vide → je l'enrichis
+  via le catalogue".
+- `BrewDog DIY Dog as primary curated catalog source` — its
+  open-source status, recognized brewing standards (BJCP-aligned
+  styles, complete grain bills, hop schedules, fermentation
+  profiles) and editorial richness (Brewer's Tip per recipe) make
+  it the natural pillar of the v0.1 Recipe Catalog. AHA, BJCP
+  guidelines, Brewer's Friend deferred v0.2 to keep the parsing
+  effort bounded.
+- `Hybrid vocabulary display everywhere` — "Amertume marquée · 40
+  IBU" / "Couleur ambrée · EBC 18" / "ABV 5.6% (modéré)" — no
+  toggle, no onboarding step. Cohabite Léa (mots familiers en
+  premier) and Marc (chiffres immédiatement visibles) without user
+  arbitrage. Doc canonique #785 lock the qualitative ↔ numerical
+  ranges.
+
+External communication:
+
+- FYI notification on PR #788 mentioning @Smith06S, @Thais9723,
+  @Fabien-Ori, @vitalikevin (in English per
+  `feedback_pr_notification_comment` rule hardened earlier today).
+
+Awaiting CI + Codex + user merge.
+
 ### PR #768 merged (`f2890cc`) — feat(scan): seed 10 curated public recipes + dual-id helper for community import (Issue #701)
 
 Branch `feat/curated-public-recipes-issue-701`. Closes the

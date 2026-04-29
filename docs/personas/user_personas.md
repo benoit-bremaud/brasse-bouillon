@@ -2,7 +2,7 @@
 
 Ce document présente les profils types d'utilisateurs cibles de l'application Brasse-Bouillon. Chaque persona est conçu pour refléter des attentes, comportements, frustrations et besoins spécifiques, et ainsi guider les choix de conception et d'interface.
 
-**Version** : 2 (2026-04-24) — refonte après debrief personas de la session brainstorms soutenance.
+**Version** : 3 (2026-04-28) — alignement sur la roadmap v0.1 consolidée issue du sprint scoping J-29 (voir [docs/product/roadmap-v0.1-consolidated.md](../product/roadmap-v0.1-consolidated.md)). Toutes les 5 personas ont désormais une matérialisation concrète en v0.1. Brassins promus de v0.2 à v0.1 demo. Drêches valorisation, Inventory management, Export BeerXML, Recipe Catalog, Académie tooltip, Brewing assistance enrichie ajoutés au scope.
 
 ---
 
@@ -288,23 +288,26 @@ Répondre aux exigences d'un brassage poussé :
 
 ---
 
-## 🎯 Impact sur la conception — priorisation soutenance
+## 🎯 Impact sur la conception — priorisation soutenance (v3, 2026-04-28)
 
-La soutenance du **2026-05-27** vise en priorité **Léa la Curieuse** (la fonctionnalité de scan est le *demo hero*). Les autres personas sont servies partiellement ou reportées en version 2 :
+La soutenance du **2026-05-27** vise en priorité **Léa la Curieuse** (la fonctionnalité de scan est le *demo hero*) mais **toutes les 5 personas** ont désormais une matérialisation concrète en v0.1, suite au sprint scoping consolidé du 28 avril 2026.
 
 | Persona | Fonctionnalités v0.1 (soutenance) | Reste en v0.2+ |
 |---|---|---|
-| **Léa** (primaire) | Scan + reconnaissance + recettes équivalentes + import "Mes Recettes" | Suggestions communautaires avancées |
-| **Nicolas** | Connexion démo + dashboard simplifié + Académie Glossaire existant | Tutoriels interactifs, liste de courses complète |
-| **Claire** | Étiquettes + interface fluide + Académie | Journal brassage riche (B-08), suggestions perso, partage communautaire |
-| **Zoé** | Valorisation des drêches (bonus à développer ~0,5-1j) | Empreinte carbone, fournisseurs locaux, tags bio |
-| **Marc** | Calculateurs avancés existants + Export CSV (bonus si marge) | Courbes fermentation, API / CSV import, IoT |
+| **Léa** (primaire) | Scan demo hero (matching algo full + UI full + 4 scénarios jury) + Recipe Catalog discovery (#779) + tooltips pédagogiques Académie (#783) + brewing assistance tips (#781) + share natif recettes (#786) | Suggestions communautaires personnalisées, story-friendly 9:16 mode |
+| **Nicolas** | Smart shopping list (#777) + Académie Glossaire promu (tooltip + auto-link inline) + difficulty enum sur 35 recettes catalog + tips pédagogiques par étape brassin + signup form simplifié (#764) | Tutoriels interactifs progressifs, mini-quiz post-brassin, glossaire visuel |
+| **Claire** | Brassins riche v0.1 (#595/605/606/608 + #781 brewing assistance + #782 Punk IPA seed) + share étiquettes natif (#629) + share recettes natif (#786) | Journal brassage avec mesures inline (#607), partage communautaire avec ratings réels, mode "Brew Day" plein écran |
+| **Zoé** | Drêches valorisation 6e section "Aller plus loin" (#776, ~3-4h) + tease drêches dans liste de courses (#777) + Inventory management v0.2 teasé dans le pitch | Empreinte carbone par brassin, fournisseurs locaux géolocalisés, tags ingrédient bio/local, [Epic #774] Inventory full |
+| **Marc** | Export BeerXML 1.0 standard industrie (#778) + difficulty Advanced filter sur catalog + page Statistiques minimale (#646) + tease Inventory management v0.2 dans le pitch (Perspective grid) | Courbes fermentation, intégrations CSV/API tierces, Import BeerXML bidirectionnel, [Epic #787] Calculators audit, IoT (v0.3+) |
 
-Cette stratégie respecte le principe **ADR-0001 "Build for today, design for tomorrow"** : chaque gap non comblé est documenté, chaque persona a un chemin clair vers v0.2.
+**Important — changement vs v2 (2026-04-24)** : la persona doc v2 listait Brassins riche (B-08) en v0.2 pour Claire. La v3 corrige : **Brassins est v0.1 demo** suite à la décision Topic #1 du sprint scoping (Brassins inclus dans le script de démo, 90s → 120s). Le journal de brassage devient un beat narratif majeur du pitch.
+
+Cette stratégie respecte le principe **ADR-0001 "Build for today, design for tomorrow"** : chaque gap non comblé est documenté, chaque persona a un chemin clair vers v0.2 via les epics #771 (DB audit), #772 (datasheets brainstorm), #774 (Inventory), #787 (calculators audit).
 
 ---
 
 ## 📝 Historique des versions
 
+- **v3 (2026-04-28)** — Alignement sur la roadmap v0.1 consolidée issue du sprint scoping J-29. Brassins promus v0.2→v0.1 (inclus dans le script de démo). Drêches valorisation, Inventory management (epic #774), Export BeerXML, Recipe Catalog mini, Académie tooltip, Brewing assistance enrichie ajoutés. Toutes les 5 personas ont désormais une matérialisation concrète en v0.1. Voir [docs/product/roadmap-v0.1-consolidated.md](../product/roadmap-v0.1-consolidated.md) pour le détail.
 - **v2 (2026-04-24)** — Refonte suite au debrief personas. Ajout de Léa la Curieuse (persona primaire soutenance, issue du brainstorm Scan du matin) et de Zoé la Brasseuse Éco-responsable (angle durabilité issu de la dimension écologique du questionnaire Google Forms). Cartographie rôle / persona ajoutée en tête. Admin retiré des personas brasseurs (voir doc séparée pour les rôles opérateurs / back-office).
 - **v1 (date antérieure)** — Version initiale à 3 personas (Nicolas, Claire, Marc).

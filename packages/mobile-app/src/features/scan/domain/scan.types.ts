@@ -207,4 +207,39 @@ export interface ScanRecipeMatch {
   rating: number;
   brewedCount: number;
   score: number;
+  /**
+   * `true` if the recipe is the brewer-endorsed official clone of
+   * a beer (Issue #699). Drives the pharmacy metaphor split on the
+   * scan result screen: officials surface in the "🏆 Brewery
+   * recipe" section, non-officials in "🧪 Recettes équivalentes".
+   */
+  isOfficial?: boolean;
+  /**
+   * Style label of the recipe (e.g. "Session IPA", "Belgian
+   * Tripel"). Surfaced on the recipe row alongside the brewer +
+   * rating per the brainstorm scan-2026-04-24 §2 layout. Optional
+   * because legacy mocks did not carry it.
+   */
+  style?: string;
+}
+
+/**
+ * Response envelope for the recipe-matching backend (Issue #699).
+ * Mirrors the API's `RankedRecipeResponseDto` so the data layer can
+ * pass-through without remapping in shape.
+ *
+ * - `rankings` — top-N matched recipes ordered by descending score.
+ * - `lowConfidence` — `true` when the best match is below 40 (the
+ *   API threshold). The UI displays a discreet warning above the
+ *   "Recettes équivalentes" section so the user knows the proposed
+ *   recipes are merely the closest, not genuinely similar (per
+ *   brainstorm scan-2026-04-24 §3.4).
+ *
+ * Shape kept consumer-driven: today the data comes from
+ * `getDemoEquivalentRecipes(barcode)` in demo mode; tomorrow the
+ * same shape lands from `GET /recipes/match/:beerId` in backend mode.
+ */
+export interface ScanMatchingResult {
+  rankings: ReadonlyArray<ScanRecipeMatch>;
+  lowConfidence: boolean;
 }

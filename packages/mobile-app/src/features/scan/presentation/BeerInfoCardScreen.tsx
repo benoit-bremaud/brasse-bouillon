@@ -18,6 +18,7 @@ import {
   getImportSourceId,
   importRecipeFromCommunity,
 } from "@/features/recipes/application/recipes.use-cases";
+import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.use-cases";
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupInvalidBarcodeError,
@@ -30,15 +31,14 @@ import {
   ibuToBitternessWord,
 } from "@/features/scan/application/lookup-formatters";
 import type {
+  ScanCatalogItem,
   ScanLookupResult,
+  ScanMatchingResult,
   ScanRecipeMatch,
 } from "@/features/scan/domain/scan.types";
 import { BeerHero } from "@/features/scan/presentation/components/BeerHero";
 import { Collapsible } from "@/features/scan/presentation/components/Collapsible";
-import {
-  getDemoBreweryStory,
-  getDemoEquivalentRecipes,
-} from "@/mocks/demo-data";
+import { getDemoBreweryStory } from "@/mocks/demo-data";
 
 import { useRouter } from "expo-router";
 
@@ -182,8 +182,8 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
 
         <AtAGlance result={status.result} />
 
-        <EquivalentRecipesSection
-          barcode={status.result.item.barcode}
+        <MatchingRecipesSection
+          beer={status.result.item}
           onImported={(recipeId) =>
             router.push(`/(app)/recipes/${recipeId}` as never)
           }
@@ -254,19 +254,62 @@ function GlanceCell({ label, value }: { label: string; value: string }) {
 
 const IMPORT_ERROR_MESSAGE =
   "Impossible d'importer cette recette pour le moment. Réessaie dans quelques instants.";
+const MATCHING_LOAD_ERROR =
+  "Impossible de charger les recettes équivalentes. Réessaie plus tard.";
+const LOW_CONFIDENCE_MESSAGE =
+  "Aucune recette très similaire dans la base. Voici les plus proches.";
+const EQUIVALENTS_LIMIT = 3;
 
-function EquivalentRecipesSection({
-  barcode,
+/**
+ * Matching recipes section — pharmacy metaphor split per the
+ * brainstorm scan-2026-04-24 §2:
+ *
+ *   🏆 Brewery recipe   — single card at the top, brand badge + gold
+ *                         accent. Only shown when one of the ranked
+ *                         recipes has `isOfficial: true`.
+ *   🧪 Recettes équivalentes — top 3 non-official picks beneath.
+ *
+ * `low_confidence` warning surfaces above the equivalents block so
+ * Léa la Curieuse knows the proposed alternatives are merely the
+ * closest, not genuinely similar.
+ */
+function MatchingRecipesSection({
+  beer,
   onImported,
 }: Readonly<{
-  barcode: string;
+  beer: Pick<ScanCatalogItem, "id" | "barcode">;
   onImported: (recipeId: string) => void;
 }>) {
-  const recipes = useMemo<ReadonlyArray<ScanRecipeMatch>>(
-    () => getDemoEquivalentRecipes(barcode),
-    [barcode],
-  );
+  const [matching, setMatching] = useState<ScanMatchingResult | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [importingId, setImportingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadError(null);
+    void getMatchingRecipes(beer)
+      .then((result) => {
+        if (!cancelled) setMatching(result);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(MATCHING_LOAD_ERROR);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [beer]);
+
+  const officialRecipe = useMemo<ScanRecipeMatch | null>(() => {
+    if (!matching) return null;
+    return matching.rankings.find((r) => r.isOfficial) ?? null;
+  }, [matching]);
+
+  const equivalentRecipes = useMemo<ReadonlyArray<ScanRecipeMatch>>(() => {
+    if (!matching) return [];
+    return matching.rankings
+      .filter((r) => !r.isOfficial)
+      .slice(0, EQUIVALENTS_LIMIT);
+  }, [matching]);
 
   const handleImport = useCallback(
     async (sourceId: string) => {
@@ -295,55 +338,128 @@ function EquivalentRecipesSection({
     [importingId, onImported],
   );
 
-  if (recipes.length === 0) {
-    return null;
+  if (loadError) {
+    return (
+      <Card style={styles.recipesCard}>
+        <Text style={styles.recipesEmpty}>{loadError}</Text>
+      </Card>
+    );
+  }
+
+  // While loading, render nothing — the page already shows the
+  // beer hero + at-a-glance, the matching list takes a moment to
+  // arrive and a flash of "Aucune recette" would mislead Léa.
+  if (!matching) return null;
+
+  if (matching.rankings.length === 0) {
+    return (
+      <Card style={styles.recipesCard}>
+        <Text style={styles.recipesTitle}>🧪 Recettes équivalentes</Text>
+        <Text style={styles.recipesEmpty}>
+          Aucune recette équivalente n&apos;a encore été partagée pour cette
+          bière.
+        </Text>
+      </Card>
+    );
   }
 
   return (
-    <Card style={styles.recipesCard}>
-      <Text style={styles.recipesTitle}>🧪 Recettes équivalentes</Text>
-      <Text style={styles.recipesSubtitle}>
-        Notées par la communauté Brasse Bouillon
-      </Text>
-      {recipes.map((recipe) => {
-        const isImporting = importingId === recipe.recipeId;
-        const isDisabled = importingId !== null;
-        return (
-          <Pressable
-            key={recipe.recipeId}
-            onPress={() => handleImport(getImportSourceId(recipe))}
-            disabled={isDisabled}
-            style={({ pressed }) => {
-              if (isImporting) return [styles.recipeRow];
-              if (isDisabled)
-                return [styles.recipeRow, styles.recipeRowDisabled];
-              return [
-                styles.recipeRow,
-                pressed ? styles.recipeRowPressed : null,
-              ];
-            }}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: isDisabled, busy: isImporting }}
-            accessibilityLabel={`Importer ${recipe.name} par ${recipe.brewer}, noté ${recipe.rating} sur 5`}
-          >
-            <View style={styles.recipeRowLeft}>
-              <Text style={styles.recipeName} numberOfLines={2}>
-                {recipe.name}
-              </Text>
-              <Text style={styles.recipeBrewer}>
-                {recipe.brewer} · brassée {recipe.brewedCount} fois · ★{" "}
-                {recipe.rating.toFixed(1)}
-              </Text>
-            </View>
-            <View style={styles.recipeRowRight}>
-              <Text style={styles.recipeAction}>
-                {isImporting ? "Import…" : "+ Importer"}
-              </Text>
-            </View>
-          </Pressable>
-        );
-      })}
-    </Card>
+    <View>
+      {officialRecipe ? (
+        <Card style={styles.officialCard}>
+          <Text style={styles.officialTitle}>🏆 Recette officielle</Text>
+          <Text style={styles.officialSubtitle}>
+            La recette d&apos;origine, signée par la brasserie
+          </Text>
+          <RecipeRow
+            recipe={officialRecipe}
+            isImporting={importingId === officialRecipe.recipeId}
+            isDisabled={importingId !== null}
+            onPress={() => handleImport(getImportSourceId(officialRecipe))}
+            highlightOfficial
+          />
+        </Card>
+      ) : null}
+
+      {matching.lowConfidence ? (
+        <Text style={styles.lowConfidenceWarning}>
+          {LOW_CONFIDENCE_MESSAGE}
+        </Text>
+      ) : null}
+
+      {equivalentRecipes.length > 0 ? (
+        <Card style={styles.recipesCard}>
+          <Text style={styles.recipesTitle}>🧪 Recettes équivalentes</Text>
+          <Text style={styles.recipesSubtitle}>
+            Notées par la communauté Brasse Bouillon
+          </Text>
+          {equivalentRecipes.map((recipe) => (
+            <RecipeRow
+              key={recipe.recipeId}
+              recipe={recipe}
+              isImporting={importingId === recipe.recipeId}
+              isDisabled={importingId !== null}
+              onPress={() => handleImport(getImportSourceId(recipe))}
+            />
+          ))}
+        </Card>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * Single recipe row — used by both the official 🏆 card and each
+ * equivalent recipe in the 🧪 list. `highlightOfficial` swaps the
+ * default neutral palette for the gold accent on the official card
+ * to honor the pharmacy metaphor (brand vs generic visual cue).
+ */
+function RecipeRow({
+  recipe,
+  isImporting,
+  isDisabled,
+  onPress,
+  highlightOfficial = false,
+}: Readonly<{
+  recipe: ScanRecipeMatch;
+  isImporting: boolean;
+  isDisabled: boolean;
+  onPress: () => void;
+  highlightOfficial?: boolean;
+}>) {
+  const meta: string[] = [recipe.brewer];
+  if (recipe.style) meta.push(recipe.style);
+  meta.push(`brassée ${recipe.brewedCount} fois`);
+  if (recipe.rating > 0) meta.push(`★ ${recipe.rating.toFixed(1)}`);
+  const metaLine = meta.join(" · ");
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={isDisabled}
+      style={({ pressed }) => [
+        styles.recipeRow,
+        highlightOfficial ? styles.recipeRowOfficial : null,
+        isDisabled && !isImporting ? styles.recipeRowDisabled : null,
+        !isImporting && !isDisabled && pressed ? styles.recipeRowPressed : null,
+      ]}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled, busy: isImporting }}
+      accessibilityLabel={`Importer ${recipe.name} par ${recipe.brewer}${
+        recipe.rating > 0 ? `, noté ${recipe.rating} sur 5` : ""
+      }`}
+    >
+      <View style={styles.recipeRowLeft}>
+        <Text style={styles.recipeName} numberOfLines={2}>
+          {recipe.name}
+        </Text>
+        <Text style={styles.recipeBrewer}>{metaLine}</Text>
+      </View>
+      <View style={styles.recipeRowRight}>
+        <Text style={styles.recipeAction}>
+          {isImporting ? "Import…" : "+ Importer"}
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -464,6 +580,43 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
+  },
+  officialCard: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.brand.primary,
+    backgroundColor: colors.state.infoBackground,
+  },
+  officialTitle: {
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.primary,
+    marginBottom: spacing.xxs,
+  },
+  officialSubtitle: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+    marginBottom: spacing.sm,
+  },
+  recipeRowOfficial: {
+    borderBottomWidth: 0,
+  },
+  lowConfidenceWarning: {
+    fontSize: typography.size.caption,
+    color: colors.semantic.warning,
+    backgroundColor: colors.state.warningBackground,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    marginBottom: spacing.sm,
+    fontStyle: "italic",
+  },
+  recipesEmpty: {
+    fontSize: typography.size.caption,
+    color: colors.neutral.textSecondary,
+    fontStyle: "italic",
+    paddingVertical: spacing.xs,
   },
   recipesCard: {
     marginBottom: spacing.md,

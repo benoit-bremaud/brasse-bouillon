@@ -23,5 +23,6 @@ export const colors = {
     errorBackground: "#fff0f0",
     successBackground: "#f4f8e8",
     infoBackground: "#f8f8f8",
+    warningBackground: "#fdf3df",
   },
 } as const;

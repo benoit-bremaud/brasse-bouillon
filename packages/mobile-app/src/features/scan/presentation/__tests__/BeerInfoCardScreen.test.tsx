@@ -9,6 +9,7 @@ import {
 import React from "react";
 
 import { BeerInfoCardScreen } from "@/features/scan/presentation/BeerInfoCardScreen";
+import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.use-cases";
 import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
 import {
   ScanLookupBeerNotFoundError,
@@ -49,12 +50,54 @@ jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   getImportSourceId: (match: { recipeId: string }) => match.recipeId,
 }));
 
+jest.mock("@/features/scan/application/recipe-matching.use-cases", () => ({
+  getMatchingRecipes: jest.fn(),
+}));
+
 const mockedLookup = lookupBeerByBarcode as jest.MockedFunction<
   typeof lookupBeerByBarcode
 >;
 const mockedImport = importRecipeFromCommunity as jest.MockedFunction<
   typeof importRecipeFromCommunity
 >;
+const mockedMatching = getMatchingRecipes as jest.MockedFunction<
+  typeof getMatchingRecipes
+>;
+
+// Default matching response — Punk IPA scan returns a curated trio
+// of equivalent IPA-family recipes. Tests can override per case.
+const PUNK_IPA_MATCHES = [
+  {
+    recipeId: "r-demo-1",
+    publicRecipeId: "00000000-0000-4000-8000-000000000001",
+    name: "Session IPA Citra",
+    brewer: "Communauté Brasse-Bouillon",
+    rating: 4.7,
+    brewedCount: 23,
+    score: 92,
+    style: "Session IPA",
+  },
+  {
+    recipeId: "r-demo-2",
+    publicRecipeId: "00000000-0000-4000-8000-000000000002",
+    name: "NEIPA Tropical",
+    brewer: "Communauté Brasse-Bouillon",
+    rating: 4.5,
+    brewedCount: 18,
+    score: 78,
+    style: "NEIPA",
+  },
+  {
+    recipeId: "r-demo-3",
+    publicRecipeId: "00000000-0000-4000-8000-000000000003",
+    name: "White IPA",
+    brewer: "Communauté Brasse-Bouillon",
+    rating: 4.3,
+    brewedCount: 12,
+    score: 65,
+    style: "White IPA",
+  },
+];
 
 function buildResult(
   overrides: Partial<ScanLookupResult["item"]> = {},
@@ -95,6 +138,13 @@ describe("BeerInfoCardScreen", () => {
     mockReplace.mockReset();
     mockedLookup.mockReset();
     mockedImport.mockReset();
+    mockedMatching.mockReset();
+    // Default matching response: Punk IPA equivalents, no warning.
+    // Individual tests override via mockedMatching.mockResolvedValueOnce.
+    mockedMatching.mockResolvedValue({
+      rankings: PUNK_IPA_MATCHES,
+      lowConfidence: false,
+    });
     alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
   });
 
@@ -116,7 +166,8 @@ describe("BeerInfoCardScreen", () => {
       expect(screen.getByText("De session")).toBeTruthy();
       expect(screen.getByText("Ambrée")).toBeTruthy();
       expect(screen.getByText("Modérément amère")).toBeTruthy();
-      expect(screen.getByText("🧪 Recettes équivalentes")).toBeTruthy();
+      // The matching section renders after a second async effect; wait for it.
+      expect(await screen.findByText("🧪 Recettes équivalentes")).toBeTruthy();
       // The demo set maps Punk IPA to existing demoRecipes
       // (r-demo-1 / r-demo-7 / r-demo-13) so taps land on real
       // recipe detail pages.
@@ -344,6 +395,159 @@ describe("BeerInfoCardScreen", () => {
         );
       });
       expect(mockPush).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("matching view envelope (Issue #700)", () => {
+    it("displays the low_confidence warning when the API flags it", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: PUNK_IPA_MATCHES.slice(0, 1),
+        lowConfidence: true,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      const warning = await screen.findByText(
+        /Aucune recette très similaire dans la base/,
+      );
+      expect(warning).toBeTruthy();
+    });
+
+    it("does NOT display the low_confidence warning when lowConfidence is false", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      // default beforeEach already sets lowConfidence: false
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      // Wait for the rankings to be rendered (find the first equivalent).
+      await screen.findByText("Session IPA Citra");
+      expect(screen.queryByText(/Aucune recette très similaire/)).toBeNull();
+    });
+
+    it("renders the 🏆 Recette officielle section above the equivalents when one is flagged official", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: [
+          {
+            recipeId: "r-official-punk",
+            publicRecipeId: "00000000-0000-4000-8000-officialpunk",
+            name: "Punk IPA — Recette officielle",
+            brewer: "BrewDog",
+            rating: 4.9,
+            brewedCount: 100,
+            score: 100,
+            isOfficial: true,
+            style: "American IPA",
+          },
+          ...PUNK_IPA_MATCHES,
+        ],
+        lowConfidence: false,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      // Official section title appears.
+      const officialTitle = await screen.findByText(/🏆 Recette officielle/);
+      expect(officialTitle).toBeTruthy();
+      // Official recipe row also rendered.
+      expect(screen.getByText("Punk IPA — Recette officielle")).toBeTruthy();
+      // Equivalents below.
+      expect(screen.getByText("Session IPA Citra")).toBeTruthy();
+    });
+
+    it("does not render the 🏆 section when no recipe is flagged official", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      // default mock: PUNK_IPA_MATCHES — no isOfficial=true
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      await screen.findByText("Session IPA Citra");
+      expect(screen.queryByText(/🏆 Recette officielle/)).toBeNull();
+    });
+
+    it("caps equivalents to 3 even when the API returns more", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: [
+          ...PUNK_IPA_MATCHES,
+          {
+            recipeId: "r-demo-4",
+            publicRecipeId: "00000000-0000-4000-8000-000000000004",
+            name: "Belgian Tripel",
+            brewer: "Communauté Brasse-Bouillon",
+            rating: 4.8,
+            brewedCount: 31,
+            score: 50,
+            style: "Belgian Tripel",
+          },
+        ],
+        lowConfidence: false,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      await screen.findByText("Session IPA Citra");
+      expect(screen.getByText("NEIPA Tropical")).toBeTruthy();
+      expect(screen.getByText("White IPA")).toBeTruthy();
+      // 4th recipe is filtered out (cap at 3).
+      expect(screen.queryByText("Belgian Tripel")).toBeNull();
+    });
+
+    it("renders an empty state when the API returns zero rankings", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: [],
+        lowConfidence: false,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      const empty = await screen.findByText(
+        /Aucune recette équivalente n'a encore été partagée/,
+      );
+      expect(empty).toBeTruthy();
+    });
+
+    it("shows low_confidence warning even when only an official recipe is returned (no equivalents)", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: [
+          {
+            recipeId: "r-official-only",
+            publicRecipeId: "00000000-0000-4000-8000-officialonly1",
+            name: "Punk IPA — Recette officielle",
+            brewer: "BrewDog",
+            rating: 4.9,
+            brewedCount: 100,
+            score: 100,
+            isOfficial: true,
+            style: "American IPA",
+          },
+        ],
+        lowConfidence: true,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      // Official section appears.
+      expect(await screen.findByText(/🏆 Recette officielle/)).toBeTruthy();
+      // Warning must also appear even though there are no community equivalents.
+      expect(
+        screen.getByText(/Aucune recette très similaire dans la base/),
+      ).toBeTruthy();
+    });
+
+    it("renders an error message when the matching API throws", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockRejectedValueOnce(new Error("network"));
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      const errorMsg = await screen.findByText(
+        /Impossible de charger les recettes équivalentes/,
+      );
+      expect(errorMsg).toBeTruthy();
     });
   });
 });

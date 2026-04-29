@@ -381,17 +381,16 @@ function MatchingRecipesSection({
         </Card>
       ) : null}
 
+      {matching.lowConfidence ? (
+        <Text style={styles.lowConfidenceWarning}>{LOW_CONFIDENCE_MESSAGE}</Text>
+      ) : null}
+
       {equivalentRecipes.length > 0 ? (
         <Card style={styles.recipesCard}>
           <Text style={styles.recipesTitle}>🧪 Recettes équivalentes</Text>
           <Text style={styles.recipesSubtitle}>
             Notées par la communauté Brasse Bouillon
           </Text>
-          {matching.lowConfidence ? (
-            <Text style={styles.lowConfidenceWarning}>
-              {LOW_CONFIDENCE_MESSAGE}
-            </Text>
-          ) : null}
           {equivalentRecipes.map((recipe) => (
             <RecipeRow
               key={recipe.recipeId}

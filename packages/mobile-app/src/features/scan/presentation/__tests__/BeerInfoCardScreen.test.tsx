@@ -509,6 +509,33 @@ describe("BeerInfoCardScreen", () => {
       expect(empty).toBeTruthy();
     });
 
+    it("shows low_confidence warning even when only an official recipe is returned (no equivalents)", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      mockedMatching.mockResolvedValueOnce({
+        rankings: [
+          {
+            recipeId: "r-official-only",
+            publicRecipeId: "00000000-0000-4000-8000-officialonly1",
+            name: "Punk IPA — Recette officielle",
+            brewer: "BrewDog",
+            rating: 4.9,
+            brewedCount: 100,
+            score: 100,
+            isOfficial: true,
+            style: "American IPA",
+          },
+        ],
+        lowConfidence: true,
+      });
+
+      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      // Official section appears.
+      expect(await screen.findByText(/🏆 Recette officielle/)).toBeTruthy();
+      // Warning must also appear even though there are no community equivalents.
+      expect(screen.getByText(/Aucune recette très similaire dans la base/)).toBeTruthy();
+    });
+
     it("renders an error message when the matching API throws", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedMatching.mockRejectedValueOnce(new Error("network"));

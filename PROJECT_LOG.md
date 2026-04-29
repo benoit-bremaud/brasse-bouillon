@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-29
 
+### PR #799 merged (`a984cf6`) — feat(scan): graceful UX for unknown beer — surface barcode + mailto CTAs (#796)
+
+- Sub-PR 1/3 of [Epic] #794 (scan jury edge cases B/D/C). Order locked B → D → C in scoping session 2026-04-29.
+- Companion issues created same session: epic #794 + #796 (B) + #797 (C) + #798 (D) + backlog idea #795 (multi-product range — wine/cider, v0.2+).
+
 ### PR #793 merged (`7266559`) — feat(scan): mobile matching view — official section + equivalents + low_confidence (#700)
 
 - Closes #700.

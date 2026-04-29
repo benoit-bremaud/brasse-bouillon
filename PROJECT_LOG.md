@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-29
 
+### PR #802 merged (`86c36b9`) — docs(soutenance): demo script 90s + 4 jury variants + screencast spec + jury email (#702)
+
+- Sprint B chunk #7 of Scan Tranche 2. New `docs/product/soutenance/demo-script-2026-05-27.md` covers the writable portion of #702: 90s script (5 phases, FR speaker lines), 4 jury-beer adaptive variants (A/B/C/D) aligned with shipped PRs #799/#800/#801, screencast backup spec, jury request email draft (FR, deadline 2026-05-17), rehearsal log scaffolding.
+- Codex P2 fix (commit `cda1466`): J-X countdown labels were inconsistent with the project-wide "J-X from defense" semantics. Fixed + added explicit convention note in the header. Bonus: markdownlint inline-HTML warning on `<productName>` placeholder corrected in the same pass.
+- Remaining on #702: the actual screencast MP4 recording (week of 2026-05-20, J-7 from defense, post-rc1 feature freeze).
+
 ### PR #801 merged (`f50e599`) — feat(scan): photo fallback CTA on invalid barcode — placeholder for v0.2 photo capture (#797)
 
 - Sub-PR 3/3 of [Epic] #794 (closes the umbrella). Mobile-only: `PhotoFallbackCTA` rendered on `invalid` variant + `Alert.alert` referencing v0.2 / epic #751. Self-reviewed (no Codex review available before merge — see PR #801 thread).

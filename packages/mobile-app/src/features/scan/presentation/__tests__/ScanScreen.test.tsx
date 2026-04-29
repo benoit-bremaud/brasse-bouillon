@@ -445,4 +445,62 @@ describe("ScanScreen", () => {
     expect(screen.getByText("Barcode scan")).toBeTruthy();
     expect(screen.getByText("Switch to bottle mode")).toBeTruthy();
   });
+
+  describe("demo override hidden long-press (Issue #642)", () => {
+    it("opens the demo override menu on a long-press of the help button", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      const helpButton = screen.getByLabelText("Open scan guide");
+      fireEvent(helpButton, "longPress");
+
+      // The override menu lists seeded beers — Punk IPA is the
+      // canonical first entry and a stable assertion target.
+      expect(await screen.findByText("Punk IPA")).toBeTruthy();
+      // The regular guide modal must NOT be shown.
+      expect(screen.queryByText("How barcode verification works")).toBeNull();
+    });
+
+    it("does NOT open the guide modal on the trailing onPress that fires after a long-press", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      const helpButton = screen.getByLabelText("Open scan guide");
+      // Simulate the React Native sequence: onLongPress fires,
+      // then onPress fires on release. Without the guard the
+      // guide modal would open behind the override sheet.
+      fireEvent(helpButton, "longPress");
+      fireEvent.press(helpButton);
+
+      expect(await screen.findByText("Punk IPA")).toBeTruthy();
+      expect(screen.queryByText("How barcode verification works")).toBeNull();
+    });
+
+    it("opens the guide modal on a regular press (no long-press)", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      const helpButton = screen.getByLabelText("Open scan guide");
+      fireEvent.press(helpButton);
+
+      expect(
+        await screen.findByText("How barcode verification works"),
+      ).toBeTruthy();
+      // The override menu must NOT be shown.
+      expect(screen.queryByText(/Démo — bières seedées/i)).toBeNull();
+    });
+
+    it("navigates to the lookup route when a beer is selected from the override menu", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      fireEvent(screen.getByLabelText("Open scan guide"), "longPress");
+      // Punk IPA — barcode 5060277380019 (stable demo seed entry).
+      fireEvent.press(await screen.findByLabelText(/Forcer Punk IPA/i));
+
+      expect(mockPush).toHaveBeenCalledWith(
+        "/(app)/dashboard/scan/lookup/5060277380019",
+      );
+    });
+  });
 });

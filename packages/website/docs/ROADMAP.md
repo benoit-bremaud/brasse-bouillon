@@ -49,6 +49,7 @@ This document outlines the major stages of the **Brasse-Bouillon** mobile app de
 * FAQ and featured recipe section
 * Integration of recent backend/frontend progress (tools suite completion, dashboard/discovery refresh, recipe-detail enhancements, and product API expansion)
 * Auth experience refresh — simplified email-and-password signup, bigger brand mascot, cleaner forgot-password flow, demo connection now scoped to demo builds only (Issue #764)
+* Sign in with Google — cosmetic preview on the auth screen indicating the upcoming social-login support (Issue #765 — full OAuth flow planned for v0.2)
 
 ### Phase 6 — Beta testing and community activation
 

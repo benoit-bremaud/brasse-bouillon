@@ -5,7 +5,43 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-29
+
+### PR #793 merged (`7266559`) — feat(scan): mobile matching view — official section + equivalents + low_confidence (#700)
+
+- Closes #700.
+- Fix commits on top of feature: `0cdcaab` (CI test timing flake on `BeerInfoCardScreen` matching section — `getByText` → `await findByText`), `d8f4bd8` (Codex P2: surface `low_confidence` warning outside the `equivalentRecipes.length > 0` conditional + edge-case test for official-only result), `6eeddf9` (Prettier).
+
+### PR #792 merged (`ab99d1f`) — feat(scan): full matching algorithm — bitterness + color + brew_count + recency + low_confidence (#699)
+
+- Extends PR #773 MVP to the full 7-component formula (similarity = style/ABV/bitterness/color, quality = avg_rating/brew_count/recency, weight renormalization on missing components).
+- Codex P1 fix: `low_confidence` uses honest similarity score (without the `is_official` shortcut) so the warning surfaces even when an official recipe tops the list with low real similarity.
+
+### PR #791 merged (`cf8f688`) — feat(scan): complete demo seed to 9 beers — Heineken + Cervoise Lancelot (Topic B)
+
+- Codex P1 fix: Cervoise Lancelot EAN-13 check digit corrected (`3760215750048` → `3760215750042`, mod-10 algorithm).
+
+### PR #790 merged (`c64805f`) — feat(auth): Sprint A polish — simplified signup (#764) + Google cosmetic button (#765) + bigger mascot
+
+- Closes #764, closes #765.
+- Codex P2 fix: username fallback truncation — switched to `randomBytes(4).toString('hex')` 8-hex suffix that never gets sliced.
+
+### PR #788 merged (`08c4411`) — docs(product): consolidate v0.1 roadmap from J-29 sprint scoping + personas v3
+
+- See the rich "PR #788 opened" entry under 2026-04-28 below for the full scoping narrative + decisions block.
+- Companion sub-issues opened the same day: #774, #775, #776, #777, #778, #779, #780, #781, #782, #783, #784, #785, #786, #787.
+
+---
+
 ## 2026-04-28
+
+### PR #773 merged (`5c572de`) — feat(scan): score-based recipe matching MVP — style + ABV + avg_rating (#699)
+
+- Minimal viable algorithm — style 50% + ABV 25% similarity, avg_rating 60% quality, `is_official` shortcut. Superseded the next day by PR #792 (full 7-component formula).
+
+### PR #770 merged (`13c1553`) — chore(log): record PR #768 in PROJECT_LOG.md.
+
+### PR #769 merged (`e83fb78`) — chore(main): release-please app libraries train.
 
 ### PR #788 opened — docs(product): consolidate v0.1 roadmap from J-29 sprint scoping session + personas v3
 

@@ -29,6 +29,13 @@ import { UnprocessableEntityException } from '@nestjs/common';
 export class NotABeerException extends UnprocessableEntityException {
   constructor(barcode: string, productName: string | null) {
     super({
+      // Human-readable summary kept on `message` so the global
+      // HttpExceptionFilter has something to extract; the structured
+      // `errorCode` / `barcode` / `productName` ride alongside via
+      // the filter's spread-extra-fields behaviour.
+      message: productName
+        ? `Product "${productName}" (barcode ${barcode}) is not a beer.`
+        : `Product (barcode ${barcode}) is not a beer.`,
       errorCode: 'NOT_A_BEER',
       barcode,
       productName,

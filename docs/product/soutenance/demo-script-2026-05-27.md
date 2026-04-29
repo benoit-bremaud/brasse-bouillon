@@ -1,9 +1,11 @@
 # Demo Script — Brasse-Bouillon Soutenance 2026-05-27
 
 **Issue**: #702
-**Defense date**: 2026-05-27 (J-28 from 2026-04-29)
-**Soutenance blanche**: 2026-05-06 (J-7) — first rehearsal of this script
-**Recording session**: week of 2026-05-20 (after rc1 feature freeze)
+**Defense date**: 2026-05-27 (J-0 reference)
+**Soutenance blanche**: 2026-05-06 (J-21 — 21 days before defense, first rehearsal of this script)
+**Recording session**: week of 2026-05-20 (J-7 — 7 days before defense, after rc1 feature freeze)
+
+> Date convention used throughout this document: **J-X = X days before defense** (defense day = J-0). This matches the project-wide convention used in the J-29 sprint scoping session on 2026-04-28.
 
 This document captures the full **90-second nominal demo** (scenario A — known beer), the **four adaptive jury-beer variants** (A/B/C/D), the **screencast backup specification**, and the **jury request email draft**. It supersedes the original 90s script in [scan-2026-04-24.md §5](../brainstorms/scan-2026-04-24.md#5-demo-strategy--2026-05-27-defense) by promoting it from brainstorm shorthand to soutenance-ready stage directions.
 
@@ -125,7 +127,7 @@ The product owner will ask the jury to bring empty beer bottles on defense day, 
 
 **Trigger**: barcode resolves on OpenFoodFacts but the product's `categories_tags` does not include any beer category.
 
-**App behavior**: dedicated UI (PR #800 / issue #798) — *"Tu as scanné « <productName> » — ce n'est pas une bière"* + *"Scanner une bière"* CTA returning to the camera.
+**App behavior**: dedicated UI (PR #800 / issue #798) — *"Tu as scanné « `<productName>` » — ce n'est pas une bière"* + *"Scanner une bière"* CTA returning to the camera.
 
 **Speaker pivot (FR)** (with humor):
 
@@ -237,7 +239,7 @@ PO + Dev Brasse-Bouillon
 
 The script is validated through dry runs leading up to the defense. Each rehearsal entry below records what worked, what broke, and what was changed.
 
-### 2026-05-06 — Soutenance blanche (J-7 today, 2026-04-29)
+### 2026-05-06 — Soutenance blanche (J-21 from defense)
 
 - [ ] Run the nominal 90s script end-to-end
 - [ ] Trigger scenarios B / C / D voluntarily to test the pivots

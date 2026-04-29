@@ -71,6 +71,27 @@ export class ScanLookupServiceUnavailableError extends Error {
   }
 }
 
+/**
+ * Error thrown when OpenFoodFacts resolved the barcode to a real
+ * product, but the product's category is not a beer (e.g. soda,
+ * food, water). Backend issues a 422 with `errorCode: NOT_A_BEER`,
+ * the scanned barcode, and the product name (so the UI can say
+ * "Vous avez scanné Coca-Cola"). Issue #798 jury edge case D.
+ */
+export class ScanLookupNotABeerError extends Error {
+  constructor(
+    public readonly barcode: string,
+    public readonly productName: string | null,
+  ) {
+    super(
+      `Barcode "${barcode}" resolved to a non-beer product${
+        productName ? ` (${productName})` : ""
+      }.`,
+    );
+    this.name = "ScanLookupNotABeerError";
+  }
+}
+
 function normaliseBarcode(input: string): string {
   return input.trim().replace(/\D/g, "");
 }
@@ -118,7 +139,30 @@ export async function lookupBeerByBarcode(
       if (error.status === 503) {
         throw new ScanLookupServiceUnavailableError(barcode);
       }
+      if (error.status === 422 && isNotABeerDetails(error.details)) {
+        throw new ScanLookupNotABeerError(
+          barcode,
+          error.details.productName ?? null,
+        );
+      }
     }
     throw error;
   }
+}
+
+/**
+ * Type guard for the 422 NOT_A_BEER response body shape produced by
+ * the API's `NotABeerException` (#798). NestJS spreads the object
+ * passed to `super({...})` at the top level of the response payload,
+ * so we look for `errorCode === 'NOT_A_BEER'` directly there.
+ */
+function isNotABeerDetails(
+  details: unknown,
+): details is { errorCode: "NOT_A_BEER"; productName?: string | null } {
+  return (
+    typeof details === "object" &&
+    details !== null &&
+    "errorCode" in details &&
+    (details as { errorCode: unknown }).errorCode === "NOT_A_BEER"
+  );
 }

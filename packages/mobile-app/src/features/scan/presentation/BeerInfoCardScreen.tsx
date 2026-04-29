@@ -23,6 +23,7 @@ import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.
 import {
   ScanLookupBeerNotFoundError,
   ScanLookupInvalidBarcodeError,
+  ScanLookupNotABeerError,
   ScanLookupServiceUnavailableError,
   lookupBeerByBarcode,
 } from "@/features/scan/application/scan-lookup.use-cases";
@@ -47,7 +48,12 @@ type BeerInfoCardScreenProps = {
   barcodeParam?: string | string[];
 };
 
-type ErrorVariant = "not_found" | "unavailable" | "invalid" | "generic";
+type ErrorVariant =
+  | "not_found"
+  | "not_a_beer"
+  | "unavailable"
+  | "invalid"
+  | "generic";
 
 type ScreenStatus =
   | { kind: "loading" }
@@ -58,6 +64,7 @@ type ScreenStatus =
       message: string;
       canRetry: boolean;
       barcode?: string;
+      productName?: string | null;
     };
 
 const ERROR_NOT_FOUND =
@@ -67,6 +74,10 @@ const ERROR_UNAVAILABLE =
 const ERROR_INVALID =
   "Ce code-barres n'est pas reconnu (8 à 14 chiffres attendus). Vérifie ce que tu as scanné.";
 const ERROR_GENERIC = "Impossible de récupérer cette bière pour le moment.";
+const ERROR_NOT_A_BEER_KNOWN = (productName: string) =>
+  `Tu as scanné « ${productName} » — ce n'est pas une bière. Tente avec une bouteille de bière.`;
+const ERROR_NOT_A_BEER_UNKNOWN =
+  "Ce produit n'est pas une bière. Tente avec une bouteille de bière.";
 
 // Placeholder destination for the v0.1 unknown-beer mailto CTAs
 // (#796). Will be replaced by a real catalog-suggestion form in v0.2
@@ -86,6 +97,18 @@ function mapErrorToStatus(error: unknown): ScreenStatus {
       message: ERROR_NOT_FOUND,
       canRetry: false,
       barcode: error.barcode,
+    };
+  }
+  if (error instanceof ScanLookupNotABeerError) {
+    return {
+      kind: "error",
+      variant: "not_a_beer",
+      message: error.productName
+        ? ERROR_NOT_A_BEER_KNOWN(error.productName)
+        : ERROR_NOT_A_BEER_UNKNOWN,
+      canRetry: false,
+      barcode: error.barcode,
+      productName: error.productName,
     };
   }
   if (error instanceof ScanLookupServiceUnavailableError) {
@@ -224,6 +247,9 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
         />
         {status.variant === "not_found" && status.barcode ? (
           <UnknownBeerCTAs barcode={status.barcode} />
+        ) : null}
+        {status.variant === "not_a_beer" ? (
+          <NotABeerCTA onScanAgain={handleBack} />
         ) : null}
       </Screen>
     );
@@ -531,6 +557,35 @@ function UnknownBeerCTAs({
         <Text style={styles.unknownCtaSecondaryText}>
           Ajouter cette bière au catalogue
         </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * "Not a beer" CTA — shown beneath the not-a-beer error message
+ * (#798, persona Léa la Curieuse). The product name is already in
+ * the error message line itself; this component just offers the
+ * single "Scanner une bière" CTA that returns the user to the
+ * scan camera so they can try with an actual beer.
+ */
+function NotABeerCTA({
+  onScanAgain,
+}: Readonly<{
+  onScanAgain: () => void;
+}>) {
+  return (
+    <View style={styles.unknownCard}>
+      <Pressable
+        onPress={onScanAgain}
+        accessibilityRole="button"
+        accessibilityLabel="Retourner au scan pour tenter une autre bouteille"
+        style={({ pressed }) => [
+          styles.unknownCta,
+          pressed ? styles.unknownCtaPressed : null,
+        ]}
+      >
+        <Text style={styles.unknownCtaText}>Scanner une bière</Text>
       </Pressable>
     </View>
   );

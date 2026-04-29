@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { QueryFailedError, Repository } from 'typeorm';
 
 import { ScanCatalogSource } from '../domain/enums/scan-catalog-source.enum';
@@ -611,6 +615,73 @@ describe('ScanService', () => {
       await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+
+    test('sad path — OFF returns a non-beer product AND no cache → 422 NotABeer with product name (Issue #798)', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: {
+          code: VALID_EAN,
+          status: 1,
+          product: {
+            product_name: 'Coca-Cola Original',
+            categories_tags: ['en:beverages', 'en:carbonated-drinks'],
+          },
+        },
+        name: 'Coca-Cola Original',
+        brewery: null,
+        abv: null,
+        isBeer: false,
+      });
+
+      const error = await service
+        .lookupByBarcode(VALID_EAN)
+        .then(() => null)
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(UnprocessableEntityException);
+      const response = (
+        error as UnprocessableEntityException
+      ).getResponse() as {
+        errorCode: string;
+        barcode: string;
+        productName: string;
+      };
+      expect(response.errorCode).toBe('NOT_A_BEER');
+      expect(response.barcode).toBe(VALID_EAN);
+      expect(response.productName).toBe('Coca-Cola Original');
+      expect(catalogItemRepository.save).not.toHaveBeenCalled();
+    });
+
+    test('sad path — OFF returns a non-beer product BUT cache has prior beer entry → degraded stale (Issue #798)', async () => {
+      const previouslyCached = createCatalogItem({
+        id: 'cat-prior-beer',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(previouslyCached);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: {
+          code: VALID_EAN,
+          status: 1,
+          product: {
+            product_name: 'Coca-Cola Original',
+            categories_tags: ['en:beverages'],
+          },
+        },
+        name: 'Coca-Cola Original',
+        brewery: null,
+        abv: null,
+        isBeer: false,
+      });
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_stale');
+      expect(catalogItemRepository.save).not.toHaveBeenCalled();
     });
 
     test('edge case — invalid barcode rejected by domain validation → BadRequest', async () => {

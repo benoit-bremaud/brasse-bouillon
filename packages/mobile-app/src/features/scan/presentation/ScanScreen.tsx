@@ -27,6 +27,7 @@ import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { DemoOverrideMenu } from "@/features/scan/presentation/components/DemoOverrideMenu";
 import { useRouter } from "expo-router";
 
 type BarcodeScanEvent = {
@@ -175,6 +176,10 @@ export function ScanScreen() {
   const [isGuideModalVisible, setIsGuideModalVisible] = useState(false);
   const [isFallbackModalVisible, setIsFallbackModalVisible] = useState(false);
   const [isResetModalVisible, setIsResetModalVisible] = useState(false);
+  // Soutenance backup (#642): hidden long-press on the help button
+  // opens a list of seeded beers, used by the speaker to force a
+  // result if the live camera misfires on stage.
+  const [isDemoOverrideVisible, setIsDemoOverrideVisible] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -542,6 +547,12 @@ export function ScanScreen() {
                 pressed && styles.pressed,
               ]}
               onPress={() => setIsGuideModalVisible(true)}
+              // Hidden soutenance gesture (#642): long-press opens
+              // the demo override menu so the speaker can force a
+              // known result if the live scan misfires on stage.
+              // Undocumented for end users on purpose.
+              onLongPress={() => setIsDemoOverrideVisible(true)}
+              delayLongPress={1500}
             >
               <Text style={styles.helpButtonText}>?</Text>
             </Pressable>
@@ -964,6 +975,17 @@ export function ScanScreen() {
           </View>
         </View>
       </Modal>
+
+      <DemoOverrideMenu
+        visible={isDemoOverrideVisible}
+        onClose={() => setIsDemoOverrideVisible(false)}
+        onSelectBeer={(barcode) => {
+          setIsDemoOverrideVisible(false);
+          router.push(
+            `/(app)/dashboard/scan/lookup/${encodeURIComponent(barcode)}` as never,
+          );
+        }}
+      />
     </Screen>
   );
 }

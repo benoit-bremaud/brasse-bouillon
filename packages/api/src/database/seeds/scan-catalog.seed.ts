@@ -134,6 +134,42 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     aromatic_tags: 'malt biscuit, honey, floral hops, soft bitterness',
     notes_source: 'Brasserie Goudale public datasheet (62510 Arques, France)',
   },
+  // Mass-market international lager — completes the brainstorm 6-beer
+  // panel (scan-2026-04-24 §4) and gives the demo a familiar reference
+  // point next to the craft beers above. Persona Léa might have one of
+  // these in her fridge already.
+  {
+    barcode: '8714100732007',
+    name: 'Heineken',
+    brewery: 'Heineken',
+    style: 'International Pale Lager',
+    abv: 5.0,
+    ibu: 20,
+    color_ebc: 7,
+    fermentation_type: ScanFermentationType.LAGER,
+    aromatic_tags: 'crisp, light malt, gentle hop, dry finish',
+    notes_source: 'Heineken public brewery datasheet',
+  },
+  // Locally-sourced artisanal beer (Brittany microbrewery — exemplary
+  // of the éco-responsable persona Zoé's preferred filière courte).
+  // EAN-13 (valid checksum, computed via the standard mod-10
+  // algorithm: prefix `376021575004`, check digit `2`). Picked from
+  // the Brasserie de Lancelot range for demo flexibility — the 6th
+  // brainstorm slot was deliberately left open for whatever local
+  // beer the team can bring on stage.
+  {
+    barcode: '3760215750042',
+    name: 'Cervoise Lancelot',
+    brewery: 'Brasserie de Lancelot',
+    style: 'Cervoise (Bière Aromatisée Miel)',
+    abv: 6.0,
+    ibu: 18,
+    color_ebc: 35,
+    fermentation_type: ScanFermentationType.ALE,
+    aromatic_tags: 'honey, heather, herbal, malt warmth',
+    notes_source:
+      'Brasserie de Lancelot public datasheet (56460 Le Roc-Saint-André, Bretagne)',
+  },
 ];
 
 /**

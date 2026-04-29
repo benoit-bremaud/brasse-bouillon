@@ -4,6 +4,7 @@ import {
   UsernameAlreadyExistsException,
 } from '../../common/exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 
 import { PasswordService } from '../../auth/services/password.service';
 import { Repository } from 'typeorm';
@@ -263,6 +264,94 @@ describe('UserService', () => {
       // The service should detect the duplicate username and throw
       await expect(userService.create(mockCreateUserData)).rejects.toThrow(
         UsernameAlreadyExistsException,
+      );
+    });
+
+    // ----------------------------------------------------------------
+    // Issue #764 — username became optional, auto-generated from email
+    // ----------------------------------------------------------------
+
+    it('happy: auto-generates a username when none is provided (Issue #764)', async () => {
+      // Email + password only — username derived server-side from
+      // the email local-part + a 4-char hex suffix. The contract:
+      // username matches /^[a-z0-9_]+$/, length 3-20.
+      const minimalInput = {
+        email: 'jane.doe@example.com',
+        password: 'StrongPass123!',
+      };
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null) // email uniqueness OK
+        .mockResolvedValueOnce(null); // username collision check inside generator OK on first try
+
+      const createSpy = jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(mockUser);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(mockUser);
+      jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedPassword123');
+
+      await userService.create(minimalInput);
+
+      // The generated username starts with the slugified local-part
+      // (`jane_doe` here — dots become underscores) and ends with a
+      // `_` + 4-char hex suffix.
+      const createCallArg = createSpy.mock.calls[0][0] as { username: string };
+      expect(createCallArg.username).toMatch(/^jane_doe_[0-9a-f]{4}$/);
+      // Length within DB column limits (varchar 100, but DTO caps at 20).
+      expect(createCallArg.username.length).toBeLessThanOrEqual(20);
+      expect(saveSpy).toHaveBeenCalledWith(mockUser);
+    });
+
+    it('edge: prefixes `u` when the email local-part starts with a digit', async () => {
+      const numericLeadInput = {
+        email: '42lover@example.com',
+        password: 'StrongPass123!',
+      };
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+      const createSpy = jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(mockUser);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(mockUser);
+      jest
+        .spyOn(passwordService, 'hashPassword')
+        .mockResolvedValue('hashedPassword123');
+
+      await userService.create(numericLeadInput);
+
+      const createCallArg = createSpy.mock.calls[0][0] as { username: string };
+      // Must start with a letter or underscore (the regex `^[a-z_]`
+      // forces the `u` prefix).
+      expect(createCallArg.username).toMatch(/^u42lover_[0-9a-f]{4}$/);
+    });
+
+    it('sad: rejects when email is missing', async () => {
+      const noEmailInput = {
+        email: '',
+        password: 'StrongPass123!',
+      };
+
+      await expect(userService.create(noEmailInput)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('sad: rejects when password is missing', async () => {
+      const noPasswordInput = {
+        email: 'jane@example.com',
+        password: '',
+      };
+
+      await expect(userService.create(noPasswordInput)).rejects.toThrow(
+        BadRequestException,
       );
     });
   });

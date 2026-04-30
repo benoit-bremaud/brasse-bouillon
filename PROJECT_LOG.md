@@ -7,6 +7,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-30
 
+### PR #817 merged (`c508b07`) — chore(website): remove GA4 tracking + cookie consent banner (Chantier E.1)
+
+- Branch `chore/website-remove-ga4-rgpd-banner`. First sub-task of the website refresh plan (Chantier E — tooling & non-conformities). Aligns with the strategy decision to ship the marketing site without analytics until post-store launch traffic justifies revisiting it.
+- 3 commits squashed: `e0b130d` removed GA4 + cookie banner from `index.html` / `index-en.html`; `d108517` removed cookie banner CSS rules from `site.css` (preserved `.consent` / `.consent-note` for Formspree opt-in checkboxes); `4d4fa32` refreshed privacy/cookies/terms pages (FR + EN) to state explicitly "no tracking cookies, no third-party audience measurement tool".
+- Net diff: 9 files changed, 64 insertions, 290 deletions.
+- CI all green, SonarCloud Quality Gate passed (0 new issues, 0 hotspots, 0 % duplication). No human review required (chore PR, draft → ready conversion validated by author after Cloudflare Pages preview check). Copilot review skipped (quota off until 2026-05-01).
+- **Decisions**:
+  - `Analytics provider` — none for now. Replaces previous GA4 setup. Will revisit after store launch with privacy-friendly options (Plausible likely candidate). Rationale: pre-store traffic too low to justify analytics overhead, and removing the consent banner is an immediate UX win.
+  - `Policy pages` — kept `cookies.html` / `cookies-en.html` (rewritten to explain the no-tracking stance) rather than deleting them; preserves SEO inbound links and clarifies the brand position.
+
 ### PR #815 merged (`0a5af5d`) — feat(seed): pre-seed Punk IPA brassin demo + 7 brewing-day steps (#782)
 
 - Closes #782. Migration adds 7 nullable columns to `batches`; idempotent seed loader inserts batch row + 7 BatchStep rows. Output of the 8-axis Brassins data model Q&A scoping session 2026-04-30; deferred richness captured in 7 backlog epics: #808 #809 #810 #811 #812 #813 #814.

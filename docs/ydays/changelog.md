@@ -7,6 +7,42 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.30-3
+
+**Atelier C Phase 5 modèle éco — KPIs détaillés (20 KPIs avec cibles + triggers)**
+
+Ajout de [kpi-details](/outputs/kpi-details) à la section
+« Stratégie business approfondie » (9e document de la section).
+
+Ce document détaille **20 KPIs structurés en 4 catégories** (acquisition,
+engagement, monétisation, rétention) pour transformer les hypothèses du
+modèle économique en mesures actionnables :
+
+- **6 KPIs d'acquisition** — téléchargements mensuels, CAC, activation
+  rate, taux Marc-Switcher (KPI unique BB), effet evangelist, opt-in
+  newsletter
+- **5 KPIs d'engagement** — DAU/MAU, sessions/mois, recettes créées,
+  scans/utilisateur (KPI unique BB), diversité styles BJCP
+- **5 KPIs de monétisation** — MRR, ARPU, conversion Free→Paid, LTV
+  pondéré, NRR (Net Revenue Retention)
+- **4 KPIs de rétention** — churn mensuel, retention 12 mois, NPS,
+  satisfaction AI assistant
+
+Pour chaque KPI : définition précise, formule de calcul, source data,
+fréquence de mesure, cibles Y1/Y2/Y3/Y5, seuil d'alerte, action
+déclenchée si dérive.
+
+**Bonus** :
+
+- Système de feux tricolores (vert / jaune / rouge) avec triggers
+  prédéfinis
+- 5 triggers prioritaires documentés (téléchargements, conversion,
+  churn, NPS, LTV/CAC ratio) avec actions correctives concrètes
+- Stack analytics low-cost recommandée (~50-75 €/mo Année 1 :
+  PostHog free + RevenueCat free + Tally + Google Sheets)
+- Cadence de revue disciplinée : quotidien 5 min → hebdo 15 min →
+  mensuel 1h → trimestriel 2-3h → annuel 1 jour
+
 ## 2026.04.30-2
 
 **Atelier B Phase 5 modèle éco — CAPEX & financement (analyse approfondie)**

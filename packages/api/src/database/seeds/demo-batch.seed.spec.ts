@@ -12,21 +12,8 @@ import {
   DemoBatchPrerequisiteMissingError,
   seedDemoBatch,
 } from './demo-batch.seed';
+import { RepoMock, buildRepoMock } from './seed-test-utils';
 import { SYSTEM_USER_ID } from './system-user.seed';
-
-type RepoMock = {
-  findOne: jest.Mock;
-  create: jest.Mock;
-  save: jest.Mock;
-};
-
-function buildRepoMock(): RepoMock {
-  return {
-    findOne: jest.fn(),
-    create: jest.fn((input: unknown) => input),
-    save: jest.fn((input: unknown) => Promise.resolve(input)),
-  };
-}
 
 const FAKE_NOW = new Date('2026-04-30T12:00:00.000Z');
 

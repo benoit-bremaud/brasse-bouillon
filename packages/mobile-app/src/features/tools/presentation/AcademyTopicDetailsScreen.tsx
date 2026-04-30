@@ -40,10 +40,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isCarbonatation = topic?.slug === "carbonatation";
   const isAvances = topic?.slug === "avances";
   const isGlossaire = topic?.slug === "glossaire";
-  const calculatorLabel =
-    topic?.status === "ready"
-      ? "Accéder au calcul"
-      : "Accéder au futur calculateur";
+  const calculatorLabel = "Ouvrir le calculateur";
 
   if (!topic) {
     return (

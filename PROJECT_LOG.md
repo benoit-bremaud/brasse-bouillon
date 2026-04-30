@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-30
 
+### PR #819 merged (`3231af9`) — feat(scan): burst quick wins polish — progressive feedback, retry color, consent FR, import confirmation
+
+- Closes 4 issues at once: #638 (`f453902` progressive 0/5 → 5/5 dots), #641 (`4c2419b` retry button color aligned with brand primary), #640 (`1a46a8f` consent snapshot rendered as readable French), #766 (`a483b39` pre-flight confirmation modal before community recipe import).
+- Grouped burst branch with 4 focused commits, 15 new tests across `BarcodeVerificationProgress`, `ScanScreen`, `PendingScansScreen`, `BeerInfoCardScreen`. CI green, 598 mobile tests passing.
+- Mid-review fix: PR body and FYI comment originally drafted in French — translated to English and a new memory `feedback_github_artifacts_english_only.md` added so the convention (chat = FR, GitHub artifacts = EN) is no longer ambiguous.
+
 ### PR #817 merged (`c508b07`) — chore(website): remove GA4 tracking + cookie consent banner (Chantier E.1)
 
 - Branch `chore/website-remove-ga4-rgpd-banner`. First sub-task of the website refresh plan (Chantier E — tooling & non-conformities). Aligns with the strategy decision to ship the marketing site without analytics until post-store launch traffic justifies revisiting it.

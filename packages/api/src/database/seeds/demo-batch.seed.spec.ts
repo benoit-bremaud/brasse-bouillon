@@ -17,6 +17,27 @@ import { SYSTEM_USER_ID } from './system-user.seed';
 
 const FAKE_NOW = new Date('2026-04-30T12:00:00.000Z');
 
+/**
+ * Wraps `seedDemoBatch` with the boilerplate `as unknown as
+ * Repository<X>` casts the spec needs to pass jest mocks into the
+ * strictly-typed loader signature. Extracted so the cast triplet
+ * does not appear verbatim across every test (SonarCloud
+ * duplication on new code).
+ */
+function runSeed(
+  batchRepo: ReturnType<typeof buildRepoMock>,
+  recipeRepo: ReturnType<typeof buildRepoMock>,
+  stepRepo: ReturnType<typeof buildRepoMock>,
+  now: Date = FAKE_NOW,
+): ReturnType<typeof seedDemoBatch> {
+  return seedDemoBatch(
+    batchRepo as unknown as Repository<BatchOrmEntity>,
+    recipeRepo as unknown as Repository<RecipeOrmEntity>,
+    stepRepo as unknown as Repository<BatchStepOrmEntity>,
+    now,
+  );
+}
+
 describe('seedDemoBatch (Issue #782)', () => {
   describe('sad path — prerequisite recipe missing', () => {
     it('throws DemoBatchPrerequisiteMissingError when the Punk IPA recipe is not in the recipes table', async () => {
@@ -26,12 +47,7 @@ describe('seedDemoBatch (Issue #782)', () => {
       recipeRepo.findOne.mockResolvedValueOnce(null);
 
       await expect(
-        seedDemoBatch(
-          batchRepo as unknown as Repository<BatchOrmEntity>,
-          recipeRepo as unknown as Repository<RecipeOrmEntity>,
-          stepRepo as unknown as Repository<BatchStepOrmEntity>,
-          FAKE_NOW,
-        ),
+        runSeed(batchRepo, recipeRepo, stepRepo),
       ).rejects.toBeInstanceOf(DemoBatchPrerequisiteMissingError);
 
       // No batch or step writes happened.
@@ -57,12 +73,7 @@ describe('seedDemoBatch (Issue #782)', () => {
       batchRepo.findOne.mockResolvedValueOnce(null);
       stepRepo.findOne.mockResolvedValue(null);
 
-      await seedDemoBatch(
-        batchRepo as unknown as Repository<BatchOrmEntity>,
-        recipeRepo as unknown as Repository<RecipeOrmEntity>,
-        stepRepo as unknown as Repository<BatchStepOrmEntity>,
-        FAKE_NOW,
-      );
+      await runSeed(batchRepo, recipeRepo, stepRepo);
     });
 
     it('inserts the batch row with the demo narrative + metric payload', () => {
@@ -110,19 +121,18 @@ describe('seedDemoBatch (Issue #782)', () => {
     });
 
     it('reports inserted=1, no updates, 7 inserted steps', async () => {
-      const result = await seedDemoBatch(
-        buildRepoMock() as unknown as Repository<BatchOrmEntity>,
-        ((): RepoMock => {
-          const repo = buildRepoMock();
-          repo.findOne.mockResolvedValueOnce({ id: DEMO_PUNK_IPA_RECIPE_ID });
-          return repo;
-        })() as unknown as Repository<RecipeOrmEntity>,
-        ((): RepoMock => {
-          const repo = buildRepoMock();
-          repo.findOne.mockResolvedValue(null);
-          return repo;
-        })() as unknown as Repository<BatchStepOrmEntity>,
-        FAKE_NOW,
+      const freshBatchRepo = buildRepoMock();
+      const freshRecipeRepo = buildRepoMock();
+      freshRecipeRepo.findOne.mockResolvedValueOnce({
+        id: DEMO_PUNK_IPA_RECIPE_ID,
+      });
+      const freshStepRepo = buildRepoMock();
+      freshStepRepo.findOne.mockResolvedValue(null);
+
+      const result = await runSeed(
+        freshBatchRepo,
+        freshRecipeRepo,
+        freshStepRepo,
       );
       // The batch repo above has no findOne mock returning an existing row,
       // so the loader sees null and inserts.
@@ -157,12 +167,7 @@ describe('seedDemoBatch (Issue #782)', () => {
         status: BatchStepStatus.IN_PROGRESS,
       });
 
-      const result = await seedDemoBatch(
-        batchRepo as unknown as Repository<BatchOrmEntity>,
-        recipeRepo as unknown as Repository<RecipeOrmEntity>,
-        stepRepo as unknown as Repository<BatchStepOrmEntity>,
-        FAKE_NOW,
-      );
+      const result = await runSeed(batchRepo, recipeRepo, stepRepo);
 
       expect(result).toEqual({
         insertedBatch: 0,
@@ -190,12 +195,7 @@ describe('seedDemoBatch (Issue #782)', () => {
       batchRepo.findOne.mockResolvedValueOnce(null);
       stepRepo.findOne.mockResolvedValue(null);
 
-      await seedDemoBatch(
-        batchRepo as unknown as Repository<BatchOrmEntity>,
-        recipeRepo as unknown as Repository<RecipeOrmEntity>,
-        stepRepo as unknown as Repository<BatchStepOrmEntity>,
-        FAKE_NOW,
-      );
+      await runSeed(batchRepo, recipeRepo, stepRepo);
 
       const batchPayload = (batchRepo.create.mock.calls[0] as unknown[])[0] as {
         started_at: Date;

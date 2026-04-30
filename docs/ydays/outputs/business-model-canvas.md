@@ -98,19 +98,30 @@ construire (SMART prospectif #35).
 
 ### 5. Revenus
 
-Modèle hybride à deux pieds :
+Modèle hybride à deux pieds, désormais documenté en détail :
 
-- **Freemium** : app gratuite avec fonctionnalités de base (création
-  recettes, calculateurs, scanner, Academy). Tier payant (nom et prix
-  à définir) pour : CSV export, intégration IoT, historiques avancés,
-  templates premium. *[hypothèse — grille tarifaire à formaliser]*
+- **Freemium 3 paliers** (cf. [pricing-tiers-definition](pricing-tiers-definition.md)) :
+  - **Free** : 5 recettes, 3 sessions, scan illimité, AI 5-10 req/mois →
+    Léa la Curieuse (50 % du funnel actifs)
+  - **Premium 2,99 €/mo ou 24,99 €/an** (-30 %) : recettes/sessions
+    illimitées, AI 50 req/mo, communauté écriture → Nicolas/Zoé/Claire
+    Premium (60 % des payants)
+  - **Pro 5,99 €/mo ou 49,99 €/an** (-30 %) : exports BeerXML, API,
+    intégrations IoT, water chemistry FR, AI 500 req/mo → Marc/Claire Pro
+    (40 % des payants)
 - **Partenariats** : commissions sur ventes LHBS via marketplace
   intégrée (évolution post-MVP, cf.
   [vision.md](../../vision/vision.md) § Exclusions).
+- **4 leviers stratégiques amplificateurs** : trial 30 jours Pro sans CB,
+  lifetime 99 € × 100 places au lancement (~9 900 € seed cash + 100
+  evangelists), migration -50 % Pro 1ère année pour Marc-Switcher
+  (proof Brewfather), discount annuel 30 %.
 
-Trou factuel : modèle de revenu précis + CA année 1 + seuil break-even.
-Voir SMART #36 (3 dossiers financement) pour plan de trésorerie
-transitoire.
+**Cible Année 3** : 1 000 utilisateurs payants, ARPU blendé ~4,75 €/mo,
+MRR ~4 800 €/mois, revenu net ~3 400 €/mois (cible « vivre de l'app »
+atteinte). Détail dans
+[funnel-projection](funnel-projection.md) +
+[financial-projections](financial-projections.md). Break-even mois 5-6.
 
 ### 6. Ressources clés
 

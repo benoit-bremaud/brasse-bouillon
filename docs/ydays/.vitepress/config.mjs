@@ -80,6 +80,18 @@ export default {
         ]
       },
       {
+        text: "Stratégie business approfondie",
+        items: [
+          { text: "Audit concurrence approfondi", link: `${outputsPrefix}/competitive-deep-dive` },
+          { text: "Personas & monétisation", link: `${outputsPrefix}/personas-monetization` },
+          { text: "Funnel & projection", link: `${outputsPrefix}/funnel-projection` },
+          { text: "Paliers tarifaires", link: `${outputsPrefix}/pricing-tiers-definition` },
+          { text: "Leviers de rétention", link: `${outputsPrefix}/retention-levers` },
+          { text: "Stratégie IA", link: `${outputsPrefix}/ai-strategy` },
+          { text: "Projections financières", link: `${outputsPrefix}/financial-projections` }
+        ]
+      },
+      {
         text: "Références et historique",
         items: [
           { text: "Références overview", link: "/references-overview" },

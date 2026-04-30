@@ -7,6 +7,46 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.30-1
+
+**Section « Stratégie business approfondie » : 7 nouveaux livrables soutenance**
+
+Ajout d'une section sidebar dédiée concrétisant le bloc 5 (BM + Perspectives)
+du plan de soutenance avec des analyses chiffrées, sourcées et slide-ready.
+
+- **Audit concurrence approfondi** ([competitive-deep-dive](/outputs/competitive-deep-dive))
+  — analyse 7 concurrents (Brewfather, BeerSmith 4, Grainfather, BrewTarget,
+  Brewer's Friend, Little Bock, Joliebulle) avec UX commentée, reviews,
+  SWOT, matrices de positionnement, données financières publiques et
+  tendances marché brassage maison FR 2024-2030. **5 trouvailles critiques**
+  + **3 axes différenciants** extractibles directement en slides.
+- **Personas & monétisation** ([personas-monetization](/outputs/personas-monetization))
+  — 5 personas avec WTP, LTV, retention. Marc-Switcher identifié comme
+  cible prioritaire (LTV 384 € + effet evangelist ×5-10).
+- **Funnel & projection** ([funnel-projection](/outputs/funnel-projection))
+  — modélisation 50K téléchargements → 1 000 payants sur 3 ans. Mix 75 %
+  Premium / 25 % Pro. ARPU blendé 4,75 €/mo. 3 scénarios alternatifs.
+- **Paliers tarifaires** ([pricing-tiers-definition](/outputs/pricing-tiers-definition))
+  — Free / Premium 2,99 €/mo / Pro 5,99 €/mo. 4 leviers stratégiques
+  (trial 30 jours Pro, lifetime 99 € × 100 places, migration -50 %, discount
+  annuel 30 %). Anti-frustration documentée.
+- **Leviers de rétention** ([retention-levers](/outputs/retention-levers))
+  — 10 leviers analysés, top 5 retenus (onboarding, lock-in données, cycle
+  brassage, communauté FR, IA personnalisation). Anti-patterns documentés.
+- **Stratégie IA** ([ai-strategy](/outputs/ai-strategy))
+  — Mistral AI en provider principal (FR souverain), Anthropic Claude en
+  backup. Use cases par persona, économie unitaire (Pro reste rentable),
+  roadmap d'intégration Phase 4-6.
+- **Projections financières** ([financial-projections](/outputs/financial-projections))
+  — OPEX 3,5K € → 36K €/an sur 5 ans. CAPEX initial faible (~1-2,5K €).
+  Revenus cumulés Année 3 ~57 K€ → ~3 400 €/mois net (cible « vivre de
+  l'app » atteinte). Break-even mois ~5-6. KPIs structurés en 4 catégories
+  avec cibles annuelles.
+
+Mise à jour du Business Model Canvas (bloc 5 Revenus) pour remplacer
+l'hypothèse « prix exact et seuil freemium à caler » par les valeurs
+concrètes désormais documentées.
+
 ## 2026.04.23-8
 
 **Régénération des 4 candidats Canva avec brand kit appliqué (via MCP)**

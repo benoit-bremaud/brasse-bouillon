@@ -113,9 +113,12 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   retryButton: {
+    // Issue #641 — was `colors.semantic.error` (dark brown), now
+    // aligned with the rest of the CTA stack which uses
+    // `colors.brand.primary` (medium brown) — see PrimaryButton.
     marginTop: spacing.xs,
     alignSelf: "flex-start",
-    backgroundColor: colors.semantic.error,
+    backgroundColor: colors.brand.primary,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: radius.sm,

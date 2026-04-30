@@ -32,42 +32,36 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * representation limit. Decimal types are reserved for monetary
  * values; brewing metrics use real.
  */
+// Columns added in this migration, in their semantic creation order
+// (down migration drops them in reverse). Keeping the list as a
+// shared constant lets the up / down methods iterate instead of
+// repeating 7 verbatim ALTER statements each.
+const COLUMNS: ReadonlyArray<{ name: string; sqlType: string }> = [
+  { name: 'name', sqlType: 'varchar(120)' },
+  { name: 'notes', sqlType: 'text' },
+  { name: 'target_volume_l', sqlType: 'real' },
+  { name: 'final_volume_l', sqlType: 'real' },
+  { name: 'og_actual', sqlType: 'real' },
+  { name: 'fg_actual', sqlType: 'real' },
+  { name: 'abv_actual', sqlType: 'real' },
+];
+
 export class AddBatchDemoNarrativeFields1782000000000 implements MigrationInterface {
   name = 'AddBatchDemoNarrativeFields1782000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "name" varchar(120)`,
-    );
-    await queryRunner.query(`ALTER TABLE "batches" ADD COLUMN "notes" text`);
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "target_volume_l" real`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "final_volume_l" real`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "og_actual" real`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "fg_actual" real`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "batches" ADD COLUMN "abv_actual" real`,
-    );
+    for (const col of COLUMNS) {
+      await queryRunner.query(
+        `ALTER TABLE "batches" ADD COLUMN "${col.name}" ${col.sqlType}`,
+      );
+    }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "batches" DROP COLUMN "abv_actual"`);
-    await queryRunner.query(`ALTER TABLE "batches" DROP COLUMN "fg_actual"`);
-    await queryRunner.query(`ALTER TABLE "batches" DROP COLUMN "og_actual"`);
-    await queryRunner.query(
-      `ALTER TABLE "batches" DROP COLUMN "final_volume_l"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "batches" DROP COLUMN "target_volume_l"`,
-    );
-    await queryRunner.query(`ALTER TABLE "batches" DROP COLUMN "notes"`);
-    await queryRunner.query(`ALTER TABLE "batches" DROP COLUMN "name"`);
+    for (const col of [...COLUMNS].reverse()) {
+      await queryRunner.query(
+        `ALTER TABLE "batches" DROP COLUMN "${col.name}"`,
+      );
+    }
   }
 }

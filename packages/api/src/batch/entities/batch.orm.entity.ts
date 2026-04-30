@@ -21,6 +21,34 @@ export class BatchOrmEntity {
   @Column({ type: 'varchar', length: 36, nullable: false })
   recipe_id: string;
 
+  // Issue #782 minimal++ — narrative + metric fields kept on the row
+  // itself so the brassin carries the basics expected by the demo
+  // story (title, free-text recap, target vs final volume, OG/FG/ABV
+  // trio) independently of the linked recipe. All nullable so
+  // legacy rows don't need backfill. Richer per-stage volumes,
+  // measurements, observations, and step transitions live in the
+  // v0.2/v0.3 backlog (#808-#814).
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  name?: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  notes?: string | null;
+
+  @Column({ type: 'real', nullable: true })
+  target_volume_l?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  final_volume_l?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  og_actual?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  fg_actual?: number | null;
+
+  @Column({ type: 'real', nullable: true })
+  abv_actual?: number | null;
+
   @Column({
     type: 'varchar',
     length: 20,

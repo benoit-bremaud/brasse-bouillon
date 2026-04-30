@@ -69,12 +69,6 @@ type TimelineStep = {
   state: "past" | "current" | "next";
 };
 
-const PERIOD_OPTIONS: Array<{ id: PeriodKey; label: string }> = [
-  { id: "year", label: "Année" },
-  { id: "90d", label: "90 jours" },
-  { id: "30d", label: "30 jours" },
-];
-
 const BREWING_STEPS: BrewStepConfig[] = [
   { label: "Empâtage", expectedHours: 2, isCriticalQuality: false },
   { label: "Ébullition", expectedHours: 8, isCriticalQuality: false },
@@ -371,7 +365,12 @@ export function DashboardScreen() {
   const router = useRouter();
   const { session } = useAuth();
 
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey>("year");
+  // The "Période d'analyse" filter (Année / 90j / 30j) used to live
+  // on the home and is being moved to a dedicated Statistiques screen
+  // (see #646 follow-up). Until that screen ships, the filter stays
+  // pinned to "year" so home counts/alerts keep their historical
+  // scope without the misplaced UI knob.
+  const selectedPeriod: PeriodKey = "year";
   const [isMoreSheetVisible, setIsMoreSheetVisible] = useState(false);
 
   const {
@@ -580,41 +579,6 @@ export function DashboardScreen() {
             />
           </View>
         </View>
-
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Période d’analyse</Text>
-          </View>
-
-          <View style={styles.periodFilters}>
-            {PERIOD_OPTIONS.map((option) => {
-              const isSelected = selectedPeriod === option.id;
-
-              return (
-                <Pressable
-                  key={option.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Choisir la période ${option.label}`}
-                  onPress={() => setSelectedPeriod(option.id)}
-                  style={({ pressed }) => [
-                    styles.periodChip,
-                    isSelected && styles.periodChipSelected,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.periodChipText,
-                      isSelected && styles.periodChipTextSelected,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
 
         <Card style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -940,30 +904,6 @@ const styles = StyleSheet.create({
   sectionMeta: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
-  },
-  periodFilters: {
-    flexDirection: "row",
-    gap: spacing.xs,
-  },
-  periodChip: {
-    flex: 1,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
-    paddingVertical: spacing.xs,
-    alignItems: "center",
-  },
-  periodChipSelected: {
-    backgroundColor: colors.brand.secondary,
-    borderColor: colors.brand.secondary,
-  },
-  periodChipText: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
-    fontWeight: typography.weight.medium,
-  },
-  periodChipTextSelected: {
-    color: colors.neutral.white,
   },
   kpiRow: {
     flexDirection: "row",

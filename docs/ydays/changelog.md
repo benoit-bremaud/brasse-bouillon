@@ -7,6 +7,43 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.30-2
+
+**Atelier B Phase 5 modèle éco — CAPEX & financement (analyse approfondie)**
+
+Ajout de [capex-financement](/outputs/capex-financement) à la section
+« Stratégie business approfondie » (8e document de la section).
+
+Ce document consolide tout l'Atelier B de la Phase 5 du modèle économique :
+
+- **Forme juridique** — matrice comparative complète (Microentreprise, EURL,
+  SASU, SARL) sur 4 catégories. Architecture D retenue (microentreprise
+  unifiée Année 1-2 + bascule SASU dédiée à BB Année 3, déclenchée par CA
+  cumulé ~70 K€).
+- **Sécurité sociale et mutuelle d'entreprise** — confirmation que la
+  microentreprise en parallèle de l'alternance ne fait perdre ni la Sécu ni
+  la mutuelle d'entreprise (règle de pluralité d'activités CSS Art. L613-4).
+- **Transition Microentreprise → SASU** — 5 étapes détaillées (préparation,
+  création, transfert d'activité, activation, régime de croisière) avec
+  coûts (~1-3 K€ + capital social bloqué) et risques.
+- **Scénario « si l'alternance se termine »** — 4 sous-scénarios (BB pas
+  rentable, BB activité principale, recherche CDI, CDI chez l'employeur)
+  avec aides chômage applicables.
+- **Cartographie complète de 12 aides publiques** — vue d'ensemble par
+  phase (Microentreprise / Transition / SASU / Si alternance termine).
+- **JEI (Jeune Entreprise Innovante) approfondi** — pièce maîtresse :
+  conditions, R&D éligible, bénéfices détaillés (exo IS + exo charges
+  sociales R&D + exo CET), estimation **45-50 K€ d'économies cumulées
+  sur 7 ans**.
+- **Bourse French Tech BPI + Garantie BPI Création** — 30 K€ subvention
+  + effet levier prêt bancaire 50 K€ sans engager patrimoine perso. Combo
+  Année 3 = ~80 K€ d'injection capital.
+- **ACRE / NACRE / ARE / ARCE** — mentions concises avec montants et
+  conditions.
+- **Plan de financement consolidé** sur 5 ans avec total effet financier
+  cumulé : **~150-200 K€** (subventions + économies fiscales + prêts à
+  conditions favorables, sans dilution capital).
+
 ## 2026.04.30-1
 
 **Section « Stratégie business approfondie » : 7 nouveaux livrables soutenance**

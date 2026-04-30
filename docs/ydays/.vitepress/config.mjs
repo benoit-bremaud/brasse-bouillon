@@ -88,7 +88,8 @@ export default {
           { text: "Paliers tarifaires", link: `${outputsPrefix}/pricing-tiers-definition` },
           { text: "Leviers de rétention", link: `${outputsPrefix}/retention-levers` },
           { text: "Stratégie IA", link: `${outputsPrefix}/ai-strategy` },
-          { text: "Projections financières", link: `${outputsPrefix}/financial-projections` }
+          { text: "Projections financières", link: `${outputsPrefix}/financial-projections` },
+          { text: "CAPEX & financement", link: `${outputsPrefix}/capex-financement` }
         ]
       },
       {

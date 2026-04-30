@@ -147,4 +147,87 @@ describe("PendingScansScreen", () => {
       expect(screen.getByText("No pending scan")).toBeTruthy();
     });
   });
+
+  describe("consent snapshot rendered in human-readable French (Issue #640)", () => {
+    function captureWithConsent(consentSnapshot: {
+      storeBarcodeValue: boolean;
+      storeBottlePhotos: boolean;
+      storeScanMetadata: boolean;
+      useDataForModelTraining: boolean;
+    }) {
+      return {
+        id: "pending-consent",
+        status: "pending-analysis" as const,
+        createdAtIso: "2026-04-30T10:00:00.000Z",
+        barcodeValue: null,
+        barcodeType: null,
+        frontPhotoUri: null,
+        backPhotoUri: null,
+        backLabelMissing: false,
+        consentSnapshot,
+        metadata: "metadata-consent",
+      };
+    }
+
+    it("renders the full sentence when all four consents are granted", async () => {
+      mockedListPendingScans.mockResolvedValue([
+        captureWithConsent({
+          storeBarcodeValue: true,
+          storeBottlePhotos: true,
+          storeScanMetadata: true,
+          useDataForModelTraining: true,
+        }),
+      ]);
+
+      render(<PendingScansScreen />);
+
+      expect(
+        await screen.findByText(
+          /Tu as autorisé : la lecture du code-barre, le stockage des photos, les métadonnées, et l'entraînement de notre IA/i,
+        ),
+      ).toBeTruthy();
+      // No raw jargon (yes/no, barcode:, photos:, etc.) leaks through.
+      expect(screen.queryByText(/barcode: yes/i)).toBeNull();
+      expect(screen.queryByText(/training: yes/i)).toBeNull();
+    });
+
+    it("trims the sentence when only some consents are granted", async () => {
+      mockedListPendingScans.mockResolvedValue([
+        captureWithConsent({
+          storeBarcodeValue: true,
+          storeBottlePhotos: false,
+          storeScanMetadata: true,
+          useDataForModelTraining: false,
+        }),
+      ]);
+
+      render(<PendingScansScreen />);
+
+      const text = await screen.findByText(/Tu as autorisé/i);
+      expect(text).toBeTruthy();
+      // Granted items present
+      expect(text.props.children).toMatch(/lecture du code-barre/i);
+      expect(text.props.children).toMatch(/métadonnées/i);
+      // Refused items absent
+      expect(text.props.children).not.toMatch(/photos/i);
+      expect(text.props.children).not.toMatch(/IA/i);
+    });
+
+    it("shows the negative form when no consent is granted", async () => {
+      mockedListPendingScans.mockResolvedValue([
+        captureWithConsent({
+          storeBarcodeValue: false,
+          storeBottlePhotos: false,
+          storeScanMetadata: false,
+          useDataForModelTraining: false,
+        }),
+      ]);
+
+      render(<PendingScansScreen />);
+
+      expect(
+        await screen.findByText(/Aucune autorisation donnée/i),
+      ).toBeTruthy();
+    });
+  });
 });

@@ -22,6 +22,38 @@ function toYesNo(value: boolean): string {
   return value ? "yes" : "no";
 }
 
+/**
+ * Issue #640 — render the consent snapshot in human-readable French
+ * instead of the previous "barcode: yes • photos: yes • metadata:
+ * yes • training: yes" jargon. The raw boolean snapshot stays in
+ * `capture.consentSnapshot` for the audit trail; this helper just
+ * formats what we surface in the UI.
+ *
+ * If the user has refused everything, returns the negative form
+ * ("Aucune autorisation donnée") so the message remains truthful
+ * even at the empty boundary.
+ */
+type ConsentSnapshot = ScanPendingCapture["consentSnapshot"];
+
+function formatConsentSnapshot(snapshot: ConsentSnapshot): string {
+  const parts: string[] = [];
+  if (snapshot.storeBarcodeValue) parts.push("la lecture du code-barre");
+  if (snapshot.storeBottlePhotos) parts.push("le stockage des photos");
+  if (snapshot.storeScanMetadata) parts.push("les métadonnées");
+  if (snapshot.useDataForModelTraining)
+    parts.push("l'entraînement de notre IA");
+
+  if (parts.length === 0) {
+    return "Aucune autorisation donnée.";
+  }
+  if (parts.length === 1) {
+    return `Tu as autorisé : ${parts[0]}.`;
+  }
+  const head = parts.slice(0, -1).join(", ");
+  const tail = parts[parts.length - 1];
+  return `Tu as autorisé : ${head}, et ${tail}.`;
+}
+
 export function PendingScansScreen() {
   const router = useRouter();
   const [pendingCaptures, setPendingCaptures] = useState<ScanPendingCapture[]>(
@@ -147,13 +179,7 @@ export function PendingScansScreen() {
                     {toYesNo(Boolean(capture.backLabelMissing))}
                   </Text>
                   <Text style={styles.captureConsent}>
-                    Consent snapshot • barcode:{" "}
-                    {toYesNo(capture.consentSnapshot.storeBarcodeValue)} •
-                    photos: {toYesNo(capture.consentSnapshot.storeBottlePhotos)}{" "}
-                    • metadata:{" "}
-                    {toYesNo(capture.consentSnapshot.storeScanMetadata)} •
-                    training:{" "}
-                    {toYesNo(capture.consentSnapshot.useDataForModelTraining)}
+                    {formatConsentSnapshot(capture.consentSnapshot)}
                   </Text>
                   <Text style={styles.captureMetadata}>{capture.metadata}</Text>
                 </View>

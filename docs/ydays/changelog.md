@@ -7,6 +7,38 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.04.30-4
+
+**Atelier D Phase 5 modèle éco — Scénarios alternatifs (clôture Phase 5)**
+
+Ajout de [scenarios-alternatifs](/outputs/scenarios-alternatifs) à la
+section « Stratégie business approfondie » (10e document).
+
+Ce document **clôture la Phase 5 du modèle économique** avec une
+modélisation exhaustive de la robustesse du modèle :
+
+- **3 scénarios chiffrés sur 5 ans** (conservateur / médian / agressif)
+  avec OPEX, MRR, net mensuel par année. Médian atteint la cible
+  « vivre de l'app » en Y3, conservateur survit avec l'agence web,
+  agressif explose dès Y2.
+- **4 stress tests** anticipés (Brewfather localise FR, pandémie,
+  échec produit, régulation hostile) avec mitigations prédéfinies.
+- **Risk matrix de 12 risques** structurée (probabilité × impact).
+  2 risques critiques identifiés : R1 Brewfather FR + R9 burnout
+  solo dev (le risque numéro 1 réel pour BB).
+- **Triggers de bascule entre scénarios** : 5 indicateurs mensuels
+  (téléchargements, conversion, mix Pro, activation, evangelist)
+  permettent de savoir où on se trouve.
+- **Plans B et C explicites** avec actions concrètes et coûts. Pas
+  de « on verra ».
+
+La Phase 5 du modèle économique est désormais complète :
+
+- Atelier A — OPEX (vue d'ensemble dans `financial-projections`)
+- Atelier B — CAPEX & financement (`capex-financement`)
+- Atelier C — KPIs détaillés (`kpi-details`)
+- Atelier D — Scénarios alternatifs (`scenarios-alternatifs`)
+
 ## 2026.04.30-3
 
 **Atelier C Phase 5 modèle éco — KPIs détaillés (20 KPIs avec cibles + triggers)**

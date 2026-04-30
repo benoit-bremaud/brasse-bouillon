@@ -90,7 +90,8 @@ export default {
           { text: "Stratégie IA", link: `${outputsPrefix}/ai-strategy` },
           { text: "Projections financières", link: `${outputsPrefix}/financial-projections` },
           { text: "CAPEX & financement", link: `${outputsPrefix}/capex-financement` },
-          { text: "KPIs détaillés", link: `${outputsPrefix}/kpi-details` }
+          { text: "KPIs détaillés", link: `${outputsPrefix}/kpi-details` },
+          { text: "Scénarios alternatifs", link: `${outputsPrefix}/scenarios-alternatifs` }
         ]
       },
       {

@@ -5,6 +5,68 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-04-30
+
+### Ydays: business strategy deep-dive bundle pushed to PR #578
+
+Branche `docs/soutenance-27-mai` — 6 commits ajoutés (`69ff2a9` → `f43a37d`)
+qui complètent le bloc 5 (BM + Perspectives) du plan de soutenance avec
+des analyses chiffrées, sourcées et slide-ready.
+
+7 nouveaux fichiers dans `docs/ydays/outputs/` (~1 700 lignes) :
+
+- `competitive-deep-dive.md` — audit 7 concurrents (UX, reviews, SWOT,
+  matrices de positionnement, données financières, tendances marché FR
+  2024-2030). 5 trouvailles critiques + 3 axes différenciants.
+- `personas-monetization.md` — 5 personas avec WTP, LTV, retention.
+  Marc-Switcher identifié comme cible prioritaire (LTV 384 € + effet
+  evangelist ×5-10).
+- `funnel-projection.md` — modélisation 50K téléchargements → 1 000
+  payants sur 3 ans. Mix 75 % Premium / 25 % Pro. ARPU blendé 4,75 €/mo.
+  3 scénarios alternatifs.
+- `pricing-tiers-definition.md` — Free / Premium 2,99 €/mo / Pro 5,99 €/mo.
+  4 leviers stratégiques (trial 30j, lifetime 99 € × 100, migration -50 %,
+  discount annuel 30 %).
+- `retention-levers.md` — 10 leviers analysés, top 5 retenus (onboarding,
+  lock-in données, cycle brassage, communauté FR, IA personnalisation).
+- `ai-strategy.md` — Mistral AI provider principal (FR souverain), Anthropic
+  Claude backup. Use cases par persona, économie unitaire (Pro reste
+  rentable), roadmap intégration Phase 4-6.
+- `financial-projections.md` — OPEX 3,5K € → 36K €/an sur 5 ans. CAPEX
+  faible (~1-2,5K €). Net mensuel 1 700 € Y1 → 3 400 € Y3 (cible « vivre
+  de l'app ») → 6 000 € Y5. Break-even mois 5-6. KPIs structurés en 4
+  catégories.
+
+Fichiers mis à jour :
+
+- `docs/ydays/.vitepress/config.mjs` — nouvelle section sidebar « Stratégie
+  business approfondie »
+- `docs/ydays/changelog.md` — entrée `2026.04.30-1`
+- `docs/ydays/outputs/business-model-canvas.md` — bloc 5 Revenus mis à jour
+  (remplace l'hypothèse « prix exact à caler » par les paliers documentés)
+
+**Décisions** :
+
+- `Persona produit principal` — Nicolas N1 (premier kit, 1-2 brassins, tech-savvy)
+  retenu comme persona produit principal. Marc-Switcher reste persona à
+  plus haut ROI (acquisition prioritaire via import BeerXML + migration
+  discount).
+- `Pricing 3 paliers` — Free (5 recettes / 3 sessions / scan illimité),
+  Premium 2,99 €/mo (Nicolas/Zoé/Claire débutante), Pro 5,99 €/mo (Marc/
+  Claire confirmée). Discount annuel -30 % sur les deux paliers payants.
+- `Provider AI` — Mistral AI retenu comme provider principal pour
+  cohérence souveraineté EU + qualité FR native. Anthropic Claude conservé
+  en backup pour cas complexes.
+- `Provider hosting` — Scaleway en référence (FR souverain), décision
+  finale différée à l'implémentation.
+- `Cible revenu` — 3 400 €/mois net Année 3 dans le scénario médian
+  validée comme cohérente avec l'objectif « vivre de l'app » sur 3-5 ans.
+  Modèle robuste à -20 % (~2 100 €/mois net = survie OK avec freelance
+  agence web d'appoint).
+
+PR #578 reste en draft (soutenance 27 mai). Pas de merge prévu avant le
+2026-05-06 (oral blanc).
+
 ## 2026-04-23
 
 ### Mobile-app: v0 screenshot audit frozen (204 files across 13 features)

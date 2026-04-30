@@ -696,105 +696,6 @@
       text-decoration: underline;
     }
 
-    .cookie-banner {
-      position: fixed;
-      left: 50%;
-      bottom: 78px;
-      transform: translateX(-50%);
-      z-index: 1500;
-      display: none;
-      width: min(860px, calc(100% - 24px));
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(141, 88, 50, 0.28);
-      background: rgba(255, 253, 248, 0.98);
-      box-shadow: 0 18px 34px rgba(53, 38, 27, 0.24);
-    }
-
-    .cookie-banner.visible {
-      display: block;
-    }
-
-    .cookie-banner h3 {
-      margin: 0 0 8px;
-      color: var(--color-secondary);
-      font-size: 1rem;
-    }
-
-    .cookie-banner p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #4e4035;
-    }
-
-    .cookie-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .cookie-actions .btn {
-      min-height: 40px;
-      padding: 9px 14px;
-      font-size: 0.88rem;
-    }
-
-    .cookie-manage {
-      position: fixed;
-      left: 50%;
-      bottom: 16px;
-      transform: translateX(-50%);
-      z-index: 1300;
-      border: 1px solid rgba(141, 88, 50, 0.32);
-      background: #fff;
-      color: var(--color-secondary);
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .cookie-banner.visible + .cookie-manage {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-/* Fallback haute priorité pour éviter tout affichage des cookies dans le flux */
-#cookieBannerFr,
-#cookieBannerEn {
-  position: fixed !important;
-  left: 50% !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: 78px !important;
-  transform: translateX(-50%) !important;
-  margin: 0 !important;
-  width: min(860px, calc(100vw - 24px)) !important;
-  max-width: 860px;
-  z-index: 1500 !important;
-}
-
-#cookieManageFr,
-#cookieManageEn {
-  position: fixed !important;
-  left: 50% !important;
-  right: auto !important;
-  top: auto !important;
-  bottom: 16px !important;
-  transform: translateX(-50%) !important;
-  margin: 0 !important;
-  z-index: 1300 !important;
-}
-
-#cookieBannerFr.visible + #cookieManageFr,
-#cookieBannerEn.visible + #cookieManageEn {
-  opacity: 0;
-  pointer-events: none;
-}
-
     .sr-only {
       position: absolute;
       width: 1px;
@@ -842,17 +743,6 @@
 
       .header-nav { display: none; }
       .header-logo span { font-size: 1.1rem; }
-
-  #cookieBannerFr,
-  #cookieBannerEn {
-    bottom: 86px !important;
-    width: calc(100vw - 16px) !important;
-  }
-
-  #cookieManageFr,
-  #cookieManageEn {
-    bottom: 10px !important;
-  }
     }
 
     @media (prefers-reduced-motion: reduce) {

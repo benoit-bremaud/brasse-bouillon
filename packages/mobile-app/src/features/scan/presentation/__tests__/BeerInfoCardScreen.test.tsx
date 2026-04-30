@@ -472,6 +472,32 @@ describe("BeerInfoCardScreen", () => {
   });
 
   describe("import community recipe", () => {
+    /**
+     * Issue #766 — every import flow now goes through a pre-flight
+     * confirmation Alert. This helper traverses the confirmation by
+     * pressing "Importer" so the existing happy-path assertions
+     * downstream stay focused on what they were originally testing.
+     */
+    async function pressImporterOnConfirmationAlert(): Promise<void> {
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith(
+          "Importer cette recette ?",
+          expect.any(String),
+          expect.any(Array),
+          expect.any(Object),
+        );
+      });
+      const confirmButtons = alertSpy.mock.calls[0][2] as Array<{
+        text: string;
+        onPress?: () => void;
+      }>;
+      const importerButton = confirmButtons.find((b) => b.text === "Importer");
+      expect(importerButton).toBeDefined();
+      await act(async () => {
+        importerButton?.onPress?.();
+      });
+    }
+
     it("imports the recipe and navigates to the new detail page on success", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedImport.mockResolvedValueOnce({
@@ -485,19 +511,23 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
+      await pressImporterOnConfirmationAlert();
 
       await waitFor(() => {
         expect(mockedImport).toHaveBeenCalledWith("r-demo-1");
       });
-      expect(alertSpy).toHaveBeenCalledWith(
-        "Recette importée",
+      // The success Alert is the SECOND call (the first was the
+      // confirmation Alert traversed above).
+      const successCall = alertSpy.mock.calls.find(
+        (c) => c[0] === "Recette importée",
+      );
+      expect(successCall).toBeDefined();
+      expect(successCall?.[1]).toEqual(
         expect.stringContaining("Session IPA Citra"),
-        expect.any(Array),
-        expect.any(Object),
       );
 
       // Trigger the "Voir la recette" button from the success alert.
-      const buttons = alertSpy.mock.calls[0][2] as Array<{
+      const buttons = successCall?.[2] as Array<{
         text: string;
         onPress?: () => void;
       }>;
@@ -521,14 +551,20 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
+      await pressImporterOnConfirmationAlert();
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
+        expect(
+          alertSpy.mock.calls.some((c) => c[0] === "Recette importée"),
+        ).toBe(true);
       });
 
+      const successCall = alertSpy.mock.calls.find(
+        (c) => c[0] === "Recette importée",
+      );
       // The "Plus tard" cancel button has no onPress handler — pressing it
       // (or dismissing the alert by tapping outside) must NOT navigate.
-      const buttons = alertSpy.mock.calls[0][2] as Array<{
+      const buttons = successCall?.[2] as Array<{
         text: string;
         style?: string;
         onPress?: () => void;
@@ -549,6 +585,7 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
+      await pressImporterOnConfirmationAlert();
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith(
@@ -557,6 +594,50 @@ describe("BeerInfoCardScreen", () => {
         );
       });
       expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    describe("pre-flight confirmation modal (Issue #766)", () => {
+      it("opens a confirmation Alert with the recipe name on tap", async () => {
+        mockedLookup.mockResolvedValueOnce(buildResult());
+        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+        const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+        await act(async () => {
+          fireEvent.press(row);
+        });
+
+        expect(alertSpy).toHaveBeenCalledWith(
+          "Importer cette recette ?",
+          expect.stringContaining("Session IPA Citra"),
+          expect.any(Array),
+          expect.any(Object),
+        );
+        // The API call is NOT yet made — we are blocked on confirmation.
+        expect(mockedImport).not.toHaveBeenCalled();
+      });
+
+      it("does not call the import API when the user taps Annuler", async () => {
+        mockedLookup.mockResolvedValueOnce(buildResult());
+        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+        const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+        await act(async () => {
+          fireEvent.press(row);
+        });
+
+        const confirmButtons = alertSpy.mock.calls[0][2] as Array<{
+          text: string;
+          style?: string;
+          onPress?: () => void;
+        }>;
+        const cancelButton = confirmButtons.find((b) => b.style === "cancel");
+        expect(cancelButton?.text).toBe("Annuler");
+        // The cancel button has no onPress (per RN Alert convention) —
+        // tapping it just dismisses without firing anything.
+        expect(cancelButton?.onPress).toBeUndefined();
+        expect(mockedImport).not.toHaveBeenCalled();
+        expect(mockPush).not.toHaveBeenCalled();
+      });
     });
   });
 

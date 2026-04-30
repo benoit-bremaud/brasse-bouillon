@@ -412,7 +412,7 @@ function MatchingRecipesSection({
       .slice(0, EQUIVALENTS_LIMIT);
   }, [matching]);
 
-  const handleImport = useCallback(
+  const performImport = useCallback(
     async (sourceId: string) => {
       if (importingId) return;
       setImportingId(sourceId);
@@ -437,6 +437,33 @@ function MatchingRecipesSection({
       }
     },
     [importingId, onImported],
+  );
+
+  /**
+   * Issue #766 — pre-flight confirmation before the import call.
+   * Without this, a stray tap on a community recipe row imports it
+   * silently. The confirmation Alert offers an explicit "Importer"
+   * vs "Annuler" choice so Léa knows what's about to happen.
+   */
+  const handleImport = useCallback(
+    (recipe: ScanRecipeMatch) => {
+      if (importingId) return;
+      Alert.alert(
+        "Importer cette recette ?",
+        `La recette « ${recipe.name} » sera ajoutée à ton carnet.`,
+        [
+          { text: "Annuler", style: "cancel" },
+          {
+            text: "Importer",
+            onPress: () => {
+              void performImport(getImportSourceId(recipe));
+            },
+          },
+        ],
+        { cancelable: true },
+      );
+    },
+    [importingId, performImport],
   );
 
   if (loadError) {
@@ -476,7 +503,7 @@ function MatchingRecipesSection({
             recipe={officialRecipe}
             isImporting={importingId === officialRecipe.recipeId}
             isDisabled={importingId !== null}
-            onPress={() => handleImport(getImportSourceId(officialRecipe))}
+            onPress={() => handleImport(officialRecipe)}
             highlightOfficial
           />
         </Card>
@@ -500,7 +527,7 @@ function MatchingRecipesSection({
               recipe={recipe}
               isImporting={importingId === recipe.recipeId}
               isDisabled={importingId !== null}
-              onPress={() => handleImport(getImportSourceId(recipe))}
+              onPress={() => handleImport(recipe)}
             />
           ))}
         </Card>

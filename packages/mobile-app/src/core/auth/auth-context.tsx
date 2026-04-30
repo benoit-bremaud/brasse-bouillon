@@ -15,8 +15,10 @@ import React, {
 } from "react";
 
 import { authSession } from "@/core/auth/session";
+import { env } from "@/core/config/env";
 import { dataSource } from "@/core/data/data-source";
 import { AuthSession } from "@/features/auth/domain/auth.types";
+import { isDemoTriggerCredentials } from "@/features/auth/domain/demo-trigger-credentials";
 import { demoUsers } from "@/mocks/demo-data";
 
 type AuthContextValue = {
@@ -101,6 +103,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      // Issue #822 — soutenance safety net. If the speaker types
+      // the demo trigger credentials, flip the runtime data-source
+      // toggle into demo mode and emit a synthetic session without
+      // touching the network. Anyone observing the source can read
+      // the trigger pair, but the demo data is curated public mocks
+      // — no privilege escalation.
+      if (isDemoTriggerCredentials(email, password)) {
+        dataSource.useDemoData = true;
+        const demoSession = createDemoSession();
+        await authSession.setAccessToken(demoSession.accessToken);
+        setSession(demoSession);
+        return;
+      }
+
       const nextSession = await login(email, password);
       await authSession.setAccessToken(nextSession.accessToken);
       setSession(nextSession);
@@ -197,6 +213,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleLogout = async () => {
+    // Issue #822 — when demo mode was activated mid-session via
+    // the trigger credentials, restore the original boot-time
+    // toggle so the next login attempt hits the real backend
+    // again. If demo mode was already on at boot (build-time env
+    // var), leave the flag alone.
+    if (dataSource.useDemoData && !env.useDemoData) {
+      dataSource.useDemoData = false;
+    }
     await authSession.clear();
     setSession(null);
   };

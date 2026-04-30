@@ -33,6 +33,7 @@ import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { BarcodeVerificationProgress } from "@/features/scan/presentation/components/BarcodeVerificationProgress";
 import { DemoOverrideMenu } from "@/features/scan/presentation/components/DemoOverrideMenu";
 import { useRouter } from "expo-router";
 
@@ -628,6 +629,10 @@ export function ScanScreen() {
               ) : null}
 
               <Text style={styles.supportText}>{barcodeVerificationText}</Text>
+              <BarcodeVerificationProgress
+                count={barcodeVerification.identicalScans}
+                total={REQUIRED_IDENTICAL_BARCODE_SCANS}
+              />
 
               {barcodeVerification.confirmedValue ? (
                 <View style={styles.capturedBarcodeContainer}>

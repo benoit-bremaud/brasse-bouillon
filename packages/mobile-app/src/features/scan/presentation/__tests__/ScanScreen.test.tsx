@@ -446,6 +446,41 @@ describe("ScanScreen", () => {
     expect(screen.getByText("Switch to bottle mode")).toBeTruthy();
   });
 
+  describe("progressive verification feedback (Issue #638)", () => {
+    it("starts with 0 filled dots and 5 empty dots when no scan has fired", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-filled"),
+      ).toHaveLength(0);
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-empty"),
+      ).toHaveLength(5);
+    });
+
+    it("fills dots in real time as identical scans accumulate", async () => {
+      renderScreen();
+      await waitForReadyState();
+
+      simulateBarcodeScan(2);
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-filled"),
+      ).toHaveLength(2);
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-empty"),
+      ).toHaveLength(3);
+
+      simulateBarcodeScan(2);
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-filled"),
+      ).toHaveLength(4);
+      expect(
+        screen.queryAllByTestId("barcode-verification-dot-empty"),
+      ).toHaveLength(1);
+    });
+  });
+
   describe("demo override hidden long-press (Issue #642)", () => {
     it("opens the demo override menu on a long-press of the help button", async () => {
       renderScreen();

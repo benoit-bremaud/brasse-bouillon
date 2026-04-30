@@ -1,0 +1,77 @@
+# ==============================================================================
+# Brasse-Bouillon — Claude Code Review
+#
+# Runs the official anthropics/claude-code-action on every pull request,
+# posting inline review comments. Replaces GitHub Copilot reviewer while
+# the personal-account Copilot premium quota is exhausted (until
+# 2026-06-01).
+#
+# Requirements:
+#   - GitHub repo secret ANTHROPIC_API_KEY (generate one at
+#     console.anthropic.com → Settings → API keys)
+#   - Repo permission: Settings → Actions → General → Workflow
+#     permissions → "Read and write permissions"
+#
+# Skipped on PRs from forks because secrets.ANTHROPIC_API_KEY is not
+# shared with forked-repo workflows by GitHub Actions; the action would
+# fail to authenticate. An authorized maintainer can still trigger a
+# review by re-running the workflow on a branch of this repo.
+# ==============================================================================
+
+name: Claude Code Review
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@main
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this pull request as a senior reviewer for the
+            Brasse-Bouillon monorepo (React Native + Expo + NestJS,
+            Clean Architecture, strict TypeScript, no `any`, named
+            exports only, design tokens for all styling).
+
+            Focus on, in this order:
+              1. Correctness — logic bugs, off-by-one errors, broken
+                 invariants, regressions in existing behaviour.
+              2. Security — XSS / SQL injection / command injection /
+                 hardcoded secrets / unvalidated input at boundaries.
+              3. Architecture — layering violations (domain ← application
+                 ← data → presentation), forbidden cross-feature imports,
+                 abuse of the data-source toggle pattern.
+              4. Tests — happy path + sad path + edge cases per project
+                 convention; no regressions on existing assertions.
+              5. Code quality — naming, dead code, duplication,
+                 over-engineering, missing TypeScript narrowing.
+
+            Post each finding as an inline review comment on the
+            relevant line. Tag each finding with one of:
+              [Must Have] — logic bug, security, broken behaviour.
+              [Should Have] — quality, naming, validation gap.
+              [Nice to Have] — style preference, optional optimisation.
+              [Disagree] — flag points the diff author may push back on.
+
+            End with a single overall verdict line:
+              "Verdict: APPROVE | REQUEST CHANGES | COMMENT"

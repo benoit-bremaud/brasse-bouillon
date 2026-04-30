@@ -19,7 +19,11 @@
  */
 
 export const DEMO_TRIGGER_EMAIL = "demo@brasse-bouillon.local";
-export const DEMO_TRIGGER_PASSWORD = "brasse-bouillon-demo-2026";
+// NOSONAR: intentional public trigger pair — see file header. The
+// password unlocks a local demo-data toggle backed by curated public
+// mocks, never a real account or privileged scope. Documented on the
+// speaker's backup card for soutenance recovery (#822).
+export const DEMO_TRIGGER_PASSWORD = "brasse-bouillon-demo-2026"; // NOSONAR
 
 /**
  * Returns true when the given credentials match the demo trigger

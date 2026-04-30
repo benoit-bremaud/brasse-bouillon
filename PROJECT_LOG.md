@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-04-30
 
+### PR #815 merged (`0a5af5d`) — feat(seed): pre-seed Punk IPA brassin demo + 7 brewing-day steps (#782)
+
+- Closes #782. Migration adds 7 nullable columns to `batches`; idempotent seed loader inserts batch row + 7 BatchStep rows. Output of the 8-axis Brassins data model Q&A scoping session 2026-04-30; deferred richness captured in 7 backlog epics: #808 #809 #810 #811 #812 #813 #814.
+- Codex P1 fix (commit `879a703`): widened batch window 14d → 21d so all step offsets fit inside [started_at, completed_at] + regression-guard test.
+- SonarCloud duplication chase: 4 refactor commits (`e0e4302` `85cd539` `4e00a2f` `a291b86`) — extracted `seed-test-utils.ts` (RepoMock helpers), `seed-utils.ts` (`idempotentUpsertById<T>` generic), runSeed local helper, COLUMNS-array iteration in migration. 4.3% → 0.0% duplication on new code.
+
 ### Ydays: business strategy deep-dive bundle pushed to PR #578
 
 Branche `docs/soutenance-27-mai` — 6 commits ajoutés (`69ff2a9` → `f43a37d`)

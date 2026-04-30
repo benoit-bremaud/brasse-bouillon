@@ -7,6 +7,7 @@ import { BatchStepStatus } from '../../batch/domain/enums/batch-step-status.enum
 import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { SYSTEM_USER_ID } from './system-user.seed';
+import { idempotentUpsertById } from './seed-utils';
 
 /**
  * Seed for `batches` table — pre-populated demo brassin (Issue #782,
@@ -237,25 +238,11 @@ export async function seedDemoBatch(
       'à souhait — équilibre amertume/fruité tropical réussi.',
   };
 
-  let insertedBatch = 0;
-  let updatedBatch = 0;
-
-  const existingBatch = await batchRepository.findOne({
-    where: { id: DEMO_PUNK_IPA_BATCH_ID },
-  });
-
-  if (existingBatch) {
-    Object.assign(existingBatch, batchPayload);
-    await batchRepository.save(existingBatch);
-    updatedBatch = 1;
-  } else {
-    const created = batchRepository.create({
-      id: DEMO_PUNK_IPA_BATCH_ID,
-      ...batchPayload,
-    });
-    await batchRepository.save(created);
-    insertedBatch = 1;
-  }
+  const batchOutcome = await idempotentUpsertById(
+    batchRepository,
+    { id: DEMO_PUNK_IPA_BATCH_ID },
+    batchPayload,
+  );
 
   let insertedSteps = 0;
   let updatedSteps = 0;
@@ -268,36 +255,29 @@ export async function seedDemoBatch(
       startedAt.getTime() + template.endOffsetMs,
     );
 
-    const stepPayload = {
-      type: template.type,
-      label: template.label,
-      description: template.description,
-      status: BatchStepStatus.COMPLETED,
-      started_at: stepStartedAt,
-      completed_at: stepCompletedAt,
-    };
-
-    const existingStep = await stepRepository.findOne({
-      where: {
+    const stepOutcome = await idempotentUpsertById(
+      stepRepository,
+      {
         batch_id: DEMO_PUNK_IPA_BATCH_ID,
         step_order: template.step_order,
       },
-    });
-
-    if (existingStep) {
-      Object.assign(existingStep, stepPayload);
-      await stepRepository.save(existingStep);
-      updatedSteps += 1;
-    } else {
-      const createdStep = stepRepository.create({
-        batch_id: DEMO_PUNK_IPA_BATCH_ID,
-        step_order: template.step_order,
-        ...stepPayload,
-      });
-      await stepRepository.save(createdStep);
-      insertedSteps += 1;
-    }
+      {
+        type: template.type,
+        label: template.label,
+        description: template.description,
+        status: BatchStepStatus.COMPLETED,
+        started_at: stepStartedAt,
+        completed_at: stepCompletedAt,
+      },
+    );
+    insertedSteps += stepOutcome.inserted;
+    updatedSteps += stepOutcome.updated;
   }
 
-  return { insertedBatch, updatedBatch, insertedSteps, updatedSteps };
+  return {
+    insertedBatch: batchOutcome.inserted,
+    updatedBatch: batchOutcome.updated,
+    insertedSteps,
+    updatedSteps,
+  };
 }

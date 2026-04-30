@@ -12,7 +12,7 @@ import {
   DemoBatchPrerequisiteMissingError,
   seedDemoBatch,
 } from './demo-batch.seed';
-import { RepoMock, buildRepoMock } from './seed-test-utils';
+import { buildRepoMock } from './seed-test-utils';
 import { SYSTEM_USER_ID } from './system-user.seed';
 
 const FAKE_NOW = new Date('2026-04-30T12:00:00.000Z');
@@ -43,9 +43,9 @@ describe('seedDemoBatch (Issue #782)', () => {
   });
 
   describe('happy path — recipe exists, neither batch nor steps exist', () => {
-    let batchRepo: RepoMock;
-    let recipeRepo: RepoMock;
-    let stepRepo: RepoMock;
+    let batchRepo: ReturnType<typeof buildRepoMock>;
+    let recipeRepo: ReturnType<typeof buildRepoMock>;
+    let stepRepo: ReturnType<typeof buildRepoMock>;
 
     beforeEach(async () => {
       batchRepo = buildRepoMock();

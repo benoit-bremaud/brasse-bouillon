@@ -5,9 +5,13 @@
  * follows the same idempotent contract: receives a TypeORM
  * `Repository`, looks up by id, creates or updates in place, returns
  * a stats object. The unit tests for those seeds therefore share the
- * same mock harness — keeping it in one place avoids 4 verbatim
- * copies across the spec files (which SonarCloud flags as
- * duplication on new code).
+ * same mock harness — keeping it in one place avoids verbatim copies
+ * across the spec files (which SonarCloud flags as duplication on
+ * new code).
+ *
+ * The runtime upsert helper (`idempotentUpsertById`) lives in
+ * `seed-utils.ts` next to it — keeping the test harness separate so
+ * the production bundle doesn't pull in jest types.
  */
 
 /**

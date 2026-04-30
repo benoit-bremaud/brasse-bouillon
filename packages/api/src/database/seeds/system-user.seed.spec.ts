@@ -2,26 +2,13 @@ import { Repository } from 'typeorm';
 
 import { User } from '../../user/entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
+import { buildRepoMock } from './seed-test-utils';
 import {
   SYSTEM_USER_EMAIL,
   SYSTEM_USER_ID,
   SYSTEM_USER_USERNAME,
   seedSystemUser,
 } from './system-user.seed';
-
-type RepoMock = {
-  findOne: jest.Mock;
-  create: jest.Mock;
-  save: jest.Mock;
-};
-
-function buildRepoMock(): RepoMock {
-  return {
-    findOne: jest.fn(),
-    create: jest.fn((input: unknown) => input),
-    save: jest.fn((input: unknown) => Promise.resolve(input)),
-  };
-}
 
 describe('seedSystemUser (Issue #701 prerequisite)', () => {
   describe('happy path', () => {

@@ -3,20 +3,7 @@ import { Repository } from 'typeorm';
 import { ScanCatalogItemOrmEntity } from '../../scan/entities/scan-catalog-item.orm.entity';
 import { ScanCatalogSource } from '../../scan/domain/enums/scan-catalog-source.enum';
 import { SCAN_CATALOG_SEED_BEERS, seedScanCatalog } from './scan-catalog.seed';
-
-type RepoMock = {
-  findOne: jest.Mock;
-  create: jest.Mock;
-  save: jest.Mock;
-};
-
-function buildRepoMock(): RepoMock {
-  return {
-    findOne: jest.fn(),
-    create: jest.fn((input: unknown) => input),
-    save: jest.fn((input: unknown) => Promise.resolve(input)),
-  };
-}
+import { buildRepoMock } from './seed-test-utils';
 
 describe('seedScanCatalog (Epic #693 part 5/5)', () => {
   describe('happy path', () => {

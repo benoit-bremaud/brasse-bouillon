@@ -7,20 +7,7 @@ import {
   PUBLIC_RECIPES_SYSTEM_OWNER_ID,
   seedPublicRecipes,
 } from './public-recipes.seed';
-
-type RepoMock = {
-  findOne: jest.Mock;
-  create: jest.Mock;
-  save: jest.Mock;
-};
-
-function buildRepoMock(): RepoMock {
-  return {
-    findOne: jest.fn(),
-    create: jest.fn((input: unknown) => input),
-    save: jest.fn((input: unknown) => Promise.resolve(input)),
-  };
-}
+import { buildRepoMock } from './seed-test-utils';
 
 describe('seedPublicRecipes (Issue #701)', () => {
   describe('happy path', () => {

@@ -50,12 +50,21 @@ export const DEMO_PUNK_IPA_BATCH_ID = '00000000-0000-4000-8000-0000000000b1';
 export const DEMO_PUNK_IPA_RECIPE_ID = '00000000-0000-4000-8000-000000000001';
 
 /**
- * Days-ago anchor. The demo brassin started 14 days before the seed
- * runs and completed 7 days before the seed runs (so the brassin is
- * "fresh" but unambiguously in the past). Recomputed at every seed
- * run to keep the timeline plausible whatever the calendar date.
+ * Days-ago anchors for the demo brassin. The window between
+ * `started_at` and `completed_at` is intentionally **14 days**
+ * because the step offsets below are calibrated to that span (mash
+ * to packaging). The brassin completed 7 days before "now" so the
+ * timeline feels unambiguously in the past on stage.
+ *
+ * Codex P1 #815 caught a regression earlier: with a 7-day window
+ * (started_at=-14d, completed_at=-7d) the 14-day step offsets
+ * placed step 7 (packaging) past the parent batch's completion,
+ * producing "completed steps in the future". The 21/7 anchors
+ * below close the inconsistency: completed_at = started_at + 14d
+ * exactly, so step 7 ends on the same instant the batch is marked
+ * COMPLETED.
  */
-const DAYS_SINCE_STARTED = 14;
+const DAYS_SINCE_STARTED = 21;
 const DAYS_SINCE_COMPLETED = 7;
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -149,8 +158,11 @@ const DEMO_STEPS: readonly DemoStepTemplate[] = [
     label: 'Mise en bouteille',
     description:
       'Embouteillage avec sucre de refermentation 7g/L. 18 L finaux.',
-    startOffsetMs: 14 * ONE_DAY_MS,
-    endOffsetMs: 14 * ONE_DAY_MS + ONE_HOUR_MS,
+    // Packaging is the final hour of the 14-day window. Ending at
+    // exactly 14d aligns the step's completed_at with the parent
+    // batch's completed_at — no future-dated steps.
+    startOffsetMs: 14 * ONE_DAY_MS - ONE_HOUR_MS,
+    endOffsetMs: 14 * ONE_DAY_MS,
   },
 ];
 

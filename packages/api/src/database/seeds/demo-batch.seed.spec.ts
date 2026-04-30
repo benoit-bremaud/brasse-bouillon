@@ -201,7 +201,7 @@ describe('seedDemoBatch (Issue #782)', () => {
         started_at: Date;
         completed_at: Date;
       };
-      const expectedStart = new Date('2026-04-16T12:00:00.000Z');
+      const expectedStart = new Date('2026-04-09T12:00:00.000Z');
       const expectedEnd = new Date('2026-04-23T12:00:00.000Z');
       expect(batchPayload.started_at.toISOString()).toBe(
         expectedStart.toISOString(),
@@ -209,6 +209,44 @@ describe('seedDemoBatch (Issue #782)', () => {
       expect(batchPayload.completed_at.toISOString()).toBe(
         expectedEnd.toISOString(),
       );
+    });
+
+    it('keeps every seeded step inside the parent batch [started_at, completed_at] window (Codex P1 #815 regression guard)', async () => {
+      const batchRepo = buildRepoMock();
+      const recipeRepo = buildRepoMock();
+      const stepRepo = buildRepoMock();
+      recipeRepo.findOne.mockResolvedValueOnce({
+        id: DEMO_PUNK_IPA_RECIPE_ID,
+      });
+      batchRepo.findOne.mockResolvedValueOnce(null);
+      stepRepo.findOne.mockResolvedValue(null);
+
+      await runSeed(batchRepo, recipeRepo, stepRepo);
+
+      const batchPayload = (batchRepo.create.mock.calls[0] as unknown[])[0] as {
+        started_at: Date;
+        completed_at: Date;
+      };
+      const batchStart = batchPayload.started_at.getTime();
+      const batchEnd = batchPayload.completed_at.getTime();
+
+      for (const call of stepRepo.create.mock.calls as unknown[][]) {
+        const step = call[0] as {
+          step_order: number;
+          started_at: Date;
+          completed_at: Date;
+        };
+        const stepStart = step.started_at.getTime();
+        const stepEnd = step.completed_at.getTime();
+        // Both timestamps must sit inside the parent batch window —
+        // Codex caught a regression where step 7 (packaging) and
+        // step 6 (conditioning) finished after the batch was marked
+        // COMPLETED, producing future-dated "completed" steps.
+        expect(stepStart).toBeGreaterThanOrEqual(batchStart);
+        expect(stepEnd).toBeLessThanOrEqual(batchEnd);
+        // And every step must end at or after it started.
+        expect(stepEnd).toBeGreaterThanOrEqual(stepStart);
+      }
     });
   });
 });

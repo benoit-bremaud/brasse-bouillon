@@ -108,10 +108,17 @@ describe("DashboardScreen", () => {
 
     expect(await screen.findByText("Tableau de bord brassage")).toBeTruthy();
     expect(screen.getByText("Benoit")).toBeTruthy();
-    expect(screen.getByText("Période d’analyse")).toBeTruthy();
     expect(screen.getByText("Vue d’ensemble")).toBeTruthy();
     expect(screen.getByText("Alertes & échéances")).toBeTruthy();
     expect(screen.getAllByText("Brassins actifs").length).toBeGreaterThan(0);
+
+    // Issue #646 — the "Période d'analyse" widget (Année / 90 jours
+    // / 30 jours) was misplaced on the home and is gone. Regression
+    // guard: none of the chip labels nor the section title appear.
+    expect(screen.queryByText("Période d’analyse")).toBeNull();
+    expect(screen.queryByText("Année")).toBeNull();
+    expect(screen.queryByText("90 jours")).toBeNull();
+    expect(screen.queryByText("30 jours")).toBeNull();
 
     fireEvent.press(screen.getByLabelText("Voir plus de sections"));
     expect(screen.getByText("Sections métier")).toBeTruthy();

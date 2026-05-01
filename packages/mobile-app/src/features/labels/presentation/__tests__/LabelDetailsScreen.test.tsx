@@ -8,6 +8,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react-native";
+import { Share } from "react-native";
 
 import { LabelDetailsScreen } from "@/features/labels/presentation/LabelDetailsScreen";
 import { buildLabelDraft } from "@/features/labels/test-utils/label-test-fixtures";
@@ -53,6 +54,13 @@ describe("LabelDetailsScreen", () => {
     mockedRemoveLabelDraft.mockReset();
   });
 
+  // Restore any jest.spyOn() spy regardless of whether the test
+  // assertions threw — prevents Share.share / other spies from
+  // leaking into subsequent tests on assertion failure.
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders draft details and opens editor", async () => {
     mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
 
@@ -95,6 +103,38 @@ describe("LabelDetailsScreen", () => {
     // regressions through.
     const occurrences = screen.getAllByText(draft.previewSnapshot.legalHint);
     expect(occurrences.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // Issue #629 — KISS scope: a "Partager" button on the details screen
+  // hands a text summary of the draft over to the OS share sheet (no
+  // PDF / PNG / Print yet — those ship in the follow-up). The button
+  // sits between Modifier and Supprimer in the actions row.
+  it("shares draft text via the OS share sheet when Partager is pressed", async () => {
+    const draft = buildLabelDraft();
+    mockedGetLabelDraftById.mockResolvedValue(draft);
+    const shareSpy = jest.spyOn(Share, "share").mockResolvedValue({
+      action: Share.sharedAction,
+    });
+
+    render(<LabelDetailsScreen draftIdParam="draft-1" />);
+
+    expect(await screen.findByText("Saison")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Partager le brouillon"));
+
+    await waitFor(() => {
+      expect(shareSpy).toHaveBeenCalledTimes(1);
+    });
+    const [payload] = shareSpy.mock.calls[0];
+    expect(payload.title).toBe(draft.previewSnapshot.title);
+    expect(payload.message).toContain("🍺 Saison");
+    expect(payload.message).toContain(draft.previewSnapshot.legalHint);
+    expect(payload.message).toContain(
+      "Brouillon partagé depuis Brasse Bouillon",
+    );
+    // No per-test mockRestore needed — the suite-level
+    // afterEach(jest.restoreAllMocks) handles cleanup even if any
+    // assertion above throws.
   });
 
   it("deletes draft and routes to labels home", async () => {

@@ -126,6 +126,16 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Scanner")).toBeTruthy();
     expect(screen.getByText("Mes étiquettes")).toBeTruthy();
 
+    // Issue #644 — the "Paramètres globaux" entry was a dead duplicate
+    // of "Profil" (both navigated to /(app)/profile). The single account
+    // entry is now labelled "Mon compte". Regression guards: the old
+    // duplicate must not render anywhere; the new label must render in
+    // BOTH the dashboard header (button "Mon compte") and the More-sheet
+    // (account entry "Mon compte") — hence the getAllByText assertion.
+    expect(screen.queryByText("Paramètres globaux")).toBeNull();
+    expect(screen.queryByText("Profil")).toBeNull();
+    expect(screen.getAllByText("Mon compte").length).toBeGreaterThanOrEqual(2);
+
     fireEvent.press(screen.getByLabelText("Ouvrir Mes étiquettes"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels");
 
@@ -134,7 +144,9 @@ describe("DashboardScreen", () => {
     fireEvent.press(screen.getByLabelText("Ouvrir Scanner"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
 
-    fireEvent.press(screen.getByLabelText("Ouvrir le profil"));
+    // Issue #644 — header action label aligned with the More-sheet
+    // and screen header ("Mon compte"). Previously labelled "Profil".
+    fireEvent.press(screen.getByLabelText("Ouvrir Mon compte"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/profile");
   });
 });

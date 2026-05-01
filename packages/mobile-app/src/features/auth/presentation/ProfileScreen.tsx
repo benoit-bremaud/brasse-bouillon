@@ -72,7 +72,7 @@ export function ProfileScreen() {
               color={colors.brand.secondary}
             />
           </View>
-          <Text style={styles.title}>Profil</Text>
+          <Text style={styles.title}>Mon compte</Text>
           <Text style={styles.subtitle}>{displayName}</Text>
         </Card>
 

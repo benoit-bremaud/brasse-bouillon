@@ -54,6 +54,13 @@ describe("LabelDetailsScreen", () => {
     mockedRemoveLabelDraft.mockReset();
   });
 
+  // Restore any jest.spyOn() spy regardless of whether the test
+  // assertions threw — prevents Share.share / other spies from
+  // leaking into subsequent tests on assertion failure.
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders draft details and opens editor", async () => {
     mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
 
@@ -125,8 +132,9 @@ describe("LabelDetailsScreen", () => {
     expect(payload.message).toContain(
       "Brouillon partagé depuis Brasse Bouillon",
     );
-
-    shareSpy.mockRestore();
+    // No per-test mockRestore needed — the suite-level
+    // afterEach(jest.restoreAllMocks) handles cleanup even if any
+    // assertion above throws.
   });
 
   it("deletes draft and routes to labels home", async () => {

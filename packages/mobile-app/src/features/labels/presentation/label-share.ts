@@ -29,5 +29,5 @@ export function buildLabelShareMessage(draft: LabelDraft): string {
     "",
     "— Brouillon partagé depuis Brasse Bouillon",
   ];
-  return lines.filter((line) => line !== null).join("\n");
+  return lines.join("\n");
 }

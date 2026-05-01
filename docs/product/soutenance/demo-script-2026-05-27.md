@@ -182,7 +182,17 @@ If the live demo fails on stage (network outage, device freeze, projector incomp
 | App runs nominally | Live demo, no backup |
 | App freezes for >5s | Speaker says *« On voit en direct un comportement réseau, je vous montre l'enregistrement »*, switches to backup |
 | Network down (offline) | Speaker can stay live (airplane mode + 9 seeded beers — PR #791 added Heineken + Cervoise Lancelot to the mix), no backup needed |
+| **Backend down on stage** (API unreachable, no airplane mode rescue) | Speaker types the demo trigger pair (`demo@brasse-bouillon.local` / `brasse-bouillon-demo-2026`) on the sign-in screen — the app flips into demo mode reading mocked seed data, no backend required. Documented on the speaker's backup card. PR #823 / issue #822. |
 | Device dead / projector failure | Speaker switches to laptop screen, plays backup |
+
+### Safety net layers — order of escalation
+
+1. **Live demo on real backend** — the nominal case (90% confidence).
+2. **Airplane mode + 9 seeded beers** — covers wifi flakes; the seed catalog is fully self-contained.
+3. **Demo trigger credentials** (PR #823) — covers backend outages without losing the live UI; the speaker types the email + password and the app reads from `packages/mobile-app/src/mocks/demo-data.ts`. **Carry the credentials on a printed backup card** (do NOT rely on memory under stage stress).
+4. **Pre-recorded screencast** (this section) — covers UI freezes, projector incompatibility, total device failure.
+
+The four layers are independent: degrading from one to the next does not require any other layer.
 
 ---
 
@@ -229,7 +239,7 @@ PO + Dev Brasse-Bouillon
 **Sending checklist**:
 
 - [ ] Send to coach by 2026-05-17 at the latest (10 days before defense)
-- [ ] CC the team (Smith06S, Thais9723, vitalikevin, Fabien-Ori, Lin0ooo, Liamggn) so they have visibility
+- [ ] CC the full team (Smith06S, Thais9723, vitalikevin, Fabien-Ori, clemoune-tech, Moooniie, Lin0ooo, Liamggn) so everyone has visibility — frontend, backend, security, devops, design
 - [ ] Save the response (whatever it is) to the team Slack/Discord for soutenance prep reference
 - [ ] If the answer is "no", trim variants B/C/D from the script and lean fully on the screencast backup as the safety net
 
@@ -241,10 +251,29 @@ The script is validated through dry runs leading up to the defense. Each rehears
 
 ### 2026-05-06 — Soutenance blanche (J-21 from defense)
 
+**Pre-blanche dry-run checklist** (run on the morning of 2026-05-06):
+
+- [ ] APK 0.1.13-alpha1 (or later) installed on the demo phone, version visible in Profil → À propos
+- [ ] Backend reachable via the demo phone's network — `curl <api-host>/health` returns 200
+- [ ] At least one Punk IPA bottle on the table (EAN-13 `5060277380019`) for scenario A
+- [ ] Two more random beer bottles ready to throw at the speaker for variants B/C/D simulation
+- [ ] Demo trigger card printed and within reach (`demo@brasse-bouillon.local` / `brasse-bouillon-demo-2026`)
+- [ ] Screencast backup file accessible — even if it is the v0.1.12 placeholder, validate the playback shortcut
+- [ ] Stopwatch ready
+
+**During the blanche**:
+
 - [ ] Run the nominal 90s script end-to-end
 - [ ] Trigger scenarios B / C / D voluntarily to test the pivots
 - [ ] Time the spoken lines (target 85s spoken, 5s breathing)
+- [ ] **Practice the safety-net escalation** — at least one rehearsal where the speaker deliberately uses the demo trigger credentials to simulate a backend outage
 - [ ] Capture coach + peer feedback for the next iteration
+
+**Post-blanche actions** (write back into this section after the rehearsal):
+
+- [ ] Document spoken-line drift (lines that consistently overshot or undershot the target timing)
+- [ ] Document any pivot that did not feel natural — refine the speaker line for the final
+- [ ] List any feature gap discovered (jury-bottle case the script does not cover yet)
 
 ### 2026-05-20 → 2026-05-26 — Final week
 

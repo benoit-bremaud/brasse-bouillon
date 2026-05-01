@@ -182,7 +182,7 @@ If the live demo fails on stage (network outage, device freeze, projector incomp
 | App runs nominally | Live demo, no backup |
 | App freezes for >5s | Speaker says *« On voit en direct un comportement réseau, je vous montre l'enregistrement »*, switches to backup |
 | Network down (offline) | Speaker can stay live (airplane mode + 9 seeded beers — PR #791 added Heineken + Cervoise Lancelot to the mix), no backup needed |
-| **Backend down on stage** (API unreachable, no airplane mode rescue) | Speaker types the demo trigger pair (`demo@brasse-bouillon.local` / `brasse-bouillon-demo-2026`) on the sign-in screen — the app flips into demo mode reading mocked seed data, no backend required. Documented on the speaker's backup card. PR #823 / issue #822. |
+| **Backend down on stage** (API unreachable, no airplane mode rescue) | If the speaker is already signed in, **first tap Profil → Se déconnecter** to return to the sign-in screen (the demo trigger only fires from the sign-in flow — see `auth-context.tsx` `handleLogin`). Then type the demo trigger pair on that sign-in screen — the app flips into demo mode reading mocked seed data, no backend required. The exact pair lives on the speaker's printed backup card; the source-of-truth file is `packages/mobile-app/src/features/auth/domain/demo-trigger-credentials.ts`. PR #823 / issue #822. |
 | Device dead / projector failure | Speaker switches to laptop screen, plays backup |
 
 ### Safety net layers — order of escalation
@@ -254,7 +254,7 @@ The script is validated through dry runs leading up to the defense. Each rehears
 **Pre-blanche dry-run checklist** (run on the morning of 2026-05-06):
 
 - [ ] APK 0.1.13-alpha1 (or later) installed on the demo phone, version visible in Profil → À propos
-- [ ] Backend reachable via the demo phone's network — `curl <api-host>/health` returns 200
+- [ ] Backend reachable via the demo phone's network — `curl <api-host>/` returns HTTP 200 (the NestJS app does not yet expose a dedicated `/health` endpoint; the root path is the canonical liveness check today)
 - [ ] At least one Punk IPA bottle on the table (EAN-13 `5060277380019`) for scenario A
 - [ ] Two more random beer bottles ready to throw at the speaker for variants B/C/D simulation
 - [ ] Demo trigger card printed and within reach (`demo@brasse-bouillon.local` / `brasse-bouillon-demo-2026`)

@@ -5,6 +5,27 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-01
+
+### PR #841 merged (`b39a1dc`) — feat(beer-encyclopedia): add French legal denomination reference
+
+- Branch `feat/legal-reference-fr`. PR1 of a 3-step encyclopedia data-enrichment plan (PR2 = Open Food Facts EAN connector, PR3 = community-scan contribution loop). 9 files, +1082 LoC, 31 new tests (95→96 green).
+- New `legal_denominations` reference table seeded with the 10 canonical denominations from decree 92-307 modified by 2016-1531; seeded by `scripts/seed_legal_denominations.py` (idempotent upsert calqued on `seed_styles.py`).
+- Four nullable regulatory columns added on `beers`: `legal_denomination` (CHECK against the 10 codes, no FK), `country_of_origin` (ISO 3166-1 alpha-2, ORM auto-uppercase), `allergens` (JSONB on PG, JSON elsewhere), `alcohol_group` (SMALLINT in {1,3,4,5} per Code de la santé publique Art. L-3321-1, group 2 historically merged into 3). Migration 003 uses `batch_alter_table` for SQLite/PG compat.
+- Guided 8-round file-by-file pre-merge review with the user via AskUserQuestion: surfaced 9 substantive corrections before commit (rename `label_fr`→`label`, drop `requires_pure_malt`, reorder the 10 codes in decree structure, enrich class docstring, add `isalpha()` to country validator, sync 4 sad-path tests, tighten 1169/2011 wording, fix `biere_a_ingredient` regulatory text "moût initial" not "produit fini").
+- **Decisions**:
+  - `Reference table over enum / FK / generic regulations table` — dedicated `legal_denominations` rejected three alternatives. Pure SQL enum cannot carry the per-row metadata (description, legal_reference, min_aging_days, max_alcohol_pct). FK rejected to keep the reference re-seedable. Generic `regulations` table rejected as premature generalisation. See ADR-0002 §Rejected alternatives.
+  - `French snake_case codes` (`biere_de_garde`, `panache`, …) — preserved verbatim from the decree because no English equivalent carries the same legal meaning. Trade-off documented (opaque to non-FR API consumers); UI mobile is FR-only so the impact is contained.
+  - `Defer scrapers (LastDodo, etc.) and YOLO dataset` — out of PR1 scope; legal/scraping audit + manual annotation effort make them v0.3 work, not blocking the encyclopedia data layer.
+
+### PR #842 merged (`7113e82`) — fix(beer-encyclopedia): reject non-ASCII letters in country_of_origin validator
+
+- Branch `fix/beer-encyclopedia-country-of-origin-ascii-only`. Same-day follow-up of #841 addressing the Copilot review comment that was missed pre-merge.
+- `str.isalpha()` returns True for Latin-extended letters (`Å`, `Ñ`, …) so `country_of_origin="ÅB"` would have passed both ORM check (length=2, isalpha=True) and DB CHECK (length-only) and persisted invalid data. Added an `isascii()` guard alongside `isalpha()` plus a regression test (`test_beer_rejects_non_ascii_letter_country_code` covering `ÅB` and `ÑO`). Updated docstring + error message to surface the ASCII requirement. 96→97 green, lint clean.
+- Process gap captured: the post-push Copilot review fetch was skipped before merging #841 (workflow checklist step 1 of mémoire `feedback_pr_workflow_checklist`). Reinforces the rule that `gh api .../reviews` must be checked even when the user signals merge — the user's "PR mergée !" doesn't replace the technical gate.
+
+---
+
 ## 2026-04-30
 
 ### PR #819 merged (`3231af9`) — feat(scan): burst quick wins polish — progressive feedback, retry color, consent FR, import confirmation

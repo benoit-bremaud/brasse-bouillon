@@ -18,9 +18,12 @@ from sqlalchemy import (
     Text,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.types import JSON
 
 from db.models.base import Base, TimestampMixin, UUIDMixin
+from db.models.legal_denomination import LEGAL_DENOMINATION_VALUES
 
 if TYPE_CHECKING:
     from db.models.brewery import Brewery
@@ -34,6 +37,17 @@ if TYPE_CHECKING:
 # module-level constant so migration and validation logic reference a
 # single source of truth.
 BEER_SOURCE_VALUES = ("openfoodfacts", "internal", "community")
+
+# Valid alcohol groups under article L-3321-1 of the French Code de la
+# santé publique. Group 2 was historically merged into group 3, so the
+# current legal nomenclature exposes only {1, 3, 4, 5} — beer falls in
+# group 3 (fermented non-distilled drinks alongside wine, cider, mead).
+ALCOHOL_GROUP_VALUES: tuple[int, ...] = (1, 3, 4, 5)
+
+# JSONB on PostgreSQL (indexable, queryable), JSON on other dialects
+# (SQLite under tests). Mirrors the pattern in db/models/source.py so the
+# allergens column is portable across environments.
+_AllergensType = JSON().with_variant(JSONB(), "postgresql")
 
 
 class Beer(Base, UUIDMixin, TimestampMixin):
@@ -65,6 +79,22 @@ class Beer(Base, UUIDMixin, TimestampMixin):
                 ", ".join(f"'{v}'" for v in BEER_SOURCE_VALUES)
             ),
             name="ck_beers_source_valid",
+        ),
+        CheckConstraint(
+            "legal_denomination IS NULL OR legal_denomination IN ({})".format(
+                ", ".join(f"'{v}'" for v in LEGAL_DENOMINATION_VALUES)
+            ),
+            name="ck_beers_legal_denomination_valid",
+        ),
+        CheckConstraint(
+            "alcohol_group IS NULL OR alcohol_group IN ({})".format(
+                ", ".join(str(v) for v in ALCOHOL_GROUP_VALUES)
+            ),
+            name="ck_beers_alcohol_group_valid",
+        ),
+        CheckConstraint(
+            "country_of_origin IS NULL OR length(country_of_origin) = 2",
+            name="ck_beers_country_of_origin_iso2",
         ),
     )
 
@@ -107,6 +137,17 @@ class Beer(Base, UUIDMixin, TimestampMixin):
         DateTime(timezone=True), nullable=True
     )
 
+    # French regulatory fields (decree 92-307 modified by 2016-1531,
+    # regulation EU 1169/2011, article L-3321-1 of the Code de la santé
+    # publique). All four are nullable: pre-existing rows and rows
+    # imported from non-FR sources may legitimately leave them blank.
+    legal_denomination: Mapped[str | None] = mapped_column(
+        String(50), nullable=True
+    )
+    country_of_origin: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    allergens: Mapped[list[str] | None] = mapped_column(_AllergensType, nullable=True)
+    alcohol_group: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+
     brewery: Mapped[Brewery | None] = relationship(back_populates="beers")
     style: Mapped[Style | None] = relationship(back_populates="beers")
     tasting_profile: Mapped[TastingProfile | None] = relationship(
@@ -141,3 +182,64 @@ class Beer(Base, UUIDMixin, TimestampMixin):
                 f"Beer.source must be one of ({valid}), got {value!r}"
             )
         return value
+
+    @validates("legal_denomination")
+    def _validate_legal_denomination(
+        self, _key: str, value: str | None
+    ) -> str | None:
+        """Reject invalid ``legal_denomination`` values at the ORM layer.
+
+        Same rationale as ``_validate_source``: surface the error at
+        assignment time rather than at flush time. ``None`` is allowed
+        because the field is optional (only meaningful for FR beers).
+        """
+        if value is None:
+            return value
+        if value not in LEGAL_DENOMINATION_VALUES:
+            valid = ", ".join(LEGAL_DENOMINATION_VALUES)
+            raise ValueError(
+                f"Beer.legal_denomination must be one of ({valid}) or None, "
+                f"got {value!r}"
+            )
+        return value
+
+    @validates("alcohol_group")
+    def _validate_alcohol_group(
+        self, _key: str, value: int | None
+    ) -> int | None:
+        """Reject invalid ``alcohol_group`` values at the ORM layer.
+
+        Article L-3321-1 of the French Code de la santé publique exposes
+        only groups {1, 3, 4, 5} — group 2 was merged into group 3.
+        ``None`` is allowed for non-FR beers.
+        """
+        if value is None:
+            return value
+        if value not in ALCOHOL_GROUP_VALUES:
+            valid = ", ".join(str(v) for v in ALCOHOL_GROUP_VALUES)
+            raise ValueError(
+                f"Beer.alcohol_group must be one of ({valid}) or None, "
+                f"got {value!r}"
+            )
+        return value
+
+    @validates("country_of_origin")
+    def _validate_country_of_origin(
+        self, _key: str, value: str | None
+    ) -> str | None:
+        """Normalize ``country_of_origin`` to uppercase ISO 3166-1 alpha-2.
+
+        Accepts mixed case input ("fr", "Fr", "FR") and stores uppercase.
+        Rejects non-letter characters at the ORM layer so junk like
+        ``"!!"`` or ``"12"`` cannot reach the DB even though it would
+        pass the length-only CHECK constraint. ISO 3166-1 alpha-2 codes
+        are always two ASCII letters by specification.
+        """
+        if value is None:
+            return value
+        if len(value) != 2 or not value.isalpha():
+            raise ValueError(
+                f"Beer.country_of_origin must be a 2-letter ISO code, "
+                f"got {value!r}"
+            )
+        return value.upper()

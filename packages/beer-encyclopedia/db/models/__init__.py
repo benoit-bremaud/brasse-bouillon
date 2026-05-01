@@ -9,6 +9,7 @@ from db.models.beer import Beer
 from db.models.brewery import Brewery
 from db.models.correction import CommunityCorrection
 from db.models.ingredient import BeerIngredient, Ingredient
+from db.models.legal_denomination import LegalDenomination
 from db.models.media import Media
 from db.models.source import EntitySource, Source
 from db.models.style import Style
@@ -22,6 +23,7 @@ __all__ = [
     "CommunityCorrection",
     "EntitySource",
     "Ingredient",
+    "LegalDenomination",
     "Media",
     "Source",
     "Style",

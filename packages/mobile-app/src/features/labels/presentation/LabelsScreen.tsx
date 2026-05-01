@@ -491,10 +491,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
   },
-  list: {
-    paddingBottom: spacing.lg,
-    gap: spacing.sm,
-  },
   draftCard: {
     gap: spacing.sm,
   },

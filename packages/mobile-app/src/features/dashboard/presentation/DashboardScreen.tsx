@@ -555,9 +555,11 @@ export function DashboardScreen() {
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </View>
-            <View>
-              <Text style={styles.headerName}>{displayName}</Text>
-              <Text style={styles.headerSubtitle}>
+            <View style={styles.headerText}>
+              <Text style={styles.headerName} numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text style={styles.headerSubtitle} numberOfLines={1}>
                 Tableau de bord brassage
               </Text>
             </View>
@@ -844,11 +846,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
     flex: 1,
+    minWidth: 0,
+  },
+  headerText: {
+    flex: 1,
+    minWidth: 0,
   },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
+    flexShrink: 0,
   },
   avatar: {
     width: 40,

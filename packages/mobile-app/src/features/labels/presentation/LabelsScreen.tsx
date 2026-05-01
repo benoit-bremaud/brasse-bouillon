@@ -14,7 +14,7 @@ import {
 } from "@/features/labels/presentation/label-palette.constants";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
@@ -22,6 +22,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 interface LabelInspirationExample {
   id: string;
@@ -129,6 +130,7 @@ function buildLabelDraftRoute(draftId: string): Href {
 
 export function LabelsScreen() {
   const router = useRouter();
+  const bottomPadding = useNavigationFooterOffset();
   const [drafts, setDrafts] = useState<LabelDraft[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
@@ -216,168 +218,177 @@ export function LabelsScreen() {
         subtitle="Conçois et sauvegarde tes étiquettes avant impression"
       />
 
-      <Card style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Mes étiquettes</Text>
-        <Text style={styles.summaryText}>{summaryText}</Text>
-        <PrimaryButton
-          accessibilityLabel="Créer une étiquette"
-          label="Créer une étiquette"
-          onPress={handleCreateLabel}
-        />
-      </Card>
-
-      {hasFetched && !hasDrafts ? (
-        <>
-          <EmptyStateCard
-            title="Aucune étiquette enregistrée"
-            description="Démarre un brouillon depuis un brassin puis personnalise le rendu."
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomPadding },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card style={styles.summaryCard}>
+          <Text style={styles.summaryTitle}>Mes étiquettes</Text>
+          <Text style={styles.summaryText}>{summaryText}</Text>
+          <PrimaryButton
+            accessibilityLabel="Créer une étiquette"
+            label="Créer une étiquette"
+            onPress={handleCreateLabel}
           />
+        </Card>
 
-          <Card>
-            <Text style={styles.examplesTitle}>Exemples d’inspiration</Text>
+        {hasFetched && !hasDrafts ? (
+          <>
+            <EmptyStateCard
+              title="Aucune étiquette enregistrée"
+              description="Démarre un brouillon depuis un brassin puis personnalise le rendu."
+            />
 
-            <View style={styles.examplesList}>
-              {LABEL_EXAMPLES.map((example) => {
-                const isSelected = selectedExample.id === example.id;
+            <Card>
+              <Text style={styles.examplesTitle}>Exemples d’inspiration</Text>
 
-                return (
-                  <Pressable
-                    key={example.id}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Sélectionner le modèle ${example.title}`}
-                    accessibilityState={{ selected: isSelected }}
-                    style={[
-                      styles.exampleItem,
-                      isSelected ? styles.exampleItemSelected : null,
-                    ]}
-                    onPress={() => {
-                      setSelectedExampleId(example.id);
-                    }}
-                  >
-                    <Text style={styles.exampleTitle}>{example.title}</Text>
-                    <Text style={styles.exampleSubtitle}>
-                      {example.subtitle}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+              <View style={styles.examplesList}>
+                {LABEL_EXAMPLES.map((example) => {
+                  const isSelected = selectedExample.id === example.id;
 
-            <View style={styles.previewSection}>
-              <Text style={styles.previewTitle}>Aperçu de l’étiquette</Text>
-              <Text style={styles.previewSelectedModel}>
-                Modèle sélectionné : {selectedExample.title}
-              </Text>
-
-              <View style={styles.previewCard}>
-                <View style={styles.previewHeader}>
-                  <Text style={styles.previewIcon}>
-                    {selectedExampleIcon.symbol}
-                  </Text>
-
-                  <View style={styles.previewHeaderText}>
-                    <Text style={styles.previewName}>
-                      {selectedExample.title}
-                    </Text>
-                    <Text style={styles.previewSubtitle}>
-                      {selectedExample.subtitle}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={styles.previewMeta}>
-                  {selectedExample.bottleFormatLabel} •{" "}
-                  {selectedExample.templateLabel}
-                </Text>
-                <Text style={styles.previewMeta}>
-                  Palette : {selectedExamplePalette.label}
-                </Text>
-                <Text style={styles.previewMeta}>
-                  {selectedExample.abvLabel}
-                </Text>
-              </View>
-            </View>
-          </Card>
-        </>
-      ) : null}
-
-      {hasDrafts ? (
-        <FlatList
-          data={drafts}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => {
-            const icon = getIconOptionById(item.editableFields.iconId);
-            const isDeleting = draftBeingDeletedId === item.id;
-
-            return (
-              <Card style={styles.draftCard}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Ouvrir le brouillon ${item.previewSnapshot.title}`}
-                  style={styles.openArea}
-                  onPress={() => handleOpenDraft(item.id)}
-                >
-                  <View style={styles.draftHeader}>
-                    <Text style={styles.draftIcon}>{icon.symbol}</Text>
-                    <View style={styles.draftHeaderText}>
-                      <Text style={styles.draftTitle}>
-                        {item.previewSnapshot.title}
+                  return (
+                    <Pressable
+                      key={example.id}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Sélectionner le modèle ${example.title}`}
+                      accessibilityState={{ selected: isSelected }}
+                      style={[
+                        styles.exampleItem,
+                        isSelected ? styles.exampleItemSelected : null,
+                      ]}
+                      onPress={() => {
+                        setSelectedExampleId(example.id);
+                      }}
+                    >
+                      <Text style={styles.exampleTitle}>{example.title}</Text>
+                      <Text style={styles.exampleSubtitle}>
+                        {example.subtitle}
                       </Text>
-                      <Text style={styles.draftSubtitle}>
-                        {item.previewSnapshot.subtitle}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <View style={styles.previewSection}>
+                <Text style={styles.previewTitle}>Aperçu de l’étiquette</Text>
+                <Text style={styles.previewSelectedModel}>
+                  Modèle sélectionné : {selectedExample.title}
+                </Text>
+
+                <View style={styles.previewCard}>
+                  <View style={styles.previewHeader}>
+                    <Text style={styles.previewIcon}>
+                      {selectedExampleIcon.symbol}
+                    </Text>
+
+                    <View style={styles.previewHeaderText}>
+                      <Text style={styles.previewName}>
+                        {selectedExample.title}
+                      </Text>
+                      <Text style={styles.previewSubtitle}>
+                        {selectedExample.subtitle}
                       </Text>
                     </View>
                   </View>
 
-                  <Text style={styles.draftMeta}>
-                    {item.previewSnapshot.bottleFormatLabel} •{" "}
-                    {item.previewSnapshot.templateLabel}
+                  <Text style={styles.previewMeta}>
+                    {selectedExample.bottleFormatLabel} •{" "}
+                    {selectedExample.templateLabel}
                   </Text>
-                  <Text style={styles.draftMeta}>
-                    {item.previewSnapshot.abvLabel}
+                  <Text style={styles.previewMeta}>
+                    Palette : {selectedExamplePalette.label}
                   </Text>
-                  <Text style={styles.draftUpdatedAt}>
-                    Mise à jour : {item.updatedAt.slice(0, 10)}
+                  <Text style={styles.previewMeta}>
+                    {selectedExample.abvLabel}
                   </Text>
-                </Pressable>
+                </View>
+              </View>
+            </Card>
+          </>
+        ) : null}
 
-                <View style={styles.draftActionsRow}>
+        {hasDrafts
+          ? drafts.map((item) => {
+              const icon = getIconOptionById(item.editableFields.iconId);
+              const isDeleting = draftBeingDeletedId === item.id;
+
+              return (
+                <Card key={item.id} style={styles.draftCard}>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Ouvrir ${item.previewSnapshot.title}`}
-                    style={styles.draftActionButton}
+                    accessibilityLabel={`Ouvrir le brouillon ${item.previewSnapshot.title}`}
+                    style={styles.openArea}
                     onPress={() => handleOpenDraft(item.id)}
                   >
-                    <Text style={styles.draftActionButtonText}>Ouvrir</Text>
-                  </Pressable>
+                    <View style={styles.draftHeader}>
+                      <Text style={styles.draftIcon}>{icon.symbol}</Text>
+                      <View style={styles.draftHeaderText}>
+                        <Text style={styles.draftTitle}>
+                          {item.previewSnapshot.title}
+                        </Text>
+                        <Text style={styles.draftSubtitle}>
+                          {item.previewSnapshot.subtitle}
+                        </Text>
+                      </View>
+                    </View>
 
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Supprimer ${item.previewSnapshot.title}`}
-                    style={[styles.draftActionButton, styles.deleteButton]}
-                    disabled={isDeleting}
-                    onPress={() => {
-                      void handleDeleteDraft(item.id);
-                    }}
-                  >
-                    <Text
-                      style={[styles.draftActionButtonText, styles.deleteText]}
-                    >
-                      {isDeleting ? "Suppression..." : "Supprimer"}
+                    <Text style={styles.draftMeta}>
+                      {item.previewSnapshot.bottleFormatLabel} •{" "}
+                      {item.previewSnapshot.templateLabel}
+                    </Text>
+                    <Text style={styles.draftMeta}>
+                      {item.previewSnapshot.abvLabel}
+                    </Text>
+                    <Text style={styles.draftUpdatedAt}>
+                      Mise à jour : {item.updatedAt.slice(0, 10)}
                     </Text>
                   </Pressable>
-                </View>
-              </Card>
-            );
-          }}
-        />
-      ) : null}
+
+                  <View style={styles.draftActionsRow}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ouvrir ${item.previewSnapshot.title}`}
+                      style={styles.draftActionButton}
+                      onPress={() => handleOpenDraft(item.id)}
+                    >
+                      <Text style={styles.draftActionButtonText}>Ouvrir</Text>
+                    </Pressable>
+
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Supprimer ${item.previewSnapshot.title}`}
+                      style={[styles.draftActionButton, styles.deleteButton]}
+                      disabled={isDeleting}
+                      onPress={() => {
+                        void handleDeleteDraft(item.id);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.draftActionButtonText,
+                          styles.deleteText,
+                        ]}
+                      >
+                        {isDeleting ? "Suppression..." : "Supprimer"}
+                      </Text>
+                    </Pressable>
+                  </View>
+                </Card>
+              );
+            })
+          : null}
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    gap: spacing.sm,
+  },
   summaryCard: {
     gap: spacing.sm,
     marginBottom: spacing.sm,
@@ -479,10 +490,6 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
-  },
-  list: {
-    paddingBottom: spacing.lg,
-    gap: spacing.sm,
   },
   draftCard: {
     gap: spacing.sm,

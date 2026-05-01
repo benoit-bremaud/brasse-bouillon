@@ -108,16 +108,33 @@ describe("DashboardScreen", () => {
 
     expect(await screen.findByText("Tableau de bord brassage")).toBeTruthy();
     expect(screen.getByText("Benoit")).toBeTruthy();
-    expect(screen.getByText("Période d’analyse")).toBeTruthy();
     expect(screen.getByText("Vue d’ensemble")).toBeTruthy();
     expect(screen.getByText("Alertes & échéances")).toBeTruthy();
     expect(screen.getAllByText("Brassins actifs").length).toBeGreaterThan(0);
+
+    // Issue #646 — the "Période d'analyse" widget (Année / 90 jours
+    // / 30 jours) was misplaced on the home and is gone. Regression
+    // guard: none of the chip labels nor the section title appear.
+    expect(screen.queryByText("Période d’analyse")).toBeNull();
+    expect(screen.queryByText("Année")).toBeNull();
+    expect(screen.queryByText("90 jours")).toBeNull();
+    expect(screen.queryByText("30 jours")).toBeNull();
 
     fireEvent.press(screen.getByLabelText("Voir plus de sections"));
     expect(screen.getByText("Sections métier")).toBeTruthy();
     expect(screen.getByText("Compte")).toBeTruthy();
     expect(screen.getByText("Scanner")).toBeTruthy();
     expect(screen.getByText("Mes étiquettes")).toBeTruthy();
+
+    // Issue #644 — the "Paramètres globaux" entry was a dead duplicate
+    // of "Profil" (both navigated to /(app)/profile). The single account
+    // entry is now labelled "Mon compte". Regression guards: the old
+    // duplicate must not render anywhere; the new label must render in
+    // BOTH the dashboard header (button "Mon compte") and the More-sheet
+    // (account entry "Mon compte") — hence the getAllByText assertion.
+    expect(screen.queryByText("Paramètres globaux")).toBeNull();
+    expect(screen.queryByText("Profil")).toBeNull();
+    expect(screen.getAllByText("Mon compte").length).toBeGreaterThanOrEqual(2);
 
     fireEvent.press(screen.getByLabelText("Ouvrir Mes étiquettes"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels");
@@ -127,7 +144,9 @@ describe("DashboardScreen", () => {
     fireEvent.press(screen.getByLabelText("Ouvrir Scanner"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
 
-    fireEvent.press(screen.getByLabelText("Ouvrir le profil"));
+    // Issue #644 — header action label aligned with the More-sheet
+    // and screen header ("Mon compte"). Previously labelled "Profil".
+    fireEvent.press(screen.getByLabelText("Ouvrir Mon compte"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/profile");
   });
 });

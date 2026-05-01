@@ -45,7 +45,11 @@ describe("ProfileScreen", () => {
   it("renders profile information", () => {
     render(<ProfileScreen />);
 
-    expect(screen.getByText("Profil")).toBeTruthy();
+    // Issue #644 — the screen header is "Mon compte" (renamed from "Profil"
+    // when the duplicated "Paramètres globaux" entry was merged into the
+    // single account screen).
+    expect(screen.getByText("Mon compte")).toBeTruthy();
+    expect(screen.queryByText("Profil")).toBeNull();
     expect(screen.getByText("Benoit")).toBeTruthy();
     expect(screen.getByText("brewer@example.com")).toBeTruthy();
     expect(screen.getByText("brewer")).toBeTruthy();

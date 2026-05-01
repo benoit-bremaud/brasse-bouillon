@@ -566,8 +566,8 @@ export function DashboardScreen() {
           <View style={styles.headerActions}>
             <HeaderActionButton
               icon="person-circle-outline"
-              label="Profil"
-              accessibilityLabel="Ouvrir le profil"
+              label="Mon compte"
+              accessibilityLabel="Ouvrir Mon compte"
               onPress={handleOpenProfilePanel}
             />
             <HeaderActionButton

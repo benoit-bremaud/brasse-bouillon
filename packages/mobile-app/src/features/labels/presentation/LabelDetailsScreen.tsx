@@ -9,7 +9,7 @@ import {
 } from "@/features/labels/presentation/label-palette.constants";
 import { LabelLegalDisclaimerText } from "@/features/labels/presentation/LabelLegalDisclaimerText";
 import React, { useCallback, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Share, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -20,6 +20,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
 import { LabelDraft } from "@/features/labels/domain/label.types";
+import { buildLabelShareMessage } from "@/features/labels/presentation/label-share";
 import { useRouter } from "expo-router";
 
 type LabelDetailsScreenProps = {
@@ -47,6 +48,7 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
   const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const loadDraft = useCallback(async () => {
     if (!normalizedDraftId) {
@@ -88,6 +90,26 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
 
     return getIconOptionById(draft.editableFields.iconId);
   }, [draft]);
+
+  const handleShare = async () => {
+    if (!draft) {
+      return;
+    }
+
+    setIsSharing(true);
+    setError(null);
+
+    try {
+      await Share.share({
+        message: buildLabelShareMessage(draft),
+        title: draft.previewSnapshot.title,
+      });
+    } catch (shareError) {
+      setError(getErrorMessage(shareError, "Unable to share label draft."));
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!draft) {
@@ -213,6 +235,20 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
 
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel="Partager le brouillon"
+              style={styles.shareButton}
+              disabled={isSharing}
+              onPress={() => {
+                void handleShare();
+              }}
+            >
+              <Text style={styles.shareText}>
+                {isSharing ? "Partage..." : "Partager"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
               accessibilityLabel="Supprimer le brouillon"
               style={styles.deleteButton}
               disabled={isDeleting}
@@ -276,6 +312,20 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     gap: spacing.xs,
+  },
+  shareButton: {
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+    borderRadius: radius.md,
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.brand.background,
+  },
+  shareText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
   },
   deleteButton: {
     borderWidth: 1,

@@ -232,14 +232,17 @@ class Beer(Base, UUIDMixin, TimestampMixin):
         Accepts mixed case input ("fr", "Fr", "FR") and stores uppercase.
         Rejects non-letter characters at the ORM layer so junk like
         ``"!!"`` or ``"12"`` cannot reach the DB even though it would
-        pass the length-only CHECK constraint. ISO 3166-1 alpha-2 codes
-        are always two ASCII letters by specification.
+        pass the length-only CHECK constraint. ``isascii()`` is required
+        in addition to ``isalpha()`` because Python treats Latin-extended
+        letters such as ``"Å"`` as alphabetical, but ISO 3166-1 alpha-2
+        codes are always two ASCII letters by specification — accepting
+        ``"ÅB"`` would persist invalid data.
         """
         if value is None:
             return value
-        if len(value) != 2 or not value.isalpha():
+        if len(value) != 2 or not value.isalpha() or not value.isascii():
             raise ValueError(
-                f"Beer.country_of_origin must be a 2-letter ISO code, "
-                f"got {value!r}"
+                f"Beer.country_of_origin must be a 2-letter ASCII ISO "
+                f"code, got {value!r}"
             )
         return value.upper()

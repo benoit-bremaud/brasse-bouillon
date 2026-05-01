@@ -117,6 +117,18 @@ def test_beer_rejects_non_letter_country_code() -> None:
         Beer(name="X", slug="x", country_of_origin="!!")
 
 
+def test_beer_rejects_non_ascii_letter_country_code() -> None:
+    # Python's str.isalpha() returns True for Latin-extended letters
+    # such as "Å" or "Ñ", but ISO 3166-1 alpha-2 codes are defined as
+    # ASCII letters only. Without an explicit isascii() check the
+    # validator would let "ÅB" or "ÑO" through and persist invalid
+    # country codes.
+    with pytest.raises(ValueError, match="country_of_origin"):
+        Beer(name="X", slug="x", country_of_origin="ÅB")
+    with pytest.raises(ValueError, match="country_of_origin"):
+        Beer(name="X", slug="x", country_of_origin="ÑO")
+
+
 async def test_beer_db_check_blocks_raw_sql_invalid_denomination(
     db_session: AsyncSession,
 ) -> None:

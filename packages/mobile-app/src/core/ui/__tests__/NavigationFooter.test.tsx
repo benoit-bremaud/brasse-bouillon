@@ -80,6 +80,9 @@ describe("NavigationFooter", () => {
 
     render(<NavigationFooter />);
 
+    // Issue #613 — the footer's six items are Accueil, Brassins,
+    // Recettes, Scan, Académie, Profil (Boutique + Outils were
+    // demoted to the dashboard "Voir plus" sheet).
     expect(screen.getByLabelText("Accueil")).toHaveAccessibilityState({
       selected: false,
     });
@@ -89,14 +92,74 @@ describe("NavigationFooter", () => {
     expect(screen.getByLabelText("Recettes")).toHaveAccessibilityState({
       selected: false,
     });
-    expect(screen.getByLabelText("Boutique")).toHaveAccessibilityState({
-      selected: false,
-    });
-    expect(screen.getByLabelText("Outils")).toHaveAccessibilityState({
+    expect(screen.getByLabelText("Scan")).toHaveAccessibilityState({
       selected: false,
     });
     expect(screen.getByLabelText("Académie")).toHaveAccessibilityState({
       selected: false,
+    });
+    expect(screen.getByLabelText("Profil")).toHaveAccessibilityState({
+      selected: false,
+    });
+  });
+
+  // Issue #613 — Boutique and Outils are no longer permanent tabs.
+  // Regression guard: their accessibility labels must NOT render in
+  // the footer.
+  it("no longer renders Boutique or Outils in the footer", () => {
+    render(<NavigationFooter />);
+
+    expect(screen.queryByLabelText("Boutique")).toBeNull();
+    expect(screen.queryByLabelText("Outils")).toBeNull();
+  });
+
+  // Issue #613 — Scan is a new permanent tab pointing at the
+  // existing /dashboard/scan route. Tapping it must replace into
+  // that path.
+  it("navigates to /dashboard/scan when pressing Scan", () => {
+    render(<NavigationFooter />);
+
+    fireEvent.press(screen.getByLabelText("Scan"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/dashboard/scan");
+  });
+
+  // Issue #613 — Profil is a new permanent tab pointing at
+  // /profile (the Mon compte screen, see PR #831).
+  it("navigates to /profile when pressing Profil", () => {
+    render(<NavigationFooter />);
+
+    fireEvent.press(screen.getByLabelText("Profil"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/profile");
+  });
+
+  // Issue #613 prefix-collision regression guard. On
+  // pathname /dashboard/scan, both Accueil (prefix /dashboard) and
+  // Scan (prefix /dashboard/scan) match the active-prefix test.
+  // The footer must pick the most specific match (Scan), not the
+  // first-declared (Accueil).
+  it("activates Scan (not Accueil) on /dashboard/scan", () => {
+    mockPathname = "/dashboard/scan";
+
+    render(<NavigationFooter />);
+
+    expect(screen.getByLabelText("Scan")).toHaveAccessibilityState({
+      selected: true,
+    });
+    expect(screen.getByLabelText("Accueil")).toHaveAccessibilityState({
+      selected: false,
+    });
+  });
+
+  // Issue #613 — Profil active on /profile and on its sub-routes.
+  it("activates Profil on /profile and its sub-routes", () => {
+    mockPathname = "/profile";
+
+    render(<NavigationFooter />);
+
+    expect(screen.getByLabelText("Profil")).toHaveAccessibilityState({
+      selected: true,
     });
   });
 });

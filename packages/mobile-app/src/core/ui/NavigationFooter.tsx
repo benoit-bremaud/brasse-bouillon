@@ -28,6 +28,11 @@ type NavItem = {
   routePrefix: string;
 };
 
+// Issue #613 — bottom tab bar redesign promotes Scan + Profil to
+// permanent slots in place of Boutique + Outils. The order matches
+// the v0.1.0-beta1 audit decision: Accueil · Brassins · Recettes ·
+// Scan ⭐ · Académie · Profil. Boutique and Outils remain reachable
+// from the dashboard "Voir plus" sheet.
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Accueil",
@@ -48,16 +53,10 @@ const NAV_ITEMS: NavItem[] = [
     routePrefix: "/recipes",
   },
   {
-    label: "Boutique",
-    icon: "cart-outline",
-    href: "/shop",
-    routePrefix: "/shop",
-  },
-  {
-    label: "Outils",
-    icon: "calculator-outline",
-    href: "/tools",
-    routePrefix: "/tools",
+    label: "Scan",
+    icon: "barcode-outline",
+    href: "/dashboard/scan",
+    routePrefix: "/dashboard/scan",
   },
   {
     label: "Académie",
@@ -65,10 +64,38 @@ const NAV_ITEMS: NavItem[] = [
     href: "/academy",
     routePrefix: "/academy",
   },
+  {
+    label: "Profil",
+    icon: "person-circle-outline",
+    href: "/profile",
+    routePrefix: "/profile",
+  },
 ];
 
 function isFooterItemActive(pathname: string, routePrefix: string): boolean {
   return pathname === routePrefix || pathname.startsWith(`${routePrefix}/`);
+}
+
+// Longest-prefix-match for the active tab. Without this, on
+// pathname `/dashboard/scan`, both Accueil (prefix `/dashboard`)
+// and Scan (prefix `/dashboard/scan`) would match — and the naive
+// `findIndex` would return Accueil because it is declared first.
+// Picking the most specific prefix avoids that collision while
+// keeping NAV_ITEMS in its visual order. Issue #613.
+function findActiveNavIndex(pathname: string): number {
+  let bestIndex = -1;
+  let bestLength = -1;
+  for (let index = 0; index < NAV_ITEMS.length; index += 1) {
+    const item = NAV_ITEMS[index];
+    if (
+      isFooterItemActive(pathname, item.routePrefix) &&
+      item.routePrefix.length > bestLength
+    ) {
+      bestIndex = index;
+      bestLength = item.routePrefix.length;
+    }
+  }
+  return bestIndex;
 }
 
 export function NavigationFooter() {
@@ -76,9 +103,7 @@ export function NavigationFooter() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
-  const activeIndex = NAV_ITEMS.findIndex((item) =>
-    isFooterItemActive(pathname, item.routePrefix),
-  );
+  const activeIndex = findActiveNavIndex(pathname);
   const hasActiveItem = activeIndex >= 0;
   const safeActiveIndex = hasActiveItem ? activeIndex : 0;
 
@@ -123,8 +148,13 @@ export function NavigationFooter() {
         />
       )}
 
-      {NAV_ITEMS.map((item) => {
-        const isActive = isFooterItemActive(pathname, item.routePrefix);
+      {NAV_ITEMS.map((item, index) => {
+        // Use the longest-prefix-match `activeIndex` rather than the
+        // raw `isFooterItemActive` here so the per-item visual + a11y
+        // state stays consistent with the animated indicator. Without
+        // this, on /dashboard/scan both Accueil (prefix /dashboard)
+        // and Scan would advertise `selected: true`. Issue #613.
+        const isActive = activeIndex === index;
 
         return (
           <Pressable

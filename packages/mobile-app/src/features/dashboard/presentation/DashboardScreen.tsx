@@ -133,8 +133,7 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
 ];
 
 const MORE_ACCOUNT_SECTIONS: MoreSectionItem[] = [
-  accountAction("profile", "Profil", "person-circle-outline"),
-  accountAction("settings", "Paramètres globaux", "settings-outline"),
+  accountAction("profile", "Mon compte", "person-circle-outline"),
 ];
 
 const MORE_SECTION_CONFIGS: MoreSectionConfig[] = [

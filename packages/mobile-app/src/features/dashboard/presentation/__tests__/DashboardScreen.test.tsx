@@ -126,6 +126,13 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Scanner")).toBeTruthy();
     expect(screen.getByText("Mes étiquettes")).toBeTruthy();
 
+    // Issue #644 — the "Paramètres globaux" entry was a dead duplicate
+    // of "Profil" (both navigated to /(app)/profile). The single account
+    // entry is now labelled "Mon compte". Regression guards: the old
+    // duplicate must not render; the new label must.
+    expect(screen.queryByText("Paramètres globaux")).toBeNull();
+    expect(screen.getByText("Mon compte")).toBeTruthy();
+
     fireEvent.press(screen.getByLabelText("Ouvrir Mes étiquettes"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels");
 

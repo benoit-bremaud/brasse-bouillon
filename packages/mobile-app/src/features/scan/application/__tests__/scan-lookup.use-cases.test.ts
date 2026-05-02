@@ -7,6 +7,7 @@ import {
   ScanLookupServiceUnavailableError,
   lookupBeerByBarcode,
 } from "@/features/scan/application/scan-lookup.use-cases";
+import { importBeerByEan as fetchImportFromEncyclopedia } from "@/features/scan/data/beers-import.api";
 import { lookupBeerByBarcode as fetchLookupFromApi } from "@/features/scan/data/scan-lookup.api";
 
 jest.mock("@/core/data/data-source", () => ({
@@ -17,13 +18,21 @@ jest.mock("@/features/scan/data/scan-lookup.api", () => ({
   lookupBeerByBarcode: jest.fn(),
 }));
 
+jest.mock("@/features/scan/data/beers-import.api", () => ({
+  importBeerByEan: jest.fn(),
+}));
+
 const mockFetchLookup = fetchLookupFromApi as jest.MockedFunction<
   typeof fetchLookupFromApi
+>;
+const mockFetchImport = fetchImportFromEncyclopedia as jest.MockedFunction<
+  typeof fetchImportFromEncyclopedia
 >;
 
 describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
   beforeEach(() => {
     mockFetchLookup.mockReset();
+    mockFetchImport.mockReset();
     dataSource.useDemoData = false;
   });
 
@@ -117,24 +126,32 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
   });
 
   describe("real API mode — error mapping", () => {
-    it("translates a 404 HttpError to ScanLookupBeerNotFoundError", async () => {
+    it("falls back to ScanLookupBeerNotFoundError when both NestJS and Python return 404 (ADR-0005)", async () => {
       mockFetchLookup.mockRejectedValueOnce(
         new HttpError(404, "Beer not found"),
+      );
+      mockFetchImport.mockRejectedValueOnce(
+        new HttpError(404, "EAN unknown to OFF"),
       );
 
       await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
         ScanLookupBeerNotFoundError,
       );
+      expect(mockFetchImport).toHaveBeenCalledWith("1234567890123");
     });
 
-    it("translates a 503 HttpError to ScanLookupServiceUnavailableError", async () => {
+    it("falls back to Python when NestJS 503s and Python 503s too — surfaces ScanLookupServiceUnavailableError (ADR-0005)", async () => {
       mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(503, "OFF unreachable"),
+      );
+      mockFetchImport.mockRejectedValueOnce(
         new HttpError(503, "OFF unreachable"),
       );
 
       await expect(lookupBeerByBarcode("5060277380019")).rejects.toBeInstanceOf(
         ScanLookupServiceUnavailableError,
       );
+      expect(mockFetchImport).toHaveBeenCalledWith("5060277380019");
     });
 
     it("translates a 422 NOT_A_BEER HttpError to ScanLookupNotABeerError carrying the product name (Issue #798)", async () => {
@@ -206,6 +223,78 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       expect(result.item.name).toBe("Punk IPA");
       expect(result.source).toBe("cache_miss_fetched");
       expect(result.rawPayloadAvailable).toBe(true);
+    });
+  });
+
+  describe("encyclopedia fallback (ADR-0005)", () => {
+    it("returns the Python result when NestJS 404s and Python finds the beer", async () => {
+      const expectedResult = {
+        item: {
+          barcode: "3760298280016",
+          name: "Page 24 Réserve Hildegarde",
+        } as never,
+        source: "cache_miss_fetched" as const,
+        rawPayloadAvailable: false,
+      };
+      mockFetchLookup.mockRejectedValueOnce(new HttpError(404, "Not found"));
+      mockFetchImport.mockResolvedValueOnce(expectedResult);
+
+      const result = await lookupBeerByBarcode("3760298280016");
+
+      expect(result).toBe(expectedResult);
+      expect(mockFetchLookup).toHaveBeenCalledWith("3760298280016");
+      expect(mockFetchImport).toHaveBeenCalledWith("3760298280016");
+    });
+
+    it("translates a Python 503 during fallback to ScanLookupServiceUnavailableError", async () => {
+      mockFetchLookup.mockRejectedValueOnce(new HttpError(404, "Not found"));
+      mockFetchImport.mockRejectedValueOnce(
+        new HttpError(503, "OFF unreachable"),
+      );
+
+      await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
+        ScanLookupServiceUnavailableError,
+      );
+    });
+
+    it("falls back to Python when NestJS returns 503 (OFF unreachable / rate-limited)", async () => {
+      const expectedResult = {
+        item: { barcode: "3770012913076", name: "Biere A la fut IPA" } as never,
+        source: "cache_miss_fetched" as const,
+        rawPayloadAvailable: false,
+      };
+      mockFetchLookup.mockRejectedValueOnce(new HttpError(503, "NestJS down"));
+      mockFetchImport.mockResolvedValueOnce(expectedResult);
+
+      const result = await lookupBeerByBarcode("3770012913076");
+
+      expect(result).toBe(expectedResult);
+      expect(mockFetchImport).toHaveBeenCalledWith("3770012913076");
+    });
+
+    it("does not call Python when NestJS returns a non-recoverable error (e.g. 429 rate-limit)", async () => {
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(429, "Too many requests"),
+      );
+
+      await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
+        HttpError,
+      );
+      expect(mockFetchImport).not.toHaveBeenCalled();
+    });
+
+    it("does not call Python when NestJS succeeds (warm path stays single-backend)", async () => {
+      const directResult = {
+        item: { barcode: "5060277380019" } as never,
+        source: "cache_hit_fresh" as const,
+        rawPayloadAvailable: false,
+      };
+      mockFetchLookup.mockResolvedValueOnce(directResult);
+
+      const result = await lookupBeerByBarcode("5060277380019");
+
+      expect(result).toBe(directResult);
+      expect(mockFetchImport).not.toHaveBeenCalled();
     });
   });
 

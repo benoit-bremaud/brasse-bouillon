@@ -15,6 +15,7 @@
  */
 import { dataSource } from "@/core/data/data-source";
 import { HttpError } from "@/core/http/http-error";
+import { importBeerByEan as fetchImportFromEncyclopedia } from "@/features/scan/data/beers-import.api";
 import { lookupBeerByBarcode as fetchLookupFromApi } from "@/features/scan/data/scan-lookup.api";
 import type { ScanLookupResult } from "@/features/scan/domain/scan.types";
 import { buildDemoLookupResult, demoScanCatalog } from "@/mocks/demo-data";
@@ -133,17 +134,50 @@ export async function lookupBeerByBarcode(
     return await fetchLookupFromApi(barcode);
   } catch (error) {
     if (error instanceof HttpError) {
-      if (error.status === 404) {
-        throw new ScanLookupBeerNotFoundError(barcode);
-      }
-      if (error.status === 503) {
-        throw new ScanLookupServiceUnavailableError(barcode);
+      if (error.status === 404 || error.status === 503) {
+        // ADR-0005 fallback: when NestJS does not know this barcode
+        // (404) OR cannot reach OFF (503 — typically OFF rate-limit
+        // or transport failure with no NestJS cache row), try the
+        // Python beer-encyclopedia. It has its own DB and OFF
+        // importer (PR #847) and may surface a beer NestJS cannot
+        // serve right now. The fallback's own 404 / 503 are
+        // translated to the same typed errors the caller already
+        // handles, so the UI stays identical to the single-backend
+        // path.
+        return await fallbackToEncyclopediaImport(barcode);
       }
       if (error.status === 422 && isNotABeerDetails(error.details)) {
         throw new ScanLookupNotABeerError(
           barcode,
           error.details.productName ?? null,
         );
+      }
+    }
+    throw error;
+  }
+}
+
+/**
+ * Try to resolve `barcode` against the Python beer-encyclopedia.
+ *
+ * Translates Python's HTTP responses into the same typed errors the
+ * primary NestJS path emits, so callers (presentation, tests) do not
+ * need to know which backend ultimately served the data. The Python
+ * backend itself already does DB-first + OFF fallback (PR #847 +
+ * #848) so a 404 here truly means "neither cache nor OFF knows".
+ */
+async function fallbackToEncyclopediaImport(
+  barcode: string,
+): Promise<ScanLookupResult> {
+  try {
+    return await fetchImportFromEncyclopedia(barcode);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      if (error.status === 404) {
+        throw new ScanLookupBeerNotFoundError(barcode);
+      }
+      if (error.status === 503) {
+        throw new ScanLookupServiceUnavailableError(barcode);
       }
     }
     throw error;

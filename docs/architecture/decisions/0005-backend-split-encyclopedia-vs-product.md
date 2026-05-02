@@ -16,20 +16,22 @@
 
 Two backends have evolved in parallel inside this monorepo:
 
-- **NestJS API** (`packages/api/`) — TypeORM, Postgres. Owns auth,
-  user accounts, user-submitted recettes, brassins, academy progress,
-  feedback, and (until now) a `scan_catalog_items` table that caches
-  beer data fetched from Open Food Facts on barcode scan.
+- **NestJS API** (`packages/api/`) — TypeORM, SQLite (`better-sqlite3`)
+  in dev/CI, Postgres-ready for production. Owns auth, user accounts,
+  user-submitted recettes, brassins, academy progress, feedback, and
+  (until now) a `scan_catalog_items` table that caches beer data
+  fetched from Open Food Facts on barcode scan.
 - **Python beer-encyclopedia** (`packages/beer-encyclopedia/`) —
-  FastAPI, async SQLAlchemy, Postgres. Owns a richer beer/brewery
-  domain (`beers`, `breweries`, `styles`, `legal_denominations`,
-  `sources`, `entity_sources`, `tasting_profiles`, `ingredients`,
+  FastAPI, async SQLAlchemy, SQLite (`aiosqlite`) in dev/CI,
+  Postgres-ready for production. Owns a richer beer/brewery domain
+  (`beers`, `breweries`, `styles`, `legal_denominations`, `sources`,
+  `entity_sources`, `tasting_profiles`, `ingredients`,
   `community_corrections`, `media`) plus the ML pipeline
   (YOLOv8 + EasyOCR) and an Open Food Facts importer.
 
 Both backends ended up implementing roughly the same "barcode → beer
 fiche" flow with their own Open Food Facts client, their own cache,
-and their own Postgres table. The mobile app today only talks to
+and their own table. The mobile app today only talks to
 NestJS for that flow; the Python backend, despite shipping a complete
 solution in PR #847 + #848, is consumed by no production code path.
 
@@ -163,10 +165,10 @@ migration on either side.
 
 ### Trade-offs
 
-- **Two backends to operate**: both must run, both have their own
-  Postgres database (or at least their own schema), both have CI.
-  Mitigated by: NestJS already exists and is mature; Python is small
-  and self-contained.
+- **Two backends to operate**: both must run, both maintain their own
+  schema and migrations (SQLite in dev/CI, Postgres-ready for
+  production), both have CI. Mitigated by: NestJS already exists and
+  is mature; Python is small and self-contained.
 - **Mobile app speaks two HTTP base URLs**: a small amount of plumbing
   in `core/http/http-client.ts` to support a `baseUrl` override. Done
   in the PR that ships this ADR.

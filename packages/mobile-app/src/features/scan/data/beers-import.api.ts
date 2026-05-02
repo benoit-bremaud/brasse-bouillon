@@ -12,11 +12,13 @@
  */
 import { env } from "@/core/config/env";
 import { request } from "@/core/http/http-client";
+import { HttpError } from "@/core/http/http-error";
 
 import type {
   ScanCatalogItem,
   ScanCatalogItemOrigin,
   ScanLookupResult,
+  ScanLookupSource,
 } from "../domain/scan.types";
 
 /**
@@ -30,7 +32,7 @@ import type {
  * (TODO: enrich `BeerRead` server-side with brewery_name + style_name
  * before the NestJS deprecation step of ADR-0005's roadmap).
  */
-type PythonBeerReadDto = {
+interface PythonBeerReadDto {
   id: string;
   name: string;
   slug: string;
@@ -50,7 +52,17 @@ type PythonBeerReadDto = {
   alcohol_group: number | null;
   created_at: string;
   updated_at: string;
-};
+}
+
+/**
+ * Window during which a row whose `created_at` is "now-ish" is treated
+ * as a freshly imported one (cache_miss_fetched). The Python endpoint
+ * does not return its HTTP status (200 vs 201) through the response
+ * body, so we lean on this heuristic. Generous enough to absorb clock
+ * skew and the round-trip latency, narrow enough to avoid mislabelling
+ * older DB rows.
+ */
+const FRESH_IMPORT_WINDOW_MS = 5_000;
 
 /**
  * Conservative SRM → EBC conversion (EBC ≈ SRM × 1.97). The Python
@@ -79,6 +91,25 @@ function mapPythonSourceToOrigin(
   return "manual";
 }
 
+/**
+ * Best-effort guess of whether the Python endpoint just imported the
+ * beer (HTTP 201) versus served an existing DB row (HTTP 200). We
+ * cannot read the status from the response body, so we infer from
+ * `created_at`: a row whose creation timestamp is within
+ * `FRESH_IMPORT_WINDOW_MS` of "now" is almost certainly the result of
+ * the very import we just triggered.
+ */
+function inferLookupSource(dto: PythonBeerReadDto): ScanLookupSource {
+  const createdAtMs = Date.parse(dto.created_at);
+  if (Number.isFinite(createdAtMs)) {
+    const ageMs = Date.now() - createdAtMs;
+    if (ageMs >= 0 && ageMs <= FRESH_IMPORT_WINDOW_MS) {
+      return "cache_miss_fetched";
+    }
+  }
+  return "cache_hit_fresh";
+}
+
 function mapPythonBeerToCatalogItem(
   dto: PythonBeerReadDto,
   ean: string,
@@ -102,7 +133,11 @@ function mapPythonBeerToCatalogItem(
     isColorEbcEstimated: dto.srm !== null,
     isStyleEstimated: true,
     origin: mapPythonSourceToOrigin(dto.source),
-    fetchedAt: dto.updated_at,
+    // BeerRead does not expose the OFF fetch timestamp; `updated_at`
+    // changes on any row update (including community edits) so it
+    // would fabricate freshness metadata. Surface null until the
+    // server adds an explicit `last_fetched_at` field.
+    fetchedAt: null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };
@@ -118,11 +153,28 @@ function mapPythonBeerToCatalogItem(
  * server-side enrichment ships.
  *
  * Throws (for the use-case to translate):
+ * - HttpError 503 — `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` is not
+ *   configured (default `http://localhost:8000` would silently fail
+ *   on physical devices). Fail fast instead of timing out.
  * - HttpError 404 — the EAN is unknown to both Python DB and OFF
  * - HttpError 503 — OFF transport / payload / seed-state failure
  * - HttpError 4xx/5xx — other unexpected backend conditions
  */
 export async function importBeerByEan(ean: string): Promise<ScanLookupResult> {
+  // Codex P1 #871: when the env var is absent, the bundle would fall
+  // back to `http://localhost:8000` — meaningful only on a host that
+  // happens to also run the encyclopedia (web preview from the dev
+  // PC). On a physical device or production build, that URL resolves
+  // to the device itself and times out. Surface a clean 503 the
+  // use-case already knows how to translate, instead of leaking a
+  // raw network error to the UI.
+  if (!env.encyclopediaUrlIsConfigured) {
+    throw new HttpError(
+      503,
+      "Beer encyclopedia backend not configured (EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL).",
+      null,
+    );
+  }
   const dto = await request<PythonBeerReadDto>("/beers/import-by-ean", {
     method: "POST",
     body: { ean },
@@ -132,14 +184,10 @@ export async function importBeerByEan(ean: string): Promise<ScanLookupResult> {
   const item = mapPythonBeerToCatalogItem(dto, ean);
   return {
     item,
-    // Python's "import-by-ean" semantically straddles the existing
-    // NestJS source values: a 200 (DB hit) ≈ cache_hit_fresh, a 201
-    // (OFF first-time fetch) ≈ cache_miss_fetched. We cannot
-    // distinguish the two without inspecting the HTTP status code
-    // (the wrapper returns the body only). Default to
-    // "cache_miss_fetched" since this fallback only fires after a
-    // NestJS 404 — meaning the row was likely just imported.
-    source: "cache_miss_fetched",
-    rawPayloadAvailable: false,
+    source: inferLookupSource(dto),
+    // Python persists the raw OFF payload in `EntitySource.raw_data`
+    // for every `openfoodfacts` import (PR #847). Internal / community
+    // sources never carry an upstream payload, so gate on origin.
+    rawPayloadAvailable: dto.source === "openfoodfacts",
   };
 }

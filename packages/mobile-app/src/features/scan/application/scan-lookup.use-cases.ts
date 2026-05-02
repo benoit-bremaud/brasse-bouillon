@@ -134,18 +134,17 @@ export async function lookupBeerByBarcode(
     return await fetchLookupFromApi(barcode);
   } catch (error) {
     if (error instanceof HttpError) {
-      if (error.status === 404) {
-        // ADR-0005 fallback: when NestJS does not know this barcode,
-        // try the Python beer-encyclopedia. It has its own OFF
-        // importer (PR #847) and may surface a beer that NestJS has
-        // not cached yet. We swallow only its 404 / 503 (transparent
-        // unknown / service down) and translate them to the same
-        // typed errors the caller already handles, so the UI stays
-        // identical to the single-backend path.
+      if (error.status === 404 || error.status === 503) {
+        // ADR-0005 fallback: when NestJS does not know this barcode
+        // (404) OR cannot reach OFF (503 — typically OFF rate-limit
+        // or transport failure with no NestJS cache row), try the
+        // Python beer-encyclopedia. It has its own DB and OFF
+        // importer (PR #847) and may surface a beer NestJS cannot
+        // serve right now. The fallback's own 404 / 503 are
+        // translated to the same typed errors the caller already
+        // handles, so the UI stays identical to the single-backend
+        // path.
         return await fallbackToEncyclopediaImport(barcode);
-      }
-      if (error.status === 503) {
-        throw new ScanLookupServiceUnavailableError(barcode);
       }
       if (error.status === 422 && isNotABeerDetails(error.details)) {
         throw new ScanLookupNotABeerError(

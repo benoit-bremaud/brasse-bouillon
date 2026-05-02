@@ -140,14 +140,18 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       expect(mockFetchImport).toHaveBeenCalledWith("1234567890123");
     });
 
-    it("translates a 503 HttpError to ScanLookupServiceUnavailableError", async () => {
+    it("falls back to Python when NestJS 503s and Python 503s too — surfaces ScanLookupServiceUnavailableError (ADR-0005)", async () => {
       mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(503, "OFF unreachable"),
+      );
+      mockFetchImport.mockRejectedValueOnce(
         new HttpError(503, "OFF unreachable"),
       );
 
       await expect(lookupBeerByBarcode("5060277380019")).rejects.toBeInstanceOf(
         ScanLookupServiceUnavailableError,
       );
+      expect(mockFetchImport).toHaveBeenCalledWith("5060277380019");
     });
 
     it("translates a 422 NOT_A_BEER HttpError to ScanLookupNotABeerError carrying the product name (Issue #798)", async () => {
@@ -253,11 +257,28 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       );
     });
 
-    it("does not call Python when NestJS returns a non-404 error", async () => {
+    it("falls back to Python when NestJS returns 503 (OFF unreachable / rate-limited)", async () => {
+      const expectedResult = {
+        item: { barcode: "3770012913076", name: "Biere A la fut IPA" } as never,
+        source: "cache_miss_fetched" as const,
+        rawPayloadAvailable: false,
+      };
       mockFetchLookup.mockRejectedValueOnce(new HttpError(503, "NestJS down"));
+      mockFetchImport.mockResolvedValueOnce(expectedResult);
+
+      const result = await lookupBeerByBarcode("3770012913076");
+
+      expect(result).toBe(expectedResult);
+      expect(mockFetchImport).toHaveBeenCalledWith("3770012913076");
+    });
+
+    it("does not call Python when NestJS returns a non-recoverable error (e.g. 429 rate-limit)", async () => {
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(429, "Too many requests"),
+      );
 
       await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
-        ScanLookupServiceUnavailableError,
+        HttpError,
       );
       expect(mockFetchImport).not.toHaveBeenCalled();
     });

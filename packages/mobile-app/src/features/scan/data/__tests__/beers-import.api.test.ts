@@ -1,4 +1,5 @@
 import { env } from "@/core/config/env";
+import { HttpError } from "@/core/http/http-error";
 import { importBeerByEan } from "@/features/scan/data/beers-import.api";
 
 const mockRequest = jest.fn();
@@ -6,6 +7,22 @@ const mockRequest = jest.fn();
 jest.mock("@/core/http/http-client", () => ({
   request: (...args: unknown[]) => mockRequest(...args),
 }));
+
+jest.mock("@/core/config/env", () => ({
+  env: {
+    apiUrl: "http://localhost:3000",
+    encyclopediaUrl: "http://test-encyclopedia.local:8000",
+    encyclopediaUrlIsConfigured: true,
+    useDemoData: false,
+  },
+}));
+
+const mockedEnv = env as unknown as {
+  apiUrl: string;
+  encyclopediaUrl: string;
+  encyclopediaUrlIsConfigured: boolean;
+  useDemoData: boolean;
+};
 
 type PythonBeerReadDto = {
   id: string;
@@ -59,6 +76,25 @@ function buildDto(
 describe("beers-import.api / importBeerByEan", () => {
   beforeEach(() => {
     mockRequest.mockReset();
+    mockedEnv.encyclopediaUrlIsConfigured = true;
+    mockedEnv.encyclopediaUrl = "http://test-encyclopedia.local:8000";
+  });
+
+  describe("encyclopedia URL guard (Codex P1 #871)", () => {
+    it("throws HttpError(503) without hitting the network when the URL is not explicitly configured", async () => {
+      mockedEnv.encyclopediaUrlIsConfigured = false;
+
+      const rejected = await importBeerByEan("3760231860119").catch(
+        (e: unknown) => e,
+      );
+
+      expect(rejected).toBeInstanceOf(HttpError);
+      expect((rejected as HttpError).status).toBe(503);
+      expect((rejected as HttpError).message).toMatch(
+        /not configured.*EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL/i,
+      );
+      expect(mockRequest).not.toHaveBeenCalled();
+    });
   });
 
   describe("HTTP wiring", () => {
@@ -81,21 +117,68 @@ describe("beers-import.api / importBeerByEan", () => {
       });
     });
 
-    it("returns a ScanLookupResult with cache_miss_fetched source and rawPayloadAvailable=false", async () => {
-      mockRequest.mockResolvedValueOnce(buildDto());
-
-      const result = await importBeerByEan("3760231860119");
-
-      expect(result.source).toBe("cache_miss_fetched");
-      expect(result.rawPayloadAvailable).toBe(false);
-      expect(result.item.barcode).toBe("3760231860119");
-    });
-
     it("re-throws when the http-client throws (let HttpError bubble up)", async () => {
       const httpError = new Error("HTTP 503");
       mockRequest.mockRejectedValueOnce(httpError);
 
       await expect(importBeerByEan("3760231860119")).rejects.toBe(httpError);
+    });
+  });
+
+  describe("source heuristic (200 vs 201 — no HTTP status visibility)", () => {
+    it("treats a row created within the last few seconds as cache_miss_fetched (just imported)", async () => {
+      const justCreated = new Date(Date.now() - 1_000).toISOString();
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ created_at: justCreated, updated_at: justCreated }),
+      );
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.source).toBe("cache_miss_fetched");
+    });
+
+    it("treats a row created long ago as cache_hit_fresh (DB hit, no upstream fetch)", async () => {
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ created_at: "2026-04-01T08:00:00.000Z" }),
+      );
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.source).toBe("cache_hit_fresh");
+    });
+
+    it("falls back to cache_hit_fresh when created_at cannot be parsed", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ created_at: "not-a-date" }));
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.source).toBe("cache_hit_fresh");
+    });
+  });
+
+  describe("rawPayloadAvailable (Python persists EntitySource.raw_data only for OFF imports)", () => {
+    it("returns true when the source is openfoodfacts", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ source: "openfoodfacts" }));
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.rawPayloadAvailable).toBe(true);
+    });
+
+    it("returns false when the source is internal (no upstream payload to keep)", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ source: "internal" }));
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.rawPayloadAvailable).toBe(false);
+    });
+
+    it("returns false when the source is community", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ source: "community" }));
+
+      const result = await importBeerByEan("3760231860119");
+
+      expect(result.rawPayloadAvailable).toBe(false);
     });
   });
 
@@ -117,7 +200,9 @@ describe("beers-import.api / importBeerByEan", () => {
       expect(item.notesSource).toBe("Ambrée typée");
       expect(item.createdAt).toBe("2026-04-01T08:00:00.000Z");
       expect(item.updatedAt).toBe("2026-04-15T09:00:00.000Z");
-      expect(item.fetchedAt).toBe("2026-04-15T09:00:00.000Z");
+      // BeerRead exposes no actual OFF fetch timestamp — see mapper
+      // comment. We surface null rather than misrepresent updated_at.
+      expect(item.fetchedAt).toBeNull();
     });
 
     it("substitutes 'Brasserie inconnue' / 'Style inconnu' placeholders (FK UUIDs not yet enriched)", async () => {

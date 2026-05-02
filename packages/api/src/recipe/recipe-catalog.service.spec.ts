@@ -2,18 +2,13 @@ jest.setTimeout(20000);
 
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { RecipeAdditiveOrmEntity } from './entities/recipe-additive.orm.entity';
-import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.entity';
-import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
-import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
 import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
-import { RecipeWaterOrmEntity } from './entities/recipe-water.orm.entity';
-import { RecipeYeastOrmEntity } from './entities/recipe-yeast.orm.entity';
+import { buildRecipeTestingTypeOrm } from './recipe-testing.module';
 
 /**
  * Issue #779 — coverage guard on the catalog discovery surface.
@@ -33,32 +28,7 @@ describe('RecipeService catalog read paths (Issue #779)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRoot({
-          type: 'sqlite',
-          database: ':memory:',
-          entities: [
-            RecipeOrmEntity,
-            RecipeStepOrmEntity,
-            RecipeFermentableOrmEntity,
-            RecipeHopOrmEntity,
-            RecipeYeastOrmEntity,
-            RecipeAdditiveOrmEntity,
-            RecipeWaterOrmEntity,
-          ],
-          synchronize: true,
-          logging: false,
-        }),
-        TypeOrmModule.forFeature([
-          RecipeOrmEntity,
-          RecipeStepOrmEntity,
-          RecipeFermentableOrmEntity,
-          RecipeHopOrmEntity,
-          RecipeYeastOrmEntity,
-          RecipeAdditiveOrmEntity,
-          RecipeWaterOrmEntity,
-        ]),
-      ],
+      imports: [...buildRecipeTestingTypeOrm()],
       providers: [RecipeService],
     }).compile();
 
@@ -144,9 +114,9 @@ describe('RecipeService catalog read paths (Issue #779)', () => {
     it('edge: throws NotFound when a non-owner reads a PRIVATE recipe (no leak)', async () => {
       await seedRecipe('rec-priv', RecipeVisibility.PRIVATE, OWNER);
 
-      await expect(
-        service.getReadableById(VIEWER, 'rec-priv'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getReadableById(VIEWER, 'rec-priv')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('edge: throws NotFound when a non-owner reads an UNLISTED recipe (no leak)', async () => {

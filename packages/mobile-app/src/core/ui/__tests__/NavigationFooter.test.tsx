@@ -152,12 +152,22 @@ describe("NavigationFooter", () => {
     });
   });
 
-  // Issue #613 — Profil active on /profile and on its sub-routes.
+  // Issue #613 — Profil active on /profile AND on its sub-routes
+  // (e.g. /profile/settings if/when sub-routes ship). The footer
+  // contract is "stay highlighted as long as we are inside the
+  // section", and the helper `isFooterItemActive` already handles
+  // the `pathname.startsWith(prefix + "/")` half — this test pins
+  // both halves so a future regression on either side fails loudly.
   it("activates Profil on /profile and its sub-routes", () => {
     mockPathname = "/profile";
+    const exactRender = render(<NavigationFooter />);
+    expect(screen.getByLabelText("Profil")).toHaveAccessibilityState({
+      selected: true,
+    });
+    exactRender.unmount();
 
+    mockPathname = "/profile/settings";
     render(<NavigationFooter />);
-
     expect(screen.getByLabelText("Profil")).toHaveAccessibilityState({
       selected: true,
     });

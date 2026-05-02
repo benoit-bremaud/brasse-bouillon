@@ -16,15 +16,15 @@ on real-world input is to capture photos by hand and feed them to the
 are easy to find, easy to re-run after pipeline changes, and easy to
 augment over time.
 
-## Convention de nommage suggérée
+## Suggested naming convention
 
-Pas d'enforcement, mais pour s'y retrouver après plusieurs sessions :
+No enforcement, but to navigate the folder after several sessions:
 
 ```
 YYYY-MM-DD_<beer-slug>_<face>.jpg
 ```
 
-Examples :
+Examples:
 
 ```
 2026-05-02_pelforth-brune_front.jpg

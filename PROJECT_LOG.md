@@ -5,6 +5,21 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-03
+
+### PR #871 merged (`fc3ee5a`) — feat(mobile-app): wire Python beer-encyclopedia as fallback for /scan/lookup 404 + ADR-0005 backend split
+
+- ADR-0005 (encyclopedia ⇆ product split) + ADR-0002 marked partially superseded.
+- Mobile fallback: NestJS 404 OR 503 → `POST /beers/import-by-ean` on `env.encyclopediaUrl`.
+- `http-client` learns `baseUrl` override; `env.ts` exposes `encyclopediaUrlIsConfigured` (Codex P1 fail-fast guard).
+- Pre-merge review fixes in `a0bf1bc` (8 inline comments: 1 Codex P1 + 7 Copilot — interface vs type, ADR Postgres → SQLite ×2, source heuristic, rawPayload conditional, fetchedAt null, missing tests).
+- Sonar coverage gate cleared in two passes (`f904177` + `8c8241f`): `beers-import.api.ts` + `http-client.ts` now 100%.
+- +35 net new tests (647 → 682 green).
+- Validated end-to-end on a physical device against 10 EANs (3 Goudale, 2 BACHO, Pelforth, original Goudale Ambrée, La Rousse Mont-Blanc, La Cros Cagnes-sur-Mer, À La Fut IPA).
+- Spawned issues: #874 (mobile UX — orphan CTA on not-found), #875 (api — `AllExceptionsFilter` strips structured fields, regresses #800), #876 + #877 (encyclopedia — non-beer acceptance + empty `product_name`), #878 (epic — scan rate-limit + freemium tiering).
+
+---
+
 ## 2026-05-02
 
 ### PR #847 merged (`5ad8b92`) — feat(beer-encyclopedia): Open Food Facts importer + POST /beers/import-by-ean

@@ -99,7 +99,9 @@ describe('RecipeController', () => {
           useValue: {
             create: jest.fn(),
             listMine: jest.fn(),
+            listPublic: jest.fn(),
             getMineById: jest.fn(),
+            getReadableById: jest.fn(),
             updateMine: jest.fn(),
             deleteMine: jest.fn(),
             importFromCommunity: jest.fn(),
@@ -179,30 +181,91 @@ describe('RecipeController', () => {
     });
   });
 
+  // Issue #779 — Recipe Catalog mini.
+  // The /recipes/public listing is the discovery alternative to the
+  // scan flow on the mobile app's CatalogScreen. Happy path lists
+  // every PUBLIC recipe regardless of owner; sad path on an empty
+  // catalog returns []; edge guard: the route must be declared
+  // BEFORE :id so the literal "public" wins over the param matcher.
+  describe('listPublic() - GET /recipes/public', () => {
+    it('happy: lists every PUBLIC recipe regardless of owner', async () => {
+      const listPublicSpy = jest
+        .spyOn(service, 'listPublic')
+        .mockResolvedValue([mockRecipeOrm, mockRecipeOrm]);
+
+      const result = await controller.listPublic();
+
+      expect(listPublicSpy).toHaveBeenCalledWith();
+      expect(result).toHaveLength(2);
+    });
+
+    it('sad: returns an empty array when the catalog is empty', async () => {
+      const listPublicSpy = jest
+        .spyOn(service, 'listPublic')
+        .mockResolvedValue([]);
+
+      const result = await controller.listPublic();
+
+      expect(listPublicSpy).toHaveBeenCalledWith();
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('getMineById() - GET /recipes/:id', () => {
-    it('should return a recipe by ID', async () => {
-      const getMineByIdSpy = jest
-        .spyOn(service, 'getMineById')
+    it('should return a recipe by ID (owner path returns full RecipeDto)', async () => {
+      // The fixture's owner_id matches mockUser.id by construction —
+      // owner path means the controller projects through RecipeDto
+      // (full shape, including owner_id).
+      const getReadableByIdSpy = jest
+        .spyOn(service, 'getReadableById')
         .mockResolvedValue(mockRecipeOrm);
 
       const result = await controller.getMineById(mockUser, mockRecipeOrm.id);
 
-      expect(getMineByIdSpy).toHaveBeenCalledWith(
+      expect(getReadableByIdSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
       );
       expect(result).toBeDefined();
+      expect(result).toHaveProperty('owner_id', mockUser.id);
+    });
+
+    // Issue #779 — Codex P1 + privacy guard. When the viewer is NOT
+    // the owner of a PUBLIC recipe, the response must be projected
+    // through PublicRecipeDto so owner_id and the ownership-adjacent
+    // fields never leak out via the catalog detail flow.
+    it('should project to PublicRecipeDto (no owner_id leak) when caller is not the owner', async () => {
+      const otherOwnerRecipe: RecipeOrmEntity = {
+        ...mockRecipeOrm,
+        owner_id: 'someone-else-uuid',
+        visibility: RecipeVisibility.PUBLIC,
+      };
+      jest
+        .spyOn(service, 'getReadableById')
+        .mockResolvedValue(otherOwnerRecipe);
+
+      const result = await controller.getMineById(
+        mockUser,
+        otherOwnerRecipe.id,
+      );
+
+      expect(result).not.toHaveProperty('owner_id');
+      expect(result).not.toHaveProperty('imported_from_recipe_id');
+      expect(result).not.toHaveProperty('import_provenance');
     });
 
     it('should throw NotFoundException when recipe not found', async () => {
-      const getMineByIdSpy = jest
-        .spyOn(service, 'getMineById')
+      const getReadableByIdSpy = jest
+        .spyOn(service, 'getReadableById')
         .mockRejectedValue(new NotFoundException('Recipe not found'));
 
       await expect(
         controller.getMineById(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
-      expect(getMineByIdSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
+      expect(getReadableByIdSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        'invalid-id',
+      );
     });
   });
 

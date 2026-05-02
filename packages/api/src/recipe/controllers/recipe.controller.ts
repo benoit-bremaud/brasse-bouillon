@@ -30,6 +30,7 @@ import { User } from '../../user/entities/user.entity';
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { RankedRecipeResponseDto } from '../dtos/ranked-recipe.dto';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
+import { PublicRecipeDto } from '../dtos/public-recipe.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
 import { RecipeStepDto } from '../dtos/recipe-step.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
@@ -113,15 +114,44 @@ export class RecipeController {
     return this.matching.rankForBeer(beerId);
   }
 
+  @Get('public')
+  @ApiOperation({
+    summary: 'List PUBLIC recipes for the discovery catalog (Issue #779)',
+    description:
+      "Returns every recipe whose visibility is PUBLIC, regardless of owner, sorted by most-recently-updated. Used by the mobile app's CatalogScreen as the discovery alternative to the scan flow. UNLISTED recipes are intentionally excluded from this listing (they remain reachable by direct id via importFromCommunity). Serialized as PublicRecipeDto rather than RecipeDto so the response intentionally omits owner_id (and related ownership-adjacent fields) — the catalog UI does not need them and exposing internal user IDs to every authenticated reader would be an unnecessary information leak (Issue #779 Copilot review #4).",
+  })
+  @ApiOkResponse({ type: PublicRecipeDto, isArray: true })
+  async listPublic(): Promise<PublicRecipeDto[]> {
+    const rows = await this.service.listPublic();
+    return rows.map((row) => PublicRecipeDto.fromEntity(row));
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get one of my recipes by id' })
-  @ApiOkResponse({ type: RecipeDto })
+  @ApiOperation({
+    summary:
+      'Get a recipe by id — own recipe or any PUBLIC recipe (Issue #779)',
+    description:
+      'Returns the recipe whenever the caller owns it OR its visibility is PUBLIC. PRIVATE / UNLISTED recipes that are not owned by the caller still surface as 404 (deny by default, no information leak). The route used to be strictly owner-scoped which broke the Catalog detail flow for any PUBLIC recipe authored by someone else (Codex P1 on PR #845).\n\nProjection rule: when the caller IS the owner, the full RecipeDto is returned (including owner_id, imported_from_recipe_id, import_provenance) so the existing MyRecipesScreen flow keeps every field. When the caller is NOT the owner (i.e. reading a PUBLIC recipe authored by someone else), the response is the PublicRecipeDto projection — owner_id and the ownership-adjacent fields are stripped, mirroring the privacy guard on GET /recipes/public.',
+  })
+  @ApiOkResponse({
+    description:
+      'Either the full RecipeDto (when the caller owns the recipe) or the PublicRecipeDto projection (when the caller is reading a PUBLIC recipe owned by someone else). Schema consumers must treat owner_id, imported_from_recipe_id, and import_provenance as optional on this route.',
+    schema: {
+      oneOf: [
+        { $ref: '#/components/schemas/RecipeDto' },
+        { $ref: '#/components/schemas/PublicRecipeDto' },
+      ],
+    },
+  })
   async getMineById(
     @CurrentUser() user: User,
     @Param('id', new ParseUUIDPipe()) id: string,
-  ): Promise<RecipeDto> {
-    const row = await this.service.getMineById(user.id, id);
-    return RecipeDto.fromEntity(row);
+  ): Promise<RecipeDto | PublicRecipeDto> {
+    const row = await this.service.getReadableById(user.id, id);
+    if (row.owner_id === user.id) {
+      return RecipeDto.fromEntity(row);
+    }
+    return PublicRecipeDto.fromEntity(row);
   }
 
   @Patch(':id')

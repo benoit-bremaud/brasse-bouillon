@@ -5,6 +5,41 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-02
+
+### PR #847 merged (`5ad8b92`) — feat(beer-encyclopedia): Open Food Facts importer + POST /beers/import-by-ean
+
+- New `importers/` package (`base.ExternalBeerSnapshot` + `openfoodfacts.OpenFoodFactsClient` + `persistence.upsert_beer_from_snapshot`), `Beer.ean_code` column + migration 004, `scripts/seed_sources.py`, ADR-0003.
+- Pre-merge review fixes in `f4834b2` (10 inline review comments addressed).
+- +38 tests (95 → 135 green).
+
+### PR #848 merged (`7b14aa6`) — fix(beer-encyclopedia): DB-first lookup in POST /beers/import-by-ean
+
+- Skip OFF when `Beer.ean_code` is in DB (warm path 14 ms vs 176 ms cold).
+- Updated 200/201/404/503 OpenAPI descriptions in `2024221` (1 review comment).
+- +2 tests (137 → 139 green).
+
+### PR #860 merged (`1e4594d`) — chore(beer-encyclopedia): add scan-photos local folder for manual /scan testing
+
+- gitignored photo dump under `packages/beer-encyclopedia/scan-photos/` + `README.md` + `findings.md`.
+- EN translation fix in `15a5cce` (1 review comment).
+- Surfaced the OCR bug fixed by #861.
+
+### PR #861 merged (`ce78e6f`) — fix(beer-encyclopedia): use paragraph=False in EasyOCR readtext to surface dispersed label text
+
+- `paragraph=True` returned `[]` on 9/9 real beer photos; `paragraph=False` parsed 10–13 fragments each.
+- New `packages/beer-encyclopedia/tests/test_ml/test_ocr.py` (4 regression tests, both invariants pinned) + docstring clarifications in `221c9be` (3 review comments).
+- 143/143 green.
+
+### Backlog capture — 11 issues opened during the live demo + post-merge brainstorms
+
+- OFF resilience: #850 (`/health/external` ping), #851 (in-memory TTL cache), #852 (HTTP 429 backoff).
+- Strategy epics: #849 (AI-research importer + double validation), #853 (DB autonomy strategy parent).
+- DB autonomy sub-issues: #854 (bulk OFF dump ingest), #855 (native catalog + search), #856 (EntitySource refresh policy ADR-0004), #857 (book ingestion pipeline).
+- Mobile + ML: #858 (label-photo capture quality), #859 (CLIP + pgvector visual recognition fallback).
+
+---
+
 ## 2026-05-01
 
 ### PR #841 merged (`b39a1dc`) — feat(beer-encyclopedia): add French legal denomination reference

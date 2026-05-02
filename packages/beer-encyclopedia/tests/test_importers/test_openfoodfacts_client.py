@@ -13,8 +13,8 @@ exercised without ever leaving the process.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from decimal import Decimal
-from typing import Any
 
 import httpx
 import pytest
@@ -25,8 +25,12 @@ from importers.openfoodfacts import (
     OpenFoodFactsError,
 )
 
+# Type alias for the mock-transport handler signature so every test
+# stays self-documenting without leaning on `# type: ignore`.
+HttpxHandler = Callable[[httpx.Request], httpx.Response]
 
-def _build_client(handler) -> OpenFoodFactsClient:  # type: ignore[no-untyped-def]
+
+def _build_client(handler: HttpxHandler) -> OpenFoodFactsClient:
     transport = httpx.MockTransport(handler)
     httpx_client = httpx.AsyncClient(
         transport=transport,
@@ -39,7 +43,7 @@ def _build_client(handler) -> OpenFoodFactsClient:  # type: ignore[no-untyped-de
 
 
 async def test_fetch_by_ean_returns_full_snapshot_for_known_product() -> None:
-    payload: dict[str, Any] = {
+    payload: dict[str, object] = {
         "code": "3760231860119",
         "status": 1,
         "product": {
@@ -123,6 +127,39 @@ async def test_fetch_by_ean_raises_when_product_object_is_missing() -> None:
 
     async with _build_client(handler) as client:
         with pytest.raises(OpenFoodFactsError, match="no 'product' object"):
+            await client.fetch_by_ean("3760231860119")
+
+
+async def test_fetch_by_ean_wraps_httpx_transport_errors() -> None:
+    """Timeouts / DNS / connection resets become typed errors.
+
+    Without this guard the route would receive an uncaught
+    ``httpx.RequestError`` and surface a 500 instead of the intended
+    503. The wrapper keeps every failure mode flowing through
+    ``OpenFoodFactsError``.
+    """
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectTimeout("simulated DNS / connect failure")
+
+    async with _build_client(handler) as client:
+        with pytest.raises(OpenFoodFactsError, match="transport error"):
+            await client.fetch_by_ean("3760231860119")
+
+
+async def test_fetch_by_ean_raises_when_payload_is_not_a_json_object() -> None:
+    """A misbehaving proxy could return a JSON list / number / string.
+
+    The client must reject anything that is not an object before it
+    reaches ``payload.get(...)``, otherwise the route would 500 on
+    ``AttributeError``.
+    """
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=["not", "an", "object"])
+
+    async with _build_client(handler) as client:
+        with pytest.raises(OpenFoodFactsError, match="not a JSON object"):
             await client.fetch_by_ean("3760231860119")
 
 

@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import os
 from decimal import Decimal, InvalidOperation
-from typing import Any
 
 import httpx
 
@@ -121,13 +120,23 @@ class OpenFoodFactsClient:
         """Look up a product by EAN.
 
         Returns ``None`` when OFF reports the product as missing
-        (``status == 0``) so the caller can branch on a clean
-        sentinel. Any other unexpected condition (HTTP 5xx, malformed
-        payload) raises :class:`OpenFoodFactsError`.
+        (``status == 0`` or HTTP 404) so the caller can branch on a
+        clean sentinel. Any other unexpected condition — HTTP 5xx,
+        malformed payload, or transport-level failure (timeout, DNS,
+        connection reset) — raises :class:`OpenFoodFactsError` so the
+        route handler can convert it into a controlled 503 instead of
+        leaking an uncaught exception as a 500.
         """
 
         url = f"{self._base_url}{_PRODUCT_PATH_TEMPLATE.format(ean=ean)}"
-        response = await self._client.get(url)
+        try:
+            response = await self._client.get(url)
+        except httpx.RequestError as exc:
+            # Transport-level failure (timeout, DNS, connection reset…).
+            # Surface it through the typed error so the route returns 503.
+            raise OpenFoodFactsError(
+                f"OFF transport error for EAN {ean}: {exc}"
+            ) from exc
 
         # 404 from OFF is unusual (the API normally returns 200 with
         # status=0 for unknown codes) but treat it the same way to
@@ -146,6 +155,16 @@ class OpenFoodFactsClient:
                 f"OFF returned non-JSON payload for EAN {ean}"
             ) from exc
 
+        # Defensive: a misbehaving proxy or schema drift could return a
+        # JSON list / string / number. Anything other than an object
+        # cannot be treated as an OFF response — fail fast with a
+        # controlled error instead of letting AttributeError bubble up.
+        if not isinstance(payload, dict):
+            raise OpenFoodFactsError(
+                f"OFF payload for EAN {ean} is not a JSON object "
+                f"(got {type(payload).__name__})"
+            )
+
         if payload.get("status") == 0:
             return None
 
@@ -159,7 +178,7 @@ class OpenFoodFactsClient:
 
 
 def _map_product_to_snapshot(
-    *, ean: str, product: dict[str, Any]
+    *, ean: str, product: dict[str, object]
 ) -> ExternalBeerSnapshot:
     """Translate the OFF product dict into our internal shape.
 
@@ -180,7 +199,7 @@ def _map_product_to_snapshot(
     )
 
 
-def _pick_name(product: dict[str, Any]) -> str:
+def _pick_name(product: dict[str, object]) -> str:
     """Return the most descriptive available name.
 
     Prefers the localised French name when present, falls back to the
@@ -195,7 +214,7 @@ def _pick_name(product: dict[str, Any]) -> str:
     return "Unnamed product"
 
 
-def _pick_first_brand(product: dict[str, Any]) -> str | None:
+def _pick_first_brand(product: dict[str, object]) -> str | None:
     """Return the first brand listed (OFF stores them comma-separated)."""
 
     brands = product.get("brands")
@@ -206,7 +225,7 @@ def _pick_first_brand(product: dict[str, Any]) -> str | None:
     return cleaned or None
 
 
-def _pick_abv(product: dict[str, Any]) -> Decimal | None:
+def _pick_abv(product: dict[str, object]) -> Decimal | None:
     """Extract the alcohol-by-volume value from the nutriments dict.
 
     OFF stores it under several keys depending on the product's
@@ -229,7 +248,7 @@ def _pick_abv(product: dict[str, Any]) -> Decimal | None:
     return None
 
 
-def _pick_country_iso2(product: dict[str, Any]) -> str | None:
+def _pick_country_iso2(product: dict[str, object]) -> str | None:
     """Extract an ISO 3166-1 alpha-2 country code from ``countries_tags``.
 
     OFF country tags are language-prefixed slugs such as ``"en:france"``
@@ -254,7 +273,7 @@ def _pick_country_iso2(product: dict[str, Any]) -> str | None:
     return None
 
 
-def _pick_allergens(product: dict[str, Any]) -> list[str]:
+def _pick_allergens(product: dict[str, object]) -> list[str]:
     """Extract a normalised allergen list from ``allergens_tags``.
 
     OFF tags such as ``"en:gluten"`` are converted to plain tokens
@@ -279,7 +298,7 @@ def _pick_allergens(product: dict[str, Any]) -> list[str]:
     return normalised
 
 
-def _pick_image_url(product: dict[str, Any]) -> str | None:
+def _pick_image_url(product: dict[str, object]) -> str | None:
     """Return the front-label image URL when OFF provides one."""
 
     for key in ("image_front_url", "image_url"):

@@ -15,7 +15,7 @@ Coverage layout:
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from decimal import Decimal
 
 import pytest
@@ -32,6 +32,14 @@ from scripts.seed_sources import seed_sources
 
 # Real EAN-13 from the OFF doc — used as a stable fixture identifier.
 EAN_PELFORTH: str = "3760231860119"
+
+# A behaviour function maps an EAN to the value the stub client should
+# return: a snapshot (success), ``None`` (unknown product), or an
+# Exception instance to raise (transport failure). Typing this once
+# keeps the fixture and the stub class honest without ``# type: ignore``.
+SnapshotBehaviour = Callable[
+    [str], "ExternalBeerSnapshot | None | OpenFoodFactsError"
+]
 
 
 def _build_pelforth_snapshot(ean: str = EAN_PELFORTH) -> ExternalBeerSnapshot:
@@ -55,11 +63,11 @@ class _StubOpenFoodFactsClient:
     :class:`OpenFoodFactsError` (transport failure).
     """
 
-    def __init__(self, behaviour) -> None:  # type: ignore[no-untyped-def]
+    def __init__(self, behaviour: SnapshotBehaviour) -> None:
         self._behaviour = behaviour
         self.calls: list[str] = []
 
-    async def fetch_by_ean(self, ean: str):  # type: ignore[no-untyped-def]
+    async def fetch_by_ean(self, ean: str) -> ExternalBeerSnapshot | None:
         self.calls.append(ean)
         result = self._behaviour(ean)
         if isinstance(result, Exception):
@@ -67,18 +75,21 @@ class _StubOpenFoodFactsClient:
         return result
 
 
+StubFactory = Callable[[SnapshotBehaviour], _StubOpenFoodFactsClient]
+
+
 @pytest.fixture
-def stub_off_factory(client: TestClient) -> Iterator[callable]:  # type: ignore[type-arg]
+def stub_off_factory(client: TestClient) -> Iterator[StubFactory]:
     """Yield a factory that injects a stub OFF client into the app.
 
     Cleans up the dependency override on teardown so other tests in
     the same suite are unaffected.
     """
 
-    def _install(behaviour) -> _StubOpenFoodFactsClient:  # type: ignore[no-untyped-def]
+    def _install(behaviour: SnapshotBehaviour) -> _StubOpenFoodFactsClient:
         stub = _StubOpenFoodFactsClient(behaviour)
 
-        async def _override():  # type: ignore[no-untyped-def]
+        async def _override() -> AsyncIterator[_StubOpenFoodFactsClient]:
             yield stub
 
         app.dependency_overrides[get_openfoodfacts_client] = _override

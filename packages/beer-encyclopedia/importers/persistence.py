@@ -69,7 +69,12 @@ async def upsert_beer_from_snapshot(
     ).scalar_one_or_none()
 
     if existing_beer is None:
-        beer = await _create_beer(session, snapshot=snapshot, brewery=brewery)
+        beer = await _create_beer(
+            session,
+            snapshot=snapshot,
+            brewery=brewery,
+            source_name=source_name,
+        )
         created = True
     else:
         _refresh_beer_fields(existing_beer, snapshot=snapshot, brewery=brewery)
@@ -140,7 +145,17 @@ async def _create_beer(
     *,
     snapshot: ExternalBeerSnapshot,
     brewery: Brewery | None,
+    source_name: str,
 ) -> Beer:
+    """Insert a new beer row carrying the snapshot's payload.
+
+    ``source_name`` must be one of ``BEER_SOURCE_VALUES``
+    (``openfoodfacts`` | ``internal`` | ``community``); the
+    ``Beer.source`` ORM validator rejects anything else at assignment
+    time so a misuse from a future importer surfaces immediately
+    instead of corrupting provenance silently.
+    """
+
     slug = await build_unique_slug(session, column=Beer.slug, name=snapshot.name)
     beer = Beer(
         name=snapshot.name,
@@ -150,7 +165,7 @@ async def _create_beer(
         country_of_origin=snapshot.country_of_origin,
         allergens=list(snapshot.allergens) or None,
         ean_code=snapshot.external_id,
-        source="openfoodfacts",
+        source=source_name,
         contributed_at=datetime.now(UTC),
     )
     session.add(beer)
@@ -166,10 +181,24 @@ def _refresh_beer_fields(
 ) -> None:
     """Update mutable fields on an existing beer row.
 
-    Conservative on purpose: we never overwrite ``name``, ``slug``,
-    ``description`` or ``style_id`` because those may have been edited
-    by hand or refined by another source. The importer only refreshes
-    fields it owns: brewery link, abv, country, allergens, contributed_at.
+    Two layered policies:
+
+    - **Never overwrite hand-edited fields.** ``name``, ``slug``,
+      ``description``, ``style_id`` and ``legal_denomination`` are
+      preserved unconditionally — they may have been corrected by a
+      moderator or refined by another source, and we do not have
+      enough context to know whether the snapshot value is more
+      accurate.
+
+    - **Never clear on refresh.** A re-import only writes a value when
+      the snapshot carries one (``brewery is not None``,
+      ``snapshot.abv is not None``, ``snapshot.allergens`` truthy,
+      …). If OFF stops returning, say, an ``allergens_tags`` array on
+      the next call, we keep the previous list rather than clearing it
+      and losing data the user could see in the mobile app. The
+      explicit cost: a field stays populated even after the source
+      removes it. The chosen mitigation: a future moderation tool can
+      flush a field on demand; the importer must not do it implicitly.
     """
 
     if brewery is not None:

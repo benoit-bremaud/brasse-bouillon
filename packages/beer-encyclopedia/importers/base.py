@@ -46,5 +46,11 @@ class ExternalBeerSnapshot:
     image_url: str | None = None
     """URL of the front-label image, when the source publishes one."""
 
-    raw_payload: dict = field(default_factory=dict)
-    """Original payload kept for the ``EntitySource.raw_data`` audit trail."""
+    raw_payload: dict[str, object] = field(default_factory=dict)
+    """Original payload kept for the ``EntitySource.raw_data`` audit trail.
+
+    Typed as ``dict[str, object]`` (rather than ``dict`` or
+    ``dict[str, Any]``) to keep the package's "no implicit Any" rule
+    honest. Consumers who need to read a specific value should narrow
+    via ``isinstance`` rather than assume a shape.
+    """

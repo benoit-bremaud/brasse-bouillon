@@ -3,20 +3,31 @@
 Same shape as /breweries, plus extra list filters (style, brewery, ABV
 range) and FK validation on create/update so a client cannot attach a
 beer to a non-existent brewery or style.
+
+Adds ``POST /beers/import-by-ean`` (PR2): a one-shot bridge to Open
+Food Facts that converts a scanned barcode into an enriched beer row,
+backed by the polymorphic ``EntitySource`` audit trail.
 """
 
 from __future__ import annotations
 
 import uuid
+from collections.abc import AsyncIterator
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db_utils import is_postgres
 from api.dependencies import get_db
-from api.schemas.beer import BeerCreate, BeerList, BeerRead, BeerUpdate
+from api.schemas.beer import (
+    BeerCreate,
+    BeerImportByEanRequest,
+    BeerList,
+    BeerRead,
+    BeerUpdate,
+)
 from api.schemas.common import (
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
@@ -24,8 +35,31 @@ from api.schemas.common import (
 )
 from api.slug import create_with_unique_slug
 from db.models import Beer, Brewery, Style
+from importers import (
+    OpenFoodFactsClient,
+    OpenFoodFactsError,
+    SourceNotSeededError,
+    upsert_beer_from_snapshot,
+)
 
 router = APIRouter(prefix="/beers", tags=["beers"])
+
+
+async def get_openfoodfacts_client() -> AsyncIterator[OpenFoodFactsClient]:
+    """Provide an :class:`OpenFoodFactsClient` to a request handler.
+
+    Exposed as a FastAPI dependency so tests can override it via
+    ``app.dependency_overrides`` and inject a stub that never touches
+    the network. The default factory builds a short-lived client whose
+    underlying ``httpx.AsyncClient`` is closed by ``aclose`` on exit.
+    Mirrors the ``get_db`` pattern in ``db/engine.py``.
+    """
+
+    client = OpenFoodFactsClient()
+    try:
+        yield client
+    finally:
+        await client.aclose()
 
 
 async def _validate_fks(
@@ -45,6 +79,71 @@ async def _validate_fks(
         raise HTTPException(status_code=422, detail="brewery_id does not exist.")
     if style_id is not None and await session.get(Style, style_id) is None:
         raise HTTPException(status_code=422, detail="style_id does not exist.")
+
+
+@router.post(
+    "/import-by-ean",
+    response_model=BeerRead,
+    responses={
+        200: {"description": "Existing beer refreshed from Open Food Facts."},
+        201: {"description": "Beer created from Open Food Facts."},
+        404: {"description": "Open Food Facts has no product for this EAN."},
+        503: {
+            "description": (
+                "Open Food Facts is unavailable or returned an unexpected "
+                "payload. Try again later."
+            )
+        },
+    },
+)
+async def import_beer_by_ean(
+    payload: BeerImportByEanRequest,
+    response: Response,
+    session: AsyncSession = Depends(get_db),
+    off_client: OpenFoodFactsClient = Depends(get_openfoodfacts_client),
+) -> BeerRead:
+    """Bootstrap or refresh a beer row from an Open Food Facts lookup.
+
+    Idempotent on the supplied ``ean``: a first call inserts a new row
+    (HTTP 201) and a subsequent call refreshes the same row in place
+    (HTTP 200) while bumping ``EntitySource.last_synced_at`` so the
+    audit trail records the new fetch.
+
+    Returns 404 when OFF reports no product for the EAN — distinct from
+    a 503 (transport / payload-level failure) so a client can branch on
+    "unknown product" vs "service hiccup".
+    """
+
+    try:
+        snapshot = await off_client.fetch_by_ean(payload.ean)
+    except OpenFoodFactsError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Open Food Facts unavailable: {exc}",
+        ) from exc
+
+    if snapshot is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Open Food Facts has no product for EAN {payload.ean}.",
+        )
+
+    try:
+        result = await upsert_beer_from_snapshot(
+            session,
+            snapshot=snapshot,
+            source_name="openfoodfacts",
+        )
+    except SourceNotSeededError as exc:
+        # Surface the missing-source failure as a 503 rather than a 500
+        # so the operator gets an actionable message: the fix is to run
+        # the seed script, not to debug the import code.
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    response.status_code = (
+        status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
+    )
+    return BeerRead.model_validate(result.beer)
 
 
 @router.get("", response_model=BeerList)

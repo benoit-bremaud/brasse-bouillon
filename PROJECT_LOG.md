@@ -38,6 +38,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - DB autonomy sub-issues: #854 (bulk OFF dump ingest), #855 (native catalog + search), #856 (EntitySource refresh policy ADR-0004), #857 (book ingestion pipeline).
 - Mobile + ML: #858 (label-photo capture quality), #859 (CLIP + pgvector visual recognition fallback).
 
+### Decision — Credit-economy currency named **Couronnes** (#862, child of #739)
+
+- Visual-identity layer for the existing credit economy: monetary unit locked as **Couronnes** (brewing-pro term *capsule couronne* / *crown cap*). Origin: weekend brainstorm post-*Fallout*; reskinned with FR brewing vocabulary for unique brand identity (intentionally distant from Fallout's *caps*).
+- Issue [#862](https://github.com/benoit-bremaud/brasse-bouillon/issues/862) tracks scope tiered v0.2 (logo SVG, "Mes Couronnes" balance widget, ledger UI, system copy) / v0.3 (gain/spend animations, decapsulation sound, marketing copy) / soutenance v0.1 teasing (1 vision slide + 1 natural demo mention).
+- Round 3.6 cross-reference comment posted in epic [#739](https://github.com/benoit-bremaud/brasse-bouillon/issues/739#issuecomment-4364523284); mechanics from Round 3.5 (4 earning activities, 4 redemption tiers, anti-abuse, schema) unchanged.
+
 ---
 
 ## 2026-05-01

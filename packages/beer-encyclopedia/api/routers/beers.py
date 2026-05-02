@@ -85,13 +85,31 @@ async def _validate_fks(
     "/import-by-ean",
     response_model=BeerRead,
     responses={
-        200: {"description": "Existing beer refreshed from Open Food Facts."},
-        201: {"description": "Beer created from Open Food Facts."},
-        404: {"description": "Open Food Facts has no product for this EAN."},
+        200: {
+            "description": (
+                "Beer already known to the encyclopedia. Returned either "
+                "from a direct DB hit on `Beer.ean_code` (no Open Food "
+                "Facts call) or after Open Food Facts refreshed an "
+                "existing row matched downstream by EAN."
+            )
+        },
+        201: {
+            "description": (
+                "Beer was unknown to the encyclopedia and has been "
+                "created from the Open Food Facts payload."
+            )
+        },
+        404: {
+            "description": (
+                "EAN is unknown both to the local database and to "
+                "Open Food Facts."
+            )
+        },
         503: {
             "description": (
                 "Open Food Facts is unavailable or returned an unexpected "
-                "payload. Try again later."
+                "payload, and the EAN was not in the local database. "
+                "Try again later."
             )
         },
     },

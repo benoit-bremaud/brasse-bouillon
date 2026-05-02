@@ -21,14 +21,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### PR #860 merged (`1e4594d`) — chore(beer-encyclopedia): add scan-photos local folder for manual /scan testing
 
-- Gitignored photo dump under `packages/beer-encyclopedia/scan-photos/` + `README.md` + `findings.md`.
+- gitignored photo dump under `packages/beer-encyclopedia/scan-photos/` + `README.md` + `findings.md`.
 - EN translation fix in `15a5cce` (1 review comment).
 - Surfaced the OCR bug fixed by #861.
 
 ### PR #861 merged (`ce78e6f`) — fix(beer-encyclopedia): use paragraph=False in EasyOCR readtext to surface dispersed label text
 
 - `paragraph=True` returned `[]` on 9/9 real beer photos; `paragraph=False` parsed 10–13 fragments each.
-- New `tests/test_ml/test_ocr.py` (4 regression tests, both invariants pinned) + docstring clarifications in `221c9be` (3 review comments).
+- New `packages/beer-encyclopedia/tests/test_ml/test_ocr.py` (4 regression tests, both invariants pinned) + docstring clarifications in `221c9be` (3 review comments).
 - 143/143 green.
 
 ### Backlog capture — 11 issues opened during the live demo + post-merge brainstorms

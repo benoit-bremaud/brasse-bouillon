@@ -1,0 +1,8 @@
+# Local-only beer label photos used for manual /scan endpoint testing.
+# Photos are heavy (1-5 MB each) and personal — never commit them to the
+# repo. The folder structure, the README, this .gitignore and the
+# findings log are kept under version control.
+*
+!.gitignore
+!README.md
+!findings.md

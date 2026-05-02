@@ -4,7 +4,10 @@ import { Recipe, RecipeStep } from "../domain/recipe.types";
 
 type RecipeDto = {
   id: string;
-  owner_id: string;
+  // `owner_id` is omitted by the API on the catalog projection
+  // (`PublicRecipeDto`) so an anonymous reader cannot enumerate
+  // authors. The Mon Carnet path still receives it. Issue #779.
+  owner_id?: string;
   name: string;
   description?: string | null;
   visibility: Recipe["visibility"];
@@ -35,7 +38,9 @@ type RecipeStepDto = {
   updated_at: string;
 };
 
-function mapRecipe(dto: RecipeDto): Recipe {
+// Exported for unit testing (Issue #779 — coverage guard on
+// mapRecipeStats branches). Not part of the feature's public API.
+export function mapRecipe(dto: RecipeDto): Recipe {
   return {
     id: dto.id,
     ownerId: dto.owner_id,

@@ -27,6 +27,14 @@ import { useContainer } from 'class-validator';
  *      cannot enumerate the internal user IDs of recipe authors.
  *      Any future swap back to RecipeDto trips this assertion.
  */
+// Test fixture password used to register throwaway viewers — does
+// not gate any real account, lives only inside this e2e file.
+// NOSONAR (typescript:S2068): the value is intentionally local to
+// this test, never reused by production code, and rejecting it as
+// a "hardcoded password" would just mask the test fixture behind
+// indirection without any security benefit.
+const TEST_USER_PASSWORD = 'SecurePassword123!'; // NOSONAR
+
 describe('GET /recipes/public (e2e — Issue #779)', () => {
   let app: INestApplication<App>;
 
@@ -51,7 +59,7 @@ describe('GET /recipes/public (e2e — Issue #779)', () => {
       .send({
         email: `catalog-e2e-${suffix}@example.com`,
         username: `cat_${suffix}`,
-        password: 'SecurePassword123!',
+        password: TEST_USER_PASSWORD,
         first_name: 'Catalog',
         last_name: 'E2E',
       })
@@ -59,7 +67,9 @@ describe('GET /recipes/public (e2e — Issue #779)', () => {
 
     const body = response.body as { access_token?: unknown };
     if (typeof body.access_token !== 'string') {
-      throw new Error('Expected register response to carry an access_token');
+      throw new TypeError(
+        'Expected register response to carry an access_token',
+      );
     }
     return body.access_token;
   }
@@ -97,11 +107,12 @@ describe('GET /recipes/public (e2e — Issue #779)', () => {
   });
 
   it('edge: GET /recipes/:id on a PUBLIC recipe owned by someone else strips owner_id', async () => {
-    const items = (await request(app.getHttpServer())
+    const seedToken = await registerAndGetToken();
+    const listing = await request(app.getHttpServer())
       .get('/recipes/public')
-      .set('Authorization', `Bearer ${await registerAndGetToken()}`)
-      .expect(200)
-      .then((r) => r.body)) as Array<Record<string, unknown>>;
+      .set('Authorization', `Bearer ${seedToken}`)
+      .expect(200);
+    const items = listing.body as Array<Record<string, unknown>>;
 
     if (items.length === 0) {
       // No PUBLIC recipe in the seed for this run — the privacy

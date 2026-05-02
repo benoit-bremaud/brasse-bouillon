@@ -375,7 +375,22 @@ export class RecipeService {
     // Issue #779 — list steps for any recipe the viewer can read
     // (owner OR public), so the Catalog detail screen can hydrate
     // its steps section without requiring ownership.
-    await this.getReadableById(ownerId, recipeId);
+    //
+    // Privacy guard (Copilot round-3 review on PR #845):
+    // `ensureDefaultSteps` performs a write — it inserts the default
+    // workflow rows when the recipe has none. That side effect must
+    // only happen for the recipe's owner. A non-owner viewer
+    // reading a public recipe must never trigger a write on
+    // someone else's row, otherwise a GET silently mutates another
+    // user's data. Non-owner viewers therefore receive whatever
+    // steps already exist (possibly empty) — read-only.
+    const recipe = await this.getReadableById(ownerId, recipeId);
+    if (recipe.owner_id !== ownerId) {
+      return this.stepRepo.find({
+        where: { recipe_id: recipeId },
+        order: { step_order: 'ASC' },
+      });
+    }
     return this.stepRepo.manager.transaction((manager) =>
       this.ensureDefaultSteps(recipeId, manager),
     );

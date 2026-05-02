@@ -104,15 +104,36 @@ async def import_beer_by_ean(
 ) -> BeerRead:
     """Bootstrap or refresh a beer row from an Open Food Facts lookup.
 
-    Idempotent on the supplied ``ean``: a first call inserts a new row
-    (HTTP 201) and a subsequent call refreshes the same row in place
-    (HTTP 200) while bumping ``EntitySource.last_synced_at`` so the
-    audit trail records the new fetch.
+    **DB-first.** When the EAN is already known in the encyclopedia the
+    handler returns the existing row immediately with HTTP 200 and
+    never calls OFF — saving a network round-trip (~200–500 ms) and
+    keeping the endpoint usable when OFF is down for an EAN we already
+    have. The Open Food Facts call only fires on a database miss.
 
-    Returns 404 when OFF reports no product for the EAN — distinct from
-    a 503 (transport / payload-level failure) so a client can branch on
-    "unknown product" vs "service hiccup".
+    Status semantics:
+
+    - ``200 OK`` — the EAN matched an existing ``Beer`` row (no OFF
+      call) **or** OFF returned a payload that refreshed an existing
+      row matched by ``ean_code`` inside ``upsert_beer_from_snapshot``.
+    - ``201 Created`` — the EAN was unknown to the encyclopedia, OFF
+      returned a payload, and a new row was inserted.
+    - ``404 Not Found`` — the EAN is unknown both to the DB and to OFF.
+    - ``503 Service Unavailable`` — OFF transport / payload / seed-state
+      failure. Distinct from 404 so a client can branch on "unknown
+      product" vs "service hiccup".
     """
+
+    # DB-first: skip OFF entirely when the encyclopedia already has the
+    # row. Two upsides: (1) zero network call on the warm path, (2) the
+    # endpoint stays available even when OFF is degraded for a code we
+    # have on file. The cold path (DB miss) preserves the original
+    # OFF → upsert flow below.
+    existing = (
+        await session.execute(select(Beer).where(Beer.ean_code == payload.ean))
+    ).scalar_one_or_none()
+    if existing is not None:
+        response.status_code = status.HTTP_200_OK
+        return BeerRead.model_validate(existing)
 
     try:
         snapshot = await off_client.fetch_by_ean(payload.ean)

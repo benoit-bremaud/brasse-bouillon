@@ -250,7 +250,7 @@ async def test_second_import_is_idempotent_and_returns_200(
     stub_off_factory,  # type: ignore[no-untyped-def]
     seeded_source: Source,
 ) -> None:
-    stub_off_factory(lambda _: _build_pelforth_snapshot())
+    stub = stub_off_factory(lambda _: _build_pelforth_snapshot())
 
     first = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert first.status_code == 201
@@ -260,7 +260,13 @@ async def test_second_import_is_idempotent_and_returns_200(
     assert second.status_code == 200
     assert second.json()["id"] == first_id
 
-    # Still exactly one beer + one audit row, last_synced_at refreshed.
+    # DB-first: the second call must short-circuit to the existing row
+    # WITHOUT touching OFF. Only the first call should appear in the
+    # stub's recorded calls.
+    assert stub.calls == [EAN_PELFORTH]
+
+    # Still exactly one beer + one audit row (the first import created
+    # both; the second short-circuit added neither).
     beers = (
         await db_session.execute(
             select(Beer).where(Beer.ean_code == EAN_PELFORTH)
@@ -276,6 +282,62 @@ async def test_second_import_is_idempotent_and_returns_200(
         )
     ).scalars().all()
     assert len(audits) == 1
+
+
+async def test_db_hit_returns_existing_beer_without_calling_off(
+    client: TestClient,
+    db_session: AsyncSession,
+    stub_off_factory,  # type: ignore[no-untyped-def]
+    seeded_source: Source,
+) -> None:
+    """Pre-existing rows short-circuit the import route entirely.
+
+    Demonstrates the warm-path optimisation: when the EAN already lives
+    in the encyclopedia (regardless of how it got there — manual seed,
+    prior OFF import, future community contribution), we serve it from
+    the DB and never call OFF.
+    """
+
+    db_session.add(
+        Beer(
+            name="Pre-seeded Pelforth",
+            slug="pre-seeded-pelforth",
+            ean_code=EAN_PELFORTH,
+        )
+    )
+    await db_session.commit()
+
+    # The stub would explode if called — the route must not reach OFF.
+    stub = stub_off_factory(
+        lambda _: pytest.fail("OFF must not be called on a DB hit")  # type: ignore[arg-type,return-value]
+    )
+
+    response = client.post(
+        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["ean_code"] == EAN_PELFORTH
+    assert response.json()["name"] == "Pre-seeded Pelforth"
+    assert stub.calls == []
+
+
+async def test_db_miss_still_falls_back_to_off(
+    client: TestClient,
+    db_session: AsyncSession,
+    stub_off_factory,  # type: ignore[no-untyped-def]
+    seeded_source: Source,
+) -> None:
+    """Sanity check: when the EAN is unknown to the DB, OFF is queried."""
+
+    stub = stub_off_factory(lambda _: _build_pelforth_snapshot())
+
+    response = client.post(
+        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
+    )
+
+    assert response.status_code == 201
+    assert stub.calls == [EAN_PELFORTH]
 
 
 async def test_import_with_snapshot_missing_brand_skips_brewery(

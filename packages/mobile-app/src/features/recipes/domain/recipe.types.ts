@@ -27,7 +27,13 @@ export type RecipeEquipmentRef = {
 
 export type Recipe = {
   id: string;
-  ownerId: string;
+  // Issue #779 — optional because the public catalog API
+  // (`GET /recipes/public`) projects through `PublicRecipeDto`
+  // which strips `owner_id` to avoid leaking author UUIDs to every
+  // authenticated reader. The Mon Carnet path still receives the
+  // full DTO with `owner_id`. Reading code must not assume the
+  // field is present on a recipe sourced from the catalog.
+  ownerId?: string;
   name: string;
   description?: string | null;
   stats?: RecipeStats | null;

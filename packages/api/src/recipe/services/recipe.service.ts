@@ -88,11 +88,62 @@ export class RecipeService {
     });
   }
 
+  /**
+   * Issue #779 — Recipe Catalog mini.
+   *
+   * Returns every PUBLIC recipe regardless of owner, ordered by
+   * most-recently-updated. Backbone of the discovery surface in the
+   * mobile app's CatalogScreen — the alternative to the scan flow
+   * for users who land on an empty Mon Carnet (Léa, Nicolas).
+   *
+   * UNLISTED recipes are intentionally excluded from this listing —
+   * they remain reachable by direct id (importFromCommunity) but
+   * must not be discoverable in the catalog.
+   */
+  async listPublic(): Promise<RecipeOrmEntity[]> {
+    return this.repo.find({
+      where: { visibility: RecipeVisibility.PUBLIC },
+      order: { updated_at: 'DESC' },
+    });
+  }
+
   async getMineById(ownerId: string, id: string): Promise<RecipeOrmEntity> {
     const entity = await this.repo.findOne({
       where: { id, owner_id: ownerId },
     });
     if (!entity) {
+      throw new NotFoundException('Recipe not found');
+    }
+    return entity;
+  }
+
+  /**
+   * Issue #779 — Recipe Catalog mini, Codex P1 fix.
+   *
+   * Read-only resolver used by every "view a recipe" path on the
+   * mobile app. Returns the recipe when it is either owned by the
+   * viewer OR publicly listed — so a Catalog reader can open any
+   * `PUBLIC` recipe without being its owner. PRIVATE / UNLISTED
+   * recipes that are not owned by the viewer still surface as
+   * NotFound (deny by default, no information leak).
+   *
+   * Write operations (`updateMine`, `deleteMine`, the step
+   * write-helpers) intentionally keep using `getMineById` so the
+   * authorisation surface for mutations stays strictly
+   * owner-scoped.
+   */
+  async getReadableById(
+    viewerOwnerId: string,
+    id: string,
+  ): Promise<RecipeOrmEntity> {
+    const entity = await this.repo.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException('Recipe not found');
+    }
+    if (
+      entity.owner_id !== viewerOwnerId &&
+      entity.visibility !== RecipeVisibility.PUBLIC
+    ) {
       throw new NotFoundException('Recipe not found');
     }
     return entity;
@@ -321,7 +372,25 @@ export class RecipeService {
     ownerId: string,
     recipeId: string,
   ): Promise<RecipeStepOrmEntity[]> {
-    await this.getMineById(ownerId, recipeId);
+    // Issue #779 — list steps for any recipe the viewer can read
+    // (owner OR public), so the Catalog detail screen can hydrate
+    // its steps section without requiring ownership.
+    //
+    // Privacy guard (Copilot round-3 review on PR #845):
+    // `ensureDefaultSteps` performs a write — it inserts the default
+    // workflow rows when the recipe has none. That side effect must
+    // only happen for the recipe's owner. A non-owner viewer
+    // reading a public recipe must never trigger a write on
+    // someone else's row, otherwise a GET silently mutates another
+    // user's data. Non-owner viewers therefore receive whatever
+    // steps already exist (possibly empty) — read-only.
+    const recipe = await this.getReadableById(ownerId, recipeId);
+    if (recipe.owner_id !== ownerId) {
+      return this.stepRepo.find({
+        where: { recipe_id: recipeId },
+        order: { step_order: 'ASC' },
+      });
+    }
     return this.stepRepo.manager.transaction((manager) =>
       this.ensureDefaultSteps(recipeId, manager),
     );

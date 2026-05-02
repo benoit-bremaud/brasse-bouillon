@@ -15,6 +15,7 @@
  */
 import { dataSource } from "@/core/data/data-source";
 import { HttpError } from "@/core/http/http-error";
+import { importBeerByEan as fetchImportFromEncyclopedia } from "@/features/scan/data/beers-import.api";
 import { lookupBeerByBarcode as fetchLookupFromApi } from "@/features/scan/data/scan-lookup.api";
 import type { ScanLookupResult } from "@/features/scan/domain/scan.types";
 import { buildDemoLookupResult, demoScanCatalog } from "@/mocks/demo-data";
@@ -134,7 +135,14 @@ export async function lookupBeerByBarcode(
   } catch (error) {
     if (error instanceof HttpError) {
       if (error.status === 404) {
-        throw new ScanLookupBeerNotFoundError(barcode);
+        // ADR-0005 fallback: when NestJS does not know this barcode,
+        // try the Python beer-encyclopedia. It has its own OFF
+        // importer (PR #847) and may surface a beer that NestJS has
+        // not cached yet. We swallow only its 404 / 503 (transparent
+        // unknown / service down) and translate them to the same
+        // typed errors the caller already handles, so the UI stays
+        // identical to the single-backend path.
+        return await fallbackToEncyclopediaImport(barcode);
       }
       if (error.status === 503) {
         throw new ScanLookupServiceUnavailableError(barcode);
@@ -144,6 +152,33 @@ export async function lookupBeerByBarcode(
           barcode,
           error.details.productName ?? null,
         );
+      }
+    }
+    throw error;
+  }
+}
+
+/**
+ * Try to resolve `barcode` against the Python beer-encyclopedia.
+ *
+ * Translates Python's HTTP responses into the same typed errors the
+ * primary NestJS path emits, so callers (presentation, tests) do not
+ * need to know which backend ultimately served the data. The Python
+ * backend itself already does DB-first + OFF fallback (PR #847 +
+ * #848) so a 404 here truly means "neither cache nor OFF knows".
+ */
+async function fallbackToEncyclopediaImport(
+  barcode: string,
+): Promise<ScanLookupResult> {
+  try {
+    return await fetchImportFromEncyclopedia(barcode);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      if (error.status === 404) {
+        throw new ScanLookupBeerNotFoundError(barcode);
+      }
+      if (error.status === 503) {
+        throw new ScanLookupServiceUnavailableError(barcode);
       }
     }
     throw error;

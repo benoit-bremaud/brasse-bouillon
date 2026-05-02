@@ -1,6 +1,6 @@
 # ADR-0002 — Centralized NestJS backend for all external data sources
 
-**Status**  Accepted
+**Status**  Accepted (partially superseded by ADR-0005 for the beer-data axis)
 **Date**    2026-04-24
 **Owners**  @benoit-bremaud
 

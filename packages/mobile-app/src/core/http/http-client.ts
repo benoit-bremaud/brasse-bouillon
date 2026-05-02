@@ -8,6 +8,12 @@ type RequestOptions = {
   body?: unknown;
   auth?: boolean;
   headers?: Record<string, string>;
+  /**
+   * Override the default base URL (`env.apiUrl`, NestJS product backend).
+   * Pass `env.encyclopediaUrl` to target the Python beer-encyclopedia
+   * knowledge base instead. See ADR-0005 for the split.
+   */
+  baseUrl?: string;
 };
 
 async function parseBody(response: Response) {
@@ -29,9 +35,16 @@ async function parseBody(response: Response) {
 
 export async function request<T>(
   path: string,
-  { method = "GET", body, auth = true, headers = {} }: RequestOptions = {},
+  {
+    method = "GET",
+    body,
+    auth = true,
+    headers = {},
+    baseUrl,
+  }: RequestOptions = {},
 ): Promise<T> {
-  const url = `${env.apiUrl}${path.startsWith("/") ? path : `/${path}`}`;
+  const resolvedBase = baseUrl ?? env.apiUrl;
+  const url = `${resolvedBase}${path.startsWith("/") ? path : `/${path}`}`;
 
   const mergedHeaders: Record<string, string> = {
     "Content-Type": "application/json",

@@ -16,6 +16,7 @@ from sqlalchemy import (
     SmallInteger,
     String,
     Text,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -96,6 +97,15 @@ class Beer(Base, UUIDMixin, TimestampMixin):
             "country_of_origin IS NULL OR length(country_of_origin) = 2",
             name="ck_beers_country_of_origin_iso2",
         ),
+        CheckConstraint(
+            "ean_code IS NULL OR length(ean_code) IN (8, 12, 13, 14)",
+            name="ck_beers_ean_code_length",
+        ),
+        # Unique constraint allows multiple NULLs on both PostgreSQL and
+        # SQLite — a beer without a barcode (community draft, internal
+        # seed) does not collide with another. The constraint enforces
+        # that no two distinct beers can claim the same EAN.
+        UniqueConstraint("ean_code", name="uq_beers_ean_code"),
     )
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -147,6 +157,14 @@ class Beer(Base, UUIDMixin, TimestampMixin):
     country_of_origin: Mapped[str | None] = mapped_column(String(2), nullable=True)
     allergens: Mapped[list[str] | None] = mapped_column(_AllergensType, nullable=True)
     alcohol_group: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+
+    # Standard barcode (EAN-8/12/13/14 / UPC-A). Used as the primary
+    # external identifier when importing from Open Food Facts and as the
+    # fastest match key for community scans (PR3). Nullable because
+    # internal seeds and community drafts may legitimately not carry a
+    # barcode. The unique constraint allows multiple NULLs on both
+    # PostgreSQL and SQLite, so unbarcoded rows do not collide.
+    ean_code: Mapped[str | None] = mapped_column(String(14), nullable=True)
 
     brewery: Mapped[Brewery | None] = relationship(back_populates="beers")
     style: Mapped[Style | None] = relationship(back_populates="beers")
@@ -220,6 +238,33 @@ class Beer(Base, UUIDMixin, TimestampMixin):
             raise ValueError(
                 f"Beer.alcohol_group must be one of ({valid}) or None, "
                 f"got {value!r}"
+            )
+        return value
+
+    @validates("ean_code")
+    def _validate_ean_code(self, _key: str, value: str | None) -> str | None:
+        """Reject invalid ``ean_code`` values at the ORM layer.
+
+        Standard product barcodes are EAN-8, UPC-A (12), EAN-13 or
+        EAN-14 — always numeric. The DB CHECK constraint enforces only
+        the length; this validator additionally rejects non-digit input
+        ("abc", "12345abc", …) so the error surfaces at assignment time
+        instead of at flush time.
+
+        We deliberately do NOT verify the GS1 mod-10 checksum here:
+        external sources (Open Food Facts, scanned barcodes) sometimes
+        carry slightly malformed codes that are still useful as match
+        keys. Tightening to checksum validation would force us to
+        reject those inputs and lose data. Accept the trade-off — the
+        format check is enough to catch typos.
+        """
+
+        if value is None:
+            return value
+        if not value.isdigit() or len(value) not in (8, 12, 13, 14):
+            raise ValueError(
+                f"Beer.ean_code must be an EAN-8/12/13/14 numeric "
+                f"barcode, got {value!r}"
             )
         return value
 

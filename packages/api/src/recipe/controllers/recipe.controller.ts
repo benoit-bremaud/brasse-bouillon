@@ -127,14 +127,22 @@ export class RecipeController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get one of my recipes by id' })
+  @ApiOperation({
+    summary:
+      'Get a recipe by id — own recipe or any PUBLIC recipe (Issue #779)',
+    description:
+      "Returns the recipe whenever the caller owns it OR its visibility is PUBLIC. PRIVATE / UNLISTED recipes that are not owned by the caller still surface as 404 (deny by default, no information leak). The route used to be strictly owner-scoped which broke the Catalog detail flow for any PUBLIC recipe authored by someone else (Codex P1 on PR #845).\n\nProjection rule: when the caller IS the owner, the full RecipeDto is returned (including owner_id, imported_from_recipe_id, import_provenance) so the existing MyRecipesScreen flow keeps every field. When the caller is NOT the owner (i.e. reading a PUBLIC recipe authored by someone else), the response is the PublicRecipeDto projection — owner_id and the ownership-adjacent fields are stripped, mirroring the privacy guard on GET /recipes/public.",
+  })
   @ApiOkResponse({ type: RecipeDto })
   async getMineById(
     @CurrentUser() user: User,
     @Param('id', new ParseUUIDPipe()) id: string,
-  ): Promise<RecipeDto> {
-    const row = await this.service.getMineById(user.id, id);
-    return RecipeDto.fromEntity(row);
+  ): Promise<RecipeDto | PublicRecipeDto> {
+    const row = await this.service.getReadableById(user.id, id);
+    if (row.owner_id === user.id) {
+      return RecipeDto.fromEntity(row);
+    }
+    return PublicRecipeDto.fromEntity(row);
   }
 
   @Patch(':id')

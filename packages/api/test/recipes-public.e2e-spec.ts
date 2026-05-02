@@ -95,4 +95,34 @@ describe('GET /recipes/public (e2e — Issue #779)', () => {
       expect(item).not.toHaveProperty('import_provenance');
     }
   });
+
+  it('edge: GET /recipes/:id on a PUBLIC recipe owned by someone else strips owner_id', async () => {
+    const items = (await request(app.getHttpServer())
+      .get('/recipes/public')
+      .set('Authorization', `Bearer ${await registerAndGetToken()}`)
+      .expect(200)
+      .then((r) => r.body)) as Array<Record<string, unknown>>;
+
+    if (items.length === 0) {
+      // No PUBLIC recipe in the seed for this run — the privacy
+      // guard is already pinned by the listing test above. Nothing
+      // more to assert at the detail-by-id level today.
+      return;
+    }
+
+    const samplePublicRecipeId = items[0].id as string;
+    // A fresh viewer (different account from any recipe owner) hits
+    // the detail endpoint. Before the Codex P1 fix this was a 404
+    // because getMineById was strictly owner-scoped; after the fix
+    // it returns 200 and projects through PublicRecipeDto.
+    const viewerToken = await registerAndGetToken();
+    const detail = await request(app.getHttpServer())
+      .get(`/recipes/${samplePublicRecipeId}`)
+      .set('Authorization', `Bearer ${viewerToken}`)
+      .expect(200);
+
+    expect(detail.body).not.toHaveProperty('owner_id');
+    expect(detail.body).not.toHaveProperty('imported_from_recipe_id');
+    expect(detail.body).not.toHaveProperty('import_provenance');
+  });
 });

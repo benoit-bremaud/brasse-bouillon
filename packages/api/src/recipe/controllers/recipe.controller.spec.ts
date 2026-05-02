@@ -101,6 +101,7 @@ describe('RecipeController', () => {
             listMine: jest.fn(),
             listPublic: jest.fn(),
             getMineById: jest.fn(),
+            getReadableById: jest.fn(),
             updateMine: jest.fn(),
             deleteMine: jest.fn(),
             importFromCommunity: jest.fn(),
@@ -211,29 +212,60 @@ describe('RecipeController', () => {
   });
 
   describe('getMineById() - GET /recipes/:id', () => {
-    it('should return a recipe by ID', async () => {
-      const getMineByIdSpy = jest
-        .spyOn(service, 'getMineById')
+    it('should return a recipe by ID (owner path returns full RecipeDto)', async () => {
+      // The fixture's owner_id matches mockUser.id by construction —
+      // owner path means the controller projects through RecipeDto
+      // (full shape, including owner_id).
+      const getReadableByIdSpy = jest
+        .spyOn(service, 'getReadableById')
         .mockResolvedValue(mockRecipeOrm);
 
       const result = await controller.getMineById(mockUser, mockRecipeOrm.id);
 
-      expect(getMineByIdSpy).toHaveBeenCalledWith(
+      expect(getReadableByIdSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockRecipeOrm.id,
       );
       expect(result).toBeDefined();
+      expect(result).toHaveProperty('owner_id', mockUser.id);
+    });
+
+    // Issue #779 — Codex P1 + privacy guard. When the viewer is NOT
+    // the owner of a PUBLIC recipe, the response must be projected
+    // through PublicRecipeDto so owner_id and the ownership-adjacent
+    // fields never leak out via the catalog detail flow.
+    it('should project to PublicRecipeDto (no owner_id leak) when caller is not the owner', async () => {
+      const otherOwnerRecipe: RecipeOrmEntity = {
+        ...mockRecipeOrm,
+        owner_id: 'someone-else-uuid',
+        visibility: RecipeVisibility.PUBLIC,
+      };
+      jest
+        .spyOn(service, 'getReadableById')
+        .mockResolvedValue(otherOwnerRecipe);
+
+      const result = await controller.getMineById(
+        mockUser,
+        otherOwnerRecipe.id,
+      );
+
+      expect(result).not.toHaveProperty('owner_id');
+      expect(result).not.toHaveProperty('imported_from_recipe_id');
+      expect(result).not.toHaveProperty('import_provenance');
     });
 
     it('should throw NotFoundException when recipe not found', async () => {
-      const getMineByIdSpy = jest
-        .spyOn(service, 'getMineById')
+      const getReadableByIdSpy = jest
+        .spyOn(service, 'getReadableById')
         .mockRejectedValue(new NotFoundException('Recipe not found'));
 
       await expect(
         controller.getMineById(mockUser, 'invalid-id'),
       ).rejects.toThrow(NotFoundException);
-      expect(getMineByIdSpy).toHaveBeenCalledWith(mockUser.id, 'invalid-id');
+      expect(getReadableByIdSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        'invalid-id',
+      );
     });
   });
 

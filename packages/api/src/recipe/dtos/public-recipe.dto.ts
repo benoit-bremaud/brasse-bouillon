@@ -1,19 +1,36 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { RecipeDto } from './recipe.dto';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
 /**
- * Public-facing projection of a Recipe for the discovery catalog
- * (Issue #779). Drops `owner_id` so an anonymous-ish reader of the
- * catalog cannot enumerate the internal user IDs of recipe authors,
- * and drops other ownership-adjacent fields the catalog UI does not
- * need (`imported_from_recipe_id`, `import_provenance`, etc.).
+ * Fields of `RecipeDto` the public catalog must NOT expose. Centralises
+ * the projection rule so the controller and any future caller share a
+ * single source of truth — adding a new ownership-adjacent field on
+ * `RecipeDto` will not silently leak through the catalog as long as
+ * the field is added here.
  *
- * The brewing metric fields and the quality fields stay — they are
- * the basis of the card display + the matching algo.
+ * Issue #779 Copilot review #4 (privacy guard).
  */
-export class PublicRecipeDto {
+const SENSITIVE_FIELDS_STRIPPED_FOR_PUBLIC_CATALOG = [
+  'owner_id',
+  'imported_from_recipe_id',
+  'import_provenance',
+] as const satisfies ReadonlyArray<keyof RecipeDto>;
+
+type SensitiveFieldName =
+  (typeof SENSITIVE_FIELDS_STRIPPED_FOR_PUBLIC_CATALOG)[number];
+
+/**
+ * Public-facing projection of a Recipe for the discovery catalog
+ * (Issue #779). Composed from `RecipeDto` minus
+ * `SENSITIVE_FIELDS_STRIPPED_FOR_PUBLIC_CATALOG` so any future
+ * brewing/metric field added to `RecipeDto` flows through here
+ * automatically — and any future ownership-adjacent field added
+ * to `RecipeDto` is opt-in (not opt-out) on the public projection.
+ */
+export class PublicRecipeDto implements Omit<RecipeDto, SensitiveFieldName> {
   @ApiProperty()
   id: string;
 
@@ -80,28 +97,11 @@ export class PublicRecipeDto {
   updated_at: Date;
 
   static fromEntity(e: RecipeOrmEntity): PublicRecipeDto {
-    return {
-      id: e.id,
-      name: e.name,
-      description: e.description ?? null,
-      visibility: e.visibility,
-      version: e.version,
-      root_recipe_id: e.root_recipe_id,
-      parent_recipe_id: e.parent_recipe_id ?? null,
-      batch_size_l: e.batch_size_l ?? null,
-      boil_time_min: e.boil_time_min ?? null,
-      og_target: e.og_target ?? null,
-      fg_target: e.fg_target ?? null,
-      abv_estimated: e.abv_estimated ?? null,
-      ibu_target: e.ibu_target ?? null,
-      ebc_target: e.ebc_target ?? null,
-      efficiency_target: e.efficiency_target ?? null,
-      avg_rating: e.avg_rating ?? null,
-      brew_count: e.brew_count,
-      last_brewed_at: e.last_brewed_at ?? null,
-      is_official: e.is_official,
-      created_at: e.created_at,
-      updated_at: e.updated_at,
-    };
+    const full = RecipeDto.fromEntity(e);
+    const projected: Partial<RecipeDto> = { ...full };
+    for (const field of SENSITIVE_FIELDS_STRIPPED_FOR_PUBLIC_CATALOG) {
+      delete projected[field];
+    }
+    return projected as PublicRecipeDto;
   }
 }

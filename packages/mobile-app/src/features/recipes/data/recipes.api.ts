@@ -11,6 +11,16 @@ type RecipeDto = {
   version: number;
   root_recipe_id: string;
   parent_recipe_id?: string | null;
+  // Brewing metrics — surfaced as `recipe.stats` on the front so
+  // RecipesScreen / CatalogScreen cards render IBU/ABV/volume/color.
+  // Without these fields the cards fall back to the default swatch
+  // and lose the stats row entirely (Issue #779 Copilot review).
+  batch_size_l?: number | null;
+  og_target?: number | null;
+  fg_target?: number | null;
+  abv_estimated?: number | null;
+  ibu_target?: number | null;
+  ebc_target?: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -35,8 +45,42 @@ function mapRecipe(dto: RecipeDto): Recipe {
     version: dto.version,
     rootRecipeId: dto.root_recipe_id,
     parentRecipeId: dto.parent_recipe_id ?? null,
+    stats: mapRecipeStats(dto),
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
+  };
+}
+
+// Pulls the brewing metric fields off the API DTO into the
+// front-end `RecipeStats` shape used by the cards. Returns `null`
+// when none of the metric fields are populated, so the screens'
+// `stats ? ... : null` guards stay simple.
+function mapRecipeStats(dto: RecipeDto): Recipe["stats"] {
+  const ibu = dto.ibu_target ?? null;
+  const abv = dto.abv_estimated ?? null;
+  const og = dto.og_target ?? null;
+  const fg = dto.fg_target ?? null;
+  const volumeLiters = dto.batch_size_l ?? null;
+  const colorEbc = dto.ebc_target ?? null;
+
+  if (
+    ibu === null &&
+    abv === null &&
+    og === null &&
+    fg === null &&
+    volumeLiters === null &&
+    colorEbc === null
+  ) {
+    return null;
+  }
+
+  return {
+    ibu: ibu ?? 0,
+    abv: abv ?? 0,
+    og: og ?? 0,
+    fg: fg ?? 0,
+    volumeLiters: volumeLiters ?? 0,
+    colorEbc: colorEbc ?? undefined,
   };
 }
 

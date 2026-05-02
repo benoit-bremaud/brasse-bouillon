@@ -30,6 +30,7 @@ import { User } from '../../user/entities/user.entity';
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
 import { RankedRecipeResponseDto } from '../dtos/ranked-recipe.dto';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
+import { PublicRecipeDto } from '../dtos/public-recipe.dto';
 import { RecipeDto } from '../dtos/recipe.dto';
 import { RecipeStepDto } from '../dtos/recipe-step.dto';
 import { UpdateRecipeDto } from '../dtos/update-recipe.dto';
@@ -115,15 +116,14 @@ export class RecipeController {
 
   @Get('public')
   @ApiOperation({
-    summary:
-      'List PUBLIC recipes for the discovery catalog (Issue #779)',
+    summary: 'List PUBLIC recipes for the discovery catalog (Issue #779)',
     description:
-      "Returns every recipe whose visibility is PUBLIC, regardless of owner, sorted by most-recently-updated. Used by the mobile app's CatalogScreen as the discovery alternative to the scan flow. UNLISTED recipes are intentionally excluded from this listing (they remain reachable by direct id via importFromCommunity).",
+      "Returns every recipe whose visibility is PUBLIC, regardless of owner, sorted by most-recently-updated. Used by the mobile app's CatalogScreen as the discovery alternative to the scan flow. UNLISTED recipes are intentionally excluded from this listing (they remain reachable by direct id via importFromCommunity). Serialized as PublicRecipeDto rather than RecipeDto so the response intentionally omits owner_id (and related ownership-adjacent fields) — the catalog UI does not need them and exposing internal user IDs to every authenticated reader would be an unnecessary information leak (Issue #779 Copilot review #4).",
   })
-  @ApiOkResponse({ type: RecipeDto, isArray: true })
-  async listPublic(): Promise<RecipeDto[]> {
+  @ApiOkResponse({ type: PublicRecipeDto, isArray: true })
+  async listPublic(): Promise<PublicRecipeDto[]> {
     const rows = await this.service.listPublic();
-    return rows.map((row) => RecipeDto.fromEntity(row));
+    return rows.map((row) => PublicRecipeDto.fromEntity(row));
   }
 
   @Get(':id')

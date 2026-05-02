@@ -99,6 +99,7 @@ describe('RecipeController', () => {
           useValue: {
             create: jest.fn(),
             listMine: jest.fn(),
+            listPublic: jest.fn(),
             getMineById: jest.fn(),
             updateMine: jest.fn(),
             deleteMine: jest.fn(),
@@ -175,6 +176,36 @@ describe('RecipeController', () => {
       const result = await controller.listMine(mockUser);
 
       expect(listMineSpy).toHaveBeenCalledWith(mockUser.id);
+      expect(result).toEqual([]);
+    });
+  });
+
+  // Issue #779 — Recipe Catalog mini.
+  // The /recipes/public listing is the discovery alternative to the
+  // scan flow on the mobile app's CatalogScreen. Happy path lists
+  // every PUBLIC recipe regardless of owner; sad path on an empty
+  // catalog returns []; edge guard: the route must be declared
+  // BEFORE :id so the literal "public" wins over the param matcher.
+  describe('listPublic() - GET /recipes/public', () => {
+    it('happy: lists every PUBLIC recipe regardless of owner', async () => {
+      const listPublicSpy = jest
+        .spyOn(service, 'listPublic')
+        .mockResolvedValue([mockRecipeOrm, mockRecipeOrm]);
+
+      const result = await controller.listPublic();
+
+      expect(listPublicSpy).toHaveBeenCalledWith();
+      expect(result).toHaveLength(2);
+    });
+
+    it('sad: returns an empty array when the catalog is empty', async () => {
+      const listPublicSpy = jest
+        .spyOn(service, 'listPublic')
+        .mockResolvedValue([]);
+
+      const result = await controller.listPublic();
+
+      expect(listPublicSpy).toHaveBeenCalledWith();
       expect(result).toEqual([]);
     });
   });

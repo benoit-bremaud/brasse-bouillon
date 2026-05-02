@@ -2,6 +2,7 @@ import {
   getMineById,
   importFromCommunity,
   listMine,
+  listPublic,
   listSteps,
 } from "@/features/recipes/data/recipes.api";
 import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
@@ -41,6 +42,22 @@ export type RecipeDetailsViewModel = {
 
 export async function listRecipes(): Promise<Recipe[]> {
   return dataSource.useDemoData ? demoRecipes : listMine();
+}
+
+/**
+ * Issue #779 — Recipe Catalog mini.
+ *
+ * Lists every PUBLIC recipe regardless of owner — the discovery
+ * surface that fills the empty Mon Carnet for new users (Léa,
+ * Nicolas) before they have brewed anything themselves. In demo
+ * mode, falls back to the same `demoRecipes` mock the rest of the
+ * app uses (filtered to public visibility).
+ */
+export async function listPublicRecipes(): Promise<Recipe[]> {
+  if (dataSource.useDemoData) {
+    return demoRecipes.filter((recipe) => recipe.visibility === "public");
+  }
+  return listPublic();
 }
 
 export async function getRecipeDetails(

@@ -113,6 +113,19 @@ export class RecipeController {
     return this.matching.rankForBeer(beerId);
   }
 
+  @Get('public')
+  @ApiOperation({
+    summary:
+      'List PUBLIC recipes for the discovery catalog (Issue #779)',
+    description:
+      "Returns every recipe whose visibility is PUBLIC, regardless of owner, sorted by most-recently-updated. Used by the mobile app's CatalogScreen as the discovery alternative to the scan flow. UNLISTED recipes are intentionally excluded from this listing (they remain reachable by direct id via importFromCommunity).",
+  })
+  @ApiOkResponse({ type: RecipeDto, isArray: true })
+  async listPublic(): Promise<RecipeDto[]> {
+    const rows = await this.service.listPublic();
+    return rows.map((row) => RecipeDto.fromEntity(row));
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get one of my recipes by id' })
   @ApiOkResponse({ type: RecipeDto })

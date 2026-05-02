@@ -88,6 +88,25 @@ export class RecipeService {
     });
   }
 
+  /**
+   * Issue #779 — Recipe Catalog mini.
+   *
+   * Returns every PUBLIC recipe regardless of owner, ordered by
+   * most-recently-updated. Backbone of the discovery surface in the
+   * mobile app's CatalogScreen — the alternative to the scan flow
+   * for users who land on an empty Mon Carnet (Léa, Nicolas).
+   *
+   * UNLISTED recipes are intentionally excluded from this listing —
+   * they remain reachable by direct id (importFromCommunity) but
+   * must not be discoverable in the catalog.
+   */
+  async listPublic(): Promise<RecipeOrmEntity[]> {
+    return this.repo.find({
+      where: { visibility: RecipeVisibility.PUBLIC },
+      order: { updated_at: 'DESC' },
+    });
+  }
+
   async getMineById(ownerId: string, id: string): Promise<RecipeOrmEntity> {
     const entity = await this.repo.findOne({
       where: { id, owner_id: ownerId },

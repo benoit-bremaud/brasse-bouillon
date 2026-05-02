@@ -57,6 +57,15 @@ export async function listMine(): Promise<Recipe[]> {
   return rows.map(mapRecipe);
 }
 
+// Issue #779 — Recipe Catalog mini.
+// Hits the GET /recipes/public route added in PR (this PR) and
+// returns every PUBLIC recipe regardless of owner. Backbone of the
+// CatalogScreen discovery surface.
+export async function listPublic(): Promise<Recipe[]> {
+  const rows = await request<RecipeDto[]>("/recipes/public");
+  return rows.map(mapRecipe);
+}
+
 export async function getMineById(id: string): Promise<Recipe> {
   const row = await request<RecipeDto>(`/recipes/${id}`);
   return mapRecipe(row);

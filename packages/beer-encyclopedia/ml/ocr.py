@@ -53,12 +53,23 @@ def _read_text(crop: np.ndarray, languages: Sequence[str]) -> tuple[str, float, 
                 confs.append(conf)
         return texts, confs
 
-    raw_results = reader.readtext(crop, detail=1, paragraph=True)
+    # ``paragraph=False`` (the EasyOCR default) returns one item per
+    # detected text region with its individual confidence. ``paragraph=True``
+    # tries to group regions into coherent blocks first and silently
+    # returns nothing when it cannot — which happens systematically on
+    # beer labels where the text is dispersed (name in the middle, slogan
+    # in an arc, ABV diagonally in a corner, capacity sideways). The
+    # downstream extractor (``extract.py``) operates on per-region text
+    # already and benefits from seeing every fragment, even low-confidence
+    # ones. Empirically, ``paragraph=True`` returned 0 results on every
+    # one of nine real bottle photos that ``paragraph=False`` parsed into
+    # 10–13 text fragments each. Stay with ``False``.
+    raw_results = reader.readtext(crop, detail=1, paragraph=False)
     texts, confs = parse(raw_results)
 
     if not texts:
         preprocessed = _preprocess_for_ocr(crop)
-        pre_results = reader.readtext(preprocessed, detail=1, paragraph=True)
+        pre_results = reader.readtext(preprocessed, detail=1, paragraph=False)
         texts, confs = parse(pre_results)
         if texts:
             notes.append("OCR succeeded after preprocessing.")

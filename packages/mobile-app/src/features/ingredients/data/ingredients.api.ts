@@ -1,3 +1,27 @@
+/**
+ * **DEPRECATED — recipe-crawl ingredient catalogue path.**
+ *
+ * This module fakes a global ingredient catalogue at runtime by
+ * crawling `/recipes/:id/{hops,fermentables,yeasts}` (N+1
+ * queries) and dedup-ing per-recipe rows. It was the workaround
+ * before the API exposed any catalogue endpoints, and ships
+ * known regressions (hardcoded `betaAcid: 0`, `origin/supplier:
+ * undefined`, missing-from-recipe ingredients absent from the
+ * catalogue, brittle synthetic IDs).
+ *
+ * As of Issue #887 (PR ship 2026-05-03), the per-category api
+ * modules `hops.api.ts`, `malts.api.ts`, `yeasts.api.ts`, and
+ * `misc.api.ts` consume the real `/catalog/*` endpoints
+ * directly. They are the source of truth going forward.
+ *
+ * **Follow-up (separate tiny PR)**: drop this file entirely
+ * once `application/ingredients.use-cases.ts` is rewritten to
+ * delegate to the per-category use-cases (which themselves
+ * branch on `dataSource.useDemoData`). Bidirectional shape
+ * mapping (`MaltProduct/HopProduct/YeastProduct` ↔
+ * `Ingredient` union) is non-trivial enough to warrant its
+ * own scope rather than bloating this PR.
+ */
 import {
   Ingredient,
   IngredientCategory,

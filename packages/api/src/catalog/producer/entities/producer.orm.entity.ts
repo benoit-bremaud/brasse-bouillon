@@ -27,9 +27,13 @@ import { ProducerType } from '../domain/producer.types';
  * `producer_id` (ON DELETE SET NULL):
  *   - hops
  *   - fermentables
- *   - yeasts (replaces the previous `laboratory` varchar +
- *     `product_id` varchar columns; `product_code` is kept
- *     as a separate non-FK SKU string)
+ *   - yeasts — added ALONGSIDE the existing `laboratory`
+ *     varchar + `product_id` varchar columns (PR #890), NOT
+ *     in replacement. Mode-prudent first cut deliberately
+ *     keeps the legacy columns; the cleanup PR (drop
+ *     `laboratory`, rename `product_id` → `product_code`)
+ *     ships separately once the picker UX is validated
+ *     against the new FK.
  *   - misc_templates
  *   - equipment_templates
  */

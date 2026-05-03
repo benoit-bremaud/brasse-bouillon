@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -41,6 +42,7 @@ import {
  *   - HOP_UTILIZATION → hop_utilization_percent (rig efficiency factor)
  */
 @Entity('equipment_templates')
+@Index(['producer_id'])
 export class EquipmentTemplateOrmEntity {
   @PrimaryColumn('uuid')
   id: string;

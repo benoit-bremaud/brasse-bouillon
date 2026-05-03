@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ProducerController } from './controllers/producer.controller';
+import { ProducerCatalogController } from './controllers/producer-catalog.controller';
+import { ProducerCatalogService } from './services/producer-catalog.service';
 import { ProducerOrmEntity } from './entities/producer.orm.entity';
-import { ProducerService } from './services/producer.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 /**
@@ -9,12 +9,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
  * to stay consistent with `WaterCatalogModule`,
  * `EquipmentCatalogModule`, `MiscCatalogModule` and to leave
  * room for a future user-side `ProducerModule` (e.g. boutique
- * partner integrations) without class-name collision.
+ * partner integrations) without class-name collision. The
+ * controller and service classes follow the same `*Catalog*`
+ * suffix pattern (`ProducerCatalogController`,
+ * `ProducerCatalogService`) — Copilot caught the inconsistency
+ * with the other 8 catalogues on PR #902 review.
  */
 @Module({
   imports: [TypeOrmModule.forFeature([ProducerOrmEntity])],
-  controllers: [ProducerController],
-  providers: [ProducerService],
-  exports: [ProducerService],
+  controllers: [ProducerCatalogController],
+  providers: [ProducerCatalogService],
+  exports: [ProducerCatalogService],
 })
 export class ProducerCatalogModule {}

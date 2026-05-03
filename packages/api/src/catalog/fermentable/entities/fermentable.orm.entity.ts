@@ -30,6 +30,7 @@ import { FermentableType } from '../domain/enums/fermentable-type.enum';
  */
 @Entity('fermentables')
 @Index(['type'])
+@Index(['producer_id'])
 export class FermentableOrmEntity {
   @PrimaryColumn('uuid')
   id: string;

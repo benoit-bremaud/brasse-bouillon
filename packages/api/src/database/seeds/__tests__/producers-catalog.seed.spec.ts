@@ -41,8 +41,8 @@ describe('seedProducersCatalog (Issue #900)', () => {
       }
     });
 
-    it('exposes 16 curated catalogue entries', () => {
-      expect(PRODUCERS_CATALOG_SEED).toHaveLength(16);
+    it('exposes 17 curated catalogue entries', () => {
+      expect(PRODUCERS_CATALOG_SEED).toHaveLength(17);
     });
 
     it('uses deterministic UUIDs in the catalogue range (...-9000-8000-...)', () => {
@@ -56,12 +56,15 @@ describe('seedProducersCatalog (Issue #900)', () => {
     it('covers every ProducerType at least once', () => {
       // The picker UI will offer a TYPE filter — every category
       // must have at least one entry from day one so the filter
-      // chips never look empty.
+      // chips never look empty. Copilot caught the missing
+      // ProducerType.Other on PR #902 review — Brouwland (BE
+      // generalist distributor + own-brand items) added.
       const types = new Set(PRODUCERS_CATALOG_SEED.map((p) => p.type));
       expect(types).toContain(ProducerType.Laboratory);
       expect(types).toContain(ProducerType.Maltster);
       expect(types).toContain(ProducerType.HopSupplier);
       expect(types).toContain(ProducerType.EquipmentManufacturer);
+      expect(types).toContain(ProducerType.Other);
     });
 
     it('keeps every country code as 2 ASCII uppercase letters', () => {

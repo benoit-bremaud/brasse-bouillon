@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -46,6 +47,7 @@ import { MiscType, MiscUseAt } from '../domain/misc-template.types';
  * shared reference catalogue.
  */
 @Entity('misc_templates')
+@Index(['producer_id'])
 export class MiscTemplateOrmEntity {
   @PrimaryColumn('uuid')
   id: string;

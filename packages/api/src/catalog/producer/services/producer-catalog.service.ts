@@ -5,7 +5,7 @@ import { ProducerOrmEntity } from '../entities/producer.orm.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class ProducerService {
+export class ProducerCatalogService {
   constructor(
     @InjectRepository(ProducerOrmEntity)
     private readonly producers: Repository<ProducerOrmEntity>,

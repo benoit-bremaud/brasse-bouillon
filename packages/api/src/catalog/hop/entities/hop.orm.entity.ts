@@ -31,6 +31,7 @@ import { HopUsageType } from '../domain/enums/hop-usage-type.enum';
 @Entity('hops')
 @Index(['usage_type'])
 @Index(['form'])
+@Index(['producer_id'])
 export class HopOrmEntity {
   @PrimaryColumn('uuid')
   id: string;

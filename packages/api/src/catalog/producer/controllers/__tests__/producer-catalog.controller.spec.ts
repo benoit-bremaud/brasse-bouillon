@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotFoundException } from '@nestjs/common';
-import { ProducerController } from '../producer.controller';
+import { ProducerCatalogController } from '../producer-catalog.controller';
 import { ProducerOrmEntity } from '../../entities/producer.orm.entity';
-import { ProducerService } from '../../services/producer.service';
+import { ProducerCatalogService } from '../../services/producer-catalog.service';
 import { ProducerType } from '../../domain/producer.types';
 
-describe('ProducerController', () => {
-  let controller: ProducerController;
-  let service: ProducerService;
+describe('ProducerCatalogController', () => {
+  let controller: ProducerCatalogController;
+  let service: ProducerCatalogService;
 
   const ID_WYEAST = '00000000-0000-4000-9000-800000000000';
 
@@ -30,17 +30,17 @@ describe('ProducerController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ProducerController],
+      controllers: [ProducerCatalogController],
       providers: [
         {
-          provide: ProducerService,
+          provide: ProducerCatalogService,
           useValue: { list: jest.fn(), getById: jest.fn() },
         },
       ],
     }).compile();
 
-    controller = module.get(ProducerController);
-    service = module.get(ProducerService);
+    controller = module.get(ProducerCatalogController);
+    service = module.get(ProducerCatalogService);
   });
 
   describe('GET /catalog/producers', () => {

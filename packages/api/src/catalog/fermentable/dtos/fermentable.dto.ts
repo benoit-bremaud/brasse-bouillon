@@ -63,6 +63,13 @@ export class FermentableDto {
   @ApiProperty({ nullable: true })
   notes: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    description: 'FK to producers — maltster brand of this fermentable',
+  })
+  producer_id: string | null;
+
   @ApiProperty({ format: 'date-time' })
   created_at: string;
 
@@ -82,6 +89,7 @@ export class FermentableDto {
     dto.max_in_batch_percent = entity.max_in_batch_percent;
     dto.recommend_mash = entity.recommend_mash;
     dto.notes = entity.notes;
+    dto.producer_id = entity.producer_id;
     dto.created_at = entity.created_at.toISOString();
     dto.updated_at = entity.updated_at.toISOString();
     return dto;

@@ -5,13 +5,13 @@ import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
 import { NotFoundException } from '@nestjs/common';
 import { ProducerOrmEntity } from '../../entities/producer.orm.entity';
-import { ProducerService } from '../producer.service';
+import { ProducerCatalogService } from '../producer-catalog.service';
 import { ProducerType } from '../../domain/producer.types';
 import { Repository } from 'typeorm';
 
-describe('ProducerService', () => {
+describe('ProducerCatalogService', () => {
   let module: TestingModule;
-  let service: ProducerService;
+  let service: ProducerCatalogService;
   let repository: Repository<ProducerOrmEntity>;
 
   const ID_WYEAST = '00000000-0000-4000-9000-800000000000';
@@ -29,10 +29,10 @@ describe('ProducerService', () => {
         }),
         TypeOrmModule.forFeature([ProducerOrmEntity]),
       ],
-      providers: [ProducerService],
+      providers: [ProducerCatalogService],
     }).compile();
 
-    service = module.get(ProducerService);
+    service = module.get(ProducerCatalogService);
     repository = module.get(getRepositoryToken(ProducerOrmEntity));
   });
 

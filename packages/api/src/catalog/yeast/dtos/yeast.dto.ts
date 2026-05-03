@@ -58,6 +58,15 @@ export class YeastDto {
   @ApiProperty({ nullable: true })
   notes: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    description:
+      'FK to producers — laboratory brand. Mode-prudent: lives ' +
+      'alongside the legacy `laboratory` varchar until the cleanup PR.',
+  })
+  producer_id: string | null;
+
   @ApiProperty({ format: 'date-time' })
   created_at: string;
 
@@ -77,6 +86,7 @@ export class YeastDto {
     dto.flocculation = entity.flocculation;
     dto.attenuation_percent_typical = entity.attenuation_percent_typical;
     dto.notes = entity.notes;
+    dto.producer_id = entity.producer_id;
     dto.created_at = entity.created_at.toISOString();
     dto.updated_at = entity.updated_at.toISOString();
     return dto;

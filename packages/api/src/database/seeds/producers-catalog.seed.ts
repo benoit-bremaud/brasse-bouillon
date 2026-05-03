@@ -224,6 +224,20 @@ export const PRODUCERS_CATALOG_SEED: readonly ProducerSeed[] = [
       'Foundry (6.5/10.5 Gal) populaire aux États-Unis pour ' +
       "l'électrique multi-usages (BIAB + recirculation).",
   },
+  // ─── Other (généralistes / commodities) ────────────────────────────
+  {
+    id: '00000000-0000-4000-9000-800000000010',
+    name: 'Brouwland',
+    type: ProducerType.Other,
+    country: 'BE',
+    website: 'https://www.brouwland.com',
+    notes:
+      'Distributeur historique belge (Beverlo, fondé 1976) qui édite ' +
+      "aussi des produits sous sa propre marque (kits d'initiation, " +
+      "équipement DIY, accessoires). Catégorie 'other' parce qu'il " +
+      "chevauche plusieurs métiers — pas un producteur pur d'une " +
+      'seule famille (levure / malt / houblon / équipement).',
+  },
 ];
 
 /**

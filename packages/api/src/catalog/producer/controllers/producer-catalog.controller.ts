@@ -14,8 +14,8 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../../auth/guards/jwt.guard';
+import { ProducerCatalogService } from '../services/producer-catalog.service';
 import { ProducerDto } from '../dtos/producer.dto';
-import { ProducerService } from '../services/producer.service';
 
 /**
  * Read-only HTTP surface for the producer catalogue.
@@ -32,8 +32,8 @@ import { ProducerService } from '../services/producer.service';
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('catalog/producers')
-export class ProducerController {
-  constructor(private readonly service: ProducerService) {}
+export class ProducerCatalogController {
+  constructor(private readonly service: ProducerCatalogService) {}
 
   @Get()
   @ApiOperation({ summary: 'List the producer catalogue entries' })

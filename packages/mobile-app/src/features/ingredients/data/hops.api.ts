@@ -73,7 +73,7 @@ function buildHopSpecGroups(dto: CatalogHopDto): HopSpecGroup[] {
   if (acidRows.length > 0) {
     groups.push({
       id: "hop-acids-group",
-      title: "Acides & stabilité",
+      title: "Acids & stability",
       rows: acidRows,
     });
   }
@@ -83,7 +83,7 @@ function buildHopSpecGroups(dto: CatalogHopDto): HopSpecGroup[] {
   if (formValue) {
     formatRows.push({
       id: "hop-form",
-      label: "Format",
+      label: "Form",
       value: formValue,
     });
   }
@@ -91,7 +91,7 @@ function buildHopSpecGroups(dto: CatalogHopDto): HopSpecGroup[] {
   if (formatRows.length > 0) {
     groups.push({
       id: "hop-format-group",
-      title: "Présentation",
+      title: "Format",
       rows: formatRows,
     });
   }

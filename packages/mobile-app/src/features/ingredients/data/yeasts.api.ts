@@ -50,7 +50,7 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
 
     fermentationRows.push({
       id: "yeast-temperature-range",
-      label: "Température",
+      label: "Temperature",
       value,
       unit: "°C",
     });
@@ -58,9 +58,14 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
 
   const attenuation = formatNumber(dto.attenuation_percent_typical);
   if (attenuation) {
+    // Label MUST contain "attenuation" (ASCII, case-insensitive)
+    // — the yeasts use-case `getAttenuation` parses this row to
+    // apply attenuationMin/Max filters. The accented French
+    // "Atténuation" doesn't match `includes("attenuation")` due
+    // to the "é". Codex P1 catch on PR #906 review.
     fermentationRows.push({
       id: "yeast-attenuation",
-      label: "Atténuation",
+      label: "Attenuation",
       value: attenuation,
       unit: "%",
     });
@@ -70,7 +75,7 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
   if (flocculation) {
     fermentationRows.push({
       id: "yeast-flocculation",
-      label: "Floculation",
+      label: "Flocculation",
       value: flocculation,
     });
   }
@@ -91,7 +96,7 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
   if (productCode) {
     productRows.push({
       id: "yeast-product-code",
-      label: "Référence",
+      label: "Product code",
       value: productCode,
     });
   }
@@ -100,7 +105,7 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
   if (formValue) {
     productRows.push({
       id: "yeast-form",
-      label: "Format",
+      label: "Form",
       value: formValue,
     });
   }
@@ -108,7 +113,7 @@ function buildYeastSpecGroups(dto: CatalogYeastDto): YeastSpecGroup[] {
   if (productRows.length > 0) {
     groups.push({
       id: "yeast-product-group",
-      title: "Produit",
+      title: "Product",
       rows: productRows,
     });
   }

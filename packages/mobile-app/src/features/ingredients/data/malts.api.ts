@@ -44,9 +44,12 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
 
   const ebcValue = formatNumber(dto.color_ebc_typical);
   if (ebcValue) {
+    // Label MUST contain "color" (case-insensitive) — the
+    // malts use-case `getColorEbc` parses this row to apply
+    // EBC min/max filters. Codex P1 catch on PR #906 review.
     colourRows.push({
       id: "malt-color-ebc",
-      label: "Couleur",
+      label: "Color (EBC)",
       value: ebcValue,
       unit: "EBC",
     });
@@ -56,7 +59,7 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
   if (gravityValue) {
     colourRows.push({
       id: "malt-potential-gravity",
-      label: "Densité potentielle",
+      label: "Potential gravity",
       value: gravityValue,
     });
   }
@@ -65,7 +68,7 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
   if (yieldValue) {
     colourRows.push({
       id: "malt-yield",
-      label: "Rendement",
+      label: "Yield",
       value: yieldValue,
       unit: "%",
     });
@@ -76,7 +79,7 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
   if (colourRows.length > 0) {
     groups.push({
       id: "malt-color-group",
-      title: "Couleur & rendement",
+      title: "Color & yield",
       rows: colourRows,
     });
   }
@@ -87,7 +90,7 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
   if (diastaticValue) {
     enzymesRows.push({
       id: "malt-diastatic-power",
-      label: "Pouvoir diastasique",
+      label: "Diastatic power",
       value: diastaticValue,
       unit: "Lintner",
     });
@@ -97,7 +100,7 @@ function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
   if (maxInBatchValue) {
     enzymesRows.push({
       id: "malt-max-in-batch",
-      label: "Max dans la maische",
+      label: "Max in batch",
       value: maxInBatchValue,
       unit: "%",
     });

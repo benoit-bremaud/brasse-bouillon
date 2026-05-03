@@ -1,6 +1,7 @@
 import { FermentableModule } from './fermentable/fermentable.module';
 import { HopModule } from './hop/hop.module';
 import { Module } from '@nestjs/common';
+import { YeastModule } from './yeast/yeast.module';
 
 /**
  * Root module for the operator-curated reference catalogues
@@ -15,6 +16,6 @@ import { Module } from '@nestjs/common';
  * sub-module dependencies are explicit at the consumer side.
  */
 @Module({
-  imports: [HopModule, FermentableModule],
+  imports: [HopModule, FermentableModule, YeastModule],
 })
 export class CatalogModule {}

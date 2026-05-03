@@ -9,13 +9,30 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### Catalogue refactor — Phases 1-3 shipped in one day (#708 / #869)
 
-- 7 immutable reference catalogues merged to `main` between 02:00 and 17:05 UTC (PR #888 → #898), all on `packages/api`. Each PR follows the same 12-file pattern: entity + DTO + service + controller + module + migration + seed + 3 specs (service/controller/seed) + runner script + wiring updates to `catalog.module.ts` and `typeorm.config.ts`.
+- 8 immutable reference catalogues merged to `main` between 02:00 and 18:16 UTC (PR #888 → #899), all on `packages/api`. Each PR follows the same 12-file pattern: entity + DTO + service + controller + module + migration + seed + 3 specs (service/controller/seed) + runner script + wiring updates to `catalog.module.ts` and `typeorm.config.ts`. The 9th PR #902 (producers + 5 catalogue FKs) lands at 19:55 UTC and closes the cross-catalogue producer dimension.
 - **Decisions** locked across the series:
-  - `*CatalogModule` suffix (e.g. `WaterCatalogModule`, `EquipmentCatalogModule`) to avoid class-name collisions with existing user-owned modules — convention adopted on PR #894 after Copilot caught the `EquipmentModule` collision risk.
+  - `*CatalogModule` suffix (e.g. `WaterCatalogModule`, `EquipmentCatalogModule`, `ProducerCatalogModule`) to avoid class-name collisions with existing user-owned modules — convention adopted on PR #894 after Copilot caught the `EquipmentModule` collision risk, extended to `*CatalogService` / `*CatalogController` after Copilot caught the same drift on PR #902.
   - `assertCommonCatalogueSeederBehaviours` shared test helper at `src/database/seeds/seed-test-utils.ts` — covers the 4 standard scenarios (happy / sad / mixed / override-list) so each catalogue spec only carries its own invariants. Added on PR #891 to clear SonarCloud's new-code duplication gate.
-  - Deterministic UUID range per catalogue: hops `0`, fermentables `1`, yeasts `2`, styles `3`, mash `4`, waters `5`, equipment `6`, misc `7` (last one in PR #899, in flight).
+  - Deterministic UUID range per catalogue: hops `0`, fermentables `1`, yeasts `2`, styles `3`, mash `4`, waters `5`, equipment `6`, misc `7`, producers `8`.
   - Notes columns kept French (UI-facing per `feedback_ui_french_only`); `use_for` / category metadata stays English (BeerXML provenance).
-- **Scope still open**: PR #899 (`misc_templates`) opens after #898 — once merged, the umbrella issues #708 / #869 close and the post-Phase-3 work begins (normalize-producers PR + Recipe-entity FK refactor + mobile ingredient picker refactor #887).
+  - **Producer ≠ Distributor** (PR #902): producers carry the brand owner (1 product = 1 producer, FK 1:1 on catalogues). The boutique flow (1 product = N distributors) is reserved for issue #901 (M:N junctions) and will be refined when the boutique work starts.
+- **Scope post Phase 3**: umbrella issues #708 / #869 closed automatically by PR #899. Open follow-ups now tracked separately — yeast cleanup tiny PR (drop `laboratory` + rename `product_id` → `product_code` after picker UX validation, deferred from PR #902's mode-prudent scope), distributors #901, Recipe-entity FK refactor, mobile ingredient picker refactor #887.
+
+### PR #902 merged (`977610c`) — feat(catalog/producer): producers reference table + producer_id FK on 5 catalogues
+
+- First post-Phase 3 follow-up. Closes design debt documented in every Phase 1-3 catalogue entity ("deferred to normalize-producers PR after Phase 3"). Closes issue #900.
+- Adds `producers` table (16 → 17 entries: 5 laboratories Wyeast Labs / White Labs / Fermentis / Lallemand / Imperial Yeast, 5 maltsters Briess / Weyermann / Best Malz / Castle / Crisp, 3 hop suppliers Yakima Chief / BarthHaas / Hopsteiner, 3 equipment manufacturers Grainfather / Klarstein / Anvil, + Brouwland as `other` added during review). Adds nullable `producer_id` FK on hops, fermentables, yeasts, misc_templates, equipment_templates (ON DELETE SET NULL). New endpoints `GET /catalog/producers` and `GET /catalog/producers/:id`.
+- **Mode-prudent first cut chosen mid-planning**: `producer_id` added on yeast ALONGSIDE the existing `laboratory` varchar + `product_id` varchar (PR #890 columns), NOT in replacement. Yeast carries 3 producer-related fields temporarily — cleanup tiny PR ships separately once picker UX is validated against the new FK. Trade-off: minimal diff (5 catalogue files touched with 1 nullable column each), zero risk on existing seeded data, faster to ship.
+- 19 files initial + 18 files in fix commit, 605/607 tests green (+21 producer, no regression). 3 commits: `f74220a` initial / `9df4541` Codex P1 fix (down() drop_column ordering for FK dangle) / `2d42349` Copilot 15-comment fix (DTO exposure ×5 + @Index ×5 + *Catalog* naming ×2 + Other type ×1 + spec assertion ×1 + docblock ×1).
+- Spawned issue [#901](https://github.com/benoit-bremaud/brasse-bouillon/issues/901) (distributors + M:N junctions, boutique foundation) — placeholder spec to refine when boutique work starts. Naming distinction `producer` (brand owner) vs `distributor` (reseller) explicitly captured in the issue body to anchor the future implementation.
+
+### PR #899 merged (`37f993f`) — feat(catalog/misc): miscellaneous ingredients reference catalogue (closes Phase 3)
+
+- Phase 3 PR #8 — last catalogue of the original 8-PR series. Covers BeerXML 1.0 `<MISC>` records: spices, finings, water agents, herbs, flavor adjuncts.
+- 10 entries: 5 BeerXML canonical (Apricot Extract, Calcium Chloride, Ginger Root, Irish Moss, Orange Peel Bitter) + 5 Brasse-Bouillon modern essentials (Coriandre, Lactose, Whirlfloc, Servomyces, Gypse). Coverage: all 6 BeerXML TYPE values + 3 primary USE phases (mash / boil / bottling).
+- Same naming pattern as `equipment_templates` (`misc_templates` not `miscs`) to leave room for a future `recipe_misc` junction table without collision when Recipe entities are refactored.
+- Schema: `type` (enum CHECK spice/fining/water_agent/herb/flavor/other), `use_at` (enum CHECK mash/boil/primary/secondary/bottling — renamed from BeerXML `USE` because `use` is a SQL reserved keyword), `amount` + `amount_is_weight` boolean (raw BeerXML AMOUNT verbatim, kg or L), `time_min`, `use_for` (English category), `notes` (French).
+- 14 files, +1098 LoC, 584/586 tests green (+20 misc). 3 commits including PROJECT_LOG.md backfill for the prior 7 PRs of the series. 4 Copilot comments addressed in `0553a7c` (entity + migration enum constraints + 2 internal-name leaks in user-facing notes).
 
 ### PR #898 merged (`8934ade`) — feat(catalog/equipment): equipment templates reference catalogue
 

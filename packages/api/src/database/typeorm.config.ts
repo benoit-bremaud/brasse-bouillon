@@ -5,6 +5,7 @@ import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.ent
 import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
 import { DataSourceOptions } from 'typeorm';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { EquipmentTemplateOrmEntity } from '../catalog/equipment/entities/equipment-template.orm.entity';
 import { FermentableOrmEntity } from '../catalog/fermentable/entities/fermentable.orm.entity';
 import { HopOrmEntity } from '../catalog/hop/entities/hop.orm.entity';
 import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
@@ -55,6 +56,7 @@ export const ormEntities = [
   MashProfileOrmEntity,
   MashStepOrmEntity,
   WaterOrmEntity,
+  EquipmentTemplateOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

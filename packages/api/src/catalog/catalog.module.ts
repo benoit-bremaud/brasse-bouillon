@@ -1,3 +1,4 @@
+import { EquipmentCatalogModule } from './equipment/equipment.module';
 import { FermentableModule } from './fermentable/fermentable.module';
 import { HopModule } from './hop/hop.module';
 import { MashModule } from './mash/mash.module';
@@ -26,6 +27,7 @@ import { YeastModule } from './yeast/yeast.module';
     StyleModule,
     MashModule,
     WaterCatalogModule,
+    EquipmentCatalogModule,
   ],
 })
 export class CatalogModule {}

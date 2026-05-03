@@ -9,10 +9,18 @@ import { slugify, toOptionalString } from "./ingredient-api.utils";
  * Misc covers the BeerXML 1.0 `<MISC>` ingredient class:
  * spices, finings, water agents, herbs, flavor adjuncts.
  *
- * The mobile-side type lives in
- * `domain/misc.types.ts` (`MiscProduct`) — kept lean since the
- * picker UX for misc is simpler than for hops/malts/yeasts
- * (no spec groups; just name + type + use_at + amount).
+ * The mobile-side `MiscProduct` type is exported from THIS
+ * module (kept colocated with the api consumer rather than
+ * promoted to a `domain/misc.types.ts` file). Picker UX for
+ * misc is simpler than hops/malts/yeasts (no `specGroups`;
+ * just flat fields), so a separate domain file is overkill
+ * until the picker actually consumes it.
+ *
+ * **Currently unwired**: this module is the API mirror of the
+ * `/catalog/misc-templates` endpoint shipped on PR #899. It's
+ * not yet consumed by any screen — `IngredientCategory` only
+ * allows `'malt' | 'hop' | 'yeast'` today. Wiring is tracked
+ * in issue #624 (`feat(ingredients): CRUD + personalisation`).
  */
 interface CatalogMiscDto {
   id: string;

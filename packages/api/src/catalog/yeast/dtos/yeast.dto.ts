@@ -25,15 +25,15 @@ export class YeastDto {
   @ApiProperty({ enum: YeastForm, example: YeastForm.DRY })
   form: YeastForm;
 
-  @ApiProperty({ example: 'Fermentis', nullable: true })
-  laboratory: string | null;
-
   @ApiProperty({
     example: 'US-05',
     nullable: true,
-    description: 'Manufacturer SKU recognisable by brewers worldwide',
+    description:
+      'Manufacturer SKU recognisable by brewers worldwide ' +
+      '(WLP002, 1056, US-05). Renamed from `product_id` to ' +
+      '`product_code` on Issue #904 cleanup.',
   })
-  product_id: string | null;
+  product_code: string | null;
 
   @ApiProperty({ example: 15, nullable: true })
   min_temperature_c: number | null;
@@ -62,8 +62,9 @@ export class YeastDto {
     format: 'uuid',
     nullable: true,
     description:
-      'FK to producers — laboratory brand. Mode-prudent: lives ' +
-      'alongside the legacy `laboratory` varchar until the cleanup PR.',
+      'FK to producers — laboratory brand. Sole producer-related ' +
+      'field since Issue #904 cleanup dropped the legacy ' +
+      '`laboratory` varchar.',
   })
   producer_id: string | null;
 
@@ -79,8 +80,7 @@ export class YeastDto {
     dto.name = entity.name;
     dto.type = entity.type;
     dto.form = entity.form;
-    dto.laboratory = entity.laboratory;
-    dto.product_id = entity.product_id;
+    dto.product_code = entity.product_code;
     dto.min_temperature_c = entity.min_temperature_c;
     dto.max_temperature_c = entity.max_temperature_c;
     dto.flocculation = entity.flocculation;

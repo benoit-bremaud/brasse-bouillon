@@ -1,25 +1,25 @@
 import { Repository } from 'typeorm';
 
 import { STYLES_CATALOG_SEED, seedStylesCatalog } from '../styles-catalog.seed';
+import {
+  assertCommonCatalogueSeederBehaviours,
+  buildRepoMock,
+} from '../seed-test-utils';
 import { StyleOrmEntity } from '../../../catalog/style/entities/style.orm.entity';
 import { StyleType } from '../../../catalog/style/domain/enums/style-type.enum';
-import { buildRepoMock } from '../seed-test-utils';
 
 describe('seedStylesCatalog (Issue #708 / #869 — Phase 2 PR #4)', () => {
-  describe('happy path', () => {
-    it('inserts all 20 catalogue entries when the table is empty', async () => {
-      const repo = buildRepoMock();
-      repo.findOne.mockResolvedValue(null);
+  // The four standard catalogue-seeder behaviours (happy / sad /
+  // mixed / override-list) live in the shared helper to satisfy
+  // SonarCloud's duplication gate — see seed-test-utils.ts. Only the
+  // catalogue-specific assertions remain inline below.
+  assertCommonCatalogueSeederBehaviours('seedStylesCatalog', {
+    fn: (repo, seeds) =>
+      seedStylesCatalog(repo as unknown as Repository<StyleOrmEntity>, seeds),
+    data: STYLES_CATALOG_SEED,
+  });
 
-      const result = await seedStylesCatalog(
-        repo as unknown as Repository<StyleOrmEntity>,
-      );
-
-      expect(result).toEqual({ inserted: 20, updated: 0, total: 20 });
-      expect(repo.create).toHaveBeenCalledTimes(20);
-      expect(repo.save).toHaveBeenCalledTimes(20);
-    });
-
+  describe('catalogue-specific invariants', () => {
     it('writes name + type + style_guide on every inserted row', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
@@ -33,60 +33,6 @@ describe('seedStylesCatalog (Issue #708 / #869 — Phase 2 PR #4)', () => {
         expect(Object.values(StyleType)).toContain(arg.type);
         expect(typeof arg.style_guide).toBe('string');
       }
-    });
-  });
-
-  describe('idempotency (sad path)', () => {
-    it('updates existing rows in place rather than duplicating them', async () => {
-      const repo = buildRepoMock();
-      repo.findOne.mockImplementation(() =>
-        Promise.resolve({
-          id: 'will-be-overwritten',
-          name: 'old-name',
-          type: StyleType.ALE,
-        }),
-      );
-
-      const result = await seedStylesCatalog(
-        repo as unknown as Repository<StyleOrmEntity>,
-      );
-
-      expect(result).toEqual({ inserted: 0, updated: 20, total: 20 });
-      expect(repo.create).not.toHaveBeenCalled();
-      expect(repo.save).toHaveBeenCalledTimes(20);
-    });
-  });
-
-  describe('edge cases', () => {
-    it('mixes inserts and updates when only some IDs already exist', async () => {
-      const repo = buildRepoMock();
-      let counter = 0;
-      repo.findOne.mockImplementation(() => {
-        counter += 1;
-        return Promise.resolve(
-          counter <= 5 ? { id: `existing-${counter}` } : null,
-        );
-      });
-
-      const result = await seedStylesCatalog(
-        repo as unknown as Repository<StyleOrmEntity>,
-      );
-
-      expect(result).toEqual({ inserted: 15, updated: 5, total: 20 });
-    });
-
-    it('respects an explicit override list', async () => {
-      const repo = buildRepoMock();
-      repo.findOne.mockResolvedValue(null);
-
-      const customStyles = STYLES_CATALOG_SEED.slice(0, 3);
-
-      const result = await seedStylesCatalog(
-        repo as unknown as Repository<StyleOrmEntity>,
-        customStyles,
-      );
-
-      expect(result).toEqual({ inserted: 3, updated: 0, total: 3 });
     });
 
     it('exposes 20 curated catalogue entries spanning BeerXML 1999 + BJCP 2021', () => {
@@ -113,7 +59,6 @@ describe('seedStylesCatalog (Issue #708 / #869 — Phase 2 PR #4)', () => {
       for (const id of ids) {
         expect(id).toMatch(/^00000000-0000-4000-9000-3[0-9a-f]{11}$/);
       }
-      // No duplicates.
       expect(new Set(ids).size).toBe(ids.length);
     });
 

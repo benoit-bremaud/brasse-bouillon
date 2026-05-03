@@ -40,3 +40,111 @@ export function buildRepoMock(): RepoMock {
     save: jest.fn((input: unknown) => Promise.resolve(input)),
   };
 }
+
+/**
+ * Shape every catalogue seeder follows: an idempotent loader that
+ * accepts an override list and returns insert/update/total counters.
+ * Generic over the seed entry shape so each catalogue can call this
+ * helper with its own seed type while sharing the standard test
+ * scenarios (happy / sad / mixed / override-list).
+ */
+export interface CatalogSeederUnderTest<S> {
+  fn: (
+    repository: { findOne: jest.Mock; create: jest.Mock; save: jest.Mock },
+    seeds?: readonly S[],
+  ) => Promise<{ inserted: number; updated: number; total: number }>;
+  /** Static const exposed by the seed module (e.g. HOPS_CATALOG_SEED). */
+  data: readonly S[];
+}
+
+/**
+ * Runs the four standard catalogue-seeder behaviours every catalogue
+ * test file would otherwise duplicate verbatim:
+ *
+ *   - happy: inserts the full data set when the table is empty
+ *   - sad/idempotency: updates existing rows in place, never duplicates
+ *   - edge: mixes inserts and updates when only some IDs already exist
+ *   - edge: respects an explicit override list
+ *
+ * The total entry count is asserted off `data.length`, so each
+ * catalogue stays free to grow without touching the helper. The
+ * mixed-insert/update split is tested with a 5-existing / rest-new
+ * scenario regardless of total size, which exercises the same code
+ * branch as a real partial-existing-state.
+ *
+ * Each catalogue's spec file then keeps only the catalogue-specific
+ * assertions (name lookups, type coverage, French notes invariant,
+ * etc.) — the shared boilerplate lives here, satisfying SonarCloud's
+ * duplication gate without losing test rigor.
+ */
+export function assertCommonCatalogueSeederBehaviours<S>(
+  label: string,
+  seeder: CatalogSeederUnderTest<S>,
+): void {
+  const expectedCount = seeder.data.length;
+
+  describe(`${label} — common catalogue-seeder behaviours`, () => {
+    it(`happy: inserts all ${expectedCount} catalogue entries when the table is empty`, async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+
+      const result = await seeder.fn(repo);
+
+      expect(result).toEqual({
+        inserted: expectedCount,
+        updated: 0,
+        total: expectedCount,
+      });
+      expect(repo.create).toHaveBeenCalledTimes(expectedCount);
+      expect(repo.save).toHaveBeenCalledTimes(expectedCount);
+    });
+
+    it(`sad: idempotency — updates existing rows in place rather than duplicating`, async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockImplementation(() =>
+        Promise.resolve({ id: 'will-be-overwritten' }),
+      );
+
+      const result = await seeder.fn(repo);
+
+      expect(result).toEqual({
+        inserted: 0,
+        updated: expectedCount,
+        total: expectedCount,
+      });
+      expect(repo.create).not.toHaveBeenCalled();
+      expect(repo.save).toHaveBeenCalledTimes(expectedCount);
+    });
+
+    it('edge: mixes inserts and updates when only some IDs already exist', async () => {
+      const repo = buildRepoMock();
+      let counter = 0;
+      // First 5 already exist, the rest are new — exercises the
+      // insert+update split branch.
+      repo.findOne.mockImplementation(() => {
+        counter += 1;
+        return Promise.resolve(
+          counter <= 5 ? { id: `existing-${counter}` } : null,
+        );
+      });
+
+      const result = await seeder.fn(repo);
+
+      expect(result).toEqual({
+        inserted: expectedCount - 5,
+        updated: 5,
+        total: expectedCount,
+      });
+    });
+
+    it('edge: respects an explicit override list', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+
+      const overrides = seeder.data.slice(0, 3);
+      const result = await seeder.fn(repo, overrides);
+
+      expect(result).toEqual({ inserted: 3, updated: 0, total: 3 });
+    });
+  });
+}

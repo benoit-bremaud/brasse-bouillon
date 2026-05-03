@@ -20,12 +20,13 @@ import { YeastType } from '../domain/enums/yeast-type.enum';
  *
  * Each row represents a SPECIFIC lab product (Safale US-05,
  * WLP002 English Ale, Wyeast 1056 American Ale, etc.). The
- * `laboratory` and `product_id` columns stay as direct varchars
- * because each catalogue row is 1:1 with a manufacturer product;
- * the future "normalize-producers" PR may add an optional
- * `laboratory_id` FK referencing the unified `producers` table
- * but the textual fields remain as the brewer-recognisable
- * identifier (US-05, WLP002, 1056).
+ * laboratory dimension is now FK-normalised through
+ * `producer_id` (Issue #904 cleanup — PR #902 mode-prudent
+ * step shipped the FK alongside the legacy `laboratory`
+ * varchar; this PR drops the legacy column). The
+ * brewer-recognisable SKU (US-05, WLP002, 1056) is preserved
+ * as `product_code` (renamed from `product_id` for clarity —
+ * it's a SKU, not a FK).
  *
  * `recipe_yeasts` is not yet migrated to point at this catalogue
  * via a `yeast_id` FK — that migration ships in a follow-up PR
@@ -34,7 +35,6 @@ import { YeastType } from '../domain/enums/yeast-type.enum';
 @Entity('yeasts')
 @Index(['type'])
 @Index(['form'])
-@Index(['laboratory'])
 @Index(['producer_id'])
 export class YeastOrmEntity {
   @PrimaryColumn('uuid')
@@ -60,22 +60,15 @@ export class YeastOrmEntity {
   form: YeastForm;
 
   /**
-   * Manufacturer label (e.g. White Labs, Wyeast Labs, Fermentis,
-   * Imperial Yeast, Lallemand). Free-text varchar in this PR —
-   * future normalisation may move it to a FK on a unified
-   * `producers` table while keeping this column as the
-   * brewer-facing display string.
-   */
-  @Column({ type: 'varchar', length: 60, nullable: true })
-  laboratory: string | null;
-
-  /**
    * Manufacturer SKU recognisable by brewers worldwide (WLP002,
    * 1056, US-05). Acts as the de-facto industry identifier even
-   * across language boundaries.
+   * across language boundaries. Renamed from `product_id` to
+   * `product_code` on Issue #904 cleanup — the column is a SKU
+   * string, not a FK identifier, and the new name removes the
+   * confusion with `producer_id` (which IS a FK).
    */
   @Column({ type: 'varchar', length: 20, nullable: true })
-  product_id: string | null;
+  product_code: string | null;
 
   /**
    * Recommended fermentation temperature range in °C. Per-batch
@@ -118,11 +111,9 @@ export class YeastOrmEntity {
    * Optional FK to the unified `producers` reference table
    * (Issue #900) — the laboratory that brands this strain
    * (Wyeast Labs, White Labs, Fermentis, Lallemand, Imperial
-   * Yeast). Mode-prudent first cut: this column is added
-   * ALONGSIDE the existing `laboratory` varchar (PR #890),
-   * not in replacement. The cleanup PR (drop `laboratory`,
-   * rename `product_id` → `product_code`) ships separately
-   * once picker UX is validated. Nullable + ON DELETE SET NULL.
+   * Yeast). Sole producer-related field on this entity since
+   * the Issue #904 cleanup dropped the legacy `laboratory`
+   * varchar. Nullable + ON DELETE SET NULL.
    */
   @Column({ type: 'varchar', length: 36, nullable: true })
   producer_id: string | null;

@@ -133,10 +133,10 @@ describe('seedYeastsCatalog (Issue #708 / #869 — Phase 1 PR #3)', () => {
       // surface both — accidentally tagging either as ALE would
       // hide it from Witbier / Hefeweizen recipe authoring.
       const witbier = YEASTS_CATALOG_SEED.find(
-        (y) => y.product_id === 'WLP410',
+        (y) => y.product_code === 'WLP410',
       );
       const hefeweizen = YEASTS_CATALOG_SEED.find(
-        (y) => y.product_id === '3068',
+        (y) => y.product_code === '3068',
       );
       expect(witbier?.type).toBe(YeastType.WHEAT);
       expect(hefeweizen?.type).toBe(YeastType.WHEAT);
@@ -151,16 +151,21 @@ describe('seedYeastsCatalog (Issue #708 / #869 — Phase 1 PR #3)', () => {
     });
 
     it('covers the major laboratories (White Labs, Wyeast, Fermentis, Lallemand, Imperial Yeast)', () => {
-      const labs = new Set(
-        YEASTS_CATALOG_SEED.map((y) => y.laboratory).filter(
-          (lab): lab is string => lab !== null,
+      // Post Issue #904 cleanup: laboratory string was dropped in
+      // favour of `producer_id` FK to the producers catalogue
+      // (PR #902, UUIDs `00000000-0000-4000-9000-8000000000XX`
+      // where XX is the laboratory's slot 0-4: Wyeast / White
+      // Labs / Fermentis / Lallemand / Imperial Yeast).
+      const producerIds = new Set(
+        YEASTS_CATALOG_SEED.map((y) => y.producer_id).filter(
+          (id): id is string => id !== null,
         ),
       );
-      expect(labs).toContain('White Labs');
-      expect(labs).toContain('Wyeast Labs');
-      expect(labs).toContain('Fermentis');
-      expect(labs).toContain('Lallemand');
-      expect(labs).toContain('Imperial Yeast');
+      expect(producerIds).toContain('00000000-0000-4000-9000-800000000000'); // Wyeast Labs
+      expect(producerIds).toContain('00000000-0000-4000-9000-800000000001'); // White Labs
+      expect(producerIds).toContain('00000000-0000-4000-9000-800000000002'); // Fermentis
+      expect(producerIds).toContain('00000000-0000-4000-9000-800000000003'); // Lallemand
+      expect(producerIds).toContain('00000000-0000-4000-9000-800000000004'); // Imperial Yeast
     });
 
     it('uses valid flocculation enum values when set', () => {

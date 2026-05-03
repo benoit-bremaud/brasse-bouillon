@@ -53,10 +53,10 @@ export class MiscTemplateOrmEntity {
   @Column({ type: 'varchar', length: 120, nullable: false, unique: true })
   name: string;
 
-  @Column({ type: 'varchar', length: 32, nullable: false })
+  @Column({ type: 'varchar', length: 32, enum: MiscType, nullable: false })
   type: MiscType;
 
-  @Column({ type: 'varchar', length: 32, nullable: false })
+  @Column({ type: 'varchar', length: 32, enum: MiscUseAt, nullable: false })
   use_at: MiscUseAt;
 
   @Column({ type: 'real', nullable: false })

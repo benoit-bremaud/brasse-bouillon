@@ -77,7 +77,8 @@ export const MISC_TEMPLATES_CATALOG_SEED: readonly MiscTemplateSeed[] = [
       "et abaisse légèrement le pH d'empâtage. Renforce la rondeur et " +
       'le corps des malts (favorise les bières maltées : Munich, ' +
       'Märzen, Stout). Compagnon naturel du Gypse pour ajuster le ' +
-      'ratio sulfate/chlorure cible (cf. catalogue water_profiles).',
+      'ratio sulfate/chlorure cible — voir aussi le catalogue des ' +
+      "profils d'eau de brassage.",
   },
   {
     id: '00000000-0000-4000-9000-700000000002',
@@ -209,8 +210,8 @@ export const MISC_TEMPLATES_CATALOG_SEED: readonly MiscTemplateSeed[] = [
       "brassage. Renforce la sécheresse et l'amertume des houblons " +
       '(profil Burton-on-Trent — IPA, Pale Ales). Le ratio ' +
       'sulfate/chlorure pilote la perception finale : > 2 favorise ' +
-      'les houblons, < 1 favorise les malts (cf. catalogue ' +
-      'water_profiles).',
+      'les houblons, < 1 favorise les malts — voir aussi le ' +
+      "catalogue des profils d'eau de brassage.",
   },
 ];
 

@@ -33,15 +33,27 @@ export class AddMiscTemplatesCatalog1790000000000 implements MigrationInterface 
         "use_for"           varchar(120),
         "notes"             text,
         "created_at"        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at"        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+        "updated_at"        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "CHK_misc_templates_type"
+          CHECK ("type" IN ('spice', 'fining', 'water_agent', 'herb', 'flavor', 'other')),
+        CONSTRAINT "CHK_misc_templates_use_at"
+          CHECK ("use_at" IN ('mash', 'boil', 'primary', 'secondary', 'bottling'))
       )
     `);
     await queryRunner.query(
       `CREATE UNIQUE INDEX "IDX_misc_templates_name" ON "misc_templates" ("name")`,
     );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_misc_templates_type" ON "misc_templates" ("type")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_misc_templates_use_at" ON "misc_templates" ("use_at")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP INDEX "IDX_misc_templates_use_at"`);
+    await queryRunner.query(`DROP INDEX "IDX_misc_templates_type"`);
     await queryRunner.query(`DROP INDEX "IDX_misc_templates_name"`);
     await queryRunner.query(`DROP TABLE "misc_templates"`);
   }

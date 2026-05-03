@@ -36,10 +36,16 @@ export class AddMashCatalog1787000000000 implements MigrationInterface {
         "equip_adjust"        boolean NOT NULL DEFAULT 0,
         "notes"               text,
         "created_at"          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at"          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT "UQ_mash_profiles_name" UNIQUE ("name")
+        "updated_at"          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    // Explicit named UNIQUE INDEX on name — matches the convention
+    // used by IDX_styles_name, IDX_hops_name, IDX_yeasts_name, etc.
+    // (kept consistent so an operator scanning the schema sees the
+    // same index naming pattern across all catalogues).
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "IDX_mash_profiles_name" ON "mash_profiles" ("name")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "mash_steps" (
@@ -82,6 +88,7 @@ export class AddMashCatalog1787000000000 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "IDX_mash_steps_type"`);
     await queryRunner.query(`DROP INDEX "IDX_mash_steps_profile"`);
     await queryRunner.query(`DROP TABLE "mash_steps"`);
+    await queryRunner.query(`DROP INDEX "IDX_mash_profiles_name"`);
     await queryRunner.query(`DROP TABLE "mash_profiles"`);
   }
 }

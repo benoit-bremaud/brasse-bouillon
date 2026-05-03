@@ -16,16 +16,17 @@ import {
 import { JwtAuthGuard } from '../../../auth/guards/jwt.guard';
 import { MashCatalogService } from '../services/mash-catalog.service';
 import { MashProfileDto } from '../dtos/mash-profile.dto';
+import { MashProfileSummaryDto } from '../dtos/mash-profile-summary.dto';
 
 /**
  * Read-only HTTP surface for the mash profile catalogue. Two
- * endpoints:
- *   GET /catalog/mash-profiles         → list (no steps, lean)
- *   GET /catalog/mash-profiles/:id     → single profile + steps
+ * endpoints with different response shapes:
+ *   GET /catalog/mash-profiles         → MashProfileSummaryDto[] (no steps, ~10x lighter)
+ *   GET /catalog/mash-profiles/:id     → MashProfileDto (full profile + ordered steps)
  *
- * Steps are intentionally omitted from the list response to keep
- * payloads lean for the picker UI. Fetch the full tree (profile +
- * ordered steps) via `:id`.
+ * The list endpoint returns the **summary** DTO (id, name, notes,
+ * timestamps only). Fetch the full tree (profile + ordered steps)
+ * via `:id` when the user opens the detail view.
  *
  * Write endpoints (POST / PATCH / DELETE) are intentionally absent
  * — the catalogue is operator-curated reference data. An admin
@@ -41,14 +42,12 @@ export class MashCatalogController {
 
   @Get()
   @ApiOperation({
-    summary: 'List the mash profile catalogue entries (steps omitted)',
+    summary: 'List the mash profile catalogue entries (summary, no steps)',
   })
-  @ApiOkResponse({ type: MashProfileDto, isArray: true })
-  async list(): Promise<MashProfileDto[]> {
+  @ApiOkResponse({ type: MashProfileSummaryDto, isArray: true })
+  async list(): Promise<MashProfileSummaryDto[]> {
     const rows = await this.service.list();
-    // Even when steps aren't loaded, MashProfileDto.fromEntity
-    // gracefully renders an empty array via `entity.steps ?? []`.
-    return rows.map((row) => MashProfileDto.fromEntity(row));
+    return rows.map((row) => MashProfileSummaryDto.fromEntity(row));
   }
 
   @Get(':id')

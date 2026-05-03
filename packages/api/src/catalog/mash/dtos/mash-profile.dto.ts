@@ -4,11 +4,16 @@ import { MashProfileOrmEntity } from '../entities/mash-profile.orm.entity';
 import { MashStepDto } from './mash-step.dto';
 
 /**
- * Read-only response DTO for a mash profile. Bundles the parent
- * profile fields with its ordered steps (1:N relation). The list
- * endpoint omits the steps array (use `getById` for the full tree)
- * to keep the list payload lean — see `MashProfileSummaryDto` for
- * the lighter shape consumed by the picker UI.
+ * Read-only response DTO for a mash profile **detail** endpoint
+ * (`GET /catalog/mash-profiles/:id`). Bundles the parent profile
+ * fields with its ordered steps (1:N relation). Steps are sorted
+ * by `step_index` ASC at the DTO layer so the UI can render them
+ * in execution order regardless of how TypeORM returned them.
+ *
+ * The list endpoint (`GET /catalog/mash-profiles`) returns the
+ * lighter `MashProfileSummaryDto` instead — the picker UI doesn't
+ * need the step tree, and shipping it on every list response
+ * would inflate the payload ~10x.
  */
 export class MashProfileDto {
   @ApiProperty({ format: 'uuid' })

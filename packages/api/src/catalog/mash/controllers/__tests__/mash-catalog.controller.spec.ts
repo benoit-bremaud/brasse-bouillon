@@ -86,7 +86,7 @@ describe('MashCatalogController', () => {
   });
 
   describe('GET /catalog/mash-profiles', () => {
-    it('happy: returns the full list mapped to DTOs (steps empty in list)', async () => {
+    it('happy: returns the list mapped to MashProfileSummaryDto (no steps field)', async () => {
       const listSpy = jest.spyOn(service, 'list').mockResolvedValue([
         buildProfile({ id: ID_SINGLE_INFUSION, name: 'Single Infusion' }),
         buildProfile({
@@ -102,8 +102,12 @@ describe('MashCatalogController', () => {
         'Single Infusion',
         'Full Body',
       ]);
-      // List endpoint omits steps — DTO renders empty array.
-      expect(result[0].steps).toEqual([]);
+      // List endpoint returns the lean SummaryDto — no `steps`
+      // field at all (the property doesn't exist on the type).
+      expect(
+        (result[0] as unknown as Record<string, unknown>).steps,
+      ).toBeUndefined();
+      expect(result[0].constructor.name).toBe('MashProfileSummaryDto');
       expect(typeof result[0].created_at).toBe('string');
     });
 

@@ -140,9 +140,14 @@ describe('seedMashCatalog (Issue #708 / #869 — Phase 2 PR #5)', () => {
 
     it('keeps step_index dense (1, 2, 3...) within every profile', () => {
       // Mash steps must form a dense sequence so the UI can iterate
-      // them as `1..steps.length` without gaps.
+      // them as `1..steps.length` without gaps. Numeric comparator
+      // is mandatory — Array.sort() defaults to lexicographic order
+      // ('10' < '2'), which would mask gaps once a profile reaches
+      // 10+ steps.
       for (const profile of MASH_CATALOG_SEED) {
-        const indexes = profile.steps.map((s) => s.step_index).sort();
+        const indexes = profile.steps
+          .map((s) => s.step_index)
+          .sort((a, b) => a - b);
         for (let i = 0; i < indexes.length; i += 1) {
           expect(indexes[i]).toBe(i + 1);
         }

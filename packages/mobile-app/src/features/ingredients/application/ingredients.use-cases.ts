@@ -1,17 +1,59 @@
 import {
-  getIngredientDetailsApi,
-  listIngredientCategoriesSummaryApi,
-  listIngredientsByCategoryApi,
-} from "@/features/ingredients/data/ingredients.api";
+  HopProduct,
+  HopSpecGroup,
+} from "@/features/ingredients/domain/hop.types";
 import {
   Ingredient,
   IngredientCategory,
   IngredientCategorySummary,
   IngredientFilters,
 } from "@/features/ingredients/domain/ingredient.types";
+import {
+  MaltProduct,
+  MaltSpecGroup,
+} from "@/features/ingredients/domain/malt.types";
+import {
+  YeastProduct,
+  YeastSpecGroup,
+} from "@/features/ingredients/domain/yeast.types";
 
 import { dataSource } from "@/core/data/data-source";
 import { demoIngredients, demoMalts } from "@/mocks/demo-data";
+import {
+  getHopDetails,
+  listHops,
+} from "@/features/ingredients/application/hops.use-cases";
+import {
+  getMaltDetails,
+  listMalts,
+} from "@/features/ingredients/application/malts.use-cases";
+import {
+  getYeastDetails,
+  listYeasts,
+} from "@/features/ingredients/application/yeasts.use-cases";
+
+/**
+ * Polymorphic ingredient catalogue use-cases for the
+ * `IngredientsScreen` home + `IngredientCategoryScreen` picker.
+ *
+ * Live-mode dispatch (Issue #887): every per-category list/details
+ * call delegates to the dedicated per-category use-case
+ * (`listMalts/Hops/Yeasts` + `getMaltDetails/Hop/Yeast`). Those
+ * use-cases handle their own `dataSource.useDemoData` branching
+ * and consume the real `/catalog/*` endpoints in live mode.
+ *
+ * Demo-mode dispatch (preserved): same as before, the polymorphic
+ * surface reads from `demoIngredients` + `demoMalts` directly so
+ * the soutenance demo path stays untouched.
+ *
+ * The type adapter functions below convert the per-category
+ * domain shapes (`MaltProduct/HopProduct/YeastProduct` with
+ * `specGroups`) to the `Ingredient` union type (with flat
+ * numeric fields). Parsing logic mirrors the per-category
+ * use-case parsers (`getColorEbc`, `getAlphaAcid`,
+ * `getAttenuation`) — substring match on row labels in
+ * English (codebase stays EN until i18n work begins).
+ */
 
 function isIngredientCategory(value: string): value is IngredientCategory {
   const categories: readonly IngredientCategory[] = ["malt", "hop", "yeast"];
@@ -20,6 +62,207 @@ function isIngredientCategory(value: string): value is IngredientCategory {
 
 function normalizeSearch(search?: string): string {
   return search?.trim().toLocaleLowerCase() ?? "";
+}
+
+function parseNumericValue(value: string): number | null {
+  const parsed = Number.parseFloat(value.replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseRangeAverage(value: string): number | null {
+  if (!value.includes("-")) {
+    return parseNumericValue(value);
+  }
+
+  const [minRaw, maxRaw] = value.split("-");
+  const minValue = parseNumericValue(minRaw);
+  const maxValue = parseNumericValue(maxRaw);
+
+  if (minValue === null || maxValue === null) {
+    return null;
+  }
+
+  return (minValue + maxValue) / 2;
+}
+
+function findRowValueByLabel(
+  groups: readonly { rows: readonly { label: string; value: string }[] }[],
+  labelToken: string,
+): string | null {
+  const normalizedToken = labelToken.toLocaleLowerCase();
+  for (const group of groups) {
+    for (const row of group.rows) {
+      if (row.label.toLocaleLowerCase().includes(normalizedToken)) {
+        return row.value;
+      }
+    }
+  }
+
+  return null;
+}
+
+function findRangeFromGroups(
+  groups:
+    | readonly MaltSpecGroup[]
+    | readonly HopSpecGroup[]
+    | readonly YeastSpecGroup[],
+  labelToken: string,
+): { min: number; max: number } | null {
+  const value = findRowValueByLabel(groups, labelToken);
+  if (!value) {
+    return null;
+  }
+
+  if (value.includes("-")) {
+    const [minRaw, maxRaw] = value.split("-");
+    const min = parseNumericValue(minRaw);
+    const max = parseNumericValue(maxRaw);
+    if (min === null || max === null) {
+      return null;
+    }
+    return { min, max };
+  }
+
+  const single = parseNumericValue(value);
+  if (single === null) {
+    return null;
+  }
+  return { min: single, max: single };
+}
+
+function normalizeMaltType(
+  raw?: string,
+): "base" | "caramel" | "roasted" | "specialty" {
+  const normalized = raw?.trim().toLocaleLowerCase() ?? "";
+  if (normalized.includes("caramel") || normalized.includes("crystal")) {
+    return "caramel";
+  }
+  if (normalized.includes("roast") || normalized.includes("chocolate")) {
+    return "roasted";
+  }
+  if (
+    normalized.includes("base") ||
+    normalized.includes("pilsen") ||
+    normalized.includes("pale")
+  ) {
+    return "base";
+  }
+  return "specialty";
+}
+
+function maltToIngredient(malt: MaltProduct): Ingredient {
+  const ebcValue = findRowValueByLabel(malt.specGroups, "color");
+  const ebc = ebcValue ? (parseRangeAverage(ebcValue) ?? 0) : 0;
+  const potentialValue = findRowValueByLabel(
+    malt.specGroups,
+    "potential gravity",
+  );
+  const potentialSg = potentialValue
+    ? (parseRangeAverage(potentialValue) ?? 1.03)
+    : 1.03;
+
+  return {
+    id: malt.id,
+    name: malt.name,
+    category: "malt",
+    maltType: normalizeMaltType(malt.maltType),
+    ebc,
+    potentialSg,
+    maxPercent: 100,
+    origin: malt.originCountry,
+    notes: malt.description,
+  };
+}
+
+function normalizeHopForm(raw?: string): "pellet" | "whole" {
+  const normalized = raw?.trim().toLocaleLowerCase() ?? "";
+  return normalized.includes("leaf") || normalized.includes("whole")
+    ? "whole"
+    : "pellet";
+}
+
+function normalizeHopUse(raw?: string): "bittering" | "aroma" | "dual" {
+  const normalized = raw?.trim().toLocaleLowerCase() ?? "";
+  if (normalized.includes("bittering")) {
+    return "bittering";
+  }
+  if (normalized === "both" || normalized.includes("dual")) {
+    return "dual";
+  }
+  return "aroma";
+}
+
+function hopToIngredient(hop: HopProduct): Ingredient {
+  const alphaValue = findRowValueByLabel(hop.specGroups, "alpha");
+  const alphaAcid = alphaValue ? (parseRangeAverage(alphaValue) ?? 0) : 0;
+  const betaValue = findRowValueByLabel(hop.specGroups, "beta");
+  const betaAcid = betaValue ? (parseRangeAverage(betaValue) ?? 0) : 0;
+
+  return {
+    id: hop.id,
+    name: hop.name,
+    category: "hop",
+    form: normalizeHopForm(undefined),
+    hopUse: normalizeHopUse(hop.hopType),
+    alphaAcid,
+    betaAcid,
+    origin: hop.originCountry,
+    notes: hop.description,
+  };
+}
+
+function normalizeYeastType(
+  raw?: string,
+): "ale" | "lager" | "wheat" | "belgian" {
+  const normalized = raw?.trim().toLocaleLowerCase() ?? "";
+  if (normalized === "lager") {
+    return "lager";
+  }
+  if (normalized === "wheat") {
+    return "wheat";
+  }
+  if (normalized === "wine" || normalized === "champagne") {
+    return "belgian";
+  }
+  return "ale";
+}
+
+function normalizeFlocculation(raw?: string): "low" | "medium" | "high" {
+  const normalized = raw?.trim().toLocaleLowerCase() ?? "";
+  if (normalized === "low") {
+    return "low";
+  }
+  if (normalized === "high" || normalized === "very_high") {
+    return "high";
+  }
+  return "medium";
+}
+
+function yeastToIngredient(yeast: YeastProduct): Ingredient {
+  const attenuationValue = findRowValueByLabel(yeast.specGroups, "attenuation");
+  const attenuationCenter = attenuationValue
+    ? (parseRangeAverage(attenuationValue) ?? 75)
+    : 75;
+  const tempRange =
+    findRangeFromGroups(yeast.specGroups, "temperature") ??
+    ({ min: 18, max: 24 } as const);
+  const flocculationValue = findRowValueByLabel(
+    yeast.specGroups,
+    "flocculation",
+  );
+
+  return {
+    id: yeast.id,
+    name: yeast.name,
+    category: "yeast",
+    yeastType: normalizeYeastType(yeast.yeastType),
+    attenuationMin: Math.max(0, attenuationCenter - 2),
+    attenuationMax: Math.min(100, attenuationCenter + 2),
+    flocculation: normalizeFlocculation(flocculationValue ?? undefined),
+    fermentationMinC: tempRange.min,
+    fermentationMaxC: tempRange.max,
+    notes: yeast.description,
+  };
 }
 
 function applyFilters(
@@ -71,6 +314,37 @@ function getDemoIngredientsByCategory(
   return demoIngredients.filter((item) => item.category === category);
 }
 
+async function listLiveIngredientsByCategory(
+  category: IngredientCategory,
+): Promise<Ingredient[]> {
+  if (category === "malt") {
+    const malts = await listMalts();
+    return malts.map(maltToIngredient);
+  }
+  if (category === "hop") {
+    const hops = await listHops();
+    return hops.map(hopToIngredient);
+  }
+  const yeasts = await listYeasts();
+  return yeasts.map(yeastToIngredient);
+}
+
+async function getLiveIngredientDetails(
+  category: IngredientCategory,
+  ingredientId: string,
+): Promise<Ingredient | null> {
+  if (category === "malt") {
+    const malt = await getMaltDetails(ingredientId);
+    return malt ? maltToIngredient(malt) : null;
+  }
+  if (category === "hop") {
+    const hop = await getHopDetails(ingredientId);
+    return hop ? hopToIngredient(hop) : null;
+  }
+  const yeast = await getYeastDetails(ingredientId);
+  return yeast ? yeastToIngredient(yeast) : null;
+}
+
 export async function listIngredientCategoriesSummary(): Promise<
   IngredientCategorySummary[]
 > {
@@ -81,10 +355,6 @@ export async function listIngredientCategoriesSummary(): Promise<
     //   • Malts list → `listMalts()` → demoMalts (10 items)
     //   • Hops list → `listIngredientsByCategory("hop")` → demoIngredients (4 items)
     //   • Yeasts list → `listIngredientsByCategory("yeast")` → demoIngredients (4 items)
-    //
-    // TODO: once malts / hops / yeasts lists converge on a single
-    // source-of-truth (see B-22 ingredients catalogue rework), this
-    // per-category dispatch can be simplified.
     return [
       { category: "malt", count: demoMalts.length },
       {
@@ -99,7 +369,20 @@ export async function listIngredientCategoriesSummary(): Promise<
     ];
   }
 
-  return listIngredientCategoriesSummaryApi();
+  // Live mode: count from the per-category catalogue endpoints
+  // (the same source `listIngredientsByCategory` consumes below),
+  // so the Ingredients home counter stays in sync with the list
+  // screens.
+  const [malts, hops, yeasts] = await Promise.all([
+    listMalts(),
+    listHops(),
+    listYeasts(),
+  ]);
+  return [
+    { category: "malt", count: malts.length },
+    { category: "hop", count: hops.length },
+    { category: "yeast", count: yeasts.length },
+  ];
 }
 
 export async function listIngredientsByCategory(
@@ -111,7 +394,7 @@ export async function listIngredientsByCategory(
     return applyFilters(categoryItems, category, filters);
   }
 
-  const categoryItems = await listIngredientsByCategoryApi(category);
+  const categoryItems = await listLiveIngredientsByCategory(category);
   return applyFilters(categoryItems, category, filters);
 }
 
@@ -138,5 +421,5 @@ export async function getIngredientDetails(
     );
   }
 
-  return getIngredientDetailsApi(category, ingredientId);
+  return getLiveIngredientDetails(category, ingredientId);
 }

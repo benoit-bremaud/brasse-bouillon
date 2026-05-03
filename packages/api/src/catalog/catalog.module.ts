@@ -1,3 +1,4 @@
+import { FermentableModule } from './fermentable/fermentable.module';
 import { HopModule } from './hop/hop.module';
 import { Module } from '@nestjs/common';
 
@@ -14,6 +15,6 @@ import { Module } from '@nestjs/common';
  * sub-module dependencies are explicit at the consumer side.
  */
 @Module({
-  imports: [HopModule],
+  imports: [HopModule, FermentableModule],
 })
 export class CatalogModule {}

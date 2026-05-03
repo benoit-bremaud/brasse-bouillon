@@ -5,11 +5,24 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-04
+
+### PR #906 merged (`1e195ab`) — refactor(mobile/ingredients): consume `GET /catalog/*` endpoints
+
+- Closes Issue #887. First mobile-side consumer of the 9 catalogue endpoints shipped 2026-05-03 (PRs #888 → #902). Replaces the legacy recipe-crawl fallback (`ingredients.api.ts` — N+1 queries on `/recipes/*/{hops,fermentables,yeasts}` with hardcoded `betaAcid: 0` and synthetic `hop-citra` IDs) by per-category api modules calling `/catalog/{hops|fermentables|yeasts|misc-templates}` with real UUIDs.
+- 5 api modules touched: `hops.api.ts` rewritten, `malts.api.ts` rewritten (mobile keeps "malt" terminology, API table is `fermentables`), `yeasts.api.ts` rewritten (post #905 cleanup — no more `laboratory`, `product_id` → `product_code`), new `misc.api.ts` (currently unwired pending picker UX in issue #624), `ingredients.api.ts` deleted.
+- `application/ingredients.use-cases.ts` rewritten to delegate the polymorphic surface (`listIngredientsByCategory`, `getIngredientDetails`, `listIngredientCategoriesSummary`) to the per-category use-cases (`listMalts/Hops/Yeasts` + `getMaltDetails/Hop/Yeast`). Demo-mode dispatch (`dataSource.useDemoData` → `demoIngredients`/`demoMalts`) preserved untouched. 3 type-adapter functions (`maltToIngredient`/`hopToIngredient`/`yeastToIngredient`) convert per-category Product shapes (with `specGroups`) to the `Ingredient` union.
+- Cold load: 3 requests (one per category) instead of `1 + 3N` recipe crawls. Real UUIDs propagate end-to-end.
+- 6 commits on the branch over ~3 hours of iterative review cycles. **10 reviewer comments addressed inline** (1 Codex P1 caught twice — accent-on-label parsing breakage + recipe-crawl regression — and 8 Copilot — DTO drift, synthetic ID propagation, premature deprecation, dead-code mention, missing docblock, code smell). Sonar coverage gate cleared in 3 successive pushes (39.5% → 72.2% → ≥80%) by adding 4 api spec files + parametric adapter coverage tests (+53 tests total — 682 → 735).
+- **Mobile post-Phase 3 follow-up sequence** continues: distributors #901 (boutique foundation), Recipe → catalogue FK refactor, mobile Académie BJCP #892, mobile picker UX #624 (which will wire `IngredientCategory.misc` and consume the `misc.api.ts` shipped here).
+
+---
+
 ## 2026-05-03
 
-### Catalogue refactor — Phases 1-3 shipped in one day (#708 / #869)
+### Catalogue refactor — Phases 1-3 + producers + cleanup shipped in one day (#708 / #869)
 
-- 8 immutable reference catalogues merged to `main` between 02:00 and 18:16 UTC (PR #888 → #899), all on `packages/api`. Each PR follows the same 12-file pattern: entity + DTO + service + controller + module + migration + seed + 3 specs (service/controller/seed) + runner script + wiring updates to `catalog.module.ts` and `typeorm.config.ts`. The 9th PR #902 (producers + 5 catalogue FKs) lands at 19:55 UTC and closes the cross-catalogue producer dimension.
+- 8 immutable reference catalogues merged to `main` between 02:00 and 18:16 UTC (PR #888 → #899), all on `packages/api`. Each PR follows the same 12-file pattern: entity + DTO + service + controller + module + migration + seed + 3 specs (service/controller/seed) + runner script + wiring updates to `catalog.module.ts` and `typeorm.config.ts`. The 9th PR #902 (producers + 5 catalogue FKs) lands at 19:55 UTC and closes the cross-catalogue producer dimension. The 10th PR #905 (yeast cleanup, 20:56 UTC) closes the dette deferred from #902's mode-prudent first cut. PR #906 ships at 01:41 UTC on 2026-05-04 — first mobile consumer of the new endpoints (see entry above).
 - **Decisions** locked across the series:
   - `*CatalogModule` suffix (e.g. `WaterCatalogModule`, `EquipmentCatalogModule`, `ProducerCatalogModule`) to avoid class-name collisions with existing user-owned modules — convention adopted on PR #894 after Copilot caught the `EquipmentModule` collision risk, extended to `*CatalogService` / `*CatalogController` after Copilot caught the same drift on PR #902.
   - `assertCommonCatalogueSeederBehaviours` shared test helper at `src/database/seeds/seed-test-utils.ts` — covers the 4 standard scenarios (happy / sad / mixed / override-list) so each catalogue spec only carries its own invariants. Added on PR #891 to clear SonarCloud's new-code duplication gate.
@@ -17,6 +30,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
   - Notes columns kept French (UI-facing per `feedback_ui_french_only`); `use_for` / category metadata stays English (BeerXML provenance).
   - **Producer ≠ Distributor** (PR #902): producers carry the brand owner (1 product = 1 producer, FK 1:1 on catalogues). The boutique flow (1 product = N distributors) is reserved for issue #901 (M:N junctions) and will be refined when the boutique work starts.
 - **Scope post Phase 3**: umbrella issues #708 / #869 closed automatically by PR #899. Open follow-ups now tracked separately — yeast cleanup tiny PR (drop `laboratory` + rename `product_id` → `product_code` after picker UX validation, deferred from PR #902's mode-prudent scope), distributors #901, Recipe-entity FK refactor, mobile ingredient picker refactor #887.
+
+### PR #905 merged (`2aec87b`) — refactor(catalog/yeast): drop legacy `laboratory` + rename `product_id` to `product_code`
+
+- Closes Issue #904. Tiny cleanup PR that closes the dette technique deliberately deferred from PR #902's mode-prudent first cut. Now that `producer_id` FK has shipped and the picker UX can rely on it, the legacy yeast columns can be retired.
+- Migration 1792 (data + schema): backfills `producer_id` on existing yeast rows by SQL lookup against `producers.name` (verbatim match — names in PR #902 seed were chosen for this exact lookup). Then `DROP COLUMN laboratory` + `RENAME COLUMN product_id TO product_code`. SQLite 3.35+ DROP COLUMN, better-sqlite3 bundles 3.42+.
+- Two defensive layers added after Codex P1 catch: (1) `INSERT OR IGNORE` the 5 essential laboratory producers (Wyeast Labs / White Labs / Fermentis / Lallemand / Imperial Yeast) at the top of the migration so the join never returns NULL on an upgraded DB where the producers seed hasn't been (re-)run; (2) `SELECT COUNT WHERE laboratory IS NOT NULL AND producer_id IS NULL` assertion BEFORE the drop — fail-fast if any orphan remains. Same `INSERT OR IGNORE` pattern mirrored in the yeast seed loader (Copilot catch, separate concern from the migration).
+- Yeast entity drops `@Index(['laboratory'])` + `laboratory` column + renames `product_id` → `product_code`. Yeast DTO drops `laboratory` field + renames `product_id` → `product_code`. 20 seeded yeasts get their `producer_id` populated via the migration backfill (Wyeast Labs UUID for the 1056 / 1084 / 1332 / 2565 / 3068 / 3711 / 3787 / 1318 entries, etc.).
+- 3 commits: initial drop+rename + Codex P1 fix (self-seed migration) + Copilot fix (seed self-bootstraps via `repository.query()`, helper `buildRepoMock` extended with `query` jest.fn).
+- 605/607 tests still green (no regression), lint + build clean.
 
 ### PR #902 merged (`977610c`) — feat(catalog/producer): producers reference table + producer_id FK on 5 catalogues
 

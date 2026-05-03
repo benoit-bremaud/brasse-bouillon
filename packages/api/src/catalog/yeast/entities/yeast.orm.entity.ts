@@ -113,6 +113,19 @@ export class YeastOrmEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
+  /**
+   * Optional FK to the unified `producers` reference table
+   * (Issue #900) — the laboratory that brands this strain
+   * (Wyeast Labs, White Labs, Fermentis, Lallemand, Imperial
+   * Yeast). Mode-prudent first cut: this column is added
+   * ALONGSIDE the existing `laboratory` varchar (PR #890),
+   * not in replacement. The cleanup PR (drop `laboratory`,
+   * rename `product_id` → `product_code`) ships separately
+   * once picker UX is validated. Nullable + ON DELETE SET NULL.
+   */
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  producer_id: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

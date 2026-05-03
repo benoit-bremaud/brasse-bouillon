@@ -96,6 +96,17 @@ export class EquipmentTemplateOrmEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
+  /**
+   * Optional FK to the unified `producers` reference table
+   * (Issue #900) — the equipment manufacturer (Grainfather/
+   * iMake, Klarstein, Anvil Brewing). Each equipment template
+   * has at most one manufacturer (1:1 relationship).
+   * Nullable + ON DELETE SET NULL — the kitchen-starter
+   * Casserole 5L for instance has no specific manufacturer.
+   */
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  producer_id: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

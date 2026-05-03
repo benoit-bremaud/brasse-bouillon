@@ -74,6 +74,16 @@ export class MiscTemplateOrmEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
+  /**
+   * Optional FK to the unified `producers` reference table
+   * (Issue #900). Most miscs have a single producer (Servomyces
+   * = Lallemand, Whirlfloc = Kerry Group), commodity items
+   * (lactose, coriandre) leave it NULL. Nullable + ON DELETE
+   * SET NULL.
+   */
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  producer_id: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

@@ -91,6 +91,18 @@ export class HopOrmEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
+  /**
+   * Optional FK to the unified `producers` reference table
+   * (Issue #900). Identifies the brand owner — for trademarked
+   * varieties (Citra, Mosaic, Galaxy) this is the unique
+   * producer; for open varieties (Cascade, Saaz) this is the
+   * curated default. Nullable so legacy/future entries without
+   * an identified producer remain valid. ON DELETE SET NULL so
+   * deleting a producer never cascades onto the catalogue row.
+   */
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  producer_id: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

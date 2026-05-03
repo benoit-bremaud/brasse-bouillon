@@ -12,8 +12,9 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * naming split avoids the kind of class-name collision that
  * PR #894 caught and fixed for the water catalogue.
  *
- * Seeded with 8 entries (2 BeerXML verbatim from
- * libraries/equipment.xml + 6 popular modern setups).
+ * Seeded with 9 entries (1 Brasse-Bouillon original kitchen
+ * starter + 2 BeerXML verbatim from libraries/equipment.xml +
+ * 6 popular modern setups).
  */
 export class AddEquipmentTemplatesCatalog1789000000000 implements MigrationInterface {
   name = 'AddEquipmentTemplatesCatalog1789000000000';

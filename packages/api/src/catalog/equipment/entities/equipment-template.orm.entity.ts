@@ -8,11 +8,12 @@ import {
 
 /**
  * Immutable reference catalogue of homebrew equipment templates
- * (Issue #708 / #869, Phase 3 PR #7). Seeded with 8 entries —
- * the 2 BeerXML 1.0 canonical equipment profiles (verbatim from
- * `libraries/equipment.xml`) plus 6 popular modern setups
- * (BIAB 20/30L, Grainfather G30, Klarstein Brauheld Pro,
- * Anvil Foundry, 3-Vessel HERMS).
+ * (Issue #708 / #869, Phase 3 PR #7). Seeded with 9 entries —
+ * a Brasse-Bouillon original kitchen starter (5L casserole,
+ * extract brewing, no investment), the 2 BeerXML 1.0 canonical
+ * equipment profiles (verbatim from `libraries/equipment.xml`),
+ * plus 6 popular modern setups (BIAB 20/30L, Grainfather G30,
+ * Klarstein Brauheld Pro, Anvil Foundry, 3-Vessel HERMS).
  *
  * **Naming**: the table is called `equipment_templates` (not
  * `equipment_profiles`) because `equipment_profiles` already

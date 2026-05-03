@@ -1,6 +1,6 @@
 /**
  * One-shot script to seed the `equipment_templates` reference
- * catalogue with the 8 curated entries from
+ * catalogue with the 9 curated entries from
  * `EQUIPMENT_TEMPLATES_CATALOG_SEED` against the local dev
  * database (Issue #708 / #869, Phase 3 PR #7).
  *

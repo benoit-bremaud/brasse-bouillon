@@ -4,13 +4,23 @@ import {
   listIngredientsByCategory,
 } from "@/features/ingredients/application/ingredients.use-cases";
 import {
-  getIngredientDetailsApi,
-  listIngredientCategoriesSummaryApi,
-  listIngredientsByCategoryApi,
-} from "@/features/ingredients/data/ingredients.api";
-import { demoIngredients, demoMalts } from "@/mocks/demo-data";
+  getHopDetails,
+  listHops,
+} from "@/features/ingredients/application/hops.use-cases";
+import {
+  getMaltDetails,
+  listMalts,
+} from "@/features/ingredients/application/malts.use-cases";
+import {
+  getYeastDetails,
+  listYeasts,
+} from "@/features/ingredients/application/yeasts.use-cases";
 
+import { HopProduct } from "@/features/ingredients/domain/hop.types";
+import { MaltProduct } from "@/features/ingredients/domain/malt.types";
+import { YeastProduct } from "@/features/ingredients/domain/yeast.types";
 import { dataSource } from "@/core/data/data-source";
+import { demoIngredients, demoMalts } from "@/mocks/demo-data";
 
 jest.mock("@/core/data/data-source", () => ({
   dataSource: {
@@ -18,39 +28,116 @@ jest.mock("@/core/data/data-source", () => ({
   },
 }));
 
-jest.mock("@/features/ingredients/data/ingredients.api", () => ({
-  listIngredientCategoriesSummaryApi: jest.fn(),
-  listIngredientsByCategoryApi: jest.fn(),
-  getIngredientDetailsApi: jest.fn(),
+jest.mock("@/features/ingredients/application/malts.use-cases", () => ({
+  listMalts: jest.fn(),
+  getMaltDetails: jest.fn(),
 }));
 
-const mockedListIngredientCategoriesSummaryApi =
-  listIngredientCategoriesSummaryApi as jest.MockedFunction<
-    typeof listIngredientCategoriesSummaryApi
-  >;
-const mockedListIngredientsByCategoryApi =
-  listIngredientsByCategoryApi as jest.MockedFunction<
-    typeof listIngredientsByCategoryApi
-  >;
-const mockedGetIngredientDetailsApi =
-  getIngredientDetailsApi as jest.MockedFunction<
-    typeof getIngredientDetailsApi
-  >;
+jest.mock("@/features/ingredients/application/hops.use-cases", () => ({
+  listHops: jest.fn(),
+  getHopDetails: jest.fn(),
+}));
+
+jest.mock("@/features/ingredients/application/yeasts.use-cases", () => ({
+  listYeasts: jest.fn(),
+  getYeastDetails: jest.fn(),
+}));
+
+const mockedListMalts = listMalts as jest.MockedFunction<typeof listMalts>;
+const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
+  typeof getMaltDetails
+>;
+const mockedListHops = listHops as jest.MockedFunction<typeof listHops>;
+const mockedGetHopDetails = getHopDetails as jest.MockedFunction<
+  typeof getHopDetails
+>;
+const mockedListYeasts = listYeasts as jest.MockedFunction<typeof listYeasts>;
+const mockedGetYeastDetails = getYeastDetails as jest.MockedFunction<
+  typeof getYeastDetails
+>;
+
+function buildHopProduct(overrides: Partial<HopProduct> = {}): HopProduct {
+  return {
+    id: "hop-citra-uuid",
+    slug: "citra",
+    name: "Citra",
+    hopType: "aroma",
+    specGroups: [
+      {
+        id: "hop-acids-group",
+        title: "Acids & stability",
+        rows: [
+          { id: "hop-alpha-acid", label: "Alpha", value: "12", unit: "%" },
+        ],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function buildMaltProduct(overrides: Partial<MaltProduct> = {}): MaltProduct {
+  return {
+    id: "malt-pilsen-uuid",
+    slug: "pilsner-malt",
+    name: "Pilsner Malt",
+    maltType: "base",
+    specGroups: [
+      {
+        id: "malt-color-group",
+        title: "Color & yield",
+        rows: [
+          {
+            id: "malt-color-ebc",
+            label: "Color (EBC)",
+            value: "3",
+            unit: "EBC",
+          },
+        ],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function buildYeastProduct(
+  overrides: Partial<YeastProduct> = {},
+): YeastProduct {
+  return {
+    id: "yeast-us05-uuid",
+    slug: "safale-us-05",
+    name: "Safale US-05",
+    yeastType: "ale",
+    specGroups: [
+      {
+        id: "yeast-fermentation-group",
+        title: "Fermentation",
+        rows: [
+          {
+            id: "yeast-attenuation",
+            label: "Attenuation",
+            value: "78",
+            unit: "%",
+          },
+        ],
+      },
+    ],
+    ...overrides,
+  };
+}
 
 describe("ingredients use-cases", () => {
   beforeEach(() => {
     dataSource.useDemoData = true;
-    mockedListIngredientCategoriesSummaryApi.mockReset();
-    mockedListIngredientsByCategoryApi.mockReset();
-    mockedGetIngredientDetailsApi.mockReset();
+    mockedListMalts.mockReset();
+    mockedGetMaltDetails.mockReset();
+    mockedListHops.mockReset();
+    mockedGetHopDetails.mockReset();
+    mockedListYeasts.mockReset();
+    mockedGetYeastDetails.mockReset();
   });
 
   describe("listIngredientCategoriesSummary", () => {
     // Happy path — regression guard for issue #623.
-    // The counter must match the source each category list SCREEN consumes:
-    //   malt → demoMalts (via listMalts)
-    //   hop → demoIngredients (via listIngredientsByCategory)
-    //   yeast → demoIngredients (via listIngredientsByCategory)
     it("returns demo counts aligned with each category's displayed source", async () => {
       const summary = await listIngredientCategoriesSummary();
 
@@ -65,23 +152,24 @@ describe("ingredients use-cases", () => {
           .length,
       });
 
-      expect(mockedListIngredientCategoriesSummaryApi).not.toHaveBeenCalled();
+      expect(mockedListMalts).not.toHaveBeenCalled();
+      expect(mockedListHops).not.toHaveBeenCalled();
+      expect(mockedListYeasts).not.toHaveBeenCalled();
     });
 
-    // Sad path — API failure should propagate (not be swallowed) so the
-    // screen can render its error state.
-    it("propagates API errors in live mode instead of falling back silently", async () => {
+    // Sad path — API failure should propagate.
+    it("propagates per-category errors in live mode instead of falling back silently", async () => {
       dataSource.useDemoData = false;
-      const apiError = new Error("upstream 500");
-      mockedListIngredientCategoriesSummaryApi.mockRejectedValue(apiError);
+      mockedListMalts.mockResolvedValue([]);
+      mockedListHops.mockResolvedValue([]);
+      mockedListYeasts.mockRejectedValue(new Error("upstream 500"));
 
       await expect(listIngredientCategoriesSummary()).rejects.toThrow(
         "upstream 500",
       );
-      expect(mockedListIngredientCategoriesSummaryApi).toHaveBeenCalledTimes(1);
     });
 
-    // Edge case — always returns the 3 expected categories (never drops one).
+    // Edge case — always returns the 3 expected categories.
     it("always includes all three categories (malt, hop, yeast)", async () => {
       const summary = await listIngredientCategoriesSummary();
 
@@ -103,7 +191,7 @@ describe("ingredients use-cases", () => {
     });
   });
 
-  it("filters malts by search and EBC range", async () => {
+  it("filters malts by search and EBC range (demo mode)", async () => {
     const results = await listIngredientsByCategory("malt", {
       search: "malt",
       ebcMin: 5,
@@ -119,7 +207,7 @@ describe("ingredients use-cases", () => {
     ).toBe(true);
   });
 
-  it("filters hops by minimum alpha acids", async () => {
+  it("filters hops by minimum alpha acids (demo mode)", async () => {
     const results = await listIngredientsByCategory("hop", {
       alphaAcidMin: 10,
     });
@@ -130,7 +218,7 @@ describe("ingredients use-cases", () => {
     ).toBe(true);
   });
 
-  it("returns ingredient details for matching category and id", async () => {
+  it("returns ingredient details for matching category and id (demo mode)", async () => {
     const details = await getIngredientDetails("yeast", "yeast-1");
 
     expect(details).toBeTruthy();
@@ -138,93 +226,312 @@ describe("ingredients use-cases", () => {
     expect(details?.name).toContain("US-05");
   });
 
-  it("returns null when id exists in another category", async () => {
+  it("returns null when id exists in another category (demo mode)", async () => {
     const details = await getIngredientDetails("malt", "hop-1");
 
     expect(details).toBeNull();
-    expect(mockedGetIngredientDetailsApi).not.toHaveBeenCalled();
+    expect(mockedGetMaltDetails).not.toHaveBeenCalled();
   });
 
-  it("uses live categories API when demo data is disabled", async () => {
-    dataSource.useDemoData = false;
-    mockedListIngredientCategoriesSummaryApi.mockResolvedValue([
-      { category: "malt", count: 2 },
-      { category: "hop", count: 1 },
-      { category: "yeast", count: 1 },
-    ]);
+  describe("live mode delegation (Issue #887)", () => {
+    it("delegates the categories summary to the per-category use-cases", async () => {
+      dataSource.useDemoData = false;
+      mockedListMalts.mockResolvedValue([
+        buildMaltProduct(),
+        buildMaltProduct(),
+      ]);
+      mockedListHops.mockResolvedValue([buildHopProduct()]);
+      mockedListYeasts.mockResolvedValue([buildYeastProduct()]);
 
-    const summary = await listIngredientCategoriesSummary();
+      const summary = await listIngredientCategoriesSummary();
 
-    expect(mockedListIngredientCategoriesSummaryApi).toHaveBeenCalledTimes(1);
-    expect(summary).toEqual([
-      { category: "malt", count: 2 },
-      { category: "hop", count: 1 },
-      { category: "yeast", count: 1 },
-    ]);
-  });
+      expect(mockedListMalts).toHaveBeenCalledTimes(1);
+      expect(mockedListHops).toHaveBeenCalledTimes(1);
+      expect(mockedListYeasts).toHaveBeenCalledTimes(1);
+      expect(summary).toEqual([
+        { category: "malt", count: 2 },
+        { category: "hop", count: 1 },
+        { category: "yeast", count: 1 },
+      ]);
+    });
 
-  it("uses live category API and still applies filters", async () => {
-    dataSource.useDemoData = false;
-    mockedListIngredientsByCategoryApi.mockResolvedValue([
-      {
-        id: "hop-citra",
+    it("delegates the hop list to listHops + maps HopProduct to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedListHops.mockResolvedValue([
+        buildHopProduct({
+          id: "hop-citra-uuid",
+          name: "Citra",
+          specGroups: [
+            {
+              id: "hop-acids-group",
+              title: "Acids & stability",
+              rows: [
+                {
+                  id: "hop-alpha-acid",
+                  label: "Alpha",
+                  value: "12",
+                  unit: "%",
+                },
+              ],
+            },
+          ],
+        }),
+        buildHopProduct({
+          id: "hop-saaz-uuid",
+          name: "Saaz",
+          specGroups: [
+            {
+              id: "hop-acids-group",
+              title: "Acids & stability",
+              rows: [
+                {
+                  id: "hop-alpha-acid",
+                  label: "Alpha",
+                  value: "3",
+                  unit: "%",
+                },
+              ],
+            },
+          ],
+        }),
+      ]);
+
+      const results = await listIngredientsByCategory("hop", {
+        search: "cit",
+        alphaAcidMin: 10,
+      });
+
+      expect(mockedListHops).toHaveBeenCalledTimes(1);
+      expect(results).toHaveLength(1);
+      expect(results[0]).toMatchObject({
+        id: "hop-citra-uuid",
         name: "Citra",
         category: "hop",
-        form: "pellet",
-        hopUse: "aroma",
-        alphaAcid: 12,
-        betaAcid: 4,
-      },
-      {
-        id: "hop-saaz",
-        name: "Saaz",
-        category: "hop",
-        form: "whole",
-        hopUse: "aroma",
-        alphaAcid: 3,
-        betaAcid: 4,
-      },
-    ]);
-
-    const results = await listIngredientsByCategory("hop", {
-      search: "cit",
-      alphaAcidMin: 10,
+      });
+      // Live IDs are real UUIDs from the catalogue, not synthetic
+      // `hop-citra` strings — this is the regression guard for the
+      // post Issue #887 cleanup that removed the legacy
+      // `ingredients.api.ts` recipe-crawl path.
+      expect(results[0].id).toBe("hop-citra-uuid");
     });
 
-    expect(mockedListIngredientsByCategoryApi).toHaveBeenCalledWith("hop");
-    expect(results).toHaveLength(1);
-    expect(results[0]).toMatchObject({ id: "hop-citra", name: "Citra" });
+    it("delegates yeast details to getYeastDetails + maps to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedGetYeastDetails.mockResolvedValue(
+        buildYeastProduct({
+          id: "yeast-us05-uuid",
+          name: "Safale US-05",
+        }),
+      );
+
+      const details = await getIngredientDetails("yeast", "yeast-us05-uuid");
+
+      expect(mockedGetYeastDetails).toHaveBeenCalledWith("yeast-us05-uuid");
+      expect(details).toMatchObject({
+        id: "yeast-us05-uuid",
+        name: "Safale US-05",
+        category: "yeast",
+      });
+    });
+
+    it("returns null when ingredient id is empty", async () => {
+      dataSource.useDemoData = false;
+
+      const details = await getIngredientDetails("yeast", "");
+
+      expect(details).toBeNull();
+      expect(mockedGetYeastDetails).not.toHaveBeenCalled();
+    });
   });
 
-  it("uses live ingredient details API when demo data is disabled", async () => {
-    dataSource.useDemoData = false;
-    mockedGetIngredientDetailsApi.mockResolvedValue({
-      id: "yeast-us05",
-      name: "US-05",
-      category: "yeast",
-      yeastType: "ale",
-      attenuationMin: 76,
-      attenuationMax: 80,
-      flocculation: "medium",
-      fermentationMinC: 18,
-      fermentationMaxC: 22,
+  describe("type adapter coverage (live mode)", () => {
+    beforeEach(() => {
+      dataSource.useDemoData = false;
     });
 
-    const details = await getIngredientDetails("yeast", "yeast-us05");
-
-    expect(mockedGetIngredientDetailsApi).toHaveBeenCalledWith(
-      "yeast",
-      "yeast-us05",
+    // ─── maltToIngredient — exercise normalizeMaltType branches ───
+    it.each([
+      ["Caramel 60", "caramel"],
+      ["Crystal 120", "caramel"],
+      ["Roasted Barley", "roasted"],
+      ["Chocolate Malt", "roasted"],
+      ["Pilsner Base", "base"],
+      ["Pale Ale", "base"],
+      ["Acidulated", "specialty"],
+    ] as const)(
+      "maltToIngredient normalizes maltType %s → %s",
+      async (raw, expected) => {
+        mockedListMalts.mockResolvedValue([
+          buildMaltProduct({ maltType: raw }),
+        ]);
+        const [result] = await listIngredientsByCategory("malt");
+        expect(result.category).toBe("malt");
+        if (result.category === "malt") {
+          expect(result.maltType).toBe(expected);
+        }
+      },
     );
-    expect(details).toMatchObject({ id: "yeast-us05", name: "US-05" });
-  });
 
-  it("returns null when ingredient id is empty", async () => {
-    dataSource.useDemoData = false;
+    // ─── maltToIngredient — fallback potential gravity ───
+    it("maltToIngredient falls back to default gravity when missing", async () => {
+      mockedListMalts.mockResolvedValue([buildMaltProduct({ specGroups: [] })]);
+      const [result] = await listIngredientsByCategory("malt");
+      if (result.category === "malt") {
+        expect(result.ebc).toBe(0);
+        expect(result.potentialSg).toBeCloseTo(1.03, 5);
+      }
+    });
 
-    const details = await getIngredientDetails("yeast", "");
+    // ─── hopToIngredient — exercise normalizeHopUse branches ───
+    it.each([
+      ["bittering", "bittering"],
+      ["both", "dual"],
+      ["dual-purpose", "dual"],
+      ["aroma", "aroma"],
+      [undefined, "aroma"],
+    ] as const)(
+      "hopToIngredient normalizes hopType %s → %s",
+      async (raw, expected) => {
+        mockedListHops.mockResolvedValue([buildHopProduct({ hopType: raw })]);
+        const [result] = await listIngredientsByCategory("hop");
+        if (result.category === "hop") {
+          expect(result.hopUse).toBe(expected);
+        }
+      },
+    );
 
-    expect(details).toBeNull();
-    expect(mockedGetIngredientDetailsApi).not.toHaveBeenCalled();
+    // ─── hopToIngredient — exercise normalizeHopForm via specGroups ───
+    it.each([
+      ["pellet", "pellet"],
+      ["leaf", "whole"],
+      ["whole", "whole"],
+    ] as const)(
+      "hopToIngredient reads form '%s' from Format specGroup → %s",
+      async (formValue, expected) => {
+        mockedListHops.mockResolvedValue([
+          buildHopProduct({
+            specGroups: [
+              {
+                id: "hop-format-group",
+                title: "Format",
+                rows: [{ id: "hop-form", label: "Form", value: formValue }],
+              },
+            ],
+          }),
+        ]);
+        const [result] = await listIngredientsByCategory("hop");
+        if (result.category === "hop") {
+          expect(result.form).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — exercise normalizeYeastType branches ───
+    it.each([
+      ["lager", "lager"],
+      ["wheat", "wheat"],
+      ["wine", "belgian"],
+      ["champagne", "belgian"],
+      ["ale", "ale"],
+      [undefined, "ale"],
+    ] as const)(
+      "yeastToIngredient normalizes yeastType %s → %s",
+      async (raw, expected) => {
+        mockedListYeasts.mockResolvedValue([
+          buildYeastProduct({ yeastType: raw }),
+        ]);
+        const [result] = await listIngredientsByCategory("yeast");
+        if (result.category === "yeast") {
+          expect(result.yeastType).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — flocculation parsing ───
+    it.each([
+      ["low", "low"],
+      ["medium", "medium"],
+      ["high", "high"],
+      ["very_high", "high"],
+    ] as const)(
+      "yeastToIngredient parses flocculation '%s' from specGroups → %s",
+      async (flocValue, expected) => {
+        mockedListYeasts.mockResolvedValue([
+          buildYeastProduct({
+            specGroups: [
+              {
+                id: "yeast-fermentation-group",
+                title: "Fermentation",
+                rows: [
+                  {
+                    id: "yeast-flocculation",
+                    label: "Flocculation",
+                    value: flocValue,
+                  },
+                ],
+              },
+            ],
+          }),
+        ]);
+        const [result] = await listIngredientsByCategory("yeast");
+        if (result.category === "yeast") {
+          expect(result.flocculation).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — temperature range parsing ───
+    it("yeastToIngredient parses temperature range from specGroups", async () => {
+      mockedListYeasts.mockResolvedValue([
+        buildYeastProduct({
+          specGroups: [
+            {
+              id: "yeast-fermentation-group",
+              title: "Fermentation",
+              rows: [
+                {
+                  id: "yeast-temperature-range",
+                  label: "Temperature",
+                  value: "15-22",
+                  unit: "°C",
+                },
+              ],
+            },
+          ],
+        }),
+      ]);
+      const [result] = await listIngredientsByCategory("yeast");
+      if (result.category === "yeast") {
+        expect(result.fermentationMinC).toBe(15);
+        expect(result.fermentationMaxC).toBe(22);
+      }
+    });
+
+    // ─── yeastToIngredient — single-value temperature ───
+    it("yeastToIngredient handles a single-value temperature (no range)", async () => {
+      mockedListYeasts.mockResolvedValue([
+        buildYeastProduct({
+          specGroups: [
+            {
+              id: "yeast-fermentation-group",
+              title: "Fermentation",
+              rows: [
+                {
+                  id: "yeast-temperature-range",
+                  label: "Temperature",
+                  value: "20",
+                  unit: "°C",
+                },
+              ],
+            },
+          ],
+        }),
+      ]);
+      const [result] = await listIngredientsByCategory("yeast");
+      if (result.category === "yeast") {
+        expect(result.fermentationMinC).toBe(20);
+        expect(result.fermentationMaxC).toBe(20);
+      }
+    });
   });
 });

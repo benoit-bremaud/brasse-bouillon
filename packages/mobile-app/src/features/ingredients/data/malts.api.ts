@@ -6,156 +6,120 @@ import {
   MaltSpecRow,
 } from "@/features/ingredients/domain/malt.types";
 
-type MaltSpecRowDto = {
-  id?: string;
-  key?: string;
-  label?: string;
-  value?: string | number | null;
-  unit?: string | null;
-};
+import { slugify, toOptionalString } from "./ingredient-api.utils";
 
-type MaltSpecGroupDto = {
-  id?: string;
-  title?: string;
-  rows?: MaltSpecRowDto[];
-};
-
-type MaltDto = {
-  id?: string;
-  slug?: string;
-  name?: string;
-  brand?: string | null;
-  originCountry?: string | null;
-  origin_country?: string | null;
-  maltType?: string | null;
-  malt_type?: string | null;
-  description?: string | null;
-  specGroups?: MaltSpecGroupDto[];
-  spec_groups?: MaltSpecGroupDto[];
-  specs?: Record<string, unknown>;
-  specifications?: Record<string, unknown>;
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+/**
+ * Catalog DTO matching the API entity `FermentableOrmEntity`
+ * (`packages/api/src/catalog/fermentable/entities/fermentable.orm.entity.ts`).
+ * The mobile vocabulary keeps "malt" because the picker UX
+ * speaks to the brewer's mental model (malts are 95% of
+ * fermentables); the API table is named `fermentables` for
+ * BeerXML alignment.
+ */
+interface CatalogFermentableDto {
+  id: string;
+  name: string;
+  type?: string | null;
+  origin?: string | null;
+  color_ebc_typical?: number | null;
+  potential_gravity_typical?: number | null;
+  yield_percent_typical?: number | null;
+  diastatic_power_lintner?: number | null;
+  max_in_batch_percent?: number | null;
+  recommend_mash?: boolean | null;
+  notes?: string | null;
+  producer_id?: string | null;
 }
 
-function toOptionalString(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : undefined;
-}
-
-function toDisplayLabel(rawLabel: string): string {
-  const normalized = rawLabel
-    .trim()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
-
-  return normalized.replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function toDisplayValue(value: unknown): string | null {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? String(value) : null;
-  }
-
-  if (typeof value === "string") {
-    const trimmedValue = value.trim();
-    return trimmedValue.length > 0 ? trimmedValue : null;
-  }
-
-  return null;
-}
-
-function slugify(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function mapSpecRow(
-  dto: MaltSpecRowDto,
-  groupId: string,
-  rowIndex: number,
-): MaltSpecRow | null {
-  const labelFromDto = toOptionalString(dto.label) ?? toOptionalString(dto.key);
-  const value = toDisplayValue(dto.value);
-
-  if (!labelFromDto || !value) {
+function formatNumber(value: number | null | undefined): string | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
     return null;
   }
 
-  return {
-    id: toOptionalString(dto.id) ?? `${groupId}-row-${rowIndex + 1}`,
-    label: toDisplayLabel(labelFromDto),
-    value,
-    unit: toOptionalString(dto.unit),
-  };
+  return String(value);
 }
 
-function mapSpecGroup(
-  dto: MaltSpecGroupDto,
-  index: number,
-): MaltSpecGroup | null {
-  const title = toOptionalString(dto.title);
-  const rows = (dto.rows ?? [])
-    .map((row, rowIndex) =>
-      mapSpecRow(
-        row,
-        toOptionalString(dto.id) ?? `group-${index + 1}`,
-        rowIndex,
-      ),
-    )
-    .filter((row): row is MaltSpecRow => row !== null);
+function buildMaltSpecGroups(dto: CatalogFermentableDto): MaltSpecGroup[] {
+  const colourRows: MaltSpecRow[] = [];
 
-  if (!title || rows.length === 0) {
-    return null;
+  const ebcValue = formatNumber(dto.color_ebc_typical);
+  if (ebcValue) {
+    // Label MUST contain "color" (case-insensitive) — the
+    // malts use-case `getColorEbc` parses this row to apply
+    // EBC min/max filters. Codex P1 catch on PR #906 review.
+    colourRows.push({
+      id: "malt-color-ebc",
+      label: "Color (EBC)",
+      value: ebcValue,
+      unit: "EBC",
+    });
   }
 
-  return {
-    id: toOptionalString(dto.id) ?? `group-${index + 1}`,
-    title,
-    rows,
-  };
-}
-
-function mapFallbackSpecs(specs: Record<string, unknown>): MaltSpecGroup[] {
-  const rows = Object.entries(specs)
-    .map(([rawKey, rawValue], index) => {
-      const value = toDisplayValue(rawValue);
-
-      if (!value) {
-        return null;
-      }
-
-      return {
-        id: `fallback-spec-row-${index + 1}`,
-        label: toDisplayLabel(rawKey),
-        value,
-      } satisfies MaltSpecRow;
-    })
-    .filter((row): row is MaltSpecRow => row !== null);
-
-  if (rows.length === 0) {
-    return [];
+  const gravityValue = formatNumber(dto.potential_gravity_typical);
+  if (gravityValue) {
+    colourRows.push({
+      id: "malt-potential-gravity",
+      label: "Potential gravity",
+      value: gravityValue,
+    });
   }
 
-  return [
-    {
-      id: "fallback-specifications",
-      title: "Specifications",
-      rows,
-    },
-  ];
+  const yieldValue = formatNumber(dto.yield_percent_typical);
+  if (yieldValue) {
+    colourRows.push({
+      id: "malt-yield",
+      label: "Yield",
+      value: yieldValue,
+      unit: "%",
+    });
+  }
+
+  const groups: MaltSpecGroup[] = [];
+
+  if (colourRows.length > 0) {
+    groups.push({
+      id: "malt-color-group",
+      title: "Color & yield",
+      rows: colourRows,
+    });
+  }
+
+  const enzymesRows: MaltSpecRow[] = [];
+
+  const diastaticValue = formatNumber(dto.diastatic_power_lintner);
+  if (diastaticValue) {
+    enzymesRows.push({
+      id: "malt-diastatic-power",
+      label: "Diastatic power",
+      value: diastaticValue,
+      unit: "Lintner",
+    });
+  }
+
+  const maxInBatchValue = formatNumber(dto.max_in_batch_percent);
+  if (maxInBatchValue) {
+    enzymesRows.push({
+      id: "malt-max-in-batch",
+      label: "Max in batch",
+      value: maxInBatchValue,
+      unit: "%",
+    });
+  }
+
+  if (enzymesRows.length > 0) {
+    groups.push({
+      id: "malt-enzymes-group",
+      title: "Enzymes & dosage",
+      rows: enzymesRows,
+    });
+  }
+
+  return groups;
 }
 
-function mapMaltDto(dto: MaltDto): MaltProduct | null {
+function mapCatalogFermentableDto(
+  dto: CatalogFermentableDto,
+): MaltProduct | null {
   const id = toOptionalString(dto.id);
   const name = toOptionalString(dto.name);
 
@@ -163,46 +127,28 @@ function mapMaltDto(dto: MaltDto): MaltProduct | null {
     return null;
   }
 
-  const specGroupDtos =
-    dto.specGroups ?? dto.spec_groups ?? ([] as MaltSpecGroupDto[]);
-  const specGroups = specGroupDtos
-    .map(mapSpecGroup)
-    .filter((group): group is MaltSpecGroup => group !== null);
-
-  if (specGroups.length === 0) {
-    const fallbackSpecsSource =
-      (isRecord(dto.specs) && dto.specs) ||
-      (isRecord(dto.specifications) && dto.specifications) ||
-      null;
-
-    if (fallbackSpecsSource) {
-      specGroups.push(...mapFallbackSpecs(fallbackSpecsSource));
-    }
-  }
-
   return {
     id,
-    slug: toOptionalString(dto.slug) ?? slugify(name),
+    slug: slugify(name),
     name,
-    brand: toOptionalString(dto.brand),
-    originCountry:
-      toOptionalString(dto.originCountry) ??
-      toOptionalString(dto.origin_country),
-    maltType: toOptionalString(dto.maltType) ?? toOptionalString(dto.malt_type),
-    description: toOptionalString(dto.description),
-    specGroups,
+    originCountry: toOptionalString(dto.origin),
+    maltType: toOptionalString(dto.type),
+    description: toOptionalString(dto.notes),
+    specGroups: buildMaltSpecGroups(dto),
   };
 }
 
 export async function listMaltsApi(): Promise<MaltProduct[]> {
-  const response = await request<MaltDto[]>("/malts");
+  const response = await request<CatalogFermentableDto[]>(
+    "/catalog/fermentables",
+  );
 
   if (!Array.isArray(response)) {
     return [];
   }
 
   return response
-    .map(mapMaltDto)
+    .map(mapCatalogFermentableDto)
     .filter((malt): malt is MaltProduct => malt !== null);
 }
 
@@ -214,8 +160,10 @@ export async function getMaltDetailsApi(
   }
 
   try {
-    const response = await request<MaltDto>(`/malts/${maltId}`);
-    return mapMaltDto(response);
+    const response = await request<CatalogFermentableDto>(
+      `/catalog/fermentables/${maltId}`,
+    );
+    return mapCatalogFermentableDto(response);
   } catch (error) {
     if (error instanceof HttpError && error.status === 404) {
       return null;

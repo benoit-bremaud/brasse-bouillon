@@ -414,6 +414,24 @@ export async function seedYeastsCatalog(
   repository: Repository<YeastOrmEntity>,
   yeasts: readonly YeastCatalogSeed[] = YEASTS_CATALOG_SEED,
 ): Promise<SeedYeastsCatalogResult> {
+  // ─── Defensive: ensure the 5 laboratory producers exist before
+  // writing yeast.producer_id FKs. Mirrors migration 1792's
+  // INSERT OR IGNORE pattern so this seed runs cleanly even
+  // without the producers seed having been triggered first
+  // (e.g. someone running `npx ts-node run-yeasts-catalog-seed.ts`
+  // standalone). No-op if the producers seed has already run.
+  // Copilot catch on PR #905 review. ──────────────────────────
+  await repository.query(`
+    INSERT OR IGNORE INTO "producers"
+      ("id", "name", "type", "country")
+    VALUES
+      ('00000000-0000-4000-9000-800000000000', 'Wyeast Labs',     'laboratory', 'US'),
+      ('00000000-0000-4000-9000-800000000001', 'White Labs',      'laboratory', 'US'),
+      ('00000000-0000-4000-9000-800000000002', 'Fermentis',       'laboratory', 'FR'),
+      ('00000000-0000-4000-9000-800000000003', 'Lallemand',       'laboratory', 'CA'),
+      ('00000000-0000-4000-9000-800000000004', 'Imperial Yeast',  'laboratory', 'US')
+  `);
+
   let inserted = 0;
   let updated = 0;
 

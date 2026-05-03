@@ -25,6 +25,11 @@ export type RepoMock = {
   findOne: jest.Mock;
   create: jest.Mock;
   save: jest.Mock;
+  /** Raw SQL escape hatch — used by seeds that bootstrap dependencies
+   * (e.g. yeast seed self-seeds the 5 laboratory producers via
+   * INSERT OR IGNORE before writing producer_id FKs). Other seeds
+   * may leave it untouched. */
+  query: jest.Mock;
 };
 
 /**
@@ -32,12 +37,15 @@ export type RepoMock = {
  * `create` returns its argument unchanged, `save` resolves with the
  * argument it received. `findOne` is left unstubbed — each test
  * configures it explicitly to express the scenario under test.
+ * `query` resolves to undefined by default (sufficient for seeds
+ * using it only for fire-and-forget INSERT OR IGNORE).
  */
 export function buildRepoMock(): RepoMock {
   return {
     findOne: jest.fn(),
     create: jest.fn((input: unknown) => input),
     save: jest.fn((input: unknown) => Promise.resolve(input)),
+    query: jest.fn(() => Promise.resolve(undefined)),
   };
 }
 

@@ -271,7 +271,11 @@ export const YEASTS_CATALOG_SEED: readonly YeastCatalogSeed[] = [
   {
     id: '00000000-0000-4000-9000-20000000000e',
     name: 'Belgian Wit II (WLP410)',
-    type: YeastType.ALE,
+    // Tagged WHEAT (not ALE) per the catalogue rationale: the
+    // WHEAT category exists specifically to cover Witbier and
+    // Hefeweizen strains, so a `?type=wheat` query must surface
+    // both Wyeast 3068 (Hefeweizen) and WLP410 (Witbier).
+    type: YeastType.WHEAT,
     form: YeastForm.LIQUID,
     laboratory: 'White Labs',
     product_id: 'WLP410',

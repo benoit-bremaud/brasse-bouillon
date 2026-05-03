@@ -127,6 +127,21 @@ describe('seedYeastsCatalog (Issue #708 / #869 — Phase 1 PR #3)', () => {
       // when Phase 1 stabilises and we need them for sour recipes.
     });
 
+    it('tags every Witbier and Hefeweizen strain as WHEAT (not ALE)', () => {
+      // The WHEAT enum value exists specifically to cover these two
+      // demo styles. A `GET /catalog/yeasts?type=wheat` query must
+      // surface both — accidentally tagging either as ALE would
+      // hide it from Witbier / Hefeweizen recipe authoring.
+      const witbier = YEASTS_CATALOG_SEED.find(
+        (y) => y.product_id === 'WLP410',
+      );
+      const hefeweizen = YEASTS_CATALOG_SEED.find(
+        (y) => y.product_id === '3068',
+      );
+      expect(witbier?.type).toBe(YeastType.WHEAT);
+      expect(hefeweizen?.type).toBe(YeastType.WHEAT);
+    });
+
     it('keeps every notes value in French (UI-facing convention)', () => {
       for (const yeast of YEASTS_CATALOG_SEED) {
         if (yeast.notes !== null) {

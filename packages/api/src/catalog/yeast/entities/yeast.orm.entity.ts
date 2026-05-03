@@ -33,6 +33,7 @@ import { YeastType } from '../domain/enums/yeast-type.enum';
  */
 @Entity('yeasts')
 @Index(['type'])
+@Index(['form'])
 @Index(['laboratory'])
 export class YeastOrmEntity {
   @PrimaryColumn('uuid')

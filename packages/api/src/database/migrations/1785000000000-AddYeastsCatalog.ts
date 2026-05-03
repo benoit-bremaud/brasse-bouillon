@@ -52,12 +52,16 @@ export class AddYeastsCatalog1785000000000 implements MigrationInterface {
       `CREATE INDEX "IDX_yeasts_type" ON "yeasts" ("type")`,
     );
     await queryRunner.query(
+      `CREATE INDEX "IDX_yeasts_form" ON "yeasts" ("form")`,
+    );
+    await queryRunner.query(
       `CREATE INDEX "IDX_yeasts_laboratory" ON "yeasts" ("laboratory")`,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX "IDX_yeasts_laboratory"`);
+    await queryRunner.query(`DROP INDEX "IDX_yeasts_form"`);
     await queryRunner.query(`DROP INDEX "IDX_yeasts_type"`);
     await queryRunner.query(`DROP INDEX "IDX_yeasts_name"`);
     await queryRunner.query(`DROP TABLE "yeasts"`);

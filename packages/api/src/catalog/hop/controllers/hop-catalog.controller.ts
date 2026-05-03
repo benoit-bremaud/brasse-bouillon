@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Query,
   UseGuards,
@@ -54,8 +55,10 @@ export class HopCatalogController {
   })
   @ApiOkResponse({ type: HopDto, isArray: true })
   async list(
-    @Query('usage_type') usageType?: HopUsageType,
-    @Query('form') form?: HopForm,
+    @Query('usage_type', new ParseEnumPipe(HopUsageType, { optional: true }))
+    usageType?: HopUsageType,
+    @Query('form', new ParseEnumPipe(HopForm, { optional: true }))
+    form?: HopForm,
   ): Promise<HopDto[]> {
     const rows = await this.service.list({ usage_type: usageType, form });
     return rows.map((row) => HopDto.fromEntity(row));

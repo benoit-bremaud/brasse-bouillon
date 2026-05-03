@@ -29,7 +29,11 @@ export class AddHopsCatalog1783000000000 implements MigrationInterface {
         "form"                  varchar(8) NOT NULL,
         "notes"                 text,
         "created_at"            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at"            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+        "updated_at"            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "CHK_hops_usage_type"
+          CHECK ("usage_type" IN ('bittering', 'aroma', 'both')),
+        CONSTRAINT "CHK_hops_form"
+          CHECK ("form" IN ('pellet', 'plug', 'leaf'))
       )
     `);
     await queryRunner.query(

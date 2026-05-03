@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BatchModule } from './batch/batch.module';
 import { BeerContributionModule } from './beer-contribution/beer-contribution.module';
+import { CatalogModule } from './catalog/catalog.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
@@ -87,6 +88,12 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     // Beer contribution module - 501 stubs anticipating the v0.2+
     // community contribution flow (Epic #693 part 4/5, ADR-0001 clause 3).
     BeerContributionModule,
+
+    // Reference catalogues (hop / fermentable / yeast / style /
+    // mash-profile / water / equipment / misc) — operator-curated
+    // immutable data consumed by the recipe and brewing flows.
+    // Issue #708 / #869, Phase 1 PR #1 ships HopModule.
+    CatalogModule,
   ],
 
   // Controllers that handle HTTP requests at root level

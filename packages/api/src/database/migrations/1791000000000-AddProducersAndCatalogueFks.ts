@@ -81,11 +81,15 @@ export class AddProducersAndCatalogueFks1791000000000 implements MigrationInterf
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // SQLite does not support DROP COLUMN before 3.35; the down
-    // migration drops the index and recreates the table without
-    // the column would be the proper path. For dev-only rollback
-    // (we never roll back in prod), we just drop the indices and
-    // the table — the columns become harmless trailing nulls.
+    // Drop the producer_id columns from the 5 catalogues FIRST,
+    // before dropping the producers table. Otherwise the FK
+    // clauses on those columns would dangle, and any subsequent
+    // write on those catalogue tables would fail with
+    // "no such table: main.producers". Re-running the up()
+    // migration would also fail because producer_id would
+    // already exist on the catalogue tables. SQLite 3.35+
+    // supports ALTER TABLE DROP COLUMN; better-sqlite3 bundles
+    // SQLite 3.42+. Reported by Codex on PR #902 review.
     for (const table of [
       'equipment_templates',
       'misc_templates',
@@ -94,6 +98,9 @@ export class AddProducersAndCatalogueFks1791000000000 implements MigrationInterf
       'hops',
     ]) {
       await queryRunner.query(`DROP INDEX "IDX_${table}_producer_id"`);
+      await queryRunner.query(
+        `ALTER TABLE "${table}" DROP COLUMN "producer_id"`,
+      );
     }
     await queryRunner.query(`DROP INDEX "IDX_producers_type"`);
     await queryRunner.query(`DROP INDEX "IDX_producers_name"`);

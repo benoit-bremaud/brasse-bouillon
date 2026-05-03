@@ -8,6 +8,8 @@ import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profi
 import { FermentableOrmEntity } from '../catalog/fermentable/entities/fermentable.orm.entity';
 import { HopOrmEntity } from '../catalog/hop/entities/hop.orm.entity';
 import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
+import { MashProfileOrmEntity } from '../catalog/mash/entities/mash-profile.orm.entity';
+import { MashStepOrmEntity } from '../catalog/mash/entities/mash-step.orm.entity';
 import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
 import { RecipeFermentableOrmEntity } from '../recipe/entities/recipe-fermentable.orm.entity';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
@@ -49,6 +51,8 @@ export const ormEntities = [
   FermentableOrmEntity,
   YeastOrmEntity,
   StyleOrmEntity,
+  MashProfileOrmEntity,
+  MashStepOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

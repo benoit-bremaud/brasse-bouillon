@@ -343,4 +343,195 @@ describe("ingredients use-cases", () => {
       expect(mockedGetYeastDetails).not.toHaveBeenCalled();
     });
   });
+
+  describe("type adapter coverage (live mode)", () => {
+    beforeEach(() => {
+      dataSource.useDemoData = false;
+    });
+
+    // ─── maltToIngredient — exercise normalizeMaltType branches ───
+    it.each([
+      ["Caramel 60", "caramel"],
+      ["Crystal 120", "caramel"],
+      ["Roasted Barley", "roasted"],
+      ["Chocolate Malt", "roasted"],
+      ["Pilsner Base", "base"],
+      ["Pale Ale", "base"],
+      ["Acidulated", "specialty"],
+    ] as const)(
+      "maltToIngredient normalizes maltType %s → %s",
+      async (raw, expected) => {
+        mockedListMalts.mockResolvedValue([
+          buildMaltProduct({ maltType: raw }),
+        ]);
+        const [result] = await listIngredientsByCategory("malt");
+        expect(result.category).toBe("malt");
+        if (result.category === "malt") {
+          expect(result.maltType).toBe(expected);
+        }
+      },
+    );
+
+    // ─── maltToIngredient — fallback potential gravity ───
+    it("maltToIngredient falls back to default gravity when missing", async () => {
+      mockedListMalts.mockResolvedValue([buildMaltProduct({ specGroups: [] })]);
+      const [result] = await listIngredientsByCategory("malt");
+      if (result.category === "malt") {
+        expect(result.ebc).toBe(0);
+        expect(result.potentialSg).toBeCloseTo(1.03, 5);
+      }
+    });
+
+    // ─── hopToIngredient — exercise normalizeHopUse branches ───
+    it.each([
+      ["bittering", "bittering"],
+      ["both", "dual"],
+      ["dual-purpose", "dual"],
+      ["aroma", "aroma"],
+      [undefined, "aroma"],
+    ] as const)(
+      "hopToIngredient normalizes hopType %s → %s",
+      async (raw, expected) => {
+        mockedListHops.mockResolvedValue([buildHopProduct({ hopType: raw })]);
+        const [result] = await listIngredientsByCategory("hop");
+        if (result.category === "hop") {
+          expect(result.hopUse).toBe(expected);
+        }
+      },
+    );
+
+    // ─── hopToIngredient — exercise normalizeHopForm via specGroups ───
+    it.each([
+      ["pellet", "pellet"],
+      ["leaf", "whole"],
+      ["whole", "whole"],
+    ] as const)(
+      "hopToIngredient reads form '%s' from Format specGroup → %s",
+      async (formValue, expected) => {
+        mockedListHops.mockResolvedValue([
+          buildHopProduct({
+            specGroups: [
+              {
+                id: "hop-format-group",
+                title: "Format",
+                rows: [{ id: "hop-form", label: "Form", value: formValue }],
+              },
+            ],
+          }),
+        ]);
+        const [result] = await listIngredientsByCategory("hop");
+        if (result.category === "hop") {
+          expect(result.form).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — exercise normalizeYeastType branches ───
+    it.each([
+      ["lager", "lager"],
+      ["wheat", "wheat"],
+      ["wine", "belgian"],
+      ["champagne", "belgian"],
+      ["ale", "ale"],
+      [undefined, "ale"],
+    ] as const)(
+      "yeastToIngredient normalizes yeastType %s → %s",
+      async (raw, expected) => {
+        mockedListYeasts.mockResolvedValue([
+          buildYeastProduct({ yeastType: raw }),
+        ]);
+        const [result] = await listIngredientsByCategory("yeast");
+        if (result.category === "yeast") {
+          expect(result.yeastType).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — flocculation parsing ───
+    it.each([
+      ["low", "low"],
+      ["medium", "medium"],
+      ["high", "high"],
+      ["very_high", "high"],
+    ] as const)(
+      "yeastToIngredient parses flocculation '%s' from specGroups → %s",
+      async (flocValue, expected) => {
+        mockedListYeasts.mockResolvedValue([
+          buildYeastProduct({
+            specGroups: [
+              {
+                id: "yeast-fermentation-group",
+                title: "Fermentation",
+                rows: [
+                  {
+                    id: "yeast-flocculation",
+                    label: "Flocculation",
+                    value: flocValue,
+                  },
+                ],
+              },
+            ],
+          }),
+        ]);
+        const [result] = await listIngredientsByCategory("yeast");
+        if (result.category === "yeast") {
+          expect(result.flocculation).toBe(expected);
+        }
+      },
+    );
+
+    // ─── yeastToIngredient — temperature range parsing ───
+    it("yeastToIngredient parses temperature range from specGroups", async () => {
+      mockedListYeasts.mockResolvedValue([
+        buildYeastProduct({
+          specGroups: [
+            {
+              id: "yeast-fermentation-group",
+              title: "Fermentation",
+              rows: [
+                {
+                  id: "yeast-temperature-range",
+                  label: "Temperature",
+                  value: "15-22",
+                  unit: "°C",
+                },
+              ],
+            },
+          ],
+        }),
+      ]);
+      const [result] = await listIngredientsByCategory("yeast");
+      if (result.category === "yeast") {
+        expect(result.fermentationMinC).toBe(15);
+        expect(result.fermentationMaxC).toBe(22);
+      }
+    });
+
+    // ─── yeastToIngredient — single-value temperature ───
+    it("yeastToIngredient handles a single-value temperature (no range)", async () => {
+      mockedListYeasts.mockResolvedValue([
+        buildYeastProduct({
+          specGroups: [
+            {
+              id: "yeast-fermentation-group",
+              title: "Fermentation",
+              rows: [
+                {
+                  id: "yeast-temperature-range",
+                  label: "Temperature",
+                  value: "20",
+                  unit: "°C",
+                },
+              ],
+            },
+          ],
+        }),
+      ]);
+      const [result] = await listIngredientsByCategory("yeast");
+      if (result.category === "yeast") {
+        expect(result.fermentationMinC).toBe(20);
+        expect(result.fermentationMaxC).toBe(20);
+      }
+    });
+  });
 });

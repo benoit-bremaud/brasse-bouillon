@@ -24,6 +24,7 @@ import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm
 import { StyleOrmEntity } from '../catalog/style/entities/style.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { WaterOrmEntity } from '../catalog/water/entities/water.orm.entity';
 import { YeastOrmEntity } from '../catalog/yeast/entities/yeast.orm.entity';
 
 const truthyEnvValues = new Set(['1', 'true', 'yes', 'on']);
@@ -53,6 +54,7 @@ export const ormEntities = [
   StyleOrmEntity,
   MashProfileOrmEntity,
   MashStepOrmEntity,
+  WaterOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

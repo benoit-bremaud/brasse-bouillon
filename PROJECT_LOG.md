@@ -7,6 +7,50 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-03
 
+### Catalogue refactor — Phases 1-3 shipped in one day (#708 / #869)
+
+- 7 immutable reference catalogues merged to `main` between 02:00 and 17:05 UTC (PR #888 → #898), all on `packages/api`. Each PR follows the same 12-file pattern: entity + DTO + service + controller + module + migration + seed + 3 specs (service/controller/seed) + runner script + wiring updates to `catalog.module.ts` and `typeorm.config.ts`.
+- **Decisions** locked across the series:
+  - `*CatalogModule` suffix (e.g. `WaterCatalogModule`, `EquipmentCatalogModule`) to avoid class-name collisions with existing user-owned modules — convention adopted on PR #894 after Copilot caught the `EquipmentModule` collision risk.
+  - `assertCommonCatalogueSeederBehaviours` shared test helper at `src/database/seeds/seed-test-utils.ts` — covers the 4 standard scenarios (happy / sad / mixed / override-list) so each catalogue spec only carries its own invariants. Added on PR #891 to clear SonarCloud's new-code duplication gate.
+  - Deterministic UUID range per catalogue: hops `0`, fermentables `1`, yeasts `2`, styles `3`, mash `4`, waters `5`, equipment `6`, misc `7` (last one in PR #899, in flight).
+  - Notes columns kept French (UI-facing per `feedback_ui_french_only`); `use_for` / category metadata stays English (BeerXML provenance).
+- **Scope still open**: PR #899 (`misc_templates`) opens after #898 — once merged, the umbrella issues #708 / #869 close and the post-Phase-3 work begins (normalize-producers PR + Recipe-entity FK refactor + mobile ingredient picker refactor #887).
+
+### PR #898 merged (`8934ade`) — feat(catalog/equipment): equipment templates reference catalogue
+
+- Phase 3 PR #7 of the catalogue series. 9 entries spanning the full beginner-to-pro spectrum: 1 Brasse-Bouillon original kitchen starter (Casserole 5L extract — added late in the cycle after the user validated the "I just want to try once" persona), 2 BeerXML canonical, 6 modern popular setups (BIAB 20/30L, Grainfather G30, Klarstein Brauheld Pro, Anvil Foundry, 3-Vessel HERMS).
+- 4 Copilot inline comments addressed in `2b42d02` (3 stale "8 entries" doc references bumped to "9" after the kitchen starter was added; 1 service docstring rewritten — old version claimed "multiple revisions may share a name", but the schema enforces UNIQUE(name)).
+- 14 files, +1096 LoC.
+
+### PR #894 merged (`5fe171b`) — feat(catalog/water): brewing water profiles reference catalogue
+
+- Phase 3 PR #6. 10 reference water profiles (3 BeerXML canonical: Pilsen / Burton-on-Trent / Munich, plus 7 city profiles for famous brewing waters). 6 mineral columns (Ca, Mg, Na, SO4, Cl, HCO3) per BeerXML 1.0 `<WATER>` field mapping.
+- Class renamed `WaterModule` → `WaterCatalogModule` after Copilot caught the collision with the existing user-owned water module — set the `*CatalogModule` precedent the rest of the series follows.
+
+### PR #893 merged (`cf3b1c9`) — feat(catalog/mash): mash profiles + steps reference catalogue (1:N)
+
+- Phase 2 PR #5 — closes Phase 2. Two-table catalogue with `mash_profiles` (parent) and `mash_steps` (child, FK with `ON DELETE CASCADE`). Steps ordered by `step_number`, types restricted to BeerXML enum (Infusion / Temperature / Decoction).
+- Most complex catalogue of the series due to the 1:N cascade — pattern reusable for any future parent/child catalogue.
+
+### PR #891 merged (`b9b034f`) — feat(catalog/style): BJCP styles reference catalogue (opens Phase 2)
+
+- Phase 2 PR #4. Composite UNIQUE(name, style_guide) so the same style name can coexist across the BJCP 2015 and BJCP 2021 guide editions.
+- **SonarCloud duplication failure** caught post-merge: fixed via `sonar.cpd.exclusions` in root `sonar-project.properties` covering catalogue boilerplate (services / controllers / modules / DTOs / entities / seeds / runners). The shared `assertCommonCatalogueSeederBehaviours` helper was extracted at the same time.
+- Spawned Issue #892 (mobile Académie / Guide BJCP — separate epic).
+
+### PR #890 merged (`e9e8d5c`) — feat(catalog/yeast): yeasts reference catalogue (closes Phase 1)
+
+- Phase 1 PR #3. BeerXML `<YEAST>` mapping: form (liquid/dry/slant/culture), type (ale/lager/wheat/wine/champagne), attenuation, flocculation. 12 entries spanning the major Wyeast / White Labs / Fermentis lines.
+
+### PR #889 merged (`f137030`) — feat(catalog/fermentable): fermentables reference catalogue
+
+- Phase 1 PR #2. BeerXML `<FERMENTABLE>` mapping incl. `color_ebc` (project-normalised to EBC per `feedback_normalized_colors`), `yield_percent`, type (grain/sugar/extract/dry_extract/adjunct).
+
+### PR #888 merged (`6c70eb3`) — feat(catalog/hop): hops reference catalogue (opens Phase 1)
+
+- Phase 1 PR #1 — first of the 8-PR series, set the file-layout pattern every subsequent catalogue mirrors. BeerXML `<HOP>` mapping incl. alpha_acid_percent, beta_acid_percent, type (bittering/aroma/dual), form (pellet/plug/leaf), use phase, year of harvest.
+
 ### PR #871 merged (`fc3ee5a`) — feat(mobile-app): wire Python beer-encyclopedia as fallback for /scan/lookup 404 + ADR-0005 backend split
 
 - ADR-0005 (encyclopedia ⇆ product split) + ADR-0002 marked partially superseded.

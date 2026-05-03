@@ -174,11 +174,15 @@ function maltToIngredient(malt: MaltProduct): Ingredient {
   };
 }
 
-function normalizeHopForm(raw?: string): "pellet" | "whole" {
+function normalizeHopForm(raw: string | undefined): "pellet" | "whole" {
   const normalized = raw?.trim().toLocaleLowerCase() ?? "";
   return normalized.includes("leaf") || normalized.includes("whole")
     ? "whole"
     : "pellet";
+}
+
+function getHopFormFromSpecGroups(hop: HopProduct): string | undefined {
+  return findRowValueByLabel(hop.specGroups, "form") ?? undefined;
 }
 
 function normalizeHopUse(raw?: string): "bittering" | "aroma" | "dual" {
@@ -202,7 +206,7 @@ function hopToIngredient(hop: HopProduct): Ingredient {
     id: hop.id,
     name: hop.name,
     category: "hop",
-    form: normalizeHopForm(undefined),
+    form: normalizeHopForm(getHopFormFromSpecGroups(hop)),
     hopUse: normalizeHopUse(hop.hopType),
     alphaAcid,
     betaAcid,

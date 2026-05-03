@@ -66,6 +66,14 @@ export class EquipmentTemplateDto {
   @ApiProperty({ nullable: true })
   notes: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    description:
+      'FK to producers — equipment manufacturer (Grainfather, Klarstein…)',
+  })
+  producer_id: string | null;
+
   @ApiProperty({ format: 'date-time' })
   created_at: string;
 
@@ -90,6 +98,7 @@ export class EquipmentTemplateDto {
     dto.top_up_kettle_l = entity.top_up_kettle_l;
     dto.hop_utilization_percent = entity.hop_utilization_percent;
     dto.notes = entity.notes;
+    dto.producer_id = entity.producer_id;
     dto.created_at = entity.created_at.toISOString();
     dto.updated_at = entity.updated_at.toISOString();
     return dto;

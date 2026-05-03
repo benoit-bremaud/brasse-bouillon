@@ -30,6 +30,7 @@ import { FermentableType } from '../domain/enums/fermentable-type.enum';
  */
 @Entity('fermentables')
 @Index(['type'])
+@Index(['producer_id'])
 export class FermentableOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -110,6 +111,17 @@ export class FermentableOrmEntity {
    */
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  /**
+   * Optional FK to the unified `producers` reference table
+   * (Issue #900) — the maltster that produces this exact malt
+   * (Briess, Weyermann, Best Malz, Castle, Crisp…). Same malt
+   * type sold by multiple maltsters typically has slightly
+   * different chemistry, so each maltster's variant is its own
+   * catalogue row. Nullable + ON DELETE SET NULL.
+   */
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  producer_id: string | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -4,6 +4,7 @@ import { HopModule } from './hop/hop.module';
 import { MashModule } from './mash/mash.module';
 import { MiscCatalogModule } from './misc/misc.module';
 import { Module } from '@nestjs/common';
+import { ProducerCatalogModule } from './producer/producer.module';
 import { StyleModule } from './style/style.module';
 import { WaterCatalogModule } from './water/water.module';
 import { YeastModule } from './yeast/yeast.module';
@@ -31,6 +32,7 @@ import { YeastModule } from './yeast/yeast.module';
     WaterCatalogModule,
     EquipmentCatalogModule,
     MiscCatalogModule,
+    ProducerCatalogModule,
   ],
 })
 export class CatalogModule {}

@@ -41,6 +41,14 @@ export class MiscTemplateDto {
   @ApiProperty({ nullable: true })
   notes: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    description:
+      'FK to producers — brand of this misc (e.g. Lallemand for Servomyces)',
+  })
+  producer_id: string | null;
+
   @ApiProperty({ format: 'date-time' })
   created_at: string;
 
@@ -58,6 +66,7 @@ export class MiscTemplateDto {
     dto.time_min = entity.time_min;
     dto.use_for = entity.use_for;
     dto.notes = entity.notes;
+    dto.producer_id = entity.producer_id;
     dto.created_at = entity.created_at.toISOString();
     dto.updated_at = entity.updated_at.toISOString();
     return dto;

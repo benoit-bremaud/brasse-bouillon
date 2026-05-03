@@ -47,6 +47,13 @@ export class HopDto {
   @ApiProperty({ nullable: true })
   notes: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    description: 'FK to producers — brand owner of this hop variety',
+  })
+  producer_id: string | null;
+
   @ApiProperty({ format: 'date-time' })
   created_at: string;
 
@@ -64,6 +71,7 @@ export class HopDto {
     dto.usage_type = entity.usage_type;
     dto.form = entity.form;
     dto.notes = entity.notes;
+    dto.producer_id = entity.producer_id;
     dto.created_at = entity.created_at.toISOString();
     dto.updated_at = entity.updated_at.toISOString();
     return dto;

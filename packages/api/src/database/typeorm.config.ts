@@ -19,6 +19,7 @@ import { ScanCatalogItemOrmEntity } from '../scan/entities/scan-catalog-item.orm
 import { ScanLabelImageOrmEntity } from '../scan/entities/scan-label-image.orm.entity';
 import { ScanRequestOrmEntity } from '../scan/entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm.entity';
+import { StyleOrmEntity } from '../catalog/style/entities/style.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { YeastOrmEntity } from '../catalog/yeast/entities/yeast.orm.entity';
@@ -47,6 +48,7 @@ export const ormEntities = [
   HopOrmEntity,
   FermentableOrmEntity,
   YeastOrmEntity,
+  StyleOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

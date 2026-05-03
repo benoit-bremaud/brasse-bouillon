@@ -12,9 +12,19 @@ import { StyleType } from '../domain/enums/style-type.enum';
 
 /**
  * Immutable reference catalogue of BJCP beer styles (Issue #708 /
- * #869, Phase 2 PR #4). Seeded with 20 entries — the 5 BeerXML 1.0
- * canonical styles (BJCP 1999 verbatim from `libraries/style.xml`)
- * plus 15 modern BJCP 2021 styles needed by the demo recipes
+ * #869, Phase 2 PR #4).
+ *
+ * **BJCP** = **Beer Judge Certification Program** — the
+ * international non-profit (https://www.bjcp.org) that publishes
+ * the de-facto reference for beer styles used worldwide by
+ * homebrewers, craft brewers, and beer competitions. Each BJCP
+ * edition (1999, 2008, 2015, 2021…) revises the style categories,
+ * numbering, and metric ranges (OG / FG / IBU / SRM / ABV) as the
+ * brewing world evolves.
+ *
+ * Seeded with 20 entries — the 5 BeerXML 1.0 canonical styles
+ * (BJCP 1999 verbatim from `libraries/style.xml`) plus 15 modern
+ * BJCP 2021 styles needed by the demo recipes
  * (Punk IPA / NEIPA / Saison / Tripel / Witbier / Hefeweizen /
  * Kölsch / Wee Heavy / Imperial Stout / Baltic Porter / Vienna
  * Lager / ESB / White IPA / American Pale Ale / Belgian Strong

@@ -1,0 +1,9 @@
+# Default: text files use LF line endings on checkout, regardless of platform.
+* text=auto eol=lf
+
+# BeerXML 1.0 reference fixtures must stay in ISO-8859-1 per the spec.
+# Without this, editors that auto-detect encoding may silently rewrite as
+# UTF-8 on save, breaking compliance with downstream industry tools that
+# expect the spec encoding (BeerSmith, etc.). The README under
+# docs/architecture/specs/fixtures/recipes/ explains the policy.
+docs/architecture/specs/fixtures/**/*.xml -text working-tree-encoding=ISO-8859-1

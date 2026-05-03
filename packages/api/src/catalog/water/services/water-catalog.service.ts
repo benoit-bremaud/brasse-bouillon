@@ -33,7 +33,7 @@ export class WaterCatalogService {
   async getById(id: string): Promise<WaterOrmEntity> {
     const entity = await this.waters.findOne({ where: { id } });
     if (!entity) {
-      throw new NotFoundException(`Water profile ${id} not found`);
+      throw new NotFoundException(`Water catalogue entry ${id} not found`);
     }
     return entity;
   }

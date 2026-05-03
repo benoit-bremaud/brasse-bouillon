@@ -40,7 +40,7 @@ export class WaterOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 120, nullable: false })
+  @Column({ type: 'varchar', length: 120, nullable: false, unique: true })
   name: string;
 
   /**

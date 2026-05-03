@@ -45,6 +45,20 @@ Reference catalogues for each BeerXML record type. Useful for seeding our own in
 - **Designing a serializer test** — round-trip: parse → serialize → string-equal the original (modulo whitespace normalisation).
 - **Seeding our own catalogues** — the `libraries/` files give us a concrete starting point for our own `style`, `ingredient`, `mash_profile`, `water_profile`, `equipment_profile` catalogues. Cross-reference with our existing seeds to identify gaps.
 
+## Known parser quirks (verbatim from beerxml.com)
+
+Because we keep these fixtures **byte-for-byte verbatim** from beerxml.com (no Brasse-Bouillon sanitisation), the official BeerXML files ship with a few well-known content quirks. Any consumer (parser, validator, seed importer) MUST handle them defensively rather than assuming strict numeric content.
+
+| File(s) | Element(s) | Quirk | Expected consumer behavior |
+|---------|------------|-------|----------------------------|
+| `libraries/style.xml` | `<CARB_MAX>` | Trailing `>` typo on every record (e.g. `<CARB_MAX>2.6></CARB_MAX>`) | Strip the trailing `>` before float parsing |
+| `recipes/01-beerxml-canonical-recipes.xml` | `<IBU>` | Includes the unit suffix (e.g. `<IBU>30.0 IBU</IBU>`) | Parse the leading numeric prefix only |
+| `recipes/01-beerxml-canonical-recipes.xml` | `<ABV>` | Includes the `%` suffix (e.g. `<ABV>5.5 %</ABV>`) | Parse the leading numeric prefix only |
+| `recipes/01-beerxml-canonical-recipes.xml` | `<EST_OG>` / `<EST_FG>` / `<EST_COLOR>` and `<DISPLAY_*>` variants | Often include a unit suffix (`SG`, `SRM`) | Parse the leading numeric prefix only; never strict `parseFloat` on the raw element text |
+| `libraries/mash.xml` | `<DISPLAY_STEP_TEMP>` | Sometimes contains the literal placeholder string `DISPLAY_STEP_TEMP` instead of a value | Treat as missing; fall back to computing display from `STEP_TEMP` |
+
+These quirks come from BeerSmith's exporter on beerxml.com (which freely interleaves machine-readable and human-readable values inside the same element). Our parser (#865) and seed importer (#708) will treat all numeric fields with a tolerant `extract leading number` strategy — never strict `parseFloat`.
+
 ## Planned additions (ordered)
 
 | Filename | Source | What it adds |

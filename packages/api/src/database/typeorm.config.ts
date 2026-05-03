@@ -21,6 +21,7 @@ import { ScanRequestOrmEntity } from '../scan/entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { YeastOrmEntity } from '../catalog/yeast/entities/yeast.orm.entity';
 
 const truthyEnvValues = new Set(['1', 'true', 'yes', 'on']);
 const falsyEnvValues = new Set(['0', 'false', 'no', 'off']);
@@ -45,6 +46,7 @@ export const ormEntities = [
   ScanReviewQueueOrmEntity,
   HopOrmEntity,
   FermentableOrmEntity,
+  YeastOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

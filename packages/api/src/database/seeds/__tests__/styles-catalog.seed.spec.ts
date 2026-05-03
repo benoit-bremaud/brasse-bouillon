@@ -89,6 +89,24 @@ describe('seedStylesCatalog (Issue #708 / #869 — Phase 2 PR #4)', () => {
       // but no honey-based demo style yet.
     });
 
+    it('tags every wheat-forward style as WHEAT (American Wheat, Witbier, Hefeweizen)', () => {
+      // The WHEAT enum value covers every style brewed with a
+      // wheat-malt-forward grist. Misclassifying any of them as
+      // ALE / MIXED would hide it from the `?type=wheat` filter
+      // path. Targeted assertion (not just "at least one wheat
+      // exists") so a future re-classification slip is caught.
+      const americanWheat = STYLES_CATALOG_SEED.find(
+        (s) => s.name === 'American Wheat',
+      );
+      const witbier = STYLES_CATALOG_SEED.find((s) => s.name === 'Witbier');
+      const hefeweizen = STYLES_CATALOG_SEED.find(
+        (s) => s.name === 'Hefeweizen',
+      );
+      expect(americanWheat?.type).toBe(StyleType.WHEAT);
+      expect(witbier?.type).toBe(StyleType.WHEAT);
+      expect(hefeweizen?.type).toBe(StyleType.WHEAT);
+    });
+
     it('keeps every notes value in French (UI-facing convention)', () => {
       for (const style of STYLES_CATALOG_SEED) {
         if (style.notes !== null) {
@@ -98,25 +116,24 @@ describe('seedStylesCatalog (Issue #708 / #869 — Phase 2 PR #4)', () => {
     });
 
     it('ensures every metric range has min ≤ max when both bounds are set', () => {
+      // Cheap helper: skip the assertion silently when either bound
+      // is null (range not specified for this style), assert min ≤
+      // max otherwise. Keeps the test's cognitive complexity under
+      // SonarLint's 15-branch limit while still covering all 6 BJCP
+      // metric dimensions for all 20 styles.
+      const expectMinLeMax = (min: number | null, max: number | null): void => {
+        if (min !== null && max !== null) {
+          expect(min).toBeLessThanOrEqual(max);
+        }
+      };
+
       for (const style of STYLES_CATALOG_SEED) {
-        if (style.og_min !== null && style.og_max !== null) {
-          expect(style.og_min).toBeLessThanOrEqual(style.og_max);
-        }
-        if (style.fg_min !== null && style.fg_max !== null) {
-          expect(style.fg_min).toBeLessThanOrEqual(style.fg_max);
-        }
-        if (style.ibu_min !== null && style.ibu_max !== null) {
-          expect(style.ibu_min).toBeLessThanOrEqual(style.ibu_max);
-        }
-        if (style.color_ebc_min !== null && style.color_ebc_max !== null) {
-          expect(style.color_ebc_min).toBeLessThanOrEqual(style.color_ebc_max);
-        }
-        if (style.carb_min !== null && style.carb_max !== null) {
-          expect(style.carb_min).toBeLessThanOrEqual(style.carb_max);
-        }
-        if (style.abv_min !== null && style.abv_max !== null) {
-          expect(style.abv_min).toBeLessThanOrEqual(style.abv_max);
-        }
+        expectMinLeMax(style.og_min, style.og_max);
+        expectMinLeMax(style.fg_min, style.fg_max);
+        expectMinLeMax(style.ibu_min, style.ibu_max);
+        expectMinLeMax(style.color_ebc_min, style.color_ebc_max);
+        expectMinLeMax(style.carb_min, style.carb_max);
+        expectMinLeMax(style.abv_min, style.abv_max);
       }
     });
   });

@@ -19,6 +19,7 @@ import {
 import { JwtAuthGuard } from '../../../auth/guards/jwt.guard';
 import { StyleCatalogService } from '../services/style-catalog.service';
 import { StyleDto } from '../dtos/style.dto';
+import { StyleGuide } from '../domain/enums/style-guide.enum';
 import { StyleType } from '../domain/enums/style-type.enum';
 
 /**
@@ -48,15 +49,16 @@ export class StyleCatalogController {
   })
   @ApiQuery({
     name: 'style_guide',
-    type: String,
+    enum: StyleGuide,
     required: false,
-    description: 'Filter by guide version (e.g. "BJCP 1999", "BJCP 2021")',
+    description: 'Filter by guide version. Closed enum — typos return 400.',
   })
   @ApiOkResponse({ type: StyleDto, isArray: true })
   async list(
     @Query('type', new ParseEnumPipe(StyleType, { optional: true }))
     type?: StyleType,
-    @Query('style_guide') styleGuide?: string,
+    @Query('style_guide', new ParseEnumPipe(StyleGuide, { optional: true }))
+    styleGuide?: StyleGuide,
   ): Promise<StyleDto[]> {
     const rows = await this.service.list({ type, style_guide: styleGuide });
     return rows.map((row) => StyleDto.fromEntity(row));

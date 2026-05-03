@@ -2,16 +2,20 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
+import { StyleGuide } from '../domain/enums/style-guide.enum';
 import { StyleOrmEntity } from '../entities/style.orm.entity';
 import { StyleType } from '../domain/enums/style-type.enum';
 
 /**
  * Optional filters accepted by the list endpoint. All filters are
- * AND-combined; absence of a filter means "any value".
+ * AND-combined; absence of a filter means "any value". `style_guide`
+ * is typed as the closed `StyleGuide` enum so callers cannot pass
+ * arbitrary strings — typos are rejected at the controller layer
+ * via ParseEnumPipe.
  */
 export interface ListStylesFilters {
   type?: StyleType;
-  style_guide?: string;
+  style_guide?: StyleGuide;
 }
 
 @Injectable()

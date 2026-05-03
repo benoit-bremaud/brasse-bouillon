@@ -69,7 +69,14 @@ export const STYLES_CATALOG_SEED: readonly StyleCatalogSeed[] = [
     category_number: 3,
     style_letter: 'B',
     style_guide: 'BJCP 1999',
-    type: StyleType.MIXED,
+    // Tagged WHEAT (not MIXED) per the StyleType.WHEAT rationale:
+    // any wheat-malt-forward style with characteristic wheat profile
+    // belongs in WHEAT so `?type=wheat` surfaces every wheat beer
+    // (American Wheat, Witbier, Hefeweizen). The BeerXML 1999
+    // fixture lists this as Mixed because BJCP 1999 had no
+    // dedicated wheat category — we modernise the family tag while
+    // keeping the rest of the entry verbatim.
+    type: StyleType.WHEAT,
     og_min: 1.035,
     og_max: 1.055,
     fg_min: 1.008,

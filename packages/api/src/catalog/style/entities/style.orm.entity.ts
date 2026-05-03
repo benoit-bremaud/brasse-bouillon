@@ -4,6 +4,7 @@ import {
   Entity,
   Index,
   PrimaryColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -19,13 +20,21 @@ import { StyleType } from '../domain/enums/style-type.enum';
  * Lager / ESB / White IPA / American Pale Ale / Belgian Strong
  * Golden Ale).
  *
- * The `style_guide` column carries either "BJCP 1999" (verbatim
- * BeerXML entries) or "BJCP 2021" (modern entries) — the field
- * handles the divergence per-row, so `category_number` /
+ * The `style_guide` column carries one of three closed-set values
+ * (see `StyleGuide` enum): "BJCP 1999" (verbatim BeerXML entries),
+ * "BJCP 2021" (modern entries), or "Hybrid post-2010" (community
+ * styles with no official BJCP category, e.g. White IPA). The
+ * field handles the divergence per-row, so `category_number` /
  * `style_letter` stay accurate to the guide they reference. A
  * single uniform guide would have required either rewriting the
  * BeerXML entries (breaks verbatim) or using an obsolete guide
  * for the 2026 demo recipes.
+ *
+ * Uniqueness is enforced as a COMPOSITE on (name, style_guide) so
+ * the same display name can legitimately exist across guides
+ * (e.g. "American IPA" in BJCP 2021 vs a hypothetical future
+ * BJCP 2026 with revised metric ranges). Per-name global
+ * uniqueness alone would block that.
  *
  * Each metric dimension (OG / FG / IBU / colour EBC / carbonation
  * / ABV) ships as a min/max pair so the picker UX can highlight
@@ -42,6 +51,7 @@ import { StyleType } from '../domain/enums/style-type.enum';
  * incremental ones).
  */
 @Entity('styles')
+@Unique('UQ_styles_name_guide', ['name', 'style_guide'])
 @Index(['type'])
 @Index(['category_number'])
 @Index(['style_guide'])
@@ -49,7 +59,13 @@ export class StyleOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 120, nullable: false, unique: true })
+  /**
+   * Display name (e.g. "American IPA"). NOT globally unique — the
+   * composite UNIQUE on (name, style_guide) lets the same name
+   * legitimately exist across guide editions with different
+   * metric ranges.
+   */
+  @Column({ type: 'varchar', length: 120, nullable: false })
   name: string;
 
   @Column({ type: 'varchar', length: 80, nullable: false })

@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { FermentableCatalogController } from '../fermentable-catalog.controller';
 import { FermentableCatalogService } from '../../services/fermentable-catalog.service';
+import { FermentableDistributorOrmEntity } from '../../entities/fermentable-distributor.orm.entity';
 import { FermentableOrmEntity } from '../../entities/fermentable.orm.entity';
 import { FermentableType } from '../../domain/enums/fermentable-type.enum';
 import { NotFoundException } from '@nestjs/common';
@@ -41,6 +43,40 @@ describe('FermentableCatalogController', () => {
     };
   }
 
+  function buildDistributor(
+    overrides: Partial<DistributorOrmEntity> = {},
+  ): DistributorOrmEntity {
+    return {
+      id: '00000000-0000-4000-9000-900000000003',
+      name: 'Brouwland',
+      country: 'BE',
+      website: 'https://www.brouwland.com',
+      ships_to: JSON.stringify(['BE', 'FR', 'NL']),
+      currency_default: 'EUR',
+      notes: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      ...overrides,
+    };
+  }
+
+  function buildJunction(
+    overrides: Partial<FermentableDistributorOrmEntity> = {},
+  ): FermentableDistributorOrmEntity {
+    return {
+      fermentable_id: ID_PALE,
+      distributor_id: '00000000-0000-4000-9000-900000000003',
+      product_url: 'https://www.brouwland.com/pale-ale-malt-25kg',
+      sku: 'BRW-PALE-25',
+      notes_per_distributor: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      fermentable: buildEntity(),
+      distributor: buildDistributor(),
+      ...overrides,
+    };
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FermentableCatalogController],
@@ -50,6 +86,7 @@ describe('FermentableCatalogController', () => {
           useValue: {
             list: jest.fn(),
             getById: jest.fn(),
+            getDistributors: jest.fn(),
           },
         },
       ],
@@ -131,6 +168,37 @@ describe('FermentableCatalogController', () => {
 
       expect(result).not.toBe(entity);
       expect(result.constructor.name).toBe('FermentableDto');
+    });
+  });
+
+  describe('GET /catalog/fermentables/:id/distributors (Issue #901)', () => {
+    it('happy: maps junction rows to CatalogDistributorLinkDto with distributor nested', async () => {
+      const getDistributorsSpy = jest
+        .spyOn(service, 'getDistributors')
+        .mockResolvedValue([buildJunction()]);
+
+      const result = await controller.getDistributors(ID_PALE);
+
+      expect(getDistributorsSpy).toHaveBeenCalledWith(ID_PALE);
+      expect(result).toHaveLength(1);
+      expect(result[0].product_url).toBe(
+        'https://www.brouwland.com/pale-ale-malt-25kg',
+      );
+      expect(result[0].sku).toBe('BRW-PALE-25');
+      expect(result[0].distributor.name).toBe('Brouwland');
+      expect(result[0].distributor.ships_to).toEqual(['BE', 'FR', 'NL']);
+    });
+
+    it('sad: lets a NotFoundException from the service propagate', async () => {
+      jest
+        .spyOn(service, 'getDistributors')
+        .mockRejectedValue(
+          new NotFoundException('Fermentable catalogue entry not found'),
+        );
+
+      await expect(
+        controller.getDistributors('00000000-0000-4000-9000-1000000000ff'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { HopCatalogController } from '../hop-catalog.controller';
 import { HopCatalogService } from '../../services/hop-catalog.service';
+import { HopDistributorOrmEntity } from '../../entities/hop-distributor.orm.entity';
 import { HopForm } from '../../domain/enums/hop-form.enum';
 import { HopOrmEntity } from '../../entities/hop.orm.entity';
 import { HopUsageType } from '../../domain/enums/hop-usage-type.enum';
@@ -39,6 +41,40 @@ describe('HopCatalogController', () => {
     };
   }
 
+  function buildDistributor(
+    overrides: Partial<DistributorOrmEntity> = {},
+  ): DistributorOrmEntity {
+    return {
+      id: '00000000-0000-4000-9000-900000000003',
+      name: 'Brouwland',
+      country: 'BE',
+      website: 'https://www.brouwland.com',
+      ships_to: JSON.stringify(['BE', 'FR', 'NL']),
+      currency_default: 'EUR',
+      notes: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      ...overrides,
+    };
+  }
+
+  function buildJunction(
+    overrides: Partial<HopDistributorOrmEntity> = {},
+  ): HopDistributorOrmEntity {
+    return {
+      hop_id: ID_CASCADE,
+      distributor_id: '00000000-0000-4000-9000-900000000003',
+      product_url: 'https://www.brouwland.com/cascade-100g',
+      sku: 'BRW-CASCADE-100',
+      notes_per_distributor: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      hop: buildEntity(),
+      distributor: buildDistributor(),
+      ...overrides,
+    };
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HopCatalogController],
@@ -48,6 +84,7 @@ describe('HopCatalogController', () => {
           useValue: {
             list: jest.fn(),
             getById: jest.fn(),
+            getDistributors: jest.fn(),
           },
         },
       ],
@@ -132,6 +169,38 @@ describe('HopCatalogController', () => {
       // The DTO is a separate object — never the entity itself.
       expect(result).not.toBe(entity);
       expect(result.constructor.name).toBe('HopDto');
+    });
+  });
+
+  describe('GET /catalog/hops/:id/distributors (Issue #901)', () => {
+    it('happy: maps junction rows to CatalogDistributorLinkDto with distributor nested', async () => {
+      const getDistributorsSpy = jest
+        .spyOn(service, 'getDistributors')
+        .mockResolvedValue([buildJunction()]);
+
+      const result = await controller.getDistributors(ID_CASCADE);
+
+      expect(getDistributorsSpy).toHaveBeenCalledWith(ID_CASCADE);
+      expect(result).toHaveLength(1);
+      expect(result[0].product_url).toBe(
+        'https://www.brouwland.com/cascade-100g',
+      );
+      expect(result[0].sku).toBe('BRW-CASCADE-100');
+      expect(result[0].distributor.name).toBe('Brouwland');
+      // ships_to is decoded from JSON string to string[] on the wire
+      expect(result[0].distributor.ships_to).toEqual(['BE', 'FR', 'NL']);
+    });
+
+    it('sad: lets a NotFoundException from the service propagate', async () => {
+      jest
+        .spyOn(service, 'getDistributors')
+        .mockRejectedValue(
+          new NotFoundException('Hop catalogue entry not found'),
+        );
+
+      await expect(
+        controller.getDistributors('00000000-0000-4000-9000-0000000000ff'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

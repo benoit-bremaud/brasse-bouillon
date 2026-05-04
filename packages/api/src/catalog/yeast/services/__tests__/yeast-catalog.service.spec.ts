@@ -24,10 +24,13 @@ describe('YeastCatalogService', () => {
   let module: TestingModule;
   let service: YeastCatalogService;
   let repository: Repository<YeastOrmEntity>;
+  let distributorRepository: Repository<DistributorOrmEntity>;
+  let yeastDistributorRepository: Repository<YeastDistributorOrmEntity>;
 
   const ID_WLP002 = '00000000-0000-4000-9000-200000000001';
   const ID_US05 = '00000000-0000-4000-9000-200000000006';
   const ID_W3470 = '00000000-0000-4000-9000-200000000008';
+  const ID_BROUWLAND = '00000000-0000-4000-9000-900000000003';
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -54,6 +57,12 @@ describe('YeastCatalogService', () => {
 
     service = module.get(YeastCatalogService);
     repository = module.get(getRepositoryToken(YeastOrmEntity));
+    distributorRepository = module.get(
+      getRepositoryToken(DistributorOrmEntity),
+    );
+    yeastDistributorRepository = module.get(
+      getRepositoryToken(YeastDistributorOrmEntity),
+    );
   });
 
   afterAll(async () => {
@@ -61,8 +70,42 @@ describe('YeastCatalogService', () => {
   });
 
   beforeEach(async () => {
+    await yeastDistributorRepository.clear();
     await repository.clear();
+    await distributorRepository.clear();
   });
+
+  async function seedDistributor(
+    id: string,
+    name: string,
+  ): Promise<DistributorOrmEntity> {
+    const entity = distributorRepository.create({
+      id,
+      name,
+      country: 'BE',
+      website: `https://www.${name.toLowerCase().replace(/\s+/g, '')}.test`,
+      ships_to: JSON.stringify(['BE']),
+      currency_default: 'EUR',
+      notes: null,
+    });
+    return distributorRepository.save(entity);
+  }
+
+  async function linkYeastToDistributor(
+    yeastId: string,
+    distributorId: string,
+    productUrl: string,
+  ): Promise<void> {
+    await yeastDistributorRepository.save(
+      yeastDistributorRepository.create({
+        yeast_id: yeastId,
+        distributor_id: distributorId,
+        product_url: productUrl,
+        sku: null,
+        notes_per_distributor: null,
+      }),
+    );
+  }
 
   async function seedYeast(
     id: string,
@@ -179,6 +222,37 @@ describe('YeastCatalogService', () => {
 
       // Strict UUID PK lookup — name-shaped strings still 404.
       await expect(service.getById('safale-us-05')).rejects.toThrow();
+    });
+  });
+
+  describe('getDistributors() — boutique foundation (Issue #901)', () => {
+    it('happy: returns the junction rows with the distributor relation eagerly loaded', async () => {
+      await seedYeast(ID_US05, 'Safale US-05', YeastType.ALE, YeastForm.DRY);
+      await seedDistributor(ID_BROUWLAND, 'Brouwland');
+      await linkYeastToDistributor(
+        ID_US05,
+        ID_BROUWLAND,
+        'https://www.brouwland.com/safale-us-05-11g',
+      );
+
+      const rows = await service.getDistributors(ID_US05);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].distributor.name).toBe('Brouwland');
+      expect(rows[0].product_url).toBe(
+        'https://www.brouwland.com/safale-us-05-11g',
+      );
+    });
+
+    it('sad: throws NotFoundException when the yeast UUID is unknown', async () => {
+      await expect(
+        service.getDistributors('00000000-0000-4000-9000-2000000000ff'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('edge: returns [] when the yeast exists but has no distributors yet', async () => {
+      await seedYeast(ID_US05, 'Safale US-05', YeastType.ALE, YeastForm.DRY);
+      const rows = await service.getDistributors(ID_US05);
+      expect(rows).toEqual([]);
     });
   });
 });

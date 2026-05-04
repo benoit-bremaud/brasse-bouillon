@@ -1,11 +1,11 @@
 import React from "react";
 import {
-  Dimensions,
   Modal,
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
@@ -54,14 +54,14 @@ interface Props {
  * and the X icon was unreliable to hit-test on small phones.
  */
 export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
+  // useWindowDimensions is reactive (updates on rotation, keyboard,
+  // etc.) and is safer than `Dimensions.get('window')` which can
+  // return stale values on Android in some Modal contexts.
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
   if (entry === null) {
     return null;
   }
-
-  // Read at render-time so device rotation / viewport changes pick
-  // up the new dimensions on the next mount.
-  const { width: screenWidth, height: screenHeight } =
-    Dimensions.get("window");
 
   return (
     <Modal
@@ -73,11 +73,10 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
       statusBarTranslucent
       hardwareAccelerated
     >
-      {/* Backdrop is the Modal's direct child, with explicit
-          width/height (Android Modal sometimes fails to give its
-          first child a non-zero size with flex: 1 alone). The
-          Pressable IS the dismiss target across the entire dark
-          surface. */}
+      {/* Backdrop = Modal's direct child. Belt-and-suspenders
+          sizing: explicit width/height from useWindowDimensions
+          PLUS absolute fill PLUS flex:1 — at least one of these
+          will work on every Android device + RN version combo. */}
       <Pressable
         style={[
           styles.backdrop,
@@ -211,10 +210,14 @@ const styles = StyleSheet.create({
   fullScreen: {
     position: "relative",
   },
-  // Full-screen dark overlay. Catches dismiss taps anywhere
-  // outside the card.
+  // Full-screen dark overlay. Belt-and-suspenders sizing —
+  // explicit width/height applied inline from useWindowDimensions
+  // PLUS absoluteFillObject PLUS flex: 1. At least one of these
+  // wins layout regardless of the Android RN version + Modal
+  // implementation quirks the user is hitting on their device.
   backdrop: {
     ...StyleSheet.absoluteFillObject,
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   // Card row — absolute child at the computed top offset, full

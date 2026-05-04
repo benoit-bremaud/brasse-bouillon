@@ -2,6 +2,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
+import { YeastDistributorOrmEntity } from '../entities/yeast-distributor.orm.entity';
 import { YeastForm } from '../domain/enums/yeast-form.enum';
 import { YeastOrmEntity } from '../entities/yeast.orm.entity';
 import { YeastType } from '../domain/enums/yeast-type.enum';
@@ -20,6 +21,8 @@ export class YeastCatalogService {
   constructor(
     @InjectRepository(YeastOrmEntity)
     private readonly yeasts: Repository<YeastOrmEntity>,
+    @InjectRepository(YeastDistributorOrmEntity)
+    private readonly yeastDistributors: Repository<YeastDistributorOrmEntity>,
   ) {}
 
   /**
@@ -51,5 +54,19 @@ export class YeastCatalogService {
       throw new NotFoundException(`Yeast catalogue entry ${id} not found`);
     }
     return entity;
+  }
+
+  /**
+   * Returns the distributors that sell this exact yeast strain,
+   * with their per-distributor outbound URL + optional SKU +
+   * notes. Powers the boutique 'Acheter' button (Issue #901,
+   * #625). Throws 404 if the yeast UUID is unknown.
+   */
+  async getDistributors(id: string): Promise<YeastDistributorOrmEntity[]> {
+    await this.getById(id);
+    return this.yeastDistributors.find({
+      where: { yeast_id: id },
+      relations: ['distributor'],
+    });
   }
 }

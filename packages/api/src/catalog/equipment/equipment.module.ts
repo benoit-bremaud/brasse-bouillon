@@ -1,5 +1,6 @@
 import { EquipmentCatalogController } from './controllers/equipment-catalog.controller';
 import { EquipmentCatalogService } from './services/equipment-catalog.service';
+import { EquipmentTemplateDistributorOrmEntity } from './entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from './entities/equipment-template.orm.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,7 +15,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
  * adopted on PR #894 for `WaterCatalogModule`.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([EquipmentTemplateOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      EquipmentTemplateOrmEntity,
+      EquipmentTemplateDistributorOrmEntity,
+    ]),
+  ],
   controllers: [EquipmentCatalogController],
   providers: [EquipmentCatalogService],
   exports: [EquipmentCatalogService],

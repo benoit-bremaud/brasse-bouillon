@@ -1,3 +1,4 @@
+import { DistributorCatalogModule } from './distributor/distributor.module';
 import { EquipmentCatalogModule } from './equipment/equipment.module';
 import { FermentableModule } from './fermentable/fermentable.module';
 import { HopModule } from './hop/hop.module';
@@ -21,6 +22,13 @@ import { YeastModule } from './yeast/yeast.module';
  * Each sub-module owns its own ORM entity, service, controller,
  * and DTOs. CatalogModule re-exports nothing for now — direct
  * sub-module dependencies are explicit at the consumer side.
+ *
+ * Post-Phase 3 follow-ups (cross-catalogue dimensions) :
+ *   • ProducerCatalogModule — brand owners (FK 1:1, PR #902)
+ *   • DistributorCatalogModule — resellers (M:N junctions per
+ *     catalogue, PR #901). Each per-catalogue module also
+ *     registers its own junction entity in TypeOrmModule.forFeature
+ *     so the per-catalogue service can load distributors directly.
  */
 @Module({
   imports: [
@@ -33,6 +41,7 @@ import { YeastModule } from './yeast/yeast.module';
     EquipmentCatalogModule,
     MiscCatalogModule,
     ProducerCatalogModule,
+    DistributorCatalogModule,
   ],
 })
 export class CatalogModule {}

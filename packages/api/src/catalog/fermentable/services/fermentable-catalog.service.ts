@@ -1,6 +1,7 @@
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { FermentableDistributorOrmEntity } from '../entities/fermentable-distributor.orm.entity';
 import { FermentableOrmEntity } from '../entities/fermentable.orm.entity';
 import { FermentableType } from '../domain/enums/fermentable-type.enum';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +19,8 @@ export class FermentableCatalogService {
   constructor(
     @InjectRepository(FermentableOrmEntity)
     private readonly fermentables: Repository<FermentableOrmEntity>,
+    @InjectRepository(FermentableDistributorOrmEntity)
+    private readonly fermentableDistributors: Repository<FermentableDistributorOrmEntity>,
   ) {}
 
   /**
@@ -52,5 +55,21 @@ export class FermentableCatalogService {
       );
     }
     return entity;
+  }
+
+  /**
+   * Returns the distributors that sell this exact fermentable,
+   * with their per-distributor outbound URL + optional SKU +
+   * notes. Powers the boutique 'Acheter' button (Issue #901,
+   * #625). Throws 404 if the fermentable UUID is unknown.
+   */
+  async getDistributors(
+    id: string,
+  ): Promise<FermentableDistributorOrmEntity[]> {
+    await this.getById(id);
+    return this.fermentableDistributors.find({
+      where: { fermentable_id: id },
+      relations: ['distributor'],
+    });
   }
 }

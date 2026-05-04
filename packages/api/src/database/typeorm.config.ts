@@ -4,13 +4,18 @@ import { BatchOrmEntity } from '../batch/entities/batch.orm.entity';
 import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.entity';
 import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
 import { DataSourceOptions } from 'typeorm';
+import { DistributorOrmEntity } from '../catalog/distributor/entities/distributor.orm.entity';
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
+import { EquipmentTemplateDistributorOrmEntity } from '../catalog/equipment/entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from '../catalog/equipment/entities/equipment-template.orm.entity';
+import { FermentableDistributorOrmEntity } from '../catalog/fermentable/entities/fermentable-distributor.orm.entity';
 import { FermentableOrmEntity } from '../catalog/fermentable/entities/fermentable.orm.entity';
+import { HopDistributorOrmEntity } from '../catalog/hop/entities/hop-distributor.orm.entity';
 import { HopOrmEntity } from '../catalog/hop/entities/hop.orm.entity';
 import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
 import { MashProfileOrmEntity } from '../catalog/mash/entities/mash-profile.orm.entity';
 import { MashStepOrmEntity } from '../catalog/mash/entities/mash-step.orm.entity';
+import { MiscTemplateDistributorOrmEntity } from '../catalog/misc/entities/misc-template-distributor.orm.entity';
 import { MiscTemplateOrmEntity } from '../catalog/misc/entities/misc-template.orm.entity';
 import { ProducerOrmEntity } from '../catalog/producer/entities/producer.orm.entity';
 import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
@@ -28,6 +33,7 @@ import { StyleOrmEntity } from '../catalog/style/entities/style.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { WaterOrmEntity } from '../catalog/water/entities/water.orm.entity';
+import { YeastDistributorOrmEntity } from '../catalog/yeast/entities/yeast-distributor.orm.entity';
 import { YeastOrmEntity } from '../catalog/yeast/entities/yeast.orm.entity';
 
 const truthyEnvValues = new Set(['1', 'true', 'yes', 'on']);
@@ -61,6 +67,12 @@ export const ormEntities = [
   EquipmentTemplateOrmEntity,
   MiscTemplateOrmEntity,
   ProducerOrmEntity,
+  DistributorOrmEntity,
+  HopDistributorOrmEntity,
+  FermentableDistributorOrmEntity,
+  YeastDistributorOrmEntity,
+  MiscTemplateDistributorOrmEntity,
+  EquipmentTemplateDistributorOrmEntity,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

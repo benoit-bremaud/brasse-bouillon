@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { EquipmentCatalogController } from '../equipment-catalog.controller';
 import { EquipmentCatalogService } from '../../services/equipment-catalog.service';
+import { EquipmentTemplateDistributorOrmEntity } from '../../entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from '../../entities/equipment-template.orm.entity';
 import { NotFoundException } from '@nestjs/common';
 
@@ -37,13 +39,51 @@ describe('EquipmentCatalogController', () => {
     };
   }
 
+  function buildDistributor(
+    overrides: Partial<DistributorOrmEntity> = {},
+  ): DistributorOrmEntity {
+    return {
+      id: '00000000-0000-4000-9000-900000000003',
+      name: 'Brouwland',
+      country: 'BE',
+      website: 'https://www.brouwland.com',
+      ships_to: JSON.stringify(['BE', 'FR', 'NL']),
+      currency_default: 'EUR',
+      notes: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      ...overrides,
+    };
+  }
+
+  function buildJunction(
+    overrides: Partial<EquipmentTemplateDistributorOrmEntity> = {},
+  ): EquipmentTemplateDistributorOrmEntity {
+    return {
+      equipment_template_id: ID_GRAINFATHER,
+      distributor_id: '00000000-0000-4000-9000-900000000003',
+      product_url: 'https://www.brouwland.com/grainfather-g30',
+      sku: 'BRW-GF-G30',
+      notes_per_distributor: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      equipment_template: buildEntity(),
+      distributor: buildDistributor(),
+      ...overrides,
+    };
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EquipmentCatalogController],
       providers: [
         {
           provide: EquipmentCatalogService,
-          useValue: { list: jest.fn(), getById: jest.fn() },
+          useValue: {
+            list: jest.fn(),
+            getById: jest.fn(),
+            getDistributors: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -112,6 +152,35 @@ describe('EquipmentCatalogController', () => {
       const result = await controller.getById(ID_GRAINFATHER);
       expect(result).not.toBe(entity);
       expect(result.constructor.name).toBe('EquipmentTemplateDto');
+    });
+  });
+
+  describe('GET /catalog/equipment-templates/:id/distributors (Issue #901)', () => {
+    it('happy: maps junction rows to CatalogDistributorLinkDto with distributor nested', async () => {
+      const getDistributorsSpy = jest
+        .spyOn(service, 'getDistributors')
+        .mockResolvedValue([buildJunction()]);
+
+      const result = await controller.getDistributors(ID_GRAINFATHER);
+
+      expect(getDistributorsSpy).toHaveBeenCalledWith(ID_GRAINFATHER);
+      expect(result).toHaveLength(1);
+      expect(result[0].product_url).toBe(
+        'https://www.brouwland.com/grainfather-g30',
+      );
+      expect(result[0].distributor.name).toBe('Brouwland');
+    });
+
+    it('sad: lets a NotFoundException from the service propagate', async () => {
+      jest
+        .spyOn(service, 'getDistributors')
+        .mockRejectedValue(
+          new NotFoundException('Equipment template catalogue entry not found'),
+        );
+
+      await expect(
+        controller.getDistributors('00000000-0000-4000-9000-6000000000ff'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { NotFoundException } from '@nestjs/common';
 import { YeastCatalogController } from '../yeast-catalog.controller';
 import { YeastCatalogService } from '../../services/yeast-catalog.service';
+import { YeastDistributorOrmEntity } from '../../entities/yeast-distributor.orm.entity';
 import { YeastFlocculation } from '../../domain/enums/yeast-flocculation.enum';
 import { YeastForm } from '../../domain/enums/yeast-form.enum';
 import { YeastOrmEntity } from '../../entities/yeast.orm.entity';
@@ -43,6 +45,40 @@ describe('YeastCatalogController', () => {
     };
   }
 
+  function buildDistributor(
+    overrides: Partial<DistributorOrmEntity> = {},
+  ): DistributorOrmEntity {
+    return {
+      id: '00000000-0000-4000-9000-900000000003',
+      name: 'Brouwland',
+      country: 'BE',
+      website: 'https://www.brouwland.com',
+      ships_to: JSON.stringify(['BE', 'FR', 'NL']),
+      currency_default: 'EUR',
+      notes: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      ...overrides,
+    };
+  }
+
+  function buildJunction(
+    overrides: Partial<YeastDistributorOrmEntity> = {},
+  ): YeastDistributorOrmEntity {
+    return {
+      yeast_id: ID_US05,
+      distributor_id: '00000000-0000-4000-9000-900000000003',
+      product_url: 'https://www.brouwland.com/safale-us-05-11g',
+      sku: 'BRW-US05-11',
+      notes_per_distributor: null,
+      created_at: new Date('2026-05-04T00:00:00.000Z'),
+      updated_at: new Date('2026-05-04T00:00:00.000Z'),
+      yeast: buildEntity(),
+      distributor: buildDistributor(),
+      ...overrides,
+    };
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [YeastCatalogController],
@@ -52,6 +88,7 @@ describe('YeastCatalogController', () => {
           useValue: {
             list: jest.fn(),
             getById: jest.fn(),
+            getDistributors: jest.fn(),
           },
         },
       ],
@@ -138,6 +175,37 @@ describe('YeastCatalogController', () => {
 
       expect(result).not.toBe(entity);
       expect(result.constructor.name).toBe('YeastDto');
+    });
+  });
+
+  describe('GET /catalog/yeasts/:id/distributors (Issue #901)', () => {
+    it('happy: maps junction rows to CatalogDistributorLinkDto with distributor nested', async () => {
+      const getDistributorsSpy = jest
+        .spyOn(service, 'getDistributors')
+        .mockResolvedValue([buildJunction()]);
+
+      const result = await controller.getDistributors(ID_US05);
+
+      expect(getDistributorsSpy).toHaveBeenCalledWith(ID_US05);
+      expect(result).toHaveLength(1);
+      expect(result[0].product_url).toBe(
+        'https://www.brouwland.com/safale-us-05-11g',
+      );
+      expect(result[0].sku).toBe('BRW-US05-11');
+      expect(result[0].distributor.name).toBe('Brouwland');
+      expect(result[0].distributor.ships_to).toEqual(['BE', 'FR', 'NL']);
+    });
+
+    it('sad: lets a NotFoundException from the service propagate', async () => {
+      jest
+        .spyOn(service, 'getDistributors')
+        .mockRejectedValue(
+          new NotFoundException('Yeast catalogue entry not found'),
+        );
+
+      await expect(
+        controller.getDistributors('00000000-0000-4000-9000-2000000000ff'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

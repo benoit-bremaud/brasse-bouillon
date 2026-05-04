@@ -16,6 +16,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  CatalogDistributorLinkDto,
+  mapJunctionRowToDto,
+} from '../../distributor/dtos/catalog-distributor-link.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt.guard';
 import { YeastCatalogService } from '../services/yeast-catalog.service';
 import { YeastDto } from '../dtos/yeast.dto';
@@ -73,5 +77,18 @@ export class YeastCatalogController {
   ): Promise<YeastDto> {
     const entity = await this.service.getById(id);
     return YeastDto.fromEntity(entity);
+  }
+
+  @Get(':id/distributors')
+  @ApiOperation({
+    summary: 'List distributors that sell this yeast (boutique foundation)',
+  })
+  @ApiOkResponse({ type: CatalogDistributorLinkDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'Yeast catalogue entry not found' })
+  async getDistributors(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<CatalogDistributorLinkDto[]> {
+    const rows = await this.service.getDistributors(id);
+    return rows.map(mapJunctionRowToDto);
   }
 }

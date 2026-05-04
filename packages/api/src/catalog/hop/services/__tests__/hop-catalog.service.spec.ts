@@ -3,7 +3,9 @@ jest.setTimeout(20000);
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { HopCatalogService } from '../hop-catalog.service';
+import { HopDistributorOrmEntity } from '../../entities/hop-distributor.orm.entity';
 import { HopForm } from '../../domain/enums/hop-form.enum';
 import { HopOrmEntity } from '../../entities/hop.orm.entity';
 import { HopUsageType } from '../../domain/enums/hop-usage-type.enum';
@@ -21,10 +23,14 @@ describe('HopCatalogService', () => {
   let module: TestingModule;
   let service: HopCatalogService;
   let repository: Repository<HopOrmEntity>;
+  let distributorRepository: Repository<DistributorOrmEntity>;
+  let hopDistributorRepository: Repository<HopDistributorOrmEntity>;
 
   const ID_CASCADE = '00000000-0000-4000-9000-000000000001';
   const ID_GALENA = '00000000-0000-4000-9000-000000000002';
   const ID_TETTNANG = '00000000-0000-4000-9000-000000000005';
+  const ID_BROUWLAND = '00000000-0000-4000-9000-900000000003';
+  const ID_HOPT = '00000000-0000-4000-9000-900000000001';
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -32,17 +38,31 @@ describe('HopCatalogService', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [HopOrmEntity],
+          entities: [
+            HopOrmEntity,
+            DistributorOrmEntity,
+            HopDistributorOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([HopOrmEntity]),
+        TypeOrmModule.forFeature([
+          HopOrmEntity,
+          DistributorOrmEntity,
+          HopDistributorOrmEntity,
+        ]),
       ],
       providers: [HopCatalogService],
     }).compile();
 
     service = module.get(HopCatalogService);
     repository = module.get(getRepositoryToken(HopOrmEntity));
+    distributorRepository = module.get(
+      getRepositoryToken(DistributorOrmEntity),
+    );
+    hopDistributorRepository = module.get(
+      getRepositoryToken(HopDistributorOrmEntity),
+    );
   });
 
   afterAll(async () => {
@@ -50,8 +70,42 @@ describe('HopCatalogService', () => {
   });
 
   beforeEach(async () => {
+    await hopDistributorRepository.clear();
     await repository.clear();
+    await distributorRepository.clear();
   });
+
+  async function seedDistributor(
+    id: string,
+    name: string,
+  ): Promise<DistributorOrmEntity> {
+    const entity = distributorRepository.create({
+      id,
+      name,
+      country: 'BE',
+      website: `https://www.${name.toLowerCase().replace(/\s+/g, '')}.test`,
+      ships_to: JSON.stringify(['BE']),
+      currency_default: 'EUR',
+      notes: null,
+    });
+    return distributorRepository.save(entity);
+  }
+
+  async function linkHopToDistributor(
+    hopId: string,
+    distributorId: string,
+    productUrl: string,
+  ): Promise<void> {
+    await hopDistributorRepository.save(
+      hopDistributorRepository.create({
+        hop_id: hopId,
+        distributor_id: distributorId,
+        product_url: productUrl,
+        sku: null,
+        notes_per_distributor: null,
+      }),
+    );
+  }
 
   async function seedHop(
     id: string,
@@ -150,6 +204,46 @@ describe('HopCatalogService', () => {
       // means this still 404s. Catalog name lookups must go through
       // list(), not getById().
       await expect(service.getById('cascade')).rejects.toThrow();
+    });
+  });
+
+  describe('getDistributors() — boutique foundation (Issue #901)', () => {
+    it('happy: returns the junction rows with the distributor relation eagerly loaded', async () => {
+      await seedHop(ID_CASCADE, 'Cascade', HopUsageType.BOTH);
+      await seedDistributor(ID_BROUWLAND, 'Brouwland');
+      await seedDistributor(ID_HOPT, 'Hopt');
+      await linkHopToDistributor(
+        ID_CASCADE,
+        ID_BROUWLAND,
+        'https://www.brouwland.com/cascade-100g',
+      );
+      await linkHopToDistributor(
+        ID_CASCADE,
+        ID_HOPT,
+        'https://www.hopt.fr/cascade',
+      );
+
+      const rows = await service.getDistributors(ID_CASCADE);
+      expect(rows).toHaveLength(2);
+      expect(rows.map((r) => r.distributor.name).sort()).toEqual([
+        'Brouwland',
+        'Hopt',
+      ]);
+      expect(
+        rows.find((r) => r.distributor.name === 'Brouwland')?.product_url,
+      ).toBe('https://www.brouwland.com/cascade-100g');
+    });
+
+    it('sad: throws NotFoundException when the hop UUID is unknown', async () => {
+      await expect(
+        service.getDistributors('00000000-0000-4000-9000-0000000000ff'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('edge: returns [] when the hop exists but has no distributors yet', async () => {
+      await seedHop(ID_CASCADE, 'Cascade', HopUsageType.BOTH);
+      const rows = await service.getDistributors(ID_CASCADE);
+      expect(rows).toEqual([]);
     });
   });
 });

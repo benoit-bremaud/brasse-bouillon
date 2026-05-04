@@ -61,8 +61,7 @@ export function GlossaryPopup({
       backdropColor="black"
       statusBarTranslucent
       useNativeDriver
-      hideModalContentWhileAnimating
-      style={styles.modalContainer}
+      style={styles.modalCentering}
     >
       {entry !== null ? (
         <Card style={styles.card}>
@@ -144,13 +143,14 @@ const CATEGORY_BADGE_VARIANT: Record<
 };
 
 const styles = StyleSheet.create({
-  // react-native-modal centers vertically by default; we let the
-  // card be 90% wide capped at 480 px, padded for tablets.
-  modalContainer: {
-    alignItems: "center",
+  // react-native-modal applies this style to its outer container.
+  // We only set `justifyContent: center` to vertically center the
+  // card and a small horizontal margin so the card never bleeds
+  // to the screen edges. Library defaults handle the rest.
+  modalCentering: {
     justifyContent: "center",
-    paddingHorizontal: spacing.md,
-    margin: 0,
+    alignItems: "center",
+    margin: spacing.md,
   },
   card: {
     width: "100%",

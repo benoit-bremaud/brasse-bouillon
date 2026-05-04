@@ -1,6 +1,13 @@
-import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -13,6 +20,12 @@ import type {
 interface Props {
   /** When `null`, the modal is hidden. */
   readonly entry: GlossaryEntry | null;
+  /**
+   * Vertical position (window coordinates) of the touch that opened
+   * the popup. The card is anchored just below this Y, falling
+   * back to centered if the value is missing.
+   */
+  readonly anchorY?: number;
   /** Closes the popup. Called on backdrop press or X icon. */
   readonly onClose: () => void;
   /**
@@ -27,23 +40,24 @@ interface Props {
  * Modal popup that surfaces a glossary entry's definition,
  * triggered by `<GlossaryTerm>` long-press (Issue #783).
  *
+ * Positioning : the card is anchored just below the finger Y, like
+ * a contextual tooltip. If the touch was near the bottom of the
+ * screen, the popup flips above the finger so it never overflows
+ * out of the visible viewport. Falls back to vertically-centered
+ * if no `anchorY` is provided.
+ *
  * Layout :
  * - Term displayLabel on the LEFT, category badge on the RIGHT —
  *   single header row so the popup stays compact
- * - Close X icon : absolute top-right corner, 36 px circular
- *   target with hitSlop padding for thumb ergonomics
+ * - Close X icon : absolute top-right, 36 px circular target with
+ *   hitSlop padding for thumb ergonomics
  * - Definition : short (~1 sentence) body text
  * - Optional "Académie →" link : right-aligned, subtle (the user
- *   inferred meaning from context — no need for a verbose CTA)
- *
- * Centering is achieved with a flex parent (`flex: 1` +
- * `justifyContent: "center"` + `alignItems: "center"`) and a
- * sibling absolutely-positioned backdrop Pressable that catches
- * outside taps. No `marginTop`/`marginBottom` math is needed —
- * the flex container computes the centered position correctly
- * on any device.
+ *   inferred meaning from context)
  */
-export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
+export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
+  const [cardHeight, setCardHeight] = useState<number | null>(null);
+
   if (entry === null) {
     return null;
   }
@@ -56,8 +70,6 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
       onRequestClose={onClose}
       accessibilityViewIsModal
     >
-      {/* Backdrop covers the entire screen including notches /
-          status bar — taps anywhere outside the card dismiss. */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Fermer la définition"
@@ -65,47 +77,48 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
         onPress={onClose}
         style={styles.backdrop}
       />
-      {/* SafeAreaView constrains the centering to the visible
-          viewport (excludes notch / status bar / home indicator)
-          so the popup never bleeds under the system UI. */}
-      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        <View style={styles.centeringRow} pointerEvents="box-none">
-          <Card style={styles.card}>
+      <View
+        style={[styles.cardContainer, computeCardOffset(anchorY, cardHeight)]}
+        pointerEvents="box-none"
+        onLayout={(event: LayoutChangeEvent) => {
+          setCardHeight(event.nativeEvent.layout.height);
+        }}
+      >
+        <Card style={styles.card}>
+          <Pressable
+            style={styles.closeButton}
+            hitSlop={spacing.md}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Fermer la définition"
+          >
+            <Text style={styles.closeIcon}>✕</Text>
+          </Pressable>
+          <View style={styles.headerRow}>
+            <Text style={styles.term}>{entry.displayLabel}</Text>
+            <Badge
+              label={CATEGORY_LABEL[entry.category]}
+              variant={CATEGORY_BADGE_VARIANT[entry.category]}
+              style={styles.badge}
+            />
+          </View>
+          <Text style={styles.definition}>{entry.definition}</Text>
+          {onReadMore ? (
             <Pressable
-              style={styles.closeButton}
-              hitSlop={spacing.md}
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel="Fermer la définition"
+              onPress={() => onReadMore(entry)}
+              hitSlop={spacing.xs}
+              accessibilityRole="link"
+              accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
+              style={({ pressed }) => [
+                styles.academyLink,
+                pressed && styles.academyLinkPressed,
+              ]}
             >
-              <Text style={styles.closeIcon}>✕</Text>
+              <Text style={styles.academyLinkLabel}>Académie →</Text>
             </Pressable>
-            <View style={styles.headerRow}>
-              <Text style={styles.term}>{entry.displayLabel}</Text>
-              <Badge
-                label={CATEGORY_LABEL[entry.category]}
-                variant={CATEGORY_BADGE_VARIANT[entry.category]}
-                style={styles.badge}
-              />
-            </View>
-            <Text style={styles.definition}>{entry.definition}</Text>
-            {onReadMore ? (
-              <Pressable
-                onPress={() => onReadMore(entry)}
-                hitSlop={spacing.xs}
-                accessibilityRole="link"
-                accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
-                style={({ pressed }) => [
-                  styles.academyLink,
-                  pressed && styles.academyLinkPressed,
-                ]}
-              >
-                <Text style={styles.academyLinkLabel}>Académie →</Text>
-              </Pressable>
-            ) : null}
-          </Card>
-        </View>
-      </SafeAreaView>
+          ) : null}
+        </Card>
+      </View>
     </Modal>
   );
 }
@@ -130,23 +143,65 @@ const CATEGORY_BADGE_VARIANT: Record<
 };
 
 const CLOSE_BUTTON_SIZE = 36;
-// Reserve enough horizontal room for the close button so the term
-// + badge row never collides with the icon.
-const CLOSE_BUTTON_RESERVE = CLOSE_BUTTON_SIZE + spacing.sm;
+/** Vertical gap between the finger and the popup edge. */
+const ANCHOR_GAP = spacing.sm;
+/** Minimum margin from the screen edge so the popup never bleeds. */
+const SCREEN_MARGIN = spacing.md;
+
+/**
+ * Computes a `top` offset that places the card just below the
+ * finger Y, flipping above when the popup would overflow at the
+ * bottom of the screen. Returns no offset (card centers) when no
+ * anchor is provided.
+ *
+ * `cardHeight` is `null` on the first render (before onLayout has
+ * fired). On that frame we use a conservative estimate so the
+ * card doesn't flash off-screen — the second render uses the real
+ * measured height.
+ */
+function computeCardOffset(
+  anchorY: number | undefined,
+  cardHeight: number | null,
+): { top?: number; bottom?: number; justifyContent?: "center" } {
+  if (anchorY === undefined) {
+    return { justifyContent: "center" };
+  }
+  const screenHeight = Dimensions.get("window").height;
+  // Conservative pre-layout estimate — first frame only.
+  const estimatedHeight = cardHeight ?? 180;
+  const desiredTop = anchorY + ANCHOR_GAP;
+  const fitsBelow =
+    desiredTop + estimatedHeight <= screenHeight - SCREEN_MARGIN;
+  if (fitsBelow) {
+    return { top: desiredTop };
+  }
+  // Not enough room below — flip above the finger.
+  const desiredBottom = screenHeight - anchorY + ANCHOR_GAP;
+  const fitsAbove =
+    desiredBottom + estimatedHeight <= screenHeight - SCREEN_MARGIN;
+  if (fitsAbove) {
+    return { bottom: desiredBottom };
+  }
+  // Last resort — anchor near the bottom safely inside the screen.
+  return {
+    top: Math.max(
+      SCREEN_MARGIN,
+      screenHeight - estimatedHeight - SCREEN_MARGIN,
+    ),
+  };
+}
 
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(30, 30, 30, 0.55)",
   },
-  safeArea: {
-    flex: 1,
-  },
-  centeringRow: {
-    flex: 1,
-    justifyContent: "center",
+  cardContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    paddingHorizontal: SCREEN_MARGIN,
     alignItems: "center",
-    paddingHorizontal: spacing.md,
   },
   card: {
     width: "100%",
@@ -179,7 +234,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: spacing.sm,
     gap: spacing.sm,
-    paddingRight: CLOSE_BUTTON_RESERVE,
+    paddingRight: CLOSE_BUTTON_SIZE + spacing.sm,
   },
   term: {
     flex: 1,

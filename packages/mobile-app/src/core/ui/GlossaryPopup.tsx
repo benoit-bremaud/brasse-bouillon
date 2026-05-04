@@ -1,16 +1,10 @@
 import React from "react";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Modal from "react-native-modal";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
-import { colors, spacing, typography } from "@/core/theme";
+import { colors, radius, spacing, typography } from "@/core/theme";
 import type {
   GlossaryCategory,
   GlossaryEntry,
@@ -20,122 +14,114 @@ interface Props {
   /** When `null`, the modal is hidden. */
   readonly entry: GlossaryEntry | null;
   /**
-   * Vertical position (window coordinates) of the touch that opened
-   * the popup. The card is anchored just below this Y, falling
-   * back to centered if the value is missing.
+   * Optional surface text — the literal word the user pressed in
+   * the source text (e.g. "dry-hop", "MASH", "empâtage"). When
+   * provided, it is shown as the popup title so the user always
+   * sees the exact word they pressed instead of the canonical
+   * displayLabel ("Houblonnage à cru" etc.).
    */
-  readonly anchorY?: number;
-  /** Closes the popup. Called on backdrop press. */
+  readonly surface?: string;
+  /** Closes the popup. Called when OK is pressed or backdrop tapped. */
   readonly onClose: () => void;
-  /**
-   * Optional callback for the "Académie →" link. The navigation
-   * target is decided by the host (typically pushes
-   * `/academy/glossaire`). When omitted, the link is hidden.
-   */
+  /** Optional Académie navigation callback. */
   readonly onReadMore?: (entry: GlossaryEntry) => void;
 }
 
 /**
- * Modal popup that surfaces a glossary entry's definition,
- * triggered by `<GlossaryTerm>` long-press (Issue #783).
+ * Glossary entry popup (Issue #783) — built on `react-native-modal`
+ * after a long debug session against RN core Modal + Pressable
+ * which had unreliable touch propagation on Android.
  *
- * Sizing strategy (after PR #913 multi-iteration fix) :
- * Android `<Modal transparent>` doesn't propagate `flex: 1` to its
- * content area reliably — the outer View collapses to 0 px and
- * absolute-positioned children (backdrop) end up invisible.
- * Workaround: read the screen width / height from `Dimensions` at
- * render time and apply them as explicit dimensions on the outer
- * container, guaranteeing the backdrop fills the entire visible
- * viewport on every device.
- *
- * Closing affordance : the entire dark overlay IS the dismiss
- * target. Tapping anywhere outside the centered card closes the
- * popup. No dedicated close button — the affordance is unmistakable
- * and the X icon was unreliable to hit-test on small phones.
+ * UX :
+ * - Centered modal with darkened backdrop (handled by react-native-
+ *   modal: `backdropOpacity` + `onBackdropPress`)
+ * - Title = the surface text (the actual word the user pressed),
+ *   which keeps it consistent with the source paragraph
+ * - Subtitle = the canonical FR `displayLabel` so the user still
+ *   sees the "official" term name when they pressed an alias
+ * - Bottom row : "OK" button (primary) on the right; optional
+ *   "Académie →" link on the left when `onReadMore` is provided
+ * - No more click-zone gymnastics — only explicit buttons close
+ *   the popup, plus a backdrop tap that the lib handles internally
  */
-export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
-  // useWindowDimensions is reactive (updates on rotation, keyboard,
-  // etc.) and is safer than `Dimensions.get('window')` which can
-  // return stale values on Android in some Modal contexts.
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-
-  if (entry === null) {
-    return null;
-  }
-
+export function GlossaryPopup({
+  entry,
+  surface,
+  onClose,
+  onReadMore,
+}: Props) {
   return (
     <Modal
-      visible
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      accessibilityViewIsModal
+      isVisible={entry !== null}
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}
+      animationIn="fadeIn"
+      animationOut="fadeOut"
+      backdropOpacity={0.7}
+      backdropColor="black"
       statusBarTranslucent
-      hardwareAccelerated
+      useNativeDriver
+      hideModalContentWhileAnimating
+      style={styles.modalContainer}
     >
-      {/* Backdrop = Modal's direct child. Belt-and-suspenders
-          sizing: explicit width/height from useWindowDimensions
-          PLUS absolute fill PLUS flex:1 — at least one of these
-          will work on every Android device + RN version combo. */}
-      <Pressable
-        style={[
-          styles.backdrop,
-          { width: screenWidth, height: screenHeight },
-        ]}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel="Fermer la définition"
-        accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
-      >
-        <View
-          style={[
-            styles.cardPositioner,
-            { width: screenWidth },
-            computeCardOffset(anchorY, screenHeight),
-          ]}
-          pointerEvents="box-none"
-        >
-          <View
-            style={styles.cardWrapper}
-            onStartShouldSetResponder={() => true}
-            onResponderRelease={swallowTap}
-          >
-            <Card style={styles.card}>
-              <View style={styles.headerRow}>
-                <Text style={styles.term}>{entry.displayLabel}</Text>
-                <Badge
-                  label={CATEGORY_LABEL[entry.category]}
-                  variant={CATEGORY_BADGE_VARIANT[entry.category]}
-                  style={styles.badge}
-                />
-              </View>
-              <Text style={styles.definition}>{entry.definition}</Text>
-              {onReadMore ? (
-                <Pressable
-                  onPress={() => onReadMore(entry)}
-                  hitSlop={spacing.xs}
-                  accessibilityRole="link"
-                  accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
-                  style={({ pressed }) => [
-                    styles.academyLink,
-                    pressed && styles.academyLinkPressed,
-                  ]}
-                >
-                  <Text style={styles.academyLinkLabel}>Académie →</Text>
-                </Pressable>
+      {entry !== null ? (
+        <Card style={styles.card}>
+          <View style={styles.headerRow}>
+            <View style={styles.headerLabels}>
+              <Text style={styles.surfaceLabel}>
+                {surface ?? entry.displayLabel}
+              </Text>
+              {surface !== undefined &&
+              normalize(surface) !== normalize(entry.displayLabel) ? (
+                <Text style={styles.canonicalLabel}>{entry.displayLabel}</Text>
               ) : null}
-            </Card>
+            </View>
+            <Badge
+              label={CATEGORY_LABEL[entry.category]}
+              variant={CATEGORY_BADGE_VARIANT[entry.category]}
+              style={styles.badge}
+            />
           </View>
-        </View>
-      </Pressable>
+          <Text style={styles.definition}>{entry.definition}</Text>
+          <View style={styles.actionsRow}>
+            {onReadMore ? (
+              <Pressable
+                onPress={() => onReadMore(entry)}
+                hitSlop={spacing.xs}
+                accessibilityRole="link"
+                accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
+                style={({ pressed }) => [
+                  styles.academyLink,
+                  pressed && styles.academyLinkPressed,
+                ]}
+              >
+                <Text style={styles.academyLinkLabel}>Académie →</Text>
+              </Pressable>
+            ) : (
+              <View />
+            )}
+            <Pressable
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Fermer la définition"
+              style={({ pressed }) => [
+                styles.okButton,
+                pressed && styles.okButtonPressed,
+              ]}
+            >
+              <Text style={styles.okButtonLabel}>OK</Text>
+            </Pressable>
+          </View>
+        </Card>
+      ) : null}
     </Modal>
   );
 }
 
-/** No-op handler used by the Card's onResponderRelease to claim
- * touches in the card body so they don't bubble to the backdrop. */
-function swallowTap(): void {
-  // intentional no-op
+/** Lowercase + collapse whitespace + drop punctuation for the
+ * "is the surface different from the canonical label" check. */
+function normalize(text: string): string {
+  return text.toLowerCase().replace(/[\s_-]+/g, "").trim();
 }
 
 const CATEGORY_LABEL: Record<GlossaryCategory, string> = {
@@ -157,108 +143,41 @@ const CATEGORY_BADGE_VARIANT: Record<
   style: "info",
 };
 
-/** Vertical gap between the finger and the popup edge. */
-const ANCHOR_GAP = spacing.sm;
-/** Minimum margin from the screen edge so the popup never bleeds. */
-const SCREEN_MARGIN = spacing.md;
-/** Conservative estimate of the card height — covers a 1-sentence
- * definition + term + badge + Académie link. Used by the overflow
- * detection. We deliberately don't measure the real height to keep
- * the position stable and avoid re-render churn. */
-const ESTIMATED_CARD_HEIGHT = 200;
-
-/**
- * Computes a `top` offset that places the card just below the
- * finger Y, flipping above when the popup would overflow at the
- * bottom. Falls back to vertical centering when no anchor.
- */
-function computeCardOffset(
-  anchorY: number | undefined,
-  screenHeight: number,
-): { top: number } {
-  if (anchorY === undefined) {
-    // Vertical centering — top = (screen - card) / 2
-    return {
-      top: Math.max(SCREEN_MARGIN, (screenHeight - ESTIMATED_CARD_HEIGHT) / 2),
-    };
-  }
-  const desiredTop = anchorY + ANCHOR_GAP;
-  const fitsBelow =
-    desiredTop + ESTIMATED_CARD_HEIGHT <= screenHeight - SCREEN_MARGIN;
-  if (fitsBelow) {
-    return { top: desiredTop };
-  }
-  // Not enough room below — flip above the finger.
-  const desiredTopFlipped =
-    anchorY - ANCHOR_GAP - ESTIMATED_CARD_HEIGHT;
-  if (desiredTopFlipped >= SCREEN_MARGIN) {
-    return { top: desiredTopFlipped };
-  }
-  // Last resort — anchor near the bottom safely inside the screen.
-  return {
-    top: Math.max(
-      SCREEN_MARGIN,
-      screenHeight - ESTIMATED_CARD_HEIGHT - SCREEN_MARGIN,
-    ),
-  };
-}
-
 const styles = StyleSheet.create({
-  // Outer container — explicit width/height applied inline at
-  // render time from Dimensions so we don't depend on flex: 1
-  // propagating through the Modal's content area on Android.
-  fullScreen: {
-    position: "relative",
-  },
-  // Full-screen dark overlay. Belt-and-suspenders sizing —
-  // explicit width/height applied inline from useWindowDimensions
-  // PLUS absoluteFillObject PLUS flex: 1. At least one of these
-  // wins layout regardless of the Android RN version + Modal
-  // implementation quirks the user is hitting on their device.
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-  // Card row — absolute child at the computed top offset, full
-  // explicit width (set inline from Dimensions), centers the card
-  // horizontally via flexDirection + justifyContent.
-  cardPositioner: {
-    position: "absolute",
-    left: 0,
-    flexDirection: "row",
+  // react-native-modal centers vertically by default; we let the
+  // card be 90% wide capped at 480 px, padded for tablets.
+  modalContainer: {
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "flex-start",
-    paddingHorizontal: SCREEN_MARGIN,
-  },
-  // Card wrapper — width-based sizing (NOT `flex: 1`). flex: 1 in a
-  // row container with auto-height parent stretches the wrapper
-  // vertically to fill available space, which made the wrapper
-  // claim taps far below the visible card and prevented the
-  // backdrop from receiving dismiss taps in most of the screen.
-  // With explicit width + maxWidth + flexShrink, the wrapper is
-  // exactly card-sized — backdrop receives all surrounding taps.
-  cardWrapper: {
-    width: "100%",
-    maxWidth: 480,
-    flexShrink: 1,
+    paddingHorizontal: spacing.md,
+    margin: 0,
   },
   card: {
+    width: "100%",
+    maxWidth: 480,
     padding: spacing.md,
   },
   headerRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     marginBottom: spacing.sm,
     gap: spacing.sm,
   },
-  term: {
+  headerLabels: {
     flex: 1,
+  },
+  surfaceLabel: {
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
     color: colors.brand.secondary,
+  },
+  canonicalLabel: {
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    color: colors.neutral.textSecondary,
+    marginTop: spacing.xxs,
   },
   badge: {
     flexShrink: 0,
@@ -267,11 +186,16 @@ const styles = StyleSheet.create({
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
     color: colors.neutral.textPrimary,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
   },
   academyLink: {
-    alignSelf: "flex-end",
-    paddingVertical: spacing.xxs,
+    paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
   },
   academyLinkPressed: {
@@ -283,5 +207,20 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: colors.brand.primary,
     textDecorationLine: "underline",
+  },
+  okButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: colors.brand.primary,
+  },
+  okButtonPressed: {
+    backgroundColor: colors.brand.secondary,
+  },
+  okButtonLabel: {
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.white,
   },
 });

@@ -72,22 +72,29 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
       accessibilityViewIsModal
       statusBarTranslucent
     >
-      {/* Backdrop = full-screen Pressable that wraps EVERYTHING.
-          Taps anywhere inside it that are not claimed by an inner
-          responder bubble up to its onPress and dismiss the popup.
-          Explicit width/height from Dimensions guarantees the
-          backdrop fills the screen on Android (where flex: 1 in
-          a transparent Modal can collapse to 0 px). */}
-      <Pressable
+      {/* Outer fullscreen container with explicit dimensions —
+          guarantees the backdrop fills the screen on Android
+          (where `flex: 1` inside a transparent Modal can collapse
+          to 0 px). */}
+      <View
         style={[
-          styles.backdrop,
+          styles.fullScreen,
           { width: screenWidth, height: screenHeight },
         ]}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel="Fermer la définition"
-        accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
       >
+        {/* Backdrop = absolute-fill Pressable. Taps anywhere on
+            the dark area dismiss the popup. */}
+        <Pressable
+          style={styles.backdrop}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Fermer la définition"
+          accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
+        />
+        {/* Card row — absolute, positioned just below the finger.
+            pointerEvents=box-none so taps in empty row areas
+            (above/below/sides of the card) fall through to the
+            backdrop. */}
         <View
           style={[
             styles.cardPositioner,
@@ -96,20 +103,18 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
           ]}
           pointerEvents="box-none"
         >
-          {/* Card wrapper claims taps on the card body so they
-              don't bubble up to the backdrop Pressable. Uses
-              onStartShouldSetResponder rather than wrapping in a
-              Pressable, because a child Pressable would intercept
-              and break the inner Académie Pressable's onPress. */}
-          <View
-            style={styles.cardWrapper}
-            onStartShouldSetResponder={() => true}
-            onResponderRelease={() => {
-              // intentional no-op — we only care about claiming the
-              // touch so the parent backdrop's onPress doesn't fire.
-            }}
-          >
-            <Card style={styles.card}>
+          <View style={styles.cardWrapper}>
+            {/* The Card claims taps in its bounds via the responder
+                system so they don't bubble to the backdrop. Inner
+                Pressables (Académie link) still receive their own
+                taps because they are deeper in the responder chain
+                and Pressable's onStartShouldSetResponder runs
+                before the Card's during bubble phase. */}
+            <Card
+              style={styles.card}
+              onStartShouldSetResponder={() => true}
+              onResponderRelease={swallowTap}
+            >
               <View style={styles.headerRow}>
                 <Text style={styles.term}>{entry.displayLabel}</Text>
                 <Badge
@@ -136,9 +141,15 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
             </Card>
           </View>
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
+}
+
+/** No-op handler used by the Card's onResponderRelease to claim
+ * touches in the card body so they don't bubble to the backdrop. */
+function swallowTap(): void {
+  // intentional no-op
 }
 
 const CATEGORY_LABEL: Record<GlossaryCategory, string> = {

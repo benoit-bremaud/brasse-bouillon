@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -54,17 +55,21 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
       animationType="fade"
       onRequestClose={onClose}
       accessibilityViewIsModal
-      statusBarTranslucent
     >
-      <View style={styles.root}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Fermer la définition"
-          accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
-          onPress={onClose}
-          style={styles.backdrop}
-        />
-        <View style={styles.cardWrapper}>
+      {/* Backdrop covers the entire screen including notches /
+          status bar — taps anywhere outside the card dismiss. */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Fermer la définition"
+        accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
+        onPress={onClose}
+        style={styles.backdrop}
+      />
+      {/* SafeAreaView constrains the centering to the visible
+          viewport (excludes notch / status bar / home indicator)
+          so the popup never bleeds under the system UI. */}
+      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
+        <View style={styles.centeringRow} pointerEvents="box-none">
           <Card style={styles.card}>
             <Pressable
               style={styles.closeButton}
@@ -100,7 +105,7 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
             ) : null}
           </Card>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }
@@ -130,21 +135,22 @@ const CLOSE_BUTTON_SIZE = 36;
 const CLOSE_BUTTON_RESERVE = CLOSE_BUTTON_SIZE + spacing.sm;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing.md,
-  },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(30, 30, 30, 0.55)",
   },
-  cardWrapper: {
-    width: "92%",
-    maxWidth: 420,
+  safeArea: {
+    flex: 1,
+  },
+  centeringRow: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
   },
   card: {
+    width: "100%",
+    maxWidth: 420,
     padding: spacing.md,
   },
   closeButton: {

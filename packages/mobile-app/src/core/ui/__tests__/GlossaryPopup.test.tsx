@@ -32,15 +32,15 @@ describe("GlossaryPopup (Issue #783)", () => {
     const handleClose = jest.fn();
     render(<GlossaryPopup entry={ENTRY} onClose={handleClose} />);
 
-    // The close icon and the backdrop both carry the same a11y
-    // label — pick the icon (first match by label).
+    // The close icon button and the backdrop both carry the same
+    // a11y label — pick the first match (the icon button).
     const closeButtons = screen.getAllByLabelText("Fermer la définition");
     fireEvent.press(closeButtons[0]);
 
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it("happy: invokes onReadMore when the CTA is pressed", () => {
+  it("happy: invokes onReadMore when the Académie link is pressed", () => {
     const handleReadMore = jest.fn();
     render(
       <GlossaryPopup
@@ -50,15 +50,19 @@ describe("GlossaryPopup (Issue #783)", () => {
       />,
     );
 
-    fireEvent.press(screen.getByLabelText("Lire plus dans Académie"));
+    fireEvent.press(
+      screen.getByLabelText("Ouvrir l'Académie pour en savoir plus"),
+    );
 
     expect(handleReadMore).toHaveBeenCalledTimes(1);
     expect(handleReadMore).toHaveBeenCalledWith(ENTRY);
   });
 
-  it("edge: hides the CTA when onReadMore is not provided", () => {
+  it("edge: hides the Académie link when onReadMore is not provided", () => {
     render(<GlossaryPopup entry={ENTRY} onClose={jest.fn()} />);
 
-    expect(screen.queryByLabelText("Lire plus dans Académie")).toBeNull();
+    expect(
+      screen.queryByLabelText("Ouvrir l'Académie pour en savoir plus"),
+    ).toBeNull();
   });
 });

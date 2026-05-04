@@ -28,7 +28,7 @@ describe("GlossaryTerm (Issue #783)", () => {
     fireEvent(surface, "longPress");
 
     // The popup is now mounted — the entry's definition is rendered.
-    expect(screen.getByText(/Étape de brassage/)).toBeTruthy();
+    expect(screen.getByText(/Mélange du malt/)).toBeTruthy();
   });
 
   it("happy: regular tap is a no-op (does not open the popup)", () => {
@@ -37,7 +37,7 @@ describe("GlossaryTerm (Issue #783)", () => {
     const surface = screen.getByLabelText(/Définition de Empâtage/);
     fireEvent.press(surface);
 
-    expect(screen.queryByText(/Étape de brassage/)).toBeNull();
+    expect(screen.queryByText(/Mélange du malt/)).toBeNull();
   });
 
   it("edge: the trailing onPress fired by React Native after onLongPress is suppressed", () => {
@@ -50,7 +50,7 @@ describe("GlossaryTerm (Issue #783)", () => {
     fireEvent(surface, "longPress");
     fireEvent.press(surface);
 
-    expect(screen.getByText(/Étape de brassage/)).toBeTruthy();
+    expect(screen.getByText(/Mélange du malt/)).toBeTruthy();
   });
 
   it("happy: alias resolves to the same canonical entry", () => {
@@ -59,15 +59,17 @@ describe("GlossaryTerm (Issue #783)", () => {
     const surface = screen.getByLabelText(/Définition de Empâtage/);
     fireEvent(surface, "longPress");
 
-    expect(screen.getByText(/Étape de brassage/)).toBeTruthy();
+    expect(screen.getByText(/Mélange du malt/)).toBeTruthy();
   });
 
-  it("happy: CTA navigates to the Académie glossaire route", () => {
+  it("happy: Académie link navigates to the glossaire route", () => {
     render(<GlossaryTerm term="mash">mash</GlossaryTerm>);
 
     const surface = screen.getByLabelText(/Définition de Empâtage/);
     fireEvent(surface, "longPress");
-    fireEvent.press(screen.getByLabelText("Lire plus dans Académie"));
+    fireEvent.press(
+      screen.getByLabelText("Ouvrir l'Académie pour en savoir plus"),
+    );
 
     expect(mockPush).toHaveBeenCalledTimes(1);
     expect(mockPush).toHaveBeenCalledWith("/(app)/academy/glossaire");

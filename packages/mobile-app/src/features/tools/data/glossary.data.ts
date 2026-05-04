@@ -3,11 +3,16 @@ import type { GlossaryEntry } from "@/features/tools/domain/glossary.types";
 /**
  * Static client-side brewing glossary (Issue #783).
  *
- * 30 essential brewing terms covering five categories: brewing
+ * 35 essential brewing terms covering five categories: brewing
  * process, measurement, equipment, ingredient, and style. Each
- * entry carries a French pedagogical definition for the persona
- * Nicolas le Débutant + Léa la Curieuse audience, plus optional
- * aliases (FR/EN variants) that the auto-linker also detects.
+ * entry carries a short French definition (~1 sentence) for the
+ * persona Nicolas le Débutant + Léa la Curieuse audience, plus
+ * optional aliases (FR/EN variants) that the auto-linker also
+ * detects.
+ *
+ * Definitions are kept punchy on purpose — the long-press popup
+ * surfaces them in-context inside a recipe description, and the
+ * full Académie article is one tap away via the "Académie →" link.
  *
  * Ordering: alphabetical by canonical `term` within each category
  * block — keeps the editorial diff stable when adding entries.
@@ -22,7 +27,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "boil",
     displayLabel: "Ébullition",
     definition:
-      "Phase de cuisson du moût à 100 °C où l'on ajoute les houblons d'amertume et d'arôme. Stérilise le moût et concentre les sucres avant la fermentation.",
+      "Phase de cuisson du moût à 100 °C où l'on ajoute les houblons d'amertume et d'arôme.",
     category: "brewing-process",
     aliases: ["ébullition", "boiling"],
   },
@@ -30,7 +35,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "cold crash",
     displayLabel: "Choc thermique (cold crash)",
     definition:
-      "Refroidissement rapide du fermenteur à 1-4 °C en fin de fermentation pour faire précipiter les levures et les protéines en suspension. Clarifie la bière avant l'embouteillage.",
+      "Refroidissement rapide à 1-4 °C en fin de fermentation pour clarifier la bière.",
     category: "brewing-process",
     aliases: ["choc thermique", "cold crashing"],
   },
@@ -38,7 +43,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "conditioning",
     displayLabel: "Garde",
     definition:
-      "Période de maturation post-fermentation pendant laquelle la bière s'affine en bouteille ou en cuve. La carbonatation se développe et les arômes se stabilisent.",
+      "Période de maturation post-fermentation où la bière s'affine et la carbonatation se développe.",
     category: "brewing-process",
     aliases: ["garde", "maturation"],
   },
@@ -46,7 +51,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "dry hop",
     displayLabel: "Houblonnage à cru",
     definition:
-      "Ajout de houblons aromatiques directement dans le fermenteur après la fermentation primaire. Apporte un nez intense de fruits/agrumes/résine sans amertume supplémentaire.",
+      "Ajout de houblons aromatiques dans le fermenteur pour un nez intense, sans amertume ajoutée.",
     category: "brewing-process",
     aliases: ["houblonnage à cru", "dry hopping", "dry-hop"],
   },
@@ -54,7 +59,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "krausen",
     displayLabel: "Krausen",
     definition:
-      "Couche de mousse dense et crémeuse qui se forme à la surface du fermenteur pendant la fermentation primaire active. Indique que les levures travaillent à plein régime.",
+      "Mousse dense qui se forme à la surface du fermenteur pendant la fermentation primaire active.",
     category: "brewing-process",
     aliases: ["kraeusen"],
   },
@@ -62,7 +67,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "lagering",
     displayLabel: "Lagering",
     definition:
-      "Garde longue à basse température (0-4 °C) typique des bières de style Lager. Affine les saveurs, élimine les composés indésirables et donne une bière nette et propre.",
+      "Garde longue à 0-4 °C typique des Lagers, qui affine les saveurs et donne une bière nette.",
     category: "brewing-process",
     aliases: ["garde froide"],
   },
@@ -70,7 +75,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "lauter",
     displayLabel: "Filtration (lauter)",
     definition:
-      "Étape de séparation du moût clair des drêches après l'empâtage. Le moût s'écoule à travers le lit de drêches qui sert de filtre naturel.",
+      "Séparation du moût clair des drêches après l'empâtage, par filtration sur le lit de drêches.",
     category: "brewing-process",
     aliases: ["filtration", "lautering"],
   },
@@ -78,7 +83,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "mash",
     displayLabel: "Empâtage",
     definition:
-      "Étape de brassage où l'on mélange le malt concassé avec l'eau chaude (62-72 °C) pour activer les enzymes qui convertissent l'amidon en sucres fermentescibles.",
+      "Mélange du malt concassé avec l'eau chaude (62-72 °C) pour convertir l'amidon en sucres.",
     category: "brewing-process",
     aliases: ["empâtage", "mashing", "maische"],
   },
@@ -86,7 +91,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "pitch",
     displayLabel: "Ensemencement",
     definition:
-      "Action d'ajouter la levure au moût refroidi pour démarrer la fermentation. La température et la quantité de levure sont critiques pour un démarrage propre.",
+      "Ajout de la levure au moût refroidi pour démarrer la fermentation.",
     category: "brewing-process",
     aliases: ["ensemencement", "pitching"],
   },
@@ -94,7 +99,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "primary fermentation",
     displayLabel: "Fermentation primaire",
     definition:
-      "Première phase de fermentation (4-10 jours) où la levure consomme la majorité des sucres et produit l'alcool et le CO₂. La densité chute fortement.",
+      "Première phase (4-10 j) où la levure consomme les sucres et produit l'alcool et le CO₂.",
     category: "brewing-process",
     aliases: ["fermentation primaire"],
   },
@@ -102,7 +107,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "sparge",
     displayLabel: "Rinçage des drêches",
     definition:
-      "Rinçage du lit de drêches avec de l'eau chaude (75-78 °C) pour extraire les sucres résiduels après la filtration. Maximise le rendement d'extraction.",
+      "Rinçage des drêches à l'eau chaude (75-78 °C) pour extraire les sucres résiduels.",
     category: "brewing-process",
     aliases: ["rinçage", "sparging"],
   },
@@ -110,7 +115,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "whirlpool",
     displayLabel: "Whirlpool",
     definition:
-      "Mise en rotation du moût en fin d'ébullition pour rassembler les particules (trub) au centre. Permet aussi un dernier ajout de houblons à 75-85 °C pour préserver les arômes volatils.",
+      "Mise en rotation du moût en fin d'ébullition pour rassembler les particules au centre.",
     category: "brewing-process",
     aliases: ["whirlpooling"],
   },
@@ -120,7 +125,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "abv",
     displayLabel: "ABV — Taux d'alcool",
     definition:
-      "Alcohol By Volume : pourcentage d'alcool en volume dans la bière finie. Calculé à partir de la chute de densité entre OG et FG. Standard d'étiquetage international.",
+      "Pourcentage d'alcool en volume, calculé à partir de la chute de densité entre OG et FG.",
     category: "measurement",
     aliases: ["taux d'alcool", "alcohol by volume"],
   },
@@ -128,7 +133,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "attenuation",
     displayLabel: "Atténuation",
     definition:
-      "Pourcentage de sucres consommés par la levure pendant la fermentation. Une atténuation de 75 % signifie que 3/4 des sucres ont été convertis en alcool et CO₂.",
+      "Pourcentage de sucres consommés par la levure pendant la fermentation.",
     category: "measurement",
     aliases: ["atténuation"],
   },
@@ -136,7 +141,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "ebc",
     displayLabel: "EBC — Couleur",
     definition:
-      "European Brewery Convention : échelle européenne de couleur de la bière. Plus la valeur est élevée, plus la bière est foncée (4 = blonde claire, 80+ = stout).",
+      "Échelle européenne de couleur de la bière (4 = blonde claire, 80+ = stout).",
     category: "measurement",
     aliases: ["couleur ebc"],
   },
@@ -144,7 +149,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "fg",
     displayLabel: "FG — Densité finale",
     definition:
-      "Final Gravity : densité du moût après fermentation, mesurée juste avant l'embouteillage. La différence avec l'OG donne le taux d'alcool. Typiquement entre 1.005 et 1.020.",
+      "Densité du moût après fermentation, mesurée juste avant l'embouteillage.",
     category: "measurement",
     aliases: ["densité finale", "final gravity"],
   },
@@ -152,7 +157,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "flocculation",
     displayLabel: "Floculation",
     definition:
-      "Capacité d'une levure à s'agréger et précipiter au fond du fermenteur en fin de fermentation. Une floculation forte donne une bière plus claire naturellement.",
+      "Capacité d'une levure à s'agréger et précipiter au fond du fermenteur en fin de fermentation.",
     category: "measurement",
     aliases: ["floculation"],
   },
@@ -160,7 +165,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "ibu",
     displayLabel: "IBU — Amertume",
     definition:
-      "International Bitterness Units : mesure de l'amertume apportée par les houblons. Une lager douce tourne autour de 10-15 IBU, une IPA assumée 50-70 IBU.",
+      "Mesure de l'amertume apportée par les houblons (10-15 = lager douce, 50-70 = IPA).",
     category: "measurement",
     aliases: ["amertume ibu"],
   },
@@ -168,7 +173,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "og",
     displayLabel: "OG — Densité initiale",
     definition:
-      "Original Gravity : densité du moût avant la fermentation, mesurée après refroidissement. Indique la quantité de sucres disponibles. Typiquement entre 1.040 et 1.080.",
+      "Densité du moût avant fermentation, indique la quantité de sucres disponibles.",
     category: "measurement",
     aliases: ["densité initiale", "original gravity"],
   },
@@ -176,7 +181,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "srm",
     displayLabel: "SRM — Couleur (US)",
     definition:
-      "Standard Reference Method : échelle américaine de couleur de la bière. Équivaut grossièrement à EBC ÷ 1.97. Plus la valeur est élevée, plus la bière est foncée.",
+      "Échelle américaine de couleur de la bière, équivaut à EBC ÷ 1.97.",
     category: "measurement",
     aliases: ["couleur srm"],
   },
@@ -186,7 +191,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "airlock",
     displayLabel: "Barboteur",
     definition:
-      "Petit dispositif rempli d'eau placé sur le bouchon du fermenteur. Laisse échapper le CO₂ produit par la fermentation tout en empêchant l'air et les contaminants d'entrer.",
+      "Petit dispositif rempli d'eau qui laisse échapper le CO₂ tout en bloquant l'air extérieur.",
     category: "equipment",
     aliases: ["barboteur", "bubbler"],
   },
@@ -194,7 +199,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "fermenter",
     displayLabel: "Fermenteur",
     definition:
-      "Récipient hermétique (verre, plastique alimentaire ou inox) où se déroule la fermentation. Doit pouvoir être fermé avec un barboteur et nettoyé/désinfecté facilement.",
+      "Récipient hermétique où se déroule la fermentation, fermé par un barboteur.",
     category: "equipment",
     aliases: ["fermenteur", "fermentor"],
   },
@@ -202,7 +207,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "hydrometer",
     displayLabel: "Densimètre",
     definition:
-      "Tube de verre flotteur gradué qui mesure la densité du moût. Plonge dans une éprouvette remplie de moût ; la lecture au niveau du liquide donne la densité (OG ou FG).",
+      "Tube de verre flotteur gradué qui mesure la densité du moût (OG ou FG).",
     category: "equipment",
     aliases: ["densimètre"],
   },
@@ -210,7 +215,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "refractometer",
     displayLabel: "Réfractomètre",
     definition:
-      "Instrument optique qui mesure la densité du moût à partir de quelques gouttes seulement. Plus rapide qu'un densimètre, mais nécessite une correction après fermentation (présence d'alcool).",
+      "Instrument optique qui mesure la densité du moût à partir de quelques gouttes seulement.",
     category: "equipment",
     aliases: ["réfractomètre"],
   },
@@ -220,7 +225,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "finings",
     displayLabel: "Clarifiants",
     definition:
-      "Agents de clarification (gélatine, isinglass, Irish moss) ajoutés en fin d'ébullition ou en garde pour précipiter les protéines et levures en suspension. Donnent une bière plus limpide.",
+      "Agents (gélatine, isinglass) ajoutés en fin de cuisson pour précipiter protéines et levures.",
     category: "ingredient",
     aliases: ["clarifiants", "agents de clarification"],
   },
@@ -228,7 +233,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "hop",
     displayLabel: "Houblon",
     definition:
-      "Fleur de la plante Humulus lupulus, source d'amertume, d'arôme et de propriétés antibactériennes. Présentée en pellets, fleurs entières ou extrait. Centaine de variétés disponibles.",
+      "Fleur de Humulus lupulus, source d'amertume et d'arôme — pellets, fleurs ou extrait.",
     category: "ingredient",
     aliases: ["houblon", "houblons", "hops"],
   },
@@ -236,7 +241,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "malt",
     displayLabel: "Malt",
     definition:
-      "Grain (généralement orge) germé puis séché et torréfié. Apporte les sucres fermentescibles, la couleur et le profil de saveur de base. Existe en dizaines de variétés (Pale, Munich, Caramel, Chocolate, etc.).",
+      "Grain (orge généralement) germé puis séché — apporte sucres, couleur et profil de saveur.",
     category: "ingredient",
     aliases: ["malts"],
   },
@@ -244,7 +249,7 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "yeast",
     displayLabel: "Levure",
     definition:
-      "Champignon unicellulaire qui consomme les sucres du moût et produit l'alcool, le CO₂ et de nombreux esters/phénols. Deux familles : ale (haute fermentation) et lager (basse fermentation).",
+      "Champignon unicellulaire qui consomme les sucres et produit l'alcool, le CO₂ et les arômes.",
     category: "ingredient",
     aliases: ["levure", "levures", "yeasts"],
   },
@@ -254,14 +259,14 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "ipa",
     displayLabel: "IPA",
     definition:
-      "India Pale Ale : style anglais du XIXᵉ siècle généreusement houblonné, ressuscité par la scène craft américaine. Profil houblonné dominant, amertume marquée (40-70 IBU), nombreuses sous-familles (NEIPA, West Coast, Session).",
+      "India Pale Ale : style généreusement houblonné, amertume marquée (40-70 IBU).",
     category: "style",
   },
   {
     term: "pilsner",
     displayLabel: "Pilsner",
     definition:
-      "Lager blonde dorée originaire de Plzeň (Tchéquie) en 1842. Houblons nobles (Saaz), malt pilsner, fermentation basse longue. Profil net, sec, finale légèrement amère. Style le plus brassé au monde.",
+      "Lager blonde dorée née à Plzeň en 1842, profil net, sec, finale légèrement amère.",
     category: "style",
     aliases: ["pils"],
   },
@@ -269,35 +274,35 @@ export const GLOSSARY_ENTRIES: ReadonlyArray<GlossaryEntry> = [
     term: "porter",
     displayLabel: "Porter",
     definition:
-      "Style anglais du XVIIIᵉ siècle, ancêtre du Stout. Brun foncé à noir, malts caramel et brown malt, notes de café et chocolat plus douces que le Stout. Sous-familles : Brown Porter, Robust Porter, Baltic Porter.",
+      "Style anglais brun foncé, malts caramel et brown — notes de café et chocolat plus douces qu'un Stout.",
     category: "style",
   },
   {
     term: "saison",
     displayLabel: "Saison",
     definition:
-      "Style belge/wallon rustique fermenté à haute température (28-32 °C) avec une levure spécifique. Sec, légèrement épicé, finale poivrée et acidulée. Origine paysanne, désaltérant.",
+      "Style belge rustique fermenté chaud, sec, légèrement épicé, finale poivrée et acidulée.",
     category: "style",
   },
   {
     term: "stout",
     displayLabel: "Stout",
     definition:
-      "Style noir originaire d'Irlande (Guinness) à base de malts torréfiés et roasted barley. Notes de café, chocolat, parfois vanille ou avoine. Peut être sec, sweet, oatmeal ou Imperial.",
+      "Style noir irlandais à base de malts torréfiés — notes de café et chocolat amer.",
     category: "style",
   },
   {
     term: "tripel",
     displayLabel: "Tripel",
     definition:
-      "Style belge fort (8-10 % ABV) sur base pilsner et sucre candi clair. Levure belge marquée (esters fruités, phénols poivrés), finale sèche malgré la densité élevée. Westmalle, Chimay Blanche, Karmeliet.",
+      "Style belge fort (8-10 % ABV) sur base pilsner et sucre candi, finale sèche.",
     category: "style",
   },
   {
     term: "witbier",
     displayLabel: "Witbier",
     definition:
-      "Style belge à base de blé non malté et orge maltée (50/50), traditionnellement épicé à la coriandre et l'écorce d'orange amère de Curaçao. Trouble naturel, finale acidulée. Hoegaarden a relancé le style.",
+      "Style belge à base de blé non malté, épicé coriandre + écorce d'orange, trouble naturel.",
     category: "style",
     aliases: ["bière blanche", "wit"],
   },

@@ -1,9 +1,17 @@
 import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { colors, spacing, typography } from "@/core/theme";
 import type {
   GlossaryCategory,
   GlossaryEntry,
@@ -11,37 +19,47 @@ import type {
 
 interface Props {
   /** When `null`, the modal is hidden. */
-  entry: GlossaryEntry | null;
-  /** Closes the popup. Called on backdrop press, X button, or CTA. */
-  onClose: () => void;
+  readonly entry: GlossaryEntry | null;
+  /** Closes the popup. Called on backdrop press or X icon. */
+  readonly onClose: () => void;
   /**
-   * Optional callback for the "Lire plus dans Académie" CTA. The
-   * navigation target is decided by the host (typically pushes
-   * `/academy/glossaire`). When omitted, the CTA is hidden.
+   * Optional callback for the "Académie →" link. The navigation
+   * target is decided by the host (typically pushes
+   * `/academy/glossaire`). When omitted, the link is hidden.
    */
-  onReadMore?: (entry: GlossaryEntry) => void;
+  readonly onReadMore?: (entry: GlossaryEntry) => void;
 }
 
 /**
  * Modal popup that surfaces a glossary entry's full definition,
  * triggered by `<GlossaryTerm>` long-press (Issue #783).
  *
- * Visual contract — pedagogical card layout, design-tokens only:
- * - Backdrop: half-opaque charcoal, taps anywhere outside the card
- *   dismiss the popup
- * - Card: 92 % of the viewport width (capped at 420 px on tablets),
- *   centered vertically, generous internal padding
- * - Close button: prominent circular target on the top-right with a
- *   large hitSlop so it's easy to dismiss with the thumb
- * - Definition: body-size text, comfortable line-height, the term
- *   stands out via brand-secondary heading
- * - CTA: full-width brand-primary affordance to navigate to the
- *   full Académie glossary entry
+ * Layout (top → bottom) :
+ * - Header row : term displayLabel on the LEFT, category badge on
+ *   the RIGHT (same baseline) so the user always sees both at a
+ *   glance without the popup growing taller
+ * - Close X icon : absolute top-right, 36 px circular target
+ * - Definition : short body text, ~1 sentence
+ * - Optional "Académie →" link : right-aligned, subtle (the user
+ *   inferred meaning from context — no need for a verbose CTA)
+ *
+ * Sizing :
+ * - Centered horizontally + vertically via flex parent
+ * - `width: 92%` + `maxWidth: 420` for tablet readability
+ * - `maxHeight` derived from screen safe area, with the inner
+ *   content in a ScrollView so the popup never overflows the
+ *   visible viewport (top, bottom, left, right) on any device
  */
 export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
+  const insets = useSafeAreaInsets();
+
   if (entry === null) {
     return null;
   }
+
+  // Reserve safe-area gutters so the popup never bleeds under the
+  // status bar / home indicator / notches.
+  const verticalGutter = Math.max(insets.top, insets.bottom, spacing.md);
 
   return (
     <Modal
@@ -50,18 +68,40 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
       animationType="fade"
       onRequestClose={onClose}
       accessibilityViewIsModal
+      statusBarTranslucent
     >
-      <Pressable
-        style={styles.backdrop}
-        onPress={onClose}
-        accessibilityLabel="Fermer la définition"
-      >
-        {/* Inner Pressable swallows taps so a tap inside the card
-            does not bubble up to the backdrop and dismiss. */}
-        <Pressable onPress={() => {}} style={styles.cardWrapper}>
+      <View style={styles.root}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Fermer la définition"
+          accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
+          onPress={onClose}
+          style={styles.backdrop}
+        />
+        <View
+          style={[
+            styles.cardWrapper,
+            {
+              marginTop: verticalGutter,
+              marginBottom: verticalGutter,
+            },
+          ]}
+        >
           <Card style={styles.card}>
-            <View style={styles.headerRow}>
-              <View style={styles.headerText}>
+            <Pressable
+              style={styles.closeButton}
+              hitSlop={spacing.md}
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Fermer la définition"
+            >
+              <Text style={styles.closeIcon}>✕</Text>
+            </Pressable>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.headerRow}>
                 <Text style={styles.term}>{entry.displayLabel}</Text>
                 <Badge
                   label={CATEGORY_LABEL[entry.category]}
@@ -69,35 +109,25 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
                   style={styles.badge}
                 />
               </View>
-              <Pressable
-                style={styles.closeButton}
-                hitSlop={spacing.md}
-                onPress={onClose}
-                accessibilityRole="button"
-                accessibilityLabel="Fermer la définition"
-              >
-                <Text style={styles.closeIcon}>✕</Text>
-              </Pressable>
-            </View>
-            <Text style={styles.definition}>{entry.definition}</Text>
-            {onReadMore ? (
-              <Pressable
-                onPress={() => onReadMore(entry)}
-                accessibilityRole="button"
-                accessibilityLabel="Lire plus dans Académie"
-                style={({ pressed }) => [
-                  styles.readMore,
-                  pressed && styles.readMorePressed,
-                ]}
-              >
-                <Text style={styles.readMoreLabel}>
-                  Lire plus dans Académie →
-                </Text>
-              </Pressable>
-            ) : null}
+              <Text style={styles.definition}>{entry.definition}</Text>
+              {onReadMore ? (
+                <Pressable
+                  onPress={() => onReadMore(entry)}
+                  hitSlop={spacing.xs}
+                  accessibilityRole="link"
+                  accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
+                  style={({ pressed }) => [
+                    styles.academyLink,
+                    pressed && styles.academyLinkPressed,
+                  ]}
+                >
+                  <Text style={styles.academyLinkLabel}>Académie →</Text>
+                </Pressable>
+              ) : null}
+            </ScrollView>
           </Card>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -124,41 +154,34 @@ const CATEGORY_BADGE_VARIANT: Record<
 const CLOSE_BUTTON_SIZE = 36;
 
 const styles = StyleSheet.create({
-  backdrop: {
+  root: {
     flex: 1,
-    backgroundColor: "rgba(30, 30, 30, 0.55)",
     justifyContent: "center",
     alignItems: "center",
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(30, 30, 30, 0.55)",
   },
   cardWrapper: {
     width: "92%",
     maxWidth: 420,
+    // Cap height so the popup never bleeds out of the viewport on
+    // small phones; the ScrollView inside handles overflow.
+    maxHeight: "90%",
   },
   card: {
-    padding: spacing.lg,
+    padding: spacing.md,
+    paddingTop: spacing.md,
   },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  headerText: {
-    flex: 1,
-  },
-  term: {
-    fontSize: typography.size.h2,
-    lineHeight: typography.lineHeight.h2,
-    fontWeight: typography.weight.bold,
-    color: colors.brand.secondary,
-    marginBottom: spacing.xs,
-  },
-  badge: {
-    alignSelf: "flex-start",
+  scrollContent: {
+    paddingRight: CLOSE_BUTTON_SIZE,
   },
   closeButton: {
+    position: "absolute",
+    top: spacing.xs,
+    right: spacing.xs,
     width: CLOSE_BUTTON_SIZE,
     height: CLOSE_BUTTON_SIZE,
     borderRadius: CLOSE_BUTTON_SIZE / 2,
@@ -167,6 +190,7 @@ const styles = StyleSheet.create({
     borderColor: colors.neutral.border,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1,
   },
   closeIcon: {
     fontSize: typography.size.body,
@@ -174,28 +198,42 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
-  definition: {
-    fontSize: typography.size.body,
-    lineHeight: typography.lineHeight.body,
-    color: colors.neutral.textPrimary,
-    marginBottom: spacing.md,
-  },
-  readMore: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.state.infoBackground,
-    borderWidth: 1,
-    borderColor: colors.brand.primary,
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
   },
-  readMorePressed: {
-    backgroundColor: colors.brand.background,
-  },
-  readMoreLabel: {
+  term: {
+    flex: 1,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
+    color: colors.brand.secondary,
+  },
+  badge: {
+    flexShrink: 0,
+  },
+  definition: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    color: colors.neutral.textPrimary,
+    marginBottom: spacing.xs,
+  },
+  academyLink: {
+    alignSelf: "flex-end",
+    paddingVertical: spacing.xxs,
+    paddingHorizontal: spacing.xs,
+  },
+  academyLinkPressed: {
+    opacity: 0.6,
+  },
+  academyLinkLabel: {
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
     color: colors.brand.primary,
+    textDecorationLine: "underline",
   },
 });

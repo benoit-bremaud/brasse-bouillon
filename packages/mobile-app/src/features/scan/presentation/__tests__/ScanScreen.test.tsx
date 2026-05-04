@@ -489,9 +489,10 @@ describe("ScanScreen", () => {
       const helpButton = screen.getByLabelText("Open scan guide");
       fireEvent(helpButton, "longPress");
 
-      // The override menu lists seeded beers — Punk IPA is the
-      // canonical first entry and a stable assertion target.
-      expect(await screen.findByText("Punk IPA")).toBeTruthy();
+      // The override menu lists seeded beers — Punk IPA appears
+      // twice (UK 0,5L canonical EAN + DE 0,33L physical alias —
+      // Issue #807), so assert via findAllByText.
+      expect(await screen.findAllByText("Punk IPA")).toHaveLength(2);
       // The regular guide modal must NOT be shown.
       expect(screen.queryByText("How barcode verification works")).toBeNull();
     });
@@ -507,7 +508,7 @@ describe("ScanScreen", () => {
       fireEvent(helpButton, "longPress");
       fireEvent.press(helpButton);
 
-      expect(await screen.findByText("Punk IPA")).toBeTruthy();
+      expect(await screen.findAllByText("Punk IPA")).toHaveLength(2);
       expect(screen.queryByText("How barcode verification works")).toBeNull();
     });
 
@@ -530,8 +531,11 @@ describe("ScanScreen", () => {
       await waitForReadyState();
 
       fireEvent(screen.getByLabelText("Open scan guide"), "longPress");
-      // Punk IPA — barcode 5060277380019 (stable demo seed entry).
-      fireEvent.press(await screen.findByLabelText(/Forcer Punk IPA/i));
+      // Punk IPA — two EAN variants in the menu (UK 0,5L canonical
+      // 5060277380019 + DE 0,33L physical alias 4260649360279,
+      // Issue #807). Tap the first row (canonical UK EAN).
+      const punkRows = await screen.findAllByLabelText(/Forcer Punk IPA/i);
+      fireEvent.press(punkRows[0]);
 
       expect(mockPush).toHaveBeenCalledWith(
         "/(app)/dashboard/scan/lookup/5060277380019",

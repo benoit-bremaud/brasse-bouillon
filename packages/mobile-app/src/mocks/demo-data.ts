@@ -2598,6 +2598,22 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "tropical, citrus, pine",
     notesSource: "BrewDog DIY Dog 2019 (open-source recipe book)",
   }),
+  // Punk IPA — DE 0,33L bottle EAN alias (Issue #807, physical
+  // verification before soutenance blanche). Same beer values as the
+  // canonical 5060277380019 (UK 0,5L) entry, just a different SKU
+  // EAN routed onto the same demo row.
+  "4260649360279": buildDemoScanCatalogItem({
+    id: "demo-scan-punk-ipa-de-033",
+    barcode: "4260649360279",
+    name: "Punk IPA",
+    brewery: "BrewDog",
+    style: "IPA",
+    abv: 5.4,
+    ibu: 35,
+    colorEbc: 14,
+    aromaticTags: "tropical, citrus, pine",
+    notesSource: "BrewDog DIY Dog 2019 (open-source recipe book)",
+  }),
   "5410702000133": buildDemoScanCatalogItem({
     id: "demo-scan-la-chouffe",
     barcode: "5410702000133",
@@ -2730,49 +2746,57 @@ export const buildDemoLookupResult = (
  * Curated for the soutenance demo path — only the 3 demo beers
  * (Punk IPA, La Chouffe, Rochefort 10) carry recipes for now.
  */
+// Punk IPA — official BrewDog DIY Dog clone wins outright (Issue
+// #911) above the 3 closest stylistic neighbours from the existing
+// demoRecipes catalog (IPA family). Shared by both physical EAN
+// variants of the same beer (0,5L UK + 0,33L DE — Issue #807).
+const PUNK_IPA_RECIPE_MATCHES: ScanRecipeMatch[] = [
+  {
+    recipeId: "r-demo-brewdog-diy-dog",
+    publicRecipeId: "00000000-0000-4000-8000-00000000000b",
+    name: "BrewDog DIY Dog Punk IPA",
+    brewer: "BrewDog",
+    rating: 4.9,
+    brewedCount: 312,
+    score: 1.0,
+    isOfficial: true,
+  },
+  {
+    recipeId: "r-demo-1",
+    publicRecipeId: "00000000-0000-4000-8000-000000000001",
+    name: "Session IPA Citra",
+    brewer: "Marie",
+    rating: 4.7,
+    brewedCount: 23,
+    score: 0.95,
+  },
+  {
+    recipeId: "r-demo-7",
+    publicRecipeId: "00000000-0000-4000-8000-000000000002",
+    name: "NEIPA Tropical",
+    brewer: "Antoine",
+    rating: 4.5,
+    brewedCount: 18,
+    score: 0.89,
+  },
+  {
+    recipeId: "r-demo-13",
+    publicRecipeId: "00000000-0000-4000-8000-000000000003",
+    name: "White IPA",
+    brewer: "Lucas",
+    rating: 4.3,
+    brewedCount: 12,
+    score: 0.78,
+  },
+];
+
 export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
-  // Punk IPA — official BrewDog DIY Dog clone wins outright (Issue
-  // #911) above the 3 closest stylistic neighbours from the existing
-  // demoRecipes catalog (IPA family).
-  "5060277380019": [
-    {
-      recipeId: "r-demo-brewdog-diy-dog",
-      publicRecipeId: "00000000-0000-4000-8000-00000000000b",
-      name: "BrewDog DIY Dog Punk IPA",
-      brewer: "BrewDog",
-      rating: 4.9,
-      brewedCount: 312,
-      score: 1.0,
-      isOfficial: true,
-    },
-    {
-      recipeId: "r-demo-1",
-      publicRecipeId: "00000000-0000-4000-8000-000000000001",
-      name: "Session IPA Citra",
-      brewer: "Marie",
-      rating: 4.7,
-      brewedCount: 23,
-      score: 0.95,
-    },
-    {
-      recipeId: "r-demo-7",
-      publicRecipeId: "00000000-0000-4000-8000-000000000002",
-      name: "NEIPA Tropical",
-      brewer: "Antoine",
-      rating: 4.5,
-      brewedCount: 18,
-      score: 0.89,
-    },
-    {
-      recipeId: "r-demo-13",
-      publicRecipeId: "00000000-0000-4000-8000-000000000003",
-      name: "White IPA",
-      brewer: "Lucas",
-      rating: 4.3,
-      brewedCount: 12,
-      score: 0.78,
-    },
-  ],
+  // Punk IPA — UK 0,5L bottle EAN (canonical seed entry).
+  "5060277380019": PUNK_IPA_RECIPE_MATCHES,
+  // Punk IPA — DE 0,33L bottle EAN alias (Issue #807, physical
+  // verification before soutenance blanche). Same beer, different
+  // SKU — both bottles route to the same matches.
+  "4260649360279": PUNK_IPA_RECIPE_MATCHES,
   // La Chouffe — Belgian Strong Pale Ale neighbours.
   "5410702000133": [
     {

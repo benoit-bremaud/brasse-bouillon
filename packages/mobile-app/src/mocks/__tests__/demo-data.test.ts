@@ -5,6 +5,9 @@ import {
 } from "@/mocks/demo-data";
 
 const PUNK_IPA_BARCODE = "5060277380019";
+// DE 0,33L bottle EAN alias for the same beer (Issue #807 — physical
+// verification before soutenance blanche).
+const PUNK_IPA_BARCODE_DE_ALIAS = "4260649360279";
 
 describe("demoEquivalentRecipes (Issue #911)", () => {
   describe("Punk IPA — 🏆 Recette officielle + 🧪 Équivalentes split", () => {
@@ -52,19 +55,43 @@ describe("demoEquivalentRecipes (Issue #911)", () => {
       expect(getDemoEquivalentRecipes("0000000000000")).toEqual([]);
     });
 
-    it("keeps the non-Punk-IPA entries free of official flags (matching algo regression guard)", () => {
+    it("keeps non-Punk-IPA bottles free of official flags (matching algo regression guard)", () => {
       // Only the Punk IPA bottle has a per-beer brewer-endorsed
       // clone shipped today (Issue #911 KISS scope). Other bottles
       // intentionally surface only community alternatives until
-      // their respective official clones land via #780.
+      // their respective official clones land via #780. Both Punk
+      // IPA EAN variants (UK 0,5L + DE 0,33L) are exempt as they
+      // route to the same beer (Issue #807).
+      const punkIpaBarcodes = new Set([
+        PUNK_IPA_BARCODE,
+        PUNK_IPA_BARCODE_DE_ALIAS,
+      ]);
       const otherBarcodes = Object.keys(demoEquivalentRecipes).filter(
-        (b) => b !== PUNK_IPA_BARCODE,
+        (b) => !punkIpaBarcodes.has(b),
       );
       for (const barcode of otherBarcodes) {
         const matches = getDemoEquivalentRecipes(barcode);
         const officials = matches.filter((m) => m.isOfficial === true);
         expect(officials).toHaveLength(0);
       }
+    });
+  });
+
+  describe("Punk IPA EAN aliases (Issue #807)", () => {
+    it("routes the DE 0,33L EAN to the same matches as the UK 0,5L canonical EAN", () => {
+      // The mobile demo flips into demo mode via login trigger
+      // credentials (PR #823) — physical bottles brought to the
+      // soutenance must scan to the same result regardless of which
+      // SKU EAN the jury hands over. This guards against
+      // accidentally drifting the alias away from the canonical
+      // entry in a future edit.
+      const canonical = getDemoEquivalentRecipes(PUNK_IPA_BARCODE);
+      const alias = getDemoEquivalentRecipes(PUNK_IPA_BARCODE_DE_ALIAS);
+      expect(alias).toEqual(canonical);
+      expect(alias).toHaveLength(4);
+      expect(alias.find((m) => m.isOfficial === true)?.name).toBe(
+        "BrewDog DIY Dog Punk IPA",
+      );
     });
   });
 });

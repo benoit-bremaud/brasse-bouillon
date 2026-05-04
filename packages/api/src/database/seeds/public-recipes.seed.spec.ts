@@ -43,7 +43,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
       }
     });
 
-    it('keeps the 10 community recipes non-official and tags only the BrewDog DIY Dog clone as official (Issue #911)', async () => {
+    it('keeps every backend-seeded recipe non-official to avoid the global-flag regression (Issue #911 / Codex P1 on PR #912)', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -52,18 +52,21 @@ describe('seedPublicRecipes (Issue #701)', () => {
       const createdRows = (repo.create.mock.calls as unknown[][]).map(
         (call) => call[0] as Record<string, unknown>,
       );
+      // The matching algorithm (Issue #699) treats `is_official=true`
+      // as a GLOBAL per-recipe 100-point shortcut — `rankForBeer`
+      // evaluates every PUBLIC recipe against every scanned beer.
+      // Tagging the DIY Dog entry would surface it as the "official"
+      // recipe for unrelated beers (La Chouffe, Rochefort, etc.) —
+      // the regression Codex caught on PR #773 and re-flagged as P1
+      // on PR #912. The "🏆 Recette officielle" demo beat is wired
+      // via the mobile-side `demoEquivalentRecipes` mock, scoped
+      // per-barcode. Backend-mode per-beer linking is deferred.
       const officials = createdRows.filter((row) => row.is_official === true);
-      expect(officials).toHaveLength(1);
-      expect(officials[0].name).toBe('BrewDog DIY Dog Punk IPA');
-      // The 10 community recipes stay non-official by design — the
-      // matching algorithm (Issue #699) treats `is_official=true` as
-      // a per-beer shortcut to score 100; tagging more than ~one
-      // official per style would collapse `rankForBeer` to insertion
-      // order (the regression Codex caught on PR #773).
+      expect(officials).toHaveLength(0);
       const nonOfficials = createdRows.filter(
         (row) => row.is_official === false,
       );
-      expect(nonOfficials).toHaveLength(10);
+      expect(nonOfficials).toHaveLength(11);
     });
   });
 

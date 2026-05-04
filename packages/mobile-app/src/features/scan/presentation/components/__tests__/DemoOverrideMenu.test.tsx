@@ -9,9 +9,11 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
       <DemoOverrideMenu visible onClose={jest.fn()} onSelectBeer={jest.fn()} />,
     );
 
-    // Sample assertions on a few well-known seeds (full list is
-    // 9 beers as of 2026-04-29 — see scan-catalog.seed.ts).
-    expect(screen.getByText("Punk IPA")).toBeTruthy();
+    // Sample assertions on a few well-known seeds. Punk IPA has two
+    // EAN variants (UK 0,5L canonical + DE 0,33L physical alias —
+    // Issue #807) so it appears twice; the menu is per-EAN by
+    // design so the speaker can force the exact bottle they have.
+    expect(screen.getAllByText("Punk IPA")).toHaveLength(2);
     expect(screen.getByText("La Chouffe")).toBeTruthy();
     expect(screen.getByText("Rochefort 10")).toBeTruthy();
     // Issue #804 — these 5 entries were API-only until the sync.
@@ -42,7 +44,9 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
       />,
     );
 
-    fireEvent.press(screen.getByLabelText(/Forcer Punk IPA/i));
+    // Two Punk IPA rows (UK 0,5L canonical EAN + DE 0,33L physical
+    // alias — Issue #807). Tap the first one (canonical UK EAN).
+    fireEvent.press(screen.getAllByLabelText(/Forcer Punk IPA/i)[0]);
 
     expect(handleSelect).toHaveBeenCalledTimes(1);
     expect(handleSelect).toHaveBeenCalledWith("5060277380019");
@@ -68,8 +72,9 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
       <DemoOverrideMenu visible onClose={jest.fn()} onSelectBeer={jest.fn()} />,
     );
 
-    // Punk IPA: BrewDog · IPA · 5.4 %
-    expect(screen.getByText(/BrewDog · IPA · 5\.4 %/i)).toBeTruthy();
+    // Punk IPA: BrewDog · IPA · 5.4 % — appears on both EAN
+    // variants (UK 0,5L + DE 0,33L alias, Issue #807).
+    expect(screen.getAllByText(/BrewDog · IPA · 5\.4 %/i)).toHaveLength(2);
   });
 
   it("shows the EAN-13 barcode on each row (so the speaker can sanity-check it)", () => {

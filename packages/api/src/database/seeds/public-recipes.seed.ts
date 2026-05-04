@@ -249,10 +249,23 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     avg_rating: 4.4,
     brew_count: 15,
   },
-  // --- Official brewer-endorsed clone (matches Punk IPA — Issue #911) ---
-  // The single official entry needed to populate the demo Beat 4
-  // "🏆 Recette officielle" section. Canonical DIY Dog values from
-  // BrewDog's published datasheet, scaled to a 20L homebrew batch.
+  // --- Brewer-endorsed clone (matches Punk IPA — Issue #911) ---
+  // The 11th entry, kept stylistically aligned with the Punk IPA
+  // demo bottle. Canonical DIY Dog values from BrewDog's published
+  // datasheet at the canonical 23L batch size.
+  //
+  // Note on `is_official`: deliberately NOT set to true on this
+  // backend seed row. The matching service treats `is_official` as
+  // a GLOBAL per-recipe shortcut (100-pt similarity boost in
+  // `RecipeMatchingService.computeFinalScore`), and `rankForBeer`
+  // evaluates every PUBLIC recipe against every scanned beer — so
+  // tagging this row would surface the DIY Dog as the "official"
+  // recipe for La Chouffe, Rochefort, etc. (Codex P1 caught on PR
+  // #912). The "🏆 Recette officielle" demo beat works through the
+  // mobile `demoEquivalentRecipes` mock, which scopes `isOfficial`
+  // per-barcode and only tags this entry under `5060277380019` /
+  // `4260649360279`. Backend-mode per-beer official linking is
+  // deferred to a follow-up issue.
   {
     id: '00000000-0000-4000-8000-00000000000b',
     name: 'BrewDog DIY Dog Punk IPA',
@@ -269,7 +282,6 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     efficiency_target: 75,
     avg_rating: 4.9,
     brew_count: 312,
-    is_official: true,
   },
 ];
 

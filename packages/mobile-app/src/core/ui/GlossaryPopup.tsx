@@ -192,20 +192,29 @@ function computeCardOffset(
 }
 
 const styles = StyleSheet.create({
+  // Half-opaque dark overlay that darkens whatever is behind the
+  // popup so the card stands out clearly. Disappears together with
+  // the card when the user closes the modal (entry === null short-
+  // circuits the whole component to `return null`).
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(30, 30, 30, 0.55)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   cardContainer: {
     position: "absolute",
     left: 0,
     right: 0,
-    paddingHorizontal: SCREEN_MARGIN,
     alignItems: "center",
   },
+  // Width is 90% of the screen capped at 420 px on tablets, applied
+  // directly on the card so `alignItems: "center"` on the container
+  // truly centers it horizontally (with width: "100%" the card
+  // would fill the row edge-to-edge and the alignment would be a
+  // no-op).
   card: {
-    width: "100%",
+    width: "90%",
     maxWidth: 420,
+    alignSelf: "center",
     padding: spacing.md,
   },
   closeButton: {

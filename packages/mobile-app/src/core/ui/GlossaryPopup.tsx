@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -31,35 +23,29 @@ interface Props {
 }
 
 /**
- * Modal popup that surfaces a glossary entry's full definition,
+ * Modal popup that surfaces a glossary entry's definition,
  * triggered by `<GlossaryTerm>` long-press (Issue #783).
  *
- * Layout (top → bottom) :
- * - Header row : term displayLabel on the LEFT, category badge on
- *   the RIGHT (same baseline) so the user always sees both at a
- *   glance without the popup growing taller
- * - Close X icon : absolute top-right, 36 px circular target
- * - Definition : short body text, ~1 sentence
+ * Layout :
+ * - Term displayLabel on the LEFT, category badge on the RIGHT —
+ *   single header row so the popup stays compact
+ * - Close X icon : absolute top-right corner, 36 px circular
+ *   target with hitSlop padding for thumb ergonomics
+ * - Definition : short (~1 sentence) body text
  * - Optional "Académie →" link : right-aligned, subtle (the user
  *   inferred meaning from context — no need for a verbose CTA)
  *
- * Sizing :
- * - Centered horizontally + vertically via flex parent
- * - `width: 92%` + `maxWidth: 420` for tablet readability
- * - `maxHeight` derived from screen safe area, with the inner
- *   content in a ScrollView so the popup never overflows the
- *   visible viewport (top, bottom, left, right) on any device
+ * Centering is achieved with a flex parent (`flex: 1` +
+ * `justifyContent: "center"` + `alignItems: "center"`) and a
+ * sibling absolutely-positioned backdrop Pressable that catches
+ * outside taps. No `marginTop`/`marginBottom` math is needed —
+ * the flex container computes the centered position correctly
+ * on any device.
  */
 export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
-  const insets = useSafeAreaInsets();
-
   if (entry === null) {
     return null;
   }
-
-  // Reserve safe-area gutters so the popup never bleeds under the
-  // status bar / home indicator / notches.
-  const verticalGutter = Math.max(insets.top, insets.bottom, spacing.md);
 
   return (
     <Modal
@@ -78,15 +64,7 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
           onPress={onClose}
           style={styles.backdrop}
         />
-        <View
-          style={[
-            styles.cardWrapper,
-            {
-              marginTop: verticalGutter,
-              marginBottom: verticalGutter,
-            },
-          ]}
-        >
+        <View style={styles.cardWrapper}>
           <Card style={styles.card}>
             <Pressable
               style={styles.closeButton}
@@ -97,34 +75,29 @@ export function GlossaryPopup({ entry, onClose, onReadMore }: Props) {
             >
               <Text style={styles.closeIcon}>✕</Text>
             </Pressable>
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.headerRow}>
-                <Text style={styles.term}>{entry.displayLabel}</Text>
-                <Badge
-                  label={CATEGORY_LABEL[entry.category]}
-                  variant={CATEGORY_BADGE_VARIANT[entry.category]}
-                  style={styles.badge}
-                />
-              </View>
-              <Text style={styles.definition}>{entry.definition}</Text>
-              {onReadMore ? (
-                <Pressable
-                  onPress={() => onReadMore(entry)}
-                  hitSlop={spacing.xs}
-                  accessibilityRole="link"
-                  accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
-                  style={({ pressed }) => [
-                    styles.academyLink,
-                    pressed && styles.academyLinkPressed,
-                  ]}
-                >
-                  <Text style={styles.academyLinkLabel}>Académie →</Text>
-                </Pressable>
-              ) : null}
-            </ScrollView>
+            <View style={styles.headerRow}>
+              <Text style={styles.term}>{entry.displayLabel}</Text>
+              <Badge
+                label={CATEGORY_LABEL[entry.category]}
+                variant={CATEGORY_BADGE_VARIANT[entry.category]}
+                style={styles.badge}
+              />
+            </View>
+            <Text style={styles.definition}>{entry.definition}</Text>
+            {onReadMore ? (
+              <Pressable
+                onPress={() => onReadMore(entry)}
+                hitSlop={spacing.xs}
+                accessibilityRole="link"
+                accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
+                style={({ pressed }) => [
+                  styles.academyLink,
+                  pressed && styles.academyLinkPressed,
+                ]}
+              >
+                <Text style={styles.academyLinkLabel}>Académie →</Text>
+              </Pressable>
+            ) : null}
           </Card>
         </View>
       </View>
@@ -152,13 +125,16 @@ const CATEGORY_BADGE_VARIANT: Record<
 };
 
 const CLOSE_BUTTON_SIZE = 36;
+// Reserve enough horizontal room for the close button so the term
+// + badge row never collides with the icon.
+const CLOSE_BUTTON_RESERVE = CLOSE_BUTTON_SIZE + spacing.sm;
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: spacing.md,
+    padding: spacing.md,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -167,16 +143,9 @@ const styles = StyleSheet.create({
   cardWrapper: {
     width: "92%",
     maxWidth: 420,
-    // Cap height so the popup never bleeds out of the viewport on
-    // small phones; the ScrollView inside handles overflow.
-    maxHeight: "90%",
   },
   card: {
     padding: spacing.md,
-    paddingTop: spacing.md,
-  },
-  scrollContent: {
-    paddingRight: CLOSE_BUTTON_SIZE,
   },
   closeButton: {
     position: "absolute",
@@ -204,6 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: spacing.sm,
     gap: spacing.sm,
+    paddingRight: CLOSE_BUTTON_RESERVE,
   },
   term: {
     flex: 1,

@@ -57,7 +57,9 @@ describe('HopCatalogService', () => {
 
     service = module.get(HopCatalogService);
     repository = module.get(getRepositoryToken(HopOrmEntity));
-    distributorRepository = module.get(getRepositoryToken(DistributorOrmEntity));
+    distributorRepository = module.get(
+      getRepositoryToken(DistributorOrmEntity),
+    );
     hopDistributorRepository = module.get(
       getRepositoryToken(HopDistributorOrmEntity),
     );

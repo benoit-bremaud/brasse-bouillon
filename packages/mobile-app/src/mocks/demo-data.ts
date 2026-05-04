@@ -2191,6 +2191,74 @@ export const demoRecipes: Recipe[] = [
     createdAt: "2026-02-03T10:00:00.000Z",
     updatedAt: "2026-02-03T10:00:00.000Z",
   },
+  // Issue #911 — official BrewDog DIY Dog clone for Punk IPA. Powers
+  // the demo Beat 4 "🏆 Recette officielle" section above the 3
+  // community alternatives. Full DIY Dog ingredient detail is
+  // deferred to #780 (25-recipe BrewDog import).
+  {
+    id: "r-demo-brewdog-diy-dog",
+    ownerId: demoUsers[0].id,
+    name: "BrewDog DIY Dog Punk IPA",
+    description:
+      "Recette officielle BrewDog publiée dans le programme DIY Dog. American IPA de référence — base Maris Otter, cinq houblons américains au whirlpool et en dry-hop, levure US-05.",
+    stats: {
+      ibu: 41,
+      abv: 5.6,
+      og: 1.056,
+      fg: 1.013,
+      volumeLiters: 23,
+      colorEbc: 14,
+    },
+    ingredients: [
+      {
+        ingredientId: "malt-1",
+        amount: 5.3,
+        unit: "kg",
+        timing: "mash",
+      },
+      {
+        ingredientId: "malt-2",
+        amount: 0.25,
+        unit: "kg",
+        timing: "mash",
+      },
+      {
+        ingredientId: "hop-1",
+        amount: 25,
+        unit: "g",
+        timing: "boil - 60 min",
+      },
+      {
+        ingredientId: "hop-3",
+        amount: 37.5,
+        unit: "g",
+        timing: "whirlpool",
+      },
+      {
+        ingredientId: "yeast-1",
+        amount: 1,
+        unit: "unit",
+        timing: "fermentation",
+        notes: "Dry pitch at 19°C",
+      },
+    ],
+    equipment: [
+      {
+        equipmentId: "eq-1",
+        role: "Mash & boil",
+      },
+      {
+        equipmentId: "eq-3",
+        role: "Fermentation",
+      },
+    ],
+    visibility: "public",
+    version: 1,
+    rootRecipeId: "r-demo-brewdog-diy-dog",
+    parentRecipeId: null,
+    createdAt: "2026-02-01T10:00:00.000Z",
+    updatedAt: "2026-02-15T10:00:00.000Z",
+  },
 ];
 
 export const demoBatchSteps: BatchStep[] = [
@@ -2663,9 +2731,20 @@ export const buildDemoLookupResult = (
  * (Punk IPA, La Chouffe, Rochefort 10) carry recipes for now.
  */
 export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
-  // Punk IPA — closest matches in the existing demoRecipes catalog,
-  // ordered by stylistic distance (IPA family).
+  // Punk IPA — official BrewDog DIY Dog clone wins outright (Issue
+  // #911) above the 3 closest stylistic neighbours from the existing
+  // demoRecipes catalog (IPA family).
   "5060277380019": [
+    {
+      recipeId: "r-demo-brewdog-diy-dog",
+      publicRecipeId: "00000000-0000-4000-8000-00000000000b",
+      name: "BrewDog DIY Dog Punk IPA",
+      brewer: "BrewDog",
+      rating: 4.9,
+      brewedCount: 312,
+      score: 1.0,
+      isOfficial: true,
+    },
     {
       recipeId: "r-demo-1",
       publicRecipeId: "00000000-0000-4000-8000-000000000001",
@@ -2819,16 +2898,21 @@ export function getDemoBreweryStory(brewery: string): string | null {
 }
 
 /**
- * Helper that returns up to 3 demo equivalent recipes for an EAN,
- * sorted by `score` descending so the highest-confidence match
- * comes first. Mirrors the future #699 API contract: caller
- * doesn't have to know about the keys or the underlying ordering.
+ * Helper that returns the demo recipe matches for an EAN, sorted by
+ * `score` descending so the highest-confidence match comes first.
+ * Mirrors the future #699 API contract: caller doesn't have to know
+ * about the keys or the underlying ordering.
+ *
+ * No length cap is applied at the data layer — the presentation
+ * layer (`BeerInfoCardScreen`) splits the rankings into the official
+ * clone (`isOfficial: true`) and the community equivalents, and
+ * caps the equivalents via its own `EQUIVALENTS_LIMIT` constant.
+ * Capping here would silently truncate community alternatives once
+ * an official entry is added (Issue #911).
  */
 export function getDemoEquivalentRecipes(
   barcode: string,
 ): ReadonlyArray<ScanRecipeMatch> {
   const matches = demoEquivalentRecipes[barcode] ?? [];
-  return [...matches]
-    .sort((left, right) => right.score - left.score)
-    .slice(0, 3);
+  return [...matches].sort((left, right) => right.score - left.score);
 }

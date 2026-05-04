@@ -11,7 +11,7 @@ import { buildRepoMock } from './seed-test-utils';
 
 describe('seedPublicRecipes (Issue #701)', () => {
   describe('happy path', () => {
-    it('inserts all 10 curated recipes when the table is empty', async () => {
+    it('inserts all 11 curated recipes when the table is empty', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -19,12 +19,12 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 10, updated: 0, total: 10 });
-      expect(repo.create).toHaveBeenCalledTimes(10);
-      expect(repo.save).toHaveBeenCalledTimes(10);
+      expect(result).toEqual({ inserted: 11, updated: 0, total: 11 });
+      expect(repo.create).toHaveBeenCalledTimes(11);
+      expect(repo.save).toHaveBeenCalledTimes(11);
     });
 
-    it('tags every inserted row as PUBLIC + non-official + system owner', async () => {
+    it('tags every inserted row as PUBLIC + system owner with the seed-declared is_official flag', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -33,11 +33,6 @@ describe('seedPublicRecipes (Issue #701)', () => {
       for (const call of repo.create.mock.calls as unknown[][]) {
         const arg = call[0] as Record<string, unknown>;
         expect(arg.visibility).toBe(RecipeVisibility.PUBLIC);
-        // Stays non-official by design — the matching algorithm
-        // (Issue #699) treats `is_official=true` as a per-beer
-        // shortcut to score 100; tagging all 10 seed rows as
-        // official would collapse `rankForBeer` to insertion order.
-        expect(arg.is_official).toBe(false);
         expect(arg.owner_id).toBe(PUBLIC_RECIPES_SYSTEM_OWNER_ID);
         expect(arg.imported_from_recipe_id).toBeNull();
         expect(arg.import_provenance).toBeNull();
@@ -46,6 +41,29 @@ describe('seedPublicRecipes (Issue #701)', () => {
         expect(arg.root_recipe_id).toBe(arg.id);
         expect(arg.version).toBe(1);
       }
+    });
+
+    it('keeps the 10 community recipes non-official and tags only the BrewDog DIY Dog clone as official (Issue #911)', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+
+      await seedPublicRecipes(repo as unknown as Repository<RecipeOrmEntity>);
+
+      const createdRows = (repo.create.mock.calls as unknown[][]).map(
+        (call) => call[0] as Record<string, unknown>,
+      );
+      const officials = createdRows.filter((row) => row.is_official === true);
+      expect(officials).toHaveLength(1);
+      expect(officials[0].name).toBe('BrewDog DIY Dog Punk IPA');
+      // The 10 community recipes stay non-official by design — the
+      // matching algorithm (Issue #699) treats `is_official=true` as
+      // a per-beer shortcut to score 100; tagging more than ~one
+      // official per style would collapse `rankForBeer` to insertion
+      // order (the regression Codex caught on PR #773).
+      const nonOfficials = createdRows.filter(
+        (row) => row.is_official === false,
+      );
+      expect(nonOfficials).toHaveLength(10);
     });
   });
 
@@ -64,9 +82,9 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 0, updated: 10, total: 10 });
+      expect(result).toEqual({ inserted: 0, updated: 11, total: 11 });
       expect(repo.create).not.toHaveBeenCalled();
-      expect(repo.save).toHaveBeenCalledTimes(10);
+      expect(repo.save).toHaveBeenCalledTimes(11);
     });
 
     it('forces visibility back to PUBLIC and is_official back to false when overwriting a drifted row', async () => {
@@ -107,7 +125,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 7, updated: 3, total: 10 });
+      expect(result).toEqual({ inserted: 8, updated: 3, total: 11 });
     });
 
     it('respects an explicit override list (e.g. tests, alternate demo data)', async () => {
@@ -124,14 +142,15 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(result).toEqual({ inserted: 2, updated: 0, total: 2 });
     });
 
-    it('exposes 10 curated recipes covering IPA / Belgian / Strong / Lager families', () => {
-      expect(PUBLIC_RECIPES_SEED).toHaveLength(10);
+    it('exposes 11 curated recipes covering IPA / Belgian / Strong / Lager families plus the official DIY Dog', () => {
+      expect(PUBLIC_RECIPES_SEED).toHaveLength(11);
       const names = PUBLIC_RECIPES_SEED.map((r) => r.name);
       expect(names).toContain('Session IPA Citra');
       expect(names).toContain('Belgian Tripel');
       expect(names).toContain('Saison Farmhouse');
       expect(names).toContain('Imperial Stout');
       expect(names).toContain('Kölsch Tradition');
+      expect(names).toContain('BrewDog DIY Dog Punk IPA');
     });
 
     it('tags every seeded recipe with a non-empty style for the matching algorithm', () => {

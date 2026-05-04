@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   fireEvent,
   render,
@@ -13,6 +14,41 @@ import { startBatch } from "@/features/batches/application/batches.use-cases";
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: () => null,
+}));
+
+type SliderMockProps = {
+  testID?: string;
+  value: number;
+  onSlidingComplete?: (value: number) => void;
+};
+
+jest.mock("@react-native-community/slider", () => {
+  const RN = jest.requireActual("react-native");
+  const ReactActual = jest.requireActual("react");
+
+  return {
+    __esModule: true,
+    default: function MockSlider(props: SliderMockProps) {
+      const { testID, value, onSlidingComplete } = props;
+      return ReactActual.createElement(
+        RN.Pressable,
+        {
+          testID,
+          accessibilityRole: "slider",
+          onPress: () => {
+            if (typeof onSlidingComplete === "function") {
+              onSlidingComplete(value + 20);
+            }
+          },
+        },
+        ReactActual.createElement(RN.Text, null, "slider value=" + value),
+      );
+    },
+  };
+});
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
   return {
@@ -25,183 +61,175 @@ jest.mock("expo-router", () => {
   };
 });
 
-jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
-  getRecipeDetailsViewModel: jest.fn().mockResolvedValue({
-    recipe: {
-      id: "r1",
-      name: "Test Recipe",
-      description: "Test description",
-      visibility: "private",
-      stats: {
-        ibu: 35,
-        abv: 5.4,
-        og: 1.052,
-        fg: 1.011,
+const baseViewModel = {
+  recipe: {
+    id: "r1",
+    name: "Test Recipe",
+    description: "Test description",
+    visibility: "private",
+    version: 1,
+    rootRecipeId: "r1",
+    parentRecipeId: null,
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+    stats: {
+      ibu: 35,
+      abv: 5.4,
+      og: 1.052,
+      fg: 1.011,
+      volumeLiters: 20,
+    },
+  },
+  ingredients: [
+    {
+      ingredientId: "hop-1",
+      amount: 25,
+      unit: "g",
+      timing: "boil - 10 min",
+      notes: null,
+      ingredient: {
+        id: "hop-1",
+        name: "Citra",
+        category: "hop",
+      },
+    },
+  ],
+  equipment: [
+    {
+      equipmentId: "eq-1",
+      role: "Mash & boil",
+      notes: null,
+      equipment: {
+        id: "eq-1",
+        name: "Braumeister 20L",
+        type: "all-in-one",
         volumeLiters: 20,
       },
     },
-    ingredients: [
-      {
-        ingredientId: "hop-1",
-        amount: 25,
-        unit: "g",
-        timing: "boil - 10 min",
-        notes: null,
-        ingredient: {
-          id: "hop-1",
-          name: "Citra",
-          category: "hop",
-        },
-      },
-    ],
-    equipment: [
-      {
-        equipmentId: "eq-1",
-        role: "Mash & boil",
-        notes: null,
-        equipment: {
-          id: "eq-1",
-          name: "Braumeister 20L",
-          type: "all-in-one",
-          volumeLiters: 20,
-        },
-      },
-    ],
-    steps: [
-      {
-        recipeId: "r1",
-        stepOrder: 0,
-        label: "Mash",
-        type: "mash",
-        description: "Hold at 67°C",
-      },
-    ],
-  }),
+  ],
+  steps: [
+    {
+      recipeId: "r1",
+      stepOrder: 0,
+      label: "Mash",
+      type: "mash",
+      description: "Hold at 67°C",
+    },
+  ],
+};
+
+jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
+  getRecipeDetailsViewModel: jest.fn(),
 }));
 
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
-  startBatch: jest.fn().mockResolvedValue({ id: "b1" }),
+  startBatch: jest.fn(),
 }));
 
-describe("RecipeDetailsScreen", () => {
+function renderRecipeDetails(recipeId = "r1") {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: Number.POSITIVE_INFINITY,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <RecipeDetailsScreen recipeId={recipeId} />
+    </QueryClientProvider>,
+  );
+}
+
+function switchToTab(tabId: string) {
+  fireEvent.press(screen.getByTestId(`recipe-detail-tab-${tabId}`));
+}
+
+describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
-    (getRecipeDetailsViewModel as jest.Mock).mockClear();
-    (startBatch as jest.Mock).mockClear();
+    (getRecipeDetailsViewModel as jest.Mock).mockReset();
+    (startBatch as jest.Mock).mockReset();
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(baseViewModel);
+    (startBatch as jest.Mock).mockResolvedValue({ id: "b1" });
   });
 
-  it("renders the redesigned recipe details sections", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
+  it("renders the side rail and lands on Overview by default", async () => {
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-    expect(screen.getByText("My Recipe Book")).toBeTruthy();
-    expect(screen.getByText("IBU")).toBeTruthy();
-    expect(screen.getByText("Ingredients by type")).toBeTruthy();
-    expect(screen.getByText("Equipment")).toBeTruthy();
-    expect(screen.getByText("Water profile compatibility")).toBeTruthy();
-    expect(screen.getByText("Process preview")).toBeTruthy();
-    expect(screen.getByText("Scale my batch")).toBeTruthy();
-    expect(screen.getByText("Start Batch")).toBeTruthy();
+    expect(await screen.findByTestId("recipe-detail-side-rail")).toBeTruthy();
+    expect(screen.getByTestId("recipe-detail-tab-overview")).toBeTruthy();
+    expect(screen.getByTestId("recipe-detail-tab-ingredients")).toBeTruthy();
+    expect(screen.getByTestId("recipe-detail-tab-water")).toBeTruthy();
+    expect(screen.getByTestId("recipe-detail-tab-brewing")).toBeTruthy();
+    expect(screen.getByTestId("recipe-detail-tab-reviews")).toBeTruthy();
+    expect(screen.getByTestId("recipe-overview-tab")).toBeTruthy();
+    expect(screen.getByText("Test Recipe")).toBeTruthy();
+    expect(screen.getByText("En un coup d'œil")).toBeTruthy();
+  });
+
+  it("shows the equipment checklist on the Overview tab", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+
+    expect(screen.getByText("Matériel requis")).toBeTruthy();
+    expect(screen.getByTestId("recipe-equipment-checklist-eq-1")).toBeTruthy();
+    expect(screen.getByText("Braumeister 20L")).toBeTruthy();
+  });
+
+  it("switches to the Ingredients tab and shows the ingredient list", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
+
+    expect(screen.getByTestId("recipe-ingredients-tab")).toBeTruthy();
+    expect(screen.getByText("Volume cible")).toBeTruthy();
+    expect(screen.getAllByText("Ingrédients").length).toBeGreaterThan(0);
     expect(screen.getByText("Citra")).toBeTruthy();
     expect(screen.getByText("Hops")).toBeTruthy();
   });
 
-  it("updates scaled ingredient quantity when target volume changes", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
+  it("scales ingredient quantities when the volume slider changes", async () => {
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
+
     expect(screen.getByText("25 g • boil - 10 min")).toBeTruthy();
 
-    fireEvent.changeText(
-      screen.getByTestId("recipe-target-volume-input"),
-      "40",
-    );
+    // Mock slider bumps the value by +20 on press, so 20 + 20 = 40 L target.
+    fireEvent.press(screen.getByTestId("recipe-target-volume-slider"));
 
     expect(screen.getByText("50 g • boil - 10 min")).toBeTruthy();
+    expect(
+      screen.getByTestId("recipe-target-volume-readout"),
+    ).toHaveTextContent("40 L");
+  });
+
+  it("reflects the scaled target volume on the Overview at-a-glance card", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
+    fireEvent.press(screen.getByTestId("recipe-target-volume-slider"));
+    switchToTab("overview");
+
     expect(screen.getByText("40 L")).toBeTruthy();
   });
 
-  it("adds ingredients and equipment to local cart", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
+  it("opens hop details with recipe return context", async () => {
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getByTestId("recipe-add-ingredient-hop-1-0"));
-    expect(screen.getByText("1 lines • 25 total quantity")).toBeTruthy();
-
-    fireEvent.press(screen.getByTestId("recipe-add-equipment-eq-1"));
-    expect(screen.getByText("2 lines • 26 total quantity")).toBeTruthy();
-
-    expect(screen.getAllByText("Braumeister 20L").length).toBeGreaterThan(0);
-    expect(screen.getByText("1 unit")).toBeTruthy();
-  });
-
-  it("adds all ingredients to local cart", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getByTestId("recipe-add-all-ingredients-button"));
-
-    expect(screen.getByText("1 lines • 25 total quantity")).toBeTruthy();
-    expect(screen.getByText("25 g")).toBeTruthy();
-  });
-
-  it("blocks start batch when target volume exceeds equipment capacity in equipment mode", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getByTestId("recipe-volume-mode-equipment"));
-    fireEvent.changeText(
-      screen.getByTestId("recipe-target-volume-input"),
-      "30",
-    );
-
-    expect(screen.getByText("Volume not feasible")).toBeTruthy();
-
-    fireEvent.press(screen.getByText("Start Batch"));
-    expect(startBatch).not.toHaveBeenCalled();
-  });
-
-  it("starts a batch and navigates to the batch details", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getByText("Start Batch"));
-
-    await waitFor(() => {
-      expect(startBatch).toHaveBeenCalledWith("r1");
-      expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
-    });
-  });
-
-  it("navigates to shop from the section action", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getAllByText("Shop")[0]);
-
-    expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
-  });
-
-  it("navigates back to my recipes from header action", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
-
-    fireEvent.press(screen.getByLabelText("Retour à mes recettes"));
-
-    expect(mockReplace).toHaveBeenCalledWith("/recipes");
-  });
-
-  it("opens hop details page with recipe return context when tapping ingredient row", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
 
     fireEvent.press(screen.getByLabelText("Open ingredient details for Citra"));
 
@@ -216,71 +244,9 @@ describe("RecipeDetailsScreen", () => {
     });
   });
 
-  it("opens yeast details page with recipe return context when tapping ingredient row", async () => {
+  it("opens malt details with the dedicated malt route", async () => {
     (getRecipeDetailsViewModel as jest.Mock).mockResolvedValueOnce({
-      recipe: {
-        id: "r1",
-        name: "Test Recipe",
-        description: "Test description",
-        visibility: "private",
-        stats: {
-          ibu: 35,
-          abv: 5.4,
-          og: 1.052,
-          fg: 1.011,
-          volumeLiters: 20,
-        },
-      },
-      ingredients: [
-        {
-          ingredientId: "yeast-1",
-          amount: 1,
-          unit: "pack",
-          timing: "pitch",
-          notes: null,
-          ingredient: {
-            id: "yeast-1",
-            name: "US-05",
-            category: "yeast",
-          },
-        },
-      ],
-      equipment: [],
-      steps: [],
-    });
-
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("US-05")).toBeTruthy();
-
-    fireEvent.press(screen.getByLabelText("Open ingredient details for US-05"));
-
-    expect(mockPush).toHaveBeenCalledWith({
-      pathname: "/(app)/ingredients/[category]/[id]",
-      params: {
-        category: "yeast",
-        id: "yeast-1",
-        returnTo: "/(app)/recipes/[id]",
-        returnRecipeId: "r1",
-      },
-    });
-  });
-
-  it("opens malt details page when tapping a malt ingredient row", async () => {
-    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValueOnce({
-      recipe: {
-        id: "r1",
-        name: "Test Recipe",
-        description: "Test description",
-        visibility: "private",
-        stats: {
-          ibu: 35,
-          abv: 5.4,
-          og: 1.052,
-          fg: 1.011,
-          volumeLiters: 20,
-        },
-      },
+      ...baseViewModel,
       ingredients: [
         {
           ingredientId: "malt-1",
@@ -295,13 +261,13 @@ describe("RecipeDetailsScreen", () => {
           },
         },
       ],
-      equipment: [],
-      steps: [],
     });
 
-    render(<RecipeDetailsScreen recipeId="r1" />);
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
+    await screen.findByText("Pale Ale Malt");
 
     fireEvent.press(
       screen.getByLabelText("Open ingredient details for Pale Ale Malt"),
@@ -317,12 +283,39 @@ describe("RecipeDetailsScreen", () => {
     });
   });
 
-  it("navigates to water calculator from the water section", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
+  it("opens the shop from the Ingredients tab inline action", async () => {
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
 
-    fireEvent.press(screen.getByText("Compare in Water Calculator"));
+    fireEvent.press(
+      screen.getByLabelText(
+        "Ouvrir la boutique depuis la liste des ingrédients",
+      ),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
+  });
+
+  it("renders the Water tab with profile and salt additions", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("water");
+
+    expect(screen.getByTestId("recipe-water-tab")).toBeTruthy();
+    expect(screen.getByText("Profil eau")).toBeTruthy();
+    expect(screen.getByText("Ajouter pour matcher")).toBeTruthy();
+  });
+
+  it("navigates to the water calculator from the Water tab", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("water");
+
+    fireEvent.press(screen.getByText("Comparer dans le Calculateur Eau"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/tools/[slug]/calculator",
@@ -330,28 +323,116 @@ describe("RecipeDetailsScreen", () => {
     });
   });
 
-  it("shows recipe steps in recipe process display mode", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
+  it("renders the Brewing tab with the process preview modes", async () => {
+    renderRecipeDetails();
 
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("brewing");
+
+    expect(screen.getByTestId("recipe-brewing-tab")).toBeTruthy();
+    expect(screen.getByText("Aperçu du process")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
-
     expect(screen.getByText("1. Mash")).toBeTruthy();
-    expect(screen.getByText("mash")).toBeTruthy();
     expect(screen.getByText("Hold at 67°C")).toBeTruthy();
-  });
-
-  it("shows compact process metrics", async () => {
-    render(<RecipeDetailsScreen recipeId="r1" />);
-
-    expect(await screen.findByText("Test Recipe")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId("recipe-process-filter-compact"));
+    expect(screen.getByText("Étapes recette : 1")).toBeTruthy();
+    expect(screen.getByText("Ingrédients : 1")).toBeTruthy();
+    expect(screen.getByText("Matériel : 1")).toBeTruthy();
+  });
 
-    expect(screen.getByText("Recipe steps: 1")).toBeTruthy();
-    expect(screen.getByText("Ingredients: 1")).toBeTruthy();
-    expect(screen.getByText("Equipment: 1")).toBeTruthy();
-    expect(screen.getByText("Next key step: Mash")).toBeTruthy();
+  it("hides the sticky CTA on the Notes & Reviews tab", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    expect(screen.getByTestId("recipe-sticky-cta")).toBeTruthy();
+
+    switchToTab("reviews");
+
+    expect(screen.queryByTestId("recipe-sticky-cta")).toBeNull();
+    expect(screen.getByTestId("recipe-reviews-tab")).toBeTruthy();
+  });
+
+  it("starts a batch from the sticky CTA and navigates to the batch details", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+
+    fireEvent.press(screen.getByText("Lancer un brassin"));
+
+    await waitFor(() => {
+      expect(startBatch).toHaveBeenCalledWith("r1");
+      expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
+    });
+  });
+
+  // Issue #740 — Codex / Copilot review on PR #916: a failed
+  // startBatch must not leave the screen-level error banner on
+  // forever. Tapping "Réessayer" should reset the mutation state.
+  it("clears the startBatch error when the user taps Réessayer", async () => {
+    (startBatch as jest.Mock).mockRejectedValueOnce(new Error("Backend down"));
+
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByText("Lancer un brassin"));
+
+    await screen.findByText(/Backend down/i);
+
+    fireEvent.press(screen.getByText("Réessayer"));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Backend down/i)).toBeNull();
+    });
+  });
+
+  it("navigates back to My Recipes from the header action", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+
+    fireEvent.press(screen.getByLabelText("Retour à mes recettes"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/recipes");
+  });
+
+  it("shows the not-found state when recipeId is missing", async () => {
+    renderRecipeDetails("");
+
+    expect(await screen.findByText("Recette introuvable")).toBeTruthy();
+    expect(getRecipeDetailsViewModel as jest.Mock).not.toHaveBeenCalled();
+  });
+
+  it("shows the placeholder on the Notes & Reviews tab", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("reviews");
+
+    expect(screen.getByTestId("recipe-reviews-tab")).toBeTruthy();
+    expect(
+      screen.getByText(
+        /Les notes par axe \(goût, difficulté, coût, fidélité au style\)/i,
+      ),
+    ).toBeTruthy();
+  });
+
+  // Issue #740 v0.1 acceptance criteria: a recipe imported from the
+  // scan flow must visibly carry its provenance. We assert the badge
+  // appears when `importProvenance` is present on the recipe.
+  it("renders the provenance badge for imported recipes on Overview", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValueOnce({
+      ...baseViewModel,
+      recipe: {
+        ...baseViewModel.recipe,
+        importProvenance: "BrewDog DIY Dog",
+      },
+    });
+
+    renderRecipeDetails();
+
+    expect(await screen.findByTestId("recipe-provenance-badge")).toBeTruthy();
+    expect(screen.getByText(/Importée • BrewDog DIY Dog/)).toBeTruthy();
   });
 });

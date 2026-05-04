@@ -1,9 +1,9 @@
 import React, { useCallback, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { useRouter } from "expo-router";
 
 import { GlossaryPopup } from "@/core/ui/GlossaryPopup";
-import { colors, typography } from "@/core/theme";
+import { colors } from "@/core/theme";
 import { useGlossary } from "@/features/tools/application/use-glossary";
 import type { GlossaryEntry } from "@/features/tools/domain/glossary.types";
 
@@ -16,18 +16,30 @@ interface Props {
 
 /**
  * Inline wrapper that turns a brewing term into an interactive
- * surface (Issue #783). On long-press, opens the `<GlossaryPopup>`
- * with the resolved entry. Regular taps are a no-op (graceful
- * degradation — the user discovers the long-press affordance via
- * the visual underline + auto-link in recipe descriptions).
+ * surface (Issue #783). Long-press opens the `<GlossaryPopup>`
+ * with the resolved entry; regular tap is a no-op (graceful
+ * degradation — the affordance is the visual underline only).
  *
- * Long-press pattern reproduced from `ScanScreen` demo override:
- * a `useRef` guard suppresses the trailing `onPress` that React
- * Native fires immediately after `onLongPress`.
+ * Implementation note (Issue #783 visual fix on PR #913) :
+ * the wrapper is a plain `<Text>` with React Native's native
+ * `onLongPress` / `onPress` props — NOT a `<Pressable>` around a
+ * `<Text>`. Pressable inside Text breaks inline flow (RN renders
+ * it as a block-level View) and causes the glossary terms to
+ * shift baseline relative to their surrounding paragraph.
  *
- * If the term cannot be resolved (typo or unknown term), the
- * children are rendered as plain text — no popup, no underline.
- * This keeps the auto-linker safe even if the source text drifts.
+ * Likewise, the styled term carries ONLY the visual marks (color +
+ * underline) — `fontSize` / `lineHeight` / `fontWeight` are
+ * inherited from the parent `<Text>` so the term stays on the same
+ * baseline as its host paragraph (label-size in RecipeDetailsScreen,
+ * body-size in Académie body copy, etc.).
+ *
+ * Long-press pattern reproduced from `ScanScreen` demo override :
+ * a `useRef` guard suppresses the trailing `onPress` RN fires
+ * immediately after `onLongPress`.
+ *
+ * If the term cannot be resolved (typo or unknown term), children
+ * render as plain inherited Text — no popup, no underline. Keeps
+ * the auto-linker safe even when the source text drifts.
  */
 export function GlossaryTerm({ term, children }: Props) {
   const router = useRouter();
@@ -48,10 +60,7 @@ export function GlossaryTerm({ term, children }: Props) {
       longPressFiredRef.current = false;
       return;
     }
-    // Regular tap is intentionally a no-op for now. Future: could
-    // navigate directly to the Académie entry without going through
-    // the popup, but the design choice for v0.1 keeps long-press as
-    // the only entry point so users build the muscle memory.
+    // Regular tap is intentionally a no-op for v0.1.
   }, []);
 
   const handleClose = useCallback(() => {
@@ -63,23 +72,24 @@ export function GlossaryTerm({ term, children }: Props) {
     router.push("/(app)/academy/glossaire");
   }, [router]);
 
-  // Unknown term — render as plain text, no interactive surface.
+  // Unknown term — render plain text, no interactive surface, no
+  // underline (inherits the parent paragraph style untouched).
   if (!resolved) {
     return <Text>{children}</Text>;
   }
 
   return (
     <>
-      <Pressable
+      <Text
+        style={styles.linkedTerm}
         onLongPress={handleLongPress}
         onPress={handlePress}
-        delayLongPress={500}
         accessibilityRole="button"
         accessibilityLabel={`Définition de ${resolved.displayLabel}`}
         accessibilityHint="Maintenir appuyé pour ouvrir la définition"
       >
-        <Text style={styles.linkedTerm}>{children}</Text>
-      </Pressable>
+        {children}
+      </Text>
       <GlossaryPopup
         entry={activeEntry}
         onClose={handleClose}
@@ -90,10 +100,10 @@ export function GlossaryTerm({ term, children }: Props) {
 }
 
 const styles = StyleSheet.create({
+  // Visual marks ONLY — fontSize, lineHeight, fontWeight inherit
+  // from the parent Text so the term stays on the host baseline.
   linkedTerm: {
     color: colors.brand.secondary,
     textDecorationLine: "underline",
-    fontSize: typography.size.body,
-    lineHeight: typography.lineHeight.body,
   },
 });

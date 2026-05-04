@@ -54,6 +54,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { GlossaryText } from "@/core/ui/GlossaryText";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
 import { Ionicons } from "@expo/vector-icons";
@@ -407,7 +408,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
           <Card style={styles.headerCard}>
             <Text style={styles.title}>{recipe.name}</Text>
             {recipe.description ? (
-              <Text style={styles.subtitle}>{recipe.description}</Text>
+              <GlossaryText text={recipe.description} style={styles.subtitle} />
             ) : null}
 
             {stats ? (
@@ -890,9 +891,10 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     <Text style={styles.stepType}>{item.type}</Text>
                   </View>
                   {item.description ? (
-                    <Text style={styles.stepDescription}>
-                      {item.description}
-                    </Text>
+                    <GlossaryText
+                      text={item.description}
+                      style={styles.stepDescription}
+                    />
                   ) : null}
                 </View>
               ))

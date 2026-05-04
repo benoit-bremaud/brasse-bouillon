@@ -12,6 +12,11 @@ import {
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
+import { GLOSSARY_ENTRIES } from "@/features/tools/data/glossary.data";
+import type {
+  GlossaryCategory,
+  GlossaryEntry,
+} from "@/features/tools/domain/glossary.types";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
@@ -1599,6 +1604,32 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                 □ Je peux expliquer simplement les principaux acronymes
               </Text>
             </Card>
+
+            {GLOSSARY_CATEGORY_ORDER.map((category) => {
+              const entries = ENTRIES_BY_CATEGORY[category];
+              if (entries.length === 0) return null;
+              return (
+                <Card key={category} style={styles.sectionCard}>
+                  <Text style={styles.sectionTitle}>
+                    {GLOSSARY_CATEGORY_TITLE[category]}
+                  </Text>
+                  {entries.map((entry) => (
+                    <View
+                      key={entry.term}
+                      style={styles.glossaryEntry}
+                      accessibilityLabel={`Définition de ${entry.displayLabel}`}
+                    >
+                      <Text style={styles.glossaryTerm}>
+                        {entry.displayLabel}
+                      </Text>
+                      <Text style={styles.glossaryDefinition}>
+                        {entry.definition}
+                      </Text>
+                    </View>
+                  ))}
+                </Card>
+              );
+            })}
           </>
         ) : (
           <>
@@ -1642,6 +1673,35 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
     </Screen>
   );
 }
+
+const GLOSSARY_CATEGORY_ORDER: ReadonlyArray<GlossaryCategory> = [
+  "brewing-process",
+  "measurement",
+  "equipment",
+  "ingredient",
+  "style",
+];
+
+const GLOSSARY_CATEGORY_TITLE: Record<GlossaryCategory, string> = {
+  "brewing-process": "Processus de brassage",
+  measurement: "Mesures & métriques",
+  equipment: "Équipement",
+  ingredient: "Ingrédients",
+  style: "Styles de bière",
+};
+
+const ENTRIES_BY_CATEGORY: Record<
+  GlossaryCategory,
+  ReadonlyArray<GlossaryEntry>
+> = GLOSSARY_CATEGORY_ORDER.reduce(
+  (acc, category) => {
+    acc[category] = GLOSSARY_ENTRIES.filter(
+      (entry) => entry.category === category,
+    );
+    return acc;
+  },
+  {} as Record<GlossaryCategory, ReadonlyArray<GlossaryEntry>>,
+);
 
 const styles = StyleSheet.create({
   content: {},
@@ -1708,5 +1768,22 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.medium,
+  },
+  glossaryEntry: {
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.border,
+  },
+  glossaryTerm: {
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.secondary,
+    marginBottom: spacing.xxs,
+  },
+  glossaryDefinition: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    color: colors.neutral.textPrimary,
   },
 });

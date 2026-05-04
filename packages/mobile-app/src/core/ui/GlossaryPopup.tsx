@@ -72,25 +72,22 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
       accessibilityViewIsModal
       statusBarTranslucent
     >
-      <View
+      {/* Backdrop = full-screen Pressable that wraps EVERYTHING.
+          Taps anywhere inside it that are not claimed by an inner
+          responder bubble up to its onPress and dismiss the popup.
+          Explicit width/height from Dimensions guarantees the
+          backdrop fills the screen on Android (where flex: 1 in
+          a transparent Modal can collapse to 0 px). */}
+      <Pressable
         style={[
-          styles.fullScreen,
+          styles.backdrop,
           { width: screenWidth, height: screenHeight },
         ]}
+        onPress={onClose}
+        accessibilityRole="button"
+        accessibilityLabel="Fermer la définition"
+        accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
       >
-        {/* Backdrop : explicit absolute fill + dark colour. The tap
-            target spans the entire screen so the user can dismiss
-            anywhere outside the card. */}
-        <Pressable
-          style={styles.backdrop}
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel="Fermer la définition"
-          accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
-        />
-        {/* Card positioner : absolute child at the computed Y,
-            spans the explicit screenWidth, centers the card via
-            flexDirection: row + justifyContent: center. */}
         <View
           style={[
             styles.cardPositioner,
@@ -99,14 +96,19 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
           ]}
           pointerEvents="box-none"
         >
-          {/* Plain View wrapper — NOT a Pressable. A Pressable here
-              would claim touches and prevent the inner Académie
-              Pressable from firing. The Card View intrinsically
-              consumes taps on its empty area (default pointerEvents
-              auto) so they don't bubble to the backdrop, but inner
-              Pressables still get their own touches because they
-              are deeper in the responder chain. */}
-          <View style={styles.cardWrapper}>
+          {/* Card wrapper claims taps on the card body so they
+              don't bubble up to the backdrop Pressable. Uses
+              onStartShouldSetResponder rather than wrapping in a
+              Pressable, because a child Pressable would intercept
+              and break the inner Académie Pressable's onPress. */}
+          <View
+            style={styles.cardWrapper}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={() => {
+              // intentional no-op — we only care about claiming the
+              // touch so the parent backdrop's onPress doesn't fire.
+            }}
+          >
             <Card style={styles.card}>
               <View style={styles.headerRow}>
                 <Text style={styles.term}>{entry.displayLabel}</Text>
@@ -134,7 +136,7 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
             </Card>
           </View>
         </View>
-      </View>
+      </Pressable>
     </Modal>
   );
 }
@@ -225,15 +227,20 @@ const styles = StyleSheet.create({
     left: 0,
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "flex-start",
     paddingHorizontal: SCREEN_MARGIN,
   },
-  // Card wrapper — `flex: 1` to fill available row space, capped
-  // by `maxWidth` on tablets so the card doesn't get unreadably
-  // wide. With the parent's row + center alignment, this gives the
-  // canonical "fill, capped, centered" RN layout.
+  // Card wrapper — width-based sizing (NOT `flex: 1`). flex: 1 in a
+  // row container with auto-height parent stretches the wrapper
+  // vertically to fill available space, which made the wrapper
+  // claim taps far below the visible card and prevented the
+  // backdrop from receiving dismiss taps in most of the screen.
+  // With explicit width + maxWidth + flexShrink, the wrapper is
+  // exactly card-sized — backdrop receives all surrounding taps.
   cardWrapper: {
-    flex: 1,
+    width: "100%",
     maxWidth: 480,
+    flexShrink: 1,
   },
   card: {
     padding: spacing.md,

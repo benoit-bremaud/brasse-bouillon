@@ -78,8 +78,11 @@ export function GlossaryTerm({ term, children }: Props) {
   }, []);
 
   const handleReadMore = useCallback(() => {
-    setTrigger(null);
+    // Navigate first, close after — closing first unmounts the
+    // Modal which on Android can cancel the in-flight touch and
+    // drop the navigation call.
     router.push("/(app)/academy/glossaire");
+    setTrigger(null);
   }, [router]);
 
   if (!resolved) {

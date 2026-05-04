@@ -55,6 +55,17 @@ export interface PublicRecipeSeed {
   efficiency_target: number;
   avg_rating: number;
   brew_count: number;
+  /**
+   * Optional per-recipe official flag. Defaults to `false`. The
+   * matching algorithm grants `is_official = true` recipes a 100-point
+   * similarity boost (see `RecipeMatchingService`), so they win
+   * outright among style-matched candidates. Reserved for brewer-
+   * endorsed clones tied to a specific demo bottle (e.g. BrewDog
+   * DIY Dog → Punk IPA). Tagging more than ~one official per style
+   * collapses `rankForBeer` to insertion order — the regression
+   * Codex caught on PR #773.
+   */
+  is_official?: boolean;
 }
 
 /**
@@ -238,6 +249,40 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     avg_rating: 4.4,
     brew_count: 15,
   },
+  // --- Brewer-endorsed clone (matches Punk IPA — Issue #911) ---
+  // The 11th entry, kept stylistically aligned with the Punk IPA
+  // demo bottle. Canonical DIY Dog values from BrewDog's published
+  // datasheet at the canonical 23L batch size.
+  //
+  // Note on `is_official`: deliberately NOT set to true on this
+  // backend seed row. The matching service treats `is_official` as
+  // a GLOBAL per-recipe shortcut (100-pt similarity boost in
+  // `RecipeMatchingService.computeFinalScore`), and `rankForBeer`
+  // evaluates every PUBLIC recipe against every scanned beer — so
+  // tagging this row would surface the DIY Dog as the "official"
+  // recipe for La Chouffe, Rochefort, etc. (Codex P1 caught on PR
+  // #912). The "🏆 Recette officielle" demo beat works through the
+  // mobile `demoEquivalentRecipes` mock, which scopes `isOfficial`
+  // per-barcode and only tags this entry under `5060277380019` /
+  // `4260649360279`. Backend-mode per-beer official linking is
+  // deferred to a follow-up issue.
+  {
+    id: '00000000-0000-4000-8000-00000000000b',
+    name: 'BrewDog DIY Dog Punk IPA',
+    description:
+      'Recette officielle BrewDog publiée dans le programme DIY Dog. American IPA de référence — base Maris Otter + Caramalt, cinq houblons américains au whirlpool et en dry-hop (Ahtanum, Chinook, Nelson Sauvin, Cascade, Simcoe), levure US-05. Profil propre, amertume marquée, nez agrumes et fruits tropicaux.',
+    style: 'American IPA',
+    batch_size_l: 23,
+    boil_time_min: 60,
+    og_target: 1.056,
+    fg_target: 1.013,
+    abv_estimated: 5.6,
+    ibu_target: 41,
+    ebc_target: 14,
+    efficiency_target: 75,
+    avg_rating: 4.9,
+    brew_count: 312,
+  },
 ];
 
 /**
@@ -254,17 +299,18 @@ export interface SeedPublicRecipesResult {
 /**
  * Idempotent loader for the curated public recipes above. Insert
  * if the id is unknown, update in place otherwise. Always sets
- * `visibility = PUBLIC`, `is_official = false`, and
- * `imported_from_recipe_id = null` (these are originals, not
- * imports). Owner is the system sentinel UUID.
+ * `visibility = PUBLIC` and `imported_from_recipe_id = null` (these
+ * are originals, not imports). `is_official` is read from the seed
+ * entry (defaults to `false`). Owner is the system sentinel UUID.
  *
  * Note on `is_official`: the matching algorithm (Issue #699) treats
  * `is_official = true` as a beer-specific shortcut that wins outright
- * (score 100). Tagging the 10 seed recipes as official would make
- * every PUBLIC row tie at 100 and collapse `rankForBeer` to insertion
- * order — exactly the regression Codex caught on PR #773. The flag is
- * reserved for future per-beer official clones (e.g. a brewer-endorsed
- * Punk IPA clone for the Punk IPA bottle).
+ * (score 100). Tagging every seed recipe as official would make all
+ * PUBLIC rows tie at 100 and collapse `rankForBeer` to insertion
+ * order — the regression Codex caught on PR #773. The flag is
+ * reserved for brewer-endorsed clones tied to a specific demo bottle
+ * (currently only the BrewDog DIY Dog clone for Punk IPA — Issue
+ * #911 unblocks the demo Beat 4 "🏆 Recette officielle" section).
  */
 export async function seedPublicRecipes(
   repository: Repository<RecipeOrmEntity>,
@@ -297,7 +343,7 @@ export async function seedPublicRecipes(
       avg_rating: recipe.avg_rating,
       brew_count: recipe.brew_count,
       last_brewed_at: null,
-      is_official: false,
+      is_official: recipe.is_official ?? false,
       imported_from_recipe_id: null,
       import_provenance: null,
     };

@@ -3,7 +3,9 @@ jest.setTimeout(20000);
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { FermentableCatalogService } from '../fermentable-catalog.service';
+import { FermentableDistributorOrmEntity } from '../../entities/fermentable-distributor.orm.entity';
 import { FermentableOrmEntity } from '../../entities/fermentable.orm.entity';
 import { FermentableType } from '../../domain/enums/fermentable-type.enum';
 import { NotFoundException } from '@nestjs/common';
@@ -31,11 +33,19 @@ describe('FermentableCatalogService', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [FermentableOrmEntity],
+          entities: [
+            FermentableOrmEntity,
+            DistributorOrmEntity,
+            FermentableDistributorOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([FermentableOrmEntity]),
+        TypeOrmModule.forFeature([
+          FermentableOrmEntity,
+          DistributorOrmEntity,
+          FermentableDistributorOrmEntity,
+        ]),
       ],
       providers: [FermentableCatalogService],
     }).compile();

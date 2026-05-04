@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
+import { MiscTemplateDistributorOrmEntity } from '../entities/misc-template-distributor.orm.entity';
 import { MiscTemplateOrmEntity } from '../entities/misc-template.orm.entity';
 import { Repository } from 'typeorm';
 
@@ -9,6 +10,8 @@ export class MiscCatalogService {
   constructor(
     @InjectRepository(MiscTemplateOrmEntity)
     private readonly templates: Repository<MiscTemplateOrmEntity>,
+    @InjectRepository(MiscTemplateDistributorOrmEntity)
+    private readonly miscDistributors: Repository<MiscTemplateDistributorOrmEntity>,
   ) {}
 
   /**
@@ -44,5 +47,22 @@ export class MiscCatalogService {
       );
     }
     return entity;
+  }
+
+  /**
+   * Returns the distributors that sell this exact misc
+   * template, with their per-distributor outbound URL +
+   * optional SKU + notes. Powers the boutique 'Acheter'
+   * button (Issue #901, #625). Throws 404 if the misc UUID
+   * is unknown.
+   */
+  async getDistributors(
+    id: string,
+  ): Promise<MiscTemplateDistributorOrmEntity[]> {
+    await this.getById(id);
+    return this.miscDistributors.find({
+      where: { misc_template_id: id },
+      relations: ['distributor'],
+    });
   }
 }

@@ -13,6 +13,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  CatalogDistributorLinkDto,
+  mapJunctionRowToDto,
+} from '../../distributor/dtos/catalog-distributor-link.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt.guard';
 import { MiscCatalogService } from '../services/misc-catalog.service';
 import { MiscTemplateDto } from '../dtos/misc-template.dto';
@@ -55,5 +59,21 @@ export class MiscCatalogController {
   ): Promise<MiscTemplateDto> {
     const entity = await this.service.getById(id);
     return MiscTemplateDto.fromEntity(entity);
+  }
+
+  @Get(':id/distributors')
+  @ApiOperation({
+    summary:
+      'List distributors that sell this misc template (boutique foundation)',
+  })
+  @ApiOkResponse({ type: CatalogDistributorLinkDto, isArray: true })
+  @ApiNotFoundResponse({
+    description: 'Misc template catalogue entry not found',
+  })
+  async getDistributors(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<CatalogDistributorLinkDto[]> {
+    const rows = await this.service.getDistributors(id);
+    return rows.map(mapJunctionRowToDto);
   }
 }

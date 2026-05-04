@@ -16,6 +16,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  CatalogDistributorLinkDto,
+  mapJunctionRowToDto,
+} from '../../distributor/dtos/catalog-distributor-link.dto';
 import { FermentableCatalogService } from '../services/fermentable-catalog.service';
 import { FermentableDto } from '../dtos/fermentable.dto';
 import { FermentableType } from '../domain/enums/fermentable-type.enum';
@@ -66,5 +70,19 @@ export class FermentableCatalogController {
   ): Promise<FermentableDto> {
     const entity = await this.service.getById(id);
     return FermentableDto.fromEntity(entity);
+  }
+
+  @Get(':id/distributors')
+  @ApiOperation({
+    summary:
+      'List distributors that sell this fermentable (boutique foundation)',
+  })
+  @ApiOkResponse({ type: CatalogDistributorLinkDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'Fermentable catalogue entry not found' })
+  async getDistributors(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<CatalogDistributorLinkDto[]> {
+    const rows = await this.service.getDistributors(id);
+    return rows.map(mapJunctionRowToDto);
   }
 }

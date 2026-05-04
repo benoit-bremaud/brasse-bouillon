@@ -1,6 +1,7 @@
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { HopDistributorOrmEntity } from '../entities/hop-distributor.orm.entity';
 import { HopForm } from '../domain/enums/hop-form.enum';
 import { HopOrmEntity } from '../entities/hop.orm.entity';
 import { HopUsageType } from '../domain/enums/hop-usage-type.enum';
@@ -20,6 +21,8 @@ export class HopCatalogService {
   constructor(
     @InjectRepository(HopOrmEntity)
     private readonly hops: Repository<HopOrmEntity>,
+    @InjectRepository(HopDistributorOrmEntity)
+    private readonly hopDistributors: Repository<HopDistributorOrmEntity>,
   ) {}
 
   /**
@@ -51,5 +54,28 @@ export class HopCatalogService {
       throw new NotFoundException(`Hop catalogue entry ${id} not found`);
     }
     return entity;
+  }
+
+  /**
+   * Returns the distributors that sell this exact hop, with
+   * their per-distributor outbound URL + optional SKU + notes.
+   * Powers the boutique 'Acheter' button (Issue #901, #625).
+   *
+   * Throws 404 if the hop UUID is unknown — this short-circuits
+   * before the join so the caller gets a clear error instead of
+   * an empty list (which would be ambiguous : "no distributors
+   * yet" vs "wrong hop ID").
+   *
+   * Junction rows are loaded with the `distributor` relation
+   * eagerly resolved so the controller can wire-shape the
+   * full distributor surface (country, ships_to, currency)
+   * in a single round-trip.
+   */
+  async getDistributors(id: string): Promise<HopDistributorOrmEntity[]> {
+    await this.getById(id);
+    return this.hopDistributors.find({
+      where: { hop_id: id },
+      relations: ['distributor'],
+    });
   }
 }

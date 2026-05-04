@@ -3,9 +3,11 @@ jest.setTimeout(20000);
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { YeastCatalogService } from '../yeast-catalog.service';
+import { YeastDistributorOrmEntity } from '../../entities/yeast-distributor.orm.entity';
 import { YeastFlocculation } from '../../domain/enums/yeast-flocculation.enum';
 import { YeastForm } from '../../domain/enums/yeast-form.enum';
 import { YeastOrmEntity } from '../../entities/yeast.orm.entity';
@@ -33,11 +35,19 @@ describe('YeastCatalogService', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [YeastOrmEntity],
+          entities: [
+            YeastOrmEntity,
+            DistributorOrmEntity,
+            YeastDistributorOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([YeastOrmEntity]),
+        TypeOrmModule.forFeature([
+          YeastOrmEntity,
+          DistributorOrmEntity,
+          YeastDistributorOrmEntity,
+        ]),
       ],
       providers: [YeastCatalogService],
     }).compile();

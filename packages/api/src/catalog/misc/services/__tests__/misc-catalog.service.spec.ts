@@ -4,7 +4,9 @@ import { MiscType, MiscUseAt } from '../../domain/misc-template.types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { MiscCatalogService } from '../misc-catalog.service';
+import { MiscTemplateDistributorOrmEntity } from '../../entities/misc-template-distributor.orm.entity';
 import { MiscTemplateOrmEntity } from '../../entities/misc-template.orm.entity';
 import { NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -23,11 +25,19 @@ describe('MiscCatalogService', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [MiscTemplateOrmEntity],
+          entities: [
+            MiscTemplateOrmEntity,
+            DistributorOrmEntity,
+            MiscTemplateDistributorOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([MiscTemplateOrmEntity]),
+        TypeOrmModule.forFeature([
+          MiscTemplateOrmEntity,
+          DistributorOrmEntity,
+          MiscTemplateDistributorOrmEntity,
+        ]),
       ],
       providers: [MiscCatalogService],
     }).compile();

@@ -16,6 +16,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  CatalogDistributorLinkDto,
+  mapJunctionRowToDto,
+} from '../../distributor/dtos/catalog-distributor-link.dto';
 import { HopCatalogService } from '../services/hop-catalog.service';
 import { HopDto } from '../dtos/hop.dto';
 import { HopForm } from '../domain/enums/hop-form.enum';
@@ -71,5 +75,18 @@ export class HopCatalogController {
   async getById(@Param('id', new ParseUUIDPipe()) id: string): Promise<HopDto> {
     const entity = await this.service.getById(id);
     return HopDto.fromEntity(entity);
+  }
+
+  @Get(':id/distributors')
+  @ApiOperation({
+    summary: 'List distributors that sell this hop (boutique foundation)',
+  })
+  @ApiOkResponse({ type: CatalogDistributorLinkDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'Hop catalogue entry not found' })
+  async getDistributors(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<CatalogDistributorLinkDto[]> {
+    const rows = await this.service.getDistributors(id);
+    return rows.map(mapJunctionRowToDto);
   }
 }

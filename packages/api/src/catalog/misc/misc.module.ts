@@ -1,5 +1,6 @@
 import { MiscCatalogController } from './controllers/misc-catalog.controller';
 import { MiscCatalogService } from './services/misc-catalog.service';
+import { MiscTemplateDistributorOrmEntity } from './entities/misc-template-distributor.orm.entity';
 import { MiscTemplateOrmEntity } from './entities/misc-template.orm.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,7 +14,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
  * on PR #898 for equipment.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([MiscTemplateOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      MiscTemplateOrmEntity,
+      MiscTemplateDistributorOrmEntity,
+    ]),
+  ],
   controllers: [MiscCatalogController],
   providers: [MiscCatalogService],
   exports: [MiscCatalogService],

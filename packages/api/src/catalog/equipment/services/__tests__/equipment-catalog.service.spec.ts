@@ -3,7 +3,9 @@ jest.setTimeout(20000);
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { DistributorOrmEntity } from '../../../distributor/entities/distributor.orm.entity';
 import { EquipmentCatalogService } from '../equipment-catalog.service';
+import { EquipmentTemplateDistributorOrmEntity } from '../../entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from '../../entities/equipment-template.orm.entity';
 import { NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -22,11 +24,19 @@ describe('EquipmentCatalogService', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [EquipmentTemplateOrmEntity],
+          entities: [
+            EquipmentTemplateOrmEntity,
+            DistributorOrmEntity,
+            EquipmentTemplateDistributorOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
-        TypeOrmModule.forFeature([EquipmentTemplateOrmEntity]),
+        TypeOrmModule.forFeature([
+          EquipmentTemplateOrmEntity,
+          DistributorOrmEntity,
+          EquipmentTemplateDistributorOrmEntity,
+        ]),
       ],
       providers: [EquipmentCatalogService],
     }).compile();

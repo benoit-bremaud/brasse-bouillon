@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { EquipmentTemplateDistributorOrmEntity } from '../entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from '../entities/equipment-template.orm.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,6 +10,8 @@ export class EquipmentCatalogService {
   constructor(
     @InjectRepository(EquipmentTemplateOrmEntity)
     private readonly templates: Repository<EquipmentTemplateOrmEntity>,
+    @InjectRepository(EquipmentTemplateDistributorOrmEntity)
+    private readonly equipmentDistributors: Repository<EquipmentTemplateDistributorOrmEntity>,
   ) {}
 
   /**
@@ -43,5 +46,24 @@ export class EquipmentCatalogService {
       );
     }
     return entity;
+  }
+
+  /**
+   * Returns the distributors that sell this exact equipment
+   * template, with their per-distributor outbound URL +
+   * optional SKU + notes. Powers the boutique 'Acheter' button
+   * (Issue #901, #625) — particularly valuable on equipment
+   * where one item often costs 100-2000 € so the brewer
+   * compares prices across distributors. Throws 404 if the
+   * equipment UUID is unknown.
+   */
+  async getDistributors(
+    id: string,
+  ): Promise<EquipmentTemplateDistributorOrmEntity[]> {
+    await this.getById(id);
+    return this.equipmentDistributors.find({
+      where: { equipment_template_id: id },
+      relations: ['distributor'],
+    });
   }
 }

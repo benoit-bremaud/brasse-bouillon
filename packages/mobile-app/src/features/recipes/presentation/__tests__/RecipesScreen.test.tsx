@@ -3,6 +3,11 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import React from "react";
 import { RecipesScreen } from "@/features/recipes/presentation/RecipesScreen";
+import {
+  listPublicRecipes,
+  listRecipes,
+} from "@/features/recipes/application/recipes.use-cases";
+import type { Recipe } from "@/features/recipes/domain/recipe.types";
 
 const mockPush = jest.fn();
 
@@ -23,19 +28,39 @@ jest.mock("expo-router", () => {
 });
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
-  listRecipes: jest.fn().mockResolvedValue([]),
+  listRecipes: jest.fn(),
+  listPublicRecipes: jest.fn(),
 }));
 
-function renderRecipesScreen() {
+const FAKE_MY_RECIPE: Recipe = {
+  id: "r-mine-1",
+  name: "My Saison",
+  description: "Personal recipe",
+  visibility: "private",
+  version: 1,
+  rootRecipeId: "r-mine-1",
+  parentRecipeId: null,
+  createdAt: "2026-04-01T00:00:00Z",
+  updatedAt: "2026-04-01T00:00:00Z",
+};
+
+const FAKE_PUBLIC_RECIPE: Recipe = {
+  id: "r-public-1",
+  name: "Punk IPA Clone",
+  description: "BrewDog DIY Dog",
+  visibility: "public",
+  version: 1,
+  rootRecipeId: "r-public-1",
+  parentRecipeId: null,
+  createdAt: "2026-04-01T00:00:00Z",
+  updatedAt: "2026-04-01T00:00:00Z",
+};
+
+function renderHub() {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: Number.POSITIVE_INFINITY,
-      },
-      mutations: {
-        retry: false,
-      },
+      queries: { retry: false, gcTime: Number.POSITIVE_INFINITY },
+      mutations: { retry: false },
     },
   });
 
@@ -46,44 +71,125 @@ function renderRecipesScreen() {
   );
 }
 
-describe("RecipesScreen", () => {
+describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
   beforeEach(() => {
     mockPush.mockReset();
+    (listRecipes as jest.Mock).mockReset();
+    (listPublicRecipes as jest.Mock).mockReset();
   });
 
-  it("renders header and empty state", async () => {
-    renderRecipesScreen();
+  it("renders the Mes Recettes header and the two hub sections", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
 
-    expect(await screen.findByText("My Recipes")).toBeTruthy();
-    expect(await screen.findByText("Aucune recette")).toBeTruthy();
+    renderHub();
+
+    expect(await screen.findByText("Mes Recettes")).toBeTruthy();
+    expect(screen.getByText("Ton hub de recettes de brassage")).toBeTruthy();
+    expect(screen.getByTestId("hub-my-recipes-section")).toBeTruthy();
+    expect(screen.getByTestId("hub-discover-section")).toBeTruthy();
+    expect(screen.getByText("Mes recettes")).toBeTruthy();
+    expect(screen.getByText("Découvrir")).toBeTruthy();
+    expect(screen.getByText("My Saison")).toBeTruthy();
+    expect(screen.getByText("Punk IPA Clone")).toBeTruthy();
   });
 
-  // Issue #779 — the new "Catalogue" pill in the header is the
-  // always-visible entry point into the Recipe Catalog discovery
-  // surface. A regression where it stops navigating would silently
-  // strip the only header-level path to the new feature.
-  it("navigates to /(app)/recipes/catalog when tapping the Catalogue header pill", async () => {
-    renderRecipesScreen();
+  // Issue #740 Round 2 — Pattern A landing.
+  // When the user has no recipes, the empty state is the only forward
+  // path and must surface the scan CTA. Pinning this assertion guards
+  // the bootstrap flow for new users (Léa, Nicolas).
+  it("shows the scan CTA in the empty state when the carnet is empty", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
 
-    await screen.findByText("My Recipes");
+    renderHub();
 
-    fireEvent.press(screen.getByLabelText("Ouvrir le catalogue de recettes"));
+    expect(
+      await screen.findByText("Aucune recette pour l'instant"),
+    ).toBeTruthy();
+    expect(screen.getByLabelText("Scanner ta 1ère bière")).toBeTruthy();
+  });
+
+  it("navigates to the scan flow when tapping the empty-state CTA", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([]);
+
+    renderHub();
+
+    await screen.findByText("Aucune recette pour l'instant");
+
+    fireEvent.press(screen.getByLabelText("Scanner ta 1ère bière"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
+  });
+
+  it("navigates to a recipe detail when tapping a card in Mes recettes", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([]);
+
+    renderHub();
+
+    await screen.findByText("My Saison");
+
+    fireEvent.press(screen.getByText("My Saison"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-mine-1");
+  });
+
+  it("navigates to the catalog from the Découvrir Voir tout pill", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
+
+    renderHub();
+
+    await screen.findByText("Découvrir");
+
+    fireEvent.press(screen.getByTestId("hub-discover-see-all"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/catalog");
   });
 
-  // Issue #779 — the empty-state CTA is the second entry point
-  // into the Catalog. Together with the header pill the two
-  // assertions pin both surfaces of the discovery flow.
-  it("navigates to /(app)/recipes/catalog when tapping the empty-state Discover button", async () => {
-    renderRecipesScreen();
+  it("navigates to a public recipe detail when tapping a Découvrir card", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
 
-    await screen.findByText("Aucune recette");
+    renderHub();
 
-    fireEvent.press(
-      screen.getByLabelText("Découvrir le catalogue de recettes"),
-    );
+    await screen.findByText("Punk IPA Clone");
 
-    expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/catalog");
+    fireEvent.press(screen.getByText("Punk IPA Clone"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-public-1");
+  });
+
+  // Issue #740 Round 2 — the Découvrir section caps at 5 previews; the
+  // "Voir tout" pill is the only path to the full catalog.
+  it("caps the Découvrir preview at 5 recipes", async () => {
+    const manyPublic = Array.from({ length: 8 }, (_, index) => ({
+      ...FAKE_PUBLIC_RECIPE,
+      id: `r-public-${index + 1}`,
+      name: `Public Recipe ${index + 1}`,
+    }));
+    (listRecipes as jest.Mock).mockResolvedValue([]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue(manyPublic);
+
+    renderHub();
+
+    await screen.findByText("Public Recipe 1");
+
+    expect(screen.getByText("Public Recipe 5")).toBeTruthy();
+    expect(screen.queryByText("Public Recipe 6")).toBeNull();
+    expect(screen.queryByText("Public Recipe 8")).toBeNull();
+  });
+
+  it("shows the Découvrir empty placeholder when no public recipes are available", async () => {
+    (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
+    (listPublicRecipes as jest.Mock).mockResolvedValue([]);
+
+    renderHub();
+
+    await screen.findByText("Découvrir");
+
+    expect(screen.getByText("Le catalogue arrive bientôt.")).toBeTruthy();
   });
 });

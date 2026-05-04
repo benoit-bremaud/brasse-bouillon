@@ -86,15 +86,6 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
             accessibilityRole="none"
           >
             <Card style={styles.card}>
-              <Pressable
-                style={styles.closeButton}
-                hitSlop={spacing.md}
-                onPress={onClose}
-                accessibilityRole="button"
-                accessibilityLabel="Fermer la définition"
-              >
-                <Text style={styles.closeIcon}>✕</Text>
-              </Pressable>
               <View style={styles.headerRow}>
                 <Text style={styles.term}>{entry.displayLabel}</Text>
                 <Badge
@@ -151,7 +142,6 @@ const CATEGORY_BADGE_VARIANT: Record<
   style: "info",
 };
 
-const CLOSE_BUTTON_SIZE = 36;
 /** Vertical gap between the finger and the popup edge. */
 const ANCHOR_GAP = spacing.sm;
 /** Minimum margin from the screen edge so the popup never bleeds. */
@@ -233,33 +223,12 @@ const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
   },
-  closeButton: {
-    position: "absolute",
-    top: spacing.xs,
-    right: spacing.xs,
-    width: CLOSE_BUTTON_SIZE,
-    height: CLOSE_BUTTON_SIZE,
-    borderRadius: CLOSE_BUTTON_SIZE / 2,
-    backgroundColor: colors.state.infoBackground,
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  closeIcon: {
-    fontSize: typography.size.body,
-    lineHeight: typography.size.body,
-    fontWeight: typography.weight.bold,
-    color: colors.neutral.textPrimary,
-  },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: spacing.sm,
     gap: spacing.sm,
-    paddingRight: CLOSE_BUTTON_SIZE + spacing.sm,
   },
   term: {
     flex: 1,

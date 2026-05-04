@@ -28,14 +28,11 @@ describe("GlossaryPopup (Issue #783)", () => {
     expect(screen.getByText("PROCESSUS")).toBeTruthy();
   });
 
-  it("happy: invokes onClose when the close icon is pressed", () => {
+  it("happy: invokes onClose when the backdrop is pressed (the only close affordance)", () => {
     const handleClose = jest.fn();
     render(<GlossaryPopup entry={ENTRY} onClose={handleClose} />);
 
-    // The close icon button and the backdrop both carry the same
-    // a11y label — pick the first match (the icon button).
-    const closeButtons = screen.getAllByLabelText("Fermer la définition");
-    fireEvent.press(closeButtons[0]);
+    fireEvent.press(screen.getByLabelText("Fermer la définition"));
 
     expect(handleClose).toHaveBeenCalledTimes(1);
   });

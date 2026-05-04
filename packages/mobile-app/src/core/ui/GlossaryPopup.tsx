@@ -25,7 +25,7 @@ interface Props {
    * back to centered if the value is missing.
    */
   readonly anchorY?: number;
-  /** Closes the popup. Called on backdrop press or X icon. */
+  /** Closes the popup. Called on backdrop press. */
   readonly onClose: () => void;
   /**
    * Optional callback for the "Académie →" link. The navigation
@@ -39,27 +39,29 @@ interface Props {
  * Modal popup that surfaces a glossary entry's definition,
  * triggered by `<GlossaryTerm>` long-press (Issue #783).
  *
- * Structure (after PR #913 visual debug iterations) :
- * - The OUTER full-screen Pressable IS the backdrop. It carries the
- *   dark overlay colour AND the dismiss behaviour. No separate
- *   absolute-positioned overlay — that pattern collapsed to a thin
- *   band on Android because the parent had no flex context.
- * - The card-positioner is an absolute child with `flexDirection:
- *   row` + `justifyContent: center` so the card is genuinely
- *   centered horizontally within the available width.
- * - An inner Pressable wraps the card with a `noop` onPress so
- *   taps inside the card don't bubble to the backdrop and dismiss.
+ * Sizing strategy (after PR #913 multi-iteration fix) :
+ * Android `<Modal transparent>` doesn't propagate `flex: 1` to its
+ * content area reliably — the outer View collapses to 0 px and
+ * absolute-positioned children (backdrop) end up invisible.
+ * Workaround: read the screen width / height from `Dimensions` at
+ * render time and apply them as explicit dimensions on the outer
+ * container, guaranteeing the backdrop fills the entire visible
+ * viewport on every device.
  *
- * Vertical positioning :
- * - When `anchorY` is provided, the card sits just below the
- *   finger (with a small ANCHOR_GAP), flipping above when the
- *   popup would overflow at the bottom of the screen.
- * - Falls back to vertical centering when `anchorY` is missing.
+ * Closing affordance : the entire dark overlay IS the dismiss
+ * target. Tapping anywhere outside the centered card closes the
+ * popup. No dedicated close button — the affordance is unmistakable
+ * and the X icon was unreliable to hit-test on small phones.
  */
 export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
   if (entry === null) {
     return null;
   }
+
+  // Read at render-time so device rotation / viewport changes pick
+  // up the new dimensions on the next mount.
+  const { width: screenWidth, height: screenHeight } =
+    Dimensions.get("window");
 
   return (
     <Modal
@@ -68,23 +70,43 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
       animationType="fade"
       onRequestClose={onClose}
       accessibilityViewIsModal
+      statusBarTranslucent
     >
-      <Pressable
-        style={styles.backdrop}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel="Fermer la définition"
-        accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
+      <View
+        style={[
+          styles.fullScreen,
+          { width: screenWidth, height: screenHeight },
+        ]}
       >
+        {/* Backdrop : explicit absolute fill + dark colour. The tap
+            target spans the entire screen so the user can dismiss
+            anywhere outside the card. */}
+        <Pressable
+          style={styles.backdrop}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Fermer la définition"
+          accessibilityHint="Touchez n'importe où en dehors du card pour fermer."
+        />
+        {/* Card positioner : absolute child at the computed Y,
+            spans the explicit screenWidth, centers the card via
+            flexDirection: row + justifyContent: center. */}
         <View
-          style={[styles.cardPositioner, computeCardOffset(anchorY)]}
+          style={[
+            styles.cardPositioner,
+            { width: screenWidth },
+            computeCardOffset(anchorY, screenHeight),
+          ]}
           pointerEvents="box-none"
         >
-          <Pressable
-            style={styles.cardWrapper}
-            onPress={swallowTap}
-            accessibilityRole="none"
-          >
+          {/* Plain View wrapper — NOT a Pressable. A Pressable here
+              would claim touches and prevent the inner Académie
+              Pressable from firing. The Card View intrinsically
+              consumes taps on its empty area (default pointerEvents
+              auto) so they don't bubble to the backdrop, but inner
+              Pressables still get their own touches because they
+              are deeper in the responder chain. */}
+          <View style={styles.cardWrapper}>
             <Card style={styles.card}>
               <View style={styles.headerRow}>
                 <Text style={styles.term}>{entry.displayLabel}</Text>
@@ -110,17 +132,11 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
                 </Pressable>
               ) : null}
             </Card>
-          </Pressable>
+          </View>
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
-}
-
-/** No-op callback used by the inner card Pressable so taps inside
- * the card don't bubble up to the backdrop and dismiss the popup. */
-function swallowTap(): void {
-  // intentional no-op
 }
 
 const CATEGORY_LABEL: Record<GlossaryCategory, string> = {
@@ -146,29 +162,27 @@ const CATEGORY_BADGE_VARIANT: Record<
 const ANCHOR_GAP = spacing.sm;
 /** Minimum margin from the screen edge so the popup never bleeds. */
 const SCREEN_MARGIN = spacing.md;
-
 /** Conservative estimate of the card height — covers a 1-sentence
- * definition + term + badge + close button + Académie link. Stable
- * for all 35 seeded entries. We deliberately do NOT measure the
- * real height at runtime to avoid the re-render churn that broke
- * close-button taps. */
+ * definition + term + badge + Académie link. Used by the overflow
+ * detection. We deliberately don't measure the real height to keep
+ * the position stable and avoid re-render churn. */
 const ESTIMATED_CARD_HEIGHT = 200;
 
 /**
  * Computes a `top` offset that places the card just below the
  * finger Y, flipping above when the popup would overflow at the
- * bottom of the screen. Returns no offset (card centers) when no
- * anchor is provided.
+ * bottom. Falls back to vertical centering when no anchor.
  */
-function computeCardOffset(anchorY: number | undefined): {
-  top?: number;
-  bottom?: number;
-  justifyContent?: "center";
-} {
+function computeCardOffset(
+  anchorY: number | undefined,
+  screenHeight: number,
+): { top: number } {
   if (anchorY === undefined) {
-    return { justifyContent: "center" };
+    // Vertical centering — top = (screen - card) / 2
+    return {
+      top: Math.max(SCREEN_MARGIN, (screenHeight - ESTIMATED_CARD_HEIGHT) / 2),
+    };
   }
-  const screenHeight = Dimensions.get("window").height;
   const desiredTop = anchorY + ANCHOR_GAP;
   const fitsBelow =
     desiredTop + ESTIMATED_CARD_HEIGHT <= screenHeight - SCREEN_MARGIN;
@@ -176,11 +190,10 @@ function computeCardOffset(anchorY: number | undefined): {
     return { top: desiredTop };
   }
   // Not enough room below — flip above the finger.
-  const desiredBottom = screenHeight - anchorY + ANCHOR_GAP;
-  const fitsAbove =
-    desiredBottom + ESTIMATED_CARD_HEIGHT <= screenHeight - SCREEN_MARGIN;
-  if (fitsAbove) {
-    return { bottom: desiredBottom };
+  const desiredTopFlipped =
+    anchorY - ANCHOR_GAP - ESTIMATED_CARD_HEIGHT;
+  if (desiredTopFlipped >= SCREEN_MARGIN) {
+    return { top: desiredTopFlipped };
   }
   // Last resort — anchor near the bottom safely inside the screen.
   return {
@@ -192,33 +205,35 @@ function computeCardOffset(anchorY: number | undefined): {
 }
 
 const styles = StyleSheet.create({
-  // Full-screen Pressable that IS the backdrop — flex: 1 fills the
-  // Modal's content area (which itself fills the screen). The dark
-  // colour is applied directly so we don't depend on a separate
-  // absoluteFillObject Pressable that might collapse on Android.
+  // Outer container — explicit width/height applied inline at
+  // render time from Dimensions so we don't depend on flex: 1
+  // propagating through the Modal's content area on Android.
+  fullScreen: {
+    position: "relative",
+  },
+  // Full-screen dark overlay. Catches dismiss taps anywhere
+  // outside the card.
   backdrop: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
-  // Absolute child of the backdrop, positions the card row at the
-  // computed Y offset. Spans the full width with a horizontal
-  // padding so the card is genuinely centered within the visible
-  // viewport.
+  // Card row — absolute child at the computed top offset, full
+  // explicit width (set inline from Dimensions), centers the card
+  // horizontally via flexDirection + justifyContent.
   cardPositioner: {
     position: "absolute",
     left: 0,
-    right: 0,
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: SCREEN_MARGIN,
   },
-  // The card wrapper takes available row width with `flex: 1`, then
-  // `maxWidth` caps it on tablets — this is the canonical RN idiom
-  // for "fill, capped, centered". `pointerEvents` stays default so
-  // the inner close button + Académie link Pressables receive taps.
+  // Card wrapper — `flex: 1` to fill available row space, capped
+  // by `maxWidth` on tablets so the card doesn't get unreadably
+  // wide. With the parent's row + center alignment, this gives the
+  // canonical "fill, capped, centered" RN layout.
   cardWrapper: {
     flex: 1,
-    maxWidth: 420,
+    maxWidth: 480,
   },
   card: {
     padding: spacing.md,

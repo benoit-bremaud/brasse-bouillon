@@ -1,6 +1,12 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import Modal from "react-native-modal";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -14,35 +20,27 @@ interface Props {
   /** When `null`, the modal is hidden. */
   readonly entry: GlossaryEntry | null;
   /**
-   * Optional surface text — the literal word the user pressed in
-   * the source text (e.g. "dry-hop", "MASH", "empâtage"). When
-   * provided, it is shown as the popup title so the user always
-   * sees the exact word they pressed instead of the canonical
-   * displayLabel ("Houblonnage à cru" etc.).
+   * The literal word the user pressed in the source text. Shown as
+   * the popup title so the user always sees the exact word they
+   * pressed instead of the canonical displayLabel.
    */
   readonly surface?: string;
-  /** Closes the popup. Called when OK is pressed or backdrop tapped. */
+  /** Closes the popup. */
   readonly onClose: () => void;
   /** Optional Académie navigation callback. */
   readonly onReadMore?: (entry: GlossaryEntry) => void;
 }
 
 /**
- * Glossary entry popup (Issue #783) — built on `react-native-modal`
- * after a long debug session against RN core Modal + Pressable
- * which had unreliable touch propagation on Android.
+ * Glossary entry popup (Issue #783) — built on RN core `Modal`
+ * with an explicit OK button as the primary close affordance.
  *
- * UX :
- * - Centered modal with darkened backdrop (handled by react-native-
- *   modal: `backdropOpacity` + `onBackdropPress`)
- * - Title = the surface text (the actual word the user pressed),
- *   which keeps it consistent with the source paragraph
- * - Subtitle = the canonical FR `displayLabel` so the user still
- *   sees the "official" term name when they pressed an alias
- * - Bottom row : "OK" button (primary) on the right; optional
- *   "Académie →" link on the left when `onReadMore` is provided
- * - No more click-zone gymnastics — only explicit buttons close
- *   the popup, plus a backdrop tap that the lib handles internally
+ * After many iterations debugging Android Modal + Pressable + the
+ * gesture-responder API for an anchored popover, the layout simply
+ * doesn't work reliably across devices. Dropped the popover idea:
+ * the popup is now a centered modal with a bordered card and an
+ * unmistakable OK button at the bottom. No more click-zones, no
+ * more responder hacks.
  */
 export function GlossaryPopup({
   entry,
@@ -50,20 +48,27 @@ export function GlossaryPopup({
   onClose,
   onReadMore,
 }: Props) {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
+  if (entry === null) {
+    return null;
+  }
+
   return (
     <Modal
-      isVisible={entry !== null}
-      onBackdropPress={onClose}
-      onBackButtonPress={onClose}
-      animationIn="fadeIn"
-      animationOut="fadeOut"
-      backdropOpacity={0.7}
-      backdropColor="black"
+      visible
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
       statusBarTranslucent
-      useNativeDriver
-      style={styles.modalCentering}
+      hardwareAccelerated
     >
-      {entry !== null ? (
+      <View
+        style={[
+          styles.backdrop,
+          { width: screenWidth, height: screenHeight },
+        ]}
+      >
         <Card style={styles.card}>
           <View style={styles.headerRow}>
             <View style={styles.headerLabels}>
@@ -112,13 +117,13 @@ export function GlossaryPopup({
             </Pressable>
           </View>
         </Card>
-      ) : null}
+      </View>
     </Modal>
   );
 }
 
-/** Lowercase + collapse whitespace + drop punctuation for the
- * "is the surface different from the canonical label" check. */
+/** Lowercase + drop punctuation for the "is the surface different
+ * from the canonical label" comparison. */
 function normalize(text: string): string {
   return text.toLowerCase().replace(/[\s_-]+/g, "").trim();
 }
@@ -143,14 +148,14 @@ const CATEGORY_BADGE_VARIANT: Record<
 };
 
 const styles = StyleSheet.create({
-  // react-native-modal applies this style to its outer container.
-  // We only set `justifyContent: center` to vertically center the
-  // card and a small horizontal margin so the card never bleeds
-  // to the screen edges. Library defaults handle the rest.
-  modalCentering: {
+  // Full-screen dark overlay that vertically + horizontally centers
+  // the card. Explicit width/height from useWindowDimensions because
+  // `flex: 1` is unreliable inside a transparent Modal on Android.
+  backdrop: {
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     justifyContent: "center",
     alignItems: "center",
-    margin: spacing.md,
+    paddingHorizontal: spacing.md,
   },
   card: {
     width: "100%",

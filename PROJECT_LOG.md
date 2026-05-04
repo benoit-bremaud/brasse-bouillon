@@ -10,10 +10,10 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #908 merged (`ef0494f`) — feat(catalog/distributor): add distributors + 5 M:N junctions per catalogue
 
 - Closes Issue #901 (boutique foundation). Branch `feat/catalog-distributors-and-junctions`.
-- Scope: `distributors` table (12 entries FR/BE/GB/US/DE) + 5 junction tables (`hop_distributors`, `fermentable_distributors`, `yeast_distributors`, `misc_template_distributors`, `equipment_template_distributors`) + 5 `GET /catalog/<x>/:id/distributors` endpoints + migration 1793 + seed + runner.
+- Scope: `distributors` table (12 entries FR/BE/GB/US/DE) + 5 junction tables (`hop_distributors`, `fermentable_distributors`, `yeast_distributors`, `misc_template_distributors`, `equipment_template_distributors`) + 5 `GET /catalog/{hops|fermentables|yeasts|misc-templates|equipment-templates}/:id/distributors` endpoints + migration 1793 + seed + runner.
 - Sets the codebase **M:N precedent**: composite PK `(catalogue_id, distributor_id)`, `ON DELETE CASCADE` both sides, reverse-lookup index on `distributor_id`, CHECK constraints (country GLOB `[A-Z][A-Z]`, currency GLOB `[A-Z][A-Z][A-Z]`, URLs `https://%`).
 - Shared `CatalogDistributorLinkDto` + `mapJunctionRowToDto` helper to avoid 5× DTO duplication. UUID range `9...` reserved for distributors (next slot after producers `8`).
-- 10 Copilot review comments addressed in `ca2c31b` — 4 missing `getDistributors()` service-spec H/S/E blocks, 5 missing `:id/distributors` controller-spec blocks, 1 unused `DistributorEntry` interface dropped. Each comment got an inline reply linking to the fix commit.
+- 10 Copilot review comments addressed in `ca2c31b` — 4 missing `getDistributors()` service-spec happy/sad/edge (H/S/E) blocks, 5 missing `:id/distributors` controller-spec blocks, 1 unused `DistributorEntry` interface dropped. Each comment got an inline reply linking to the fix commit.
 - 653/655 tests green (+22 new). Junction seed rows (Citra → Brewferm/Hopt/MaltMiller, etc.) deferred to a follow-up tiny PR or bundled with #780 (BrewDog DIY Dog seed).
 
 ### PR #906 merged (`1e195ab`) — refactor(mobile/ingredients): consume `GET /catalog/*` endpoints

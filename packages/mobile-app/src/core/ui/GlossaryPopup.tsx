@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dimensions,
-  LayoutChangeEvent,
   Modal,
   Pressable,
   StyleSheet,
@@ -56,8 +55,6 @@ interface Props {
  *   inferred meaning from context)
  */
 export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
-  const [cardHeight, setCardHeight] = useState<number | null>(null);
-
   if (entry === null) {
     return null;
   }
@@ -70,54 +67,59 @@ export function GlossaryPopup({ entry, anchorY, onClose, onReadMore }: Props) {
       onRequestClose={onClose}
       accessibilityViewIsModal
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Fermer la définition"
-        accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
-        onPress={onClose}
-        style={styles.backdrop}
-      />
-      <View
-        style={[styles.cardContainer, computeCardOffset(anchorY, cardHeight)]}
-        pointerEvents="box-none"
-        onLayout={(event: LayoutChangeEvent) => {
-          setCardHeight(event.nativeEvent.layout.height);
-        }}
-      >
-        <Card style={styles.card}>
-          <Pressable
-            style={styles.closeButton}
-            hitSlop={spacing.md}
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Fermer la définition"
-          >
-            <Text style={styles.closeIcon}>✕</Text>
-          </Pressable>
-          <View style={styles.headerRow}>
-            <Text style={styles.term}>{entry.displayLabel}</Text>
-            <Badge
-              label={CATEGORY_LABEL[entry.category]}
-              variant={CATEGORY_BADGE_VARIANT[entry.category]}
-              style={styles.badge}
-            />
-          </View>
-          <Text style={styles.definition}>{entry.definition}</Text>
-          {onReadMore ? (
+      {/* The Modal's content area must be a flex parent that fills
+          the full screen — without `flex: 1` here, absolute-
+          positioned children (backdrop + cardContainer) collapse to
+          the size of their content, leaving most of the screen
+          uncovered (the bug reported on PR #913 where the dark
+          backdrop only spanned a thin band at the top). */}
+      <View style={styles.fullScreen}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Fermer la définition"
+          accessibilityHint="Touchez l'arrière-plan pour fermer la définition."
+          onPress={onClose}
+          style={styles.backdrop}
+        />
+        <View
+          style={[styles.cardContainer, computeCardOffset(anchorY)]}
+          pointerEvents="box-none"
+        >
+          <Card style={styles.card}>
             <Pressable
-              onPress={() => onReadMore(entry)}
-              hitSlop={spacing.xs}
-              accessibilityRole="link"
-              accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
-              style={({ pressed }) => [
-                styles.academyLink,
-                pressed && styles.academyLinkPressed,
-              ]}
+              style={styles.closeButton}
+              hitSlop={spacing.md}
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Fermer la définition"
             >
-              <Text style={styles.academyLinkLabel}>Académie →</Text>
+              <Text style={styles.closeIcon}>✕</Text>
             </Pressable>
-          ) : null}
-        </Card>
+            <View style={styles.headerRow}>
+              <Text style={styles.term}>{entry.displayLabel}</Text>
+              <Badge
+                label={CATEGORY_LABEL[entry.category]}
+                variant={CATEGORY_BADGE_VARIANT[entry.category]}
+                style={styles.badge}
+              />
+            </View>
+            <Text style={styles.definition}>{entry.definition}</Text>
+            {onReadMore ? (
+              <Pressable
+                onPress={() => onReadMore(entry)}
+                hitSlop={spacing.xs}
+                accessibilityRole="link"
+                accessibilityLabel="Ouvrir l'Académie pour en savoir plus"
+                style={({ pressed }) => [
+                  styles.academyLink,
+                  pressed && styles.academyLinkPressed,
+                ]}
+              >
+                <Text style={styles.academyLinkLabel}>Académie →</Text>
+              </Pressable>
+            ) : null}
+          </Card>
+        </View>
       </View>
     </Modal>
   );
@@ -148,37 +150,37 @@ const ANCHOR_GAP = spacing.sm;
 /** Minimum margin from the screen edge so the popup never bleeds. */
 const SCREEN_MARGIN = spacing.md;
 
+/** Conservative estimate of the card height — covers a 1-sentence
+ * definition, term, badge, close button, and Académie link. Stable
+ * for all 35 seeded entries. Used by the overflow detection below;
+ * we deliberately do NOT measure the real height at runtime to
+ * avoid the re-render churn that broke the close-button tap on
+ * PR #913. */
+const ESTIMATED_CARD_HEIGHT = 200;
+
 /**
  * Computes a `top` offset that places the card just below the
  * finger Y, flipping above when the popup would overflow at the
  * bottom of the screen. Returns no offset (card centers) when no
  * anchor is provided.
- *
- * `cardHeight` is `null` on the first render (before onLayout has
- * fired). On that frame we use a conservative estimate so the
- * card doesn't flash off-screen — the second render uses the real
- * measured height.
  */
 function computeCardOffset(
   anchorY: number | undefined,
-  cardHeight: number | null,
 ): { top?: number; bottom?: number; justifyContent?: "center" } {
   if (anchorY === undefined) {
     return { justifyContent: "center" };
   }
   const screenHeight = Dimensions.get("window").height;
-  // Conservative pre-layout estimate — first frame only.
-  const estimatedHeight = cardHeight ?? 180;
   const desiredTop = anchorY + ANCHOR_GAP;
   const fitsBelow =
-    desiredTop + estimatedHeight <= screenHeight - SCREEN_MARGIN;
+    desiredTop + ESTIMATED_CARD_HEIGHT <= screenHeight - SCREEN_MARGIN;
   if (fitsBelow) {
     return { top: desiredTop };
   }
   // Not enough room below — flip above the finger.
   const desiredBottom = screenHeight - anchorY + ANCHOR_GAP;
   const fitsAbove =
-    desiredBottom + estimatedHeight <= screenHeight - SCREEN_MARGIN;
+    desiredBottom + ESTIMATED_CARD_HEIGHT <= screenHeight - SCREEN_MARGIN;
   if (fitsAbove) {
     return { bottom: desiredBottom };
   }
@@ -186,12 +188,19 @@ function computeCardOffset(
   return {
     top: Math.max(
       SCREEN_MARGIN,
-      screenHeight - estimatedHeight - SCREEN_MARGIN,
+      screenHeight - ESTIMATED_CARD_HEIGHT - SCREEN_MARGIN,
     ),
   };
 }
 
 const styles = StyleSheet.create({
+  // The Modal child must be a flex parent that fills the full
+  // screen — without this, the absolute-positioned backdrop +
+  // cardContainer collapse to their content size, leaving most of
+  // the viewport uncovered.
+  fullScreen: {
+    flex: 1,
+  },
   // Half-opaque dark overlay that darkens whatever is behind the
   // popup so the card stands out clearly. Disappears together with
   // the card when the user closes the modal (entry === null short-

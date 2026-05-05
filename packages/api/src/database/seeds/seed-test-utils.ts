@@ -30,6 +30,10 @@ export type RepoMock = {
    * INSERT OR IGNORE before writing producer_id FKs). Other seeds
    * may leave it untouched. */
   query: jest.Mock;
+  /** Bulk delete — used by seeds that wipe-and-refill sub-tables
+   * (e.g. brewdog-diy-dog-recipes resets recipe_fermentables /
+   * recipe_hops / recipe_yeasts on every run for idempotency). */
+  delete: jest.Mock;
 };
 
 /**
@@ -46,6 +50,7 @@ export function buildRepoMock(): RepoMock {
     create: jest.fn((input: unknown) => input),
     save: jest.fn((input: unknown) => Promise.resolve(input)),
     query: jest.fn(() => Promise.resolve(undefined)),
+    delete: jest.fn(() => Promise.resolve({ affected: 0 })),
   };
 }
 

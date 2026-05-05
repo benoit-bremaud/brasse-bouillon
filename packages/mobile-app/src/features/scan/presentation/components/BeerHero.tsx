@@ -7,56 +7,79 @@ import {
   foregroundOnEbc,
 } from "@/features/scan/application/lookup-color";
 
-type BeerHeroProps = {
+type BeerHeroProps = Readonly<{
   name: string;
-  brewery: string;
-  style: string;
+  brewery?: string | null;
+  style?: string | null;
   colorEbc: number | null;
-};
+}>;
 
 /**
- * Hero block at the top of the BeerInfoCardScreen. The background
- * colour is computed from the beer's actual EBC value so a Punk IPA
- * shows up amber-orange, La Chouffe pale amber, and Rochefort 10
- * deep brown — the same data drives both the visual identity and
- * the "Couleur" word in the at-a-glance row, keeping the user's
- * mental model coherent.
+ * Hero block at the top of the BeerInfoCardScreen and the recipe
+ * detail screen (Issue #740, Round 4 — reused as the canonical hero
+ * primitive). Background colour is computed from the beer's actual
+ * EBC value so a Punk IPA renders amber-orange, La Chouffe pale
+ * amber, and Rochefort 10 deep brown — the same data drives both the
+ * visual identity and the "Couleur" word in the at-a-glance row,
+ * keeping the user's mental model coherent.
  *
  * Foreground colour adapts (light text on dark backgrounds, dark
  * text on pale backgrounds) so the hero stays readable across the
  * full EBC range.
  *
- * Height is fixed-aspect: ~40% of a typical phone screen at
- * default font sizes (per #698 acceptance criteria), without using
- * `Dimensions` so the layout stays predictable in tests.
+ * `brewery` and `style` are optional: when absent (e.g. a recipe
+ * with no brewery metadata yet), the corresponding row / chip is
+ * hidden rather than rendering an empty placeholder.
  */
-export function BeerHero({ name, brewery, style, colorEbc }: BeerHeroProps) {
+export function BeerHero({
+  name,
+  brewery = null,
+  style = null,
+  colorEbc,
+}: BeerHeroProps) {
   const background = ebcToHex(colorEbc);
   const foreground = foregroundOnEbc(colorEbc);
+  const breweryLabel = trimToNull(brewery);
+  const styleLabel = trimToNull(style);
+  const accessibilityLabel = [name, breweryLabel, styleLabel]
+    .filter((value): value is string => Boolean(value))
+    .join(", ");
 
   return (
     <View
       style={[styles.hero, { backgroundColor: background }]}
       accessible
-      accessibilityLabel={`${name}, ${brewery}, ${style}`}
+      accessibilityLabel={accessibilityLabel}
       accessibilityRole="header"
     >
       <Text style={[styles.name, { color: foreground }]} numberOfLines={2}>
         {name}
       </Text>
-      <Text style={[styles.brewery, { color: foreground }]} numberOfLines={1}>
-        {brewery}
-      </Text>
-      <View style={[styles.styleChip, { borderColor: foreground }]}>
-        <Text
-          style={[styles.styleChipText, { color: foreground }]}
-          numberOfLines={1}
-        >
-          {style}
+      {breweryLabel ? (
+        <Text style={[styles.brewery, { color: foreground }]} numberOfLines={1}>
+          {breweryLabel}
         </Text>
-      </View>
+      ) : null}
+      {styleLabel ? (
+        <View style={[styles.styleChip, { borderColor: foreground }]}>
+          <Text
+            style={[styles.styleChipText, { color: foreground }]}
+            numberOfLines={1}
+          >
+            {styleLabel}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
+}
+
+function trimToNull(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 const styles = StyleSheet.create({

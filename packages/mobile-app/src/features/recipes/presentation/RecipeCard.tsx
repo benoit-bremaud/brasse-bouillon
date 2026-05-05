@@ -11,8 +11,9 @@ import { getSrmColor } from "@/features/tools/data/catalogs/srm";
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
 // Mobile UI is French (cf. project convention "UI stays French"). The
-// catalogue path overrides this with `badgeLabel` to force "Public" as
-// a deliberate marker on its discovery surface.
+// catalogue path overrides this with `badgeLabel="Publique"` as a
+// deliberate marker on its discovery surface — the override is now
+// just a defensive guarantee in case the API leaks a non-public row.
 const VISIBILITY_LABELS: Record<Recipe["visibility"], string> = {
   public: "Publique",
   private: "Privée",
@@ -25,19 +26,19 @@ const VISIBILITY_VARIANTS: Record<Recipe["visibility"], "success" | "info"> = {
   unlisted: "info",
 };
 
-type Props = {
+type Props = Readonly<{
   recipe: Recipe;
   /**
    * Optional override of the visibility badge's label. Defaults to
    * the canonical `VISIBILITY_LABELS[visibility]`. Passed by callers
    * that want to force a specific label (e.g. CatalogScreen always
-   * shows "Public" because it pre-filters on visibility — so a
+   * shows "Publique" because it pre-filters on visibility — so a
    * future bug that lets a non-public recipe through still renders
    * the correct badge text rather than a contradiction).
    */
   badgeLabel?: string;
   onPress: () => void;
-};
+}>;
 
 /**
  * Shared card used by both `RecipesScreen` (Mon Carnet) and

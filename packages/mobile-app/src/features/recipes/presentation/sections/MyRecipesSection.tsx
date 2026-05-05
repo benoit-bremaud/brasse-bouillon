@@ -7,25 +7,31 @@ import { colors, spacing, typography } from "@/core/theme";
 
 type MyRecipesSectionHeaderProps = Readonly<{
   isEmpty: boolean;
+  isLoading: boolean;
   onPressScanCta: () => void;
 }>;
 
 /**
  * Hub section #1 header of the Mes Recettes screen (Issue #740 Round 2).
  *
- * Renders the section title + subtitle + (when the carnet is empty)
- * the "Scanner ta 1ère bière" CTA wired to the scan flow.
+ * Renders the section title + subtitle + (when the carnet is empty
+ * and the query has settled) the "Scanner ta 1ère bière" CTA wired to
+ * the scan flow. The `isLoading` guard avoids flashing the empty state
+ * during the initial fetch even when the user actually has recipes
+ * (Copilot review on PR #917).
  *
  * Designed to be used as the `ListHeaderComponent` of the parent
- * FlatList in `RecipesScreen`, so the FlatList native virtualization
- * still applies to the recipe items themselves (Codex P2 review on
- * PR #917 — pre-hub `RecipesScreen` used a FlatList; the v0.1 hub
- * preserves it by lifting the list to the orchestrator).
+ * FlatList in `RecipesScreen`. Horizontal padding is applied by the
+ * parent FlatList's `contentContainerStyle` — the header only owns
+ * the vertical breathing room (Copilot review on PR #917).
  */
 export function MyRecipesSectionHeader({
   isEmpty,
+  isLoading,
   onPressScanCta,
 }: MyRecipesSectionHeaderProps) {
+  const showEmptyState = isEmpty && !isLoading;
+
   return (
     <View testID="hub-my-recipes-section" style={styles.container}>
       <Text style={styles.sectionTitle}>Mes recettes</Text>
@@ -33,7 +39,7 @@ export function MyRecipesSectionHeader({
         Ton carnet personnel — recettes brassées et imports scan.
       </Text>
 
-      {isEmpty ? (
+      {showEmptyState ? (
         <EmptyStateCard
           title="Aucune recette pour l'instant"
           description="Scanne ta 1ère bière pour démarrer ton carnet de brasseur."
@@ -52,7 +58,6 @@ export function MyRecipesSectionHeader({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.sm,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },

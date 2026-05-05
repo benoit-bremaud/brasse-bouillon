@@ -8,6 +8,7 @@ import type { Recipe } from "@/features/recipes/domain/recipe.types";
 
 type DiscoverSectionProps = Readonly<{
   recipes: Recipe[];
+  isLoading: boolean;
   onPressRecipe: (recipeId: string) => void;
   onPressSeeAll: () => void;
   previewLimit?: number;
@@ -23,14 +24,25 @@ const DEFAULT_PREVIEW_LIMIT = 5;
  * the hub so a new user (Léa, Nicolas) sees brewable recipes
  * immediately, without leaving Mes Recettes. The "Voir tout" pill
  * links to the existing CatalogScreen for the full list.
+ *
+ * The empty-state placeholder is only rendered once the query has
+ * settled (`!isLoading && recipes.length === 0`) so the user never
+ * sees "Le catalogue arrive bientôt." flash during the initial fetch
+ * (Copilot review on PR #917).
+ *
+ * Horizontal padding is applied by the parent FlatList's
+ * `contentContainerStyle`; this section only owns its vertical
+ * spacing (Copilot review on PR #917).
  */
 export function DiscoverSection({
   recipes,
+  isLoading,
   onPressRecipe,
   onPressSeeAll,
   previewLimit = DEFAULT_PREVIEW_LIMIT,
 }: DiscoverSectionProps) {
   const preview = recipes.slice(0, previewLimit);
+  const showEmptyPlaceholder = preview.length === 0 && !isLoading;
 
   return (
     <View testID="hub-discover-section" style={styles.container}>
@@ -58,25 +70,24 @@ export function DiscoverSection({
         </Pressable>
       </View>
 
-      {preview.length === 0 ? (
+      {showEmptyPlaceholder ? (
         <Text style={styles.emptyText}>Le catalogue arrive bientôt.</Text>
-      ) : (
-        preview.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
-            badgeLabel="Publique"
-            onPress={() => onPressRecipe(recipe.id)}
-          />
-        ))
-      )}
+      ) : null}
+
+      {preview.map((recipe) => (
+        <RecipeCard
+          key={recipe.id}
+          recipe={recipe}
+          badgeLabel="Publique"
+          onPress={() => onPressRecipe(recipe.id)}
+        />
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.sm,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },

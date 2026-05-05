@@ -67,14 +67,15 @@ export function RecipesScreen() {
     discoverQuery.isLoading &&
     discoverRecipes.length === 0;
 
-  const queryError = myRecipesQuery.error ?? discoverQuery.error;
-  const isFetching = myRecipesQuery.isFetching || discoverQuery.isFetching;
+  // Per-query error suppression: each query only suppresses its own
+  // error while it's actively refetching. A failed `listRecipes` is
+  // surfaced even if `listPublicRecipes` is still in flight, and vice
+  // versa (Copilot review on PR #917 — the previous combined
+  // `isFetching` check could mask one query's failure behind the
+  // other's loading state).
+  const error = pickQueryError([myRecipesQuery, discoverQuery]);
 
-  const error = queryError
-    ? isFetching
-      ? null
-      : getErrorMessage(queryError, "Impossible de charger les recettes")
-    : null;
+  const isFetching = myRecipesQuery.isFetching || discoverQuery.isFetching;
 
   const handleRefetch = () => {
     void myRecipesQuery.refetch();
@@ -114,6 +115,7 @@ export function RecipesScreen() {
         ListHeaderComponent={
           <MyRecipesSectionHeader
             isEmpty={myRecipes.length === 0}
+            isLoading={myRecipesQuery.isLoading}
             onPressScanCta={handleOpenScan}
           />
         }
@@ -123,6 +125,7 @@ export function RecipesScreen() {
         ListFooterComponent={
           <DiscoverSection
             recipes={discoverRecipes}
+            isLoading={discoverQuery.isLoading}
             onPressRecipe={handleOpenRecipe}
             onPressSeeAll={handleOpenCatalog}
           />
@@ -130,6 +133,27 @@ export function RecipesScreen() {
       />
     </Screen>
   );
+}
+
+type QueryWithError = Readonly<{
+  error: Error | null;
+  isFetching: boolean;
+}>;
+
+/**
+ * Returns the human-readable message of the first query in the list
+ * that has a settled error (i.e. not currently re-fetching). Returns
+ * `null` if no query has a surfaced error. Encodes the per-query
+ * error-suppression rule called out in the Copilot review on
+ * PR #917.
+ */
+function pickQueryError(queries: ReadonlyArray<QueryWithError>): string | null {
+  for (const query of queries) {
+    if (query.error && !query.isFetching) {
+      return getErrorMessage(query.error, "Impossible de charger les recettes");
+    }
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({

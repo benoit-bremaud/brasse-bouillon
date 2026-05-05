@@ -2656,9 +2656,12 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
   // the backend seed so `EXPO_PUBLIC_USE_DEMO_DATA=true` covers the
   // same 9-bottle demo as production. Same field order as
   // packages/api/src/database/seeds/scan-catalog.seed.ts.
-  "5414352120063": buildDemoScanCatalogItem({
+  // Karmeliet Tripel 75cl — verified on OpenFoodFacts 2026-05-05,
+  // EAN-13 mod-10 valid. Replaces the invalid '5414352120063' shipped
+  // in PR #768 (issue #807).
+  "5410693100553": buildDemoScanCatalogItem({
     id: "demo-scan-karmeliet-tripel",
-    barcode: "5414352120063",
+    barcode: "5410693100553",
     name: "Karmeliet Tripel",
     brewery: "Brouwerij Bosteels",
     style: "Belgian Tripel",
@@ -2668,9 +2671,12 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "wheat, oat, banana, vanilla",
     notesSource: "Brouwerij Bosteels public datasheet",
   }),
-  "5410702000125": buildDemoScanCatalogItem({
+  // Westmalle Tripel 33cl — only OFF-verified Westmalle EAN as of
+  // 2026-05-05; the 75cl SKU has no OFF entry. Replaces the invalid
+  // '5410702000125' shipped in PR #768 (issue #807).
+  "5412343201337": buildDemoScanCatalogItem({
     id: "demo-scan-westmalle-tripel",
-    barcode: "5410702000125",
+    barcode: "5412343201337",
     name: "Westmalle Tripel",
     brewery: "Abdij der Trappisten van Westmalle",
     style: "Belgian Tripel",
@@ -2680,9 +2686,12 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     aromaticTags: "fruity esters, peppery, dry finish",
     notesSource: "Trappist Westmalle public datasheet",
   }),
-  "5410702000026": buildDemoScanCatalogItem({
+  // Duvel 75cl — verified on OpenFoodFacts 2026-05-05, EAN-13 mod-10
+  // valid. Replaces the invalid '5410702000026' shipped in PR #768
+  // (issue #807).
+  "5411681402635": buildDemoScanCatalogItem({
     id: "demo-scan-duvel",
-    barcode: "5410702000026",
+    barcode: "5411681402635",
     name: "Duvel",
     brewery: "Brouwerij Duvel Moortgat",
     style: "Belgian Strong Pale Ale",

@@ -141,6 +141,125 @@ export interface BrewdogDiyDogRecipeSeed {
 }
 
 /**
+ * Default pitch rate for a single dry-yeast sachet — the BrewDog DIY
+ * Dog source pages do not specify a pitch rate, so every recipe in
+ * this seed defaults to one sachet (~11.5g).
+ */
+const DEFAULT_PITCH_RATE_G = 11.5;
+
+/**
+ * Late-boil minute timing applied to "End (Flavor)" hop additions
+ * documented at the flameout in the source pages. Codex review on
+ * PR #922 flagged that encoding these as `WHIRLPOOL` at 0 minutes
+ * understates the bittering / hop-utilization contribution computed
+ * by downstream consumers (recipe instructions, IBU recomputation,
+ * analytics). The BrewDog DIY Dog BeerXML for the same recipes uses
+ * a 10-minute late-boil addition for these — adopting the same
+ * convention here keeps the seed numerically consistent with the
+ * canonical source.
+ */
+const LATE_BOIL_FLAVOR_MIN = 10;
+
+/**
+ * Builder for a `RecipeFermentableType.GRAIN` fermentable entry.
+ * Folds the recurring `type: GRAIN` literal into a single call site
+ * (Sonar new-code duplication gate on PR #922).
+ */
+function grain(
+  name: string,
+  weight_g: number,
+  color_ebc: number,
+): BrewdogDiyDogFermentableSeed {
+  return { name, type: RecipeFermentableType.GRAIN, weight_g, color_ebc };
+}
+
+/**
+ * Builder for a pellet-form `BOIL`-stage hop addition.
+ *
+ * `addition_time_min` is minutes from knockout — pass the bittering
+ * boil time (60 / 75) for start-of-boil additions and the late-boil
+ * flavor minute (e.g. 10, 15, 30) for flavor additions.
+ */
+function boilHop(
+  variety: string,
+  weight_g: number,
+  alpha_acid_percent: number,
+  addition_time_min: number,
+): BrewdogDiyDogHopSeed {
+  return {
+    variety,
+    type: RecipeHopType.PELLET,
+    weight_g,
+    alpha_acid_percent,
+    addition_stage: RecipeHopAdditionStage.BOIL,
+    addition_time_min,
+  };
+}
+
+/**
+ * Builder for an ALE-type yeast addition. Defaults to a single
+ * sachet pitch rate (~11.5g), tunable via the optional `amount_g`
+ * argument when the source recipe documents a different pitch.
+ */
+function aleYeast(
+  name: string,
+  attenuation_percent: number,
+  temperature_min_c: number,
+  temperature_max_c: number,
+  amount_g: number = DEFAULT_PITCH_RATE_G,
+): BrewdogDiyDogYeastSeed {
+  return {
+    name,
+    type: RecipeYeastType.ALE,
+    amount_g,
+    attenuation_percent,
+    temperature_min_c,
+    temperature_max_c,
+  };
+}
+
+/**
+ * Builder for a LAGER-type yeast addition. Same defaults as
+ * `aleYeast` modulo the `RecipeYeastType.LAGER` discriminator.
+ */
+function lagerYeast(
+  name: string,
+  attenuation_percent: number,
+  temperature_min_c: number,
+  temperature_max_c: number,
+  amount_g: number = DEFAULT_PITCH_RATE_G,
+): BrewdogDiyDogYeastSeed {
+  return {
+    name,
+    type: RecipeYeastType.LAGER,
+    amount_g,
+    attenuation_percent,
+    temperature_min_c,
+    temperature_max_c,
+  };
+}
+
+/**
+ * Convenience constructor for the `Wyeast 1056 American Ale` strain
+ * shared by every ale recipe in the seed. Each recipe customises the
+ * observed attenuation; the temperature window defaults to 16-22 °C
+ * (Wyeast's published range) and can be tightened to a recipe's
+ * documented operational band when applicable.
+ */
+function americanAleYeast(
+  attenuation_percent: number,
+  temperature_min_c = 16,
+  temperature_max_c = 22,
+): BrewdogDiyDogYeastSeed {
+  return aleYeast(
+    'Wyeast 1056 American Ale',
+    attenuation_percent,
+    temperature_min_c,
+    temperature_max_c,
+  );
+}
+
+/**
  * BrewDog DIY Dog recipes shipped by this seed. UUIDs are
  * deterministic (`-4001-` variant) so the mobile demo data and the
  * matching service can hardcode references without a database
@@ -175,90 +294,18 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     avg_rating: 4.8,
     brew_count: 248,
     source_url: 'https://brewdogrecipes.com/recipes/punk-ipa-2007-2010',
-    fermentables: [
-      {
-        name: 'Extra Pale Malt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 5300,
-        color_ebc: 4,
-      },
-    ],
+    fermentables: [grain('Extra Pale Malt', 5300, 4)],
     hops: [
-      {
-        variety: 'Ahtanum',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 15,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Crystal',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 4.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 15,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 15,
-      },
-      {
-        variety: 'Ahtanum',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 27.5,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Crystal',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 4.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
+      boilHop('Ahtanum', 17.5, 5, 60),
+      boilHop('Chinook', 15, 13, 60),
+      boilHop('Crystal', 17.5, 4.5, 15),
+      boilHop('Chinook', 17.5, 13, 15),
+      boilHop('Ahtanum', 17.5, 5, 5),
+      boilHop('Chinook', 27.5, 13, 5),
+      boilHop('Crystal', 17.5, 4.5, 5),
+      boilHop('Motueka', 17.5, 7, 5),
     ],
-    yeasts: [
-      {
-        name: 'Wyeast 1056 American Ale',
-        type: RecipeYeastType.ALE,
-        amount_g: 11.5,
-        attenuation_percent: 75,
-        temperature_min_c: 16,
-        temperature_max_c: 22,
-      },
-    ],
+    yeasts: [americanAleYeast(75)],
   },
   {
     // Hop Rocker — International Pale Lager. April 2007 BrewDog DIY
@@ -282,77 +329,22 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     brew_count: 95,
     source_url: 'https://brewdogrecipes.com/recipes/hop-rocker',
     fermentables: [
-      {
-        name: 'Extra Pale Maris Otter',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 3780,
-        color_ebc: 3,
-      },
-      {
-        name: 'Caramalt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 310,
-        color_ebc: 50,
-      },
-      {
-        name: 'Munich',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 310,
-        color_ebc: 18,
-      },
+      grain('Extra Pale Maris Otter', 3780, 3),
+      grain('Caramalt', 310, 50),
+      grain('Munich', 310, 18),
     ],
+    // Codex P1 review on PR #922: end-flavor additions documented at
+    // flameout in the source page are encoded as 10-min late-boil to
+    // match the BrewDog DIY Dog BeerXML hop-utilization convention
+    // (rather than WHIRLPOOL/0 which understates IBU contribution).
     hops: [
-      {
-        variety: 'Cascade',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 5.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 75,
-      },
-      {
-        variety: 'Saaz',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 3.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 75,
-      },
-      {
-        variety: 'Cascade',
-        type: RecipeHopType.PELLET,
-        weight_g: 25,
-        alpha_acid_percent: 5.5,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 25,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
+      boilHop('Cascade', 12.5, 5.5, 75),
+      boilHop('Saaz', 12.5, 3.5, 75),
+      boilHop('Cascade', 25, 5.5, LATE_BOIL_FLAVOR_MIN),
+      boilHop('Motueka', 12.5, 7, LATE_BOIL_FLAVOR_MIN),
+      boilHop('Chinook', 25, 13, LATE_BOIL_FLAVOR_MIN),
     ],
-    yeasts: [
-      {
-        name: 'Saflager S189',
-        type: RecipeYeastType.LAGER,
-        amount_g: 11.5,
-        attenuation_percent: 81,
-        temperature_min_c: 9,
-        temperature_max_c: 14,
-      },
-    ],
+    yeasts: [lagerYeast('Saflager S189', 81, 9, 14)],
   },
   {
     // Trashy Blonde — Pale Ale. April 2008 BrewDog DIY Dog entry.
@@ -374,69 +366,20 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     brew_count: 142,
     source_url: 'https://brewdogrecipes.com/recipes/trashy-blonde',
     fermentables: [
-      {
-        name: 'Extra Pale Maris Otter',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 3250,
-        color_ebc: 3,
-      },
-      {
-        name: 'Caramalt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 200,
-        color_ebc: 50,
-      },
-      {
-        name: 'Munich',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 400,
-        color_ebc: 18,
-      },
+      grain('Extra Pale Maris Otter', 3250, 3),
+      grain('Caramalt', 200, 50),
+      grain('Munich', 400, 18),
     ],
+    // Codex P1 review on PR #922: same flameout → late-boil rule as
+    // Hop Rocker. Source page labels the last two additions as
+    // "Whirlpool" but the canonical BeerXML uses 10-min late boil.
     hops: [
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 13.8,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 75,
-      },
-      {
-        variety: 'Simcoe',
-        type: RecipeHopType.PELLET,
-        weight_g: 13.8,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 75,
-      },
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 26.3,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 18.8,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
+      boilHop('Amarillo', 13.8, 9, 75),
+      boilHop('Simcoe', 13.8, 13, 75),
+      boilHop('Amarillo', 26.3, 9, LATE_BOIL_FLAVOR_MIN),
+      boilHop('Motueka', 18.8, 7, LATE_BOIL_FLAVOR_MIN),
     ],
-    yeasts: [
-      {
-        name: 'Wyeast 1056 American Ale',
-        type: RecipeYeastType.ALE,
-        amount_g: 11.5,
-        attenuation_percent: 76,
-        temperature_min_c: 16,
-        temperature_max_c: 22,
-      },
-    ],
+    yeasts: [americanAleYeast(76)],
   },
   {
     // Storm — Islay Whisky-aged IPA. December 2007 BrewDog DIY Dog
@@ -460,90 +403,18 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     avg_rating: 4.5,
     brew_count: 67,
     source_url: 'https://brewdogrecipes.com/recipes/storm',
-    fermentables: [
-      {
-        name: 'Extra Pale Malt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 5800,
-        color_ebc: 4,
-      },
-    ],
+    fermentables: [grain('Extra Pale Malt', 5800, 4)],
     hops: [
-      {
-        variety: 'Ahtanum',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 15,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Crystal',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 4.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 30,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 30,
-      },
-      {
-        variety: 'Ahtanum',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Chinook',
-        type: RecipeHopType.PELLET,
-        weight_g: 27.5,
-        alpha_acid_percent: 13,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Crystal',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 4.5,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 17.5,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 5,
-      },
+      boilHop('Ahtanum', 17.5, 5, 60),
+      boilHop('Chinook', 15, 13, 60),
+      boilHop('Crystal', 17.5, 4.5, 30),
+      boilHop('Chinook', 17.5, 13, 30),
+      boilHop('Ahtanum', 17.5, 5, 5),
+      boilHop('Chinook', 27.5, 13, 5),
+      boilHop('Crystal', 17.5, 4.5, 5),
+      boilHop('Motueka', 17.5, 7, 5),
     ],
-    yeasts: [
-      {
-        name: 'Wyeast 1056 American Ale',
-        type: RecipeYeastType.ALE,
-        amount_g: 11.5,
-        attenuation_percent: 88,
-        temperature_min_c: 18,
-        temperature_max_c: 22,
-      },
-    ],
+    yeasts: [americanAleYeast(88, 18)],
   },
   {
     // Edge — Cask Ale (English Brown / Mild). November 2007 BrewDog
@@ -567,97 +438,23 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     brew_count: 38,
     source_url: 'https://brewdogrecipes.com/recipes/edge',
     fermentables: [
-      {
-        name: 'Extra Pale Malt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 2160,
-        color_ebc: 4,
-      },
-      {
-        name: 'Wheat Malt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 630,
-        color_ebc: 4,
-      },
-      {
-        name: 'Crystal',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 310,
-        color_ebc: 100,
-      },
-      {
-        name: 'Roasted Barley',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 190,
-        color_ebc: 1100,
-      },
-      {
-        name: 'Cara Aroma',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 130,
-        color_ebc: 350,
-      },
+      grain('Extra Pale Malt', 2160, 4),
+      grain('Wheat Malt', 630, 4),
+      grain('Crystal', 310, 100),
+      grain('Roasted Barley', 190, 1100),
+      grain('Cara Aroma', 130, 350),
     ],
+    // Codex P1 review on PR #922: same flameout → late-boil rule as
+    // Hop Rocker. Three end-flavour additions become 10-min late boil.
     hops: [
-      {
-        variety: 'Pacific Hallertau',
-        type: RecipeHopType.PELLET,
-        weight_g: 15.5,
-        alpha_acid_percent: 6,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Pacific Hallertau',
-        type: RecipeHopType.PELLET,
-        weight_g: 10.2,
-        alpha_acid_percent: 6,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 60,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 6.1,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 15,
-      },
-      {
-        variety: 'Pacific Hallertau',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 6,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
-      {
-        variety: 'Motueka',
-        type: RecipeHopType.PELLET,
-        weight_g: 25,
-        alpha_acid_percent: 7,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
-        addition_time_min: 0,
-      },
+      boilHop('Pacific Hallertau', 15.5, 6, 60),
+      boilHop('Pacific Hallertau', 10.2, 6, 60),
+      boilHop('Motueka', 6.1, 7, 15),
+      boilHop('Pacific Hallertau', 12.5, 6, LATE_BOIL_FLAVOR_MIN),
+      boilHop('Motueka', 25, 7, LATE_BOIL_FLAVOR_MIN),
+      boilHop('Amarillo', 12.5, 9, LATE_BOIL_FLAVOR_MIN),
     ],
-    yeasts: [
-      {
-        name: 'Wyeast 1056 American Ale',
-        type: RecipeYeastType.ALE,
-        amount_g: 11.5,
-        attenuation_percent: 70,
-        temperature_min_c: 18,
-        temperature_max_c: 22,
-      },
-    ],
+    yeasts: [americanAleYeast(70, 18)],
   },
   {
     // The Physics — American Amber Ale. April 2007 BrewDog DIY Dog
@@ -680,75 +477,18 @@ export const BREWDOG_DIY_DOG_SEED: readonly BrewdogDiyDogRecipeSeed[] = [
     brew_count: 124,
     source_url: 'https://brewdogrecipes.com/recipes/the-physics',
     fermentables: [
-      {
-        name: 'Extra Pale Malt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 4060,
-        color_ebc: 4,
-      },
-      {
-        name: 'Dark Crystal 350',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 940,
-        color_ebc: 350,
-      },
-      {
-        name: 'Caramalt',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 300,
-        color_ebc: 50,
-      },
-      {
-        name: 'Crystal 120',
-        type: RecipeFermentableType.GRAIN,
-        weight_g: 230,
-        color_ebc: 240,
-      },
+      grain('Extra Pale Malt', 4060, 4),
+      grain('Dark Crystal 350', 940, 350),
+      grain('Caramalt', 300, 50),
+      grain('Crystal 120', 230, 240),
     ],
     hops: [
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 25,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 75,
-      },
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 38,
-      },
-      {
-        variety: 'Bramling Cross',
-        type: RecipeHopType.PELLET,
-        weight_g: 12.5,
-        alpha_acid_percent: 6,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 15,
-      },
-      {
-        variety: 'Amarillo',
-        type: RecipeHopType.PELLET,
-        weight_g: 50,
-        alpha_acid_percent: 9,
-        addition_stage: RecipeHopAdditionStage.BOIL,
-        addition_time_min: 15,
-      },
+      boilHop('Amarillo', 25, 9, 75),
+      boilHop('Amarillo', 12.5, 9, 38),
+      boilHop('Bramling Cross', 12.5, 6, 15),
+      boilHop('Amarillo', 50, 9, 15),
     ],
-    yeasts: [
-      {
-        name: 'Wyeast 1056 American Ale',
-        type: RecipeYeastType.ALE,
-        amount_g: 11.5,
-        attenuation_percent: 79,
-        temperature_min_c: 18,
-        temperature_max_c: 22,
-      },
-    ],
+    yeasts: [americanAleYeast(79, 18)],
   },
 ];
 

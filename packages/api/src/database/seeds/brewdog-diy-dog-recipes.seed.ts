@@ -1,5 +1,6 @@
 import { Repository } from 'typeorm';
 
+import { idempotentUpsertById } from './seed-utils';
 import { RecipeFermentableOrmEntity } from '../../recipe/entities/recipe-fermentable.orm.entity';
 import { RecipeFermentableType } from '../../recipe/domain/enums/recipe-fermentable-type.enum';
 import { RecipeHopAdditionStage } from '../../recipe/domain/enums/recipe-hop-addition-stage.enum';
@@ -40,12 +41,24 @@ import { SYSTEM_USER_ID } from './system-user.seed';
 export const BREWDOG_DIY_DOG_SYSTEM_OWNER_ID = SYSTEM_USER_ID;
 
 /**
- * Provenance string written to `Recipe.import_provenance` for every
- * row seeded by this loader. Surfaces in the mobile UI's "Importée
- * depuis…" badge so users can trace the recipe back to its source.
+ * Base attribution label written to `Recipe.import_provenance` for
+ * every row seeded by this loader. The per-recipe `source_url` is
+ * appended at seed time by `buildBrewdogDiyDogProvenance` so the
+ * audit trail is traceable directly from the database (see Copilot
+ * review on PR #921 — without this, `source_url` would only live on
+ * the seed file and not survive into the persisted row).
  */
-export const BREWDOG_DIY_DOG_PROVENANCE =
+export const BREWDOG_DIY_DOG_BASE_PROVENANCE =
   'BrewDog DIY Dog (open-source homebrew recipe book, attribution preserved)';
+
+/**
+ * Builds the canonical `import_provenance` value for one DIY Dog
+ * recipe by appending the per-recipe source URL to the base
+ * attribution. Surfaces in the mobile UI's "Importée depuis…" badge.
+ */
+export function buildBrewdogDiyDogProvenance(sourceUrl: string): string {
+  return `${BREWDOG_DIY_DOG_BASE_PROVENANCE} — source: ${sourceUrl}`;
+}
 
 /**
  * Shape of a fermentable entry in the seed data. Mirrors
@@ -318,23 +331,23 @@ export async function seedBrewdogDiyDogRecipes(
       ebc_target: recipe.ebc_target,
       efficiency_target: recipe.efficiency_target,
       avg_rating: recipe.avg_rating,
-      brew_count: recipe.brew_count,
+      // RecipeOrmEntity.brew_count is non-nullable with default 0 —
+      // coalesce here so an omitted seed value lands as 0 rather
+      // than NULL (caught on PR #921 review).
+      brew_count: recipe.brew_count ?? 0,
       last_brewed_at: null,
       is_official: false,
       imported_from_recipe_id: null,
-      import_provenance: BREWDOG_DIY_DOG_PROVENANCE,
+      import_provenance: buildBrewdogDiyDogProvenance(recipe.source_url),
     };
 
-    const existing = await recipeRepo.findOne({ where: { id: recipe.id } });
-    if (existing) {
-      Object.assign(existing, recipePayload);
-      await recipeRepo.save(existing);
-      recipesUpdated += 1;
-    } else {
-      const created = recipeRepo.create({ id: recipe.id, ...recipePayload });
-      await recipeRepo.save(created);
-      recipesInserted += 1;
-    }
+    const outcome = await idempotentUpsertById(
+      recipeRepo,
+      { id: recipe.id },
+      recipePayload,
+    );
+    recipesInserted += outcome.inserted;
+    recipesUpdated += outcome.updated;
 
     // Wipe-and-refill the sub-tables. Cheaper than computing per-row
     // diffs and keeps the seed deterministic — the post-condition is

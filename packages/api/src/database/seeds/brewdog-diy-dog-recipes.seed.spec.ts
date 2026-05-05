@@ -1,9 +1,10 @@
 import { Repository } from 'typeorm';
 
 import {
-  BREWDOG_DIY_DOG_PROVENANCE,
+  BREWDOG_DIY_DOG_BASE_PROVENANCE,
   BREWDOG_DIY_DOG_SEED,
   BREWDOG_DIY_DOG_SYSTEM_OWNER_ID,
+  buildBrewdogDiyDogProvenance,
   seedBrewdogDiyDogRecipes,
 } from './brewdog-diy-dog-recipes.seed';
 import { RecipeFermentableOrmEntity } from '../../recipe/entities/recipe-fermentable.orm.entity';
@@ -11,24 +12,25 @@ import { RecipeHopOrmEntity } from '../../recipe/entities/recipe-hop.orm.entity'
 import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
 import { RecipeVisibility } from '../../recipe/domain/enums/recipe-visibility.enum';
 import { RecipeYeastOrmEntity } from '../../recipe/entities/recipe-yeast.orm.entity';
-import { buildRepoMock } from './seed-test-utils';
+import { RepoMock, buildRepoMock } from './seed-test-utils';
 
-type SeedRepoMocks = ReturnType<typeof buildSeedRepos>;
-
-/**
- * Builds the four repository mocks used by the loader plus a
- * `delete` jest.fn on each — the shared `buildRepoMock` doesn't
- * carry one yet, and the loader's wipe-and-refill pattern needs it.
- */
-function buildSeedRepos() {
-  const recipeRepo = { ...buildRepoMock(), delete: jest.fn() };
-  const fermentableRepo = { ...buildRepoMock(), delete: jest.fn() };
-  const hopRepo = { ...buildRepoMock(), delete: jest.fn() };
-  const yeastRepo = { ...buildRepoMock(), delete: jest.fn() };
-  return { recipeRepo, fermentableRepo, hopRepo, yeastRepo };
+interface SeedRepoMocks {
+  recipeRepo: RepoMock;
+  fermentableRepo: RepoMock;
+  hopRepo: RepoMock;
+  yeastRepo: RepoMock;
 }
 
-function castRepo<T>(repo: SeedRepoMocks['recipeRepo']): Repository<T> {
+function buildSeedRepos(): SeedRepoMocks {
+  return {
+    recipeRepo: buildRepoMock(),
+    fermentableRepo: buildRepoMock(),
+    hopRepo: buildRepoMock(),
+    yeastRepo: buildRepoMock(),
+  };
+}
+
+function castRepo<T>(repo: RepoMock): Repository<T> {
   return repo as unknown as Repository<T>;
 }
 
@@ -72,24 +74,43 @@ describe('seedBrewdogDiyDogRecipes (Issue #780)', () => {
       expect(result.yeastsInserted).toBe(expectedYeasts);
     });
 
-    it('tags every recipe row as PUBLIC + system owner + DIY Dog provenance + non-official', async () => {
+    it('tags every recipe row as PUBLIC + system owner + DIY Dog provenance (with per-recipe source URL) + non-official', async () => {
       const repos = buildSeedRepos();
       repos.recipeRepo.findOne.mockResolvedValue(null);
 
       await runSeed(repos);
 
-      for (const call of repos.recipeRepo.create.mock.calls as unknown[][]) {
+      const createCalls = repos.recipeRepo.create.mock.calls as unknown[][];
+      expect(createCalls).toHaveLength(BREWDOG_DIY_DOG_SEED.length);
+
+      createCalls.forEach((call, index) => {
         const arg = call[0] as Record<string, unknown>;
+        const seedRecipe = BREWDOG_DIY_DOG_SEED[index];
         expect(arg.visibility).toBe(RecipeVisibility.PUBLIC);
         expect(arg.owner_id).toBe(BREWDOG_DIY_DOG_SYSTEM_OWNER_ID);
-        expect(arg.import_provenance).toBe(BREWDOG_DIY_DOG_PROVENANCE);
+        // Provenance is per-recipe so the database row carries a
+        // traceable pointer back to the source page (Copilot review on
+        // PR #921 — the previous global constant dropped `source_url`
+        // silently).
+        expect(arg.import_provenance).toContain(
+          BREWDOG_DIY_DOG_BASE_PROVENANCE,
+        );
+        expect(arg.import_provenance).toContain(seedRecipe.source_url);
+        expect(arg.import_provenance).toBe(
+          buildBrewdogDiyDogProvenance(seedRecipe.source_url),
+        );
         expect(arg.imported_from_recipe_id).toBeNull();
         expect(arg.parent_recipe_id).toBeNull();
         // is_official is deliberately false on every backend row to
-        // avoid the global-flag regression Codex caught on PR #773 /
-        // #912 — same lesson as `public-recipes.seed.ts`.
+        // avoid the global-flag regression caught on PR #773 / #912 —
+        // same lesson as `public-recipes.seed.ts`.
         expect(arg.is_official).toBe(false);
-      }
+        // brew_count must be a number (entity column is non-nullable
+        // with default 0) — the seed coalesces undefined to 0 rather
+        // than passing it through to a NULL violation (Copilot review
+        // on PR #921).
+        expect(typeof arg.brew_count).toBe('number');
+      });
     });
   });
 
@@ -141,7 +162,26 @@ describe('seedBrewdogDiyDogRecipes (Issue #780)', () => {
       const savedCall = firstSavedCall[0] as Record<string, unknown>;
       expect(savedCall.visibility).toBe(RecipeVisibility.PUBLIC);
       expect(savedCall.is_official).toBe(false);
-      expect(savedCall.import_provenance).toBe(BREWDOG_DIY_DOG_PROVENANCE);
+      expect(savedCall.import_provenance).toBe(
+        buildBrewdogDiyDogProvenance(BREWDOG_DIY_DOG_SEED[0].source_url),
+      );
+    });
+
+    it('coalesces an omitted brew_count seed value to 0 rather than passing undefined to the non-nullable column', async () => {
+      const repos = buildSeedRepos();
+      repos.recipeRepo.findOne.mockResolvedValue(null);
+
+      const recipeWithoutBrewCount = {
+        ...BREWDOG_DIY_DOG_SEED[0],
+        brew_count: undefined,
+      };
+
+      await runSeed(repos, [recipeWithoutBrewCount]);
+
+      const createdArg = (
+        repos.recipeRepo.create.mock.calls[0] as unknown[]
+      )[0] as Record<string, unknown>;
+      expect(createdArg.brew_count).toBe(0);
     });
   });
 

@@ -82,7 +82,7 @@ export function CatalogScreen() {
         renderItem={({ item }) => (
           <RecipeCard
             recipe={item}
-            badgeLabel="Public"
+            badgeLabel="Publique"
             onPress={() => router.push(`/(app)/recipes/${item.id}`)}
           />
         )}

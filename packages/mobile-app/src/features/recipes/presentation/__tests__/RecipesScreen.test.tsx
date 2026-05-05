@@ -123,6 +123,11 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
   });
 
+  // Pressing the recipe name `Text` is brittle because the press
+  // handler lives on the surrounding `Pressable` in `RecipeCard`. We
+  // press the accessibility label instead so the test pins the
+  // contract used by assistive tech and survives card-layout tweaks
+  // (Copilot review on PR #917).
   it("navigates to a recipe detail when tapping a card in Mes recettes", async () => {
     (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
     (listPublicRecipes as jest.Mock).mockResolvedValue([]);
@@ -131,7 +136,7 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
 
     await screen.findByText("My Saison");
 
-    fireEvent.press(screen.getByText("My Saison"));
+    fireEvent.press(screen.getByLabelText("Ouvrir la recette My Saison"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-mine-1");
   });
@@ -149,6 +154,8 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/catalog");
   });
 
+  // Same accessibility-label pattern as the Mes recettes test above
+  // (Copilot review on PR #917).
   it("navigates to a public recipe detail when tapping a Découvrir card", async () => {
     (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
     (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
@@ -157,7 +164,7 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
 
     await screen.findByText("Punk IPA Clone");
 
-    fireEvent.press(screen.getByText("Punk IPA Clone"));
+    fireEvent.press(screen.getByLabelText("Ouvrir la recette Punk IPA Clone"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-public-1");
   });

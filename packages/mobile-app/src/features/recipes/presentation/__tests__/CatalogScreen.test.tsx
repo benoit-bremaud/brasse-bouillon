@@ -105,10 +105,10 @@ describe("CatalogScreen (Issue #779 — KISS Recipe Catalog mini)", () => {
     ).toBeTruthy();
   });
 
-  // edge: the screen never accidentally renders the "Public" badge
+  // edge: the screen never accidentally renders the "Publique" badge
   // text from a non-public recipe (defensive guard against the
   // use-case leaking private/unlisted entries).
-  it("edge: every rendered card carries the Public badge", async () => {
+  it("edge: every rendered card carries the Publique badge", async () => {
     mockedListPublicRecipes.mockResolvedValue([
       buildPublicRecipe({ id: "r-public-1", name: "Punk IPA" }),
       buildPublicRecipe({ id: "r-public-2", name: "Hazy Jane" }),
@@ -118,7 +118,7 @@ describe("CatalogScreen (Issue #779 — KISS Recipe Catalog mini)", () => {
 
     await screen.findByText("Punk IPA");
     // Badge uppercases its label internally — assert on the rendered text.
-    const publicBadges = screen.getAllByText("PUBLIC");
+    const publicBadges = screen.getAllByText("PUBLIQUE");
     expect(publicBadges.length).toBe(2);
   });
 });

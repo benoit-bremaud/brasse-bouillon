@@ -1,8 +1,7 @@
 import React from "react";
-import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import { FlatList, RefreshControl, StyleSheet } from "react-native";
 
 import { ListHeader } from "@/core/ui/ListHeader";
-import { Recipe } from "@/features/recipes/domain/recipe.types";
 import { Screen } from "@/core/ui/Screen";
 import { spacing } from "@/core/theme";
 import {
@@ -14,8 +13,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 import { DiscoverSection } from "@/features/recipes/presentation/sections/DiscoverSection";
-import { MyRecipesSection } from "@/features/recipes/presentation/sections/MyRecipesSection";
+import { MyRecipesSectionHeader } from "@/features/recipes/presentation/sections/MyRecipesSection";
+import { RecipeCard } from "@/features/recipes/presentation/RecipeCard";
 import { getErrorMessage } from "@/core/http/http-error";
+import type { Recipe } from "@/features/recipes/domain/recipe.types";
 
 /**
  * Mes Recettes Hub — Issue #740 Round 2 (v0.1 demo scope).
@@ -30,6 +31,13 @@ import { getErrorMessage } from "@/core/http/http-error";
  *
  * Stats / Brouillons / Favoris / Tutoriels sections are explicitly
  * deferred to v0.2 per the issue's section tier table.
+ *
+ * Implementation note: the hub uses a single FlatList rather than a
+ * ScrollView so the virtualization the previous flat list relied on
+ * is preserved (Codex P2 review on PR #917). Mes recettes data drives
+ * the FlatList rows, the section header sits in `ListHeaderComponent`,
+ * and Découvrir (capped at 5 preview cards) sits in
+ * `ListFooterComponent`.
  */
 export function RecipesScreen() {
   const bottomPadding = useNavigationFooterOffset();
@@ -48,9 +56,16 @@ export function RecipesScreen() {
   const myRecipes = myRecipesQuery.data ?? [];
   const discoverRecipes = discoverQuery.data ?? [];
 
+  // Only show the full-screen spinner when *both* queries are still in
+  // their first load and have nothing cached. As soon as either side
+  // returns, render the hub so the user sees something immediately
+  // instead of staying behind a single shared loader (Copilot review on
+  // PR #917).
   const isFirstLoading =
-    (myRecipesQuery.isLoading && myRecipes.length === 0) ||
-    (discoverQuery.isLoading && discoverRecipes.length === 0);
+    myRecipesQuery.isLoading &&
+    myRecipes.length === 0 &&
+    discoverQuery.isLoading &&
+    discoverRecipes.length === 0;
 
   const queryError = myRecipesQuery.error ?? discoverQuery.error;
   const isFetching = myRecipesQuery.isFetching || discoverQuery.isFetching;
@@ -85,33 +100,41 @@ export function RecipesScreen() {
         subtitle="Ton hub de recettes de brassage"
       />
 
-      <ScrollView
+      <FlatList
+        testID="recipes-hub-list"
+        data={myRecipes}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={[
-          styles.scrollContent,
+          styles.listContent,
           { paddingBottom: bottomPadding },
         ]}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }
-      >
-        <MyRecipesSection
-          recipes={myRecipes}
-          onPressRecipe={handleOpenRecipe}
-          onPressScanCta={handleOpenScan}
-        />
-
-        <DiscoverSection
-          recipes={discoverRecipes}
-          onPressRecipe={handleOpenRecipe}
-          onPressSeeAll={handleOpenCatalog}
-        />
-      </ScrollView>
+        ListHeaderComponent={
+          <MyRecipesSectionHeader
+            isEmpty={myRecipes.length === 0}
+            onPressScanCta={handleOpenScan}
+          />
+        }
+        renderItem={({ item }) => (
+          <RecipeCard recipe={item} onPress={() => handleOpenRecipe(item.id)} />
+        )}
+        ListFooterComponent={
+          <DiscoverSection
+            recipes={discoverRecipes}
+            onPressRecipe={handleOpenRecipe}
+            onPressSeeAll={handleOpenCatalog}
+          />
+        }
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
+  listContent: {
     paddingTop: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
 });

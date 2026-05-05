@@ -10,10 +10,13 @@ import { getSrmColor } from "@/features/tools/data/catalogs/srm";
 
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
+// Mobile UI is French (cf. project convention "UI stays French"). The
+// catalogue path overrides this with `badgeLabel` to force "Public" as
+// a deliberate marker on its discovery surface.
 const VISIBILITY_LABELS: Record<Recipe["visibility"], string> = {
-  public: "Public",
-  private: "Private",
-  unlisted: "Unlisted",
+  public: "Publique",
+  private: "Privée",
+  unlisted: "Non listée",
 };
 
 const VISIBILITY_VARIANTS: Record<Recipe["visibility"], "success" | "info"> = {

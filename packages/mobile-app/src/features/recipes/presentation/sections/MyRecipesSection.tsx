@@ -3,30 +3,29 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
-import { RecipeCard } from "@/features/recipes/presentation/RecipeCard";
 import { colors, spacing, typography } from "@/core/theme";
-import type { Recipe } from "@/features/recipes/domain/recipe.types";
 
-type MyRecipesSectionProps = Readonly<{
-  recipes: Recipe[];
-  onPressRecipe: (recipeId: string) => void;
+type MyRecipesSectionHeaderProps = Readonly<{
+  isEmpty: boolean;
   onPressScanCta: () => void;
 }>;
 
 /**
- * Hub section #1 of the Mes Recettes screen (Issue #740 Round 2).
+ * Hub section #1 header of the Mes Recettes screen (Issue #740 Round 2).
  *
- * Lists the user's own recipes (private + scan-imported). When the
- * carnet is empty, surfaces the "Scanner ta 1ère bière" CTA wired to
- * the scan flow — Pattern A landing per the issue: a new user lands
- * on Mes recettes, sees an empty state, and the only forward action
- * is to scan a bottle to bootstrap their first recipe.
+ * Renders the section title + subtitle + (when the carnet is empty)
+ * the "Scanner ta 1ère bière" CTA wired to the scan flow.
+ *
+ * Designed to be used as the `ListHeaderComponent` of the parent
+ * FlatList in `RecipesScreen`, so the FlatList native virtualization
+ * still applies to the recipe items themselves (Codex P2 review on
+ * PR #917 — pre-hub `RecipesScreen` used a FlatList; the v0.1 hub
+ * preserves it by lifting the list to the orchestrator).
  */
-export function MyRecipesSection({
-  recipes,
-  onPressRecipe,
+export function MyRecipesSectionHeader({
+  isEmpty,
   onPressScanCta,
-}: MyRecipesSectionProps) {
+}: MyRecipesSectionHeaderProps) {
   return (
     <View testID="hub-my-recipes-section" style={styles.container}>
       <Text style={styles.sectionTitle}>Mes recettes</Text>
@@ -34,7 +33,7 @@ export function MyRecipesSection({
         Ton carnet personnel — recettes brassées et imports scan.
       </Text>
 
-      {recipes.length === 0 ? (
+      {isEmpty ? (
         <EmptyStateCard
           title="Aucune recette pour l'instant"
           description="Scanne ta 1ère bière pour démarrer ton carnet de brasseur."
@@ -46,15 +45,7 @@ export function MyRecipesSection({
             />
           }
         />
-      ) : (
-        recipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
-            onPress={() => onPressRecipe(recipe.id)}
-          />
-        ))
-      )}
+      ) : null}
     </View>
   );
 }

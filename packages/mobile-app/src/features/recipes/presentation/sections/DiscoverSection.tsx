@@ -38,7 +38,7 @@ export function DiscoverSection({
         <View style={styles.headerText}>
           <Text style={styles.sectionTitle}>Découvrir</Text>
           <Text style={styles.sectionSubtitle}>
-            Recettes publiques curées par Brasse-Bouillon.
+            Recettes publiques sélectionnées par Brasse-Bouillon.
           </Text>
         </View>
 
@@ -65,7 +65,7 @@ export function DiscoverSection({
           <RecipeCard
             key={recipe.id}
             recipe={recipe}
-            badgeLabel="Public"
+            badgeLabel="Publique"
             onPress={() => onPressRecipe(recipe.id)}
           />
         ))

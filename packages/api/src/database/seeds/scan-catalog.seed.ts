@@ -87,7 +87,9 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'Trappist Rochefort public datasheet',
   },
   {
-    barcode: '5414352120063',
+    // 75cl — verified on OpenFoodFacts 2026-05-05, EAN-13 mod-10 valid.
+    // Replaces the invalid '5414352120063' shipped in PR #768 (issue #807).
+    barcode: '5410693100553',
     name: 'Karmeliet Tripel',
     brewery: 'Brouwerij Bosteels',
     style: 'Belgian Tripel',
@@ -99,7 +101,10 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'Brouwerij Bosteels public datasheet',
   },
   {
-    barcode: '5410702000125',
+    // 33cl — only OFF-verified Westmalle EAN as of 2026-05-05; the 75cl
+    // SKU has no OFF entry. Replaces the invalid '5410702000125' shipped
+    // in PR #768 (issue #807).
+    barcode: '5412343201337',
     name: 'Westmalle Tripel',
     brewery: 'Abdij der Trappisten van Westmalle',
     style: 'Belgian Tripel',
@@ -111,7 +116,9 @@ export const SCAN_CATALOG_SEED_BEERS: readonly ScanCatalogSeedBeer[] = [
     notes_source: 'Trappist Westmalle public datasheet',
   },
   {
-    barcode: '5410702000026',
+    // 75cl — verified on OpenFoodFacts 2026-05-05, EAN-13 mod-10 valid.
+    // Replaces the invalid '5410702000026' shipped in PR #768 (issue #807).
+    barcode: '5411681402635',
     name: 'Duvel',
     brewery: 'Brouwerij Duvel Moortgat',
     style: 'Belgian Strong Pale Ale',

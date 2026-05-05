@@ -5,6 +5,38 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-05
+
+### PR #917 merged (`7f59508`) — feat(recipes): refactor Mes Recettes into 2-section hub (Mes recettes + Découvrir)
+
+- Closes part of Epic [#740](https://github.com/benoit-bremaud/brasse-bouillon/issues/740) Round 2 (Mes Recettes Hub). Branch `feat/recipes-hub`.
+- Scope: legacy flat list replaced by a 2-section hub — **Mes recettes** (perso + scan-imported, with `[Scanner ta 1ère bière]` empty-state CTA wired to `/(app)/dashboard/scan`, Pattern A landing) + **Découvrir** (top 5 of `listPublicRecipes`, capped via `previewLimit`, "Voir tout" pill linking to the existing `CatalogScreen`). Stats / Brouillons / Favoris / Tutoriels deferred to v0.2 per the issue's tier table.
+- New components: `sections/MyRecipesSection.tsx` (header + empty-state CTA) and `sections/DiscoverSection.tsx` (header + "Voir tout" pill + preview cards). Orchestrator hosts a single virtualized `FlatList` with section header + footer pattern (Codex P2 review: previous draft used `ScrollView + .map()` which regressed virtualization).
+- French i18n pass: `RecipeCard` default visibility badges switched to French ("Publique" / "Privée" / "Non listée"); `CatalogScreen` override updated to `"Publique"`; "curées" mistranslation in DiscoverSection subtitle replaced with "sélectionnées".
+- 2 review rounds × Copilot — **14 inline comments addressed** total. Round 1 (`4c6de06`): virtualization restoration + `isFirstLoading` narrowed to `&&` of both queries empty + `import type { Recipe }` + French badges + i18n + brittle `getByText` tests recabled on `getByLabelText("Ouvrir la recette …")`. Round 2 (`23d8f1e`): empty-state guarded behind `isLoading` (no flash during initial fetch), `pickQueryError` per-query suppression (no cross-mask), double `paddingHorizontal` removed from sections (parent FlatList owns the gutter), stale `RecipeCard` "Public" comment refreshed, incidental `RecipeCard.Props` marked `Readonly<>` (Sonar S6759).
+- 750/750 tests green, ci:check green. Single approving review by `benoit-bremaud`, squash-merge to main.
+
+### PR #916 merged (`0bd743f`) — feat(recipes): redesign detail screen with 4-tab layout + EBC hero + sticky CTA
+
+- Closes part of Epic [#740](https://github.com/benoit-bremaud/brasse-bouillon/issues/740) Round 4 (Recipe Detail Screen Refonte v0.1). Branch `feat/recipe-detail-redesign-demo`.
+- Scope: legacy 1.3 kLoC monolithic `RecipeDetailsScreen` split into a tabbed orchestrator. **Initial design**: 4 horizontal tabs (Vue d'ensemble / Brassage / Compatibilité / Notes & Reviews) + `RecipeDetailTabBar`. **v2 redesign mid-PR** (commit `1e9b889`, after design Q&A with PO): switched to a **5-tab vertical side rail** (Vue / Ingrédients / Eau / Brassage / Notes) via `RecipeDetailSideRail`, with `IngredientsTab` and `WaterTab` extracted from the previous Brassage tab. Sticky `[Lancer un brassin]` CTA pinned across every tab except Notes (where the action is semantically irrelevant). EBC-driven hero shared with the scan flow's `BeerHero` (rather than a duplicated `RecipeHero` — Sonar duplication gate cleared).
+- Data fetching migrated from `useState + useEffect` to TanStack Query (`useQuery` + `useMutation`). Mutation `onSuccess` invalidates the `['batches']` cache so the navigated-to batches list refetches with the freshly created batch. `handleRetry` calls `startBatchMutation.reset()` before refetching the recipe query, so a failed batch-start no longer keeps the error banner up.
+- 15 inline review comments addressed (Codex P2 ×2, Copilot ×13) — Must Have: explicit not-found state when `recipeId` is empty, mutation reset on retry, batches cache invalidation, water preset `rootRecipeId` fallback for imported recipes, `RecipeHero` deletion (BeerHero canonical). Should Have: `BeerHero` made flexible (optional brewery/style with hide-when-empty rendering), location preference no longer a tautology (falls back to `DEFAULT_BALANCED_WATER_PROFILE`), BrewingTab slimmed to ~190 lines, ScrollView `flex: 1`, hero/test improvements. Disagree (politely): dynamic styles are legitimate (EBC-driven hero color, safe-area `paddingBottom`).
+- 744 → 750 tests green, ci:check green. Squash-merge to main.
+
+### Post-merge cleanup — local hygiene
+
+- `git pull origin main` (7 commits behind), local branches `feat/recipe-detail-redesign-demo` / `feat/recipes-hub` / `feat/seed-brewdog-diy-dog-official` deleted, remote refs pruned (`origin/feat/recipe-detail-redesign-demo`, `origin/feat/recipes-hub`, `origin/feat/seed-brewdog-diy-dog-official`).
+
+### Decisions
+
+- **Recipe Detail mid-PR redesign — 5-tab vertical side rail over 4-tab horizontal**: switched after a focused design Q&A with the PO. Vertical rail scales better when more tabs (Compatibility cross-checks, Tasting target date, future v0.2 features) need to land, ingredients warrant a dedicated tab to support the future Alchimiste flow ([#895](https://github.com/benoit-bremaud/brasse-bouillon/issues/895)), and water deserves its own tab since the cross-check is the most-discussed compatibility criterion. Force-pushed within the same PR rather than as a follow-up because the v1 4-tab work was barely 24h old and the v2 was strictly additive on the same architecture.
+- **Hub Mes Recettes — single virtualized `FlatList` over `SectionList` or `ScrollView + .map()`**: chosen during PR #917 round 1 in response to Codex P2. `SectionList` would have worked but the hub has only 2 sections of which one is bounded (Découvrir capped at 5), so a `FlatList` with `ListHeaderComponent` (Mes recettes title + empty state) and `ListFooterComponent` (Découvrir) keeps native row recycling for the unbounded "Mes recettes" data without nested scrolling complexity.
+- **`RecipeCard` default visibility badges French by default**, English override only for explicit deliberate-marker contexts: `CatalogScreen` keeps `badgeLabel="Publique"` as a defensive guarantee in case the API leaks a non-public row. Pattern aligns with the project-wide "UI stays French" convention.
+- **`RecipeHero` deleted in favour of canonical `BeerHero`**: avoids the maintenance cost of keeping two near-identical hero primitives in sync (Copilot review on PR #916). `BeerHero` was made flexible (optional `brewery` / `style` props, hide-when-empty rendering) to absorb the recipe use case without duplication. Resolved the SonarCloud New Code Duplication gate that was failing on the previous head.
+
+---
+
 ## 2026-05-04
 
 ### PR #908 merged (`ef0494f`) — feat(catalog/distributor): add distributors + 5 M:N junctions per catalogue

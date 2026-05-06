@@ -124,3 +124,19 @@ sonar-scan: ## Run SonarQube analysis against local server (requires SONAR_TOKEN
 		exit 1; \
 	fi
 	SONAR_TOKEN=$(SONAR_TOKEN) bash tools/ci/sonar-scan.sh
+
+## ============================================================================
+## @Docker (API)
+## ============================================================================
+
+docker-build: ## Build the API Docker image locally (packages/api)
+	docker build -t brasse-bouillon-api:local packages/api
+
+docker-up: ## Start the API container in production mode (detached)
+	docker compose -f packages/api/docker-compose.yml up -d
+
+docker-down: ## Stop and remove the API container
+	docker compose -f packages/api/docker-compose.yml down
+
+docker-logs: ## Follow API container logs (Ctrl+C to exit)
+	docker compose -f packages/api/docker-compose.yml logs -f api

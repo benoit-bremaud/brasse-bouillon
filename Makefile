@@ -85,8 +85,8 @@ setup: ## Create local .env files with safe defaults
 	@if [ ! -f $(BEER_ENC_DIR)/.env ]; then \
 		echo "[setup] Creating $(BEER_ENC_DIR)/.env from .env.example ..."; \
 		cp $(BEER_ENC_DIR)/.env.example $(BEER_ENC_DIR)/.env; \
-		PG_PASS=$$(openssl rand -hex 16 2>/dev/null || echo "dev-pg-please-replace"); \
-		PGA_PASS=$$(openssl rand -hex 16 2>/dev/null || echo "dev-pga-please-replace"); \
+		PG_PASS=$$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null || uuidgen 2>/dev/null || echo "CHANGE_ME_PLEASE_RUN_SETUP"); \
+		PGA_PASS=$$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null || uuidgen 2>/dev/null || echo "CHANGE_ME_PLEASE_RUN_SETUP"); \
 		sed -i.bak \
 			"s|CHANGE_ME_POSTGRES_PASSWORD|$$PG_PASS|g; \
 			 s|CHANGE_ME_PGADMIN_PASSWORD|$$PGA_PASS|g" \
@@ -112,7 +112,7 @@ dev-beer-enc: ## Start the beer-encyclopedia FastAPI server (http://localhost:80
 		echo "[dev-beer-enc] Run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e \".[ml,dev]\""; \
 		exit 1; \
 	fi
-	@echo "[dev-beer-enc] FastAPI on http://localhost:$(BEER_ENC_PORT) — Swagger at /docs"
+	@echo "[dev-beer-enc] FastAPI on http://localhost:$(BEER_ENC_PORT) and http://$(LAN_IP):$(BEER_ENC_PORT) — Swagger at /docs"
 	cd $(BEER_ENC_DIR) && .venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port $(BEER_ENC_PORT)
 
 dev: ## Start API and Expo in parallel (Ctrl+C stops both)
@@ -123,6 +123,11 @@ dev: ## Start API and Expo in parallel (Ctrl+C stops both)
 		wait
 
 dev-all: setup db-up ## Start the whole stack: Postgres + NestJS API + beer-encyclopedia + Expo
+	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/uvicorn ]; then \
+		echo "[dev-all] .venv/bin/uvicorn not found."; \
+		echo "[dev-all] Run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e \".[ml,dev]\""; \
+		exit 1; \
+	fi
 	@echo "[dev-all] Running migrations..."
 	@$(MAKE) -s migrate-api
 	@$(MAKE) -s migrate-beer-enc
@@ -133,7 +138,7 @@ dev-all: setup db-up ## Start the whole stack: Postgres + NestJS API + beer-ency
 		(npm -w packages/mobile-app run start:lan) & \
 		wait
 
-dev-stop: ## Stop every dev server and Docker container (databases are preserved)
+dev-stop: ## Stop dev servers (ports 3000/8000/8081) and beer-encyclopedia Postgres (data preserved)
 	@echo "[dev-stop] Killing processes on ports $(API_PORT), $(BEER_ENC_PORT), 8081..."
 	@for port in $(API_PORT) $(BEER_ENC_PORT) 8081; do \
 		pids=$$(lsof -ti :$$port 2>/dev/null); \
@@ -205,14 +210,14 @@ migrate-api-revert: ## Roll back the last TypeORM migration on the main API
 
 migrate-beer-enc: ## Apply pending Alembic migrations on the beer-encyclopedia (Postgres)
 	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/alembic ]; then \
-		echo "[migrate-beer-enc] .venv/bin/alembic not found — run setup first."; \
+		echo "[migrate-beer-enc] .venv/bin/alembic not found — run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e "[ml,dev]""; \
 		exit 1; \
 	fi
 	cd $(BEER_ENC_DIR) && .venv/bin/alembic upgrade head
 
 migrate-beer-enc-revert: ## Roll back the last Alembic migration on the beer-encyclopedia
 	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/alembic ]; then \
-		echo "[migrate-beer-enc-revert] .venv/bin/alembic not found — run setup first."; \
+		echo "[migrate-beer-enc-revert] .venv/bin/alembic not found — run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e "[ml,dev]""; \
 		exit 1; \
 	fi
 	cd $(BEER_ENC_DIR) && .venv/bin/alembic downgrade -1

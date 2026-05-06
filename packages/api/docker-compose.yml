@@ -1,0 +1,26 @@
+# ==============================================================================
+# Brasse-Bouillon API — Docker Compose
+#
+# Local build:  docker compose up -d
+# Server pull:  docker compose pull && docker compose up -d
+#
+# Before first run:
+#   cp .env.docker.example .env
+#   nano .env   # set JWT_SECRET
+# ==============================================================================
+
+services:
+  api:
+    build: .
+    image: ghcr.io/benoit-bremaud/brasse-bouillon-api:latest
+    container_name: brasse-bouillon-api
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    volumes:
+      - api-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  api-data:

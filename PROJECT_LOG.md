@@ -5,6 +5,26 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-06
+
+### PR #926 merged (`f5faeb6`) — chore(makefile): add dev-all, dev-stop, db-*, migrate-* targets and rewrite help
+
+- Branch `chore/makefile-dev-targets`. Solo Makefile change — no application code modified.
+- **New targets**: `dev-beer-enc` (FastAPI uvicorn server, port 8000, with venv preflight guard), `dev-all` (full stack: `setup` → `db-up` → `migrate-api` + `migrate-beer-enc` → 3 servers in parallel via `trap 'kill 0' INT TERM`), `dev-stop` (kill processes on ports 3000/8000/8081 + stop beer-encyclopedia Docker containers).
+- **New `@Database` block**: `db-up` (Docker Compose `--wait` with error-aware fallback and 60 s polling timeout), `db-down`, `db-logs`.
+- **New `@Migrations` block**: `migrate-api` / `migrate-api-revert` (TypeORM npm script), `migrate-beer-enc` / `migrate-beer-enc-revert` (Alembic venv).
+- **`setup` extended**: bootstraps `packages/beer-encyclopedia/.env` from `.env.example` with randomly generated Postgres + PgAdmin passwords (`openssl → python3 secrets → uuidgen → CHANGE_ME` chain). Idempotent.
+- **`help` rewritten**: `printf`-based grouped output replacing the sorted `awk` parser — Quick start / Daily dev / Database / Migrations / Quality gates sections.
+- 2 review fix commits: `2b16cc4` (db-up error-aware fallback, Codex P2) and `b4d7654` (5× Copilot Should Have: LAN IP in dev-beer-enc log, venv guard in dev-all, dev-stop description narrowed, migrate-beer-enc error message actionable, fallback credentials chain).
+- CI green (Makefile-only → app jobs skipped). All 7 reviewer comments addressed inline before merge.
+
+### Issues filed — idea captures (2026-05-05 session)
+
+- [#924](https://github.com/benoit-bremaud/brasse-bouillon/issues/924) — Library tab: curated book references about brewing & beer (`type:feature + scope:frontend + area:mobile + priority:low`).
+- [#923](https://github.com/benoit-bremaud/brasse-bouillon/issues/923) — Recipe brewing-difficulty badge for novice guidance (`type:feature + scope:frontend + area:mobile + priority:low`). Both linked to Brasse-Bouillon project (no milestone, deferred to grooming).
+
+---
+
 ## 2026-05-05
 
 ### PR #917 merged (`7f59508`) — feat(recipes): refactor Mes Recettes into 2-section hub (Mes recettes + Découvrir)

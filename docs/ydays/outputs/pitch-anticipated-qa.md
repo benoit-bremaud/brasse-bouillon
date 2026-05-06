@@ -16,12 +16,12 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 ## Thèmes couverts
 
-1. Produit & MVP (5 questions)
+1. Produit & MVP (7 questions — dont Couronnes, Dégustation)
 2. Business model & monétisation (4 questions)
 3. Technique & architecture (3 questions)
-4. Marché & concurrence (3 questions)
+4. Marché & concurrence (4 questions — dont Joliebulle FERMÉ 2025)
 5. Équipe & parcours Ydays (2 questions)
-6. Studio web & suite post-soutenance (3 questions)
+6. Statut juridique & perspectives (2 questions — micro vs SASU, Wooclap)
 
 ## 1. Produit & MVP
 
@@ -44,12 +44,12 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 **Réponse (~30 s)** :
 
-> "**97 tests automatisés**, répartis sur 3 stacks :
-> **51 tests mobile** avec Jest et React Testing Library,
-> **38 tests API** avec Jest côté NestJS,
-> **8 tests Python** avec pytest sur le beer-encyclopedia.
+> "**647 tests automatisés** : **407 côté mobile** avec Jest et
+> React Testing Library, **240 côté API** avec Jest sur NestJS.
 > On vise 80 % de couverture SonarQube sur les 4 packages d'ici
-> fin 2026 — c'est le SMART prospectif numéro 8."
+> fin 2026 — c'est le SMART prospectif numéro 8.
+> Tout le détail par feature est dans le rapport de couverture
+> disponible sur le repo."
 
 ### Q3. "Quelle est la différence entre Brasse-Bouillon et Brewfather concrètement pour un utilisateur ?"
 
@@ -85,18 +85,49 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > sur des références préparées plutôt que de prétendre couvrir
 > tout le marché."
 
-### Q5. "Vos 3 personas sont documentés mais pas validés par des utilisateurs réels, non ?"
+### Q5. "Vos 4 personas sont documentés mais pas validés par des utilisateurs réels, non ?"
 
 **Réponse (~40 s)** :
 
-> "Bonne question. Les 3 personas sont dérivés de la recherche
-> documentaire — étude **Brülosophy 2024** sur 2 200 répondants,
-> étude **AHA 2024**, analyse marché européen 2024-2025. Donc
-> **appuyés** par des données publiques, mais pas validés en
+> "Bonne question. Les 4 personas — Léa la Curieuse, Nicolas le
+> Débutant, Claire l'Amatrice, Marc l'Expert — sont dérivés de
+> la recherche documentaire : étude **Brülosophy 2024** sur
+> 2 200 répondants, données **Little Bock 36 378 inscrits**
+> (janvier 2026), analyse marché européen 2024-2025.
+> **Appuyés** par des données publiques, mais pas validés en
 > interviews directes. C'est le SMART prospectif numéro 19 :
-> **15 interviews semi-dirigées**, 5 par persona, d'ici fin
-> septembre 2026. On l'assume comme un trou factuel du pitch à
-> combler en priorité post-soutenance."
+> **15 interviews semi-dirigées**, 5 par persona-type, d'ici
+> fin septembre 2026. On l'assume comme un trou factuel du
+> pitch à combler en priorité post-soutenance."
+
+### Q6-bis. "L'embouteillage avec capsules couronnes, c'est dans l'app ?"
+
+**Réponse (~25 s)** :
+
+> "Oui. Le **Mode Batch** guide le brasseur à chaque étape de
+> bout en bout — y compris la phase d'embouteillage.
+> L'app calcule la **quantité de sucre de refermentation** pour
+> atteindre le taux de CO₂ cible, et indique le timing avant
+> décapsulage recommandé selon le style.
+> La capsule couronne, c'est l'étape finale : l'app l'intègre
+> dans le parcours et la chronomètre. On ne laisse pas le
+> brasseur sortir de l'app pour aller chercher la réponse
+> ailleurs."
+
+### Q6-ter. "Y a-t-il une fonction de dégustation ou de notation de ses propres bières ?"
+
+**Réponse (~30 s)** :
+
+> "Oui — deux niveaux.
+> **Free tier** : notes texte libres sur chaque brassin,
+> horodatées. Simple, comme un carnet de cave numérique.
+> **Pro tier** : fiche dégustation structurée — grille
+> **BJCP** (couleur SRM, clarté, mousse, arôme, goût,
+> amertume, finale), photo, note globale sur 5.
+> L'historique des dégustations devient un outil de
+> **versioning sensoriel** : on compare V1 et V2 de la même
+> recette sur des critères normalisés, pas juste 'j'aimais
+> plus l'ancienne'."
 
 ## 2. Business model & monétisation
 
@@ -114,20 +145,20 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > prix ferme aujourd'hui sans avoir testé l'acceptation serait
 > du bluff."
 
-### Q7. "Comment le studio peut-il financer Brasse-Bouillon s'il ne vise que 10 k€ an 1 ?"
+### Q7. "Comment financez-vous Brasse-Bouillon si l'app est gratuite au démarrage ?"
 
 **Réponse (~40 s)** :
 
-> "L'an 1 est un **amorçage**, pas une rentabilité pleine.
-> 10 k€ suffisent à couvrir **mes outils IA** — Claude, Cursor,
-> Vercel, hébergement — et à me dégager du temps pour bosser
-> sur Brasse-Bouillon. Si l'an 1 valide l'ICP — 3 clients
-> livrés, retours positifs — l'an 2 vise 30 à 60 k€, et là le
-> financement sérieux de BB démarre. **C'est une courbe, pas un
-> cliquet.** En parallèle, je prévois de déposer **3 dossiers
-> de financement** — BPI, concours French Tech, incubateur
-> régional — dans les 6 semaines post-soutenance,
-> indépendamment du studio."
+> "L'an 1, **Brasse-Bouillon ne coûte presque rien** : hébergement
+> Fly.io ~10 €/mois, domaine, outils IA. Pas de masse salariale.
+> En micro-entreprise, les premières recettes — abonnements
+> Premium 2,99 €/mois, Pro 5,99 €/mois — couvrent les frais
+> dès quelques centaines d'utilisateurs actifs.
+> En parallèle, je prévois de déposer **3 dossiers de
+> financement** — BPI, concours French Tech, incubateur
+> régional — dans les 6 semaines post-soutenance.
+> **C'est une courbe d'amorçage, pas un modèle qui nécessite
+> du capital dès J+1.**"
 
 ### Q8. "Qu'est-ce qui prouve qu'il y a un marché francophone pour ça ?"
 
@@ -135,14 +166,17 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 > "Trois sources convergentes.
 > **Little Bock** — plateforme FR équivalente — compte
-> **35 524 brasseurs actifs** et 12 783 recettes.
-> **Untappd France** a **108 910 utilisateurs** en 2023.
-> **Marché européen équipement brassage** à **1,5 Md€ en 2024**,
-> croissance **8,5 %/an** jusqu'en 2033 sur la France.
-> La cible existe, elle est documentée, elle est mesurée.
-> Le trou c'est que Little Bock vieillit, Brewfather est EN,
-> et personne ne propose une app mobile FR native avec
-> communauté intégrée. C'est le gap."
+> **36 378 inscrits** (janvier 2026) et 12 783 recettes :
+> preuve que la demande FR existe et est mesurable.
+> **Untappd France** : 108 910 utilisateurs en 2023 — la
+> communauté bière FR est active sur le digital.
+> **Marché craft français** estimé à **2 à 8 milliards de
+> dollars** (sources sectorielles croisées), croissance
+> **8 à 12 % par an** — France première d'Europe avec
+> 2 500 brasseries actives (source : Brasseurs de France 2024).
+> La cible existe, documentée, mesurée. Le gap : aucune app
+> mobile FR native avec scanner — c'est `chiffres-marche-sources-rigoureuses.md`
+> dans le repo, cinq sources croisées."
 
 ### Q9. "Les 1 000 pré-inscriptions, c'est réaliste ?"
 
@@ -232,31 +266,47 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > terme — on référence une bière notée sur Untappd, on propose
 > la recette équivalente dans BB."
 
-### Q15. "Pourquoi pas d'étude qualitative terrain dans votre présentation ?"
+### Q15. "Joliebulle — c'est vraiment fermé ? Comment vous en êtes sûr ?"
 
-**Réponse (~45 s)** :
+**Réponse (~30 s)** :
+
+> "Joliebulle était le seul logiciel desktop **gratuit en
+> français** pour le brassage amateur. Le site joliebulle.org
+> est inaccessible depuis début 2025. La fermeture a été
+> confirmée par la communauté BrassageAmateur.com — les threads
+> de discussion sont encore visibles sur le forum FR de
+> référence, signalement 2025. C'est documenté dans notre
+> étude concurrentielle, `recherche-concurrentielle-exhaustive.md`.
+> Cette fermeture est pour nous un **signal fort** : on arrive
+> au moment exact où l'écosystème FR perd son dernier outil
+> gratuit — le vide que BB comble."
+
+### Q16. "Pourquoi pas d'étude qualitative terrain dans votre présentation ?"
+
+**Réponse (~40 s)** :
 
 > "Vraie faiblesse assumée. Les rendus étude de marché terrain
 > ont été incomplets dans le cadre Ydays, et je n'ai pas eu
 > la bande passante produit pour les compenser moi-même. Je
 > préfère vous le dire directement plutôt que de présenter une
-> étude bâclée. **C'est exactement pour ça que je lance le
-> studio web** : dégager du temps et du budget pour refaire ce
-> qui manque, sérieusement, dans les 3 à 6 mois qui viennent.
-> Le pitch s'appuie sur une recherche documentaire solide —
-> Brülosophy, AHA, données européennes. Le qualitatif terrain
-> reste à construire post-soutenance."
+> étude bâclée.
+> Le pitch s'appuie sur une **recherche documentaire solide** —
+> Brülosophy 2024 sur 2 200 brasseurs, données Little Bock
+> live, analyse concurrentielle 9 outils. Le qualitatif
+> terrain — **15 interviews semi-dirigées, 5 par persona** —
+> est le SMART prospectif numéro 19, lancé dès post-soutenance."
 
 ## 5. Équipe & parcours Ydays
 
-### Q16. "Vous avez travaillé seul ou en équipe ?"
+### Q17. "Vous avez travaillé seul ou en équipe ?"
 
 **Réponse (~35 s)** :
 
 > "Équipe de 8 personnes organisée en 3 pôles : Développement,
 > Création, Marketing. Côté **Dev**, livraison en volume :
-> monorepo 4 packages, 97 tests, 6 sprints Scrum documentés,
-> CI industrialisée, authentification, 8 features stables.
+> monorepo 4 packages, **647 tests automatisés** (407 mobile +
+> 240 API), 6 sprints Scrum documentés, CI industrialisée,
+> authentification, 8 features stables.
 > Côté **Création** : charte graphique, wireframes, design
 > system. Côté **Marketing** : étude documentaire, personas.
 > Certaines itérations prévues n'ont pas pu aboutir dans le
@@ -264,7 +314,7 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > le studio web pour combler ce qui manque, sans dépendre d'un
 > recrutement externe."
 
-### Q17. "Qu'est-ce que vous avez appris des Ydays en tant que chef de projet ?"
+### Q18. "Qu'est-ce que vous avez appris des Ydays en tant que chef de projet ?"
 
 **Réponse (~40 s)** :
 
@@ -281,51 +331,38 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > que fait ce pitch, c'est ce que fait le studio web en
 > plan B."
 
-## 6. Studio web & suite post-soutenance
-
-### Q18. "Le studio web, c'est sérieux ou c'est un B plan nonchalant ?"
-
-**Réponse (~40 s)** :
-
-> "Sérieux. Un **repo dédié** existe déjà — Next.js 16,
-> TypeScript strict, Tailwind v4, CI en place, 22 commits sur
-> 3 semaines. **Positionnement écrit** — artisan tech solo,
-> méthode IA-driven, cible TPE food et boissons des
-> Alpes-Maritimes, grille prix 1 500 à 8 000 €. **Premier
-> prospect qualifié** (restaurateur local, site vitrine 2-3 k€),
-> contact en cours. Premier devis dans les 6 semaines
-> post-soutenance. Ce n'est pas une idée, c'est un projet
-> engagé, documenté dans
-> `docs/ydays/outputs/web-studio-brainstorming.md`."
+## 6. Statut juridique & perspectives
 
 ### Q19. "Pourquoi micro-entreprise et pas SASU directement ?"
 
-**Réponse (~40 s)** :
-
-> "Trois raisons.
-> **Zéro charge fixe** au démarrage : pas d'expert-comptable,
-> pas de dépôt annuel, pas de 300 €/an de frais CAC.
-> **Réversibilité** : si la traction dépasse 30-40 k€ en an 2,
-> bascule vers EURL ou SASU sans friction.
-> **Franchise TVA** jusqu'à 37 500 € de services : mes clients
-> TPE ne récupèrent pas la TVA, ça me donne un avantage
-> commercial direct vs un freelance en SASU qui facture HT
-> plus TVA. Une matrice de comparaison sera formalisée avant
-> l'oral blanc 06/05."
-
-### Q20. "Dans 3 ans, le studio web vaut quoi ?"
-
 **Réponse (~35 s)** :
 
-> "Le studio reste **solo durablement** — c'est une option
-> assumée. Positionnement **artisan tech** : je ne veux pas
-> scaler en embauchant, je veux scaler en **outillant**.
-> L'IA et l'industrialisation remplacent l'effet d'équipe.
-> À 3 ans, objectif : 30 à 40 projets clients livrés, 2 à
-> 3 retainers mensuels récurrents, **Brasse-Bouillon devenu
-> le produit principal**, le studio = machine de trésorerie
-> qui alimente le produit. Pas de plateforme, pas d'agence,
-> pas de levée. Juste un studio qui marche."
+> "La matrice est documentée dans
+> `docs/ydays/outputs/statut-juridique-analyse.md` — cinq
+> régimes comparés sur sept critères. Micro-entreprise gagne
+> sur **l'an 1** avec un score pondéré de 3,73/5 contre
+> 3,28 pour la SASU. Trois raisons pratiques :
+> **zéro charge fixe** — pas d'expert-comptable, pas de dépôt
+> annuel, pas de 300 €/an de frais CAC ;
+> **franchise TVA** jusqu'à 37 500 € — les premiers clients
+> bêta ne récupèrent pas la TVA, donc facturer sans TVA est
+> un avantage compétitif direct ;
+> **réversibilité** — bascule vers SASU si CA dépasse 40 k€
+> ou si je lève des fonds. On y va quand les signaux l'exigent,
+> pas par anticipation."
+
+### Q20. "Le quiz Wooclap à la fin, c'est quoi ?"
+
+**Réponse (~25 s)** :
+
+> "On clôt la présentation avec un **quiz Wooclap de 3
+> questions** sur le brassage — accessible via QR code depuis
+> votre téléphone. C'est volontaire, 60 secondes, pas de
+> compte requis. Deux objectifs : rendre la fin de séance
+> mémorable, et valider en live que le positionnement
+> 'brassage accessible' passe auprès d'un public non-brasseur.
+> On récupère les résultats anonymes — premier data point de
+> validation communautaire."
 
 ## Questions que le jury **ne posera probablement pas** mais à préparer en back-pocket
 
@@ -354,13 +391,15 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 **Réponse (~30 s)** :
 
-> "Le studio web est précisément **ce plan de sortie**. S'il
-> faut arrêter Brasse-Bouillon, le studio continue et devient
-> l'activité principale. Les compétences accumulées — mobile,
-> API, monorepo, CI, beer-encyclopedia en Python — sont
-> transposables à n'importe quel projet client. Je n'ai pas
-> construit une tour d'ivoire brassicole, j'ai construit une
-> stack généraliste avec un vertical food appliqué."
+> "La **micro-entreprise en place dès l'an 1** permet de pivoter
+> sans friction : si Brasse-Bouillon ne décolle pas, les
+> compétences accumulées — mobile React Native, API NestJS,
+> monorepo CI, IA appliquée — sont directement transposables
+> à des missions freelance ou à un autre projet produit.
+> Je n'ai pas construit une tour d'ivoire brassicole, j'ai
+> construit une **stack full-stack généraliste** appliquée à
+> un vertical food. La reconversion reste valide quelle que
+> soit la trajectoire de BB."
 
 ### Q24. "Quel feedback avez-vous eu de vrais brasseurs sur l'app ?"
 
@@ -409,18 +448,7 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > les 3 features manquantes (SMART #7) et les interviews
 > utilisateurs d'ici fin septembre."
 
-### Q27. "Le prospect studio identifié — qui, quel secteur ?"
-
-**Réponse (~25 s)** :
-
-> "Restaurateur indépendant dans les Alpes-Maritimes, besoin
-> site vitrine + réservation simple, enveloppe 2-3 k€. Contact
-> déjà identifié, échange commercial prévu post-soutenance.
-> Je n'entre pas dans le détail nominatif par respect du cadre
-> commercial avant signature — mais le dossier est concret,
-> pas un plan sur la comète."
-
-### Q28. "Votre 'méthode IA-driven', c'est pas juste 'j'utilise ChatGPT' ?"
+### Q27. "Votre 'méthode IA-driven', c'est pas juste 'j'utilise ChatGPT' ?"
 
 **Réponse (~40 s)** :
 

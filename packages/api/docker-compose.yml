@@ -11,7 +11,9 @@
 
 services:
   api:
-    build: .
+    build:
+      context: ../..
+      dockerfile: packages/api/Dockerfile
     image: ghcr.io/benoit-bremaud/brasse-bouillon-api:latest
     container_name: brasse-bouillon-api
     ports:

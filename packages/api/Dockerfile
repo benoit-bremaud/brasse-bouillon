@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1
+# Build context: monorepo root (brasse-bouillon/)
+# docker build -f packages/api/Dockerfile -t brasse-bouillon-api:local .
 
 FROM node:20-bookworm-slim AS build
 
@@ -6,17 +8,28 @@ WORKDIR /app
 
 # Native dependencies (e.g. better-sqlite3) may need a toolchain.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    make \
     g++ \
+    make \
+    python3 \
   && rm -rf /var/lib/apt/lists/*
 
+# Copy root manifests — the canonical package-lock.json lives at the repo root
+# (per-workspace lockfiles are blocked by .gitignore since incident #674).
+# Only the api package.json is needed; other workspace members (mobile-app,
+# website, beer-encyclopedia) are absent from the build context and npm will
+# skip their workspace symlinks without error.
 COPY package.json package-lock.json ./
+COPY packages/api/package.json packages/api/
+
+# --ignore-scripts is intentionally omitted: better-sqlite3 requires its native
+# build scripts (node-gyp) to run during install.
 RUN npm ci
 
-COPY nest-cli.json tsconfig*.json ./
-COPY src ./src
-RUN npm run build
+# Copy API source files only.
+COPY packages/api/nest-cli.json packages/api/tsconfig*.json packages/api/
+COPY packages/api/src packages/api/src
+
+RUN npm run build -w packages/api
 
 # Keep only production dependencies in the final image.
 RUN npm prune --omit=dev
@@ -28,9 +41,9 @@ WORKDIR /app
 ENV PORT=3000
 ENV NODE_ENV=production
 
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY package.json ./
+COPY --from=build /app/node_modules              ./node_modules
+COPY --from=build /app/packages/api/dist         ./dist
+COPY --from=build /app/packages/api/package.json ./
 
 RUN mkdir -p data && chown -R node:node data
 

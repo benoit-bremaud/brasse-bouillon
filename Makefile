@@ -277,8 +277,8 @@ sonar-scan: ## Run SonarQube analysis against local server (requires SONAR_TOKEN
 ## @Docker (API)
 ## ============================================================================
 
-docker-build: ## Build the API Docker image locally (packages/api)
-	docker build -t brasse-bouillon-api:local packages/api
+docker-build: ## Build the API Docker image locally (context: repo root)
+	docker build -f packages/api/Dockerfile -t brasse-bouillon-api:local .
 
 docker-up: ## Start the API container in production mode (detached)
 	docker compose -f packages/api/docker-compose.yml up -d

@@ -1,0 +1,39 @@
+# Dockerfile-specific ignore file (BuildKit resolves <Dockerfile>.dockerignore
+# over root .dockerignore when the build context is the monorepo root).
+
+# VCS / IDE
+.git
+.github
+.claude
+.idea
+.vscode
+
+# Documentation and tooling — not needed in the API image
+docs
+_archive
+tools
+
+# Other workspace packages — only manifests are copied in the Dockerfile
+packages/mobile-app
+packages/website
+packages/beer-encyclopedia
+
+# API build artifacts
+packages/api/dist
+packages/api/coverage
+packages/api/data
+packages/api/*.db
+
+# Root build artifacts
+node_modules
+dist
+coverage
+
+# Secrets and env files
+.env
+**/.env
+**/.env.*
+
+# Logs
+*.log
+npm-debug.log*

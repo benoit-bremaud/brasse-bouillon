@@ -60,47 +60,47 @@ npm install
 
 ---
 
-## 4) Configurer l’environnement (`.env`)
+## 4) Environment Variables
 
-Créer ton fichier local à partir de l’exemple :
+General workflow (templates, file precedence, secrets policy): see [root README § Environment Variables](../../README.md#environment-variables). This section lists the mobile-app-specific variables.
 
-```bash
-cp .env.example .env
-```
-
-Variables disponibles :
+### Quick start
 
 ```bash
-EXPO_PUBLIC_API_URL=http://localhost:3000
-EXPO_PUBLIC_USE_DEMO_DATA=false
+make setup                                       # from monorepo root (recommended)
+# or
+cp packages/mobile-app/.env.example packages/mobile-app/.env
 ```
 
-### Mode A — Démo (sans backend local)
+`make setup` automatically detects your machine's LAN IP and writes `EXPO_PUBLIC_API_URL=http://<LAN-IP>:3000` into the `.env`, so Expo Go on a phone can reach the backend without further edits.
 
-Pour démarrer rapidement sans API live :
+### Variables
 
-```bash
-EXPO_PUBLIC_USE_DEMO_DATA=true
-```
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `EXPO_PUBLIC_API_URL` | ✅ | `http://localhost:3000` | URL of the NestJS backend (`packages/api`). Use `localhost` for an emulator on the same machine; use the LAN or Tailscale IP for Expo Go on a physical phone. |
+| `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` | ✅ | `http://localhost:8000` | URL of the FastAPI beer-encyclopedia (`packages/beer-encyclopedia`). Used by the `/scan` flow as a fallback when the NestJS lookup returns 404 (ADR-0005). Must point to the same host as `EXPO_PUBLIC_API_URL` when testing from a physical phone. |
+| `EXPO_PUBLIC_USE_DEMO_DATA` | No | `false` | When `true`, the build exposes a "Connexion démo" button on the login screen and lets typing demo credentials switch the app to mock data (`src/mocks/`). Set to `false` for builds shipped to real users. |
 
-### Mode B — API live (backend local)
+> Variables prefixed with `EXPO_PUBLIC_` are **embedded into the JavaScript bundle** sent to the device. Never put a secret in one — assume any value is publicly readable.
 
-1. Lancer le backend depuis la racine du monorepo : `make dev-api` ou `npm run dev:api` (écoute sur `http://<LAN-IP>:3000`).
-2. Mettre `EXPO_PUBLIC_USE_DEMO_DATA=false`.
-3. Remplacer `EXPO_PUBLIC_API_URL` par l’IP locale de ton PC (pas `localhost` si tu testes sur téléphone). Astuce : `make setup` à la racine crée automatiquement le `.env` avec la bonne IP LAN détectée.
+### Two modes for running the app
 
-Exemple :
+**Mode A — Demo (no backend required)** — set `EXPO_PUBLIC_USE_DEMO_DATA=true` in your `.env`. The app uses the deterministic mocks from `src/mocks/`. Useful for screenshots, App Store reviews, and quick UI work.
 
-```bash
-EXPO_PUBLIC_API_URL=http://192.168.1.42:3000
-EXPO_PUBLIC_USE_DEMO_DATA=false
-```
+**Mode B — Live API (default)** — set `EXPO_PUBLIC_USE_DEMO_DATA=false` and start the backend from the monorepo root with `make dev-api` (or `npm run dev:api`). On a physical phone via Expo Go, replace `localhost` in `EXPO_PUBLIC_API_URL` with your machine's reachable address.
 
-Trouver ton IP locale :
+### Finding your machine's LAN IP
 
-- macOS : `ifconfig` puis repérer l’interface réseau active (ex. `en0`, `en1`) et son champ `inet` (adresse en `192.168.x.x` ou `10.x.x.x`). En complément, tu peux utiliser `ipconfig getifaddr <interface>`
-- Linux : `hostname -I`
-- Windows : `ipconfig` puis chercher `Adresse IPv4` dans l’adaptateur actif (ou `ipconfig | findstr IPv4`)
+`make setup` does this for you. If you need it by hand:
+
+| OS | Command |
+|----|---------|
+| macOS | `ipconfig getifaddr en0` (Wi-Fi) or `ipconfig getifaddr en1` (Ethernet) |
+| Linux | `hostname -I \| awk '{print $1}'` |
+| Windows | `ipconfig \| findstr IPv4` |
+
+For the most reliable cross-network setup (corporate Wi-Fi with AP isolation, multiple networks, etc.), use a Tailscale IP instead — see the LAN troubleshooting section further below.
 
 ---
 

@@ -43,43 +43,42 @@ The rest of this README covers the standalone package (env strategy, Docker, mig
 
 ## Environment Variables
 
-The environment strategy is based on **2 core variables**:
+General workflow (templates, file precedence, secrets policy): see [root README § Environment Variables](../../README.md#environment-variables). This section lists the API-specific variables.
 
-- `APP_ENV`: application context (`development`, `test`, `production`)
-- `NODE_ENV`: Node runtime mode (`development`, `test`, `production`)
+### Quick start
 
-Compatibility rules:
+```bash
+make setup                                  # from monorepo root
+# or
+cp packages/api/.env.example packages/api/.env
+# then edit packages/api/.env: set JWT_SECRET via `openssl rand -hex 32`
+```
 
-- `APP_ENV=development` → `NODE_ENV=development`
-- `APP_ENV=test` → `NODE_ENV=test`
-- `APP_ENV=production` → `NODE_ENV=production`
-
-### `.env` File Loading Order
-
-- `development`: `.env.development.local` → `.env.development` → `.env.local` → `.env`
-- `test`: `.env.test.local` → `.env.test` → `.env.local` → `.env`
-- `production`: **no `.env` file loaded** (`ignoreEnvFile=true`), runtime injection required
-
-### Versioned Templates
-
-- `.env.example`: local development baseline
-- `.env.test.example`: test baseline
-- `.env.docker.example`: Docker / production-like baseline (paths inside the container)
-
-Important variables used by the API:
+### Variables
 
 | Variable | Required | Default | Description |
-|---|---|---|---|
-| `APP_ENV` | ✅ Yes | `development` (bootstrap fallback) | Application context (`development`/`test`/`production`) |
-| `NODE_ENV` | ✅ Yes | derived from `APP_ENV` (bootstrap fallback) | Node runtime mode |
-| `JWT_SECRET` | ✅ Yes | - | JWT secret (min. 24 characters) |
-| `JWT_EXPIRATION` | No | `86400s` | Token lifetime |
-| `PORT` | No | `3000` | API HTTP port |
-| `DATABASE_PATH` | No | `./data/brasse-bouillon.db` | SQLite file path |
-| `TYPEORM_LOGGING` | No | depends on environment | TypeORM logging |
-| `SWAGGER_ENABLED` | No | depends on environment | Enable/disable Swagger |
-| `HUBEAU_TIMEOUT_MS` | No | `8000` | Water provider timeout |
-| `HUBEAU_CACHE_TTL_SECONDS` | No | `3600` | Water provider cache TTL |
+|----------|----------|---------|-------------|
+| `APP_ENV` | ✅ | `development` | App context: `development` \| `test` \| `production`. Must match `NODE_ENV`. |
+| `NODE_ENV` | ✅ | derived from `APP_ENV` | Node runtime mode. |
+| `JWT_SECRET` | ✅ | — | JWT signing secret (min. 24 chars). Generate with `openssl rand -hex 32`. |
+| `JWT_EXPIRATION` | No | `86400s` | Access-token lifetime. |
+| `PORT` | No | `3000` | HTTP port. |
+| `DATABASE_PATH` | No | `./data/brasse-bouillon.db` | SQLite file. In Docker: `/app/data/brasse-bouillon.db`. |
+| `TYPEORM_LOGGING` | No | `true` in dev, `false` elsewhere | Echo SQL to stdout. |
+| `SWAGGER_ENABLED` | No | `true` in dev, `false` elsewhere | Expose Swagger UI at `/api`. |
+| `HUBEAU_TIMEOUT_MS` | No | `8000` | HTTP timeout for the Hubeau water-quality API. |
+| `HUBEAU_CACHE_TTL_SECONDS` | No | `3600` | In-memory cache TTL for Hubeau responses. |
+| `API_IMAGE_TAG` | No | `latest` | Docker image tag (used by `docker-compose.yml`, not the runtime). |
+
+`APP_ENV` and `NODE_ENV` must agree (`development`↔`development`, `test`↔`test`, `production`↔`production`); the app refuses to start otherwise. Validation logic: [src/config/environment.config.ts](src/config/environment.config.ts).
+
+### Templates
+
+| File | When to use |
+|------|-------------|
+| `.env.example` | Local dev. |
+| `.env.test.example` | Override test values beyond what `npm test` injects (rare). |
+| `.env.docker.example` | Production-like Docker stack — read by `docker-compose.yml`. |
 
 ## Run Locally (Without Docker)
 

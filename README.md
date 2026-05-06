@@ -186,10 +186,11 @@ python3.12 -m venv .venv && source .venv/bin/activate
 pip install --upgrade pip && pip install -e ".[ml,dev]"
 
 cp .env.example .env
-docker compose up -d            # PostgreSQL + pgAdmin
+docker compose up -d            # PostgreSQL on :5432 (use psql or DBeaver to inspect)
 alembic upgrade head
 
-uvicorn api.main:app --reload   # → http://localhost:8000  (Swagger at /docs)
+make -C ../.. dev-beer-enc      # → http://localhost:8000  (Swagger at /docs)
+                                # binds 0.0.0.0 so Expo Go can reach it via LAN/Tailscale
 ```
 
 Setup, dataset preparation, and model training: [packages/beer-encyclopedia/docs/SETUP.md](packages/beer-encyclopedia/docs/SETUP.md). HTTP API reference: [packages/beer-encyclopedia/README.md](packages/beer-encyclopedia/README.md).
@@ -198,19 +199,91 @@ Setup, dataset preparation, and model training: [packages/beer-encyclopedia/docs
 
 ## Environment Variables
 
-Every package ships an `.env.example`. `make setup` creates the `.env` files for `api` and `mobile-app` automatically. For `beer-encyclopedia`, copy it by hand.
+This monorepo follows the [12-Factor App](https://12factor.net/config) convention: configuration that varies between environments (development, test, production) lives in environment variables, not in code. Each package ships an `.env.example` template documenting which variables it needs; you create your own `.env` (gitignored) with the real values.
 
-| Package | Variable | Description |
-|---------|----------|-------------|
-| mobile-app | `EXPO_PUBLIC_API_URL` | API base URL. `make setup` fills in `http://<LAN-IP>:3000`. Edit manually if you use an emulator and prefer `localhost:3000`. |
-| mobile-app | `EXPO_PUBLIC_USE_DEMO_DATA` | `true` to skip the API and use mock data. |
-| api | `JWT_SECRET` | JWT signing secret (required). `make setup` generates a fresh 256-bit hex secret. |
-| api | `JWT_EXPIRATION` | Access-token TTL (default `86400s`). |
-| api | `PORT` | API port (default `3000`). |
-| api | `DATABASE_PATH` | SQLite file path (default `./data/brasse-bouillon.db`). |
-| beer-encyclopedia | `DATABASE_URL` | PostgreSQL connection string (matches `docker-compose.yml`). |
+### Step 1 — Create your local `.env` files (one-time)
 
-`.env` files are gitignored. Never commit them.
+After cloning the repo and running `npm install`, run **once**:
+
+```bash
+make setup
+```
+
+This single command:
+
+- copies each `packages/*/env.example` to `packages/*/.env`;
+- generates a fresh `JWT_SECRET` (256-bit hex) for the API;
+- generates a fresh `POSTGRES_PASSWORD` for `beer-encyclopedia`;
+- fills `EXPO_PUBLIC_API_URL` in the mobile app with your machine's LAN IP so Expo Go on a phone can reach the backend.
+
+`make setup` is **idempotent**: if a `.env` already exists, it is left untouched. Safe to re-run.
+
+> **No `make` available?** (Windows without WSL, etc.) Copy each template by hand:
+>
+> ```bash
+> cp packages/api/.env.example packages/api/.env
+> cp packages/mobile-app/.env.example packages/mobile-app/.env
+> cp packages/beer-encyclopedia/.env.example packages/beer-encyclopedia/.env
+> ```
+>
+> Then open each `.env` and replace every `CHANGE_ME_*` and `replace-with-*` placeholder with a real value. For `JWT_SECRET`, generate one with `openssl rand -hex 32`.
+
+### Step 2 — Verify
+
+```bash
+ls packages/api/.env packages/mobile-app/.env packages/beer-encyclopedia/.env
+```
+
+The three files must exist. If any is missing, re-run the matching `cp` command from Step 1.
+
+### Step 3 — Edit values when needed
+
+Open the relevant `packages/<pkg>/.env` in your editor and change the value. Restart the dev server (`Ctrl+C` then re-launch) so the new value is loaded — `.env` files are read **once at boot**, not on every change.
+
+Never edit `.env.example` for personal values: that file is the shared template, not your config.
+
+### File reference
+
+| File pattern | Role | In git? | When to edit |
+|--------------|------|---------|--------------|
+| `.env.example` | Template documenting every variable, with placeholder values. The contract between the code and the developer. | ✅ Yes | When adding or removing a variable in code (same PR). |
+| `.env` | Your machine's real values for the default environment. | ❌ No | When changing a value on your machine. |
+| `.env.local` | Optional override on top of `.env`. Useful for short-lived experiments without touching `.env`. | ❌ No | Rarely. Only the API loads it. |
+| `.env.{ENV}` and `.env.{ENV}.local` | Environment-specific overrides (e.g. `.env.test.local`). | ❌ No | Rarely. Only the API loads them. |
+
+For the API, the load order (highest priority last, last wins) is:
+
+```text
+.env  →  .env.local  →  .env.{APP_ENV}  →  .env.{APP_ENV}.local
+```
+
+Reference: [packages/api/src/config/environment.config.ts](packages/api/src/config/environment.config.ts).
+
+For `mobile-app` and `beer-encyclopedia`, only `.env` is loaded — keep it simple.
+
+### Production deployment
+
+In production, **no `.env` file is loaded by the application**. Variables are injected directly into the process environment by the deployment platform:
+
+| Deployment target | Where the variables come from |
+|-------------------|-------------------------------|
+| Docker on a personal VPS | A `.env` file next to `docker-compose.yml` (never committed). Template: [packages/api/.env.docker.example](packages/api/.env.docker.example). |
+| GitHub Actions (CI) | Repository **Secrets** under `Settings → Secrets and variables → Actions`. |
+| Managed PaaS (Render, Railway, Fly.io, …) | Each platform's environment-variables UI. |
+
+### Three rules to avoid common mistakes
+
+1. **Never put a real secret in `.env.example`.** Use `CHANGE_ME` placeholders. Once a secret is committed, it stays in git history forever — even if you remove it later.
+2. **When you add a new variable in code, add it to `.env.example` in the same PR.** A variable that exists in your `.env` but not in `.env.example` will break the next clone (the next person copies the template and is missing the variable).
+3. **Never edit a variable's value in `.env.example`.** That file is documentation. Edit your local `.env` instead.
+
+### Per-package variable lists
+
+Each package documents its own variables (with descriptions, defaults, and required/optional flags):
+
+- [packages/api/README.md § Environment Variables](packages/api/README.md#environment-variables) — `JWT_SECRET`, `DATABASE_PATH`, Hubeau tunables, …
+- [packages/mobile-app/README.md § Environment Variables](packages/mobile-app/README.md#environment-variables) — `EXPO_PUBLIC_API_URL`, demo-mode toggle, …
+- [packages/beer-encyclopedia/README.md § Environment Variables](packages/beer-encyclopedia/README.md#environment-variables) — PostgreSQL credentials, scan paths, …
 
 ---
 

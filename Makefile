@@ -168,16 +168,22 @@ lint-all: ## Run mobile-app and api linters
 
 db-up: ## Start the local Postgres database for beer-encyclopedia (Docker)
 	@echo "[db-up] Starting beer-encyclopedia Postgres..."
-	@if $(COMPOSE_BEER_ENC) up -d --wait postgres 2>/dev/null; then \
+	@err=$$($(COMPOSE_BEER_ENC) up -d --wait postgres 2>&1); rc=$$?; \
+	if [ $$rc -eq 0 ]; then \
 		echo "[db-up] Postgres is healthy."; \
-	else \
-		echo "[db-up] --wait not supported, polling..."; \
-		$(COMPOSE_BEER_ENC) up -d postgres; \
+	elif echo "$$err" | grep -qi "unknown flag\|unrecognized\|\-\-wait"; then \
+		echo "[db-up] --wait not supported, using polling fallback..."; \
+		$(COMPOSE_BEER_ENC) up -d postgres || exit 1; \
+		timeout=60; elapsed=0; \
 		until docker inspect --format '{{.State.Health.Status}}' beer-encyclopedia-postgres 2>/dev/null | grep -q '^healthy$$'; do \
-			printf '.'; sleep 2; \
+			printf '.'; sleep 2; elapsed=$$((elapsed + 2)); \
+			if [ $$elapsed -ge $$timeout ]; then \
+				echo ""; echo "[db-up] ERROR: Postgres did not become healthy within $$timeout s."; exit 1; \
+			fi; \
 		done; \
-		echo ""; \
-		echo "[db-up] Postgres is healthy."; \
+		echo ""; echo "[db-up] Postgres is healthy."; \
+	else \
+		echo "[db-up] ERROR: docker compose failed:"; echo "$$err"; exit 1; \
 	fi
 
 db-down: ## Stop the local Postgres database (data is kept)

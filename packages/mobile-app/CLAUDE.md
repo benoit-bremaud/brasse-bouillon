@@ -93,8 +93,9 @@ domain  ←  application  ←  data
 ## Environment Variables
 
 ```bash
-EXPO_PUBLIC_API_URL          # Base URL of the backend API
-EXPO_PUBLIC_USE_DEMO_DATA    # "true" to use mock data instead of live API
+EXPO_PUBLIC_API_URL                  # Base URL of the NestJS backend
+EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL    # Base URL of the FastAPI beer-encyclopedia (used by /scan fallback, ADR-0005)
+EXPO_PUBLIC_USE_DEMO_DATA            # "true" to use mock data instead of live API
 ```
 
 ## Code Style & Naming

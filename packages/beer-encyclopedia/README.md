@@ -70,7 +70,8 @@ pip install -e ".[ml,dev]"
 cp .env.example .env
 docker compose up -d          # Postgres + pgAdmin
 alembic upgrade head
-uvicorn api.main:app --reload  # → http://localhost:8000 (Swagger at /docs)
+make -C ../.. dev-beer-enc     # → http://localhost:8000 (Swagger at /docs)
+                               # binds 0.0.0.0 so a phone on LAN/Tailscale can reach it
 ```
 
 ## MVP Scan Pipeline

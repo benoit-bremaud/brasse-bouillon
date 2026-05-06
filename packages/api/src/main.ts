@@ -278,7 +278,7 @@ async function bootstrap(): Promise<void> {
     if (!Number.isInteger(parsed) || parsed <= 0) return 3000;
     return parsed;
   })();
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   // ============================================================================
   // 📋 STARTUP LOGGING

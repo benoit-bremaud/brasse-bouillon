@@ -34,9 +34,7 @@ export interface OpenFoodFactsLookupResult {
   isBeer: boolean;
 }
 
-const OPENFOODFACTS_BASE_URL =
-  process.env.OPENFOODFACTS_BASE_URL ??
-  'https://world.openfoodfacts.org/api/v2';
+const OPENFOODFACTS_BASE_URL = 'https://world.openfoodfacts.org/api/v2';
 
 const DEFAULT_TIMEOUT_MS = 5_000;
 const USER_AGENT = 'brasse-bouillon/0.1 (https://brassebouillon.app)';

@@ -1,24 +1,16 @@
 import Joi from 'joi';
 
-export const APP_ENVIRONMENTS = [
-  'development',
-  'test',
-  'staging',
-  'production',
-] as const;
+export const APP_ENVIRONMENTS = ['development', 'test', 'production'] as const;
 export const NODE_ENVIRONMENTS = ['development', 'test', 'production'] as const;
 
 export type AppEnvironment = (typeof APP_ENVIRONMENTS)[number];
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 
 const BOOLEAN_ENV_PATTERN = /^(1|0|true|false|yes|no|on|off)$/i;
-const DEFAULT_HUBEAU_BASE_URL =
-  'https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable';
 
 const APP_ENV_TO_NODE_ENV: Record<AppEnvironment, NodeEnvironment> = {
   development: 'development',
   test: 'test',
-  staging: 'production',
   production: 'production',
 };
 
@@ -143,8 +135,6 @@ export const resolveEnvFilePaths = (appEnv: AppEnvironment): string[] => {
   switch (appEnv) {
     case 'test':
       return ['.env.test.local', '.env.test', '.env.local', '.env'];
-    case 'staging':
-      return ['.env.staging.local', '.env.staging', '.env.local', '.env'];
     case 'production':
       return [];
     case 'development':
@@ -192,25 +182,10 @@ export const environmentValidationSchema: Joi.ObjectSchema = Joi.object({
     .trim()
     .min(1)
     .default('./data/brasse-bouillon.db'),
-  TYPEORM_MIGRATIONS_RUN: Joi.string()
-    .pattern(BOOLEAN_ENV_PATTERN)
-    .default('false'),
-  TYPEORM_SYNCHRONIZE: Joi.string()
-    .pattern(BOOLEAN_ENV_PATTERN)
-    .default('false'),
   TYPEORM_LOGGING: Joi.string().pattern(BOOLEAN_ENV_PATTERN).optional(),
 
   SWAGGER_ENABLED: Joi.string().pattern(BOOLEAN_ENV_PATTERN).optional(),
 
-  SEED_ENDPOINTS_ENABLED: Joi.string()
-    .pattern(BOOLEAN_ENV_PATTERN)
-    .default('false'),
-  SEED_ENDPOINTS_TOKEN: Joi.string().allow('').optional(),
-
-  WATER_PROVIDER_DEFAULT: Joi.string().valid('hubeau').default('hubeau'),
-  HUBEAU_BASE_URL: Joi.string()
-    .uri({ scheme: ['http', 'https'] })
-    .default(DEFAULT_HUBEAU_BASE_URL),
   HUBEAU_TIMEOUT_MS: Joi.number()
     .integer()
     .min(1_000)
@@ -221,13 +196,6 @@ export const environmentValidationSchema: Joi.ObjectSchema = Joi.object({
     .min(60)
     .max(86_400)
     .default(3_600),
-  HUBEAU_MAX_SAMPLES: Joi.number().integer().min(1).max(500).default(50),
-  HUBEAU_COMMUNES_UDI_SIZE: Joi.number().integer().min(1).max(100).default(10),
-  HUBEAU_RESULTATS_DIS_SIZE: Joi.number()
-    .integer()
-    .min(1)
-    .max(5_000)
-    .default(100),
 })
   .unknown(true)
   .required();

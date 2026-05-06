@@ -1,3 +1,5 @@
+import { networkInterfaces } from 'node:os';
+
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { ValidationPipe } from '@nestjs/common';
@@ -223,8 +225,7 @@ async function bootstrap(): Promise<void> {
       .setLicense('MIT', 'https://opensource.org/licenses/MIT')
 
       // Servers
-      .addServer('http://localhost:3000', 'Development - Local')
-      .addServer('https://api-dev.brasse-bouillon.com', 'Development - Staging')
+      .addServer('http://localhost:3000', 'Development')
       .addServer('https://api.brasse-bouillon.com', 'Production')
 
       // Tags (for grouping endpoints)
@@ -278,7 +279,7 @@ async function bootstrap(): Promise<void> {
     if (!Number.isInteger(parsed) || parsed <= 0) return 3000;
     return parsed;
   })();
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   // ============================================================================
   // 📋 STARTUP LOGGING
@@ -302,6 +303,22 @@ async function bootstrap(): Promise<void> {
   console.log('║                                                            ║');
   console.log('║  Ready to receive requests!                                ║');
   console.log('╚════════════════════════════════════════════════════════════╝');
+
+  // Server binds to 0.0.0.0 → also reachable on every non-loopback IPv4
+  // (LAN, Tailscale, Docker bridge…). Log them so phones / other devices
+  // know which URL to hit.
+  const lanAddresses: string[] = [];
+  for (const iface of Object.values(networkInterfaces()).flat()) {
+    if (iface && iface.family === 'IPv4' && !iface.internal) {
+      lanAddresses.push(iface.address);
+    }
+  }
+  if (lanAddresses.length > 0) {
+    console.log('  Also reachable on:');
+    for (const addr of lanAddresses) {
+      console.log(`    http://${addr}:${port}`);
+    }
+  }
   console.log('\n');
 }
 

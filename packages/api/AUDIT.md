@@ -82,8 +82,6 @@ Each module mostly follows this structure:
 | `GET /users/:id` | ✅ Ownership enforced |
 | `PUT /users/:id` | ✅ Ownership enforced |
 | `DELETE /users/:id` | ✅ Ownership enforced |
-| `POST /users/dev/seed-admin` | ✅ Gated (`SEED_ENDPOINTS_ENABLED`) |
-| `POST /users/dev/seed-moderator` | ✅ Gated (`SEED_ENDPOINTS_ENABLED`) |
 
 **Notes:**
 - `console.log` is still used in the controller (unstructured logging). Acceptable in dev, should be replaced with NestJS `Logger` for production ⚠️
@@ -232,7 +230,6 @@ Tests:       2 skipped, 54 passed, 56 total
 ### Authorization
 - Ownership enforced via `owner_id = user.id` on all protected resources ✅
 - `RolesGuard` for admin routes ✅
-- Dev seed endpoints gated by `SEED_ENDPOINTS_ENABLED` + optional `SEED_ENDPOINTS_TOKEN` ✅
 
 ### Dependencies
 - `npm audit` critical vulnerabilities: ✅ clean (sqlite3 chain handled with tar override)
@@ -257,7 +254,7 @@ Tests:       2 skipped, 54 passed, 56 total
 - `NODE_ENV=production` by default ✅
 
 ### Notes
-- Migrations can run at startup via `TYPEORM_MIGRATIONS_RUN=true` — acceptable ✅
+- Migrations run automatically on startup (TypeORM `migrationsRun: true`) ✅
 - PostgreSQL migration will deprecate current SQLite volume data path; data migration strategy is required ⚠️
 
 ---

@@ -25,7 +25,7 @@ needed. `DATABASE_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` are mandatory
 ## 3) Start local PostgreSQL
 
 ```bash
-docker compose up -d         # postgres on :5432, pgadmin on :5050
+docker compose up -d         # postgres on :5432
 alembic upgrade head
 ```
 

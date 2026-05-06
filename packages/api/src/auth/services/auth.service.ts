@@ -190,8 +190,8 @@ export class AuthService {
    * whether the email exists, to prevent account enumeration. When
    * the email DOES exist, a fresh token is generated, hashed, and
    * persisted on the user with a 1-hour expiry. The raw token is
-   * logged via Logger so v0.1 dev / staging environments can read it
-   * out of the logs and complete the flow manually.
+   * logged via Logger so v0.1 dev environments can read it out of
+   * the logs and complete the flow manually.
    *
    * TODO (v0.2): replace the Logger emission with a real email
    * dispatch (SMTP / Resend / SendGrid) once the email infrastructure
@@ -222,7 +222,7 @@ export class AuthService {
       // In production the raw token is NEVER logged — only that an
       // event happened — so log access cannot be used to take over
       // accounts. The log gate is intentional: a misconfigured
-      // staging that flips NODE_ENV is the only way the token leaks,
+      // env that flips NODE_ENV is the only way the token leaks,
       // and we reject that surface before it can ship.
       if (process.env.NODE_ENV !== 'production') {
         this.logger.warn(

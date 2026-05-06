@@ -26,8 +26,8 @@ describe('resolveBootstrapEnvironment', () => {
   });
 
   it('should derive NODE_ENV from APP_ENV when only APP_ENV is provided', () => {
-    expect(resolveBootstrapEnvironment('staging', undefined)).toEqual({
-      appEnv: 'staging',
+    expect(resolveBootstrapEnvironment('production', undefined)).toEqual({
+      appEnv: 'production',
       nodeEnv: 'production',
     });
   });
@@ -84,15 +84,6 @@ describe('resolveEnvFilePaths', () => {
     ]);
   });
 
-  it('should return staging env file priority', () => {
-    expect(resolveEnvFilePaths('staging')).toEqual([
-      '.env.staging.local',
-      '.env.staging',
-      '.env.local',
-      '.env',
-    ]);
-  });
-
   it('should return no env files for production', () => {
     expect(resolveEnvFilePaths('production')).toEqual([]);
   });
@@ -120,24 +111,19 @@ describe('buildBootstrapEnvironmentConfig', () => {
   });
 
   it('should resolve and persist APP_ENV/NODE_ENV into process.env', () => {
-    process.env.APP_ENV = 'staging';
+    process.env.APP_ENV = 'test';
     delete process.env.NODE_ENV;
 
     const result = buildBootstrapEnvironmentConfig();
 
     expect(result).toEqual({
-      appEnv: 'staging',
-      nodeEnv: 'production',
-      envFilePaths: [
-        '.env.staging.local',
-        '.env.staging',
-        '.env.local',
-        '.env',
-      ],
+      appEnv: 'test',
+      nodeEnv: 'test',
+      envFilePaths: ['.env.test.local', '.env.test', '.env.local', '.env'],
       ignoreEnvFile: false,
     });
 
-    expect(process.env.APP_ENV).toBe('staging');
-    expect(process.env.NODE_ENV).toBe('production');
+    expect(process.env.APP_ENV).toBe('test');
+    expect(process.env.NODE_ENV).toBe('test');
   });
 });

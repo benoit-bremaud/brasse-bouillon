@@ -4,7 +4,7 @@ This document describes the official environment variable strategy for the **Bra
 
 ## 1) Goals
 
-- Clearly separate `development`, `test`, `staging`, and `production`
+- Clearly separate `development`, `test`, and `production`
 - Prevent any secret leaks into the Git repository
 - Guarantee **fail-fast** startup when configuration is invalid
 - Keep behavior consistent across local, CI, and server environments
@@ -13,7 +13,7 @@ This document describes the official environment variable strategy for the **Bra
 
 Two variables structure runtime behavior:
 
-- `APP_ENV`: application context (`development` | `test` | `staging` | `production`)
+- `APP_ENV`: application context (`development` | `test` | `production`)
 - `NODE_ENV`: Node runtime mode (`development` | `test` | `production`)
 
 Required compatibility:
@@ -22,10 +22,7 @@ Required compatibility:
 |---|---|
 | `development` | `development` |
 | `test` | `test` |
-| `staging` | `production` |
 | `production` | `production` |
-
-> Note: `staging` intentionally runs with `NODE_ENV=production` to match production-like behavior.
 
 ## 3) Bootstrap Resolution
 
@@ -44,7 +41,6 @@ Loading is hierarchical per environment:
 
 - `development`: `.env.development.local` → `.env.development` → `.env.local` → `.env`
 - `test`: `.env.test.local` → `.env.test` → `.env.local` → `.env`
-- `staging`: `.env.staging.local` → `.env.staging` → `.env.local` → `.env`
 - `production`: no `.env` file loaded (`ignoreEnvFile=true`)
 
 ## 5) Strict Validation (Joi)
@@ -63,14 +59,14 @@ Versioned example files:
 
 - `.env.example`
 - `.env.test.example`
-- `.env.staging.example`
+- `.env.docker.example`
 
 Real environment files ignored by Git:
 
 - `.env`
 - `.env.local`
 - `.env.*.local`
-- `.env.staging`, `.env.production`, etc.
+- `.env.production`
 
 ## 7) Environment-Specific Rules
 
@@ -85,12 +81,6 @@ Real environment files ignored by Git:
 - npm scripts inject `APP_ENV=test` and `NODE_ENV=test`
 - `:memory:` DB is preferred for isolation
 - No seeding in tests
-
-### Staging
-
-- `APP_ENV=staging`, `NODE_ENV=production`
-- Secrets injected via CI/CD (never committed)
-- `TYPEORM_SYNCHRONIZE=false`
 
 ### Production
 

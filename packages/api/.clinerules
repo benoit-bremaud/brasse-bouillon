@@ -60,7 +60,6 @@ src/<feature>/
 - All protected routes use `@UseGuards(JwtAuthGuard)`
 - Resource ownership is always checked via `owner_id = user.id` (never trust client params)
 - Admin endpoints also use `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles(UserRole.ADMIN)`
-- Dev seed endpoints are gated by `SEED_ENDPOINTS_ENABLED` and `SEED_ENDPOINTS_TOKEN`
 
 ### Swagger
 - Use `@ApiBearerAuth('JWT-auth')` (explicit name) on all protected controllers
@@ -74,7 +73,7 @@ src/<feature>/
 - Name migrations explicitly: `<timestamp>-<PascalCaseName>.ts`
 - `down()` must cleanly revert `up()`
 - Never modify a migration already merged into `main`
-- No `TYPEORM_SYNCHRONIZE=true` in production or staging
+- No `TYPEORM_SYNCHRONIZE=true` in production
 
 ### Schema Conventions
 - IDs: application-generated UUID stored as `varchar` with `randomUUID()`
@@ -168,7 +167,7 @@ src/<feature>/
 ## What Cline MUST NOT do
 
 - Modify migrations already merged into `main`
-- Set `synchronize: true` in prod or staging config
+- Set `synchronize: true` in prod config
 - Add business logic in controllers
 - Import NestJS or TypeORM in `domain/` files
 - Use `console.log` in production code (except bootstrap and explicit admin logs)

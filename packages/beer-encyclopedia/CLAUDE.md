@@ -94,7 +94,7 @@ pip install -e ".[ml,dev]"
 
 # 2. Local PostgreSQL (Docker Compose)
 cp .env.example .env         # edit DATABASE_URL if needed
-docker compose up -d         # starts postgres on :5432 and pgadmin on :5050
+docker compose up -d         # starts postgres on :5432
 
 # 3. Database migrations
 alembic upgrade head

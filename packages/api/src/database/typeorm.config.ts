@@ -126,16 +126,13 @@ export const buildTypeOrmOptions = (): DataSourceOptions => {
     process.env.DATABASE_PATH ||
     path.join(process.cwd(), 'data', 'brasse-bouillon.db');
 
-  const synchronize = parseBooleanEnv('TYPEORM_SYNCHRONIZE', false);
-  const migrationsRun = parseBooleanEnv('TYPEORM_MIGRATIONS_RUN', false);
-
   return {
     type: 'better-sqlite3',
     database: dbPath,
     entities: ormEntities,
     migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
-    migrationsRun,
-    synchronize,
+    migrationsRun: true,
+    synchronize: false,
     logging: resolveTypeOrmLogging(isProduction, isTest),
     logger: 'simple-console',
   };

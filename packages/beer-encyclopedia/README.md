@@ -68,7 +68,7 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -e ".[ml,dev]"
 cp .env.example .env
-docker compose up -d          # Postgres + pgAdmin
+docker compose up -d          # Postgres (use psql or DBeaver to inspect)
 alembic upgrade head
 make -C ../.. dev-beer-enc     # → http://localhost:8000 (Swagger at /docs)
                                # binds 0.0.0.0 so a phone on LAN/Tailscale can reach it

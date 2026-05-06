@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ConfigService } from '@nestjs/config';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { UserController } from './user.controller';
@@ -11,7 +10,6 @@ import { UserService } from '../services/user.service';
 describe('UserController', () => {
   let controller: UserController;
   let service: UserService;
-  let configService: ConfigService;
 
   const mockUser: User = {
     id: '550e8400-e29b-41d4-a716-446655440000',
@@ -35,17 +33,8 @@ describe('UserController', () => {
           useValue: {
             findAll: jest.fn(),
             findById: jest.fn(),
-            findByEmail: jest.fn(),
             update: jest.fn(),
-            updateUserRole: jest.fn(),
             delete: jest.fn(),
-            createAdmin: jest.fn(),
-          },
-        },
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn(),
           },
         },
       ],
@@ -53,7 +42,6 @@ describe('UserController', () => {
 
     controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   afterEach(() => {
@@ -103,67 +91,6 @@ describe('UserController', () => {
 
       expect(service.delete).toHaveBeenCalledWith(mockUser.id);
       expect(result.message).toBe('User deleted successfully');
-    });
-  });
-
-  describe('seedAdmin() - POST /users/dev/seed-admin', () => {
-    it('should create a genesis admin', async () => {
-      jest.spyOn(configService, 'get').mockImplementation((key) => {
-        if (key === 'NODE_ENV') return 'development';
-        if (key === 'SEED_ENDPOINTS_ENABLED') return 'true';
-        return undefined;
-      });
-
-      jest.spyOn(service, 'findByEmail').mockResolvedValue(null);
-      const adminMock = { ...mockUser, role: UserRole.ADMIN } as User;
-      jest.spyOn(service, 'createAdmin').mockResolvedValue(adminMock);
-
-      const result = await controller.seedAdmin();
-      expect(service.createAdmin).toHaveBeenCalled();
-      expect(result).toBeDefined();
-    });
-  });
-
-  describe('seedModerator() - POST /users/dev/seed-moderator', () => {
-    it('should create moderator and update role to MODERATOR', async () => {
-      jest.spyOn(configService, 'get').mockImplementation((key) => {
-        if (key === 'NODE_ENV') return 'development';
-        if (key === 'SEED_ENDPOINTS_ENABLED') return 'true';
-        return undefined;
-      });
-
-      jest.spyOn(service, 'findByEmail').mockResolvedValue(null);
-
-      const createdModerator = {
-        ...mockUser,
-        id: '550e8400-e29b-41d4-a716-446655440123',
-        email: 'moderator@example.com',
-        username: 'moderator',
-        role: UserRole.ADMIN,
-      } as User;
-
-      const updatedModerator = {
-        ...createdModerator,
-        role: UserRole.MODERATOR,
-      } as User;
-
-      jest.spyOn(service, 'createAdmin').mockResolvedValue(createdModerator);
-      jest.spyOn(service, 'updateUserRole').mockResolvedValue(updatedModerator);
-
-      const result = await controller.seedModerator();
-
-      expect(service.createAdmin).toHaveBeenCalledWith(
-        'moderator@example.com',
-        'moderator',
-        'ModeratorPassword123!',
-        'Moderator',
-        'User',
-      );
-      expect(service.updateUserRole).toHaveBeenCalledWith(
-        createdModerator.id,
-        UserRole.MODERATOR,
-      );
-      expect(result.role).toBe(UserRole.MODERATOR);
     });
   });
 });

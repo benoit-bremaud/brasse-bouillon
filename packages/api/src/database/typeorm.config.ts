@@ -111,14 +111,18 @@ const resolveTypeOrmLogging = (
  * Configures the SQLite connection used by Nest runtime and TypeORM CLI.
  * Schema evolution is migration-first (`synchronize` disabled by default).
  *
- * @function typeOrmConfig
- * @returns {TypeOrmModuleOptions} TypeORM module configuration
+ * Pass `{ forCli: true }` from CLI entry points (`data-source.ts`) so that
+ * `migration:generate` / `migration:revert` do not auto-run pending
+ * migrations before executing the requested command. Runtime callers
+ * (Nest `TypeOrmModule.forRoot`) get `migrationsRun: true` by default.
  *
- * @example
- * // Used in DatabaseModule
- * TypeOrmModule.forRoot(typeOrmConfig())
+ * @function buildTypeOrmOptions
+ * @param {{ forCli?: boolean }} [opts] CLI flag (defaults to runtime)
+ * @returns {DataSourceOptions} TypeORM data source options
  */
-export const buildTypeOrmOptions = (): DataSourceOptions => {
+export const buildTypeOrmOptions = (opts?: {
+  forCli?: boolean;
+}): DataSourceOptions => {
   const isProduction = process.env.NODE_ENV === 'production';
   const isTest = process.env.NODE_ENV === 'test';
 
@@ -131,7 +135,7 @@ export const buildTypeOrmOptions = (): DataSourceOptions => {
     database: dbPath,
     entities: ormEntities,
     migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
-    migrationsRun: true,
+    migrationsRun: !opts?.forCli,
     synchronize: false,
     logging: resolveTypeOrmLogging(isProduction, isTest),
     logger: 'simple-console',

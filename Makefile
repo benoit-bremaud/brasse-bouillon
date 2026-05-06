@@ -21,10 +21,14 @@ LAN_IP := $(if $(strip $(LAN_IP)),$(LAN_IP),localhost)
 API_PORT := 3000
 
 .PHONY: help setup dev dev-api dev-mobile test-all lint-all \
-        sonar-start sonar-stop sonar-status sonar-scan
+        sonar-start sonar-stop sonar-status sonar-scan \
+        docker-build docker-up docker-down docker-logs
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@awk 'BEGIN {FS = ":.*?## "; printf "\n\033[1mUsage:\033[0m\n  make \033[36m<target>\033[0m\n"} \
+	  /^## @/ {printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} \
+	  /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' \
+	  $(MAKEFILE_LIST)
 
 ## ============================================================================
 ## @Dev environment

@@ -7,6 +7,28 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-06
 
+### PR #928 merged (`8591405`) — chore(api): add full Docker setup for server deployment
+
+- Branch `chore/docker-api-full-v2` (replaces aborted `chore/docker-api-full` — closed without merge after a squash-merge divergence drove the diff over Copilot's 300-file review limit).
+- **Server-deployable Docker stack**: `packages/api/docker-compose.yml` (named `api-data` SQLite volume, `restart: unless-stopped`, parameterized `${API_IMAGE_TAG:-latest}` for prod pinning), `packages/api/.env.docker.example` (production-oriented template).
+- **Dockerfile rewrite for monorepo-root context**: resolves the canonical `package-lock.json` at the repo root (per-workspace lockfiles blocked by `.gitignore` since incident #674). `Dockerfile.dockerignore` (BuildKit-resolved alongside the Dockerfile) replaces the old `.dockerignore` and excludes the unrelated workspaces and docs from the build context.
+- **CI workflow** `.github/workflows/docker-build.yml`: split into `build` (PR + push, `contents: read` only) + `publish` (push to `main` only, `packages: write`, depends on `build`). Tags `:latest` + `:sha-<short>` pushed to `ghcr.io/benoit-bremaud/brasse-bouillon-api`.
+- **Makefile**: `docker-build` (delegates to `docker compose build` so the local image tag matches `docker-up`), `docker-up`, `docker-down`, `docker-logs` + new `Docker — API` block in `make help`.
+- 4 review fix commits: `f9ba106` (Codex P1: build context fix), `90db2d7` (Codex P2: decouple host/container port), `eacab87` (Makefile help sectioned + Docker targets in `.PHONY`), `d4da220` (Copilot Should Have ×4: docker-build via compose, split CI permissions, parameterized image tag, `API_IMAGE_TAG` documented in `.env.docker.example`).
+- All 4 inline Copilot/Codex comments answered inline. CI green on the publish run. PR #927 (the divergent v1 attempt) closed without merge.
+
+### Decisions
+
+- **Docker build context = monorepo root**: forced by the canonical `package-lock.json` living at the repo root. Per-workspace lockfiles are intentionally blocked since incident #674. Trade-off: larger build context, mitigated by `Dockerfile.dockerignore` excluding `packages/{mobile-app,website,beer-encyclopedia}`, `docs/`, `_archive/`, `.git/`, `.claude/`.
+- **Compose `build:` + `image:` kept together**: standard dual-mode Compose pattern (local rebuild via `docker compose build`, server pull via `docker compose pull`). Disagreed with Copilot's suggestion to split into base + override files — extra ceremony for marginal benefit on a single-service project. Server reproducibility is enforced at the deploy-command level (`pull` never touches `build:`).
+- **Least-privilege CI**: two-job split with workflow-level `contents: read` only. `packages: write` is granted exclusively to the `publish` job, gated by `if: github.event_name == 'push'`. PR builds can no longer hold a write-capable token even if a step were compromised.
+- **Image tag parameterized via `${API_IMAGE_TAG:-latest}`**: default stays `latest` for simplicity; production deployments pin `API_IMAGE_TAG=sha-<short>` for immutable rollouts. Addresses Copilot's concern about the mutable `:latest` tag without removing the convenient default.
+
+### Operational changes (no PR)
+
+- **Discord notifications paused**: workflow `Discord Notifications` (`.github/workflows/discord-notifications.yml`) disabled via `gh workflow disable` (status: `disabled_manually`). Webhook secrets left in place; file untouched. Re-enable only on explicit user instruction.
+- **PR reviewer rule clarified — AI-only**: from now on, every PR requests reviews from `copilot-pull-request-reviewer` and `chatgpt-codex-connector` exclusively. No human collaborators in the reviewers list. Supersedes the 2026-04-28 reversal that briefly allowed scope/area-based human reviewers. Humans still appear in the informational French FYI comment, never as reviewers.
+
 ### PR #926 merged (`f5faeb6`) — chore(makefile): add dev-all, dev-stop, db-*, migrate-* targets and rewrite help
 
 - Branch `chore/makefile-dev-targets`. Solo Makefile change — no application code modified.

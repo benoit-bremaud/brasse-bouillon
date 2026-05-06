@@ -2,8 +2,10 @@
 
 **Contexte** : après les 30 min de pitch, **10 minutes de questions /
 réponses** avec le jury (format Ynov 2026-04-19). Ce document
-anticipe **20 questions** probables avec **réponses prêtes de
-30-45 s** chacune, regroupées par thème.
+anticipe **27 questions** probables avec **réponses prêtes de
+30-45 s** chacune, regroupées par thème (22 questions en séance
+principale Q1-Q20 + 7 back-pocket Q21-Q27 ; Q6-bis et Q6-ter sont
+des sous-questions de la section Produit, pas des numéros séparés).
 
 **Règle opérationnelle Q&A** (rappel) :
 
@@ -44,12 +46,13 @@ anticipe **20 questions** probables avec **réponses prêtes de
 
 **Réponse (~30 s)** :
 
-> "**647 tests automatisés** : **407 côté mobile** avec Jest et
+> "**647 tests TypeScript** : **407 côté mobile** avec Jest et
 > React Testing Library, **240 côté API** avec Jest sur NestJS.
+> Le beer-encyclopedia Python a en sus **8 tests pytest** couvrant
+> la chaîne YOLOv8 + EasyOCR — ces 8 tests sont hors du total
+> de 647 qui ne compte que la stack TypeScript.
 > On vise 80 % de couverture SonarQube sur les 4 packages d'ici
-> fin 2026 — c'est le SMART prospectif numéro 8.
-> Tout le détail par feature est dans le rapport de couverture
-> disponible sur le repo."
+> fin 2026 — c'est le SMART prospectif numéro 8."
 
 ### Q3. "Quelle est la différence entre Brasse-Bouillon et Brewfather concrètement pour un utilisateur ?"
 
@@ -141,7 +144,7 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > export CSV, intégration IoT, historiques avancés, templates
 > premium. La grille précise — prix mensuel, prix annuel, seuils
 > — se cale dans un **atelier entrepreneurial post-soutenance**,
-> en lien avec les retours bêta sur les 3 personas. Mettre un
+> en lien avec les retours bêta sur les 4 personas. Mettre un
 > prix ferme aujourd'hui sans avoir testé l'acceptation serait
 > du bluff."
 
@@ -310,9 +313,9 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > Côté **Création** : charte graphique, wireframes, design
 > system. Côté **Marketing** : étude documentaire, personas.
 > Certaines itérations prévues n'ont pas pu aboutir dans le
-> calendrier Ydays — je prends le relais post-soutenance via
-> le studio web pour combler ce qui manque, sans dépendre d'un
-> recrutement externe."
+> calendrier Ydays — je prends le relais post-soutenance en
+> pilotant seul le périmètre produit, sur des rails techniques
+> déjà en place, sans dépendre d'un recrutement externe."
 
 ### Q18. "Qu'est-ce que vous avez appris des Ydays en tant que chef de projet ?"
 
@@ -328,8 +331,8 @@ anticipe **20 questions** probables avec **réponses prêtes de
 > que rien ne vive uniquement en mémoire de conversation.
 > Toutes les décisions sont sourcées et tracées.
 > **Assumer les manques** plutôt que les cacher : c'est ce
-> que fait ce pitch, c'est ce que fait le studio web en
-> plan B."
+> que fait ce pitch — nommer les trous factuels et donner
+> le plan pour les combler post-soutenance."
 
 ## 6. Statut juridique & perspectives
 

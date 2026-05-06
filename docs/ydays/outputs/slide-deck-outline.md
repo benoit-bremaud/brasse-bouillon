@@ -141,17 +141,21 @@ spacing du mobile (ref [design-system.md](../../../packages/mobile-app/docs/desi
 - Source : [business-model-canvas.md](business-model-canvas.md).
 - **Objectif** : montrer la maturité business en 1 slide.
 
-### S13 — Perspectives + pivot studio web (bloc 5 — 25:00-28:00)
+### S13 — Perspectives + auto-financement BB (bloc 5 — 23:50-28:00)
 
-- 4 quadrants : **Légal** (RGPD, OWASP), **RH**, **GTM** (3 canaux,
-  partenariats LHBS), **Budget** (infra, financement).
-- **Quadrant RH mis en avant** :
-  > "Je crée mon studio web en micro-entreprise, méthode IA-driven,
-  > cible TPE food/boissons 06. Le studio finance le développement
-  > sérieux de BB : vraie étude marché, vrai marketing."
-- SMART #31 rebuilt : "3 sites clients avant 2026-11-30, CA ≥ 6 k€,
-  site studio publié."
-- **Objectif** : montrer la vision post-MVP, honnête et structurée.
+**🔄 Réécrite 2026-05-05 (cascade D3 — suppression studio web)**.
+
+- 4 quadrants : **Légal** (RGPD, OWASP, INPI marque), **RH**, **GTM** (5 canaux), **Budget** (CAPEX/OPEX, financement public, Lifetime Deal).
+- **Quadrant RH mis en avant — auto-financement BB en 4 phases** :
+  - **Phase 1 — AMORÇAGE** (6 premiers mois) : Lifetime Deal lancement 100 places × 99 € = 9,9 k€ J0 couvre CAPEX. Break-even mois 5-6.
+  - **Phase 2 — ACTIVATION** (6-18 mois) : 14 k€ revenus an 1, freemium 3 paliers, micro-entreprise BNC suffisante.
+  - **Phase 3 — CONSOLIDATION** (an 2-3) : 57 k€ annualisés an 3 = 3 400 €/mo net (cible « vivre »), partenariats LHBS, bascule SAS si traction.
+  - **Phase 4 — SCALE** (an 3+) : 108 k€ an 5 = 6 000 €/mo net. Premier recrutement si traction (design, marketing communauté).
+- **Tagline pivot** : *« Brasse-Bouillon se finance par lui-même. Pas de levée de fonds qui dilue le contrôle. Modèle volontairement progressif. »*
+- **SMART #31 retiré** (était 3 sites studio + 6 k€ — supprimé suite suppression studio).
+- **Quadrant FINANCEMENT public** : 3 dossiers à déposer fin 2026 — JEI (Jeune Entreprise Innovante, économies 6-8 k€/an), BPI French Tech, incubateur régional.
+- Source : [pitch-script-bloc5-bm-perspectives.md](pitch-script-bloc5-bm-perspectives.md) (réécrit), [audit-decisions-2026-05-05.md](audit-decisions-2026-05-05.md) item 11.7, [feature-couronnes-roadmap-v02.md](feature-couronnes-roadmap-v02.md) (mention v0.2+ possible).
+- **Objectif** : montrer la vision post-MVP, **honnête, sourcée, défendable**, sans dépendance externe.
 
 ### S14 — Conclusion + vision + CTA (bloc 6 — 28:00-30:00)
 

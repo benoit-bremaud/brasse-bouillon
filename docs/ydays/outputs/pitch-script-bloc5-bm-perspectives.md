@@ -1,28 +1,17 @@
-# Script présentateur — Bloc 5 BM + Perspectives + studio web (7 min)
+# Script présentateur — Bloc 5 BM + Perspectives + auto-financement BB (7 min)
 
-**Contexte** : bloc 5 du pitch, 21:00 → 28:00. Suit la transition
-du bloc 4 ("Parlons maintenant de comment Brasse-Bouillon gagne de
-l'argent, et de la vision que j'ai pour porter ce projet après la
-soutenance."). C'est le **bloc le plus chargé en valeur** de la grille
-officielle Ynov : la catégorie **Perspective (20 pts)** est presque
-entièrement évaluée ici, et ce bloc contribue aussi à **Production
-(30 pts)** via le business model et à **Pitch (15 pts)** via les
-objectifs SMART cités.
+**Contexte** : bloc 5 du pitch, 21:00 → 28:00. Suit la transition du bloc 4 (« Parlons maintenant de comment Brasse-Bouillon gagne de l'argent, et de la vision que j'ai pour porter ce projet après la soutenance. »). C'est le **bloc le plus chargé en valeur** de la grille officielle Ynov : la catégorie **Perspective (20 pts)** est presque entièrement évaluée ici, et ce bloc contribue aussi à **Production (30 pts)** via le business model et à **Pitch (15 pts)** via les objectifs SMART cités.
 
-**Budget révisé 2026-04-21** : bloc étendu de 6 à 7 min, la minute
-supplémentaire est allouée à la séquence 5 (Perspectives RH — pivot
-studio web) parce que c'est le cœur de la catégorie Perspective — elle
-passe de 1:40 à 2:40.
+**🔄 Réécriture 2026-05-05** : suppression du pivot studio web (décision D3 audit-decisions-2026-05-05.md item 11.7). Nouvelle direction : **BB se finance lui-même** via lifetime deal lancement + freemium + partenariats LHBS + dossiers de financement publics français. Le studio web reste documenté en archive (`web-studio-brainstorming.md` marqué « ABANDONNÉ pour la soutenance 2026-05-27 »).
 
 **Slides à l'écran** :
-- 21:00 → 24:00 : **S12 — Business Model Canvas synthétisé**
-- 24:00 → 28:00 : **S13 — Perspectives + pivot studio web**
+
+- 21:00 → 23:50 : **S12 — Business Model Canvas synthétisé**
+- 23:50 → 28:00 : **S13 — Perspectives + 4 quadrants (Légal / RH / GTM / Budget)**
 
 **Durée cible** : 7:00 min.
 **Budget mots** : ~945 mots à 135 mpm.
-**Posture** : ton posé, structuré, assumé. C'est le bloc où le user
-doit **démontrer qu'il a réfléchi au projet au-delà de l'exercice
-scolaire**.
+**Posture** : ton posé, structuré, assumé. C'est le bloc où le user doit **démontrer qu'il a réfléchi au projet au-delà de l'exercice scolaire**.
 
 ## Structure du bloc
 
@@ -30,164 +19,102 @@ scolaire**.
 |----------|----------|---------|-------|
 | 1. Ouverture BM | 21:00-21:20 | Cadre business | 0:20 |
 | 2. Cible + proposition de valeur | 21:20-22:10 | Segments + UVP | 0:50 |
-| 3. Revenus + innovation | 22:10-23:30 | Freemium + scanner USP | 1:20 |
-| 4. Perspectives légales + budget | 23:30-24:20 | RGPD, infra, financement | 0:50 |
-| 5. Perspectives RH — pivot studio web | 24:20-27:00 | Studio + lien BB | 2:40 |
-| 6. GTM + transition bloc 6 | 27:00-28:00 | Canaux + conclusion | 1:00 |
+| 3. Revenus + paliers freemium + leviers | 22:10-23:50 | Free / Premium 2,99 € / Pro 5,99 € + 4 leviers + LHBS | 1:40 |
+| 4. Perspectives légales + budget + financement | 23:50-25:00 | RGPD, INPI, JEI, BPI, French Tech, incubateurs | 1:10 |
+| 5. Perspectives RH — auto-financement BB | 25:00-26:50 | 4 phases amorçage→scale + micro-entreprise→SAS | 1:50 |
+| 6. GTM + 5 canaux + transition | 26:50-28:00 | LHBS + YouTubers FR + Reddit + Salons + Influenceurs | 1:10 |
 | **Total** | 21:00-28:00 | | **7:00** |
 
 ## Séquence 1 — Ouverture BM (20 s, ~45 mots)
 
-**Slide** : S12 — BM Canvas 9 blocs avec 3 cases accentuées
-(Segments, Proposition de valeur, Revenus).
+**Slide** : S12 — BM Canvas 9 blocs avec 3 cases accentuées (Segments, Proposition de valeur, Revenus).
 
-> "Brasse-Bouillon, ce n'est pas qu'un produit. C'est aussi un
-> **modèle économique** qu'on a pensé, chiffré, sourcé.
+> « Brasse-Bouillon, ce n'est pas qu'un produit. C'est aussi un **modèle économique** qu'on a pensé, chiffré, sourcé.
 >
-> Je vais vous le présenter en trois temps : **la cible**, **la
-> valeur**, **les revenus**."
+> Je vais vous le présenter en trois temps : **la cible**, **la valeur**, **les revenus**. »
 
 ## Séquence 2 — Cible + Proposition de valeur (50 s, ~115 mots)
 
-> **(Le présentateur pointe les cases "Segments clients" et
-> "Proposition de valeur" sur la slide S12.)**
->
-> "**La cible**, d'abord. Les brasseurs amateurs francophones,
-> trente à cinquante ans, deux à dix ans de pratique. Trois
-> personas qui couvrent l'expérience — Nicolas, Claire, Marc. Un
-> marché français qui pèse dans un contexte européen de **1,5
-> milliard d'euros en 2024**, croissance **8,5 % par an** jusqu'en
-> 2033.
+**Slide** : S12 — focus visuel sur cases « Segments clients » et « Proposition de valeur ».
+
+> « **La cible**, d'abord. Les brasseurs amateurs francophones, trente à cinquante ans, deux à dix ans de pratique. Trois personas qui couvrent l'expérience — Nicolas, Claire, Marc. Un marché craft français estimé entre **deux et huit milliards de dollars selon les sources**, avec une croissance de **huit à douze pour cent par an** — France première d'Europe avec deux mille cinq cents brasseries actives.
 >
 > **La proposition de valeur**, en trois angles :
 >
-> - **Simplicité évolutive** — une interface qui grandit avec le
->   brasseur, du débutant à l'expert.
-> - **Ancrage francophone** — UI native, culture commune,
->   ingrédients et partenaires locaux.
-> - **Parcours complet** — du calcul à la valorisation, une seule
->   app au lieu de cinq."
+> - **Simplicité évolutive** — une interface qui grandit avec le brasseur, du débutant à l'expert.
+> - **Ancrage francophone** — UI native, culture commune, ingrédients et partenaires locaux.
+> - **Parcours complet** — du calcul à la valorisation, une seule app au lieu de cinq. »
 
-## Séquence 3 — Revenus + innovation (80 s, ~180 mots)
+## Séquence 3 — Revenus + paliers freemium + leviers (100 s, ~225 mots)
 
-> **(Le présentateur pointe la case "Revenus" sur la slide S12.)**
->
-> "**Les revenus**, maintenant. Modèle **freemium**. L'application
-> est **gratuite** avec les fonctionnalités essentielles : recettes,
-> calculateurs, scanner code-barre, Academy.
->
-> Un **tier payant** — la grille tarifaire se cale en atelier
-> entrepreneurial post-soutenance — donne accès aux fonctionnalités
-> avancées : **export CSV**, **intégration IoT**, **historiques
-> avancés**, **templates premium**.
->
-> Un deuxième pied de revenu : les **partenariats magasins**. Quand
-> un brasseur achète ses ingrédients via l'app, Brasse-Bouillon
-> touche une **commission**. C'est un objectif post-MVP, trois
-> partenariats magasins spécialisés identifiés à sécuriser d'ici
-> fin 2026.
->
-> **L'innovation différenciante**, ce sont deux axes techniques :
->
-> - Le **scanner code-barre** qui propose une recette équivalente.
->   **Aucun concurrent francophone** ne le fait.
-> - La **R&D beer-label-ai** : pipeline ML YOLOv8 plus OCR,
->   opérationnel en laboratoire. Objectif : reconnaissance
->   automatique d'étiquettes déployable courant 2027.
->
-> On est sur du différenciateur **produit** et **technique**, pas
-> sur du marketing creux."
+**Slide** : S12 — focus visuel sur case « Revenus » + pop-up paliers tarifaires.
 
-## Séquence 4 — Perspectives légales + budget (50 s, ~115 mots)
+> **(Le présentateur pointe la case « Revenus » sur la slide S12.)**
+>
+> « **Les revenus**, maintenant. Modèle **freemium** à trois paliers, calé sur les usages.
+>
+> **Free généreux** — scan illimité, encyclopédie illimitée, cinq recettes, trois sessions de brassage. **Pas de paywall agressif** sur les essentiels. C'est ce qui transforme un curieux en brasseur régulier.
+>
+> **Premium à deux euros quatre-vingt-dix-neuf par mois** — recettes et sessions illimitées, journal de fermentation détaillé, communauté en écriture, photos illimitées. Ciblé Nicolas le débutant, soixante pour cent des payants.
+>
+> **Pro à cinq euros quatre-vingt-dix-neuf** — export BeerXML, intégrations IoT, water chemistry FR avancée, AI assistant à cinq cents requêtes par mois. Pour Marc l'expert, quarante pour cent des payants. ARPU blendé : **quatre euros soixante-quinze par mois**.
+>
+> **Quatre leviers stratégiques** amplifient le modèle :
+>
+> **Un.** Période d'essai trente jours Pro sans carte bancaire — casse la friction d'entrée.
+> **Deux.** **Lifetime Deal lancement** — cent places à quatre-vingt-dix-neuf euros, **soit dix mille euros injectés dès le jour zéro** plus cent ambassadeurs à vie.
+> **Trois.** Migration discount cinquante pour cent depuis Brewfather ou BeerSmith — capture le **Marc-Switcher**.
+> **Quatre.** Discount annuel de trente pour cent pour pousser vers l'engagement long.
+>
+> **Deuxième pied de revenu** : partenariats avec les magasins spécialisés francophones — trois identifiés, formalisation en cours. »
+
+## Séquence 4 — Perspectives légales + budget + financement (70 s, ~155 mots)
+
+**Slide** : S13 — bascule vers Perspectives 4 quadrants. Focus visuel sur quadrant **Légal** puis **Budget**.
 
 > **(Le présentateur bascule vers S13 — Perspectives, 4 quadrants.)**
 >
-> "Passons aux **perspectives**. Quatre axes.
+> « Passons aux **perspectives**. Quatre axes structurants.
 >
-> **Légal**. Avant la production publique, deux choses sont non
-> négociables : la **conformité RGPD** et un **pen test OWASP**. La
-> CI du projet inclut déjà Gitleaks pour la détection de secrets et
-> CodeQL pour l'analyse statique.
+> **Légal**. Avant la production publique, deux choses sont non négociables : la **conformité RGPD** et un **pen test OWASP**. La CI du projet inclut déjà Gitleaks pour la détection de secrets et CodeQL pour l'analyse statique. **Dépôt INPI** de la marque Brasse-Bouillon en cours, pour sécuriser l'antériorité avant toute traction.
 >
-> **Budget**. Côté infrastructure, on vise un hébergement
-> PostgreSQL managé, une API conteneurisée, un CDN pour le front.
-> Côté financement, **trois dossiers à déposer d'ici fin 2026** :
-> BPI, concours French Tech, incubateur régional."
+> **Budget et financement**. Côté infrastructure : hébergement PostgreSQL managé, API conteneurisée, CDN pour le front. CAPEX initial **un à deux mille cinq cents euros**, OPEX an 1 **trois mille cinq cents euros** — projet **bootstrappable sans levée de fonds**. Côté financement public : **trois dossiers à déposer** d'ici fin 2026 — **statut JEI** (Jeune Entreprise Innovante, économies six à huit mille euros par an), **BPI French Tech** pour les concours, **incubateur régional** pour l'accompagnement. Et un **Lifetime Deal lancement** qui injecte dix mille euros au jour zéro. »
 
-## Séquence 5 — Perspectives RH — pivot studio web (160 s, ~360 mots)
+## Séquence 5 — Perspectives RH — auto-financement BB (110 s, ~250 mots)
 
-> **(Le présentateur pointe le quadrant RH sur la slide S13 —
-> mis en avant visuellement avec la narration studio.)**
->
-> "**Les ressources humaines**, maintenant. Et c'est là que je
-> veux être honnête avec vous.
->
-> Pendant les Ydays, on nous a demandé de mener une **vraie étude
-> de marché**, un **vrai marketing**, une **vraie animation
-> communautaire**. Nous n'avons pas pu le faire correctement — ce
-> n'est pas un prétexte, c'est un constat.
->
-> Pour donner à Brasse-Bouillon ses **vraies chances**, je lance
-> **mon propre studio web** après la soutenance.
->
-> Le modèle est simple. **Artisan tech solo**, **méthode
-> IA-driven**. Je livre **en deux à trois semaines** ce que
-> d'autres font en deux mois, avec des **prix plancher affichés
-> en ligne** : sites vitrines de 1 500 à 3 000 €, blogs de 2 000 à
-> 4 000 €, e-commerce de 4 000 à 8 000 €. Cible : **TPE du food
-> et des boissons des Alpes-Maritimes** — boulangers, brasseurs,
-> cavistes, traiteurs.
->
-> **Concrètement, la première semaine** après la soutenance :
-> publication du site studio avec la grille transparente, lancement
-> d'une première mission pilote chez le prospect déjà identifié,
-> ouverture de la micro-entreprise. **À trois mois** : deux sites
-> clients livrés, une première étude marché Brasse-Bouillon
-> relancée sur base des vingt à trente répondants attendus du
-> questionnaire communauté. **À six mois** : trois clients au
-> compteur, un début de track record, et le temps récupéré
-> entièrement réinjecté dans BB.
->
-> **Le studio finance le développement sérieux de
-> Brasse-Bouillon.** Les revenus paient mes outils d'IA pour aller
-> plus vite, et le temps ainsi dégagé va à ce qu'on n'a pas fini
-> ici : étude marché, marketing, itérations produit. La boucle est
-> **explicite** : chaque mission studio bouclée = x jours récupérés
-> pour BB.
->
-> **Micro-entreprise au démarrage**, justifiée par une matrice de
-> comparaison — micro, EURL, SASU — documentée dans le repo. Zéro
-> charge fixe, franchise de TVA jusqu'à 37 500 €, réversibilité
-> complète si la traction dépasse l'an 1. Objectif an 1 : **moins
-> de 10 000 € de chiffre d'affaires**, trois sites clients livrés
-> avant le 30 novembre 2026. **Un premier prospect est déjà
-> identifié.**
->
-> Ce n'est pas un plan B. C'est une **stratégie consciente** pour
-> porter Brasse-Bouillon sans en diluer la propriété ni dépendre
-> d'un recrutement externe que je ne peux pas piloter aujourd'hui."
+**Slide** : S13 — focus visuel sur quadrant **RH** mis en avant. Animation « 4 phases » qui apparaissent l'une après l'autre.
 
-## Séquence 6 — GTM + transition bloc 6 (60 s, ~130 mots)
+> **(Le présentateur pointe le quadrant RH sur la slide S13. Pause 1 seconde avant d'entamer la séquence — signale le pivot narratif.)**
+>
+> « Les **ressources humaines**, maintenant.
+>
+> Pas de recrutement an 1. Pas de levée de fonds. **Brasse-Bouillon se finance par lui-même**, sur quatre phases assumées.
+>
+> **Phase un — amorçage**. Six premiers mois après mise en production. Le **Lifetime Deal lancement** couvre l'intégralité du CAPEX initial. Les premiers utilisateurs Premium et Pro convertissent dès le mois deux. **Break-even mensuel atteint au cinquième ou sixième mois** dans le scénario médian.
+>
+> **Phase deux — activation**. De six à dix-huit mois. Quatorze mille euros de revenus année 1. Le freemium tient son rôle : volume Free, conversion vers Premium, montée en valeur vers Pro. La micro-entreprise reste suffisante.
+>
+> **Phase trois — consolidation**. An 2-3. **Cinquante-sept mille euros** annualisés en année 3 dans le scénario médian — soit **trois mille quatre cents euros par mois net**, la cible « vivre de l'application » est atteinte. Les **partenariats LHBS** prennent leur place. Bascule en SAS ou EURL si la traction le justifie.
+>
+> **Phase quatre — scale**. An 3+. **Cent huit mille euros annualisés en année 5** — six mille euros par mois net. Premier recrutement envisageable, si et seulement si la traction est robuste : design, marketing communauté.
+>
+> **Le modèle est volontairement progressif**. Pas de promesse de croissance exponentielle. Pas de levée de fonds qui dilue le contrôle. **Une économie maîtrisée, validée trimestriellement par les KPIs documentés dans le repo** — acquisition, engagement, monétisation, rétention. Si la réalité dérape, trois scénarios alternatifs sont prêts, conservateur à agressif. »
+
+## Séquence 6 — GTM + 5 canaux + transition (60 s, ~135 mots)
+
+**Slide** : S13 — focus visuel sur quadrant **GTM**.
 
 > **(Le présentateur pointe le quadrant GTM sur S13.)**
 >
-> "**Go-to-market**. Approche progressive, sans budget marketing
-> initial. Bouche-à-oreille et réseau personnel d'abord. Content
-> et SEO — blog et LinkedIn — en parallèle. Budget marketing
-> uniquement **si la traction est constatée**.
+> « **Go-to-market**. Approche progressive, sans budget marketing initial. Bouche-à-oreille et réseau personnel d'abord. Content et SEO — blog et LinkedIn — en parallèle. Budget marketing uniquement **si la traction est constatée**.
 >
-> Quatre canaux priorisés côté Brasse-Bouillon : **magasins
-> spécialisés (LHBS)**, **YouTubers brassicoles francophones**,
-> **communautés Reddit et Facebook**, **salons CRAB et Saint-Malo
-> Beer Expo**.
+> Cinq canaux priorisés. Un — **magasins spécialisés LHBS**, élargissement département puis région puis national. Deux — **YouTubers brassicoles francophones** : Les Cités d'Orge, Bricole Brassicole, Une bière et Jivay, MASHY, Comment brasser sa bière. Cinq chaînes identifiées en outreach post-soutenance. Trois — **communautés Reddit et Facebook FR** plus brassageamateur.com. Quatre — **salons** CRAB Rennes et Saint-Malo Beer Expo. Cinq — **influenceurs FR** brassicoles, à élargir au-delà des YouTubers.
 >
-> Voilà le modèle, les chiffres, les perspectives. Honnête,
-> sourcé, défendable.
+> Voilà le modèle, les chiffres, les perspectives. **Honnête, sourcé, défendable.**
 >
-> Il reste une dernière chose à vous dire."
+> Il reste une dernière chose à vous dire. »
 >
-> **→ Transition visuelle** : bascule vers **slide S14 — conclusion
-> + CTA**.
+> **→ Transition visuelle** : bascule vers **slide S14 — conclusion + CTA**.
 
 ## Vérification budget mots et timing
 
@@ -195,132 +122,113 @@ scolaire**.
 |---|---|---|
 | 1. Ouverture BM | 45 | 20 |
 | 2. Cible + UVP | 115 | 51 |
-| 3. Revenus + innovation | 180 | 80 |
-| 4. Légal + budget | 115 | 51 |
-| 5. RH — studio web | 360 | 160 |
-| 6. GTM + transition | 130 | 58 |
-| **Total** | **~945** | **~420 = 7:00** |
+| 3. Revenus + freemium + leviers | 225 | 100 |
+| 4. Légal + budget + financement | 155 | 70 |
+| 5. RH — auto-financement BB | 250 | 110 |
+| 6. GTM + 5 canaux + transition | 135 | 60 |
+| **Total** | **~925** | **~411 = 6:51** |
 
-**Exactement 7 min** — la minute ajoutée par rapport à la version
-précédente étoffe la séquence 5 (studio web) avec la roadmap
-semaine / 3 mois / 6 mois et la formulation "stratégie consciente, pas
-plan B". Le reste du bloc est inchangé.
+**Marge naturelle 9 secondes** sous 7 min — couvre les pauses, transitions visuelles entre quadrants S13, et le silence de 1 seconde avant la séquence 5.
 
 ## Chiffres et sources
 
 | Chiffre cité | Source | Statut |
 |---|---|---|
 | 30-50 ans, 2-10 ans pratique | [target_audience.md](../../design/01_target-audience/target_audience.md) | ✅ Sourcé |
-| 1,5 Md€ marché européen 2024 | [target_audience.md](../../design/01_target-audience/target_audience.md) | ✅ Sourcé |
-| CAGR 8,5 % France 2026-2033 | [target_audience.md](../../design/01_target-audience/target_audience.md) | ✅ Sourcé |
+| 1,5 Md€ marché européen 2024 | [target_audience.md](../../design/01_target-audience/target_audience.md) | 🔴 **À sourcer rigoureusement** (audit-decisions item 2.1) |
+| CAGR 8,5 % France 2026-2033 | [target_audience.md](../../design/01_target-audience/target_audience.md) | 🔴 **À sourcer rigoureusement** (audit-decisions item 2.1) |
+| Free 5 recettes / 3 sessions | [pricing-tiers-definition.md](pricing-tiers-definition.md) | ✅ Sourcé |
+| Premium 2,99 € / Pro 5,99 € | [pricing-tiers-definition.md](pricing-tiers-definition.md) | ✅ Sourcé |
+| ARPU blendé 4,75 €/mo | [pricing-tiers-definition.md](pricing-tiers-definition.md) §Cohérence funnel | ✅ Sourcé |
+| Lifetime Deal 100 places × 99 € = 9,9 k€ | [pricing-tiers-definition.md](pricing-tiers-definition.md) §Levier 2 | ✅ Sourcé |
+| Trial 30 jours Pro sans CB | [pricing-tiers-definition.md](pricing-tiers-definition.md) §Levier 1 | ✅ Sourcé |
+| Migration -50 % Marc-Switcher | [pricing-tiers-definition.md](pricing-tiers-definition.md) §Levier 3 | ✅ Sourcé |
+| Discount annuel 30 % | [pricing-tiers-definition.md](pricing-tiers-definition.md) §Levier 4 | ✅ Sourcé |
 | 3 partenariats magasins | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #33 | ✅ Sourcé (objectif prospectif) |
-| 3 dossiers financement | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #36 | ✅ Sourcé (objectif prospectif) |
-| Scanner code-barre différenciateur | [audit-features-mvp.md](audit-features-mvp.md) #10 ✅ | ✅ Sourcé |
-| beer-label-ai YOLOv8 + OCR | [audit-features-mvp.md](audit-features-mvp.md) #11 | ✅ Sourcé |
-| Studio prix 1,5-8 k€ | [web-studio-brainstorming.md](web-studio-brainstorming.md) Q7 | ✅ Sourcé |
-| Studio < 10 k€ an 1 | [web-studio-brainstorming.md](web-studio-brainstorming.md) Q13 | ✅ Sourcé |
-| Studio 3 sites avant 2026-11-30 | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #31 (B) | ✅ Sourcé |
-| Premier prospect identifié | [web-studio-brainstorming.md](web-studio-brainstorming.md) Q11 | ✅ Sourcé |
-| Franchise TVA 37 500 € | [web-studio-brainstorming.md](web-studio-brainstorming.md) § matrice juridique | ✅ Sourcé |
-| Questionnaire communauté 20-30 répondants | [smart-objectives-par-pole.md](smart-objectives-par-pole.md) #29 (révisé 2026-04-21) + landing [brasse-bouillon.com](https://brasse-bouillon.com) | ✅ Sourcé |
-| Gitleaks + CodeQL en CI | [CLAUDE.md](../../../CLAUDE.md) § CI Security Tooling | ✅ Sourcé |
-| Grille tarifaire freemium | **Workshop à programmer** | ⚠️ Formulation prudente "se cale en atelier entrepreneurial" |
+| OPEX an 1 = 3,5 k€ / CAPEX 1-2,5 k€ | [financial-projections.md](financial-projections.md) | ✅ Sourcé |
+| Break-even mois 5-6 | [financial-projections.md](financial-projections.md) §Break-even | ✅ Sourcé |
+| Revenus 14 k€ Y1 / 57 k€ Y3 / 108 k€ Y5 | [financial-projections.md](financial-projections.md) §Revenus | ✅ Sourcé |
+| Net 3 400 €/mo Y3 / 6 000 €/mo Y5 | [financial-projections.md](financial-projections.md) §Marges | ✅ Sourcé |
+| 3 scénarios alternatifs | [scenarios-alternatifs.md](scenarios-alternatifs.md) | ✅ Sourcé |
+| Statut JEI économies 6-8 k€/an | [scenarios-alternatifs.md](scenarios-alternatifs.md) §Plan d'action conservateur | ✅ Sourcé |
+| 5 chaînes YouTube FR (Cités d'Orge, Bricole, Jivay, MASHY, Comment brasser) | [influenceurs-canaux-fr.md](influenceurs-canaux-fr.md) | ✅ Sourcé |
+| Gitleaks + CodeQL en CI | [CLAUDE.md](../../../CLAUDE.md) §CI Security Tooling | ✅ Sourcé |
+| Dépôt INPI marque BB | [audit-decisions-2026-05-05.md](audit-decisions-2026-05-05.md) item 10.5 | 🟡 En cours d'instruction |
 
 ## SMART cités ou évoqués
 
-- **#10** — Pen test OWASP / RGPD (séquence 4).
-- **#11** — Infrastructure prod PostgreSQL (séquence 4).
-- **#29** — Questionnaire communauté, première base marché post-soutenance (séquence 5, évoqué dans la roadmap 3 mois).
-- **#31 variante B** — Studio lancement + 3 clients + CA ≥ 6 k€
-  (séquence 5, explicite).
-- **#32** — Plan GTM 3 canaux × 3 personas (séquence 6).
-- **#33** — 3 partenariats magasins (séquence 3).
-- **#34** — 1 000 pré-inscriptions (pas cité ici, bloc 6 le fera).
-- **#36** — 3 dossiers financement (séquence 4).
+- **#10** — Pen test OWASP / RGPD (séquence 4)
+- **#11** — Infrastructure prod PostgreSQL (séquence 4)
+- **#33** — 3 partenariats magasins (séquence 3)
+- **#34** — 1 000 pré-inscriptions (cité bloc 6)
+- **#36** — 3 dossiers financement public (séquence 4)
+
+**SMART #31 retiré** (était 3 sites studio + 6 k€) — supprimé suite à la suppression du pivot studio web.
 
 ## Notes de direction scénique
 
-- **Ton business posé** — le bloc 5 n'est pas un moment
-  "passionné", c'est un moment "je maîtrise mes chiffres".
-- **Pointer la slide** avec le stylo-pointeur ou le doigt quand
-  on nomme les blocs du BMC — aide le jury à suivre.
-- **Détacher les chiffres** : "mille cinq cents", "trois mille",
-  "huit mille" euros — syllabe par syllabe pour qu'ils impriment.
-- **Pause de 1 seconde** avant "Et c'est là que je veux être
-  honnête avec vous" (début séquence 5) — signale le pivot
-  narratif important.
-- **Regard ferme** sur "pas de prétexte, c'est un constat" — le
-  jury doit sentir que le user assume la limite Ydays sans
-  victimisation.
-- **Ne pas s'excuser** pendant le pivot studio — c'est une vision
-  assumée, pas un plan B.
-- **Ralentir légèrement** sur la roadmap "semaine / 3 mois / 6 mois"
-  (séquence 5, vers la fin) — chaque jalon doit tomber net.
-- **Appuyer "stratégie consciente, pas un plan B"** — phrase-pivot
-  qui doit rester en mémoire du jury pour la Q&A.
+- **Ton business posé** — le bloc 5 n'est pas un moment « passionné », c'est un moment « je maîtrise mes chiffres ».
+- **Pointer la slide** avec le stylo-pointeur ou le doigt quand on nomme les blocs du BMC — aide le jury à suivre.
+- **Détacher les chiffres** : « deux euros quatre-vingt-dix-neuf », « cinq euros quatre-vingt-dix-neuf », « dix mille euros » — syllabe par syllabe pour qu'ils impriment.
+- **Pause de 1 seconde** avant la séquence 5 — signale le pivot vers la philosophie de financement.
+- **Regard ferme** sur « Brasse-Bouillon se finance par lui-même » et « modèle volontairement progressif » — ce sont les phrases-clés du nouveau positionnement.
+- **Ralentir** sur les 4 phases (amorçage / activation / consolidation / scale) — chaque jalon doit tomber net.
+- **Appuyer « pas de levée de fonds qui dilue le contrôle »** — phrase-pivot qui doit rester en mémoire du jury pour la Q&A.
+- **Énoncer les 5 chaînes YouTube** avec un rythme posé — leur citation explicite est un atout différenciant unique au pitch.
 
 ## Points sensibles et fallbacks Q&A
 
 Cette séquence sera questionnée. Anticipations :
 
-### Q : "Pourquoi pas de vraie étude de marché pendant les Ydays ?"
+### Q : « Pourquoi micro-entreprise et pas SASU dès le départ ? »
 
-**R** : "La structure Ydays nous imposait une équipe de 3 pôles.
-Les pôles création et marketing n'ont pas livré le volume qu'on
-attendait, pour des raisons humaines. Plutôt que de faire porter
-le blâme, je prends le relais : le studio web me donne les moyens
-de faire ce travail sérieusement dans les mois à venir. C'est
-plus honnête que de simuler une étude marché incomplète pendant le
-pitch."
+**R** : « Pour valider l'ICP avec les cent premiers utilisateurs Lifetime Deal et les premiers Premium. Plafond CA micro-entreprise BNC à soixante-dix-sept mille sept cents euros, largement au-dessus des quatorze mille euros visés en année 1. Charges fixes zéro, formalités trente minutes, franchise TVA jusqu'à trente-six mille huit cents euros — avantage commercial pour le freemium. Réversibilité totale : si la traction dépasse trente à quarante mille euros en année 2, je bascule en EURL ou SASU sans friction. Un membre de l'équipe a déjà un SIRET en filet pour recevoir d'éventuels gains à l'événement national Y Days. »
 
-### Q : "Pourquoi micro-entreprise et pas SASU directement ?"
+### Q : « Comment vous mesurez le succès an 1 ? »
 
-**R** : "Trois raisons, documentées dans le repo. **Zéro charge
-fixe**, pas d'expert-comptable au démarrage. **Réversibilité** :
-si la traction dépasse 30-40 k€ en an 2, je bascule en EURL ou
-SASU sans friction. **Franchise TVA** jusqu'à 37 500 € : avantage
-commercial net pour mes clients TPE, qui eux ne récupèrent pas la
-TVA."
+**R** : « Mille pré-inscriptions sur six mois — c'est notre SMART numéro trente-quatre, traçable sur le site `brasse-bouillon.com`. Et cent utilisateurs Pro Lifetime Deal, **avec break-even mensuel atteint au cinquième ou sixième mois**. KPIs documentés en quatre catégories — acquisition, engagement, monétisation, rétention — toutes les cibles chiffrées dans le repo. »
 
-### Q : "Comment le studio peut-il financer BB s'il ne fait que 10 k€ en an 1 ?"
+### Q : « Pas de levée de fonds, c'est sage ou c'est la peur ? »
 
-**R** : "L'objectif an 1 est d'**amorçage**, pas de rentabilité
-pleine. 10 k€ suffit à payer mes outils d'IA — Claude, ChatGPT
-Plus, Cursor, Vercel — et à me dégager du temps. Au-delà, si
-l'an 1 valide l'ICP, l'an 2 vise 30-60 k€ et là le financement
-sérieux de BB démarre. C'est une courbe, pas un cliquet."
+**R** : « C'est un choix conscient. Les outils d'IA divisent par cinq le coût de développement d'une app aujourd'hui — Claude, ChatGPT, Cursor coûtent moins de cent euros par mois. Lever cinq cent mille euros pour brûler dans le marketing avant d'avoir validé l'ICP, c'est la voie que prennent les startups qui ferment dans les dix-huit mois. Brasse-Bouillon prend le chemin opposé : itérer en bootstrap, atteindre trois mille quatre cents euros par mois net en année 3, et **réintroduire la question d'une levée de fonds seulement si la phase scale le justifie**, pas avant. »
 
-### Q : "Le scanner code-barre, il est vraiment différenciateur ou c'est un nice-to-have ?"
+### Q : « Le scanner code-barre, il est vraiment différenciateur ou c'est un nice-to-have ? »
 
-**R** : "Vérifiez. Brewfather n'a pas de scanner. Little Bock n'a
-pas de scanner. Untappd a un scanner **de notation**, pas un
-scanner **qui génère une recette équivalente**. La feature est
-live aujourd'hui dans BB, testée, fallback photo intégré.
-Différenciateur produit réel."
+**R** : « Vérifiez. Brewfather n'a pas de scanner. Little Bock n'a pas de scanner. Untappd a un scanner **de notation**, pas un scanner **qui génère une recette équivalente**. La feature est live aujourd'hui dans BB, testée, fallback photo intégré. Différenciateur produit réel, et la base de notre flow viral via la feature dégustation post-brassage en perspective v0.2 — tracée sur l'épique GitHub numéro huit cent quatre-vingt-seize. »
+
+### Q : « Comment vous tenez le break-even mois 5-6 sans agence web ni levée de fonds ? »
+
+**R** : « Trois leviers. **Un** : le Lifetime Deal lancement, dix mille euros au jour zéro qui couvrent l'intégralité du CAPEX et l'OPEX des six premiers mois. **Deux** : OPEX maîtrisé à trois mille cinq cents euros sur l'année 1 — hosting Scaleway souverain FR, AI APIs à deux cents euros, comptable à deux cents euros. **Trois** : conversion Free vers Premium qui démarre dès le mois 2 avec la communauté de bouche-à-oreille déjà préparée par la landing `brasse-bouillon.com` et le questionnaire communauté actif. Le modèle ne dépend d'aucune source externe pour décoller. »
 
 ## À arbitrer par le user
 
-- [ ] Valider la formulation "pas de prétexte, c'est un constat"
-  en séquence 5 — un peu tranchante mais cohérente avec
-  l'honnêteté pitch. Sinon reformuler "ce n'est pas une excuse,
-  c'est la réalité".
-- [ ] Valider la formulation "stratégie consciente, pas un plan B"
-  (clôture séquence 5) — posture assumée ou à adoucir selon la
-  sensibilité du jury.
-- [ ] Confirmer le wording "Brewfather" et "Little Bock" à citer
-  nommément (risque PR mineur mais défendable puisque sourcé).
-- [ ] Valider que le script tient 7 min **au chrono** et pas en
-  lecture silencieuse — dès répétition.
+- [ ] Sourcer rigoureusement les chiffres marché (1,5 Md€, +8,5 % CAGR) — audit-decisions item 2.1.
+- [ ] Confirmer que les 5 chaînes YouTube citées sont **acceptables à nommer publiquement** sans accord préalable (risque PR mineur — citations factuelles, sources publiques).
+- [ ] Valider le ton « pas de levée de fonds qui dilue le contrôle » — formulation engagée mais cohérente avec la posture artisan tech.
+- [ ] Décider si on cite « JEI » en clair ou « Jeune Entreprise Innovante » développé — préférence pour l'acronyme + définition courte si jury non-business.
+- [ ] Confirmer que le script tient 7 min **au chrono** et pas en lecture silencieuse — dès répétition.
 
 ## Prochaines étapes logiques
 
-1. Répéter le bloc **au chrono** avec la nouvelle séquence 5 à 2:40
-   min — cible l'oral blanc 2026-05-06.
-2. Valider les 3 jalons roadmap (semaine / 3 mois / 6 mois) en
-   cohérence avec [smart-objectives-par-pole.md](smart-objectives-par-pole.md)
-   #29 et #31.
-3. Le **script bloc 6** est déjà rédigé
-   ([pitch-script-bloc6-conclusion.md](pitch-script-bloc6-conclusion.md))
-   et intègre la tagline A + le CTA triple canal.
-4. Détailler le contenu exact des slides Canva S12 et S13 (4
-   quadrants Perspective, pivot studio mis en avant).
+1. Répéter le bloc **au chrono** avec la nouvelle séquence 5 à 1:50 min — cible répétitions internes équipe (oral blanc coach annulé).
+2. Sourçage rigoureux des chiffres marché en session compile Perplexity + GPT + Claude (audit-decisions item 2.1).
+3. Mise à jour de la **slide S13** quadrant RH (slide-deck-outline.md + canva-slides-detail.md) pour refléter le nouveau cadrage 4 phases.
+4. Mise à jour de la **slide S12** revenus pour ajouter le pop-up paliers tarifaires (Free / Premium 2,99 / Pro 5,99).
+5. Le **script bloc 6** est déjà rédigé ([pitch-script-bloc6-conclusion.md](pitch-script-bloc6-conclusion.md)) et intègre la tagline A + le CTA triple canal — vérifier cohérence avec les nouvelles formulations.
+
+## Références
+
+- [audit-decisions-2026-05-05.md](audit-decisions-2026-05-05.md) — décision D3 suppression studio web (item 11.7) + nouveau cadre auto-financement
+- [business-model-canvas.md](business-model-canvas.md) — BMC 9 blocs source
+- [pricing-tiers-definition.md](pricing-tiers-definition.md) — paliers Free / Premium / Pro + 4 leviers
+- [financial-projections.md](financial-projections.md) — OPEX/CAPEX/revenus 5 ans
+- [scenarios-alternatifs.md](scenarios-alternatifs.md) — 3 scénarios + plans B
+- [influenceurs-canaux-fr.md](influenceurs-canaux-fr.md) — 5 chaînes YouTube FR
+- [feature-couronnes-roadmap-v02.md](feature-couronnes-roadmap-v02.md) — système Couronnes (v0.2+)
+- [backlog-audit-2026-05-05.md](backlog-audit-2026-05-05.md) — 50 épiques GitHub regroupés
+- [web-studio-brainstorming.md](web-studio-brainstorming.md) — **archive historique** (ABANDONNÉ pour la soutenance, conservé pour référence future)
+- [smart-objectives-par-pole.md](smart-objectives-par-pole.md) — 36 SMART par pôle (#31 retiré du pitch)
+
+---
+
+**Dernière mise à jour** : 2026-05-05 — réécriture complète post-suppression studio web (cascade D3).

@@ -259,7 +259,7 @@ l'intervention Dev est diluée **dans** la démo (pas en segment séparé).
 | T3 | Accroche pitch (saynète V1-cut) | ✅ livré | `outputs/pitch-hook-saynete-v1-cut.md` |
 | T4 | Valider / actualiser les 3 personas | 🟡 user | `docs/personas/user_personas.md` |
 | T6 | Script détaillé démo live 5 min (seconde par seconde) | ✅ livré | `outputs/pitch-script-bloc3-demo-live.md` |
-| T7 | Étendre cadrage bloc 1 post-saynète à ~3:10 | 🔴 à faire | `outputs/pitch-script-bloc1-cadrage.md` |
+| T7 | Étendre cadrage bloc 1 post-saynète à ~3:10 | ✅ livré (V2 ~400 mots, 5 segments A-E, audit 2026-05-05) | `outputs/pitch-script-bloc1-cadrage.md` |
 | T8 | Produire 6 slides Canva saynète (S1-S6) | 🔴 à faire | Canva — design system BB |
 | T9 | Tourner vidéo backup démo 3 min (deadline 2026-05-20) | 🔴 à faire | issue #533 |
 | T10 | Réserver oral blanc coach 2026-05-06 | 🔴 urgent | issue #577 (action) / #536 (épic) |

@@ -151,17 +151,27 @@ Après les 3 s de silence scénique, Benoît prend la parole face au jury
 
 ### Distribution des rôles
 
-- **P1** : membre de l'équipe Ydays (à identifier) — joue le brasseur
-  novice sceptique.
-- **P2** : deuxième membre de l'équipe OU Benoît lui-même (à arbitrer)
-  — joue l'ami qui connaît l'app.
+- **P1** : membre de l'équipe Ydays (à identifier le mercredi 2026-05-06
+  lors de la dernière séance équipe avant soutenance) — joue le
+  brasseur novice sceptique. Profil-type recherché : tonus expressif
+  (soupirs, scepticisme, conversion sincère sur la punchline),
+  crédibilité « je n'ai jamais brassé de ma vie », énergie
+  complémentaire à Benoît. Persona-cible canonique = **Léa la
+  Curieuse** (féminin) ou **Nicolas le Débutant** (masculin) — la
+  saynète est neutre dans sa formulation (« Tu pourrais la brasser
+  toi-même »).
+- **P2** : **Benoît Bremaud** (figé 2026-05-05) — joue l'ami qui
+  connaît l'app et démontre le scan.
 
-**Si Benoît joue P2** : il reste sur scène, c'est lui qui enchaîne
-naturellement vers le cadrage après la saynète. Pas de transition de
-"comédien invité" vers "présentateur".
+**Conséquence T0** : Benoît reste sur scène à la fin de la saynète, il
+enchaîne naturellement vers le cadrage bloc 1 sans rupture
+"comédien invité → présentateur". Pas de chorégraphie d'entrée
+supplémentaire à régler.
 
-**Si Benoît ne joue pas** : il entre sur scène pour la transition.
-Variante théâtrale plus marquée, demande une chorégraphie d'entrée.
+**Variante théâtrale 2 acteurs externes (abandonnée 2026-05-05)** :
+le scénario où Benoît n'aurait pas joué P2 demandait une chorégraphie
+d'entrée + bande sonore de transition. Risque logistique jugé trop
+élevé vs le gain narratif. Conservé en repli extrême uniquement.
 
 ### Accessoires minimaux
 

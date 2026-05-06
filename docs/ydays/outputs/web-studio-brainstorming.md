@@ -1,6 +1,18 @@
 # Brainstorming agence web-studio Eryon — pour pitch bloc 5 Perspectives
 
-**Finalité** : préparer la narration de "vision agence web-studio" dans le
+> ⚠️ **DÉCISION 2026-05-05 — ABANDONNÉ POUR LA SOUTENANCE 2026-05-27**
+>
+> Le pivot RH « studio web Eryon finance Brasse-Bouillon » a été supprimé du pitch lors de la session d'audit du 2026-05-05 (cascade D3, cf. [audit-decisions-2026-05-05.md](audit-decisions-2026-05-05.md) item 11.7).
+>
+> **Nouveau cadrage** : Brasse-Bouillon **se finance lui-même** sur 4 phases progressives (amorçage / activation / consolidation / scale). Lifetime Deal lancement + freemium 3 paliers + partenariats LHBS + dossiers financement public (JEI, BPI, French Tech, incubateurs). Plus de levée de fonds, plus de revenu studio externe.
+>
+> **Ce document est conservé en archive historique** comme matière utile pour un projet futur (le studio web reste une option post-soutenance, pas un sujet de pitch). Les chiffres / matrice juridique / pricing studio sont **explicitement exclus** du pitch 2026-05-27.
+>
+> Pour la narration soutenance, voir [pitch-script-bloc5-bm-perspectives.md](pitch-script-bloc5-bm-perspectives.md) (réécrit) et [slide-deck-outline.md](slide-deck-outline.md) S13 (réécrite).
+
+---
+
+**Finalité (historique)** : préparer la narration de "vision agence web-studio" dans le
 bloc 5 du pitch soutenance (Perspectives RH / GTM), en remplacement du
 SMART #31 (recrutement Marketing) abandonné le 2026-04-19.
 

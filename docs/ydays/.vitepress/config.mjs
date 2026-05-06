@@ -42,7 +42,15 @@ export default {
       {
         text: "Soutenance",
         items: [
-          { text: "Plan de soutenance", link: `${outputsPrefix}/plan-presentation-27-mai` },
+          { text: "Plan finalisé — fiche de scène J-0", link: `${outputsPrefix}/plan-de-soutenance-finalise` },
+          { text: "Audit décisions 2026-05-05 (Garde/Update/Réétudie)", link: `${outputsPrefix}/audit-decisions-2026-05-05` },
+          { text: "Matrice conformité grille + coach 25 mars (objective)", link: `${outputsPrefix}/matrice-conformite-grille-coach` },
+          { text: "Audit backlog 50 épiques (2026-05-05)", link: `${outputsPrefix}/backlog-audit-2026-05-05` },
+          { text: "Feature Couronnes (#739, roadmap v0.2+)", link: `${outputsPrefix}/feature-couronnes-roadmap-v02` },
+          { text: "Influenceurs et canaux FR brassicoles", link: `${outputsPrefix}/influenceurs-canaux-fr` },
+          { text: "Options de financement public FR (12 aides)", link: `${outputsPrefix}/financement-options-fr` },
+          { text: "Tâches équipe 2026-05-06 (distribution par domaine)", link: `${outputsPrefix}/team-tasks-2026-05-06` },
+          { text: "Plan de soutenance (stratégie + décisions)", link: `${outputsPrefix}/plan-presentation-27-mai` },
           { text: "Stratégie d'hébergement", link: `${outputsPrefix}/hosting-strategy` },
           { text: "Risques overview", link: "/risks-overview" },
           { text: "Risques et mitigations", link: `${outputsPrefix}/risk-analysis` },
@@ -58,12 +66,15 @@ export default {
           { text: "Deck Canva — fichier de travail", link: `${outputsPrefix}/canva-working-deck` },
           { text: "Deck overview", link: "/slides-overview" },
           { text: "Squelette du deck", link: `${outputsPrefix}/slide-deck-outline` },
-          { text: "Détail Canva", link: `${outputsPrefix}/canva-slides-detail` },
+          { text: "Détail Canva v2 (post-restructure 2026-05-06) ⭐", link: `${outputsPrefix}/canva-slides-detail-v2` },
+          { text: "Saynète V2 longue (4:30 Path C) ⭐", link: `${outputsPrefix}/pitch-hook-saynete-v2-long` },
+          { text: "Tâches équipe 2026-05-06 ⭐", link: `${outputsPrefix}/team-tasks-2026-05-06` },
+          { text: "Détail Canva v1 (archive)", link: `${outputsPrefix}/canva-slides-detail` },
           { text: "Scripts overview", link: "/scripts-overview" },
           { text: "Bloc 1 — cadrage", link: `${outputsPrefix}/pitch-script-bloc1-cadrage` },
           { text: "Bloc 2 — avant brassage", link: `${outputsPrefix}/pitch-script-bloc2-avant-brassage` },
           { text: "Bloc 3 — démo live", link: `${outputsPrefix}/pitch-script-bloc3-demo-live` },
-          { text: "Bloc 4 — après brassage", link: `${outputsPrefix}/pitch-script-bloc4-apres-brassage` },
+          { text: "Bloc 4 — après brassage (ABSORBÉ saynète V2)", link: `${outputsPrefix}/pitch-script-bloc4-apres-brassage` },
           { text: "Bloc 5 — BM + perspectives", link: `${outputsPrefix}/pitch-script-bloc5-bm-perspectives` },
           { text: "Bloc 6 — conclusion", link: `${outputsPrefix}/pitch-script-bloc6-conclusion` },
           { text: "Transitions", link: `${outputsPrefix}/pitch-transitions` }
@@ -82,6 +93,8 @@ export default {
       {
         text: "Stratégie business approfondie",
         items: [
+          { text: "Statut juridique — analyse et décision (Zone D)", link: `${outputsPrefix}/statut-juridique-analyse` },
+          { text: "Recherche concurrentielle exhaustive (Zone B) ⭐", link: `${outputsPrefix}/recherche-concurrentielle-exhaustive` },
           { text: "Audit concurrence approfondi", link: `${outputsPrefix}/competitive-deep-dive` },
           { text: "Personas & monétisation", link: `${outputsPrefix}/personas-monetization` },
           { text: "Funnel & projection", link: `${outputsPrefix}/funnel-projection` },

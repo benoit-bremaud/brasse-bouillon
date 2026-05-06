@@ -7,6 +7,61 @@ anti-chronologique (la plus récente en haut).
 **Format retenu** : `YYYY.MM.DD-N` où `N` est le numéro de déploiement
 du jour (ex. `2026.04.23-1` = premier déploiement du 23 avril 2026).
 
+## 2026.05.06-1
+
+**Session audit complet + zones parking + restructure pitch V2 (J-21)**
+
+Grande session de préparation soutenance à J-21 (oral blanc 2026-05-06). Audit des 17 domaines / ~85 items, clôture des 4 zones parking, restructure majeure du pitch et mise à jour du site VitePress.
+
+### Décisions structurantes actées
+
+- **D3 Cascade** : suppression définitive du pivot "studio web" de tous les docs pitch (bloc 5, S13, Q&A, web-studio-brainstorming marqué ABANDONNÉ)
+- **Saynète V2** : passage V1-cut (1:50) → V2 longue (4:30 Path C — scan + boutique panier + prix 2-3€/L + Mode Batch). Bloc 4 "Après brassage" absorbé.
+- **Personas v4** : Léa la Curieuse promue persona primaire (demo hero), Nicolas/Claire/Marc conservés, Zoé en réserve Q&A. 4 personas actifs.
+- **Founder-fit corrigé** : "développeur depuis une décennie" → "reconversion professionnelle full-stack depuis 3 ans + brasseur amateur"
+
+### Zones parking closes
+
+- **Zone A** — Chiffres marché sourcés : "10 M Français" éliminé → 200-300 K homebrewers FR + 36 378 Little Bock ; "1,5 Md€" → fourchette FR 2-8 Md USD ; "8,5 %" → 8-12 %/an. Joliebulle FERMÉ 2025 ajouté. → [chiffres-marche-sources-rigoureuses](/outputs/chiffres-marche-sources-rigoureuses)
+- **Zone B** — Recherche concurrentielle exhaustive : 9 outils cartographiés (FR + EN), Fermentis App v2 identifiée, narratif compétitif consolidé → [recherche-concurrentielle-exhaustive](/outputs/recherche-concurrentielle-exhaustive)
+- **Zone C** — Pricing marathon épique #897 : vérifié complet (pricing-tiers-definition.md 3 tiers + 4 leviers + ARPU 4,75 €)
+- **Zone D** — Forme juridique : matrice multi-critères scoring 5 régimes (Micro/EURL/SASU/Portage/Asso), radar ASCII, triggers de bascule documentés, narratif Q&A → [statut-juridique-analyse](/outputs/statut-juridique-analyse)
+
+### Documents créés (6 nouveaux)
+
+- [Plan de soutenance finalisé](/outputs/plan-de-soutenance-finalise) — restructuré V2 (timecodes corrigés, Phase 4 ABSORBÉE, quiz Wooclap post-30min)
+- [Recherche concurrentielle exhaustive](/outputs/recherche-concurrentielle-exhaustive) — Zone B, 9 outils
+- [Statut juridique — analyse et matrice](/outputs/statut-juridique-analyse) — Zone D, scoring pondéré
+- [Chiffres marché — sources rigoureuses](/outputs/chiffres-marche-sources-rigoureuses) — Zone A
+- [Personas v4](/outputs/canva-slides-detail-v2) — mis à jour (Léa primaire)
+- [Saynète V2 longue 4:30](/outputs/pitch-hook-saynete-v2-long) — Path C complet
+
+### Documents mis à jour (7 propagations)
+
+- [Bloc 1 — cadrage](/outputs/pitch-script-bloc1-cadrage) : chiffres corrigés + founder-fit reconversion + 97 → 647 tests
+- [Bloc 5 — BM + perspectives](/outputs/pitch-script-bloc5-bm-perspectives) : réécriture sans studio web + 4 phases auto-financement
+- [Plan soutenance finalisé](/outputs/plan-de-soutenance-finalise) : timecodes V2, Phase 4 ABSORBÉE, Q&A mis à jour
+- [Slide deck outline](/outputs/slide-deck-outline) : S13 quadrant RH remplacé (4 phases auto-financement)
+- [Canva slides v2](/outputs/canva-slides-detail-v2) : S7 avec Léa primaire (gold border) + 4 personas
+- [Audit décisions 2026-05-05](/outputs/audit-decisions-2026-05-05) : cascade D3 tracée
+- [Web studio brainstorming](/outputs/web-studio-brainstorming) : marqué ABANDONNÉ pour soutenance
+
+### Corrections chiffres propagées partout
+
+| Chiffre | Avant | Après |
+|---|---|---|
+| Tests automatisés | 97 | **647** (407 mobile + 240 API) |
+| Accroche marché | "10 M Français" | "200-300 K homebrewers FR + 36 378 Little Bock" |
+| Marché FR | "1,5 Md€ EU" | "2-8 Md USD FR selon sources" |
+| CAGR | "8,5 %" | "8-12 %/an" |
+| Founder-fit | "dev depuis une décennie" | "reconversion full-stack 3 ans" |
+
+### Sidebar mis à jour
+
+- Ajout : Statut juridique Zone D, Recherche concurrentielle Zone B, Plan finalisé
+- Bloc 4 marqué "(ABSORBÉ saynète V2)"
+- Version bumped : **v2026.05.06-1**
+
 ## 2026.04.30-4
 
 **Atelier D Phase 5 modèle éco — Scénarios alternatifs (clôture Phase 5)**

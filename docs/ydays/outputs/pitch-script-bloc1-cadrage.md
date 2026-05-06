@@ -30,51 +30,55 @@ founder-fit → 3 piliers + SMART → transition T1).
 > **(Les deux comédiens sortent côté cour. Benoît revient seul face
 > jury. 2-3 secondes de silence — laisser la scène s'installer.)**
 >
-> "Cette scène que vous venez de voir — c'est celle de **dix millions
-> de Français**."
+> "Cette scène que vous venez de voir — elle est réelle. **Deux cents
+> à trois cents mille Français** brassent chez eux aujourd'hui."
 
 ### Segment B — Chiffres marché + gap FR (~125 mots, ~55 s)
 
 > "Leur profil est précis : **trente à cinquante ans**, **deux à dix
-> ans de pratique**, technophiles, urbains, francophones.
+> ans de pratique**, technophiles, urbains, francophones. Trente-six
+> mille d'entre eux sont inscrits sur Little Bock — **c'est notre
+> marché documenté, mesurable, accessible**.
 >
 > Aujourd'hui, ils brassent de manière désorganisée — recettes sur
 > papier, calculs à la main, matériel éparpillé, **aucune communauté
 > pour s'inspirer**.
 >
-> Le marché européen du brassage amateur pèse **un milliard et demi
-> d'euros en 2024**, et il grossit de **huit virgule cinq pour cent
-> par an** jusqu'en 2033.
+> La France compte **deux mille cinq cents brasseries actives —
+> première d'Europe**. Le marché craft français pèse **entre deux
+> et huit milliards de dollars selon les sources**, et croît de
+> **huit à douze pour cent par an**.
 >
-> Et pourtant — **Brewfather domine ce marché en anglais**, **Little
-> Bock a vieilli**. Aucune application française moderne ne répond
-> aux besoins spécifiques de cette cible. **C'est exactement notre
-> opportunité.**"
+> Et pourtant — **Brewfather domine en anglais**, **Little Bock
+> reste web sans app native**, et **Joliebulle, le dernier logiciel
+> gratuit en français, a fermé début 2025**. Aucune application
+> française moderne ne répond à cette cible. **C'est exactement
+> notre opportunité.**"
 
-### Segment C — Founder-fit artisan tech (~110 mots, ~50 s)
+### Segment C — Founder-fit reconversion tech (~100 mots, ~45 s)
 
 > "Ce gap, **je ne l'ai pas découvert dans un rapport. Je l'ai vécu.**
 >
-> Je suis **Benoît Bremaud**, développeur depuis une décennie,
-> brasseur amateur à mes heures. Quand j'ai voulu structurer mes
-> propres brassins, aucun outil francophone ne m'a convaincu — soit
-> anglophone, soit vieillissant, soit trop complexe pour un amateur.
+> Je suis **Benoît Bremaud**, en **reconversion professionnelle dans
+> le développement full-stack depuis trois ans** — et brasseur amateur
+> à mes heures. Quand j'ai voulu structurer mes propres brassins,
+> aucun outil francophone ne m'a convaincu — soit anglophone, soit
+> vieillissant, soit trop complexe pour un débutant.
 >
-> J'ai donc commencé à construire ce qui me manquait.
+> J'ai décidé d'apprendre à coder pour construire ce qui me manquait.
 >
-> Brasse-Bouillon, c'est un outil d'**artisan tech** : pensé en
-> français, **méthode IA-driven** pour accélérer, ancré dans le
-> quotidien de cette cible. Et porté ensuite par un studio que je
-> lance dans les Alpes-Maritimes — pour lui donner toutes ses chances
-> au-delà de cette soutenance."
+> Brasse-Bouillon, c'est l'intersection de **ma passion du brassage
+> et de ma reconversion dans le code** — pensé en français, construit
+> avec rigueur."
 
 ### Segment D — 3 piliers + SMART (~110 mots, ~45 s)
 
 > "Voilà ce que je vais vous montrer, en trois temps.
 >
 > **Un** — ce que nous avons déjà livré : **huit features sur onze**
-> stables et démontrables en live, adossées à **quatre-vingt-dix-sept
-> tests automatisés**. La preuve par le code.
+> stables et démontrables en live, adossées à **six cent quarante-sept
+> tests automatisés** — quatre cent sept côté mobile, deux cent
+> quarante côté API. La preuve par le code.
 >
 > **Deux** — le différenciant : dans dix minutes, vous verrez **un
 > scan de bouteille déclencher une recette équivalente, en français**

@@ -7,6 +7,10 @@ SONAR_IMAGE     := sonarqube:lts-community
 SONAR_PORT      := 9000
 SONAR_URL       := http://localhost:$(SONAR_PORT)
 
+BEER_ENC_PORT := 8000
+BEER_ENC_DIR  := packages/beer-encyclopedia
+COMPOSE_BEER_ENC := docker compose -f $(BEER_ENC_DIR)/docker-compose.yml
+
 # LAN IP used so Expo Go (phone) can reach the API running on this machine.
 # Detection order: macOS (ipconfig Wi-Fi en0 / Ethernet en1) → Linux
 # (hostname -I) → localhost fallback. `hostname -I` does not exist on
@@ -20,17 +24,48 @@ LAN_IP := $(shell \
 LAN_IP := $(if $(strip $(LAN_IP)),$(LAN_IP),localhost)
 API_PORT := 3000
 
-.PHONY: help setup dev dev-api dev-mobile test-all lint-all \
+.PHONY: help setup \
+        dev dev-api dev-mobile dev-beer-enc dev-all dev-stop \
+        db-up db-down db-logs \
+        migrate-api migrate-api-revert \
+        migrate-beer-enc migrate-beer-enc-revert \
+        test-all lint-all \
         sonar-start sonar-stop sonar-status sonar-scan
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@printf '\nBrasse-Bouillon — common dev commands\n'
+	@printf '======================================\n\n'
+	@printf 'Quick start (first time on this machine):\n'
+	@printf '  \033[36mmake setup\033[0m                    Create local .env files with safe defaults\n'
+	@printf '  \033[36mmake dev-all\033[0m                  Start everything: database, API, beer encyclopedia, mobile app\n'
+	@printf '  \033[36mmake dev-stop\033[0m                 Stop every dev server and Docker container (databases are preserved)\n\n'
+	@printf 'Daily dev (one server per terminal):\n'
+	@printf '  \033[36mmake dev-api\033[0m                  Start the main API (NestJS, http://localhost:3000)\n'
+	@printf '  \033[36mmake dev-mobile\033[0m               Start the mobile app for Expo Go (scan QR code on phone)\n'
+	@printf '  \033[36mmake dev-beer-enc\033[0m             Start the beer encyclopedia API (Python, http://localhost:8000)\n'
+	@printf '  \033[36mmake dev\033[0m                      Shortcut: API + mobile in parallel\n\n'
+	@printf 'Database (only needed for the beer encyclopedia):\n'
+	@printf '  \033[36mmake db-up\033[0m                    Start the local Postgres database (Docker)\n'
+	@printf '  \033[36mmake db-down\033[0m                  Stop the local Postgres database (data is kept)\n'
+	@printf '  \033[36mmake db-logs\033[0m                  Show live database logs\n\n'
+	@printf 'Migrations (apply schema changes):\n'
+	@printf '  \033[36mmake migrate-api\033[0m              Apply pending migrations on the main API\n'
+	@printf '  \033[36mmake migrate-api-revert\033[0m       Roll back the last main API migration\n'
+	@printf '  \033[36mmake migrate-beer-enc\033[0m         Apply pending migrations on the beer encyclopedia\n'
+	@printf '  \033[36mmake migrate-beer-enc-revert\033[0m  Roll back the last beer encyclopedia migration\n\n'
+	@printf 'Quality gates:\n'
+	@printf '  \033[36mmake test-all\033[0m                 Run all test suites (mobile + API + beer encyclopedia)\n'
+	@printf '  \033[36mmake lint-all\033[0m                 Run all linters\n'
+	@printf '  \033[36mmake sonar-start\033[0m              Start a local SonarQube server (Docker, port 9000)\n'
+	@printf '  \033[36mmake sonar-scan\033[0m               Run a SonarQube scan (needs SONAR_TOKEN=sqp_xxx)\n'
+	@printf '  \033[36mmake sonar-stop\033[0m               Stop the local SonarQube server\n'
+	@printf '  \033[36mmake sonar-status\033[0m             Show SonarQube container status\n\n'
 
 ## ============================================================================
 ## @Dev environment
 ## ============================================================================
 
-setup: ## Bootstrap local dev — create missing .env files with the LAN IP auto-detected
+setup: ## Create local .env files with safe defaults
 	@echo "[setup] Detected LAN IP: $(LAN_IP)"
 	@if [ ! -f packages/api/.env ]; then \
 		echo "[setup] Creating packages/api/.env from .env.example ..."; \
@@ -47,7 +82,21 @@ setup: ## Bootstrap local dev — create missing .env files with the LAN IP auto
 	else \
 		echo "[setup] packages/mobile-app/.env already exists — left untouched."; \
 	fi
+	@if [ ! -f $(BEER_ENC_DIR)/.env ]; then \
+		echo "[setup] Creating $(BEER_ENC_DIR)/.env from .env.example ..."; \
+		cp $(BEER_ENC_DIR)/.env.example $(BEER_ENC_DIR)/.env; \
+		PG_PASS=$$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null || uuidgen 2>/dev/null || echo "CHANGE_ME_PLEASE_RUN_SETUP"); \
+		PGA_PASS=$$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null || uuidgen 2>/dev/null || echo "CHANGE_ME_PLEASE_RUN_SETUP"); \
+		sed -i.bak \
+			"s|CHANGE_ME_POSTGRES_PASSWORD|$$PG_PASS|g; \
+			 s|CHANGE_ME_PGADMIN_PASSWORD|$$PGA_PASS|g" \
+			$(BEER_ENC_DIR)/.env && rm -f $(BEER_ENC_DIR)/.env.bak; \
+		echo "[setup] Postgres and PgAdmin passwords generated."; \
+	else \
+		echo "[setup] $(BEER_ENC_DIR)/.env already exists — left untouched."; \
+	fi
 	@echo "[setup] Done. Next: 'make dev-api' in one terminal, 'make dev-mobile' in another."
+	@echo "[setup]        Or run 'make dev-all' to start everything at once."
 
 dev-api: ## Start the NestJS API in watch mode (http://LAN_IP:3000)
 	@echo "[dev-api] API will be reachable at http://$(LAN_IP):$(API_PORT)"
@@ -57,6 +106,15 @@ dev-mobile: ## Start Expo in LAN mode (scan the QR code with Expo Go)
 	@echo "[dev-mobile] Make sure your phone is on the same Wi-Fi as this machine."
 	npm -w packages/mobile-app run start:lan
 
+dev-beer-enc: ## Start the beer-encyclopedia FastAPI server (http://localhost:8000)
+	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/uvicorn ]; then \
+		echo "[dev-beer-enc] .venv/bin/uvicorn not found."; \
+		echo "[dev-beer-enc] Run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e \".[ml,dev]\""; \
+		exit 1; \
+	fi
+	@echo "[dev-beer-enc] FastAPI on http://localhost:$(BEER_ENC_PORT) and http://$(LAN_IP):$(BEER_ENC_PORT) — Swagger at /docs"
+	cd $(BEER_ENC_DIR) && .venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port $(BEER_ENC_PORT)
+
 dev: ## Start API and Expo in parallel (Ctrl+C stops both)
 	@echo "[dev] Starting API + Expo — API at http://$(LAN_IP):$(API_PORT)"
 	@trap 'kill 0' INT TERM; \
@@ -64,21 +122,105 @@ dev: ## Start API and Expo in parallel (Ctrl+C stops both)
 		(npm -w packages/mobile-app run start:lan) & \
 		wait
 
+dev-all: setup db-up ## Start the whole stack: Postgres + NestJS API + beer-encyclopedia + Expo
+	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/uvicorn ]; then \
+		echo "[dev-all] .venv/bin/uvicorn not found."; \
+		echo "[dev-all] Run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e \".[ml,dev]\""; \
+		exit 1; \
+	fi
+	@echo "[dev-all] Running migrations..."
+	@$(MAKE) -s migrate-api
+	@$(MAKE) -s migrate-beer-enc
+	@echo "[dev-all] Starting API + beer-encyclopedia + Expo — Ctrl+C stops all"
+	@trap 'kill 0' INT TERM; \
+		(npm run dev:api) & \
+		(cd $(BEER_ENC_DIR) && .venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port $(BEER_ENC_PORT)) & \
+		(npm -w packages/mobile-app run start:lan) & \
+		wait
+
+dev-stop: ## Stop dev servers (ports 3000/8000/8081) and beer-encyclopedia Postgres (data preserved)
+	@echo "[dev-stop] Killing processes on ports $(API_PORT), $(BEER_ENC_PORT), 8081..."
+	@for port in $(API_PORT) $(BEER_ENC_PORT) 8081; do \
+		pids=$$(lsof -ti :$$port 2>/dev/null); \
+		if [ -n "$$pids" ]; then \
+			echo "[dev-stop] Killing PID(s) $$pids on port $$port"; \
+			kill $$pids 2>/dev/null || true; \
+		fi; \
+	done
+	@echo "[dev-stop] Stopping beer-encyclopedia Docker containers (data preserved)..."
+	@$(COMPOSE_BEER_ENC) stop 2>/dev/null || true
+	@echo "[dev-stop] Done."
+
 test-all: ## Run mobile-app + api + beer-encyclopedia test suites
 	npm run test:all
-	@if [ -x packages/beer-encyclopedia/.venv/bin/pytest ]; then \
+	@if [ -x $(BEER_ENC_DIR)/.venv/bin/pytest ]; then \
 		echo "[test-all] Running beer-encyclopedia pytest ..."; \
-		(cd packages/beer-encyclopedia && .venv/bin/pytest -q); \
+		(cd $(BEER_ENC_DIR) && .venv/bin/pytest -q); \
 	elif command -v pytest >/dev/null 2>&1; then \
 		echo "[test-all] Running beer-encyclopedia pytest (system pytest) ..."; \
-		(cd packages/beer-encyclopedia && pytest -q); \
+		(cd $(BEER_ENC_DIR) && pytest -q); \
 	else \
 		echo "[test-all] SKIP beer-encyclopedia — no .venv/ nor system pytest found."; \
-		echo "            Run 'pip install -e \".[ml,dev]\"' in packages/beer-encyclopedia to enable."; \
+		echo "            Run 'pip install -e \".[ml,dev]\"' in $(BEER_ENC_DIR) to enable."; \
 	fi
 
 lint-all: ## Run mobile-app and api linters
 	npm run lint:all
+
+## ============================================================================
+## @Database (beer-encyclopedia Postgres only — NestJS uses SQLite)
+## ============================================================================
+
+db-up: ## Start the local Postgres database for beer-encyclopedia (Docker)
+	@echo "[db-up] Starting beer-encyclopedia Postgres..."
+	@err=$$($(COMPOSE_BEER_ENC) up -d --wait postgres 2>&1); rc=$$?; \
+	if [ $$rc -eq 0 ]; then \
+		echo "[db-up] Postgres is healthy."; \
+	elif echo "$$err" | grep -qi "unknown flag\|unrecognized\|\-\-wait"; then \
+		echo "[db-up] --wait not supported, using polling fallback..."; \
+		$(COMPOSE_BEER_ENC) up -d postgres || exit 1; \
+		timeout=60; elapsed=0; \
+		until docker inspect --format '{{.State.Health.Status}}' beer-encyclopedia-postgres 2>/dev/null | grep -q '^healthy$$'; do \
+			printf '.'; sleep 2; elapsed=$$((elapsed + 2)); \
+			if [ $$elapsed -ge $$timeout ]; then \
+				echo ""; echo "[db-up] ERROR: Postgres did not become healthy within $$timeout s."; exit 1; \
+			fi; \
+		done; \
+		echo ""; echo "[db-up] Postgres is healthy."; \
+	else \
+		echo "[db-up] ERROR: docker compose failed:"; echo "$$err"; exit 1; \
+	fi
+
+db-down: ## Stop the local Postgres database (data is kept)
+	$(COMPOSE_BEER_ENC) stop postgres
+	@echo "[db-down] Postgres stopped. Data volumes preserved."
+
+db-logs: ## Show live Postgres logs (Ctrl+C to exit)
+	$(COMPOSE_BEER_ENC) logs -f postgres
+
+## ============================================================================
+## @Migrations
+## ============================================================================
+
+migrate-api: ## Apply pending TypeORM migrations on the main API (NestJS/SQLite)
+	npm -w packages/api run migration:run
+
+migrate-api-revert: ## Roll back the last TypeORM migration on the main API
+	npm -w packages/api run migration:revert
+
+migrate-beer-enc: ## Apply pending Alembic migrations on the beer-encyclopedia (Postgres)
+	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/alembic ]; then \
+		echo "[migrate-beer-enc] .venv/bin/alembic not found — run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e "[ml,dev]""; \
+		exit 1; \
+	fi
+	cd $(BEER_ENC_DIR) && .venv/bin/alembic upgrade head
+
+migrate-beer-enc-revert: ## Roll back the last Alembic migration on the beer-encyclopedia
+	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/alembic ]; then \
+		echo "[migrate-beer-enc-revert] .venv/bin/alembic not found — run: cd $(BEER_ENC_DIR) && python -m venv .venv && .venv/bin/pip install -e "[ml,dev]""; \
+		exit 1; \
+	fi
+	cd $(BEER_ENC_DIR) && .venv/bin/alembic downgrade -1
 
 ## ============================================================================
 ## @SonarQube

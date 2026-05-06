@@ -99,7 +99,7 @@ des sous-questions de la section Produit, pas des numéros séparés).
 > (janvier 2026), analyse marché européen 2024-2025.
 > **Appuyés** par des données publiques, mais pas validés en
 > interviews directes. C'est le SMART prospectif numéro 19 :
-> **15 interviews semi-dirigées**, 5 par persona-type, d'ici
+> **20 interviews semi-dirigées**, 5 par persona, d'ici
 > fin septembre 2026. On l'assume comme un trou factuel du
 > pitch à combler en priorité post-soutenance."
 
@@ -296,7 +296,7 @@ des sous-questions de la section Produit, pas des numéros séparés).
 > Le pitch s'appuie sur une **recherche documentaire solide** —
 > Brülosophy 2024 sur 2 200 brasseurs, données Little Bock
 > live, analyse concurrentielle 9 outils. Le qualitatif
-> terrain — **15 interviews semi-dirigées, 5 par persona** —
+> terrain — **20 interviews semi-dirigées, 5 par persona** —
 > est le SMART prospectif numéro 19, lancé dès post-soutenance."
 
 ## 5. Équipe & parcours Ydays
@@ -415,7 +415,7 @@ des sous-questions de la section Produit, pas des numéros séparés).
 > avec des brasseurs amateurs de mon entourage pendant la
 > conception des 3 personas ; et la base documentaire Brülosophy
 > sur 2 200 brasseurs. Le chantier interviews semi-dirigées —
-> **15 brasseurs, 5 par persona** — démarre dès la diffusion du
+> **20 brasseurs, 5 par persona** — démarre dès la diffusion du
 > questionnaire élargie post-oral blanc."
 
 ### Q25. "Comment protégez-vous les données utilisateur côté RGPD spécifiquement ?"

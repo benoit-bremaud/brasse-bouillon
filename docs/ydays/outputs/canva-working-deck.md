@@ -79,10 +79,10 @@ brand kit).
 
 | # | Design Canva | Design ID | Notes éventuelles |
 |---|---|---|---|
-| 1 | <https://www.canva.com/d/Vs557vMfbBIWqkz> | `DAHHuAoG5_A` | |
-| 2 | <https://www.canva.com/d/XkW7FyqPQPBfxLn> | `DAHHuI2hqqo` | |
-| 3 | <https://www.canva.com/d/y0oPqdBwCZ0mUtv> | `DAHHuE30t8A` | |
-| 4 | <https://www.canva.com/d/okSI4v5aH8zbzar> | `DAHHuGPXl-c` | |
+| 1 | <https://canva.link/33o1669kr3vw9jq> | `DAHHuAoG5_A` | |
+| 2 | <https://canva.link/j39oi54ur15ana9> | `DAHHuI2hqqo` | |
+| 3 | <https://canva.link/5fmh72rn58flsak> | `DAHHuE30t8A` | |
+| 4 | <https://canva.link/33o1669kr3vw9jq> | `DAHHuGPXl-c` | |
 
 ### Comment voter
 

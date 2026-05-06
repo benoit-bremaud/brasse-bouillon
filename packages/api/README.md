@@ -56,28 +56,28 @@ cp packages/api/.env.example packages/api/.env
 
 ### Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `APP_ENV` | ✅ | `development` | App context: `development` \| `test` \| `production`. Must match `NODE_ENV`. |
-| `NODE_ENV` | ✅ | derived from `APP_ENV` | Node runtime mode. |
-| `JWT_SECRET` | ✅ | — | JWT signing secret (min. 24 chars). Generate with `openssl rand -hex 32`. |
-| `JWT_EXPIRATION` | No | `86400s` | Access-token lifetime. |
-| `PORT` | No | `3000` | HTTP port. |
-| `DATABASE_PATH` | No | `./data/brasse-bouillon.db` | SQLite file. In Docker: `/app/data/brasse-bouillon.db`. |
-| `TYPEORM_LOGGING` | No | `true` in dev, `false` elsewhere | Echo SQL to stdout. |
-| `SWAGGER_ENABLED` | No | `true` in dev, `false` elsewhere | Expose Swagger UI at `/api`. |
-| `HUBEAU_TIMEOUT_MS` | No | `8000` | HTTP timeout for the Hubeau water-quality API. |
-| `HUBEAU_CACHE_TTL_SECONDS` | No | `3600` | In-memory cache TTL for Hubeau responses. |
-| `API_IMAGE_TAG` | No | `latest` | Docker image tag (used by `docker-compose.yml`, not the runtime). |
+| Variable                   | Required | Default                          | Description                                                                  |
+| -------------------------- | -------- | -------------------------------- | ---------------------------------------------------------------------------- |
+| `APP_ENV`                  | ✅       | `development`                    | App context: `development` \| `test` \| `production`. Must match `NODE_ENV`. |
+| `NODE_ENV`                 | ✅       | derived from `APP_ENV`           | Node runtime mode.                                                           |
+| `JWT_SECRET`               | ✅       | —                                | JWT signing secret (min. 24 chars). Generate with `openssl rand -hex 32`.    |
+| `JWT_EXPIRATION`           | No       | `86400s`                         | Access-token lifetime.                                                       |
+| `PORT`                     | No       | `3000`                           | HTTP port.                                                                   |
+| `DATABASE_PATH`            | No       | `./data/brasse-bouillon.db`      | SQLite file. In Docker: `/app/data/brasse-bouillon.db`.                      |
+| `TYPEORM_LOGGING`          | No       | `true` in dev, `false` elsewhere | Echo SQL to stdout.                                                          |
+| `SWAGGER_ENABLED`          | No       | `true` in dev, `false` elsewhere | Expose Swagger UI at `/api`.                                                 |
+| `HUBEAU_TIMEOUT_MS`        | No       | `8000`                           | HTTP timeout for the Hubeau water-quality API.                               |
+| `HUBEAU_CACHE_TTL_SECONDS` | No       | `3600`                           | In-memory cache TTL for Hubeau responses.                                    |
+| `API_IMAGE_TAG`            | No       | `latest`                         | Docker image tag (used by `docker-compose.yml`, not the runtime).            |
 
 `APP_ENV` and `NODE_ENV` must agree (`development`↔`development`, `test`↔`test`, `production`↔`production`); the app refuses to start otherwise. Validation logic: [src/config/environment.config.ts](src/config/environment.config.ts).
 
 ### Templates
 
-| File | When to use |
-|------|-------------|
-| `.env.example` | Local dev. |
-| `.env.test.example` | Override test values beyond what `npm test` injects (rare). |
+| File                  | When to use                                                  |
+| --------------------- | ------------------------------------------------------------ |
+| `.env.example`        | Local dev.                                                   |
+| `.env.test.example`   | Override test values beyond what `npm test` injects (rare).  |
 | `.env.docker.example` | Production-like Docker stack — read by `docker-compose.yml`. |
 
 ## Run Locally (Without Docker)

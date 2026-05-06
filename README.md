@@ -38,12 +38,12 @@ Brasse-Bouillon is a four-package monorepo delivering a mobile app for home brew
 
 This repository uses [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces).
 
-| Package | Version | Stack | Purpose |
-|---------|---------|-------|---------|
-| [`packages/mobile-app`](packages/mobile-app) | 1.0.0 | React Native · Expo SDK 54 · Expo Router v6 · TypeScript (strict) | End-user mobile application |
-| [`packages/api`](packages/api) | 0.0.1 | NestJS 11 · TypeORM · SQLite · TypeScript | Backend REST API |
-| [`packages/website`](packages/website) | 0.1.0 | Static HTML/CSS/JS · Python quality gate | Marketing site |
-| [`packages/beer-encyclopedia`](packages/beer-encyclopedia) | 0.2.0 | Python 3.12 · FastAPI · YOLOv8 · EasyOCR · PostgreSQL | Label scanner + beer CRUD API |
+| Package                                                    | Version | Stack                                                             | Purpose                       |
+| ---------------------------------------------------------- | ------- | ----------------------------------------------------------------- | ----------------------------- |
+| [`packages/mobile-app`](packages/mobile-app)               | 1.0.0   | React Native · Expo SDK 54 · Expo Router v6 · TypeScript (strict) | End-user mobile application   |
+| [`packages/api`](packages/api)                             | 0.0.1   | NestJS 11 · TypeORM · SQLite · TypeScript                         | Backend REST API              |
+| [`packages/website`](packages/website)                     | 0.1.0   | Static HTML/CSS/JS · Python quality gate                          | Marketing site                |
+| [`packages/beer-encyclopedia`](packages/beer-encyclopedia) | 0.2.0   | Python 3.12 · FastAPI · YOLOv8 · EasyOCR · PostgreSQL             | Label scanner + beer CRUD API |
 
 Other top-level directories:
 
@@ -56,12 +56,12 @@ tools/ci/   SonarQube scan script
 
 You do **not** need every package to get started. Pick the path that matches your goal:
 
-| Goal | Packages required |
-|------|-------------------|
-| Try the mobile app with mock data | `mobile-app` only |
-| Mobile app + live backend | `mobile-app` + `api` |
-| Browse / edit the marketing site | `website` only |
-| Work on label scanning / beer DB | `beer-encyclopedia` |
+| Goal                              | Packages required    |
+| --------------------------------- | -------------------- |
+| Try the mobile app with mock data | `mobile-app` only    |
+| Mobile app + live backend         | `mobile-app` + `api` |
+| Browse / edit the marketing site  | `website` only       |
+| Work on label scanning / beer DB  | `beer-encyclopedia`  |
 
 ---
 
@@ -244,12 +244,12 @@ Never edit `.env.example` for personal values: that file is the shared template,
 
 ### File reference
 
-| File pattern | Role | In git? | When to edit |
-|--------------|------|---------|--------------|
-| `.env.example` | Template documenting every variable, with placeholder values. The contract between the code and the developer. | ✅ Yes | When adding or removing a variable in code (same PR). |
-| `.env` | Your machine's real values for the default environment. | ❌ No | When changing a value on your machine. |
-| `.env.local` | Optional override on top of `.env`. Useful for short-lived experiments without touching `.env`. | ❌ No | Rarely. Only the API loads it. |
-| `.env.{ENV}` and `.env.{ENV}.local` | Environment-specific overrides (e.g. `.env.test.local`). | ❌ No | Rarely. Only the API loads them. |
+| File pattern                        | Role                                                                                                           | In git? | When to edit                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------- |
+| `.env.example`                      | Template documenting every variable, with placeholder values. The contract between the code and the developer. | ✅ Yes  | When adding or removing a variable in code (same PR). |
+| `.env`                              | Your machine's real values for the default environment.                                                        | ❌ No   | When changing a value on your machine.                |
+| `.env.local`                        | Optional override on top of `.env`. Useful for short-lived experiments without touching `.env`.                | ❌ No   | Rarely. Only the API loads it.                        |
+| `.env.{ENV}` and `.env.{ENV}.local` | Environment-specific overrides (e.g. `.env.test.local`).                                                       | ❌ No   | Rarely. Only the API loads them.                      |
 
 For the API, the load order (highest priority last, last wins) is:
 
@@ -265,11 +265,11 @@ For `mobile-app` and `beer-encyclopedia`, only `.env` is loaded — keep it simp
 
 In production, **no `.env` file is loaded by the application**. Variables are injected directly into the process environment by the deployment platform:
 
-| Deployment target | Where the variables come from |
-|-------------------|-------------------------------|
-| Docker on a personal VPS | A `.env` file next to `docker-compose.yml` (never committed). Template: [packages/api/.env.docker.example](packages/api/.env.docker.example). |
-| GitHub Actions (CI) | Repository **Secrets** under `Settings → Secrets and variables → Actions`. |
-| Managed PaaS (Render, Railway, Fly.io, …) | Each platform's environment-variables UI. |
+| Deployment target                         | Where the variables come from                                                                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Docker on a personal VPS                  | A `.env` file next to `docker-compose.yml` (never committed). Template: [packages/api/.env.docker.example](packages/api/.env.docker.example). |
+| GitHub Actions (CI)                       | Repository **Secrets** under `Settings → Secrets and variables → Actions`.                                                                    |
+| Managed PaaS (Render, Railway, Fly.io, …) | Each platform's environment-variables UI.                                                                                                     |
 
 ### Three rules to avoid common mistakes
 
@@ -291,27 +291,27 @@ Each package documents its own variables (with descriptions, defaults, and requi
 
 ### Make targets (recommended entry points)
 
-| Target | What it does |
-|--------|--------------|
-| `make help` | List every target with its description |
-| `make setup` | Create `.env` files with a fresh `JWT_SECRET` and the detected LAN IP |
-| `make dev-api` | Start the NestJS API in watch mode |
-| `make dev-mobile` | Start Expo in LAN mode (Expo Go friendly) |
-| `make dev` | Run API + Expo in parallel under one `Ctrl+C` |
-| `make test-all` | Run mobile-app + api + beer-encyclopedia test suites |
-| `make lint-all` | Run mobile-app + api linters |
-| `make sonar-start` / `make sonar-stop` / `make sonar-status` / `make sonar-scan` | Local SonarQube lifecycle |
+| Target                                                                           | What it does                                                          |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `make help`                                                                      | List every target with its description                                |
+| `make setup`                                                                     | Create `.env` files with a fresh `JWT_SECRET` and the detected LAN IP |
+| `make dev-api`                                                                   | Start the NestJS API in watch mode                                    |
+| `make dev-mobile`                                                                | Start Expo in LAN mode (Expo Go friendly)                             |
+| `make dev`                                                                       | Run API + Expo in parallel under one `Ctrl+C`                         |
+| `make test-all`                                                                  | Run mobile-app + api + beer-encyclopedia test suites                  |
+| `make lint-all`                                                                  | Run mobile-app + api linters                                          |
+| `make sonar-start` / `make sonar-stop` / `make sonar-status` / `make sonar-scan` | Local SonarQube lifecycle                                             |
 
 ### npm scripts (root)
 
-| Script | What it does | Packages covered |
-|--------|--------------|------------------|
-| `npm run dev:mobile-app` | Start the Expo dev server | mobile-app |
-| `npm run dev:api` | Start NestJS in watch mode | api |
-| `npm run ci:all` | Mobile `ci:check` (lint + typecheck + format) + API `lint:check` + API `build` | mobile-app + api |
-| `npm run test:all` | Run Jest suites | mobile-app + api |
-| `npm run lint:all` | Run linters | mobile-app + api |
-| `npm run typecheck:all` | Type-check everything (API uses `build`) | mobile-app + api |
+| Script                   | What it does                                                                   | Packages covered |
+| ------------------------ | ------------------------------------------------------------------------------ | ---------------- |
+| `npm run dev:mobile-app` | Start the Expo dev server                                                      | mobile-app       |
+| `npm run dev:api`        | Start NestJS in watch mode                                                     | api              |
+| `npm run ci:all`         | Mobile `ci:check` (lint + typecheck + format) + API `lint:check` + API `build` | mobile-app + api |
+| `npm run test:all`       | Run Jest suites                                                                | mobile-app + api |
+| `npm run lint:all`       | Run linters                                                                    | mobile-app + api |
+| `npm run typecheck:all`  | Type-check everything (API uses `build`)                                       | mobile-app + api |
 
 > The npm `*:all` scripts cover **mobile-app + api** only. `make test-all` additionally runs the beer-encyclopedia pytest suite when a venv is present.
 
@@ -319,12 +319,12 @@ Each package documents its own variables (with descriptions, defaults, and requi
 
 ## Testing & Quality
 
-| Package | Suite | Count | Coverage target |
-|---------|-------|-------|-----------------|
-| mobile-app | Jest + @testing-library/react-native | **407 tests** | 70% (CI warning) |
-| api | Jest | **238 tests** | 70% (CI warning) |
-| beer-encyclopedia | pytest | — | 70% (CI warning) |
-| website | Python quality gate (no unit tests) | — | — |
+| Package           | Suite                                | Count         | Coverage target  |
+| ----------------- | ------------------------------------ | ------------- | ---------------- |
+| mobile-app        | Jest + @testing-library/react-native | **407 tests** | 70% (CI warning) |
+| api               | Jest                                 | **238 tests** | 70% (CI warning) |
+| beer-encyclopedia | pytest                               | —             | 70% (CI warning) |
+| website           | Python quality gate (no unit tests)  | —             | —                |
 
 > The 70% threshold is currently enforced as a CI **warning** (`::warning::` in `ci.yml`), not a hard gate — jobs pass even if coverage drops below. Promoting this to a blocking gate is tracked separately.
 
@@ -376,29 +376,29 @@ Full conventions: [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)
 
 ## Documentation
 
-| Topic | Location |
-|-------|----------|
-| Project log (operational journal) | [PROJECT_LOG.md](PROJECT_LOG.md) |
-| Release changelog | [docs/changelog.md](docs/changelog.md) |
-| Contributing guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Engineering conventions | [docs/CONVENTIONS.md](docs/CONVENTIONS.md) |
-| Roadmap | [docs/roadmap.md](docs/roadmap.md) |
-| Definition of Done | [docs/project-management/definition-of-done.md](docs/project-management/definition-of-done.md) |
-| Definition of Ready | [docs/project-management/definition-of-ready.md](docs/project-management/definition-of-ready.md) |
-| Sprint structure | [docs/project-management/sprint-definition.md](docs/project-management/sprint-definition.md) |
-| Scrum roles | [docs/project-management/scrum-roles.md](docs/project-management/scrum-roles.md) |
-| Sequelize migrations reference | [docs/project-management/migrations-sequelize.md](docs/project-management/migrations-sequelize.md) |
-| Meeting types | [docs/meetings/meeting_types.md](docs/meetings/meeting_types.md) |
-| Mobile App conventions | [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md) |
-| Mobile App contributor README | [packages/mobile-app/README.md](packages/mobile-app/README.md) |
-| Mobile App design system | [packages/mobile-app/docs/design-system.md](packages/mobile-app/docs/design-system.md) |
-| API README | [packages/api/README.md](packages/api/README.md) |
-| Website README | [packages/website/README.md](packages/website/README.md) |
-| Beer Encyclopedia README | [packages/beer-encyclopedia/README.md](packages/beer-encyclopedia/README.md) |
-| Beer Encyclopedia setup | [packages/beer-encyclopedia/docs/SETUP.md](packages/beer-encyclopedia/docs/SETUP.md) |
-| Architecture docs | [docs/architecture/](docs/architecture/) |
-| API docs | [docs/api/](docs/api/) |
-| Project management | [docs/project-management/](docs/project-management/) |
+| Topic                             | Location                                                                                           |
+| --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Project log (operational journal) | [PROJECT_LOG.md](PROJECT_LOG.md)                                                                   |
+| Release changelog                 | [docs/changelog.md](docs/changelog.md)                                                             |
+| Contributing guide                | [CONTRIBUTING.md](CONTRIBUTING.md)                                                                 |
+| Engineering conventions           | [docs/CONVENTIONS.md](docs/CONVENTIONS.md)                                                         |
+| Roadmap                           | [docs/roadmap.md](docs/roadmap.md)                                                                 |
+| Definition of Done                | [docs/project-management/definition-of-done.md](docs/project-management/definition-of-done.md)     |
+| Definition of Ready               | [docs/project-management/definition-of-ready.md](docs/project-management/definition-of-ready.md)   |
+| Sprint structure                  | [docs/project-management/sprint-definition.md](docs/project-management/sprint-definition.md)       |
+| Scrum roles                       | [docs/project-management/scrum-roles.md](docs/project-management/scrum-roles.md)                   |
+| Sequelize migrations reference    | [docs/project-management/migrations-sequelize.md](docs/project-management/migrations-sequelize.md) |
+| Meeting types                     | [docs/meetings/meeting_types.md](docs/meetings/meeting_types.md)                                   |
+| Mobile App conventions            | [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)                                     |
+| Mobile App contributor README     | [packages/mobile-app/README.md](packages/mobile-app/README.md)                                     |
+| Mobile App design system          | [packages/mobile-app/docs/design-system.md](packages/mobile-app/docs/design-system.md)             |
+| API README                        | [packages/api/README.md](packages/api/README.md)                                                   |
+| Website README                    | [packages/website/README.md](packages/website/README.md)                                           |
+| Beer Encyclopedia README          | [packages/beer-encyclopedia/README.md](packages/beer-encyclopedia/README.md)                       |
+| Beer Encyclopedia setup           | [packages/beer-encyclopedia/docs/SETUP.md](packages/beer-encyclopedia/docs/SETUP.md)               |
+| Architecture docs                 | [docs/architecture/](docs/architecture/)                                                           |
+| API docs                          | [docs/api/](docs/api/)                                                                             |
+| Project management                | [docs/project-management/](docs/project-management/)                                               |
 
 ---
 
@@ -416,17 +416,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick summary:
 
 ## Team
 
-| Member | Role | Scope |
-|--------|------|-------|
-| Benoit | Project lead, Fullstack, Design | Frontend, Backend, Monorepo, DevOps |
-| Fabien | Cybersecurity, Frontend/Design | Frontend, Design, Security |
-| Kevin | Fullstack (backend focus) | Backend, Frontend |
-| Sara | Fullstack (frontend focus) | Frontend, Backend |
-| Clement | Infrastructure, DevOps | DevOps, Infrastructure |
-| Catarina | Infrastructure, Security, Cloud | DevOps, Infrastructure, Security |
-| Fabio | UI/UX, Art Direction | Design, Frontend |
-| Liam | Design, UI/UX | Design |
-| Thais | UI/UX, Frontend | Design, Frontend |
+| Member   | Role                            | Scope                               |
+| -------- | ------------------------------- | ----------------------------------- |
+| Benoit   | Project lead, Fullstack, Design | Frontend, Backend, Monorepo, DevOps |
+| Fabien   | Cybersecurity, Frontend/Design  | Frontend, Design, Security          |
+| Kevin    | Fullstack (backend focus)       | Backend, Frontend                   |
+| Sara     | Fullstack (frontend focus)      | Frontend, Backend                   |
+| Clement  | Infrastructure, DevOps          | DevOps, Infrastructure              |
+| Catarina | Infrastructure, Security, Cloud | DevOps, Infrastructure, Security    |
+| Fabio    | UI/UX, Art Direction            | Design, Frontend                    |
+| Liam     | Design, UI/UX                   | Design                              |
+| Thais    | UI/UX, Frontend                 | Design, Frontend                    |
 
 ---
 

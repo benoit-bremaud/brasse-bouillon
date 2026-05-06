@@ -76,11 +76,11 @@ cp packages/mobile-app/.env.example packages/mobile-app/.env
 
 ### Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `EXPO_PUBLIC_API_URL` | ✅ | `http://localhost:3000` | URL of the NestJS backend (`packages/api`). Use `localhost` for an emulator on the same machine; use the LAN or Tailscale IP for Expo Go on a physical phone. |
-| `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` | ✅ | `http://localhost:8000` | URL of the FastAPI beer-encyclopedia (`packages/beer-encyclopedia`). Used by the `/scan` flow as a fallback when the NestJS lookup returns 404 (ADR-0005). Must point to the same host as `EXPO_PUBLIC_API_URL` when testing from a physical phone. |
-| `EXPO_PUBLIC_USE_DEMO_DATA` | No | `false` | When `true`, the build exposes a "Connexion démo" button on the login screen and lets typing demo credentials switch the app to mock data (`src/mocks/`). Set to `false` for builds shipped to real users. |
+| Variable                            | Required | Default                 | Description                                                                                                                                                                                                                                         |
+| ----------------------------------- | -------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_API_URL`               | ✅       | `http://localhost:3000` | URL of the NestJS backend (`packages/api`). Use `localhost` for an emulator on the same machine; use the LAN or Tailscale IP for Expo Go on a physical phone.                                                                                       |
+| `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` | ✅       | `http://localhost:8000` | URL of the FastAPI beer-encyclopedia (`packages/beer-encyclopedia`). Used by the `/scan` flow as a fallback when the NestJS lookup returns 404 (ADR-0005). Must point to the same host as `EXPO_PUBLIC_API_URL` when testing from a physical phone. |
+| `EXPO_PUBLIC_USE_DEMO_DATA`         | No       | `false`                 | When `true`, the build exposes a "Connexion démo" button on the login screen and lets typing demo credentials switch the app to mock data (`src/mocks/`). Set to `false` for builds shipped to real users.                                          |
 
 > Variables prefixed with `EXPO_PUBLIC_` are **embedded into the JavaScript bundle** sent to the device. Never put a secret in one — assume any value is publicly readable.
 
@@ -94,11 +94,11 @@ cp packages/mobile-app/.env.example packages/mobile-app/.env
 
 `make setup` does this for you. If you need it by hand:
 
-| OS | Command |
-|----|---------|
-| macOS | `ipconfig getifaddr en0` (Wi-Fi) or `ipconfig getifaddr en1` (Ethernet) |
-| Linux | `hostname -I \| awk '{print $1}'` |
-| Windows | `ipconfig \| findstr IPv4` |
+| OS      | Command                                                                 |
+| ------- | ----------------------------------------------------------------------- |
+| macOS   | `ipconfig getifaddr en0` (Wi-Fi) or `ipconfig getifaddr en1` (Ethernet) |
+| Linux   | `hostname -I \| awk '{print $1}'`                                       |
+| Windows | `ipconfig \| findstr IPv4`                                              |
 
 For the most reliable cross-network setup (corporate Wi-Fi with AP isolation, multiple networks, etc.), use a Tailscale IP instead — see the LAN troubleshooting section further below.
 

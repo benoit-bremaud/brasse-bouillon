@@ -6,7 +6,11 @@
 #
 # Before first run:
 #   cp .env.docker.example .env
-#   nano .env   # set JWT_SECRET
+#   nano .env   # set JWT_SECRET (and optionally API_IMAGE_TAG)
+#
+# Image tag (API_IMAGE_TAG) defaults to `latest`. Pin to an immutable tag
+# in production for reproducible deploys, e.g.:
+#   API_IMAGE_TAG=sha-a1b2c3d docker compose pull && docker compose up -d
 # ==============================================================================
 
 services:
@@ -14,7 +18,7 @@ services:
     build:
       context: ../..
       dockerfile: packages/api/Dockerfile
-    image: ghcr.io/benoit-bremaud/brasse-bouillon-api:latest
+    image: ghcr.io/benoit-bremaud/brasse-bouillon-api:${API_IMAGE_TAG:-latest}
     container_name: brasse-bouillon-api
     ports:
       - "${PORT:-3000}:${PORT:-3000}"

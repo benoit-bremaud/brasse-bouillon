@@ -30,7 +30,8 @@ API_PORT := 3000
         migrate-api migrate-api-revert \
         migrate-beer-enc migrate-beer-enc-revert \
         test-all lint-all \
-        sonar-start sonar-stop sonar-status sonar-scan
+        sonar-start sonar-stop sonar-status sonar-scan \
+        docker-build docker-up docker-down docker-logs
 
 help: ## Show this help
 	@printf '\nBrasse-Bouillon — common dev commands\n'
@@ -60,6 +61,11 @@ help: ## Show this help
 	@printf '  \033[36mmake sonar-scan\033[0m               Run a SonarQube scan (needs SONAR_TOKEN=sqp_xxx)\n'
 	@printf '  \033[36mmake sonar-stop\033[0m               Stop the local SonarQube server\n'
 	@printf '  \033[36mmake sonar-status\033[0m             Show SonarQube container status\n\n'
+	@printf 'Docker — API (production container):\n'
+	@printf '  \033[36mmake docker-build\033[0m             Build the API Docker image locally\n'
+	@printf '  \033[36mmake docker-up\033[0m                Start the API container (detached, restart: unless-stopped)\n'
+	@printf '  \033[36mmake docker-down\033[0m              Stop and remove the API container\n'
+	@printf '  \033[36mmake docker-logs\033[0m              Follow API container logs (Ctrl+C to exit)\n\n'
 
 ## ============================================================================
 ## @Dev environment

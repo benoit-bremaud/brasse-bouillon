@@ -81,6 +81,8 @@ const createCatalogItem = (
   source: ScanCatalogSource.SEED,
   fetched_at: null,
   raw_payload: null,
+  scan_count: 0,
+  last_scanned_at: null,
   created_at: new Date('2026-01-01T00:00:00.000Z'),
   updated_at: new Date('2026-01-01T00:00:00.000Z'),
   ...overrides,
@@ -926,6 +928,25 @@ describe('ScanService', () => {
       expect(catalogItemRepository.update.mock.calls[1][0]).toEqual({
         id: 'cat-counter-2',
       });
+    });
+
+    test('best-effort — UPDATE failure must not turn a successful lookup into a 500 (Codex P1)', async () => {
+      const seedRow = createCatalogItem({
+        id: 'cat-counter-fail-open',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.SEED,
+        fetched_at: null,
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(seedRow);
+      catalogItemRepository.update.mockRejectedValueOnce(
+        new Error('SQLITE_BUSY: database is locked'),
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_fresh');
+      expect(result.item.barcode).toBe(VALID_EAN);
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(1);
     });
   });
 });

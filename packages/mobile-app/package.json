@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@lottiefiles/dotlottie-react": "^0.13.5",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/slider": "5.0.1",
     "@react-navigation/native": "^7.1.8",
@@ -36,6 +37,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-updates": "~29.0.16",
     "expo-web-browser": "~15.0.10",
+    "lottie-react-native": "~7.3.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",

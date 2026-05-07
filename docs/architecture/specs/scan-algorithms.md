@@ -146,7 +146,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 #### Lever A — Server-Sent Events (SSE) progression stream
 
-- The Python beer-encyclopedia exposes a long-lived SSE endpoint: `GET /panoramic-captures/:capture_id/stream`.
+- The Python beer-encyclopedia exposes a long-lived SSE endpoint: `GET /panoramic-captures/{capture_id}/stream`.
 - The mobile subscribes immediately after uploading the frames.
 - The backend emits typed events as each phase completes:
 
@@ -163,7 +163,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
   | `error` | Any phase failed | Show retry / cancel UI |
 
 - SSE keep-alive heartbeat every 5 s to detect connection loss.
-- If the SSE connection drops, the mobile falls back to polling `GET /panoramic-captures/:capture_id` every 2 s.
+- If the SSE connection drops, the mobile falls back to polling `GET /panoramic-captures/{capture_id}` every 2 s.
 
 #### Lever B — Optimistic partial result
 
@@ -173,7 +173,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 #### Lever C — "Fire and forget" mode (optional, user-toggleable)
 
-- Once Phase 5 (`upload.received`) succeeds, the user can tap a **"Continuer ailleurs"** button.
+- Once `upload.received` fires (the frames are safely on the server, even if stitching has not yet completed), the user can tap a **"Continuer ailleurs"** button.
 - The mobile closes the scan screen and returns the user to the home page. The SSE is dropped.
 - When the suggestion is finally created, a notification (per [#939](https://github.com/benoit-bremaud/brasse-bouillon/issues/939)) lets the user know it is ready to review.
 
@@ -212,7 +212,9 @@ If the BeerMugLoader animation lands (Lottie of a beer mug filling), the SSE eve
 - Send `panorama.jpg` + each keyframe to **Google Cloud Vision OCR** (fully managed, ~$1.50 per 1000 pages, robust on French + English + decorative fonts).
 - For each image: collect both raw text and bounding boxes.
 - Concatenate raw texts (deduplicating obvious repeats) → final OCR text blob.
-- Output: `{ ocr_text: string, blocks: BoundingBox[], avg_confidence: number }`.
+- Output: `{ ocr_text: string, blocks: BoundingBox[], avg_confidence: number }` where:
+  - `BoundingBox = { x: int, y: int, width: int, height: int, text: string, confidence: number }` — pixel coordinates relative to the source image, plus the recognised substring and Cloud Vision's per-block confidence (0.0 – 1.0).
+  - `avg_confidence` is the **arithmetic mean** of the per-block `confidence` values across the blocks that map to the critical fields used in Phase 6.5 (`name`, `brewery`, `abv` candidates), weighted by block character count. Range: 0.0 – 1.0. Computed by BB code, not returned by Cloud Vision.
 
 #### Phase 6.5 — Conditional OCR ensemble (escalation on low confidence)
 
@@ -232,9 +234,9 @@ A single grayscale OCR pass works well for industrial / classic labels (Heineken
   - Word appears in 2 variants → confidence 0.8, included
   - Word appears in 1 variant only → confidence 0.5, included with `needs_review` flag
 - The consolidated output replaces the single-pass result before Phase 7.
-- Cost / latency:
-  - Common case (no escalation): ~1× Cloud Vision call set (~0.6 cent / scan), ~2 s
-  - Escalated case: ~5× Cloud Vision call set (~3 cent / scan), ~3-5 s
+- Cost / latency (one Cloud Vision call set ≈ panorama + 2-3 keyframes):
+  - Common case (no escalation): 1× call set (~$0.006 / scan), ~2 s
+  - Escalated case: 6× call sets total — the Phase 6 single pass that already ran (1×) **plus** the 5 ensemble variants in Phase 6.5 — so ~$0.036 / scan, ~3-5 s
 - The escalation is logged + counted in the cost monitoring of #942 so we can tune the 0.7 threshold post-launch.
 
 **Why post-capture, not multi-shot capture:** the camera already captures full RGB in one shot — multiple monochrome captures would add zero information. All channel separation is software-derived from one panorama. This was a deliberate decision to avoid bloating the mobile UX with redundant photo bursts.

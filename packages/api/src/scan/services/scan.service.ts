@@ -508,7 +508,7 @@ export class ScanService {
     });
 
     if (cached && this.isCacheFresh(cached)) {
-      return this.buildLookupResult(cached, 'cache_hit_fresh');
+      return this.respondWithLookup(cached, 'cache_hit_fresh');
     }
 
     let lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>;
@@ -517,7 +517,7 @@ export class ScanService {
     } catch {
       // Upstream unreachable. Degraded mode if we have ANY cached row.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new ServiceUnavailableException(
         'OpenFoodFacts is unreachable and the barcode is not in the local cache. Try again later.',
@@ -527,7 +527,7 @@ export class ScanService {
     if (!lookup.found) {
       // OFF lost the product. Either degrade to cache or 404.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new NotFoundException(
         `Barcode ${barcode} not found in OpenFoodFacts and not in the local catalog.`,
@@ -544,7 +544,7 @@ export class ScanService {
       // non-beer placeholder rows. Cache fallback still applies
       // for previously-stored beer entries on the same barcode.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new NotABeerException(barcode, lookup.name);
     }
@@ -554,9 +554,44 @@ export class ScanService {
       cached,
       lookup,
     );
-    return this.buildLookupResult(
+    return this.respondWithLookup(
       persisted,
       cached ? 'cache_hit_stale' : 'cache_miss_fetched',
+    );
+  }
+
+  /**
+   * Single exit point for `lookupByBarcode`'s 5 success branches.
+   * Atomically bumps `scan_count` and `last_scanned_at` on the matched
+   * catalog row before returning the response payload (Issue #929).
+   *
+   * Centralising the increment here guarantees we never accidentally
+   * skip a counted branch and never double-count.
+   */
+  private async respondWithLookup(
+    row: ScanCatalogItemOrmEntity,
+    source: ScanLookupResultDto['source'],
+  ): Promise<ScanLookupResultDto> {
+    await this.incrementScanCount(row.id);
+    return this.buildLookupResult(row, source);
+  }
+
+  /**
+   * Atomic SQL `UPDATE … SET scan_count = scan_count + 1` so two
+   * concurrent scan-lookups on the same barcode cannot stomp on
+   * each other (read-modify-write would lose increments). The
+   * function-as-value form is TypeORM's escape hatch for raw SQL
+   * in `Repository.update` — same call shape used elsewhere in the
+   * codebase (e.g. `UserService.setPasswordResetToken`) but with
+   * a SQL expression instead of a literal value.
+   */
+  private async incrementScanCount(catalogItemId: string): Promise<void> {
+    await this.catalogItemRepository.update(
+      { id: catalogItemId },
+      {
+        scan_count: () => 'scan_count + 1',
+        last_scanned_at: new Date(),
+      },
     );
   }
 

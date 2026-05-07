@@ -280,6 +280,9 @@ export function LoginScreen() {
           ]}
           onPress={onSubmit}
           disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel={submitLabel}
+          accessibilityState={{ disabled: isLoading, busy: isLoading }}
         >
           {isLoading ? (
             <BeerMugLoader

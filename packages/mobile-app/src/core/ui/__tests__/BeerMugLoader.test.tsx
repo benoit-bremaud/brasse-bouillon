@@ -30,6 +30,13 @@ describe("BeerMugLoader", () => {
     expect(screen.getByTestId("beer-mug-loader-lottie")).toBeTruthy();
   });
 
+  it("happy path — exposes accessibilityState busy=true for screen readers", () => {
+    render(<BeerMugLoader />);
+
+    const loader = screen.getByTestId("beer-mug-loader");
+    expect(loader.props.accessibilityState).toEqual({ busy: true });
+  });
+
   it("happy path — medium is the default size (48px)", () => {
     render(<BeerMugLoader />);
 

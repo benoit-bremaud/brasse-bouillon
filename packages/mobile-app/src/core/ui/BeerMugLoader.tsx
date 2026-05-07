@@ -25,6 +25,7 @@ export function BeerMugLoader({
       testID={testID}
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ busy: true }}
       style={styles.container}
     >
       <LottieView

@@ -74,6 +74,11 @@ Filed 2026-05-07 from [scan-algorithms.md §9](scan-algorithms.md#9-implementati
 
 ### 4.3 Sub-issues under epic [#934](https://github.com/benoit-bremaud/brasse-bouillon/issues/934)
 
+> **ADR-0005 reconciliation tracking:** these sub-issues were filed before ADR-0005
+> and are scoped against the legacy NestJS `scan/` module. Migration to Python
+> beer-encyclopedia (where applicable) is tracked in
+> [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980) — see §4.4.
+
 | # | Title | Depends on |
 |---|---|---|
 | [#935](https://github.com/benoit-bremaud/brasse-bouillon/issues/935) | Extend `scan_catalog_items` schema with OFF fields currently dropped | — |
@@ -99,6 +104,7 @@ The two epics converge at [#938](https://github.com/benoit-bremaud/brasse-bouill
 | [#538](https://github.com/benoit-bremaud/brasse-bouillon/issues/538) | Live scan challenge for the soutenance "coup de coeur" | Soutenance |
 | [#702](https://github.com/benoit-bremaud/brasse-bouillon/issues/702) | Demo script (90 s) + screencast fallback | Soutenance |
 | [#932](https://github.com/benoit-bremaud/brasse-bouillon/issues/932) | Refactor `BeerCatalogProvider` interface (DIP) | Tech-debt — clears the way for #936 to inject the provider cleanly |
+| [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980) | ADR-0005 reconciliation for #934 sub-issues | Tracking — retitle / relabel / rebody #935 / #937 / #938 / #941 / #942 / #936 to match the ADR-0005 backend split (Python beer-encyclopedia for catalog work, NestJS for user-side) |
 | [#859](https://github.com/benoit-bremaud/brasse-bouillon/issues/859) | CLIP + pgvector visual recognition fallback | Out of scope of the panoramic MVP — flagged as v0.3+ |
 | [#832](https://github.com/benoit-bremaud/brasse-bouillon/issues/832) | Creator gallery / label design history | Adjacent epic, not a blocker |
 

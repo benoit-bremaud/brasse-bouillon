@@ -2,6 +2,8 @@
 
 > **Status:** specification — implementation pending. Driven by epic [#934](https://github.com/benoit-bremaud/brasse-bouillon/issues/934) (barcode enrichment) and epic [#751](https://github.com/benoit-bremaud/brasse-bouillon/issues/751) (panoramic capture).
 
+> ⚠️ **Backend ownership per [ADR-0005](../decisions/0005-backend-split-encyclopedia-vs-product.md)** — the **Python beer-encyclopedia** owns every catalog-related concern (`scan_catalog_items`, `beer_data_suggestions`, `panoramic_capture`, the OpenCV stitching service, server-side OCR, Claude vision orchestration, the web-search enrichment pipeline). The **NestJS API** owns user-side concerns only (auth, sessions, the `notifications` table, the maintainer's review actions exposed to the mobile app — which proxy to Python). The mobile app is allowed to talk to **both** backends, per ADR-0005's relaxation of ADR-0002. Wherever this spec says "backend", read "Python beer-encyclopedia" unless explicitly stated otherwise. The current NestJS `scan/` module is **transitional** and on a deprecation roadmap (ADR-0005 §Roadmap).
+
 ## 1. Vocabulary
 
 A single source of truth for the terms used across this spec, the codebase, the issue tracker, and the mobile UI copy. **Use these terms verbatim**; do not paraphrase in code or in user-facing strings.
@@ -15,6 +17,8 @@ A single source of truth for the terms used across this spec, the codebase, the 
 | Mosaïque cumulative | Cumulative mosaic | The progressively-built panoramic image, updated each time a new frame is added. Powers the live progress indicator on screen. |
 | Image-clé | Keyframe | A single still extracted from the capture burst that is judged sharp + non-redundant + visually informative (front face, back face, neck, etc.). Used to feed the multimodal AI step and stored for the admin review screen. |
 | OCR | OCR | Optical Character Recognition: extracting text from a captured image. Runs in two stages: live on-device (UX feedback), final on-server (high accuracy). |
+| BB | Brasse-Bouillon | The product as a whole, and shorthand for "the BB-controlled databases" (whichever backend currently owns a given table). |
+| OFF | OpenFoodFacts | The public open-data product database used as the first lookup source for barcode scans. "OFF 404" = OpenFoodFacts has no record for that EAN. |
 | Ratio de complétude | Completeness ratio | A score in `[0..1]` measuring how full a `scan_catalog_items` row is. Computed as `Σ weight(field) · isPresent(field) / Σ weight(field)`. Drives whether enrichment / panoramic prompt fires. |
 | Seuil de complétude | Completeness threshold | The minimum acceptable ratio (env var `SCAN_COMPLETENESS_THRESHOLD`, default `0.5`). Below this value, the enrichment pipeline runs and the panoramic-label prompt is offered. |
 | Suggestion | Suggestion | An auto-generated enrichment proposal stored in `beer_data_suggestions`. Lives in `PENDING` until the maintainer (Benoît) explicitly approves, refuses, refines, or instructs. **Never written directly to `scan_catalog_items`.** |
@@ -142,12 +146,12 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 **Mobile → backend handoff:**
 
-- The mobile uploads the raw JPEG frames + capture metadata to a new endpoint: `POST /scan/panoramic-uploads`. Multipart upload, frames bundled in a single request (typical payload: 15 × ~80 KB = ~1.2 MB).
-- The endpoint returns an `upload_id`; subsequent requests reference this id.
+- The mobile uploads the raw JPEG frames + capture metadata to a new endpoint hosted by the **Python beer-encyclopedia** (per ADR-0005): `POST /panoramic-captures` (FastAPI route, exact path TBD when the service is wired). Multipart upload, frames bundled in a single request (typical payload: 15 × ~80 KB = ~1.2 MB).
+- The endpoint returns a `capture_id`; subsequent requests reference this id.
 
-**Backend:**
+**Python beer-encyclopedia service:**
 
-- A new service `PanoramicStitchingService` calls into a Python sub-process or a Node FFI binding to OpenCV (decision deferred — see [§ Open implementation choices](#7-open-implementation-choices)) with the raw frames.
+- A new service `PanoramicStitchingService` calls **OpenCV directly** (`opencv-python` is already a transitive dependency of the existing ML pipeline — YOLO + EasyOCR — so no new infra). No sub-process, no FFI: native Python in-process.
 - OpenCV's `cv2.Stitcher_create(cv2.Stitcher_PANORAMA)` produces a single panoramic JPEG.
 - A keyframe selector picks 2-3 representative frames from the burst (most likely: highest-text-density front, highest-text-density back, neck if detected). Algorithm: rank frames by detected text area + sharpness, then pick non-overlapping ones (using the gyro-derived angle estimates to avoid duplicates).
 - Output:
@@ -155,7 +159,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
   - `keyframe_{0,1,2}.jpg` — saved separately.
   - `stitching_metadata` — the per-frame transformations OpenCV computed (useful for debugging).
 
-**Why backend:** Expo Managed cannot run native OpenCV. JS-based stitching libraries either don't exist at production quality or are too slow on phone CPUs.
+**Why Python:** beer-encyclopedia is the canonical home for catalog + ML work per ADR-0005. OpenCV is a first-class dependency there. NestJS would have required Node FFI or sub-process — Python avoids all of that.
 
 ### Phase 6 — Server-side OCR
 
@@ -193,17 +197,19 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 ### Phase 8 — Web-search verification + suggestion creation
 
-**Goal:** consolidate low-confidence fields with two web sources, then materialise a `BeerDataSuggestion`.
+**Goal:** consolidate low-confidence fields with two web sources, then materialise a `BeerDataSuggestion` in the **Python beer-encyclopedia** (the catalog owner per ADR-0005).
 
 This phase is **shared with the barcode-enrichment pipeline** ([epic #934, sub-issue #938](https://github.com/benoit-bremaud/brasse-bouillon/issues/938)). The only difference is the seed (OCR-derived vs OFF-derived). The downstream code path is identical:
 
 1. For each low-confidence field, run a Brave Search and a 2nd-source web search; consolidate per the rules in #938.
-2. Persist a `BeerDataSuggestion` with:
-   - `catalog_item_id` referencing a **newly created** `scan_catalog_items` row (with `barcode = NULL`, `source = 'panoramic'`, the panorama URL stored in `image_url`).
+2. The Python service persists a `BeerDataSuggestion` with:
+   - `catalog_item_id` referencing a **newly created** `scan_catalog_items` row (`barcode = NULL`, `source = 'panoramic'`, panorama URL stored in `image_url`).
    - `proposed_fields` = all fields with their final consolidated values.
    - `source_summary` = per-field provenance (`["ocr+ai", "web1", "web2"]` etc.).
    - `confidence` = average of per-field confidences.
-3. Emit `SuggestionCreated` event → [#939 notifications](https://github.com/benoit-bremaud/brasse-bouillon/issues/939) → maintainer notified in-app.
+3. The Python service POSTs a `SuggestionCreated` webhook to NestJS → NestJS writes a row in its own `notifications` table → maintainer notified in-app via the polling loop of [#939](https://github.com/benoit-bremaud/brasse-bouillon/issues/939). The split (Python emits, NestJS notifies) keeps the `notifications` table next to the `users` table where it belongs (ADR-0005).
+
+**Cross-backend reconciliation note for epic #934:** the original epic was filed before this spec sized up the ADR-0005 implications. The data model + endpoints in #934/#937/#938 must move from NestJS to Python beer-encyclopedia. This is non-blocking for the spec but should be tracked as an explicit follow-up issue under #934.
 
 ### Phase 9 — Maintainer review
 
@@ -215,25 +221,27 @@ Identical to [#940](https://github.com/benoit-bremaud/brasse-bouillon/issues/940
 
 In addition to the columns added by epic #934, the panoramic feature introduces:
 
-### 4.1 `scan_catalog_items` extensions
+All new entities below live in the **Python beer-encyclopedia** (Postgres) per ADR-0005. The current NestJS `scan_catalog_items` (SQLite, `barcode` `NOT NULL`) is a transitional artefact and stays as-is; the equivalent Python table is the canonical home going forward.
 
-- `source` enum gains a new value: `panoramic` (alongside the existing `seed`, `openfoodfacts`, `manual`).
-- `barcode` becomes nullable — it already is, per the schema in [#935](https://github.com/benoit-bremaud/brasse-bouillon/issues/935), but worth restating.
-- `image_url` is reused to store the panorama URL when source is `panoramic`.
+### 4.1 `scan_catalog_items` (Python / Postgres) — schema requirements
 
-### 4.2 New entity `panoramic_capture`
+- `source` enum includes `panoramic` (alongside `seed`, `openfoodfacts`, `manual`).
+- **`barcode` is `NULLABLE`** in the Python table (in contrast with the legacy NestJS table where it is `NOT NULL`). This is a **required schema property** of the Python catalog — the panoramic flow creates rows with no barcode.
+- `image_url` stores the panorama URL when `source = 'panoramic'`.
+
+### 4.2 New entity `panoramic_capture` (Python / Postgres)
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | UUID, PK | |
 | `catalog_item_id` | FK → `scan_catalog_items.id` | The catalog row this capture produced |
-| `triggered_by_request_id` | FK → `scan_requests.id`, nullable | The originating barcode-scan request (if any) |
+| `triggered_by_request_id` | UUID, nullable | The originating barcode-scan request (if any). Cross-backend reference; not a hard FK because `scan_requests` lives in NestJS for now |
 | `panorama_url` | text | URL of the stitched output |
-| `keyframe_urls` | jsonb | `[url1, url2, url3]` |
+| `keyframe_urls` | `jsonb` | `[url1, url2, url3]`. `jsonb` is correct because Python beer-encyclopedia runs on Postgres (the current NestJS-side SQLite would have used `text` JSON-serialised — that compromise is irrelevant here since this entity lives in Python only) |
 | `frame_count` | int | Number of raw frames the user captured |
 | `loop_closure_detected` | bool | `true` if phase 3 ended capture, `false` if timeout/manual |
 | `gyro_total_angle_deg` | real, nullable | Sum of gyro-estimated rotation, sanity-check |
-| `submitted_by_user_id` | FK → `users.id` | |
+| `submitted_by_user_id` | UUID, nullable | Cross-backend reference to `users.id` (NestJS); not a hard FK |
 | `created_at` | timestamp | |
 
 The captured raw frames themselves are **not** persisted — only the stitched output and the 2-3 keyframes survive (per the storage decision: *Panorama final + 2-3 keyframes*).

@@ -4,11 +4,17 @@ Production host for the NestJS API. Single-region (Paris / `cdg`), SQLite persis
 
 ## Prerequisites
 
-1. Install `flyctl`:
+1. Install `flyctl` and put it on `PATH`, so every command in this doc
+   resolves to `fly` directly (no hard-coded absolute path needed):
    ```bash
    curl -L https://fly.io/install.sh | sh
-   # then add the printed export PATH=... line to ~/.zshrc if needed
+   # The installer prints two `export` lines for FLYCTL_INSTALL and PATH —
+   # append them to ~/.zshrc (or ~/.bashrc), then `source` it or open a
+   # new shell. Verify with:
+   fly version
    ```
+   On Homebrew or a Linux package manager, follow the official install
+   instructions — the rest of this doc only assumes `fly` is callable.
 2. Create a Fly account and log in:
    ```bash
    fly auth signup   # or: fly auth login
@@ -27,27 +33,27 @@ so `fly deploy` must be invoked from the repo root with `--config` and
 cd /path/to/brasse-bouillon
 
 # 1. Register the app on your account (single-step, no boilerplate)
-~/.fly/bin/flyctl apps create brasse-bouillon-api
+fly apps create brasse-bouillon-api
 
 # 2. Create the 1 GB volume that backs SQLite (region must match fly.toml)
-~/.fly/bin/flyctl volumes create bb_data --size 1 --region cdg \
+fly volumes create bb_data --size 1 --region cdg \
   --app brasse-bouillon-api --yes
 
 # 3. Stage production secrets — applied on next deploy
-~/.fly/bin/flyctl secrets set JWT_SECRET="$(openssl rand -hex 32)" \
+fly secrets set JWT_SECRET="$(openssl rand -hex 32)" \
   --app brasse-bouillon-api --stage
 
 # 4. First deploy (build context = monorepo root, remote builder)
-~/.fly/bin/flyctl deploy \
+fly deploy \
   --config packages/api/fly.toml \
   --dockerfile packages/api/Dockerfile \
   --remote-only \
   --app brasse-bouillon-api
 
 # 5. Verify
-~/.fly/bin/flyctl status --app brasse-bouillon-api
+fly status --app brasse-bouillon-api
 curl https://brasse-bouillon-api.fly.dev/
-~/.fly/bin/flyctl logs --app brasse-bouillon-api
+fly logs --app brasse-bouillon-api
 ```
 
 **Initial deployment confirmed on 2026-05-07** by `bbd.concept@gmail.com`,
@@ -68,20 +74,33 @@ machine `shared-cpu-1x:512MB` in `cdg`, volume `bb_data` 1 GB, public URL
 
 ## Day-to-day operations
 
+Every command runs from the **monorepo root**. The deploy command keeps
+the same `--config` / `--dockerfile` flags as the first-time setup, so
+the build context stays at the repo root (mandatory for the workspace
+install in the Dockerfile).
+
 ```bash
-fly deploy                        # ship new code (from packages/api/)
-fly logs                          # tail logs
-fly ssh console                   # interactive shell on the running VM
-fly ssh console -C "ls -la /app/data"  # inspect the volume
-fly secrets list                  # list (names only) production secrets
-fly machines list                 # see running machines
-fly apps open                     # open dashboard in browser
+# Ship new code
+fly deploy \
+  --config packages/api/fly.toml \
+  --dockerfile packages/api/Dockerfile \
+  --remote-only \
+  --app brasse-bouillon-api
+
+# Inspect / operate
+fly logs           --app brasse-bouillon-api
+fly status         --app brasse-bouillon-api
+fly ssh console    --app brasse-bouillon-api                   # interactive shell on the running VM
+fly ssh console    --app brasse-bouillon-api -C "ls -la /app/data"  # inspect the volume
+fly secrets list   --app brasse-bouillon-api                   # list (names only) production secrets
+fly machines list  --app brasse-bouillon-api                   # see running machines
+fly apps open      --app brasse-bouillon-api                   # open dashboard in browser
 ```
 
 Inspect the SQLite DB (requires `sqlite3` in the base image or install ad-hoc):
 
 ```bash
-fly ssh console
+fly ssh console --app brasse-bouillon-api
 apt-get update && apt-get install -y sqlite3  # one-off
 sqlite3 /app/data/brasse-bouillon.db ".tables"
 ```
@@ -89,7 +108,8 @@ sqlite3 /app/data/brasse-bouillon.db ".tables"
 ## Rotating secrets
 
 ```bash
-fly secrets set JWT_SECRET="$(openssl rand -hex 48)"   # triggers restart
+fly secrets set JWT_SECRET="$(openssl rand -hex 48)" \
+  --app brasse-bouillon-api    # triggers restart
 ```
 
 Existing JWTs become invalid after rotation — all users will be forced to re-login. Coordinate before running this.
@@ -97,8 +117,8 @@ Existing JWTs become invalid after rotation — all users will be forced to re-l
 ## Rollback
 
 ```bash
-fly releases                       # list past deploys
-fly releases rollback <version>    # roll back to a previous image
+fly releases --app brasse-bouillon-api                    # list past deploys
+fly releases rollback <version> --app brasse-bouillon-api # roll back to a previous image
 ```
 
 ## Pre-soutenance readiness checklist
@@ -106,10 +126,10 @@ fly releases rollback <version>    # roll back to a previous image
 Five days before 2026-05-27:
 
 - [ ] `curl https://brasse-bouillon-api.fly.dev/` returns `200`
-- [ ] `fly status` shows one machine in `started` state
-- [ ] `fly logs` shows no recent errors
-- [ ] `fly volumes list` confirms `bb_data` attached, size 1 GB, healthy
-- [ ] Backup: `fly ssh console -C "cat /app/data/brasse-bouillon.db" > backup-$(date +%F).db`
+- [ ] `fly status --app brasse-bouillon-api` shows one machine in `started` state
+- [ ] `fly logs --app brasse-bouillon-api` shows no recent errors
+- [ ] `fly volumes list --app brasse-bouillon-api` confirms `bb_data` attached, size 1 GB, healthy
+- [ ] Backup: `fly ssh console --app brasse-bouillon-api -C "cat /app/data/brasse-bouillon.db" > backup-$(date +%F).db`
 - [ ] Record result in [PROJECT_LOG.md](../../../PROJECT_LOG.md)
 
 ## Known caveats

@@ -140,6 +140,50 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 - After every 5th accepted frame, run an async OCR pass on that frame using a pure-JS library (`tesseract.js` configured for French + English). The recognised text is shown briefly as a translucent overlay ("*Texte détecté: 'Brasserie Chouffe — Belgian Strong Ale'*").
 - **This OCR result is NOT persisted.** It is purely UX feedback. The authoritative OCR runs server-side in phase 6.
 
+### Phase 4.5 — Streaming progression (anti-spinner UX)
+
+**Goal:** during the 10–20 s of backend processing (phases 5 → 8), keep the user informed of *what* is happening so the wait does not feel like a generic spinner. Implements three combined levers:
+
+#### Lever A — Server-Sent Events (SSE) progression stream
+
+- The Python beer-encyclopedia exposes a long-lived SSE endpoint: `GET /panoramic-captures/{capture_id}/stream`.
+- The mobile subscribes immediately after uploading the frames.
+- The backend emits typed events as each phase completes:
+
+  | Event | Triggered after | Mobile UI |
+  |---|---|---|
+  | `upload.received` | The multipart upload has been parsed | *"📤 Envoi des images terminé"* + 10 % progress bar |
+  | `stitching.completed` | Phase 5 done | *"🧩 Reconstruction de l'étiquette OK"* + 30 % progress bar |
+  | `ocr.completed` | Phase 6 (single pass) done | *"🔍 Lecture du texte OK"* + 50 % progress bar |
+  | `ocr.escalated` | Phase 6.5 fired (only on low confidence) | *"📚 Lecture approfondie..."* + 50 % progress bar (no advance) |
+  | `ocr.escalated.completed` | Phase 6.5 done | *"📚 Lecture approfondie OK"* + 60 % progress bar |
+  | `ai.completed` | Phase 7 done | *"🧠 Analyse intelligente OK"* + 80 % progress bar |
+  | `webcheck.completed` | Phase 8 — web-search verification finished, **before** the suggestion is persisted | *"🌐 Vérification croisée OK"* + 95 % progress bar |
+  | `suggestion.created` | Phase 8 — suggestion row written to `beer_data_suggestions` (closes Phase 8) | *"✅ Prêt à valider"* + 100 % + auto-navigate to result screen |
+  | `error` | Any phase failed | Show retry / cancel UI |
+
+- **Replay on connect:** because `upload.received` can fire before the mobile has even received the HTTP `201 Created` response (the multipart parse can complete inside the same request handler), the SSE stream emits an initial `state.snapshot` event on every new connection containing the list of phases already completed. The client then catches up to the live stream from the latest one. This guarantees that even a late subscription does not miss the 10 % milestone or the gate for Lever C.
+- SSE keep-alive heartbeat every 5 s to detect connection loss.
+- If the SSE connection drops, the mobile falls back to polling `GET /panoramic-captures/{capture_id}` every 2 s.
+
+#### Lever B — Optimistic partial result
+
+- As soon as the OCR phase completes (≈ 6 s after upload), the backend's `ocr.completed` event payload includes the **best-effort partial parse** of `name` + `brewery` extracted from the OCR text (no AI call yet).
+- The mobile displays this partial card immediately, with the other fields shown as `⏳` placeholders. The user sees a real result long before the full enrichment completes.
+- When `suggestion.created` fires, the placeholders fill in.
+
+#### Lever C — "Fire and forget" mode (optional, user-toggleable)
+
+- Once `upload.received` fires (the frames are safely on the server, even if stitching has not yet completed), the user can tap a **"Continuer ailleurs"** button.
+- The mobile closes the scan screen and returns the user to the home page. The SSE is dropped.
+- When the suggestion is finally created, a notification (per [#939](https://github.com/benoit-bremaud/brasse-bouillon/issues/939)) lets the user know it is ready to review.
+
+#### Visual coupling with the BeerMugLoader
+
+If the BeerMugLoader animation lands (Lottie of a beer mug filling), the SSE events drive the fill level (1/5 fill per major phase). When the mug overflows with foam → suggestion is ready. This visual coupling is more satisfying than a numeric progress bar and is documented in the BeerMugLoader implementation issue (filed separately).
+
+---
+
 ### Phase 5 — Upload + final stitching (backend)
 
 **Goal:** produce one high-quality panoramic image plus 2-3 keyframes from the raw frames the mobile uploaded.
@@ -148,6 +192,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 - The mobile uploads the raw JPEG frames + capture metadata to a new endpoint hosted by the **Python beer-encyclopedia** (per ADR-0005): `POST /panoramic-captures` (FastAPI route, exact path TBD when the service is wired). Multipart upload, frames bundled in a single request (typical payload: 15 × ~80 KB = ~1.2 MB).
 - The endpoint returns a `capture_id`; subsequent requests reference this id.
+- **Important:** the response is sent *as soon as the upload is parsed*, not after stitching completes. The mobile then connects to the SSE stream of Phase 4.5 to receive progressive updates. Stitching, OCR, AI, and web verification all happen asynchronously.
 
 **Python beer-encyclopedia service:**
 
@@ -168,7 +213,36 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 - Send `panorama.jpg` + each keyframe to **Google Cloud Vision OCR** (fully managed, ~$1.50 per 1000 pages, robust on French + English + decorative fonts).
 - For each image: collect both raw text and bounding boxes.
 - Concatenate raw texts (deduplicating obvious repeats) → final OCR text blob.
-- Output: `{ ocr_text: string, blocks: BoundingBox[] }`.
+- Output: `{ ocr_text: string, blocks: BoundingBox[], avg_confidence: number }` where:
+  - `BoundingBox = { x: number, y: number, width: number, height: number, text: string, confidence: number }` — `x`, `y`, `width`, `height` are **integer pixel coordinates** in the source image (typed as JSON `number` since JSON has no `int`); `text` is the recognised substring; `confidence` is Cloud Vision's per-block confidence (0.0 – 1.0).
+  - `avg_confidence` is a **weighted mean** of the per-block `confidence` values across the blocks that map to the critical fields used in Phase 6.5 (`name`, `brewery`, `abv` candidates), weighted by `len(block.text)` (block character count). Formula: `Σ (block.confidence × len(block.text)) / Σ len(block.text)` over the critical-field block subset. Range: 0.0 – 1.0. Computed by BB code, not returned by Cloud Vision.
+
+#### Phase 6.5 — Conditional OCR ensemble (escalation on low confidence)
+
+A single grayscale OCR pass works well for industrial / classic labels (Heineken, Stella) but degrades on craft / colour-coded designs (e.g. yellow text on red, gold foil, neon). Rather than always spending the cost of multi-channel OCR, we **escalate conditionally**.
+
+- After Phase 6, compute `avg_confidence` over the critical fields surfaced in the OCR result (those that map to `name`, `brewery`, `abv` candidate text blocks).
+- **If `avg_confidence ≥ 0.7`** → proceed directly to Phase 7. No ensemble.
+- **If `avg_confidence < 0.7`** → run an additional OCR pass with **5 software-derived monochrome variants** of each input image:
+  - Channel R only
+  - Channel G only
+  - Channel B only
+  - Standard luminance grayscale (`0.299R + 0.587G + 0.114B`)
+  - Adaptive thresholded binary (Sauvola or Otsu)
+- Run Cloud Vision OCR on each variant in parallel (5 × N images).
+- **Consolidate per word/token** into a typed `Token`:
+  - `Token = { text: string, bbox: BoundingBox, confidence: number, variant_count: number, needs_review: boolean }` — the recognised word, its bounding box (median of the per-variant boxes), the consolidated confidence, the number of variants the word appeared in (1–5), and the review flag.
+  - Word appears in ≥ 3 variants → `confidence: 0.95`, `needs_review: false`, included
+  - Word appears in 2 variants → `confidence: 0.8`, `needs_review: false`, included
+  - Word appears in 1 variant only → `confidence: 0.5`, `needs_review: true`, included
+- The consolidated output of Phase 6.5 replaces the single-pass Phase 6 result before Phase 7. Schema:
+  `{ ocr_text: string, tokens: Token[], avg_confidence: number, escalated: true }`. Phase 7 (Claude vision) consumes `tokens` directly and treats `needs_review: true` tokens as low-trust candidates (it must either confirm them visually from the panorama or downgrade them).
+- Cost / latency (one Cloud Vision call set ≈ panorama + 2-3 keyframes):
+  - Common case (no escalation): 1× call set (~$0.006 / scan), ~2 s
+  - Escalated case: 6× call sets total — the Phase 6 single pass that already ran (1×) **plus** the 5 ensemble variants in Phase 6.5 — so ~$0.036 / scan, ~3-5 s
+- The escalation is logged + counted in the cost monitoring of #942 so we can tune the 0.7 threshold post-launch.
+
+**Why post-capture, not multi-shot capture:** the camera already captures full RGB in one shot — multiple monochrome captures would add zero information. All channel separation is software-derived from one panorama. This was a deliberate decision to avoid bloating the mobile UX with redundant photo bursts.
 
 ### Phase 7 — Multimodal AI structuring (Claude vision)
 

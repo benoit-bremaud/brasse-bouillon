@@ -48,8 +48,15 @@
 /packages/api/fly.toml
 /packages/website/
 !/packages/website/package.json
+# IMPORTANT: explicit anchored .venv exclusion. The `**/.venv/` glob below
+# does not always reach this deep on EAS's tarballer (observed in the APK
+# rebuild after PR #964 — upload was 170 MB instead of <20 MB because the
+# 5.6 GB Python virtualenv with CUDA + PyTorch libs leaked through). Anchor
+# explicitly to be safe.
+/packages/beer-encyclopedia/.venv/
 /packages/beer-encyclopedia/scan-photos/
 /packages/beer-encyclopedia/.ruff_cache/
+/packages/beer-encyclopedia/.pytest_cache/
 /packages/beer-encyclopedia/migrations/
 /packages/beer-encyclopedia/tests/
 /packages/beer-encyclopedia/api/

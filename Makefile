@@ -25,9 +25,11 @@ LAN_IP := $(if $(strip $(LAN_IP)),$(LAN_IP),localhost)
 
 # Tailscale IPv4 — preferred over LAN_IP when available because router AP
 # isolation can block LAN-to-LAN traffic between the dev machine and the
-# phone. Falls back to LAN_IP, then localhost.
-TAILSCALE_IP := $(shell tailscale ip -4 2>/dev/null | head -n1)
-DEV_HOST := $(if $(strip $(TAILSCALE_IP)),$(TAILSCALE_IP),$(LAN_IP))
+# phone. Falls back to LAN_IP, then localhost. Both use `?=` so a
+# developer can opt out (e.g. `make DEV_HOST=192.168.1.244 dev-mobile`
+# or `export DEV_HOST=...`) without editing the Makefile.
+TAILSCALE_IP ?= $(shell tailscale ip -4 2>/dev/null | head -n1)
+DEV_HOST ?= $(if $(strip $(TAILSCALE_IP)),$(TAILSCALE_IP),$(LAN_IP))
 
 API_PORT := 3000
 
@@ -120,7 +122,7 @@ dev-api: ## Start the NestJS API in watch mode (http://DEV_HOST:3000)
 dev-mobile: ## Start Expo for Expo Go — Metro bound to Tailscale (or LAN) IP
 	@echo "[dev-mobile] Metro will advertise host: $(DEV_HOST)"
 	@echo "[dev-mobile] Phone must reach $(DEV_HOST):8081 (Tailscale tailnet, or same Wi-Fi without AP isolation)."
-	cd packages/mobile-app && REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npx expo start
+	REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npm -w packages/mobile-app run start:lan
 
 dev-beer-enc: ## Start the beer-encyclopedia FastAPI server (http://localhost:8000)
 	@if [ ! -x $(BEER_ENC_DIR)/.venv/bin/uvicorn ]; then \
@@ -135,7 +137,7 @@ dev: ## Start API and Expo in parallel (Ctrl+C stops both)
 	@echo "[dev] Starting API + Expo — API at http://$(DEV_HOST):$(API_PORT), Metro on $(DEV_HOST):8081"
 	@trap 'kill 0' INT TERM; \
 		(npm run dev:api) & \
-		(cd packages/mobile-app && REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npx expo start) & \
+		(REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npm -w packages/mobile-app run start:lan) & \
 		wait
 
 dev-all: setup db-up ## Start the whole stack: Postgres + NestJS API + beer-encyclopedia + Expo
@@ -151,7 +153,7 @@ dev-all: setup db-up ## Start the whole stack: Postgres + NestJS API + beer-ency
 	@trap 'kill 0' INT TERM; \
 		(npm run dev:api) & \
 		(cd $(BEER_ENC_DIR) && .venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port $(BEER_ENC_PORT)) & \
-		(cd packages/mobile-app && REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npx expo start) & \
+		(REACT_NATIVE_PACKAGER_HOSTNAME=$(DEV_HOST) npm -w packages/mobile-app run start:lan) & \
 		wait
 
 dev-stop: ## Stop dev servers (ports 3000/8000/8081) and beer-encyclopedia Postgres (data preserved)

@@ -17,30 +17,42 @@ Production host for the NestJS API. Single-region (Paris / `cdg`), SQLite persis
 
 ## First-time setup
 
-Run from `packages/api/` (the directory containing `fly.toml` and `Dockerfile`):
+The Dockerfile expects the **monorepo root** as build context (it copies the
+root `package.json` + `package-lock.json` to install workspace dependencies),
+so `fly deploy` must be invoked from the repo root with `--config` and
+`--dockerfile` pointing at `packages/api/`.
 
 ```bash
-cd packages/api
+# 0. From the monorepo root.
+cd /path/to/brasse-bouillon
 
-# 1. Register the app name (no deploy yet, no config regenerate)
-fly launch --no-deploy --copy-config --name brasse-bouillon-api --region cdg
+# 1. Register the app on your account (single-step, no boilerplate)
+~/.fly/bin/flyctl apps create brasse-bouillon-api
 
-# 2. Create the 1 GB volume that backs SQLite
-fly volumes create bb_data --size 1 --region cdg
+# 2. Create the 1 GB volume that backs SQLite (region must match fly.toml)
+~/.fly/bin/flyctl volumes create bb_data --size 1 --region cdg \
+  --app brasse-bouillon-api --yes
 
-# 3. Set production secrets
-fly secrets set \
-  JWT_SECRET="$(openssl rand -hex 48)" \
-  JWT_EXPIRATION=86400s
+# 3. Stage production secrets — applied on next deploy
+~/.fly/bin/flyctl secrets set JWT_SECRET="$(openssl rand -hex 32)" \
+  --app brasse-bouillon-api --stage
 
-# 4. First deploy
-fly deploy
+# 4. First deploy (build context = monorepo root, remote builder)
+~/.fly/bin/flyctl deploy \
+  --config packages/api/fly.toml \
+  --dockerfile packages/api/Dockerfile \
+  --remote-only \
+  --app brasse-bouillon-api
 
 # 5. Verify
-fly status
+~/.fly/bin/flyctl status --app brasse-bouillon-api
 curl https://brasse-bouillon-api.fly.dev/
-fly logs
+~/.fly/bin/flyctl logs --app brasse-bouillon-api
 ```
+
+**Initial deployment confirmed on 2026-05-07** by `bbd.concept@gmail.com`,
+machine `shared-cpu-1x:512MB` in `cdg`, volume `bb_data` 1 GB, public URL
+`https://brasse-bouillon-api.fly.dev/` returning `{"success":true,"data":"Hello World!"}`.
 
 ## What `fly.toml` encodes
 

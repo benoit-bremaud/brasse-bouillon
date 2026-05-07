@@ -43,6 +43,7 @@ rule.
 | Mobile stays on **Expo Managed pure** (no eject, no custom dev client) | [scan-algorithms.md §6](scan-algorithms.md#6-tech-stack-constraints--expo-managed-pure) | Heavy computer-vision work runs on the backend. The on-device flow uses `expo-camera` + `expo-sensors` + pure-JS perceptual hashing. |
 | **Persistence imperative** (since 2026-05-04) | Project memory | No demo-mode-only builds. Every new scan-related feature persists from day one. |
 | **UI stays French**, code / commits / PRs / issue bodies stay English | Project memory | UX copy in `scan-algorithms.md §5` is the canonical French source. |
+| **Target audience = craft / micro-brewery beers** — panoramic scan is the *primary* recognition path, not a fallback | Product framing | Mainstream beers (Heineken, Leffe, Punk IPA) resolve via OpenFoodFacts barcode lookup in ~200 ms. Craft / micro-brewery beers are almost never indexed in OFF, so the auto-switch to panoramic scan fires *as the nominal flow*. Capture quality (#945–#947) and the enrichment pipeline (#934) are demo-essential for the target user, not stretch goals. |
 
 ## 4. Inventory of related artefacts
 
@@ -178,22 +179,28 @@ The mobile app is allowed to talk to both backends per ADR-0005.
 These decisions block the dev-plan finalisation; they do **not** block reading
 or planning further consolidation.
 
-1. **Server-side stitching backend technology** — in-process Python (current
-   recommendation, given OpenCV is already a transitive dependency of YOLO +
-   EasyOCR), Node FFI binding, or a dedicated FastAPI micro-service. To be
-   recorded as the implementation decision on [#948](https://github.com/benoit-bremaud/brasse-bouillon/issues/948).
-2. **Second web-search provider** — Google Programmable Search Engine vs
-   SerpAPI vs DuckDuckGo HTML scraping. To be decided in [#938](https://github.com/benoit-bremaud/brasse-bouillon/issues/938).
-3. **Loop-closure thresholds** — `min_frames_before_closure = 12` and
+1. **Second web-search provider** — Google Programmable Search Engine vs
+   SerpAPI vs DuckDuckGo HTML scraping. To be decided in [#938](https://github.com/benoit-bremaud/brasse-bouillon/issues/938)
+   based on a benchmark at implementation time, not in chambre.
+2. **Loop-closure thresholds** — `min_frames_before_closure = 12` and
    `match_score_threshold = 0.7` are first-cut guesses. To tune during the
    tech-spike of [#944](https://github.com/benoit-bremaud/brasse-bouillon/issues/944).
-4. **Freemium quotas activation timing** — activate alongside the enrichment
-   pipeline (parallel with the #934 work) to protect the soutenance demo from
-   OFF rate-limits, or defer to v0.2 post-soutenance with a soft client-side
-   counter only. Tracked in [#878](https://github.com/benoit-bremaud/brasse-bouillon/issues/878).
-5. **Streaming progression UX (Phase 4.5)** — implement alongside [#948](https://github.com/benoit-bremaud/brasse-bouillon/issues/948)
-   so the soutenance demo never shows a 15-second spinner, or defer the SSE
-   stream and accept the spinner for the MVP.
+3. **Freemium quotas activation timing** — activate alongside the enrichment
+   pipeline (parallel with the #934 work) to protect against OFF rate-limits,
+   or defer to v0.2 post-soutenance with a soft client-side counter only.
+   Tracked in [#878](https://github.com/benoit-bremaud/brasse-bouillon/issues/878).
+   Maintainer is parking this decision until Phase 1 closes.
+
+### Resolved on 2026-05-08
+
+- **Server-side stitching backend technology** → in-process Python (OpenCV
+  native call). `opencv-python` is already a transitive dependency of YOLO +
+  EasyOCR in beer-encyclopedia, no new infra. Sub-process and Node FFI
+  rejected. Recorded on [#948](https://github.com/benoit-bremaud/brasse-bouillon/issues/948).
+- **Streaming progression UX (Phase 4.5)** → implement alongside [#948](https://github.com/benoit-bremaud/brasse-bouillon/issues/948)
+  (do not defer). Driven by the craft-beer audience constraint (§3): a
+  15-second spinner without feedback is unacceptable when the panoramic scan
+  *is* the primary recognition path. Recorded on #948.
 
 ## 8. What this document is NOT
 

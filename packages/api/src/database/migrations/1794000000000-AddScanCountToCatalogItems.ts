@@ -22,9 +22,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * will add one alongside the stats endpoint once it actually issues
  * `ORDER BY scan_count DESC` queries.
  */
-export class AddScanCountToCatalogItems1794000000000
-  implements MigrationInterface
-{
+export class AddScanCountToCatalogItems1794000000000 implements MigrationInterface {
   name = 'AddScanCountToCatalogItems1794000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

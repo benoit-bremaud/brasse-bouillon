@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -34,6 +35,7 @@ import { ScanStorageService } from './scan-storage.service';
 @Injectable()
 export class ScanService {
   private readonly domainService = new ScanDomainService();
+  private readonly logger = new Logger(ScanService.name);
 
   constructor(
     @InjectRepository(ScanRequestOrmEntity)
@@ -565,14 +567,25 @@ export class ScanService {
    * Atomically bumps `scan_count` and `last_scanned_at` on the matched
    * catalog row before returning the response payload (Issue #929).
    *
-   * Centralising the increment here guarantees we never accidentally
-   * skip a counted branch and never double-count.
+   * The increment is **best-effort**: if the metric `UPDATE` fails
+   * (transient SQLite lock, read-only DB, disk full, etc.), the user-
+   * facing lookup must NOT turn into a 500. The error is logged and
+   * swallowed here so the catalog data already in hand still flows
+   * back to the client. Codex P1 review on PR #958.
    */
   private async respondWithLookup(
     row: ScanCatalogItemOrmEntity,
     source: ScanLookupResultDto['source'],
   ): Promise<ScanLookupResultDto> {
-    await this.incrementScanCount(row.id);
+    try {
+      await this.incrementScanCount(row.id);
+    } catch (err) {
+      this.logger.warn(
+        `Failed to increment scan_count for catalog ${row.id}: ${
+          (err as Error).message
+        }`,
+      );
+    }
     return this.buildLookupResult(row, source);
   }
 
@@ -584,6 +597,11 @@ export class ScanService {
    * in `Repository.update` — same call shape used elsewhere in the
    * codebase (e.g. `UserService.setPasswordResetToken`) but with
    * a SQL expression instead of a literal value.
+   *
+   * Errors are intentionally not handled here so callers can choose
+   * their own failure policy. `respondWithLookup` swallows them for
+   * the user-facing lookup path; future audit/transactional callers
+   * can let them propagate.
    */
   private async incrementScanCount(catalogItemId: string): Promise<void> {
     await this.catalogItemRepository.update(

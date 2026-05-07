@@ -5,6 +5,35 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-07
+
+### PR #943 merged (`40347f0`) — docs(specs): scan algorithms spec (barcode + panoramic label)
+
+- New file: [`docs/architecture/specs/scan-algorithms.md`](docs/architecture/specs/scan-algorithms.md). Single source of truth for the scan feature in two flavours: barcode + panoramic label.
+- 11 sections: vocabulary glossary (FR/EN, used verbatim everywhere), decision tree (auto-switch when no barcode data, prompt when partial below threshold, no panoramic when complete), 9-phase panoramic algorithm (pre-capture → burst → loop closure → live OCR → backend stitching → server OCR → Claude vision → web-search verification + suggestion creation → review), data model impact (`panoramic_capture` entity), canonical UX copy, tech-stack constraints (Expo Managed pure), risks + open implementation choices, implementation roadmap.
+- Round-1 review fix in `f774d3d`: added BB + OFF acronyms to the glossary; **realigned the spec with [ADR-0005](docs/architecture/decisions/0005-backend-split-encyclopedia-vs-product.md)** (panoramic backend services + catalog/suggestion entities live in Python beer-encyclopedia, NestJS keeps notifications + auth + maintainer-action proxies); reworded `barcode` nullability to clarify it's a required schema property of the new Python table (legacy NestJS table stays NOT NULL during transition); justified `jsonb` now that the entity lives in Postgres. Disagreed with 4 markdown-formatting comments where Copilot hallucinated `||` separators that weren't there.
+- 9 sub-issues filed under #751 the same day (#944–#952) covering tech-spike, mobile capture chain, Python backend services, and decision-tree wiring.
+- A follow-up PR will amend the spec with: (a) conditional OCR-ensemble (5-channel software derivation when single-pass confidence is low), (b) streaming progression UX between backend phases.
+
+### Decisions
+
+- **Backend ownership per ADR-0005 made explicit in the spec banner**: any new catalog / ML / enrichment work goes into Python beer-encyclopedia. The NestJS `scan/` module is on a deprecation roadmap. Mobile is allowed to talk to both backends. Epic #934 was filed before this realignment landed; its NestJS-centric data model needs a follow-up to migrate to Python.
+- **Capture stays full-color, derivations happen post-capture**: monochrome / per-channel OCR variants are derived software-side from a single full-color panorama, never captured separately. Avoids unnecessary photo bursts.
+- **Conditional OCR ensemble over systematic ensemble**: single grayscale pass first, escalate to 5-channel ensemble only when confidence on critical fields is below 0.7. Cost stays at ~$0.006/scan in the common case.
+- **Hybrid stitching (live preview on-device + final on backend)**: the on-device preview cannot run OpenCV, so it uses gyro-derived progress and perceptual-hash loop-closure detection. The authoritative panorama is stitched server-side with `cv2.Stitcher_create(cv2.Stitcher_PANORAMA)` in Python (`opencv-python` is already a transitive dep of YOLO + EasyOCR).
+
+### PR #933 merged (`33ba517`) — chore(env): KISS+YAGNI cleanup of env files + Tailscale fix
+
+- Cleanup pass on env files across the monorepo + a `main.ts` change to bind the API to `0.0.0.0` so Expo Go on a phone can reach it via Tailscale or LAN. Branch `fix/env-tailscale-coverage`.
+- Round-1 review fix in `ead8c17`: removed the stale `Development - Staging` Swagger server (staging dropped from `APP_ENV`), renamed `Development - Local` → `Development`, added a small "Also reachable on" log section under the startup banner that lists every non-loopback IPv4 (LAN / Tailscale) so phones know which URL to hit. Also separated `buildTypeOrmOptions` into runtime vs CLI (`{ forCli?: boolean }`) so `npm run migration:generate` / `migration:revert` no longer auto-apply pending migrations before running the requested command.
+- Follow-up PR for the project log entry of this work was bundled into the current entry rather than filed separately.
+
+### Operational
+
+- 9 sub-issues filed under epic [#751](https://github.com/benoit-bremaud/brasse-bouillon/issues/751) (panoramic capture): #944 → #952. Sub-issues sequenced per spec §9 with explicit dependencies. **Project board linkage was deferred** — `gh project item-add` and `gh api graphql addProjectV2ItemById` were blocked at the harness level during the bulk-add; the items can be added via the GitHub Projects UI (single multi-select operation).
+
+---
+
 ## 2026-05-06
 
 ### PR #928 merged (`8591405`) — chore(api): add full Docker setup for server deployment

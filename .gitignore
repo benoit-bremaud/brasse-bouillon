@@ -154,3 +154,6 @@ docs/product/references/*
 .claude/settings.json
 .claude/scheduled_tasks.lock
 .claude/settings.json
+
+# Stub created by EAS CLI for monorepo project-root detection
+/app.json

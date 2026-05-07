@@ -50,6 +50,25 @@ If your upload ever balloons back to 100+ MB, that's a sign a new
 bare-directory pattern got added to `.easignore` — re-read the inline
 comment at the top of `.easignore` before fixing.
 
+**Important — two `.easignore` files, both needed.** EAS in a monorepo
+uploads the **workspace root** (this repo's monorepo root, not
+`packages/mobile-app/`) so that `npm ci` can find the canonical
+`package-lock.json`. As a result:
+
+- `.easignore` at `packages/mobile-app/.easignore` is interpreted with
+  `packages/mobile-app/` as its anchor — it can only exclude paths
+  inside the mobile-app package itself.
+- `.easignore` at the **monorepo root** (`/.easignore`) is interpreted
+  with the repo root as its anchor — that is where `/.git/`,
+  `/_archive/`, `/docs/`, `/packages/api/`, and the other heavy
+  monorepo-root paths must be excluded.
+
+Both files exist and serve different scopes. If you only edit the
+package-level one, the repo-root paths leak straight through and the
+upload climbs to 300+ MB (this happened on the 2026-05-07 first
+APK build of the Fly.io-pointed bundle, fixed in PR
+#960).
+
 ### Option B — Isolated-workspace fallback
 
 Useful when debugging `.easignore` rules or when the repo has

@@ -220,32 +220,65 @@ To ensure visual consistency across platforms, Brasse-Bouillon uses a dedicated 
 
 ## 8. Color System
 
-The Brasse-Bouillon color system defines the official color palette to ensure a cohesive, accessible, and consistent user experience.
+The Brasse-Bouillon color system defines the official color palette to ensure a cohesive, accessible, and consistent user experience. The palette below was reconciled with the **actual V0 mobile app screenshots** on 2026-04-23 — earlier versions of this charter were missing the signature golden-yellow background.
 
 ### Core Palette
 
-* **Primary:** `#a06a3a` (Main brand color for key highlights and primary actions)
-* **Secondary:** `#8d5832` (Secondary accent color)
-* **Background:** `#e0d3aa` (Soft beige for UI backgrounds)
+* **Hero Yellow:** `#F4BD3F` (Signature warm golden yellow — used as background of every screen header in the V0 mobile app, on screen full-bleed before the white content cards)
+* **Primary:** `#A06A3A` (Brown copper — main brand color for primary CTAs, brand title color)
+* **Secondary:** `#8D5832` (Darker brown — hover state, close icons, secondary accents)
+* **Background Beige:** `#E0D3AA` (Soft beige — used for KPI tiles, active chips/pills, secondary backgrounds)
 
 ### Semantic Colors
 
-* **Success:** `#6b6b2c` (Indicates positive states and confirmations)
-* **Error:** `#573921` (Denotes errors or critical messages)
-* **Warning:** `#d9b364` (Highlights cautionary information)
-* **Info:** `#e5e5e5` (Used for informational backgrounds and neutral elements)
+* **Success / Active:** `#7D8C3A` (Warm olive — used for the active bottom nav indicator and the "Résultats calculés" surface in calculator screens. Brighter than the previous `#6B6B2C` charter value to match what V0 actually ships.)
+* **Error:** `#573921` (Deep brown — denotes errors or critical messages; in V0 the error text often falls back to dark grey instead of bright red, by design choice)
+* **Warning:** `#D9B364` (Mustard — highlights cautionary information)
+* **Info:** `#F0F0F0` (Very light grey — used for informational confirmation banners e.g. "Barcode confirmed after 5 identical scans")
 
 ### Neutral Colors
 
-* **Neutral Light:** `#ffffff` (White for clean backgrounds and high contrast text)
-* **Neutral Dark:** `#000000` (Black for text and strong contrasts)
-* **Shadow:** `#1e1e1e` (Dark grey for shadows and depth effects)
+* **Neutral Light:** `#FFFFFF` (White for content cards and high-contrast text backgrounds)
+* **Neutral Dark:** `#1E1E1E` (Near-black for primary text)
+* **Text Muted:** `#6B6B6B` (Grey for secondary text and placeholders)
+* **Shadow:** `#1E1E1E` at 8-12% opacity (Dark grey for card shadows and depth effects)
+
+### Watermark Layer
+
+The Hero Yellow background carries a **decorative watermark pattern** of brewing icons (barrels, hop cones, beer mugs, bottles, wheat) drawn as faint line illustrations slightly darker than the base yellow. This pattern is the most distinctive identity element of the product and ships as the asset
+[`packages/mobile-app/assets/images/Yellow_Background.png`](../../../packages/mobile-app/assets/images/Yellow_Background.png).
+
+Reuse rules:
+
+* **Mobile app** — uses the asset directly as a screen background.
+* **VitePress site** — applied on the home hero only (not on content pages, to keep readability).
+* **Canva deck** — applied on title/section slides (S0, S1, S14) only, not on content-dense slides. See [canva-brand-kit.md](../canva-brand-kit.md).
+
+### Mascot Signature
+
+The chef-mug mascot (asset [`docs/design/assets/logo/logo-primary-512x512.png`](../assets/logo/logo-primary-512x512.png)) appears at the **top-left of every screen** in the V0 mobile app, paired with the "Brasse Bouillon" wordmark. The mascot is **not redesigned** — it stays as is across all surfaces (mobile, site, deck).
+
+Reuse rules:
+
+* **Mobile app** — top-left header, ~64×64.
+* **VitePress site** — nav bar logo (already wired), hero image on the home page.
+* **Canva deck** — top-left of every title slide (small format ~120×120 px), large centered on S0 (cover) and S14 (closing).
 
 ### Accessibility Compliance
 
-* All colors have been tested against WCAG AA standards for contrast, ensuring compliance with accessibility best practices.
-* Adjustments were applied to Primary, Background, Info, and Success colors to improve readability.
-* Full testing results and contrast ratios are documented in `docs/design/assets/palette/color-contrast-analysis.md`. Contrast tests should be reviewed after every major palette update or design milestone.
+* All colors have been tested against WCAG AA standards for contrast.
+* The new Hero Yellow `#F4BD3F` carries the body text in dark grey/black, AA-compliant for large headings (`Brasse Bouillon` H1).
+* When primary brown `#A06A3A` is used as a background for white text, the contrast ratio is 4.6:1 (AA for normal text).
+* Full testing results and contrast ratios are documented in `docs/design/assets/palette/color-contrast-analysis.md`. Re-run contrast tests after any palette update.
+
+### Source-of-truth reconciliation
+
+Two earlier sources existed and slightly disagreed:
+
+* `docs/design/assets/palette/colors.json` — listed primary `#b7824b`, background `#ede2bd`, success `#7e7e31` (variants of the same families)
+* This charter — listed primary `#a06a3a`, background `#e0d3aa`, success `#6b6b2c`
+
+After the 2026-04-23 V0 screenshot audit, the **canonical values** are the ones in this section. The JSON file should be updated in a follow-up PR to match. The mobile app design tokens at `packages/mobile-app/src/core/theme/` are the runtime source of truth and may have already drifted toward the values shipped in V0; a separate alignment PR will reconcile them.
 
 ---
 

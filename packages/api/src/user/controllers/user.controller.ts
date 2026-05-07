@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Put,
   Delete,
   Body,
@@ -9,10 +8,7 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
   UseGuards,
-  ConflictException,
-  Headers,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -20,17 +16,14 @@ import {
   ApiTags,
   ApiParam,
   ApiBody,
-  ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
-  ApiExcludeEndpoint,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { ConfigService } from '@nestjs/config';
 
 import { UserService } from '../services/user.service';
 import { UpdateUserDto } from '../dtos/update-user.dto';
@@ -45,10 +38,7 @@ import { UserRole } from '../../common/enums/role.enum';
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
-  constructor(
-    private readonly userService: UserService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -125,90 +115,5 @@ export class UserController {
     this.logger.log(`Admin deleting account of user ${id}`);
     await this.userService.delete(id);
     return { message: 'User deleted successfully' };
-  }
-
-  @ApiExcludeEndpoint()
-  @Post('dev/seed-admin')
-  @ApiOperation({ summary: 'Create Genesis Admin User (DEV ONLY)' })
-  @ApiCreatedResponse({ description: 'Genesis admin created successfully' })
-  @ApiConflictResponse({ description: 'Admin already exists' })
-  async seedAdmin(
-    @Headers('x-seed-token') seedToken?: string,
-  ): Promise<UserResponseDto> {
-    this.ensureSeedAccess(seedToken);
-    this.logger.log('Seeding genesis admin user');
-
-    const existingAdmin =
-      await this.userService.findByEmail('admin@example.com');
-    if (existingAdmin) {
-      throw new ConflictException('Genesis Admin already exists!');
-    }
-
-    const admin = await this.userService.createAdmin(
-      'admin@example.com',
-      'admin',
-      'AdminPassword123!',
-      'Admin',
-      'User',
-    );
-
-    this.logger.log(`Genesis admin created (id: ${admin.id})`);
-    return plainToInstance(UserResponseDto, admin);
-  }
-
-  @ApiExcludeEndpoint()
-  @Post('dev/seed-moderator')
-  @ApiOperation({ summary: 'Create Moderator User (DEV ONLY)' })
-  @ApiCreatedResponse({ description: 'Moderator created successfully' })
-  @ApiConflictResponse({ description: 'Moderator already exists' })
-  async seedModerator(
-    @Headers('x-seed-token') seedToken?: string,
-  ): Promise<UserResponseDto> {
-    this.ensureSeedAccess(seedToken);
-    this.logger.log('Seeding moderator user');
-
-    const existingModerator = await this.userService.findByEmail(
-      'moderator@example.com',
-    );
-    if (existingModerator) {
-      throw new ConflictException('Moderator already exists!');
-    }
-
-    const moderator = await this.userService.createAdmin(
-      'moderator@example.com',
-      'moderator',
-      'ModeratorPassword123!',
-      'Moderator',
-      'User',
-    );
-
-    const updatedModerator = await this.userService.updateUserRole(
-      moderator.id,
-      UserRole.MODERATOR,
-    );
-
-    this.logger.log(`Moderator user created (id: ${updatedModerator.id})`);
-    return plainToInstance(UserResponseDto, updatedModerator);
-  }
-
-  private ensureSeedAccess(seedToken?: string): void {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
-    if (isProduction) {
-      throw new NotFoundException();
-    }
-
-    const enabled =
-      this.configService.get<string>('SEED_ENDPOINTS_ENABLED') === 'true';
-    if (!enabled) {
-      throw new NotFoundException();
-    }
-
-    const requiredToken = this.configService.get<string>(
-      'SEED_ENDPOINTS_TOKEN',
-    );
-    if (requiredToken && seedToken !== requiredToken) {
-      throw new NotFoundException();
-    }
   }
 }

@@ -147,7 +147,7 @@ describe('main bootstrap', () => {
     expect(appMock.useGlobalPipes).toHaveBeenCalledTimes(1);
     expect(appMock.useGlobalInterceptors).toHaveBeenCalledTimes(1);
     expect(appMock.useGlobalFilters).toHaveBeenCalledTimes(1);
-    expect(appMock.listen).toHaveBeenCalledWith(3000);
+    expect(appMock.listen).toHaveBeenCalledWith(3000, '0.0.0.0');
     expect(mockSwaggerCreateDocument).toHaveBeenCalledTimes(1);
     expect(mockSwaggerSetup).toHaveBeenCalledTimes(1);
   });
@@ -185,7 +185,7 @@ describe('main bootstrap', () => {
 
     await loadMainModule();
 
-    expect(appMock.listen).toHaveBeenCalledWith(3000);
+    expect(appMock.listen).toHaveBeenCalledWith(3000, '0.0.0.0');
     expect(mockSwaggerCreateDocument).not.toHaveBeenCalled();
     expect(mockSwaggerSetup).not.toHaveBeenCalled();
   });

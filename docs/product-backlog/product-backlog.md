@@ -33,7 +33,7 @@
 | Done | Prior sprints | Already built features | 30 | ~89 |
 | S4 | Mar 25 - Apr 15 | Core Recipe CRUD — create, edit, delete recipes with ingredients and steps | 8 | ~31 |
 | S5 | Apr 15 - May 6 | Complete Experience — search, auto-calc, batch recording, profile, glossary | 12 | ~41 |
-| S6 | May 6 - May 27 | Demo Polish + Community — tutorial, sharing, favorites, equipment | 7 | ~29 |
+| S6 | May 6 - May 27 | Demo Polish + Community — tutorial, sharing, favorites, equipment | 8 | ~32 |
 | Future | Post-soutenance | Deferred features | 4 | ~14 |
 
 ---
@@ -821,6 +821,22 @@
 - [ ] Given I have submitted unknown beers, when I view pending scans, then each submission is listed with its status
 
 **Story Points:** 2 | **Priority:** Should-Have | **Status:** Done | **Sprint:** -
+**Epic:** E07 | **Persona:** Any
+
+---
+
+### US-0707: Secure the live barcode demo
+
+**As a** demo attendee,
+**I want to** see the barcode scan flow succeed reliably on a prepared bottle,
+**So that** the scanner USP is demonstrated without bluff or dead time.
+
+**Acceptance Criteria:**
+- [ ] Given the soutenance device and a prepared commercial beer, when the barcode is scanned live, then the flow reaches the matched result screen in less than 10 seconds
+- [ ] Given the first read fails, when the operator retries, then the guidance and fallback path remain explicit and demoable
+- [ ] Given J-7 and J-1 rehearsals are completed, when the scan flow is validated, then the reference bottle and backup plan are recorded in `PROJECT_LOG.md`
+
+**Story Points:** 3 | **Priority:** Must-Have | **Status:** To Do | **Sprint:** S6
 **Epic:** E07 | **Persona:** Any
 
 ---

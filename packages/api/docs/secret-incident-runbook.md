@@ -23,7 +23,7 @@ Trigger this runbook if at least one of these signals is observed:
 ### Step A — Qualification
 
 - Identify the affected secret (`JWT_SECRET`, seed token, etc.)
-- Identify impacted environments (`staging`, `production`, or both)
+- Identify impacted environments (local dev, `production`, or both)
 - Assess exposure window (since when? where?)
 
 ### Step B — Rotation
@@ -64,7 +64,7 @@ If a secret was committed:
 - Standard quarterly secret rotation
 - Systematic PR review of configuration files
 - Keep only `*.example` files in Git
-- Prefer runtime injection via platform/CI for staging & production
+- Prefer runtime injection via platform/CI for production
 
 ## 7) Quick Checklist
 

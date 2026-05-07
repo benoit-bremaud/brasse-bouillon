@@ -5,7 +5,58 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-07
+
+### PR #943 merged (`40347f0`) — docs(specs): scan algorithms spec (barcode + panoramic label)
+
+- New file: [`docs/architecture/specs/scan-algorithms.md`](docs/architecture/specs/scan-algorithms.md). Single source of truth for the scan feature in two flavours: barcode + panoramic label.
+- 11 sections: vocabulary glossary (FR/EN, used verbatim everywhere), decision tree (auto-switch when no barcode data, prompt when partial below threshold, no panoramic when complete), 9-phase panoramic algorithm (pre-capture → burst → loop closure → live OCR → backend stitching → server OCR → Claude vision → web-search verification + suggestion creation → review), data model impact (`panoramic_capture` entity), canonical UX copy, tech-stack constraints (Expo Managed pure), risks + open implementation choices, implementation roadmap.
+- Round-1 review fix in `f774d3d`: added BB + OFF acronyms to the glossary; **realigned the spec with [ADR-0005](docs/architecture/decisions/0005-backend-split-encyclopedia-vs-product.md)** (panoramic backend services + catalog/suggestion entities live in Python beer-encyclopedia, NestJS keeps notifications + auth + maintainer-action proxies); reworded `barcode` nullability to clarify it's a required schema property of the new Python table (legacy NestJS table stays NOT NULL during transition); justified `jsonb` now that the entity lives in Postgres. Disagreed with 4 markdown-formatting comments where Copilot hallucinated `||` separators that weren't there.
+- 9 sub-issues filed under #751 the same day (#944–#952) covering tech-spike, mobile capture chain, Python backend services, and decision-tree wiring.
+- A follow-up PR will amend the spec with: (a) conditional OCR-ensemble (5-channel software derivation when single-pass confidence is low), (b) streaming progression UX between backend phases.
+
+### Decisions
+
+- **Backend ownership per ADR-0005 made explicit in the spec banner**: any new catalog / ML / enrichment work goes into Python beer-encyclopedia. The NestJS `scan/` module is on a deprecation roadmap. Mobile is allowed to talk to both backends. Epic #934 was filed before this realignment landed; its NestJS-centric data model needs a follow-up to migrate to Python.
+- **Capture stays full-color, derivations happen post-capture**: monochrome / per-channel OCR variants are derived software-side from a single full-color panorama, never captured separately. Avoids unnecessary photo bursts.
+- **Conditional OCR ensemble over systematic ensemble**: single grayscale pass first, escalate to 5-channel ensemble only when confidence on critical fields is below 0.7. Cost stays at ~$0.006/scan in the common case.
+- **Hybrid stitching (live preview on-device + final on backend)**: the on-device preview cannot run OpenCV, so it uses gyro-derived progress and perceptual-hash loop-closure detection. The authoritative panorama is stitched server-side with `cv2.Stitcher_create(cv2.Stitcher_PANORAMA)` in Python (`opencv-python` is already a transitive dep of YOLO + EasyOCR).
+
+### PR #933 merged (`33ba517`) — chore(env): KISS+YAGNI cleanup of env files + Tailscale fix
+
+- Cleanup pass on env files across the monorepo + a `main.ts` change to bind the API to `0.0.0.0` so Expo Go on a phone can reach it via Tailscale or LAN. Branch `fix/env-tailscale-coverage`.
+- Round-1 review fix in `ead8c17`: removed the stale `Development - Staging` Swagger server (staging dropped from `APP_ENV`), renamed `Development - Local` → `Development`, added a small "Also reachable on" log section under the startup banner that lists every non-loopback IPv4 (LAN / Tailscale) so phones know which URL to hit. Also separated `buildTypeOrmOptions` into runtime vs CLI (`{ forCli?: boolean }`) so `npm run migration:generate` / `migration:revert` no longer auto-apply pending migrations before running the requested command.
+- Follow-up PR for the project log entry of this work was bundled into the current entry rather than filed separately.
+
+### Operational
+
+- 9 sub-issues filed under epic [#751](https://github.com/benoit-bremaud/brasse-bouillon/issues/751) (panoramic capture): #944 → #952. Sub-issues sequenced per spec §9 with explicit dependencies. **Project board linkage was deferred** — `gh project item-add` and `gh api graphql addProjectV2ItemById` were blocked at the harness level during the bulk-add; the items can be added via the GitHub Projects UI (single multi-select operation).
+
+---
+
 ## 2026-05-06
+
+### PR #928 merged (`8591405`) — chore(api): add full Docker setup for server deployment
+
+- Branch `chore/docker-api-full-v2` (replaces aborted `chore/docker-api-full` — closed without merge after a squash-merge divergence drove the diff over Copilot's 300-file review limit).
+- **Server-deployable Docker stack**: `packages/api/docker-compose.yml` (named `api-data` SQLite volume, `restart: unless-stopped`, parameterized `${API_IMAGE_TAG:-latest}` for prod pinning), `packages/api/.env.docker.example` (production-oriented template).
+- **Dockerfile rewrite for monorepo-root context**: resolves the canonical `package-lock.json` at the repo root (per-workspace lockfiles blocked by `.gitignore` since incident #674). `packages/api/Dockerfile.dockerignore` (BuildKit-resolved alongside the Dockerfile) replaces the old `packages/api/.dockerignore` and excludes the unrelated workspaces and docs from the build context.
+- **CI workflow** `.github/workflows/docker-build.yml`: split into `build` (PR + push, `contents: read` only) + `publish` (push to `main` only, `packages: write`, depends on `build`). Tags `:latest` + `:sha-<short-sha>` pushed to `ghcr.io/benoit-bremaud/brasse-bouillon-api`.
+- **Makefile**: `docker-build` (delegates to `docker compose build` so the local image tag matches `docker-up`), `docker-up`, `docker-down`, `docker-logs` + new `Docker — API` block in `make help`.
+- 4 review fix commits: `f9ba106` (Codex P1: build context fix), `90db2d7` (Codex P2: decouple host/container port), `eacab87` (Makefile help sectioned + Docker targets in `.PHONY`), `d4da220` (Copilot Should Have ×4: docker-build via compose, split CI permissions, parameterized image tag, `API_IMAGE_TAG` documented in `.env.docker.example`).
+- All 4 inline Copilot/Codex comments answered inline. CI green on the publish run. PR #927 (the divergent v1 attempt) closed without merge.
+
+### Decisions
+
+- **Docker build context = monorepo root**: forced by the canonical `package-lock.json` living at the repo root. Per-workspace lockfiles are intentionally blocked since incident #674. Trade-off: larger build context, mitigated by `Dockerfile.dockerignore` excluding `packages/{mobile-app,website,beer-encyclopedia}`, `docs/`, `_archive/`, `.git/`, `.claude/`.
+- **Compose `build:` + `image:` kept together**: standard dual-mode Compose pattern (local rebuild via `docker compose build`, server pull via `docker compose pull`). Disagreed with Copilot's suggestion to split into base + override files — extra ceremony for marginal benefit on a single-service project. Server reproducibility is enforced at the deploy-command level (`pull` never touches `build:`).
+- **Least-privilege CI**: two-job split with workflow-level `contents: read` only. `packages: write` is granted exclusively to the `publish` job, gated by `if: github.event_name == 'push'`. PR builds can no longer hold a write-capable token even if a step were compromised.
+- **Image tag parameterized via `${API_IMAGE_TAG:-latest}`**: default stays `latest` for simplicity; production deployments pin `API_IMAGE_TAG=sha-<short-sha>` for immutable rollouts. Addresses Copilot's concern about the mutable `:latest` tag without removing the convenient default.
+
+### Operational changes (no PR)
+
+- **Discord notifications paused**: workflow `Discord Notifications` (`.github/workflows/discord-notifications.yml`) disabled via `gh workflow disable` (status: `disabled_manually`). Webhook secrets left in place; file untouched. Re-enable only on explicit user instruction.
+- **PR reviewer rule clarified — AI-only**: from now on, every PR requests reviews from `copilot-pull-request-reviewer` and `chatgpt-codex-connector` exclusively. No human collaborators in the reviewers list. Supersedes the 2026-04-28 reversal that briefly allowed scope/area-based human reviewers. Humans still appear in the informational French FYI comment, never as reviewers.
 
 ### PR #926 merged (`f5faeb6`) — chore(makefile): add dev-all, dev-stop, db-*, migrate-* targets and rewrite help
 

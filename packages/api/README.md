@@ -43,54 +43,42 @@ The rest of this README covers the standalone package (env strategy, Docker, mig
 
 ## Environment Variables
 
-The environment strategy is based on **2 core variables**:
+General workflow (templates, file precedence, secrets policy): see [root README § Environment Variables](../../README.md#environment-variables). This section lists the API-specific variables.
 
-- `APP_ENV`: application context (`development`, `test`, `staging`, `production`)
-- `NODE_ENV`: Node runtime mode (`development`, `test`, `production`)
+### Quick start
 
-Compatibility rules:
+```bash
+make setup                                  # from monorepo root
+# or
+cp packages/api/.env.example packages/api/.env
+# then edit packages/api/.env: set JWT_SECRET via `openssl rand -hex 32`
+```
 
-- `APP_ENV=development` → `NODE_ENV=development`
-- `APP_ENV=test` → `NODE_ENV=test`
-- `APP_ENV=staging` → `NODE_ENV=production`
-- `APP_ENV=production` → `NODE_ENV=production`
+### Variables
 
-### `.env` File Loading Order
+| Variable                   | Required | Default                          | Description                                                                  |
+| -------------------------- | -------- | -------------------------------- | ---------------------------------------------------------------------------- |
+| `APP_ENV`                  | ✅       | `development`                    | App context: `development` \| `test` \| `production`. Must match `NODE_ENV`. |
+| `NODE_ENV`                 | ✅       | derived from `APP_ENV`           | Node runtime mode.                                                           |
+| `JWT_SECRET`               | ✅       | —                                | JWT signing secret (min. 24 chars). Generate with `openssl rand -hex 32`.    |
+| `JWT_EXPIRATION`           | No       | `86400s`                         | Access-token lifetime.                                                       |
+| `PORT`                     | No       | `3000`                           | HTTP port.                                                                   |
+| `DATABASE_PATH`            | No       | `./data/brasse-bouillon.db`      | SQLite file. In Docker: `/app/data/brasse-bouillon.db`.                      |
+| `TYPEORM_LOGGING`          | No       | `true` in dev, `false` elsewhere | Echo SQL to stdout.                                                          |
+| `SWAGGER_ENABLED`          | No       | `true` in dev, `false` elsewhere | Expose Swagger UI at `/api`.                                                 |
+| `HUBEAU_TIMEOUT_MS`        | No       | `8000`                           | HTTP timeout for the Hubeau water-quality API.                               |
+| `HUBEAU_CACHE_TTL_SECONDS` | No       | `3600`                           | In-memory cache TTL for Hubeau responses.                                    |
+| `API_IMAGE_TAG`            | No       | `latest`                         | Docker image tag (used by `docker-compose.yml`, not the runtime).            |
 
-- `development`: `.env.development.local` → `.env.development` → `.env.local` → `.env`
-- `test`: `.env.test.local` → `.env.test` → `.env.local` → `.env`
-- `staging`: `.env.staging.local` → `.env.staging` → `.env.local` → `.env`
-- `production`: **no `.env` file loaded** (`ignoreEnvFile=true`), runtime injection required
+`APP_ENV` and `NODE_ENV` must agree (`development`↔`development`, `test`↔`test`, `production`↔`production`); the app refuses to start otherwise. Validation logic: [src/config/environment.config.ts](src/config/environment.config.ts).
 
-### Versioned Templates
+### Templates
 
-- `.env.example`: local development baseline
-- `.env.test.example`: test baseline
-- `.env.staging.example`: staging (production-like) baseline
-
-Important variables used by the API:
-
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `APP_ENV` | ✅ Yes | `development` (bootstrap fallback) | Application context (`development`/`test`/`staging`/`production`) |
-| `NODE_ENV` | ✅ Yes | derived from `APP_ENV` (bootstrap fallback) | Node runtime mode |
-| `JWT_SECRET` | ✅ Yes | - | JWT secret (min. 24 characters) |
-| `JWT_EXPIRATION` | No | `86400s` | Token lifetime |
-| `PORT` | No | `3000` | API HTTP port |
-| `DATABASE_PATH` | No | `./data/brasse-bouillon.db` | SQLite file path |
-| `TYPEORM_MIGRATIONS_RUN` | No | `false` | Run migrations on startup |
-| `TYPEORM_SYNCHRONIZE` | No | `false` | Auto schema sync (forbidden in staging/production) |
-| `TYPEORM_LOGGING` | No | depends on environment | TypeORM logging |
-| `SWAGGER_ENABLED` | No | depends on environment | Enable/disable Swagger |
-| `SEED_ENDPOINTS_ENABLED` | No | `false` | Enable seed endpoints (development only) |
-| `SEED_ENDPOINTS_TOKEN` | No | empty | Seed protection token |
-| `WATER_PROVIDER_DEFAULT` | No | `hubeau` | Default water provider |
-| `HUBEAU_BASE_URL` | No | Official Hubeau URL | Hubeau API base URL |
-| `HUBEAU_TIMEOUT_MS` | No | `8000` | Water provider timeout |
-| `HUBEAU_CACHE_TTL_SECONDS` | No | `3600` | Water provider cache TTL |
-| `HUBEAU_MAX_SAMPLES` | No | `50` | Maximum number of samples |
-| `HUBEAU_COMMUNES_UDI_SIZE` | No | `10` | Batch size for communes/UDI |
-| `HUBEAU_RESULTATS_DIS_SIZE` | No | `100` | Batch size for distribution results |
+| File                  | When to use                                                  |
+| --------------------- | ------------------------------------------------------------ |
+| `.env.example`        | Local dev.                                                   |
+| `.env.test.example`   | Override test values beyond what `npm test` injects (rare).  |
+| `.env.docker.example` | Production-like Docker stack — read by `docker-compose.yml`. |
 
 ## Run Locally (Without Docker)
 
@@ -115,8 +103,6 @@ JWT_SECRET=change-me-in-local
 JWT_EXPIRATION=86400s
 PORT=3000
 DATABASE_PATH=./data/brasse-bouillon.db
-TYPEORM_MIGRATIONS_RUN=true
-TYPEORM_SYNCHRONIZE=false
 SWAGGER_ENABLED=true
 ```
 
@@ -147,7 +133,6 @@ docker run --rm \
   -p 3000:3000 \
   -e JWT_SECRET=change-me-in-prod \
   -e JWT_EXPIRATION=86400s \
-  -e TYPEORM_MIGRATIONS_RUN=true \
   -e SWAGGER_ENABLED=true \
   -v brasse-bouillon-data:/app/data \
   brasse-bouillon-backend:local

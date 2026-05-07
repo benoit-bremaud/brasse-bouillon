@@ -94,13 +94,14 @@ pip install -e ".[ml,dev]"
 
 # 2. Local PostgreSQL (Docker Compose)
 cp .env.example .env         # edit DATABASE_URL if needed
-docker compose up -d         # starts postgres on :5432 and pgadmin on :5050
+docker compose up -d         # starts postgres on :5432
 
 # 3. Database migrations
 alembic upgrade head
 
-# 4. Start API
-uvicorn api.main:app --reload
+# 4. Start API (from monorepo root — binds 0.0.0.0 for phone access via LAN/Tailscale)
+make -C ../.. dev-beer-enc
+# Or raw: .venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 
 # 5. Run tests
 pytest -q tests/

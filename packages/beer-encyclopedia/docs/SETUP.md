@@ -25,14 +25,22 @@ needed. `DATABASE_URL`, `POSTGRES_USER` and `POSTGRES_PASSWORD` are mandatory
 ## 3) Start local PostgreSQL
 
 ```bash
-docker compose up -d         # postgres on :5432, pgadmin on :5050
+docker compose up -d         # postgres on :5432
 alembic upgrade head
 ```
 
 ## 4) Start the scan API
 
+From the monorepo root (preferred — binds `0.0.0.0` so a phone on LAN/Tailscale can reach it):
+
 ```bash
-uvicorn api.main:app --reload
+make dev-beer-enc
+```
+
+Or, equivalent raw command from this package:
+
+```bash
+.venv/bin/uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Then test:

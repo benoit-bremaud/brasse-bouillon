@@ -1,0 +1,81 @@
+# .easignore at the monorepo root — what EAS Build should exclude from the
+# upload tarball when packaging this workspace.
+#
+# Why a root-level file: in a monorepo, EAS uploads the workspace root
+# (the directory above `packages/`) so that `npm ci` can resolve
+# workspace deps from the canonical `package-lock.json`. The `.easignore`
+# inside `packages/mobile-app/` is NOT enough on its own — its anchored
+# patterns (`/docs/`, `/_archive/`, `/packages/api/`, etc.) resolve
+# relative to `packages/mobile-app/`, where those directories do not
+# exist, so they have no effect on what is actually uploaded.
+#
+# Syntax is the same as .gitignore.
+#
+# GOTCHA: patterns without a leading "/" match ANY directory with that
+# name anywhere in the tree. So `tools/` (without slash) would also
+# match `packages/mobile-app/src/features/tools/` and break the JS
+# bundle (issue #555 documents the original incident). Always anchor
+# repo-root directories with a leading slash.
+
+# Monorepo-root heavy directories — the actual source of the prior
+# 300+ MB upload bloat. Anchored to this file's location (= repo root).
+/.git/
+/.github/
+/.claude/
+/.codex/
+/.husky/
+/_archive/
+/docs/
+/coverage/
+/node_modules/
+
+# Sibling monorepo packages — keep their `package.json` files so that
+# `npm ci` can resolve the workspace topology declared in the root
+# `package.json` + `package-lock.json`. Without these manifests, the
+# install step on the EAS builder fails with missing-workspace errors.
+# Heavy non-essential subpaths inside each sibling are excluded
+# explicitly below.
+/packages/api/data/
+/packages/api/dist/
+/packages/api/coverage/
+/packages/api/test/
+/packages/api/.github/
+/packages/api/scripts/
+/packages/api/AUDIT.md
+/packages/api/Dockerfile
+/packages/api/Dockerfile.dockerignore
+/packages/api/docker-compose.yml
+/packages/api/fly.toml
+/packages/website/
+!/packages/website/package.json
+/packages/beer-encyclopedia/scan-photos/
+/packages/beer-encyclopedia/.ruff_cache/
+/packages/beer-encyclopedia/migrations/
+/packages/beer-encyclopedia/tests/
+/packages/beer-encyclopedia/api/
+/packages/beer-encyclopedia/db/
+/packages/beer-encyclopedia/docs/
+/packages/beer-encyclopedia/importers/
+/packages/beer-encyclopedia/ml/
+
+# Mobile-app local artifacts that survived a git checkout
+/packages/mobile-app/node_modules/
+/packages/mobile-app/.expo/
+/packages/mobile-app/dist/
+/packages/mobile-app/coverage/
+
+# Anywhere-in-the-tree dependency caches and build outputs
+**/.venv/
+**/venv/
+**/__pycache__/
+**/dist/
+**/build/
+
+# IDE / OS / logs / archives
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.tar.gz
+*.zip
+*.pdf

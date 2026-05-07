@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-07
 
+### PR #958 merged (`093b2f8`) — feat(api): track scan count per catalog item
+
+- Closes [#929](https://github.com/benoit-bremaud/brasse-bouillon/issues/929). Two new columns on `scan_catalog_items`: `scan_count` (`integer NOT NULL DEFAULT 0`) and `last_scanned_at` (`datetime`, nullable). Migration [`1794000000000-AddScanCountToCatalogItems`](packages/api/src/database/migrations/1794000000000-AddScanCountToCatalogItems.ts). Counter is bumped atomically (`UPDATE … SET scan_count = scan_count + 1`) on every successful path of `ScanService.lookupByBarcode` (cache hit fresh + 3× cache hit stale + cache miss fetched), routed through a new `respondWithLookup` helper that centralises the increment.
+- Round-1 review fix in `0e20698` + `7a95f0c`: Codex P1 + 1 Copilot comment flagged that the unconditional `await incrementScanCount` turned a metric-write failure into a 500 on the user-facing lookup. Wrapped the increment in a `try/catch` inside `respondWithLookup`, log the failure through a new NestJS `Logger` (same pattern as `OpenFoodFactsClient`), and swallow the error — counter is now best-effort. `incrementScanCount` itself stays raw so future audit/transactional callers can opt back into propagation. 1 Copilot Should-Have on the test helper resolved by defaulting `scan_count: 0` and `last_scanned_at: null` in `createCatalogItem`. New regression test asserts that a `SQLITE_BUSY` rejection on the `UPDATE` keeps a successful `cache_hit_fresh` lookup alive.
+- **Decisions**:
+  - `Counter is per-SKU, regrouping deferred` — Punk IPA in 33cl / 50cl / 75cl keeps separate counters today. Promoting to a `beer_identities` table (commercial-identity entity grouping multiple barcodes under the same recipe) is reported to the day we build the stats screen — rationale documented inline in the entity column comments and the migration header. Trade-off chosen against (a) introducing the table now (more correct, more migration churn) and (b) using a `recipe_group_key` text column (worst of both worlds).
+  - `Best-effort metric over hard dependency` — counter writes never fail a user-facing lookup; logging only. Caller-site decision so future audit code can pick a different policy by calling `incrementScanCount` outside the wrapper.
+- **Out of scope (deferred)**: no `GET /scan/popular` endpoint, no mobile-side display of the counter, no index on `scan_count` (volumes too low; will be added alongside the future `ORDER BY scan_count DESC`).
+
 ### PR #943 merged (`40347f0`) — docs(specs): scan algorithms spec (barcode + panoramic label)
 
 - New file: [`docs/architecture/specs/scan-algorithms.md`](docs/architecture/specs/scan-algorithms.md). Single source of truth for the scan feature in two flavours: barcode + panoramic label.

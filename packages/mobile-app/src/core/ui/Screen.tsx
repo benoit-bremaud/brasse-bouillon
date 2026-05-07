@@ -1,6 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
-  ActivityIndicator,
   ImageBackground,
   Pressable,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { BeerMugLoader } from "@/core/ui/BeerMugLoader";
 import { usePathname } from "expo-router";
 import yellowBackground from "@/../assets/images/Yellow_Background.png";
 
@@ -50,7 +50,7 @@ export function Screen({
               { paddingTop: topPadding },
             ]}
           >
-            <ActivityIndicator color={colors.brand.secondary} />
+            <BeerMugLoader size="large" />
           </View>
         </SafeAreaView>
       </ImageBackground>

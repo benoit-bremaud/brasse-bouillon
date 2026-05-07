@@ -1,7 +1,6 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -13,6 +12,7 @@ import {
 
 import { useAuth } from "@/core/auth/auth-context";
 import { dataSource } from "@/core/data/data-source";
+import { BeerMugLoader } from "@/core/ui/BeerMugLoader";
 import { BrandLogo } from "@/core/ui/BrandLogo";
 import { Screen } from "@/core/ui/Screen";
 
@@ -282,7 +282,10 @@ export function LoginScreen() {
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color={colors.neutral.white} />
+            <BeerMugLoader
+              size="small"
+              accessibilityLabel="Authentification en cours"
+            />
           ) : (
             <Text style={styles.buttonText}>{submitLabel}</Text>
           )}

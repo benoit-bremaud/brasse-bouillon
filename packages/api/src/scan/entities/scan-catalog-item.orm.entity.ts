@@ -94,6 +94,18 @@ export class ScanCatalogItemOrmEntity {
   @Column({ type: 'text', nullable: true })
   raw_payload?: string | null;
 
+  // Number of times this catalog item has been resolved by a
+  // scan-lookup call (Issue #929). Incremented atomically. Counter
+  // is per-SKU today; will be migrated to a beer_identities table
+  // when we build the stats screen.
+  @Column({ type: 'integer', nullable: false, default: 0 })
+  scan_count: number;
+
+  // Timestamp of the last scan-lookup hit on this row. Powers
+  // trending stats and informs cache-freshness tuning later.
+  @Column({ type: 'datetime', nullable: true })
+  last_scanned_at?: Date | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

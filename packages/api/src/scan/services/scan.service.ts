@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -34,6 +35,7 @@ import { ScanStorageService } from './scan-storage.service';
 @Injectable()
 export class ScanService {
   private readonly domainService = new ScanDomainService();
+  private readonly logger = new Logger(ScanService.name);
 
   constructor(
     @InjectRepository(ScanRequestOrmEntity)
@@ -508,7 +510,7 @@ export class ScanService {
     });
 
     if (cached && this.isCacheFresh(cached)) {
-      return this.buildLookupResult(cached, 'cache_hit_fresh');
+      return this.respondWithLookup(cached, 'cache_hit_fresh');
     }
 
     let lookup: Awaited<ReturnType<OpenFoodFactsClient['lookupByBarcode']>>;
@@ -517,7 +519,7 @@ export class ScanService {
     } catch {
       // Upstream unreachable. Degraded mode if we have ANY cached row.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new ServiceUnavailableException(
         'OpenFoodFacts is unreachable and the barcode is not in the local cache. Try again later.',
@@ -527,7 +529,7 @@ export class ScanService {
     if (!lookup.found) {
       // OFF lost the product. Either degrade to cache or 404.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new NotFoundException(
         `Barcode ${barcode} not found in OpenFoodFacts and not in the local catalog.`,
@@ -544,7 +546,7 @@ export class ScanService {
       // non-beer placeholder rows. Cache fallback still applies
       // for previously-stored beer entries on the same barcode.
       if (cached) {
-        return this.buildLookupResult(cached, 'cache_hit_stale');
+        return this.respondWithLookup(cached, 'cache_hit_stale');
       }
       throw new NotABeerException(barcode, lookup.name);
     }
@@ -554,9 +556,60 @@ export class ScanService {
       cached,
       lookup,
     );
-    return this.buildLookupResult(
+    return this.respondWithLookup(
       persisted,
       cached ? 'cache_hit_stale' : 'cache_miss_fetched',
+    );
+  }
+
+  /**
+   * Single exit point for `lookupByBarcode`'s 5 success branches.
+   * Atomically bumps `scan_count` and `last_scanned_at` on the matched
+   * catalog row before returning the response payload (Issue #929).
+   *
+   * The increment is **best-effort**: if the metric `UPDATE` fails
+   * (transient SQLite lock, read-only DB, disk full, etc.), the user-
+   * facing lookup must NOT turn into a 500. The error is logged and
+   * swallowed here so the catalog data already in hand still flows
+   * back to the client. Codex P1 review on PR #958.
+   */
+  private async respondWithLookup(
+    row: ScanCatalogItemOrmEntity,
+    source: ScanLookupResultDto['source'],
+  ): Promise<ScanLookupResultDto> {
+    try {
+      await this.incrementScanCount(row.id);
+    } catch (err) {
+      this.logger.warn(
+        `Failed to increment scan_count for catalog ${row.id}: ${
+          (err as Error).message
+        }`,
+      );
+    }
+    return this.buildLookupResult(row, source);
+  }
+
+  /**
+   * Atomic SQL `UPDATE … SET scan_count = scan_count + 1` so two
+   * concurrent scan-lookups on the same barcode cannot stomp on
+   * each other (read-modify-write would lose increments). The
+   * function-as-value form is TypeORM's escape hatch for raw SQL
+   * in `Repository.update` — same call shape used elsewhere in the
+   * codebase (e.g. `UserService.setPasswordResetToken`) but with
+   * a SQL expression instead of a literal value.
+   *
+   * Errors are intentionally not handled here so callers can choose
+   * their own failure policy. `respondWithLookup` swallows them for
+   * the user-facing lookup path; future audit/transactional callers
+   * can let them propagate.
+   */
+  private async incrementScanCount(catalogItemId: string): Promise<void> {
+    await this.catalogItemRepository.update(
+      { id: catalogItemId },
+      {
+        scan_count: () => 'scan_count + 1',
+        last_scanned_at: new Date(),
+      },
     );
   }
 

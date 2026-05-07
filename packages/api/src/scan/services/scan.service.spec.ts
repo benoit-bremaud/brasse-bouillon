@@ -27,6 +27,7 @@ type RepoMock<T extends object> = {
   create: jest.Mock<T, [Partial<T>]>;
   save: jest.Mock<Promise<T>, [T]>;
   count: jest.Mock<Promise<number>, [unknown]>;
+  update: jest.Mock<Promise<{ affected?: number }>, [unknown, unknown]>;
 };
 
 const createRepoMock = <T extends object>(): RepoMock<T> => ({
@@ -37,6 +38,9 @@ const createRepoMock = <T extends object>(): RepoMock<T> => ({
     .mockImplementation((payload: Partial<T>) => payload as T),
   save: jest.fn<Promise<T>, [T]>(),
   count: jest.fn<Promise<number>, [unknown]>(),
+  update: jest
+    .fn<Promise<{ affected?: number }>, [unknown, unknown]>()
+    .mockResolvedValue({ affected: 1 }),
 });
 
 const createScanRequest = (
@@ -77,6 +81,8 @@ const createCatalogItem = (
   source: ScanCatalogSource.SEED,
   fetched_at: null,
   raw_payload: null,
+  scan_count: 0,
+  last_scanned_at: null,
   created_at: new Date('2026-01-01T00:00:00.000Z'),
   updated_at: new Date('2026-01-01T00:00:00.000Z'),
   ...overrides,
@@ -769,6 +775,178 @@ describe('ScanService', () => {
       catalogItemRepository.save.mockRejectedValueOnce(otherError);
 
       await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBe(otherError);
+    });
+  });
+
+  describe('scan counter (Issue #929 — scan_count + last_scanned_at)', () => {
+    const VALID_EAN = '5060277380019';
+
+    test('happy path — fresh cache hit increments scan_count by 1 and stamps last_scanned_at', async () => {
+      const seedRow = createCatalogItem({
+        id: 'cat-counter-1',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.SEED,
+        fetched_at: null,
+        scan_count: 0,
+        last_scanned_at: null,
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(seedRow);
+
+      await service.lookupByBarcode(VALID_EAN);
+
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(1);
+      const [criteria, partial] = catalogItemRepository.update.mock.calls[0];
+      expect(criteria).toEqual({ id: 'cat-counter-1' });
+      const update = partial as {
+        scan_count: () => string;
+        last_scanned_at: Date;
+      };
+      expect(update.scan_count()).toBe('scan_count + 1');
+      expect(update.last_scanned_at).toBeInstanceOf(Date);
+    });
+
+    test('cache miss + fetch OFF — increments after the new row is persisted', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Punk IPA',
+        brewery: 'BrewDog',
+        abv: 5.4,
+        isBeer: true,
+      });
+      catalogItemRepository.create.mockImplementation(
+        (seed) =>
+          ({
+            ...seed,
+            id: 'cat-counter-new',
+          }) as ScanCatalogItemOrmEntity,
+      );
+
+      await service.lookupByBarcode(VALID_EAN);
+
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(1);
+      expect(catalogItemRepository.update.mock.calls[0][0]).toEqual({
+        id: 'cat-counter-new',
+      });
+    });
+
+    test('stale cache + OFF unreachable — increments exactly once on the stale row', async () => {
+      const staleRow = createCatalogItem({
+        id: 'cat-counter-stale',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.OPENFOODFACTS,
+        fetched_at: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        scan_count: 7,
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(staleRow);
+      openFoodFactsClient.lookupByBarcode.mockRejectedValueOnce(
+        new Error('upstream down'),
+      );
+
+      await service.lookupByBarcode(VALID_EAN);
+
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(1);
+      expect(catalogItemRepository.update.mock.calls[0][0]).toEqual({
+        id: 'cat-counter-stale',
+      });
+    });
+
+    test('sad path — OFF unreachable AND no cache (503) → no increment', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockRejectedValueOnce(
+        new Error('upstream down'),
+      );
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toMatchObject({
+        status: 503,
+      });
+
+      expect(catalogItemRepository.update).not.toHaveBeenCalled();
+    });
+
+    test('sad path — OFF returns not-found AND no cache (404) → no increment', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: false,
+        payload: { code: VALID_EAN, status: 0 },
+        name: null,
+        brewery: null,
+        abv: null,
+        isBeer: false,
+      });
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(catalogItemRepository.update).not.toHaveBeenCalled();
+    });
+
+    test('sad path — non-beer product AND no cache (422 NotABeer) → no increment', async () => {
+      catalogItemRepository.findOne.mockResolvedValueOnce(null);
+      openFoodFactsClient.lookupByBarcode.mockResolvedValueOnce({
+        found: true,
+        payload: { code: VALID_EAN },
+        name: 'Coca-Cola Original',
+        brewery: null,
+        abv: null,
+        isBeer: false,
+      });
+
+      await expect(service.lookupByBarcode(VALID_EAN)).rejects.toBeInstanceOf(
+        UnprocessableEntityException,
+      );
+      expect(catalogItemRepository.update).not.toHaveBeenCalled();
+    });
+
+    test('edge — invalid barcode (BadRequest) → no increment', async () => {
+      await expect(
+        service.lookupByBarcode('not-a-barcode'),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      expect(catalogItemRepository.update).not.toHaveBeenCalled();
+    });
+
+    test('edge — two consecutive successful lookups produce two increments', async () => {
+      const row = createCatalogItem({
+        id: 'cat-counter-2',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.SEED,
+        fetched_at: null,
+      });
+      catalogItemRepository.findOne
+        .mockResolvedValueOnce(row)
+        .mockResolvedValueOnce(row);
+
+      await service.lookupByBarcode(VALID_EAN);
+      await service.lookupByBarcode(VALID_EAN);
+
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(2);
+      expect(catalogItemRepository.update.mock.calls[0][0]).toEqual({
+        id: 'cat-counter-2',
+      });
+      expect(catalogItemRepository.update.mock.calls[1][0]).toEqual({
+        id: 'cat-counter-2',
+      });
+    });
+
+    test('best-effort — UPDATE failure must not turn a successful lookup into a 500 (Codex P1)', async () => {
+      const seedRow = createCatalogItem({
+        id: 'cat-counter-fail-open',
+        barcode: VALID_EAN,
+        source: ScanCatalogSource.SEED,
+        fetched_at: null,
+      });
+      catalogItemRepository.findOne.mockResolvedValueOnce(seedRow);
+      catalogItemRepository.update.mockRejectedValueOnce(
+        new Error('SQLITE_BUSY: database is locked'),
+      );
+
+      const result = await service.lookupByBarcode(VALID_EAN);
+
+      expect(result.source).toBe('cache_hit_fresh');
+      expect(result.item.barcode).toBe(VALID_EAN);
+      expect(catalogItemRepository.update).toHaveBeenCalledTimes(1);
     });
   });
 });

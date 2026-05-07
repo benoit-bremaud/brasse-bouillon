@@ -29,11 +29,34 @@
 /coverage/
 /node_modules/
 
-# Sibling monorepo packages — irrelevant for the mobile-app build.
-# `packages/api/` ships via Fly.io, the others are independent.
-/packages/api/
+# Sibling monorepo packages — keep their `package.json` files so that
+# `npm ci` can resolve the workspace topology declared in the root
+# `package.json` + `package-lock.json`. Without these manifests, the
+# install step on the EAS builder fails with missing-workspace errors.
+# Heavy non-essential subpaths inside each sibling are excluded
+# explicitly below.
+/packages/api/data/
+/packages/api/dist/
+/packages/api/coverage/
+/packages/api/test/
+/packages/api/.github/
+/packages/api/scripts/
+/packages/api/AUDIT.md
+/packages/api/Dockerfile
+/packages/api/Dockerfile.dockerignore
+/packages/api/docker-compose.yml
+/packages/api/fly.toml
 /packages/website/
-/packages/beer-encyclopedia/
+!/packages/website/package.json
+/packages/beer-encyclopedia/scan-photos/
+/packages/beer-encyclopedia/.ruff_cache/
+/packages/beer-encyclopedia/migrations/
+/packages/beer-encyclopedia/tests/
+/packages/beer-encyclopedia/api/
+/packages/beer-encyclopedia/db/
+/packages/beer-encyclopedia/docs/
+/packages/beer-encyclopedia/importers/
+/packages/beer-encyclopedia/ml/
 
 # Mobile-app local artifacts that survived a git checkout
 /packages/mobile-app/node_modules/

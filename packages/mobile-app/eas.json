@@ -17,7 +17,6 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://brasse-bouillon-api.fly.dev",
-        "EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL": "https://brasse-bouillon-api.fly.dev",
         "EXPO_PUBLIC_USE_DEMO_DATA": "false"
       }
     },

@@ -5,13 +5,7 @@ import { colors, spacing, typography } from "@/core/theme";
 
 import beerMugAnimation from "../../../assets/lottie/beer-mug-fill.json";
 
-const SIZE_PX = {
-  small: 24,
-  medium: 48,
-  large: 96,
-} as const;
-
-export type BeerMugLoaderSize = keyof typeof SIZE_PX;
+export type BeerMugLoaderSize = "small" | "medium" | "large";
 
 export type BeerMugLoaderProps = {
   size?: BeerMugLoaderSize;
@@ -20,13 +14,12 @@ export type BeerMugLoaderProps = {
   accessibilityLabel?: string;
 };
 
-export const BeerMugLoader = ({
+export function BeerMugLoader({
   size = "medium",
   message,
   testID = "beer-mug-loader",
   accessibilityLabel = "Chargement en cours",
-}: BeerMugLoaderProps) => {
-  const px = SIZE_PX[size];
+}: Readonly<BeerMugLoaderProps>) {
   return (
     <View
       testID={testID}
@@ -39,7 +32,7 @@ export const BeerMugLoader = ({
         source={beerMugAnimation}
         autoPlay
         loop
-        style={{ width: px, height: px }}
+        style={lottieStyles[size]}
       />
       {message ? (
         <Text testID={`${testID}-message`} style={styles.message}>
@@ -48,7 +41,7 @@ export const BeerMugLoader = ({
       ) : null}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -63,4 +56,10 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.label,
     fontWeight: typography.weight.medium,
   },
+});
+
+const lottieStyles = StyleSheet.create({
+  small: { width: 24, height: 24 },
+  medium: { width: 48, height: 48 },
+  large: { width: 96, height: 96 },
 });

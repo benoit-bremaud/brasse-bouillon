@@ -158,10 +158,11 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
   | `ocr.escalated` | Phase 6.5 fired (only on low confidence) | *"📚 Lecture approfondie..."* + 50 % progress bar (no advance) |
   | `ocr.escalated.completed` | Phase 6.5 done | *"📚 Lecture approfondie OK"* + 60 % progress bar |
   | `ai.completed` | Phase 7 done | *"🧠 Analyse intelligente OK"* + 80 % progress bar |
-  | `webcheck.completed` | Phase 8 done | *"🌐 Vérification croisée OK"* + 95 % progress bar |
-  | `suggestion.created` | All done, suggestion in DB | *"✅ Prêt à valider"* + 100 % + auto-navigate to result screen |
+  | `webcheck.completed` | Phase 8 — web-search verification finished, **before** the suggestion is persisted | *"🌐 Vérification croisée OK"* + 95 % progress bar |
+  | `suggestion.created` | Phase 8 — suggestion row written to `beer_data_suggestions` (closes Phase 8) | *"✅ Prêt à valider"* + 100 % + auto-navigate to result screen |
   | `error` | Any phase failed | Show retry / cancel UI |
 
+- **Replay on connect:** because `upload.received` can fire before the mobile has even received the HTTP `201 Created` response (the multipart parse can complete inside the same request handler), the SSE stream emits an initial `state.snapshot` event on every new connection containing the list of phases already completed. The client then catches up to the live stream from the latest one. This guarantees that even a late subscription does not miss the 10 % milestone or the gate for Lever C.
 - SSE keep-alive heartbeat every 5 s to detect connection loss.
 - If the SSE connection drops, the mobile falls back to polling `GET /panoramic-captures/{capture_id}` every 2 s.
 
@@ -213,8 +214,8 @@ If the BeerMugLoader animation lands (Lottie of a beer mug filling), the SSE eve
 - For each image: collect both raw text and bounding boxes.
 - Concatenate raw texts (deduplicating obvious repeats) → final OCR text blob.
 - Output: `{ ocr_text: string, blocks: BoundingBox[], avg_confidence: number }` where:
-  - `BoundingBox = { x: int, y: int, width: int, height: int, text: string, confidence: number }` — pixel coordinates relative to the source image, plus the recognised substring and Cloud Vision's per-block confidence (0.0 – 1.0).
-  - `avg_confidence` is the **arithmetic mean** of the per-block `confidence` values across the blocks that map to the critical fields used in Phase 6.5 (`name`, `brewery`, `abv` candidates), weighted by block character count. Range: 0.0 – 1.0. Computed by BB code, not returned by Cloud Vision.
+  - `BoundingBox = { x: number, y: number, width: number, height: number, text: string, confidence: number }` — `x`, `y`, `width`, `height` are **integer pixel coordinates** in the source image (typed as JSON `number` since JSON has no `int`); `text` is the recognised substring; `confidence` is Cloud Vision's per-block confidence (0.0 – 1.0).
+  - `avg_confidence` is a **weighted mean** of the per-block `confidence` values across the blocks that map to the critical fields used in Phase 6.5 (`name`, `brewery`, `abv` candidates), weighted by `len(block.text)` (block character count). Formula: `Σ (block.confidence × len(block.text)) / Σ len(block.text)` over the critical-field block subset. Range: 0.0 – 1.0. Computed by BB code, not returned by Cloud Vision.
 
 #### Phase 6.5 — Conditional OCR ensemble (escalation on low confidence)
 
@@ -229,11 +230,13 @@ A single grayscale OCR pass works well for industrial / classic labels (Heineken
   - Standard luminance grayscale (`0.299R + 0.587G + 0.114B`)
   - Adaptive thresholded binary (Sauvola or Otsu)
 - Run Cloud Vision OCR on each variant in parallel (5 × N images).
-- **Consolidate per word/token:**
-  - Word appears in ≥ 3 variants → confidence 0.95, included
-  - Word appears in 2 variants → confidence 0.8, included
-  - Word appears in 1 variant only → confidence 0.5, included with `needs_review` flag
-- The consolidated output replaces the single-pass result before Phase 7.
+- **Consolidate per word/token** into a typed `Token`:
+  - `Token = { text: string, bbox: BoundingBox, confidence: number, variant_count: number, needs_review: boolean }` — the recognised word, its bounding box (median of the per-variant boxes), the consolidated confidence, the number of variants the word appeared in (1–5), and the review flag.
+  - Word appears in ≥ 3 variants → `confidence: 0.95`, `needs_review: false`, included
+  - Word appears in 2 variants → `confidence: 0.8`, `needs_review: false`, included
+  - Word appears in 1 variant only → `confidence: 0.5`, `needs_review: true`, included
+- The consolidated output of Phase 6.5 replaces the single-pass Phase 6 result before Phase 7. Schema:
+  `{ ocr_text: string, tokens: Token[], avg_confidence: number, escalated: true }`. Phase 7 (Claude vision) consumes `tokens` directly and treats `needs_review: true` tokens as low-trust candidates (it must either confirm them visually from the panorama or downgrade them).
 - Cost / latency (one Cloud Vision call set ≈ panorama + 2-3 keyframes):
   - Common case (no escalation): 1× call set (~$0.006 / scan), ~2 s
   - Escalated case: 6× call sets total — the Phase 6 single pass that already ran (1×) **plus** the 5 ensemble variants in Phase 6.5 — so ~$0.036 / scan, ~3-5 s

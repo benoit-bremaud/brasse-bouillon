@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Brasse-Bouillon">
+  <rect width="120" height="120" rx="24" fill="#FFD600"/>
+  <path d="M34 27h34c8.837 0 16 7.163 16 16v16c0 6.627-5.373 12-12 12H53c-6.627 0-12-5.373-12-12V27Z" fill="#1A1A1A"/>
+  <path d="M68 27h10c4.418 0 8 3.582 8 8v18c0 4.418-3.582 8-8 8H68V27Z" fill="#1A1A1A"/>
+  <path d="M47 78h30c4.418 0 8 3.582 8 8v7H39v-7c0-4.418 3.582-8 8-8Z" fill="#1A1A1A"/>
+  <path d="M45 38h24" stroke="#FFD600" stroke-width="6" stroke-linecap="round"/>
+  <path d="M45 50h24" stroke="#FFD600" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+  <circle cx="52" cy="95" r="4" fill="#1A1A1A"/>
+  <circle cx="68" cy="95" r="4" fill="#1A1A1A"/>
+</svg>

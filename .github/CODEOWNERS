@@ -1,23 +1,5 @@
-# Default — project lead reviews everything
+# Solo-dev project — @benoit-bremaud is the sole code owner across the
+# whole repository. Automated reviews come from Copilot (via the
+# "Copilot review for default branch" ruleset) and Codex (auto-triggered
+# on push). Human reviewers are not auto-requested per project policy.
 * @benoit-bremaud
-
-# Frontend
-packages/mobile-app/ @benoit-bremaud @Fabien-Ori @Smith06S @Thais9723
-
-# Backend
-packages/api/ @benoit-bremaud @vitalikevin @Smith06S
-
-# Website
-packages/website/ @benoit-bremaud @Lin0ooo
-
-# Design documentation
-docs/design/ @benoit-bremaud @Fabien-Ori @Lin0ooo @Liamggn @Thais9723
-
-# Infrastructure & CI
-.github/ @benoit-bremaud @clemoune-tech @Moooniie
-Makefile @benoit-bremaud @clemoune-tech @Moooniie
-sonar-project.properties @benoit-bremaud @clemoune-tech @Moooniie
-
-# Project documentation
-docs/project-management/ @benoit-bremaud
-docs/architecture/ @benoit-bremaud

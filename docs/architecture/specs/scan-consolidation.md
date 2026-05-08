@@ -11,9 +11,8 @@ satellite issues, one merged algorithmic specification ([scan-algorithms.md](sca
 and two structuring ADRs ([ADR-0004](../decisions/0004-data-locality-hybrid-principle.md),
 [ADR-0005](../decisions/0005-backend-split-encyclopedia-vs-product.md)). The
 material is dispersed across the issue tracker. This document is the single
-visible artefact a maintainer or another agent (Codex, Copilot, future Claude
-session) reads to understand the scan feature as a whole *before* touching any
-of it.
+visible artefact any contributor (human or automated) reads to understand the
+scan feature as a whole *before* touching any of it.
 
 It is intentionally **agent-agnostic** and contains no AI tool attribution.
 
@@ -124,10 +123,15 @@ The two epics converge at [#938](https://github.com/benoit-bremaud/brasse-bouill
 
 ## 5. Target architecture (visual recap)
 
+The diagram below describes the **target** architecture per ADR-0005 — a
+single owner for `scan_catalog_items` (Python beer-encyclopedia). The
+**transitional** state until [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980)
+closes is described under §5.1.
+
 ```
 ┌──────────────┐     barcode       ┌──────────────┐
-│   Mobile     │ ────────────────▶ │   NestJS     │  → scan_catalog_items
-│  Expo SDK 54 │ ◀──── result ──── │  /scan/*     │    (legacy SQLite, transitional)
+│   Mobile     │ ────────────────▶ │   NestJS     │  (proxy + auth + sessions)
+│  Expo SDK 54 │ ◀──── result ──── │  /scan/*     │
 └──┬───────────┘                   └──────┬───────┘
    │                                      │ proxy
    │ multipart frames                     ▼
@@ -136,7 +140,7 @@ The two epics converge at [#938](https://github.com/benoit-bremaud/brasse-bouill
                                   │  (FastAPI + Postgres)       │
                                   │                             │
                                   │  panoramic_capture          │
-                                  │  scan_catalog_items (PG)    │
+                                  │  scan_catalog_items         │ ← single owner
                                   │  beer_data_suggestions      │
                                   │  OpenCV stitcher            │
                                   │  Cloud Vision OCR           │
@@ -152,6 +156,22 @@ The two epics converge at [#938](https://github.com/benoit-bremaud/brasse-bouill
 ```
 
 The mobile app is allowed to talk to both backends per ADR-0005.
+
+### 5.1 Transitional state (until [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980) closes)
+
+A **legacy** `scan_catalog_items` table exists in the NestJS API on SQLite —
+the artefact of the pre-ADR-0005 implementation. While the migration tracked
+by [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980) is in
+flight:
+
+- The legacy NestJS table remains read/write for the existing barcode-lookup
+  flow.
+- The Python `scan_catalog_items` table is the canonical store for any new
+  field, any panoramic-capture row, and any enrichment-suggestion linkage.
+- No row should be duplicated across the two tables. Reconciliation is by
+  cutover, not by sync.
+
+ADR-0005 §Roadmap describes the deprecation of the legacy table.
 
 ## 6. Critical files / zones
 

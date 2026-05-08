@@ -92,7 +92,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
   - `40–70%` → "*Distance optimale ✅*"
   - `> 70%` → "*Recule un peu, tout le label doit être visible*"
 - A live blur indicator (Laplacian variance via on-device JS) shows a red dot if the frame is too blurry to capture. Fades to green when sharp.
-- A "**Commencer**" button is **always enabled** (decision **D2**, 2026-05-08). The distance and blur indicators stay visible to coach the user but do not gate the CTA. The underlying frame-quality filter (Laplacian variance + central-region hash) runs at burst-capture time and rejects unusable frames silently. Rationale: the target persona (Léa la curieuse au bar) does not have the patience to wait for an alignment gate; better to accept that the first attempt may be a poor capture and let her retry than to block the CTA for ~3 s upfront.
+- A "**Commencer**" button is **always enabled** (decision **D2**, 2026-05-08). The distance and blur indicators stay visible to coach the user but do not gate the CTA. The underlying frame-quality filter (Laplacian variance + central-region hash) runs at burst-capture time and rejects unusable frames silently. Rationale: the target persona (Léa la curieuse au bar) does not have the patience to wait for the previously specified alignment gate (≥ 1 s of stable distance + blur); better to accept that the first attempt may be a poor capture and let her retry than to block the CTA upfront.
 
 **Why on-device:** the user cannot wait for backend round-trips during a guidance loop. All the heuristics here run in pure JS over `expo-camera` frames sampled at ~5 fps (we down-sample because we don't need 30 fps for guidance).
 
@@ -120,12 +120,17 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 
 **Mobile:**
 
-- If the network is unavailable when the burst completes, the captured frames are persisted locally via `AsyncStorage` keyed by a client-generated `capture_id` (UUID v4).
+- If the network is unavailable when the burst completes, the captured frame **JPEGs** are written to the app's document directory via [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/) (typical payload ~1.2 MB / capture — comfortably within the filesystem; AsyncStorage's ~6 MB Android cap would be exceeded by 3 captures).
+- A lightweight **queue manifest** is persisted in `AsyncStorage` containing only:
+  - `capture_id` (client-generated UUID v4)
+  - `file_uris[]` (paths under the document directory)
+  - `created_at` (ISO timestamp)
+  - `attempts` (retry counter, capped at 5)
 - The mobile retries the upload on:
   - Next app launch
   - Network state change → online (`@react-native-community/netinfo` listener)
-- The queue holds **at most 3 captures** (FIFO eviction) to bound storage.
-- Each capture survives **at most 7 days** (TTL) before being dropped silently.
+- The queue holds **at most 3 captures** (FIFO eviction at enqueue time) to bound disk usage.
+- Each capture survives **at most 7 days** (TTL evaluated at retry time) before its files and manifest entry are dropped silently.
 - A `pending` badge in the scan history indicates a capture is queued.
 
 **MVP scope:** the queue logic ships with [#946](https://github.com/benoit-bremaud/brasse-bouillon/issues/946) (or as a dedicated sub-issue if scope grows). It is mandatory for the panoramic flow because the target persona is bar-context-prone to flaky connectivity.

@@ -5,6 +5,25 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-08
+
+### PR #979 merged (`f41ac26`) — docs(specs): scan feature consolidation snapshot
+
+- Branch `docs/scan-consolidation`, 4 commits (`324cc12`, `87c90c3`, `4e406b7`, `5caea4c`). Companion to [scan-algorithms.md](docs/architecture/specs/scan-algorithms.md). Single visible artefact mapping the scan feature backlog: 4 active epics ([#751](https://github.com/benoit-bremaud/brasse-bouillon/issues/751) panoramic, [#934](https://github.com/benoit-bremaud/brasse-bouillon/issues/934) enrichment, [#803](https://github.com/benoit-bremaud/brasse-bouillon/issues/803) community, [#878](https://github.com/benoit-bremaud/brasse-bouillon/issues/878) freemium), 17 sub-issues sequenced under #751 / #934, the canonical decree (auto-switch when barcode lookup misses), the structuring constraints (ADR-0005 backend split + Expo Managed pure + persistence imperative + craft-beer audience), target architecture, critical files, and the open decisions blocking dev-plan finalisation.
+- Backlog triage performed in the same session and recorded under §4.5 of the new doc: closed #858 (superseded by #945–#947), closed #639 (ACs absorbed into #945), commented #803 (alignment with the spec), commented #945 (ACs from #639 added).
+- **Decisions** captured during the session and recorded on the relevant issues:
+  - `Stitching backend tech` — in-process Python (`cv2.Stitcher_PANORAMA`). `opencv-python` is already a transitive dep of YOLO + EasyOCR in beer-encyclopedia, no new infrastructure. Sub-process and Node FFI rejected. Recorded on #948.
+  - `Streaming SSE Phase 4.5` — implement alongside #948, do not defer. Driven by the craft-beer audience constraint: panoramic is the primary recognition path, not a fallback. A 15-second blank spinner is unacceptable UX for the target user. Recorded on #948.
+  - `Craft-beer audience as structuring constraint` — added to §3 of the consolidation document. Mainstream beers resolve via OFF barcode in ~200 ms; craft / micro-brewery beers are almost never indexed in OFF, so the auto-switch to panoramic capture fires *as the nominal flow*, not as a fallback. Drives priority for capture quality (#945–#947) and the enrichment pipeline (#934).
+- Round-1 review fix in `5caea4c`: 2 Copilot Should-Have comments addressed. (1) §1 self-contradicting "agent-agnostic" claim by naming specific tools — replaced with `any contributor (human or automated)`, also enforces the project's no-AI-attribution policy. (2) §5 target architecture diagram showed two owners of `scan_catalog_items` — diagram now Python single-owner; new §5.1 covers the transitional state until #980 closes with a cutover-not-sync rule.
+
+### Operational
+
+- Filed [#980](https://github.com/benoit-bremaud/brasse-bouillon/issues/980) — `tech(scan): ADR-0005 reconciliation — migrate #934 data model + endpoints to Python beer-encyclopedia`. Tracking issue promised in `scan-algorithms.md` §8 line 286. Carries the migration matrix for #934 sub-issues #935 → #942 (which migrate to Python, which stay NestJS, which split). Comment posted on #934 referencing it.
+- Project board linkage: 9 sub-issues #944 → #952 added to the Brasse-Bouillon GitHub project (`PVT_kwHOB8rwIc4AuVew`). The bulk-add that was harness-blocked on 2026-05-07 succeeded today.
+
+---
+
 ## 2026-05-07
 
 ### PR #958 merged (`093b2f8`) — feat(api): track scan count per catalog item

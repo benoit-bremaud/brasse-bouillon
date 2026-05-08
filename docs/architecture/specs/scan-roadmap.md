@@ -33,7 +33,7 @@ The 2026-05-27 demo is the immovable deadline. Working backwards:
 | 2026-05-08 (today) | This roadmap published |
 | 2026-05-13 (J-14) | Phase 0 complete; Phase 1 in progress |
 | 2026-05-20 (J-7) | Phase 1 + Phase 3 (mobile capture) complete; capture flow demo-ready end-to-end |
-| 2026-05-25 (J-2) | Two full rehearsals complete on real bottles ([#642](https://github.com/benoit-bremaud/brasse-bouillon/issues/642)) |
+| 2026-05-25 (J-2) | Minimum 2 full rehearsals complete on real bottles ([#642](https://github.com/benoit-bremaud/brasse-bouillon/issues/642)) |
 | 2026-05-27 (J0) | Soutenance |
 
 Any phase or sub-issue that doesn't fit before J-2 must have a Plan B
@@ -178,7 +178,7 @@ suggestion.
 
 **Exit criteria.**
 
-- On 5 fixture panoramas (the 6 demo beers), Cloud Vision OCR returns text with `avg_confidence ≥ 0.7` on the `name` / `brewery` / `abv` blocks at least 4 out of 5 times. The Phase 6.5 escalation fires only when needed and stays under 6× the baseline cost.
+- On the 6 fixture panoramas (the demo beers from [#642](https://github.com/benoit-bremaud/brasse-bouillon/issues/642)), Cloud Vision OCR returns text with `avg_confidence ≥ 0.7` on the `name` / `brewery` / `abv` blocks at least 5 of 6 times. The Phase 6.5 escalation fires only when needed and stays under 6× the baseline cost.
 - Claude vision pass produces a structured `Partial<ScanCatalogItem>` with per-field confidence; low-confidence fields (< 0.7) trigger the handoff to [#938](https://github.com/benoit-bremaud/brasse-bouillon/issues/938) for web verification.
 - End-to-end: capturing a panorama on Phase 3 produces a suggestion in Phase 2 with `name + brewery + abv` filled in, confidence ≥ 0.8 on at least 3 of the 6 fixtures.
 
@@ -210,7 +210,7 @@ These are tracked but explicitly off the J-19 path:
 
 Three explicit fallback levels, picked at most J-2 based on what shipped.
 
-### Plan A — Live demo idéal (target)
+### Plan A — Live demo idéale (target)
 
 Scope: Phase 0 + Phase 1 + Phase 3 complete; Phase 4 partially live.
 
@@ -221,7 +221,7 @@ Scope: Phase 0 + Phase 1 + Phase 3 complete; Phase 4 partially live.
 5. Cloud Vision + Claude produce `name + brewery + abv` → fiche populated.
 6. Talking-point: explain why this matters for craft-beer users.
 
-### Plan B — Demo dégradé (Phase 4 not ready)
+### Plan B — Demo dégradée (Phase 4 not ready)
 
 Scope: Phase 0 + Phase 1 + Phase 3 complete; no AI extraction.
 
@@ -241,11 +241,11 @@ Scope: anything broken on stage.
 | Phase | Verification gate |
 |---|---|
 | 0 | `npm run ci:all` green; spike doc published; 6 EAN fixtures resolve correctly |
-| 1 | `pytest packages/beer-encyclopedia/` green; cURL upload of 15 frames produces panorama in < 5 s; SSE stream emits all 7 events |
+| 1 | `pytest packages/beer-encyclopedia/` green; cURL upload of 15 frames produces panorama in < 5 s; SSE stream emits `upload.received` + `stitching.completed` (the 2 events Phase 1 actually produces — Phase 2 / Phase 4 events come online with their respective phases) |
 | 2 | Suggestion PENDING created on a low-completeness EAN; mobile bell rings; review screen approve/refuse work end-to-end |
 | 3 | On Pixel + iPhone: unknown EAN → auto-switch → rotation → loop-closure < 30 s → upload OK |
 | 4 | 5 fixture panoramas → suggestion with name+brewery+abv > 80% confidence on at least 3 of 5 |
-| 5 | 3 full rehearsals on real bottles, no incident |
+| 5 | Minimum 2 full rehearsals on real bottles ([#642](https://github.com/benoit-bremaud/brasse-bouillon/issues/642) AC), no incident |
 
 ## 13. Risk register (selected)
 

@@ -7,6 +7,25 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-08
 
+### PR #981 merged (`d9511c9`) — docs(specs): scan feature development roadmap
+
+- Branch `docs/scan-roadmap`, 2 commits (`494d304`, `2e88330`). Companion to `scan-consolidation.md`. Sequences the scan backlog into 6 phases (0 quick wins → 1 data foundations → 2 enrichment pipeline → 3 mobile capture → 4 OCR + AI vision → 5 polish + community → 6 post-MVP) with explicit dependencies, sub-issue mappings, effort estimates, and exit criteria per phase. Adds the soutenance strategy (Plan A live demo / Plan B degraded / Plan C demo override), end-to-end verification gates, and a risk register.
+- Round-1 review fix in `2e88330`: 6 inline comments addressed (1 Codex P2 + 5 Copilot Should Have). (1) §12 Phase 1 SSE gate aggressive vs scope (Codex + Copilot duplicates) — gate aligned with Phase 1's actual deliverables (`upload.received` + `stitching.completed`), other 5 events come online with later phases. (2) §2 vs §12 rehearsal count mismatch — both now read "minimum 2 full rehearsals" matching #642 AC. (3) §8 fixture count contradiction — now "the 6 fixture panoramas, at least 5 of 6 times". (4) French agreement Plan A "Live demo idéal" → "idéale". (5) French agreement Plan B "Demo dégradé" → "dégradée".
+
+### Algorithm redefinition session (decisions D1–D7)
+
+User-journey-first revisit of the panoramic capture algorithm before sending an agent to implement `scan-algorithms.md`. Persona retained: **Léa la curieuse au bar** (single optimisation target — phone in one hand, bottle in the other, 30 s attention, bar context distraction). The 7 decisions below are recorded here and applied to `scan-algorithms.md` in a follow-up PR.
+
+- `D1 — Point d'entrée` — **Barcode-first** + auto-switch silencieux on lookup miss. Status quo, aligned with `scan-consolidation.md` §2 canonical decree.
+- `D2 — Pre-capture indicators` — **Soft-gate visuel only**. Distance + blur indicators stay visible to coach, but the **Commencer** CTA is always enabled. Léa taps when she wants. Frame-quality filtering (Laplacian variance + central-region hash) runs at burst-capture time and rejects unusable frames silently. Rationale: the target persona has no patience for a 1-second alignment gate.
+- `D3 — Rotation metaphor` — **Permissive**. The coaching string says *"tourne doucement"* without specifying whether to turn the bottle or the phone. The gyro-derived progress gauge measures the angular delta either way.
+- `D4 — Live OCR during capture` — **Drop**. `tesseract.js` removed from the burst flow. The gyro gauge filling 0° → 360° plus the adaptive coaching strings are sufficient feedback that capture is working. Removes a real risk of freezing the JS thread on Android mid-range. Preserved as a debug-mode flag for field testing only.
+- `D5 — Pre-upload preview` — **None in the MVP**. Capture transitions directly from *"Capture terminée ✅"* to the analysis screen. Quality gate is server-side: if `cv2.Stitcher_create` returns an error, the response surfaces *"On n'a pas pu reconstituer l'étiquette"* with a retry CTA. To be revisited only if OCR success rate is poor post-launch.
+- `D6 — "Continuer ailleurs" button` — **Mandatory MVP**, surfaces at T+10 s of analysis screen. Upgrade from "optional" in the original spec. Driven by the persona constraint (Léa abandons after ~15 s of perceived blocking wait). Couples with #939 in-app notifications — the suggestion arrives via the bell when ready.
+- `D7 — Offline upload queue` — **Yes in the MVP** via `AsyncStorage`. New Phase 2.5 in the spec: if the network is unavailable when the burst completes, frames are persisted locally (3 captures FIFO, 7-day TTL) and retried on next app launch or network state change. Bar-context connectivity flakiness justifies the ~1-day effort. Implementation lands with #946 unless scope splits out.
+
+All seven decisions follow the contextualised recommendation made by the planning agent. They are non-reopenable without revising this log entry.
+
 ### PR #979 merged (`f41ac26`) — docs(specs): scan feature consolidation snapshot
 
 - Branch `docs/scan-consolidation`, 4 commits (`324cc12`, `87c90c3`, `4e406b7`, `5caea4c`). Companion to [scan-algorithms.md](docs/architecture/specs/scan-algorithms.md). Single visible artefact mapping the scan feature backlog: 4 active epics ([#751](https://github.com/benoit-bremaud/brasse-bouillon/issues/751) panoramic, [#934](https://github.com/benoit-bremaud/brasse-bouillon/issues/934) enrichment, [#803](https://github.com/benoit-bremaud/brasse-bouillon/issues/803) community, [#878](https://github.com/benoit-bremaud/brasse-bouillon/issues/878) freemium), 17 sub-issues sequenced under #751 / #934, the canonical decree (auto-switch when barcode lookup misses), the structuring constraints (ADR-0005 backend split + Expo Managed pure + persistence imperative + craft-beer audience), target architecture, critical files, and the open decisions blocking dev-plan finalisation.

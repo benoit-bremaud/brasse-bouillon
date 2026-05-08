@@ -92,7 +92,7 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
   - `40–70%` → "*Distance optimale ✅*"
   - `> 70%` → "*Recule un peu, tout le label doit être visible*"
 - A live blur indicator (Laplacian variance via on-device JS) shows a red dot if the frame is too blurry to capture. Fades to green when sharp.
-- A "**Commencer**" button is enabled only when both indicators are green for ≥ 1 s.
+- A "**Commencer**" button is **always enabled** (decision **D2**, 2026-05-08). The distance and blur indicators stay visible to coach the user but do not gate the CTA. The underlying frame-quality filter (Laplacian variance + central-region hash) runs at burst-capture time and rejects unusable frames silently. Rationale: the target persona (Léa la curieuse au bar) does not have the patience to wait for the previously specified alignment gate (≥ 1 s of stable distance + blur); better to accept that the first attempt may be a poor capture and let her retry than to block the CTA upfront.
 
 **Why on-device:** the user cannot wait for backend round-trips during a guidance loop. All the heuristics here run in pure JS over `expo-camera` frames sampled at ~5 fps (we down-sample because we don't need 30 fps for guidance).
 
@@ -114,6 +114,27 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 - We cannot run native frame processors (e.g. `react-native-vision-camera`'s `useFrameProcessor`). We rely on `expo-camera`'s `takePictureAsync` in a loop.
 - The 5–10 fps target is realistic with Expo Managed; 30 fps is not.
 
+### Phase 2.5 — Offline upload queue (decision D7, 2026-05-08)
+
+**Goal:** never lose ~25 s of user-captured frames to a transient network failure (Léa at the bar on a saturated 4G).
+
+**Mobile:**
+
+- If the network is unavailable when the burst completes, the captured frame **JPEGs** are written to the app's document directory via [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/) (typical payload ~1.2 MB / capture — comfortably within the filesystem; AsyncStorage's ~6 MB Android cap would be exceeded by 3 captures).
+- A lightweight **queue manifest** is persisted in `AsyncStorage` containing only:
+  - `capture_id` (client-generated UUID v4)
+  - `file_uris[]` (paths under the document directory)
+  - `created_at` (ISO timestamp)
+  - `attempts` (retry counter, capped at 5)
+- The mobile retries the upload on:
+  - Next app launch
+  - Network state change → online (`@react-native-community/netinfo` listener)
+- The queue holds **at most 3 captures** (FIFO eviction at enqueue time) to bound disk usage.
+- Each capture survives **at most 7 days** (TTL evaluated at retry time) before its files and manifest entry are dropped silently.
+- A `pending` badge in the scan history indicates a capture is queued.
+
+**MVP scope:** the queue logic ships with [#946](https://github.com/benoit-bremaud/brasse-bouillon/issues/946) (or as a dedicated sub-issue if scope grows). It is mandatory for the panoramic flow because the target persona is bar-context-prone to flaky connectivity.
+
 ### Phase 3 — Loop-closure detection (live, on-device)
 
 **Goal:** detect that the user has done a full revolution and the latest frame visually matches the first frame, then end capture automatically.
@@ -133,12 +154,15 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 - A list of 15–30 JPEGs locally on the device.
 - Capture metadata: per-frame timestamp, gyro-derived angle estimate, perceptual hash.
 
-### Phase 4 — Live OCR snapshot (UX-only feedback)
+### Phase 4 — Live OCR snapshot — DROPPED (decision D4, 2026-05-08)
 
-**Goal:** show the user that text is being detected so they trust the capture is working. No durable artifact.
+Live on-device OCR via `tesseract.js` was originally specified to display detected text as a translucent overlay during burst capture, providing user reassurance that the capture was working. **Decision D4 removed it from the MVP** for the following reasons:
 
-- After every 5th accepted frame, run an async OCR pass on that frame using a pure-JS library (`tesseract.js` configured for French + English). The recognised text is shown briefly as a translucent overlay ("*Texte détecté: 'Brasserie Chouffe — Belgian Strong Ale'*").
-- **This OCR result is NOT persisted.** It is purely UX feedback. The authoritative OCR runs server-side in phase 6.
+- The gyro-derived progress gauge (Phase 2 circular indicator filling 0° → 360°) and the adaptive coaching strings (*"Continue, tu y es presque..."*, etc.) are sufficient feedback that the capture is progressing.
+- `tesseract.js` carries non-trivial CPU cost and a real risk of freezing the JS thread on Android mid-range devices, which would degrade the burst-capture frame rate.
+- The authoritative OCR runs server-side in [Phase 6](#phase-6--server-side-ocr); a degraded preview adds no enrichment value, only reassurance — and the gauge already provides the latter.
+
+**Preserved as debug-mode flag.** A development build flag may re-enable `tesseract.js` for field testing of OCR feasibility on real bottles, but it is never shipped to production users.
 
 ### Phase 4.5 — Streaming progression (anti-spinner UX)
 
@@ -172,10 +196,12 @@ The panoramic flow is designed for **Expo Managed** (no eject, no custom dev cli
 - The mobile displays this partial card immediately, with the other fields shown as `⏳` placeholders. The user sees a real result long before the full enrichment completes.
 - When `suggestion.created` fires, the placeholders fill in.
 
-#### Lever C — "Fire and forget" mode (optional, user-toggleable)
+#### Lever C — "Fire and forget" mode (mandatory MVP per decision D6, 2026-05-08)
 
-- Once `upload.received` fires (the frames are safely on the server, even if stitching has not yet completed), the user can tap a **"Continuer ailleurs"** button.
-- The mobile closes the scan screen and returns the user to the home page. The SSE is dropped.
+- The **"Continuer ailleurs"** button is **mandatory** in the MVP (upgraded from "optional" by decision D6, 2026-05-08). It surfaces as soon as the analysis screen has been visible for ≥ 10 s.
+- Rationale: the target persona (Léa la curieuse au bar) abandons the app after ~15 s of perceived blocking wait. Surfacing the escape hatch at T+10 s gives her control without forcing her to stare at a progress bar.
+- Implementation: once `upload.received` fires (the frames are safely on the server, even if stitching has not yet completed) AND ≥ 10 s have elapsed on the analysis screen, the button becomes tappable.
+- On tap: the mobile closes the scan screen and returns the user to the home page. The SSE is dropped client-side, but the backend pipeline continues.
 - When the suggestion is finally created, a notification (per [#939](https://github.com/benoit-bremaud/brasse-bouillon/issues/939)) lets the user know it is ready to review.
 
 #### Visual coupling with the BeerMugLoader
@@ -205,6 +231,8 @@ If the BeerMugLoader animation lands (Lottie of a beer mug filling), the SSE eve
   - `stitching_metadata` — the per-frame transformations OpenCV computed (useful for debugging).
 
 **Why Python:** beer-encyclopedia is the canonical home for catalog + ML work per ADR-0005. OpenCV is a first-class dependency there. NestJS would have required Node FFI or sub-process — Python avoids all of that.
+
+**No on-device preview between burst capture and upload (decision D5, 2026-05-08).** The user transitions directly from *"Capture terminée ✅"* (end of Phase 3) to the analysis screen — the panorama is never rendered on the device before being sent. Rationale: for the target persona, a "review your capture" step adds visual friction without adding value, and the local stitching needed to render a preview is not feasible in Expo Managed pure. **Quality gate is server-side**: if `cv2.Stitcher_create` returns an error, the response surfaces *"On n'a pas pu reconstituer l'étiquette. Réessaie en tournant plus lentement."* on the mobile, which then offers a retry path.
 
 ### Phase 6 — Server-side OCR
 
@@ -435,6 +463,8 @@ The two epics converge at sub-issues #938 (shared pipeline) and #940 (shared rev
 - Machine learning that learns from the maintainer's approve/refuse decisions to auto-approve high-confidence suggestions.
 - Push notifications. The MVP relies on in-app polling per #939.
 - Verified-brewery accounts (KYB).
+- Live on-device OCR feedback during burst capture (`tesseract.js` integration). Removed from the MVP per decision D4 (2026-05-08); preserved as a debug-mode flag for field testing only.
+- On-device preview of the stitched panorama before upload. Removed from the MVP per decision D5 (2026-05-08); quality gate is server-side via OpenCV stitcher result.
 
 ---
 

@@ -336,7 +336,10 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
   },
   cameraCard: {
-    height: 200,
+    // Portrait orientation — bottle labels are taller than wide, so a
+    // 3:4 (width:height) frame makes alignment intuitive.
+    aspectRatio: 3 / 4,
+    width: "100%",
     borderRadius: radius.md,
     overflow: "hidden",
     backgroundColor: colors.neutral.white,

@@ -43,42 +43,45 @@ The JSON shape matches `BenchmarkResult` in [`benchmark-result.types.ts`](../../
 
 ## 4. Results
 
-### 4.1 Android device (TBD model + OS)
+### 4.1 Android device — Xiaomi ALI-NX1, Android 15
 
-> Device: _to fill_
-> Date: _to fill_
+> Device: ALI-NX1 (Redmi-family, mid-range)
+> Date: 2026-05-10
+> App version: 0.1.13-alpha1
+> Run by: maintainer (BenchmarkScreen, Expo Go via `make dev-all`)
 
 #### Burst capture
 
 | Metric | Value |
 |---|---|
-| Frames captured | _to fill_ |
-| Duration (s) | _to fill_ |
-| FPS | _to fill_ |
-| Median JPEG size | _to fill_ |
-| Max JPEG size | _to fill_ |
-| Notes | _to fill_ |
+| Frames captured | 23 |
+| Duration (s) | 10.15 |
+| FPS | **2.27** ⚠️ (target ≥ 5) |
+| Median JPEG size | **2.17 MB** 🚨 (target ~80 KB) |
+| Max JPEG size | 3.98 MB |
+| Notes | `quality: 0.7` did not visibly compress on this Android — sensor is producing full-resolution JPEGs. The `1024 px on long side` reduction from spec §3 Phase 2 is not being honored by the current `takePictureAsync` options. |
 
 #### Perceptual hash
 
 | Metric | Value |
 |---|---|
 | Fixtures × runs | 3 × 10 |
-| Median ms / hash | _to fill_ |
-| P95 ms / hash | _to fill_ |
-| Max ms / hash | _to fill_ |
-| Notes | _to fill_ |
+| Median ms / hash | **2411** 🚨 (target ≤ 50, **48× over**) |
+| P95 ms / hash | 2567 |
+| Max ms / hash | 2569 |
+| Sample hashes | `02b9e8b95e35b5a5`, `73269f73bc420a1f`, `fe80b2641fbae8c8` |
+| Notes | Pure-JS FNV-1a folds over the whole JPEG byte stream (~2 MB on this device). The naive design is the bottleneck — a real DCT-based pHash on a 32×32 down-sampled grayscale would be ~1000× faster. |
 
 #### Tesseract.js OCR
 
 | Metric | Value |
 |---|---|
-| Succeeded | _to fill_ |
-| Init ms | _to fill_ |
-| OCR ms | _to fill_ |
-| JS thread blocked ms | _to fill_ |
-| Error message (if any) | _to fill_ |
-| Notes | _to fill_ |
+| Succeeded | false |
+| Init ms | n/a |
+| OCR ms | n/a |
+| JS thread blocked ms | n/a |
+| Error message | `Cannot find module` |
+| Notes | Confirms decision D4 (drop tesseract.js from production). The dynamic `import("tesseract.js")` cannot resolve — even a debug-mode flag would require adding the dep, with no visible benefit. |
 
 ### 4.2 iOS device (TBD model + OS)
 

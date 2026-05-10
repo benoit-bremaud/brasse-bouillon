@@ -34,7 +34,8 @@ const styles = StyleSheet.create({
   },
   devButton: {
     position: "absolute",
-    bottom: spacing.xxl,
+    // Lift above the bottom tab bar (~80–100 dp) plus breathing room.
+    bottom: spacing.xxl * 3,
     right: spacing.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,

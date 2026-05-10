@@ -164,7 +164,12 @@ export const BenchmarkScreen = (): React.ReactElement => {
 
         <View style={styles.cameraCard}>
           {permission?.granted ? (
-            <CameraView ref={cameraRef} style={styles.camera} facing="back" />
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing="back"
+              pictureSize="1280x720"
+            />
           ) : (
             <Pressable
               style={styles.permissionButton}

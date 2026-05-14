@@ -1,0 +1,85 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git stash *)",
+      "Bash(git pull *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(git log *)",
+      "Bash(git worktree *)",
+      "Bash(git ls-remote *)",
+      "Bash(git ls-tree *)",
+      "Bash(git rev-list *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git branch *)",
+
+      "Bash(gh repo *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh api *)",
+
+      "Bash(npx jest *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(npx tsc *)",
+      "Bash(npx expo *)",
+      "Bash(npx --yes eas-cli env:list *)",
+
+      "Bash(ruff *)",
+      "Bash(pytest *)",
+      "Bash(alembic *)",
+      "Bash(uvicorn *)",
+
+      "Bash(make docker-build *)",
+
+      "Bash(grep *)",
+      "Bash(sed -n *)",
+      "Bash(command -v *)",
+
+      "WebFetch(domain:world.openfoodfacts.org)",
+      "WebFetch(domain:fr.openfoodfacts.org)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-forbidden-paths.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-force-push-main.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/ruff-on-python.sh",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/eslint-on-mobile-ts.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

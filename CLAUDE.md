@@ -30,7 +30,8 @@ brasse-bouillon/
 Each package has its own CLAUDE.md with detailed conventions:
 
 - **Mobile App:** [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)
-- **API:** No CLAUDE.md yet — follow NestJS conventions, TypeORM patterns, and the rules below
+- **API:** [packages/api/CLAUDE.md](packages/api/CLAUDE.md)
+- **Website:** [packages/website/CLAUDE.md](packages/website/CLAUDE.md)
 - **Beer Encyclopedia:** [packages/beer-encyclopedia/CLAUDE.md](packages/beer-encyclopedia/CLAUDE.md)
 
 ---
@@ -194,3 +195,9 @@ this project.
 
 When reviewing a PR, flag any diff that violates these ADRs. Cite the
 ADR number and clause in the review comment.
+
+---
+
+## Project-local Claude tooling
+
+- Subagent `pr-pre-reviewer` — local pre-push review in Copilot/Codex style; flags ADR violations and forbidden patterns. See [.claude/agents/pr-pre-reviewer.md](.claude/agents/pr-pre-reviewer.md).

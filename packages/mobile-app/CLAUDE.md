@@ -170,3 +170,7 @@ npm test           # all tests green
 - Direct `fetch()` calls outside `src/core/http/http-client.ts`
 - Business logic inside `app/` route files
 - Hardcoded colors, spacing, or font values (use theme tokens)
+
+## Project-local Claude tooling
+
+- Subagent `pr-pre-reviewer` — local pre-push review in Copilot/Codex style; flags ADR violations and forbidden patterns. See [.claude/agents/pr-pre-reviewer.md](../../.claude/agents/pr-pre-reviewer.md).

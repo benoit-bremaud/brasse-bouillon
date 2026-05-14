@@ -6,7 +6,7 @@
 **Type:** npm workspaces monorepo
 **Packages:** `packages/mobile-app`, `packages/api`, `packages/website`, `packages/beer-encyclopedia`
 **Node:** 20.x (enforced via `.nvmrc` and `engines` field)
-**Language:** English only — all code, comments, commits, docs, and issues in English.
+**Language:** English only — all code, comments, commits, docs, issues, PR bodies, and PR review replies in English. **Single documented exception (brasse-bouillon-specific):** the **PR notification comment** posted right after PR creation is written in **French**, to brief the project's French-speaking team in plain language at PR time. See § Git & PR workflow below and [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment. This rule does not apply to any other repo.
 
 ## Per-Package Instructions
 
@@ -41,7 +41,7 @@ Global rules (Conventional Commits, branch from `main`, no `any`, no default exp
 ### Git & PR workflow
 
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`.
-- After creating a PR, post a **plain-language French FYI notification comment** mentioning relevant team members based on the PR's scope/area labels. See [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment.
+- After creating a PR, post the **PR notification comment in French** (the single FR-public exception, see "Language" above) mentioning relevant team members based on the PR's scope/area labels. Full template and example in [CONTRIBUTING.md](CONTRIBUTING.md) § 6 — PR notification comment.
 - For the full PR-creation procedure (assignee, labels, project, Copilot reviewer, FYI comment), the on-demand skill `pr-create` applies — load it when opening a PR.
 
 ## Root Scripts

@@ -6,7 +6,7 @@
 
 ## Ce qu'on attend de toi
 
-**Un fichier `rgpd-bullets.md`** (markdown ou Word, peu importe) de **1 page A4 maximum**, contenant des bullets factuels sur ce qu'on a fait côté conformité.
+**Un fichier `rgpd-bullets.md`** au format **Markdown uniquement** (rendu propre sur GitHub, zéro conversion côté Benoît) de **1 page A4 maximum**, contenant des bullets factuels sur ce qu'on a fait côté conformité.
 
 ## Trame proposée (copier-coller, complète chaque section)
 

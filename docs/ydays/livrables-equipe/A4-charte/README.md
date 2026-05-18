@@ -14,9 +14,11 @@
    - **Logo principal** : nom de fichier dans ce dossier
    - **Logo monochrome / variante sombre** : si existe
 
-2. **`logo-bb.png`** — Logo Brasse-Bouillon en **PNG transparent haute résolution** (1024 × 1024 minimum, ou SVG si dispo)
+2. **`logo-bb.png`** — Logo Brasse-Bouillon en **PNG transparent haute résolution** (1024 × 1024 minimum). **Obligatoire** (format directement importable dans Canva).
 
-3. **`logo-bb-dark.png`** *(optionnel mais utile)* — Variante du logo sur fond sombre (pour la slide S14 conclusion qui sera sur fond noir)
+3. **`logo-bb.svg`** *(optionnel mais bienvenu)* — Même logo en **SVG vectoriel** si tu en as la source — sert d'archive pour les futurs supports print/grand format.
+
+4. **`logo-bb-dark.png`** *(optionnel mais utile)* — Variante du logo sur fond sombre (pour la slide S14 conclusion qui sera sur fond noir).
 
 ## Format attendu pour `charte.md`
 

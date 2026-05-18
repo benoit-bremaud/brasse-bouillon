@@ -10,15 +10,15 @@
 | **A2** | 2 screenshots GitHub + Discord notifs CI | Clément ou Catarina | dim 24 mai | ⬜ | — | — |
 | **A3** | 1 page A4 bullets RGPD | Fabien | dim 24 mai | ⬜ | — | — |
 | **A4** | Hex codes charte + logo PNG + typo | Fabio ou Liam | ven 22 mai | ⬜ | — | — |
-| **A5** | ✅ Présence répétition lundi 25 mai | Tous (9 personnes) | sam 24 mai | ⬜ | — | À cocher sur Discord |
-| **A6** | ✅ Présence soutenance mercredi 27 mai | Tous (9 personnes) | sam 24 mai | ⬜ | — | À cocher sur Discord |
+| **A5** | ✅ Présence répétition lundi 25 mai | Tous (9 personnes) | dim 24 mai | ⬜ | — | À cocher sur Discord |
+| **A6** | ✅ Présence soutenance mercredi 27 mai | Tous (9 personnes) | dim 24 mai | ⬜ | — | À cocher sur Discord |
 
 ## Tâches Benoît (la part lourde)
 
 | # | Tâche | Deadline | Statut | Date | Notes |
 |---|---|---|---|---|---|
 | **B1** | Production 15 slides Canva (charte jaune unifiée) | dim 24 mai | ⬜ | — | — |
-| **B2** | Schéma archi propre (Excalidraw/Mermaid) | sam 22 mai | ⬜ | — | Kévin valide |
+| **B2** | Schéma archi propre (Excalidraw/Mermaid) | ven 22 mai | ⬜ | — | Kévin valide |
 | **B3** | Vidéo backup démo 5 min | dim 24 mai | ⬜ | — | Avec Kévin co-tournage |
 | **B4** | Document RGPD complet (à partir A3) | lun 25 mai | ⬜ | — | Impression couleur |
 | **B5** | Cartes de visite commandées | ven 22 mai | ⬜ | — | Vistaprint 100 ex ~50 € |
@@ -42,5 +42,8 @@
 
 ## Process de mise à jour
 
-1. Tu livres → tu modifies ce fichier (remplace ⬜ par ✅ + date) + tu commit *("docs(ydays): A1 livré"*) — ou tu drop sur Discord et Benoît met à jour
-2. Benoît passe en revue chaque soir et update les ⚠️ si retard
+> **Benoît est le seul éditeur de ce fichier** pour éviter les conflits Git en cas de modifications parallèles.
+
+1. Tu livres ton atome → tu ping `@Benoît` sur Discord canal `#ydays-soutenance` (ou tu drop directement le fichier dans le sous-dossier git via PR)
+2. Benoît met à jour ce `STATUS.md` (coche ⬜ → ✅ + date) en fin de journée
+3. Benoît passe en revue chaque soir et update les ⚠️ si retard

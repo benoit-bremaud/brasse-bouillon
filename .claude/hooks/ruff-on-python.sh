@@ -11,6 +11,11 @@
 
 set -euo pipefail
 
+# Silent no-op if jq is unavailable — the hook cannot parse the payload.
+# Without this guard, `set -euo pipefail` would abort the script with a
+# command-not-found error instead of letting the original Write/Edit proceed.
+command -v jq >/dev/null 2>&1 || exit 0
+
 file=$(jq -r '.tool_response.filePath // .tool_input.file_path // empty')
 
 if [ -z "$file" ]; then
@@ -31,7 +36,11 @@ else
     exit 0
 fi
 
-# Run check --fix then format. Suppress output so the hook stays invisible on
-# success; failures show up in /hooks if anyone investigates.
+# Best-effort auto-fix and format. Output is silenced AND the exit code is
+# ignored via `|| true` — the hook is fire-and-forget on purpose so it never
+# blocks the user's Edit/Write tool call. Real lint/format problems are
+# surfaced by the IDE's Ruff extension (and by `ruff check` in CI), not by
+# this hook. To investigate a specific file by hand, run the same two
+# commands without the silencer:  ruff check --fix <file> && ruff format <file>
 "$RUFF" check --fix "$file" >/dev/null 2>&1 || true
 "$RUFF" format "$file" >/dev/null 2>&1 || true

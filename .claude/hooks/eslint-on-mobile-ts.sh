@@ -9,6 +9,11 @@
 
 set -euo pipefail
 
+# Silent no-op if jq is unavailable — the hook cannot parse the payload.
+# Without this guard, `set -euo pipefail` would abort the script with a
+# command-not-found error instead of letting the original Write/Edit proceed.
+command -v jq >/dev/null 2>&1 || exit 0
+
 file=$(jq -r '.tool_response.filePath // .tool_input.file_path // empty')
 
 if [ -z "$file" ]; then

@@ -31,7 +31,7 @@
 - [ ] Happy path + sad path + edge cases covered (tests when code changes)
 - [ ] `npm run ci:all` (or package-local equivalent) passes locally
 - [ ] No `any`, no default exports for screens/use-cases/API modules
-- [ ] No inline styles, no hardcoded colors/spacing in `packages/mobile-app/`
+- [ ] No inline styles, no hardcoded colors, spacing, or font values in `packages/mobile-app/` (use design tokens)
 - [ ] No new ADR violations (see [docs/architecture/decisions/](docs/architecture/decisions/))
 - [ ] `PROJECT_LOG.md` will be updated after merge (entry per `project-log-entry` skill)
 

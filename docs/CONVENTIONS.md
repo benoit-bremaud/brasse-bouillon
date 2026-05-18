@@ -8,7 +8,9 @@ For the full contribution workflow, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## 1. Language
 
-All code, comments, commit messages, PR descriptions, issue titles, and documentation must be in English. No exceptions.
+All code, comments, commit messages, PR descriptions, PR review replies, issue titles, and documentation must be in English.
+
+**Single documented exception (brasse-bouillon-specific):** the **PR notification comment** posted right after PR creation is written in **French**, to brief the project's French-speaking team in plain language at PR time. This is the repo's sole French-public artefact. See [CLAUDE.md](../CLAUDE.md) § Project Overview and [CONTRIBUTING.md](../CONTRIBUTING.md#6-pr-notification-comment) § 6 for the full rule. This rule does not apply to any other repo.
 
 ---
 

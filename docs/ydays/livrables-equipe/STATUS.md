@@ -23,7 +23,7 @@
 | **B4** | Document RGPD complet (à partir A3) | lun 25 mai | ⬜ | — | Impression couleur |
 | **B5** | Cartes de visite commandées | ven 22 mai | ⬜ | — | Vistaprint 100 ex ~50 € |
 | **B6** | Matériel démo réuni | dim 24 mai | ⬜ | — | Punk IPA + grains + houblon + câbles |
-| **B7** | Répétition complète chronométrée 30+10 | lun 25 mai | ⬜ | — | Salle campus |
+| **B7** | Répétition complète chronométrée 30+10 | lun 25 mai | ⬜ | — | Distanciel Teams/Discord (lundi de Pentecôte = férié) |
 
 ## Décisions critiques (Benoît)
 

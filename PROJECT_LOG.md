@@ -5,6 +5,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-18
+
+### PR #1004 merged (`f398fa3`) — docs(ydays): add livrables-equipe coordination folder for 27 May soutenance
+
+- Branch `docs/ydays-livrables-equipe`, 2 commits (`a0b6c10`, `7d75bd1`). Adds `docs/ydays/livrables-equipe/` with 4 atomic-deliverable subfolders (A1 screenshots app, A2 screenshots GitHub+Discord, A3 RGPD bullets, A4 charte) + `STATUS.md` tracking grid (6 team atoms A1–A6, 7 Benoît tasks B1–B7, 3 critical decisions C1–C3). Spoonfed coordination: Benoît absorbs 90 % of the deck production, each team member contributes one ≤30 min atomic input. FR-language content (soutenance demo script exception per memory rule).
+- Round-1 review fix in `7d75bd1`: 7 inline comments addressed (5 Copilot + 2 Codex). (1) STATUS A5/A6 deadline `sam 24 mai` → `dim 24 mai` (Codex P1 calendar correction). (2) STATUS B2 deadline `sam 22 mai` → `ven 22 mai` (Codex P1 calendar correction). (3) README dead local-path bullet `~/.claude/plans/...` removed (Copilot P1). (4) README "6 atomes" wording reworded to clarify 4 file deliverables + 2 Discord-only confirmations (Copilot P2). (5) A3 README format restricted to Markdown only (was "markdown ou Word", Copilot P2). (6) A4 README logo split into `logo-bb.png` (required) + `logo-bb.svg` (optional source) + `logo-bb-dark.png` (optional variant) (Copilot P2). (7) STATUS single-editor convention documented (Benoît centralises updates) to prevent Git merge conflicts on parallel edits (Copilot P3).
+
+---
+
 ## 2026-05-08
 
 ### PR #981 merged (`d9511c9`) — docs(specs): scan feature development roadmap

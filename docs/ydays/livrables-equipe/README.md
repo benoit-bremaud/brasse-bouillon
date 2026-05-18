@@ -21,6 +21,10 @@
 | [`A3-rgpd-bullets/`](A3-rgpd-bullets/) | **Fabien** | 1 page A4 bullets RGPD | dim 24 mai 2026 |
 | [`A4-charte/`](A4-charte/) | **Fabio ou Liam** | Hex codes + logo PNG + typo | ven 22 mai 2026 |
 
+## Plan de rédaction détaillé du deck
+
+Voir [`PLAN-REDACTION-DECK.md`](PLAN-REDACTION-DECK.md) — document de référence avec **1 chapitre par slide** (S0 à S14) : idée centrale · layout · texte exact · notes orales · à ne pas faire · ressources · responsable · deadline. C'est la source unique de vérité avant toute modification de slide.
+
 ## Suivi en temps réel
 
 Voir [`STATUS.md`](STATUS.md) pour l'état d'avancement (cochage manuel à chaque livraison).

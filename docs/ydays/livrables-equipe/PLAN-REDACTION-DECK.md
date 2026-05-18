@@ -29,7 +29,7 @@
 
 ## Cadrage transversal
 
-**Date soutenance** : mercredi 27 mai 2026 · Salle 0.301 (R+3 Ynov Sophia-Antipolis) · Catégorie Pitch Entrepreneurial · Format 30 min présentation + 10 min Q&A.
+**Date soutenance** : mercredi 27 mai 2026 · Campus Ynov Sophia-Antipolis · Salle + créneau horaire **à confirmer par Ynov** · Catégorie Pitch Entrepreneurial · Format 30 min présentation + 10 min Q&A.
 
 **Charte officielle** : jaune (palette houblon Brasse-Bouillon). Hex codes + logo + typo livrés par Fabio/Liam — atome A4. Toute slide produite sur cette charte unique.
 

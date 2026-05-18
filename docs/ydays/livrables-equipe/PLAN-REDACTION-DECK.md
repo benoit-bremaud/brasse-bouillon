@@ -245,7 +245,7 @@ Slide en 2 zones horizontales.
 
 **Bandeau pied** : *GitHub + Discord = organisation et coordination quotidienne.*
 
-### Notes orales (50-55 s, dit par Benoît)
+### Notes orales (50-55 s, dites par Benoît)
 
 > "Nous sommes 9, organisés en 5 pôles : développement, design, cybersécurité, DevOps, et pilotage produit. Je suis Benoît, fondateur et product owner — je piloterai cette présentation. Tout notre code est versionné sur GitHub. Notre coordination passe par Discord — vous voyez ici les notifications CI qui prouvent qu'à chaque commit, tests et review se déclenchent automatiquement. Pour la démo technique, Kévin prendra la parole avec moi."
 
@@ -259,7 +259,7 @@ Slide en 2 zones horizontales.
 ### Ressources
 
 - Captures à produire par Catarina/Clément (livrable A2) — drop dans [A2-screenshots-organisation/](A2-screenshots-organisation/)
-- Mapping équipe complet : voir mémoire `reference_team_mapping.md`
+- Mapping équipe complet : voir la grille des 9 contributeurs ci-dessus (section Layout)
 
 ### Annotation Canva
 
@@ -402,7 +402,7 @@ Idée centrale : 3 personas alignés 1:1 avec les 3 tiers freemium
 | 11 fonctionnalités validées · note ≥ 4/5 à J+30 | Dans les 3 mois post-lancement | CA cible : 14 k€ an 1 |
 | **→ Avant le 30/09/2026** | **→ Avant le 31/12/2026** | **→ Avant mars 2027 (mois 6 post-lancement)** |
 
-### Notes orales (1:00 chronométrée)
+### Notes orales (1:00 chronométrées)
 
 **Intro (10 s)** :
 > "Trois objectifs SMART pour les douze mois qui suivent la soutenance."
@@ -460,7 +460,7 @@ Idée centrale : 3 objectifs SMART (Lancement / Traction / Break-even)
 **Colonne droite — Notre étude équipe** :
 
 - 🔍 *« Nous avons interrogé directement notre cible. »*
-- **54 répondants** sondage *« Avez-vous déjà brassé ? »* → 27 % oui (8,3 % régulièrement + 18,8 % quelques fois) · 42 % *« ça m'intéresse »*
+- **54 répondants** sondage *« Avez-vous déjà brassé ? »* → 27,1 % oui (8,3 % régulièrement + 18,8 % quelques fois) · 41,7 % *« ça m'intéresse »*
 - **30 répondants** sondage freins → **63 % « appréhension du brassage maison »** · 43 % *« suivi temps/étapes »*
 - **48 répondants** intérêt app mobile → **58 % positifs** (20,8 % très intéressé + 37,5 % pourquoi pas)
 
@@ -472,14 +472,14 @@ Idée centrale : 3 objectifs SMART (Lancement / Traction / Break-even)
 > "En France, entre 200 et 300 mille personnes brassent chez elles. 36 378 d'entre elles sont inscrites sur Little Bock — c'est notre marché documenté, mesurable, accessible dès aujourd'hui. Le marché de la bière artisanale française pèse entre 2 et 8 milliards d'euros selon les sources, et croît de 8 à 12 % par an."
 
 **Segment sondages équipe (1:00)** :
-> "Et au-delà des chiffres macro, on a fait notre propre travail terrain. 54 personnes interrogées sur la pratique : 27 % brassent déjà, 42 % nous disent que ça les intéresse. 30 personnes interrogées sur les freins : 63 % évoquent l'appréhension du brassage maison — c'est exactement ce que Brasse-Bouillon vient résoudre. 48 personnes interrogées sur l'intérêt d'une app mobile : 58 % positives. Ce n'est pas une étude tierce — c'est notre propre travail de recherche utilisateur qui confirme l'opportunité."
+> "Et au-delà des chiffres macro, on a fait notre propre travail terrain. 54 personnes interrogées sur la pratique : 27 % brassent déjà, près de 42 % nous disent que ça les intéresse — 41,7 % exactement. 30 personnes interrogées sur les freins : 63 % évoquent l'appréhension du brassage maison — c'est exactement ce que Brasse-Bouillon vient résoudre. 48 personnes interrogées sur l'intérêt d'une app mobile : 58 % positives. Ce n'est pas une étude tierce — c'est notre propre travail de recherche utilisateur qui confirme l'opportunité."
 
 **Transition (15 s)** :
 > "Voilà la demande. Voici notre réponse."
 
 ### À NE PAS faire
 
-- ❌ Pas la slide bruloosophy démographie complète (p45 du draft orange) — c'est une étude US, on cite juste la source
+- ❌ Pas la slide brulosophy démographie complète (p45 du draft orange) — c'est une étude US, on cite juste la source
 - ❌ Pas de gap concurrentiel détaillé ici (c'est diffus dans S3 et S7)
 - ❌ Pas plus de 3 chiffres par colonne (densité)
 
@@ -519,7 +519,7 @@ Slide en 2 zones.
 
 **Zone droite (60 %)** — Screenshot mobile de l'écran scanner ou recette (cohérent avec démo S1).
 
-### Notes orales (1:00 chronométrée)
+### Notes orales (1:00 chronométrées)
 
 **3 points (45 s)** :
 > "Brasse-Bouillon répond à ce vide en trois points. Un : vous scannez n'importe quelle bouteille — l'app identifie le style, le profil aromatique, et propose une recette équivalente. En français. C'est notre différenciant absolu — aucune application francophone ne fait ça aujourd'hui. Deux : l'app guide de A à Z — choix des ingrédients, calculs automatisés ABV/IBU/densité, suivi étape par étape avec timers, jusqu'à la dégustation. Trois : gratuit pour démarrer. Freemium, mobile natif iOS et Android, pensé pour quelqu'un qui n'a jamais brassé."
@@ -679,7 +679,7 @@ Idée centrale : Architecture monorepo + backend centralisé (schéma uniquement
 **Ligne basse (engagement futur)** :
 > 🔬 *Tests utilisateurs : 4-5 sessions planifiées sur bêta — méthodologie : prototype Figma + enregistrement + synthèse des récurrences (coordination Pablo).*
 
-### Notes orales (1:00 chronométrée, dites par Benoît ou Kévin)
+### Notes orales (1:00 chronométrées, dites par Benoît ou Kévin)
 
 > "647 tests automatisés tournent à chaque pull request — 407 sur le mobile, 240 sur l'API. TypeScript strict mode partout, règle `no-explicit-any` activée — les rares exceptions sont documentées dans le code. Et au-delà des tests automatiques, on s'engage sur 4 à 5 sessions de tests utilisateurs sur version bêta avant le lancement. Méthodologie classique : prototype, enregistrement de session, synthèse des récurrences. Pablo coordonne cette phase."
 
@@ -915,7 +915,7 @@ Idée centrale : 4 quadrants (Légal / RH / Cyber/RGPD / Budget+Financement)
 4. Ligne contact basse : *Benoît Bremaud · LinkedIn · GitHub · brasse-bouillon.com*
 5. Tout en bas discret : *Des questions ?*
 
-### Notes orales (1:00 chronométrée)
+### Notes orales (1:00 chronométrées)
 
 **Tagline (20 s)** :
 > "Brasse-Bouillon, c'est trois mots. Brasser — l'acte, la passion, le premier brassin de Léa. Partager — la recette, la bouteille, la communauté. Recommencer — parce qu'on s'améliore à chaque brassin. C'est aussi ce que j'ai fait pendant cette reconversion : apprendre, construire, recommencer."

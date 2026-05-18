@@ -41,7 +41,7 @@ Global rules (Conventional Commits, branch from `main`, no `any`, no default exp
 ### Git & PR workflow
 
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`.
-- After creating a PR, post the **PR notification comment in French** (the single FR-public exception, see "Language" above) mentioning relevant team members based on the PR's scope/area labels. Full template and example in [CONTRIBUTING.md](CONTRIBUTING.md) § 6 — PR notification comment.
+- After creating a PR, post the **PR notification comment in French** (the single FR-public exception, see "Language" above) mentioning relevant team members based on the PR's scope/area labels. Full template and example in [CONTRIBUTING.md § 6 — PR notification comment](CONTRIBUTING.md#6-pr-notification-comment).
 - For the full PR-creation procedure (assignee, labels, project, Copilot reviewer, FYI comment), the on-demand skill `pr-create` applies — load it when opening a PR.
 
 ## Root Scripts
@@ -86,7 +86,15 @@ This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — chronological, age
 
 **IMPORTANT** — Every agent (Copilot, Codex, human reviewer) MUST read the accepted ADRs under [docs/architecture/decisions/](docs/architecture/decisions/) before reviewing code. They define the structural rules of this project.
 
-Read the live list of accepted ADRs in [docs/architecture/decisions/](docs/architecture/decisions/) (numbered `0001-`, `0002-`, …). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
+Currently accepted ADRs (see each file for the `Status` line and full rationale):
+
+- [ADR-0001 — Build for today, design for tomorrow](docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md)
+- [ADR-0002 — Centralized NestJS backend](docs/architecture/decisions/0002-centralized-nestjs-backend.md)
+- [ADR-0003 — Consent as a single source of truth](docs/architecture/decisions/0003-consent-single-source-of-truth.md)
+- [ADR-0004 — Data locality hybrid principle](docs/architecture/decisions/0004-data-locality-hybrid-principle.md)
+- [ADR-0005 — Backend split (encyclopedia vs product)](docs/architecture/decisions/0005-backend-split-encyclopedia-vs-product.md)
+
+When a new ADR is accepted, add its file link here (no dates, no per-ADR summaries — open the file for the live status and content). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
 
 ## Documentation
 

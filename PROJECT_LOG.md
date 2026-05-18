@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-18
 
+### PR #1010 merged (`ff86f91`) — docs(ydays): proofreading pass on PLAN-REDACTION-DECK
+
+- Branch `docs/ydays-plan-proofreading-fixes`, 1 commit (`ad6e8b6`), +9/−9. Final read-through pass on `PLAN-REDACTION-DECK.md`. Five small corrections: (1) S6 misspelling `bruloosophy` → `brulosophy` (1 occurrence, matches the URL on the same page). (2) Feminine-plural agreement on the past participle "chronométrée" — fixed 4 occurrences across S5, S7, S10, S14; the 8 others were already correct. (3) S2 "dit par Benoît" → "dites par Benoît" (same agreement rule). (4) S2 removed the opaque pointer to the private agent-memory file `reference_team_mapping.md` (same kind of dead reference Copilot flagged on PR #1006); replaced with a self-pointer to the 3×3 team grid in the Layout section above. (5) S6 rounded `42 %` replaced with the exact source value `41,7 %` from p46 of the Canva draft; oral note keeps the natural delivery with both figures.
+- No round-1 review iteration on this PR — Copilot review posted with 0 inline comments; no issues raised. Codex review pending at merge time.
+
+### PR #1009 merged (`c99a1c4`) — docs(ydays): correct soutenance venue + rehearsal context
+
+- Branch `docs/ydays-fix-soutenance-info`, 1 commit (`5a2ac94`), +2/−2. Two factual corrections to the soutenance coordination docs before the team-wide Discord broadcast: (1) `PLAN-REDACTION-DECK.md` "Cadrage transversal" — venue line stated `Salle 0.301 (R+3 Ynov Sophia-Antipolis)` as if confirmed; in reality Ynov has not assigned the room and time slot yet — replaced with `Salle + créneau horaire à confirmer par Ynov`. (2) `STATUS.md` row B7 (rehearsal) — Notes column said `Salle campus`; Monday 25 May 2026 is Lundi de Pentecôte (French bank holiday), so the full-deck rehearsal will run remotely via Teams or Discord.
+
 ### PR #1006 merged (`a411590`) — docs(ydays): add PLAN-REDACTION-DECK.md as single source of truth for 15 slides
 
 - Branch `docs/ydays-plan-redaction-deck`, 2 commits (`a0688b0`, `f1c5337`). Adds `docs/ydays/livrables-equipe/PLAN-REDACTION-DECK.md` (961 lines): single reference document with one chapter per slide (S0–S14) containing central idea, layout, exact text, timed oral notes, what-NOT-to-do, resources, responsible person, deadline, status, and a Canva annotation block. Replaces the previous model where each Canva slide had to be self-explanatory — now slides carry a small "INSTRUCTIONS" footer pointing to this file. Also links the new plan from `README.md`, and captures the PROJECT_LOG entry for the just-merged PR #1004. FR-language content (soutenance demo script exception).

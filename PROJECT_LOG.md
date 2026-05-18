@@ -10,7 +10,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #1010 merged (`ff86f91`) — docs(ydays): proofreading pass on PLAN-REDACTION-DECK
 
 - Branch `docs/ydays-plan-proofreading-fixes`, 1 commit (`ad6e8b6`), +9/−9. Final read-through pass on `PLAN-REDACTION-DECK.md`. Five small corrections: (1) S6 misspelling `bruloosophy` → `brulosophy` (1 occurrence, matches the URL on the same page). (2) Feminine-plural agreement on the past participle "chronométrée" — fixed 4 occurrences across S5, S7, S10, S14; the 8 others were already correct. (3) S2 "dit par Benoît" → "dites par Benoît" (same agreement rule). (4) S2 removed the opaque pointer to the private agent-memory file `reference_team_mapping.md` (same kind of dead reference Copilot flagged on PR #1006); replaced with a self-pointer to the 3×3 team grid in the Layout section above. (5) S6 rounded `42 %` replaced with the exact source value `41,7 %` from p46 of the Canva draft; oral note keeps the natural delivery with both figures.
-- No round-1 review issues — Copilot posted 0 inline comments, approval implicit. Codex review pending at merge time.
+- No round-1 review iteration on this PR — Copilot review posted with 0 inline comments; no issues raised. Codex review pending at merge time.
 
 ### PR #1009 merged (`c99a1c4`) — docs(ydays): correct soutenance venue + rehearsal context
 

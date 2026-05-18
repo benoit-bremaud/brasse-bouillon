@@ -142,18 +142,17 @@ docs/product/references/*
 .tmp
 
 # ===========================
-# Claude Code harness — local-only files
+# Claude Code harness — per-machine files
 # ===========================
-# `.claude/settings.json` carries machine-specific allow-lists (absolute
-# paths, personal email) that the harness updates whenever a Bash
-# command is approved. `.claude/scheduled_tasks.lock` is a runtime
-# lock file used by the ScheduleWakeup mechanism. Both are
-# per-machine: tracking them pollutes diffs and leaks PII. Anything
-# else under `.claude/` (e.g. a future shared `CLAUDE.md`) stays
-# trackable.
-.claude/settings.json
+# Per the canonical Claude Code directory layout
+# (https://code.claude.com/docs/en/claude-directory), the team-shared
+# `.claude/settings.json` and `.claude/hooks/` are committed, while
+# `.claude/settings.local.json` is each developer's personal overrides
+# (paths, IDs, extra allow-list entries) and stays out of git.
+# `.claude/scheduled_tasks.lock` is a runtime lock for the
+# ScheduleWakeup mechanism — also per-machine.
+.claude/settings.local.json
 .claude/scheduled_tasks.lock
-.claude/settings.json
 
 # Stub created by EAS CLI for monorepo project-root detection
 /app.json

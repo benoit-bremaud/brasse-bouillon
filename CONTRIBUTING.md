@@ -413,20 +413,22 @@ Create a PR targeting `main` with:
 
 After creating the PR, post an **informational comment** that mentions team members for visibility. This is separate from requested reviewers (which remain for blocking reviews).
 
+**Language — French (single documented exception).** This comment is the only French-public artefact of the repo. The rest of the project (code, commits, PR bodies, PR review replies, issue bodies, docs) stays in English per the global language rule (see [CLAUDE.md](CLAUDE.md) § Project Overview). The French-speaking team is the primary audience for the FYI comment at PR time, which is why this single exception exists.
+
 The comment must:
 
-- Be written in **plain, non-technical language** so that all team members (designers, product, etc.) can understand it
-- Explain **what was done** and **why**
-- Explain **what changes concretely** for the project or the product
-- Mention **who might be interested**, based on the labels inherited from the linked issue (`scope:`, `area:`, `type:`)
+- Be written in **plain, non-technical French** so that all team members (designers, product, etc.) can understand it
+- Explain **ce qui a été fait** and **pourquoi**
+- Explain **ce qui change concrètement** for the project or the product
+- Mention **qui peut être intéressé**, based on the labels inherited from the linked issue (`scope:`, `area:`, `type:`)
 
 Example:
 
 ```markdown
-@Fabien-Ori @Thais9723 — For your information: this PR adds the legal
-pages (cookies, privacy, terms of use) to the marketing website, in both
-French and English. The site is now fully compliant with GDPR requirements.
-No impact on the mobile app or the backend server.
+@Fabien-Ori @Thais9723 — Pour info : cette PR ajoute les pages légales
+(cookies, confidentialité, mentions légales) au site marketing, en
+français et en anglais. Le site est désormais pleinement conforme au
+RGPD. Aucun impact sur l'application mobile ni sur le serveur backend.
 ```
 
 The list of people to mention should be suggested based on the PR context (scope labels, area labels) and confirmed by the author before posting.

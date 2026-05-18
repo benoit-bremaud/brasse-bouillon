@@ -6,72 +6,43 @@
 **Type:** npm workspaces monorepo
 **Packages:** `packages/mobile-app`, `packages/api`, `packages/website`, `packages/beer-encyclopedia`
 **Node:** 20.x (enforced via `.nvmrc` and `engines` field)
-**Language:** English only — all code, comments, commits, docs, and issues in English
-
----
-
-## Monorepo Structure
-
-```
-brasse-bouillon/
-  packages/
-    mobile-app/   React Native + Expo SDK 54 + Router v6 + TypeScript (strict)
-    api/          NestJS 11 + TypeORM + SQLite + TypeScript
-    website/      Static HTML/CSS/JS marketing site + Python quality gate
-    beer-encyclopedia/ Python 3.12 + FastAPI + YOLOv8 + EasyOCR beer encyclopedia
-  docs/           Project documentation
-  _archive/       Pre-monorepo code (read-only reference)
-  .github/        CI workflows
-  tools/ci/       SonarQube scan script
-```
+**Language:** English only — all code, comments, commits, docs, issues, PR bodies, and PR review replies in English. **Single documented exception (brasse-bouillon-specific):** the **PR notification comment** posted right after PR creation is written in **French**, to brief the project's French-speaking team in plain language at PR time. See § Git & PR workflow below and [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment. This rule does not apply to any other repo.
 
 ## Per-Package Instructions
 
-Each package has its own CLAUDE.md with detailed conventions:
+Each package ships its own `CLAUDE.md` with detailed conventions:
 
 - **Mobile App:** [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md)
-- **API:** No CLAUDE.md yet — follow NestJS conventions, TypeORM patterns, and the rules below
+- **API:** [packages/api/CLAUDE.md](packages/api/CLAUDE.md)
+- **Website:** [packages/website/CLAUDE.md](packages/website/CLAUDE.md)
 - **Beer Encyclopedia:** [packages/beer-encyclopedia/CLAUDE.md](packages/beer-encyclopedia/CLAUDE.md)
 
----
+## Project-specific rules
 
-## Cross-Cutting Rules (apply to ALL packages)
-
-### Git Workflow
-
-- Every task requires a dedicated branch from `main`. Never commit directly to `main`.
-- Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`
-- Use **Conventional Commits**: `<type>(<scope>): <short description>`
-- Run CI checks before pushing. Ask for explicit user validation before creating a PR.
-- After creating a PR, post an **informational notification comment** mentioning relevant team members (based on scope/area labels). The comment must use plain, non-technical language so all team members understand. See [CONTRIBUTING.md](CONTRIBUTING.md) § PR notification comment.
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+Global rules (Conventional Commits, branch from `main`, no `any`, no default exports, AI attribution forbidden, security defaults) are inherited from `~/.claude/CLAUDE.md` — not duplicated here. The rules below are the ones that *only* apply to this repo.
 
 ### TypeScript
 
-- Strict mode enabled everywhere. Never use `any`.
-- Named exports only. No default exports for screens, use-cases, or API modules.
 - `interface` for object shapes; `type` for unions, mapped types, utility types.
 
-### Code Quality
+### Code quality tooling
 
-- ESLint + Prettier enforced per package
-- SonarQube local analysis available: `make sonar-scan SONAR_TOKEN=sqp_xxx`
-- CI runs automatically on every PR (path-filtered per package)
+- ESLint + Prettier enforced per package.
+- SonarQube local analysis: `make sonar-scan SONAR_TOKEN=sqp_xxx`.
+- CI auto-runs on every PR (path-filtered per package) — see `.github/workflows/ci.yml`.
 
 ### Testing
 
-- Tests are mandatory for every new feature
-- Mobile App: Jest + @testing-library/react-native (407 tests)
-- API: Jest (238 tests)
-- Run all tests: `npm run test:all`
+- Tests are mandatory for every new feature (happy + sad + edge cases).
+- Mobile App: Jest + `@testing-library/react-native`.
+- API: Jest (unit + e2e).
+- Run everything: `npm run test:all`.
 
-### Security
+### Git & PR workflow
 
-- Never introduce: command injection, XSS, SQL injection, hardcoded secrets
-- Never commit `.env` files or credentials
-- Never push `--force` to `main`
-
----
+- Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`, `docs/<scope>`.
+- After creating a PR, post the **PR notification comment in French** (the single FR-public exception, see "Language" above) mentioning relevant team members based on the PR's scope/area labels. Full template and example in [CONTRIBUTING.md § 6 — PR notification comment](CONTRIBUTING.md#6-pr-notification-comment).
+- For the full PR-creation procedure (assignee, labels, project, Copilot reviewer, FYI comment), the on-demand skill `pr-create` applies — load it when opening a PR.
 
 ## Root Scripts
 
@@ -84,86 +55,55 @@ Each package has its own CLAUDE.md with detailed conventions:
 | `npm run lint:all` | Run all linters |
 | `npm run typecheck:all` | Run all type checkers |
 
----
+## Environment variables
 
-## CI Pipeline
+Each package has its own `.env.example` documenting required variables — copy to `.env` and edit. Never modify `.env` files in-place; never commit them.
 
-GitHub Actions workflow at `.github/workflows/ci.yml`:
-
-- Triggered on PRs to `main` and pushes to `main`
-- Path-filtered: only changed packages are tested
-- Mobile App: `ci:check` + `test:coverage`
-- API: `lint:check` + `build` + `test:cov`
-- Website: Python quality gate
-- Coverage artifacts uploaded for SonarQube integration
-
----
-
-## Environment Variables
-
-Each package has its own `.env.example`. Never modify `.env` files — copy from `.env.example`.
-
-### Mobile App (`packages/mobile-app/.env`)
-
-```bash
-EXPO_PUBLIC_API_URL=http://localhost:3000
-EXPO_PUBLIC_USE_DEMO_DATA=false
-```
-
-### API (`packages/api/.env`)
-
-```bash
-APP_ENV=development
-NODE_ENV=development
-JWT_SECRET=replace-with-a-long-random-secret
-JWT_EXPIRATION=86400s
-PORT=3000
-DATABASE_PATH=./data/brasse-bouillon.db
-```
-
----
-
-## Forbidden — Never Without Explicit User Request
+## Forbidden — never without explicit user request
 
 ### Config files — do not modify
 
-- `eslint.config.*`, `tsconfig.json`, `babel.config.js`, `jest.config.*`, `app.json`
-- `.env`, `.env.example` (except to add new documented variables)
+- `eslint.config.*`, `tsconfig.json`, `babel.config.js`, `jest.config.*`, `app.json`.
+- `.env`, `.env.example` (except to add a newly-documented variable).
 
 ### Directories — never touch
 
-- `node_modules/`, `.expo/`, `.git/`, `_archive/`
+- `node_modules/`, `.expo/`, `.git/`, `_archive/`.
 
 ### Patterns — never introduce
 
-- `any` TypeScript type
-- Default exports for screens, use-cases, or API modules
-- Direct `fetch()` calls outside `packages/mobile-app/src/core/http/http-client.ts`
-- Hardcoded colors, spacing, or font values in mobile app (use theme tokens)
-- Inline style objects in mobile app (use `StyleSheet.create()`)
-
----
+- `any` TypeScript type.
+- Default exports for screens, use-cases, or API modules.
+- Direct `fetch()` calls outside `packages/mobile-app/src/core/http/http-client.ts`.
+- Hardcoded colors, spacing, or font values in the mobile app (use theme tokens).
+- Inline style objects in the mobile app (use `StyleSheet.create()`).
 
 ## Project Log
 
-This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — a chronological, agent-agnostic operational logbook recording all significant project activity (merged PRs, architectural decisions, backlog changes).
+This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — chronological, agent-agnostic operational logbook (merged PRs, architectural decisions, backlog changes). Entries are add-only, most-recent first. **This is NOT `docs/changelog.md`** — the changelog tracks releases, the project log tracks daily operations. For the full authoring rules, see global skill `project-log-discipline`.
 
-**Rules:**
+## Architecture Decision Records — mandatory context for every PR review
 
-- Update after every merged PR, significant decision, or backlog change
-- Entries are add-only — never delete or modify past entries; add new entries at the top (most recent first)
-- This is NOT `docs/changelog.md` — the changelog tracks releases, the project log tracks daily operations
+**IMPORTANT** — Every agent (Copilot, Codex, human reviewer) MUST read the accepted ADRs under [docs/architecture/decisions/](docs/architecture/decisions/) before reviewing code. They define the structural rules of this project.
 
----
+Currently accepted ADRs (see each file for the `Status` line and full rationale):
+
+- [ADR-0001 — Build for today, design for tomorrow](docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md)
+- [ADR-0002 — Centralized NestJS backend](docs/architecture/decisions/0002-centralized-nestjs-backend.md)
+- [ADR-0003 — Consent as a single source of truth](docs/architecture/decisions/0003-consent-single-source-of-truth.md)
+- [ADR-0004 — Data locality hybrid principle](docs/architecture/decisions/0004-data-locality-hybrid-principle.md)
+- [ADR-0005 — Backend split (encyclopedia vs product)](docs/architecture/decisions/0005-backend-split-encyclopedia-vs-product.md)
+
+When a new ADR is accepted, add its file link here (no dates, no per-ADR summaries — open the file for the live status and content). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
 
 ## Documentation
 
 | Topic | Location |
 |-------|----------|
 | Project log | [PROJECT_LOG.md](PROJECT_LOG.md) |
+| Contributing guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Mobile App conventions | [packages/mobile-app/CLAUDE.md](packages/mobile-app/CLAUDE.md) |
 | Design system | [packages/mobile-app/docs/design-system.md](packages/mobile-app/docs/design-system.md) |
-| Contributing guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Definition of Done | [docs/project-management/definition-of-done.md](docs/project-management/definition-of-done.md) |
 | Definition of Ready | [docs/project-management/definition-of-ready.md](docs/project-management/definition-of-ready.md) |
 | Sprint structure | [docs/project-management/sprint-definition.md](docs/project-management/sprint-definition.md) |
@@ -171,26 +111,6 @@ This project maintains a [PROJECT_LOG.md](PROJECT_LOG.md) — a chronological, a
 | Architecture | [docs/architecture/](docs/architecture/) |
 | Architecture Decision Records | [docs/architecture/decisions/](docs/architecture/decisions/) |
 
----
+## Project-local Claude tooling
 
-## Architecture Decision Records — mandatory context for every PR review
-
-Every agent (Copilot, Codex, and any human reviewer) MUST read the
-accepted ADRs under [docs/architecture/decisions/](docs/architecture/decisions/)
-before reviewing code. These documents define the structural rules of
-this project.
-
-**Active accepted ADRs** (as of 2026-04-24):
-
-- [ADR-0001 — Build for today, design for tomorrow](docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md)
-  — Five-clause rule, four forbidden anti-patterns, three tolerated
-  exceptions. Applies to every new piece of code.
-- [ADR-0002 — Centralized NestJS backend for all external data sources](docs/architecture/decisions/0002-centralized-nestjs-backend.md)
-  — Mobile talks only to our NestJS API; no direct third-party calls
-  from the mobile bundle.
-- [ADR-0003 — Consent as a single source of truth](docs/architecture/decisions/0003-consent-single-source-of-truth.md)
-  — One canonical consent store on the mobile app; feature-namespaced,
-  append-only, GDPR-compliant by construction.
-
-When reviewing a PR, flag any diff that violates these ADRs. Cite the
-ADR number and clause in the review comment.
+- Subagent `pr-pre-reviewer` — local pre-push review (ADR violations, forbidden patterns). See [.claude/agents/pr-pre-reviewer.md](.claude/agents/pr-pre-reviewer.md).

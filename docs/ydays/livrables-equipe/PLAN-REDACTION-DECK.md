@@ -620,8 +620,10 @@ Schéma d'infrastructure plein écran (Excalidraw ou Mermaid exporté SVG) + 2 l
        ↓ HTTPS
 🛡️ API NestJS (backend.brasse-bouillon.com sur Klouders)
        ↓
-   ├─ 🗄️ Postgres/SQLite (TypeORM)
+   ├─ 🗄️ SQLite (TypeORM + better-sqlite3)
    └─ 🤖 Encyclopédie FastAPI (YOLOv8 + EasyOCR)
+
+🌐 Site vitrine statique HTML/CSS/JS (Cloudflare Pages)
 ```
 
 Alternative : reprendre le schéma p17 du draft actuel (Klouders + LB + Backend + Semaphore runner + Wifi Ynov) et le propre-iser.
@@ -631,7 +633,7 @@ Alternative : reprendre le schéma p17 du draft actuel (Klouders + LB + Backend 
 
 ### Notes orales (1:30 chronométrées, dites par Kévin)
 
-> "Côté technique, monorepo qui regroupe quatre packages : mobile React Native et Expo, API NestJS, encyclopédie bière Python avec FastAPI plus YOLOv8 et EasyOCR, et le site vitrine VitePress. Le mobile ne parle qu'à notre API — jamais à un service tiers directement. C'est une décision documentée (ADR-0002) : centraliser pour valider, mettre en cache, garantir la conformité RGPD. Quand un utilisateur scanne une bouteille, le mobile interroge l'API, qui interroge l'encyclopédie Python — qui combine YOLOv8 pour la détection visuelle et EasyOCR pour la lecture des étiquettes."
+> "Côté technique, monorepo qui regroupe quatre packages : mobile React Native et Expo, API NestJS avec base SQLite via TypeORM, encyclopédie bière Python avec FastAPI plus YOLOv8 et EasyOCR, et le site vitrine en HTML/CSS/JS statique servi par Cloudflare Pages. Le mobile ne parle qu'à notre API — jamais à un service tiers directement. C'est une décision documentée (ADR-0002) : centraliser pour valider, mettre en cache, garantir la conformité RGPD. Quand un utilisateur scanne une bouteille, le mobile interroge l'API, qui interroge l'encyclopédie Python — qui combine YOLOv8 pour la détection visuelle et EasyOCR pour la lecture des étiquettes."
 
 ### À NE PAS faire
 
@@ -670,27 +672,29 @@ Idée centrale : Architecture monorepo + backend centralisé (schéma uniquement
 
 | Chiffre 1 | Chiffre 2 | Chiffre 3 |
 |---|---|---|
-| **647** | **0** | **100 %** |
-| tests automatisés | type `any` TypeScript | CI sur chaque PR |
-| *(407 mobile + 240 API)* | *(strict mode partout)* | *(GitHub Actions · lint + typecheck + tests)* |
+| **647** | **strict** | **100 %** |
+| tests automatisés | TypeScript mode | CI sur chaque PR |
+| *(407 mobile + 240 API)* | *(règle `no-explicit-any` ESLint, exceptions tracées)* | *(GitHub Actions · lint + typecheck + tests)* |
 
 **Ligne basse (engagement futur)** :
 > 🔬 *Tests utilisateurs : 4-5 sessions planifiées sur bêta — méthodologie : prototype Figma + enregistrement + synthèse des récurrences (coordination Pablo).*
 
 ### Notes orales (1:00 chronométrée, dites par Benoît ou Kévin)
 
-> "647 tests automatisés tournent à chaque pull request — 407 sur le mobile, 240 sur l'API. Aucun type approximatif : TypeScript strict partout. Et au-delà des tests automatiques, on s'engage sur 4 à 5 sessions de tests utilisateurs sur version bêta avant le lancement. Méthodologie classique : prototype, enregistrement de session, synthèse des récurrences. Pablo coordonne cette phase."
+> "647 tests automatisés tournent à chaque pull request — 407 sur le mobile, 240 sur l'API. TypeScript strict mode partout, règle `no-explicit-any` activée — les rares exceptions sont documentées dans le code. Et au-delà des tests automatiques, on s'engage sur 4 à 5 sessions de tests utilisateurs sur version bêta avant le lancement. Méthodologie classique : prototype, enregistrement de session, synthèse des récurrences. Pablo coordonne cette phase."
 
 ### À NE PAS faire
 
 - ❌ **NE PAS** prétendre avoir réalisé des tests utilisateurs (le CR jury 2026-05-06 dit explicitement qu'ils ne sont pas faits — honnêteté = crédibilité)
+- ❌ **NE PAS** prétendre "0 type any" — il reste 1 cast assumé dans `packages/api/src/auth/decorators/current-user.decorator.ts:55` (Express Request augmenté) à corriger en v0.2
 - ❌ Pas de coverage % (chiffre fragile / non disponible)
 - ❌ Pas de listing des frameworks de test (Jest, supertest, etc.)
 
 ### Ressources
 
 - Chiffres à confirmer la veille via `npm run test:all` (ajuster si différent)
-- Convention test H/S/E : [memory `feedback_test_happy_sad_edge`]
+- Convention test H/S/E (Happy / Sad / Edge cases) — chaque suite couvre les 3 chemins. Voir [packages/mobile-app/CLAUDE.md](../../../packages/mobile-app/CLAUDE.md) §Testing
+- Audit des `any` résiduels (1 occurrence) : `packages/api/src/auth/decorators/current-user.decorator.ts:55` — à corriger en v0.2
 
 ### Annotation Canva
 
@@ -878,7 +882,9 @@ Grille 2 × 2 équilibrée.
 
 - Contenu rédigé partiellement : draft PDF p28-35 (segments A, B, D — retirer segment C qui passe en S12)
 - Bullets RGPD : livrable A3 (Fabien) — drop dans [A3-rgpd-bullets/](A3-rgpd-bullets/)
-- Détail légal : [docs/ydays/outputs/legal-structure-options.md](../outputs/legal-structure-options.md)
+- Détail légal : [docs/ydays/outputs/statut-juridique-analyse.md](../outputs/statut-juridique-analyse.md)
+- Capex + financement : [docs/ydays/outputs/capex-financement.md](../outputs/capex-financement.md)
+- Options de financement public : [docs/ydays/outputs/financement-options-fr.md](../outputs/financement-options-fr.md)
 
 ### Annotation Canva
 

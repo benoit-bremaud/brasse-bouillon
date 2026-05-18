@@ -8,8 +8,10 @@
     chore(claude-tooling): add hooks for python and mobile-ts
 
   Common types: feat, fix, refactor, docs, test, chore, perf, style, build, ci
-  Common scopes: mobile-app, api, website, beer-encyclopedia, claude-tooling,
-                 monorepo, infra
+  Release-please scopes (canonical, listed in CONTRIBUTING.md § Commit Convention):
+                 mobile-app, api, website, beer-encyclopedia, monorepo, ci
+  Informal scopes (used in commits, no release-please bump):
+                 claude-tooling, infra, root, ydays
 -->
 
 ## Summary
@@ -33,7 +35,7 @@
 - [ ] No `any`, no default exports for screens/use-cases/API modules
 - [ ] No inline styles, no hardcoded colors, spacing, or font values in `packages/mobile-app/` (use design tokens)
 - [ ] No new ADR violations (see [docs/architecture/decisions/](docs/architecture/decisions/))
-- [ ] `PROJECT_LOG.md` will be updated after merge (entry per `project-log-entry` skill)
+- [ ] `PROJECT_LOG.md` will be updated after merge (entry per the [`project-log-entry`](.claude/skills/project-log-entry/SKILL.md) skill)
 
 ## Linked issue
 

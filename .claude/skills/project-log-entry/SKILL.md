@@ -5,7 +5,7 @@ description: Append a new entry to `PROJECT_LOG.md` for a freshly merged PR, a s
 
 # Brasse-Bouillon — PROJECT_LOG.md entry
 
-This skill is the brasse-bouillon overlay on the global [`project-log-discipline`](../../../skills/project-log-discipline/SKILL.md) skill. The global skill defines the discipline (what to log, audit cadence, anti-patterns); this one defines this repo's **exact format** so entries stay consistent.
+This skill is the brasse-bouillon overlay on the global `project-log-discipline` skill (loaded from `~/.claude/skills/project-log-discipline/SKILL.md`, user-scoped — invoke by name, no in-repo link possible). The global skill defines the discipline (what to log, audit cadence, anti-patterns); this one defines this repo's **exact format** so entries stay consistent.
 
 ## When to use
 
@@ -18,7 +18,7 @@ Do NOT log: feature-branch commits, closed-but-unmerged issues, routine review b
 
 ## Step 1 — Locate the insertion point
 
-Open [`PROJECT_LOG.md`](../../../../PROJECT_LOG.md). The file is **reverse-chronological** (most recent first). Entries are grouped under `## YYYY-MM-DD` date headings.
+Open [`PROJECT_LOG.md`](../../../PROJECT_LOG.md). The file is **reverse-chronological** (most recent first). Entries are grouped under `## YYYY-MM-DD` date headings.
 
 - If today's date heading already exists → add the new entry **at the top of that day's section**, before any other entry from today.
 - If today's date heading does not exist → insert a new `## YYYY-MM-DD` heading at the very top of the file (after the title + intro), and put the entry under it.
@@ -109,4 +109,4 @@ done | head -20
 
 A clean run prints nothing; any `STALE:` line points at an entry that references a SHA that no longer exists on `main` (likely a force-push or branch rewrite — investigate).
 
-For broader retroactive audits (gaps, drift, orphans), see the audit procedure in the global skill [`project-log-discipline`](../../../skills/project-log-discipline/SKILL.md).
+For broader retroactive audits (gaps, drift, orphans), see the audit procedure in the global `project-log-discipline` skill (invoke by name; user-scoped at `~/.claude/skills/project-log-discipline/SKILL.md`).

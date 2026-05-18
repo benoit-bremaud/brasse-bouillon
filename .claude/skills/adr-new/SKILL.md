@@ -44,7 +44,7 @@ Default status: `Proposed`. Mark as `Accepted` only when the user confirms it ha
 
 File: `docs/architecture/decisions/NNNN-<slug>.md`
 
-Template (mirrors the structure used in [ADR-0001](../../../../docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md) through ADR-0005):
+Template (mirrors the structure used in [ADR-0001](../../../docs/architecture/decisions/0001-build-for-today-design-for-tomorrow.md) through ADR-0005):
 
 ```markdown
 # ADR-NNNN — <Title in Title Case>

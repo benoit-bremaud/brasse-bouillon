@@ -5,7 +5,7 @@ description: Brasse-Bouillon-specific procedure for opening a pull request — w
 
 # Brasse-Bouillon — PR creation procedure
 
-This skill is the brasse-bouillon-specific overlay on the generic [`pr-create`](../../../skills/pr-create/SKILL.md) skill loaded from `~/.claude/skills/`. The generic skill defines the 6-step gh API procedure; this one fills in the constants and conventions specific to this monorepo.
+This skill is the brasse-bouillon-specific overlay on the generic `pr-create` skill loaded from `~/.claude/skills/pr-create/SKILL.md` (user-scoped, outside this repo — invoke it by name, no in-repo link possible). The generic skill defines the 6-step gh API procedure; this one fills in the constants and conventions specific to this monorepo.
 
 ## Step 1 — PR body
 
@@ -119,6 +119,6 @@ gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/comments \
 2. Open the PR (step 1).
 3. Apply labels + assignee + project + Copilot + milestone (steps 2–5) — these can run in parallel.
 4. Post the French FYI comment (step 6).
-5. Wait for Copilot review per skill [`pr-review-procedure`](../../../../.claude/skills/pr-review-procedure/SKILL.md) before any merge.
+5. Wait for Copilot review per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge.
 
 Never auto-merge. Never use `--auto` or `--admin`. Per the global merge gate, present a readiness summary in English and wait for explicit textual approval.

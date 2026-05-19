@@ -78,14 +78,16 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
     (listPublicRecipes as jest.Mock).mockReset();
   });
 
-  it("renders the Mes Recettes header and the two hub sections", async () => {
+  it("renders the Recettes hub header and the two hub sections", async () => {
     (listRecipes as jest.Mock).mockResolvedValue([FAKE_MY_RECIPE]);
     (listPublicRecipes as jest.Mock).mockResolvedValue([FAKE_PUBLIC_RECIPE]);
 
     renderHub();
 
-    expect(await screen.findByText("Mes Recettes")).toBeTruthy();
-    expect(screen.getByText("Ton hub de recettes de brassage")).toBeTruthy();
+    expect(await screen.findByText("Recettes")).toBeTruthy();
+    expect(
+      screen.getByText("Mon carnet et les recettes de la communauté"),
+    ).toBeTruthy();
     expect(screen.getByTestId("hub-my-recipes-section")).toBeTruthy();
     expect(screen.getByTestId("hub-discover-section")).toBeTruthy();
     expect(screen.getByText("Mes recettes")).toBeTruthy();

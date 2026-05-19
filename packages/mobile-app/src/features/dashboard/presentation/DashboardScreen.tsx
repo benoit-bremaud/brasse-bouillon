@@ -1,4 +1,4 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
@@ -12,12 +12,14 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
+import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
 import { Ionicons } from "@expo/vector-icons";
+import { demoRecipes } from "@/mocks/demo-data";
 import { useQuery } from "@tanstack/react-query";
 
 // Time constants.
@@ -162,35 +164,6 @@ function renderMoreSectionItem(
       <Ionicons name={item.icon} size={18} color={colors.brand.secondary} />
       <Text style={styles.sheetItemLabel}>{item.label}</Text>
       <Ionicons name="chevron-forward" size={16} color={colors.neutral.muted} />
-    </Pressable>
-  );
-}
-
-type HeaderActionButtonProps = {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  accessibilityLabel: string;
-  onPress: () => void;
-};
-
-function HeaderActionButton({
-  icon,
-  label,
-  accessibilityLabel,
-  onPress,
-}: HeaderActionButtonProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.headerActionButton,
-        pressed && styles.pressed,
-      ]}
-    >
-      <Ionicons name={icon} size={18} color={colors.brand.secondary} />
-      <Text style={styles.headerActionButtonText}>{label}</Text>
     </Pressable>
   );
 }
@@ -512,6 +485,81 @@ export function DashboardScreen() {
     [handleOpenProfilePanel, router],
   );
 
+  // Demo-mode hero: pin the fil-rouge mash batch as the dashboard
+  // hero so the marketing screenshot (and the soutenance live demo)
+  // open on a narrative "Marie is right in the middle of brewing
+  // 'La Première du dimanche'" card instead of an empty KPI grid.
+  // Returns null in live mode (or when the fil-rouge batch is not
+  // present), in which case the existing KPI + alerts layout shows.
+  const heroBatchInfo = useMemo(() => {
+    if (!dataSource.useDemoData) {
+      return null;
+    }
+    const heroBatch = batches.find(
+      (b) => b.id === "b-demo-pdd-mash" && b.status === "in_progress",
+    );
+    if (!heroBatch) {
+      return null;
+    }
+    const recipe = demoRecipes.find((r) => r.id === heroBatch.recipeId);
+    if (!recipe) {
+      return null;
+    }
+    const stepIndex = clampStepIndex(heroBatch.currentStepOrder);
+    const step = BREWING_STEPS[stepIndex];
+    const startedAt = parseDateOrNow(heroBatch.startedAt, referenceDate);
+    const elapsedMs = Math.max(
+      0,
+      referenceDate.getTime() - startedAt.getTime(),
+    );
+    const expectedMin = Math.round(step.expectedHours * 60);
+    const elapsedMin = Math.min(Math.round(elapsedMs / 60_000), expectedMin);
+    return {
+      batchId: heroBatch.id,
+      recipeName: recipe.name,
+      volumeLiters: recipe.stats?.volumeLiters ?? 5,
+      og: recipe.stats?.og ?? 1.048,
+      ibu: recipe.stats?.ibu ?? 22,
+      stepLabel: step.label,
+      stepIndex,
+      elapsedMin,
+      expectedMin,
+    };
+  }, [batches, referenceDate]);
+
+  // Demo-mode ribbon: three condensed figures pinned right under the
+  // hero card so the dashboard keeps its at-a-glance feel without the
+  // heavy KPI grid. All three values derive from `batches` so they
+  // stay consistent with the rest of the demo dataset.
+  const ribbonInfo = useMemo(() => {
+    if (!dataSource.useDemoData) {
+      return null;
+    }
+    const totalBrassins = batches.length;
+    const fermentingBatch = batches.find(
+      (b) => b.id === "b-demo-pdd-ferm" && b.fermentationStartedAt,
+    );
+    let fermentationDay: number | null = null;
+    if (fermentingBatch?.fermentationStartedAt) {
+      const startedAt = parseDateOrNow(
+        fermentingBatch.fermentationStartedAt,
+        referenceDate,
+      );
+      fermentationDay = Math.max(
+        0,
+        Math.floor((referenceDate.getTime() - startedAt.getTime()) / DAY_MS),
+      );
+    }
+    const mySignedRecipes = demoRecipes.filter(
+      (r) => r.ownerId === session?.user.id,
+    ).length;
+    return {
+      totalBrassins,
+      fermentationDay,
+      mySignedRecipes,
+    };
+  }, [batches, referenceDate, session?.user.id]);
+
   const kpis = useMemo(
     () => [
       {
@@ -549,131 +597,332 @@ export function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerCard}>
-          <View style={styles.headerIdentity}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {displayName.charAt(0).toUpperCase()}
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerIdentity}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+              <Text style={styles.headerName} numberOfLines={1}>
+                Salut {displayName} 👋
               </Text>
             </View>
-            <View style={styles.headerText}>
-              <Text style={styles.headerName} numberOfLines={1}>
-                {displayName}
-              </Text>
-              <Text style={styles.headerSubtitle} numberOfLines={1}>
-                Tableau de bord brassage
-              </Text>
+
+            <View style={styles.headerActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Ouvrir Mon compte"
+                onPress={handleOpenProfilePanel}
+                style={({ pressed }) => [
+                  styles.headerIconButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="person-circle-outline"
+                  size={22}
+                  color={colors.brand.secondary}
+                />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Voir plus de sections"
+                onPress={() => setIsMoreSheetVisible(true)}
+                style={({ pressed }) => [
+                  styles.headerIconButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="grid-outline"
+                  size={22}
+                  color={colors.brand.secondary}
+                />
+              </Pressable>
             </View>
           </View>
 
-          <View style={styles.headerActions}>
-            <HeaderActionButton
-              icon="person-circle-outline"
-              label="Mon compte"
-              accessibilityLabel="Ouvrir Mon compte"
-              onPress={handleOpenProfilePanel}
-            />
-            <HeaderActionButton
-              icon="grid-outline"
-              label="Voir plus"
-              accessibilityLabel="Voir plus de sections"
-              onPress={() => setIsMoreSheetVisible(true)}
-            />
-          </View>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>
+            {heroBatchInfo
+              ? `${heroBatchInfo.stepLabel} en cours · ${heroBatchInfo.recipeName}`
+              : "Tableau de bord brassage"}
+          </Text>
         </View>
 
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Vue d’ensemble</Text>
-          </View>
+        {heroBatchInfo ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Suivre le brassin ${heroBatchInfo.recipeName}`}
+            onPress={() =>
+              router.push(`/(app)/batches/${heroBatchInfo.batchId}`)
+            }
+            style={({ pressed }) => [
+              styles.heroCard,
+              pressed && styles.heroCardPressed,
+            ]}
+          >
+            <View style={styles.heroBadgeRow}>
+              <Ionicons name="flask" size={14} color={colors.neutral.white} />
+              <Text style={styles.heroBadgeText}>En cours</Text>
+            </View>
 
-          <View style={styles.kpiRow}>
-            {kpis.map((kpi) => (
-              <View key={kpi.id} style={styles.kpiCard}>
-                <View style={styles.kpiTopRow}>
-                  <Ionicons name={kpi.icon} size={18} color={kpi.color} />
-                  <Text style={styles.kpiValue}>{kpi.value}</Text>
-                </View>
-                <Text style={styles.kpiLabel}>{kpi.label}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
+            <Text style={styles.heroTitle}>{heroBatchInfo.recipeName}</Text>
+            <Text style={styles.heroSubtitle}>
+              {heroBatchInfo.volumeLiters} L · OG {heroBatchInfo.og.toFixed(3)}{" "}
+              · {heroBatchInfo.ibu} IBU
+            </Text>
 
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Alertes & échéances</Text>
-            <Text style={styles.sectionMeta}>Temps réel</Text>
-          </View>
-
-          {filteredAlerts.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={28}
-                color={colors.semantic.success}
-              />
-              <Text style={styles.emptyStateText}>
-                Aucune alerte sur la période
+            <View style={styles.heroStepRow}>
+              {BREWING_STEPS.slice(0, 3).map((step, index) => {
+                const isActive = index <= heroBatchInfo.stepIndex;
+                return (
+                  <View
+                    key={step.label}
+                    style={[
+                      styles.heroDot,
+                      isActive ? styles.heroDotActive : null,
+                    ]}
+                  />
+                );
+              })}
+              <Text style={styles.heroStepLabel}>
+                {heroBatchInfo.stepLabel} · {heroBatchInfo.elapsedMin} min sur{" "}
+                {heroBatchInfo.expectedMin}
               </Text>
             </View>
-          ) : (
-            <View style={styles.alertsList}>
-              {filteredAlerts.slice(0, 3).map((alert) => {
-                const statusColors = getStatusColors(alert.status);
 
-                return (
-                  <View key={alert.id} style={styles.alertItem}>
-                    <View style={styles.alertContent}>
-                      <Text style={styles.alertBatchName}>
-                        {alert.batchName}
-                      </Text>
-                      <Text style={styles.alertMetaText}>
-                        {alert.currentStepLabel} → {alert.nextStepLabel}
-                      </Text>
-                      <Text style={styles.alertDueText}>
-                        {formatRelativeDue(alert.dueAt, referenceDate)}
-                      </Text>
-                    </View>
+            <View style={styles.heroCta}>
+              <Text style={styles.heroCtaText}>Suivre mon brassin</Text>
+              <Ionicons
+                name="arrow-forward"
+                size={16}
+                color={colors.neutral.white}
+              />
+            </View>
+          </Pressable>
+        ) : (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Vue d’ensemble</Text>
+            </View>
 
-                    <View style={styles.alertActions}>
-                      <View
-                        style={[
-                          styles.statusPill,
-                          { backgroundColor: statusColors.background },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.statusPillText,
-                            { color: statusColors.foreground },
-                          ]}
-                        >
-                          {alert.status}
+            <View style={styles.kpiRow}>
+              {kpis.map((kpi) => (
+                <View key={kpi.id} style={styles.kpiCard}>
+                  <View style={styles.kpiTopRow}>
+                    <Ionicons name={kpi.icon} size={18} color={kpi.color} />
+                    <Text style={styles.kpiValue}>{kpi.value}</Text>
+                  </View>
+                  <Text style={styles.kpiLabel}>{kpi.label}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        )}
+
+        {heroBatchInfo && ribbonInfo ? (
+          <View style={styles.ribbonRow}>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>{ribbonInfo.totalBrassins}</Text>
+              <Text style={styles.ribbonLabel}>brassins</Text>
+            </View>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>
+                {ribbonInfo.mySignedRecipes}
+              </Text>
+              <Text style={styles.ribbonLabel}>recette signée</Text>
+            </View>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>
+                {ribbonInfo.fermentationDay !== null
+                  ? `J+${ribbonInfo.fermentationDay}`
+                  : "—"}
+              </Text>
+              <Text style={styles.ribbonLabel}>fermentation</Text>
+            </View>
+          </View>
+        ) : null}
+
+        {heroBatchInfo ? (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>À explorer</Text>
+            </View>
+            <View style={styles.exploreList}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Scanner une bière"
+                onPress={() => router.push("/(app)/dashboard/scan")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="barcode-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Scanne une bière qui t’inspire
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    Retrouve sa fiche, vois si tu peux la cloner
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Découvrir l'académie"
+                onPress={() => router.push("/(app)/academy")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="school-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Apprends un nouveau geste
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    L’académie te guide style par style
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Créer ma propre recette"
+                onPress={() => router.push("/(app)/recipes/catalog")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="document-text-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Crée ta propre recette
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    Pioche dans le catalogue et adapte
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+            </View>
+          </Card>
+        ) : null}
+
+        {!heroBatchInfo && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Alertes & échéances</Text>
+              <Text style={styles.sectionMeta}>Temps réel</Text>
+            </View>
+
+            {filteredAlerts.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={28}
+                  color={colors.semantic.success}
+                />
+                <Text style={styles.emptyStateText}>
+                  Aucune alerte sur la période
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.alertsList}>
+                {filteredAlerts.slice(0, 3).map((alert) => {
+                  const statusColors = getStatusColors(alert.status);
+
+                  return (
+                    <View key={alert.id} style={styles.alertItem}>
+                      <View style={styles.alertContent}>
+                        <Text style={styles.alertBatchName}>
+                          {alert.batchName}
+                        </Text>
+                        <Text style={styles.alertMetaText}>
+                          {alert.currentStepLabel} → {alert.nextStepLabel}
+                        </Text>
+                        <Text style={styles.alertDueText}>
+                          {formatRelativeDue(alert.dueAt, referenceDate)}
                         </Text>
                       </View>
 
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`Ouvrir ${alert.batchName}`}
-                        onPress={() =>
-                          router.push(`/(app)/batches/${alert.batchId}`)
-                        }
-                        style={({ pressed }) => [
-                          styles.openBatchButton,
-                          pressed && styles.pressed,
-                        ]}
-                      >
-                        <Text style={styles.openBatchButtonText}>
-                          Ouvrir le brassin
-                        </Text>
-                      </Pressable>
+                      <View style={styles.alertActions}>
+                        <View
+                          style={[
+                            styles.statusPill,
+                            { backgroundColor: statusColors.background },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.statusPillText,
+                              { color: statusColors.foreground },
+                            ]}
+                          >
+                            {alert.status}
+                          </Text>
+                        </View>
+
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Ouvrir ${alert.batchName}`}
+                          onPress={() =>
+                            router.push(`/(app)/batches/${alert.batchId}`)
+                          }
+                          style={({ pressed }) => [
+                            styles.openBatchButton,
+                            pressed && styles.pressed,
+                          ]}
+                        >
+                          <Text style={styles.openBatchButtonText}>
+                            Ouvrir le brassin
+                          </Text>
+                        </Pressable>
+                      </View>
                     </View>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </Card>
+                  );
+                })}
+              </View>
+            )}
+          </Card>
+        )}
 
         <Card style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -836,10 +1085,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.neutral.border,
-    padding: spacing.sm,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  headerTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: spacing.sm,
   },
   headerIdentity: {
     flexDirection: "row",
@@ -848,15 +1101,19 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  headerText: {
-    flex: 1,
-    minWidth: 0,
-  },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
     flexShrink: 0,
+  },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.background,
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatar: {
     width: 40,
@@ -872,12 +1129,15 @@ const styles = StyleSheet.create({
     color: colors.brand.secondary,
   },
   headerName: {
-    fontSize: typography.size.body,
+    flex: 1,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
   headerSubtitle: {
-    fontSize: typography.size.caption,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
     color: colors.neutral.textSecondary,
   },
   headerActionButton: {
@@ -896,6 +1156,141 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     borderRadius: radius.lg,
+  },
+  heroCard: {
+    backgroundColor: colors.brand.primary,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.md,
+  },
+  heroCardPressed: {
+    opacity: 0.92,
+  },
+  heroBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    marginBottom: spacing.sm,
+    opacity: 0.85,
+  },
+  heroBadgeText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  heroTitle: {
+    color: colors.neutral.white,
+    fontSize: typography.size.h1,
+    lineHeight: typography.lineHeight.h1,
+    fontWeight: typography.weight.bold,
+  },
+  heroSubtitle: {
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+    opacity: 0.85,
+  },
+  heroStepRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    marginTop: spacing.md,
+  },
+  heroDot: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral.white,
+    opacity: 0.35,
+  },
+  heroDotActive: {
+    opacity: 1,
+  },
+  heroStepLabel: {
+    flex: 1,
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+    marginLeft: spacing.xs,
+  },
+  heroCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.white,
+  },
+  heroCtaText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  ribbonRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  ribbonItem: {
+    flex: 1,
+    backgroundColor: colors.neutral.white,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: "center",
+  },
+  ribbonValue: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+  },
+  ribbonLabel: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: spacing.xxs,
+    textAlign: "center",
+  },
+  exploreList: {
+    gap: spacing.xs,
+  },
+  exploreItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  exploreIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  exploreText: {
+    flex: 1,
+  },
+  exploreTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  exploreSubtitle: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: 2,
   },
   sectionHeader: {
     flexDirection: "row",

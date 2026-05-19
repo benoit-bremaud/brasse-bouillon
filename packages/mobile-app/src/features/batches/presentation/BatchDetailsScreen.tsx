@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
 import {
@@ -140,21 +140,20 @@ export function BatchDetailsScreen({ batchId }: Props) {
         contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Card style={styles.stepCard}>
-            <View style={styles.stepHeader}>
-              <Text style={styles.stepTitle}>
-                {item.stepOrder + 1}. {item.label}
-              </Text>
-              <Badge
-                label={item.status}
-                variant={
-                  item.status === "completed"
-                    ? "success"
-                    : item.status === "in_progress"
-                      ? "info"
-                      : "neutral"
-                }
-              />
-            </View>
+            <Badge
+              label={item.status}
+              variant={
+                item.status === "completed"
+                  ? "success"
+                  : item.status === "in_progress"
+                    ? "info"
+                    : "neutral"
+              }
+              placement="corner"
+            />
+            <Text style={styles.stepTitle} numberOfLines={1}>
+              {item.stepOrder + 1}. {item.label}
+            </Text>
             <Text style={styles.stepMeta}>{item.type}</Text>
             {item.description ? (
               <Text style={styles.stepDescription}>{item.description}</Text>
@@ -194,17 +193,11 @@ const styles = StyleSheet.create({
   list: {},
   stepCard: {
     marginBottom: spacing.xs,
-  },
-  stepHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    paddingTop: spacing.md,
   },
   stepTitle: {
     fontWeight: typography.weight.medium,
     color: colors.neutral.textPrimary,
-    flex: 1,
-    marginRight: spacing.xs,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
   },

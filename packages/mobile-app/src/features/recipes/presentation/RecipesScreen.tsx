@@ -97,8 +97,8 @@ export function RecipesScreen() {
   return (
     <Screen isLoading={isFirstLoading} error={error} onRetry={handleRefetch}>
       <ListHeader
-        title="Mes Recettes"
-        subtitle="Ton hub de recettes de brassage"
+        title="Recettes"
+        subtitle="Mon carnet et les recettes de la communauté"
       />
 
       <FlatList

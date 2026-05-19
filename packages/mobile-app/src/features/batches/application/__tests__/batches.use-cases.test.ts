@@ -61,10 +61,10 @@ describe("batches use-cases", () => {
   });
 
   it("returns demo batch details when id exists", async () => {
-    const batch = await getBatchDetails("b-demo-1");
+    const batch = await getBatchDetails("b-demo-pdd-mash");
 
     expect(batch).toBeTruthy();
-    expect(batch?.id).toBe("b-demo-1");
+    expect(batch?.id).toBe("b-demo-pdd-mash");
     expect(mockedGetMineById).not.toHaveBeenCalled();
   });
 
@@ -76,10 +76,10 @@ describe("batches use-cases", () => {
   });
 
   it("returns demo batch on complete step when demo data is enabled", async () => {
-    const batch = await completeCurrentBatchStep("b-demo-1");
+    const batch = await completeCurrentBatchStep("b-demo-pdd-mash");
 
     expect(batch).toBeTruthy();
-    expect(batch?.id).toBe("b-demo-1");
+    expect(batch?.id).toBe("b-demo-pdd-mash");
     expect(mockedCompleteCurrentStep).not.toHaveBeenCalled();
   });
 
@@ -147,12 +147,12 @@ describe("batches use-cases", () => {
     expect(updatedBatch?.status).toBe("completed");
   });
 
-  it("throws when starting a batch in demo mode", async () => {
+  it("returns the fil-rouge mash batch when starting a batch in demo mode", async () => {
     dataSource.useDemoData = true;
 
-    await expect(startBatch("r1")).rejects.toThrow(
-      "Starting a batch is disabled when using demo data. Switch to live data to start a batch.",
-    );
+    const batch = await startBatch("r-demo-pdd");
+
+    expect(batch.id).toBe("b-demo-pdd-mash");
     expect(mockedStartBatchApi).not.toHaveBeenCalled();
   });
 

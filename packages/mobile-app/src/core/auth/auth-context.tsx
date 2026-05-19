@@ -69,7 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         const token = await authSession.load();
         if (token) {
-          if (dataSource.useDemoData && token === DEMO_ACCESS_TOKEN) {
+          // A stored DEMO_ACCESS_TOKEN means the previous session was
+          // created via the demo trigger credentials. Honour it without
+          // hitting the backend — and re-arm `dataSource.useDemoData`
+          // since the runtime toggle resets to its boot-time value on
+          // every app reload. Without this, a demo session restored
+          // after a reload would block the sign-in screen behind an
+          // HTTP timeout against a backend that may not even be
+          // reachable (soutenance / offline demos).
+          if (token === DEMO_ACCESS_TOKEN) {
+            dataSource.useDemoData = true;
             setSession(createDemoSession());
           } else {
             try {

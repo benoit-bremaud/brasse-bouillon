@@ -55,7 +55,7 @@ export default function AppLayout() {
           <Tabs.Screen
             name="recipes"
             options={{
-              title: "Recipes",
+              title: "Recettes",
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="book-outline" size={size} color={color} />
               ),
@@ -109,6 +109,13 @@ export default function AppLayout() {
             options={{
               href: null,
               title: "Profil",
+            }}
+          />
+          <Tabs.Screen
+            name="social"
+            options={{
+              href: null,
+              title: "Communauté",
             }}
           />
         </Tabs>

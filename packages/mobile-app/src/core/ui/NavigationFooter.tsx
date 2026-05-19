@@ -9,6 +9,7 @@ import Animated, {
 import { colors, spacing } from "@/core/theme";
 
 import { Ionicons } from "@expo/vector-icons";
+import { dataSource } from "@/core/data/data-source";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function useNavigationFooterOffset() {
@@ -33,7 +34,7 @@ type NavItem = {
 // the v0.1.0-beta1 audit decision: Accueil · Brassins · Recettes ·
 // Scan ⭐ · Académie · Profil. Boutique and Outils remain reachable
 // from the dashboard "Voir plus" sheet.
-const NAV_ITEMS: NavItem[] = [
+const BASE_NAV_ITEMS: NavItem[] = [
   {
     label: "Accueil",
     icon: "home-outline",
@@ -72,6 +73,31 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+// Demo-mode-only "Communauté" slot, inserted between Académie and Profil.
+// Surfaces the SocialFeedScreen mockup behind the same dock as the rest
+// of the app so the soutenance live demo can navigate to it without
+// typing a URL. Hidden in live mode so production users never see the
+// community placeholder (the real social feature is deferred to v0.2).
+const COMMUNITY_NAV_ITEM: NavItem = {
+  label: "Communauté",
+  icon: "people-outline",
+  href: "/social",
+  routePrefix: "/social",
+};
+
+function buildNavItems(useDemoData: boolean): NavItem[] {
+  if (!useDemoData) {
+    return BASE_NAV_ITEMS;
+  }
+  // Insert Communauté just before the last slot (Profil) so the
+  // persona-anchor stays at the far right of the dock.
+  const profileSlot = BASE_NAV_ITEMS.at(-1);
+  if (!profileSlot) {
+    return BASE_NAV_ITEMS;
+  }
+  return [...BASE_NAV_ITEMS.slice(0, -1), COMMUNITY_NAV_ITEM, profileSlot];
+}
+
 function isFooterItemActive(pathname: string, routePrefix: string): boolean {
   return pathname === routePrefix || pathname.startsWith(`${routePrefix}/`);
 }
@@ -81,12 +107,12 @@ function isFooterItemActive(pathname: string, routePrefix: string): boolean {
 // and Scan (prefix `/dashboard/scan`) would match — and the naive
 // `findIndex` would return Accueil because it is declared first.
 // Picking the most specific prefix avoids that collision while
-// keeping NAV_ITEMS in its visual order. Issue #613.
-function findActiveNavIndex(pathname: string): number {
+// keeping the items in their visual order. Issue #613.
+function findActiveNavIndex(pathname: string, items: NavItem[]): number {
   let bestIndex = -1;
   let bestLength = -1;
-  for (let index = 0; index < NAV_ITEMS.length; index += 1) {
-    const item = NAV_ITEMS[index];
+  for (let index = 0; index < items.length; index += 1) {
+    const item = items[index];
     if (
       isFooterItemActive(pathname, item.routePrefix) &&
       item.routePrefix.length > bestLength
@@ -103,12 +129,17 @@ export function NavigationFooter() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
-  const activeIndex = findActiveNavIndex(pathname);
+  // Read the demo flag on each render. It only flips at login (demo
+  // trigger credentials) and logout, both of which remount the app
+  // shell — so a non-reactive read is sufficient here.
+  const navItems = buildNavItems(dataSource.useDemoData);
+
+  const activeIndex = findActiveNavIndex(pathname, navItems);
   const hasActiveItem = activeIndex >= 0;
   const safeActiveIndex = hasActiveItem ? activeIndex : 0;
 
   const [containerWidth, setContainerWidth] = useState(0);
-  const itemWidth = containerWidth / NAV_ITEMS.length;
+  const itemWidth = containerWidth / navItems.length;
 
   const translateX = useSharedValue(0);
 
@@ -148,7 +179,7 @@ export function NavigationFooter() {
         />
       )}
 
-      {NAV_ITEMS.map((item, index) => {
+      {navItems.map((item, index) => {
         // Use the longest-prefix-match `activeIndex` rather than the
         // raw `isFooterItemActive` here so the per-item visual + a11y
         // state stays consistent with the animated indicator. Without

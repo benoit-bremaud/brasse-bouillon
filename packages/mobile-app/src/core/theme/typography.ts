@@ -6,6 +6,7 @@ export const typography = {
     body: 16,
     label: 14,
     caption: 12,
+    micro: 10,
   },
   lineHeight: {
     h1: 38,
@@ -13,6 +14,7 @@ export const typography = {
     body: 24,
     label: 20,
     caption: 16,
+    micro: 14,
   },
   weight: {
     regular: "400" as const,

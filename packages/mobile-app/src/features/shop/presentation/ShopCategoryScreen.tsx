@@ -103,6 +103,7 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
         ListHeaderComponentStyle={styles.listHeader}
         renderItem={({ item }) => (
           <Card style={styles.productCard}>
+            <Badge label="À venir" variant="info" placement="corner" />
             <View style={styles.productRow}>
               <View style={styles.productIcon}>
                 <Ionicons
@@ -118,7 +119,6 @@ export function ShopCategoryScreen({ categoryParam }: Props) {
                   <Text style={styles.productPrice}>
                     ~{item.price.toFixed(2)} {getProductPriceUnit(item)}
                   </Text>
-                  <Badge label="À venir" variant="info" />
                 </View>
               </View>
             </View>

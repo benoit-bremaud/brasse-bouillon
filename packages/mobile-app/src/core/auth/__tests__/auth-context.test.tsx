@@ -184,4 +184,24 @@ describe("AuthProvider — demo-trigger credentials (Issue #822)", () => {
     // Boot-time demo mode stays on after logout.
     expect(dataSourceMock.useDemoData).toBe(true);
   });
+
+  it("bootstrap restores a stored demo session without hitting the API and re-arms the dataSource flag", async () => {
+    // Reproduces the soutenance reload scenario: the trigger flow
+    // persisted a demo token on a previous run, the app restarts with
+    // useDemoData=false (boot default), and the sign-in screen would
+    // otherwise hang behind a getCurrentUser timeout.
+    mockSessionLoad.mockResolvedValue("demo-access-token");
+    dataSourceMock.useDemoData = false;
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(mockApiGetCurrentUser).not.toHaveBeenCalled();
+    expect(dataSourceMock.useDemoData).toBe(true);
+    expect(result.current.session?.user.email).toBe(
+      "marie.brasseur@example.com",
+    );
+  });
 });

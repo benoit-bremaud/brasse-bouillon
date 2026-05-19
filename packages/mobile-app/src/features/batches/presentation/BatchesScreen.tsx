@@ -40,6 +40,20 @@ const getRecipeColorEbc = (recipeId: string): number => {
   return recipe?.stats?.colorEbc ?? DEFAULT_BATCH_COLOR_EBC;
 };
 
+const getRecipeName = (recipeId: string, batchId: string): string => {
+  if (dataSource.useDemoData) {
+    const recipe = demoRecipes.find((r) => r.id === recipeId);
+    if (recipe) {
+      return recipe.name;
+    }
+  }
+
+  // Live mode does not bundle the recipe with the batch summary, so we
+  // fall back to the brassin identifier in French until listBatches is
+  // extended to return the recipe name alongside the batch.
+  return `Brassin ${batchId.slice(0, 8)}`;
+};
+
 const getStatusLabel = (status: BatchStatus): string => {
   const labels: Record<BatchStatus, string> = {
     in_progress: "In Progress",
@@ -109,8 +123,27 @@ export function BatchesScreen() {
           const beerColor = getSrmColor(srm);
 
           return (
-            <Pressable onPress={() => router.push(`/(app)/batches/${item.id}`)}>
+            <Pressable
+              onPress={() => {
+                // Demo mode: a finished brassin opens the celebration
+                // mockup ("La Première du dimanche est prête à
+                // déguster") instead of the technical details view.
+                // Live mode keeps the canonical details navigation —
+                // the hardcoded celebration content would otherwise
+                // misrepresent a real user's batch.
+                if (item.status === "completed" && dataSource.useDemoData) {
+                  router.push("/(app)/batches/celebration");
+                  return;
+                }
+                router.push(`/(app)/batches/${item.id}`);
+              }}
+            >
               <Card style={styles.card}>
+                <Badge
+                  label={getStatusLabel(item.status)}
+                  variant={getStatusVariant(item.status)}
+                  placement="corner"
+                />
                 <View style={styles.cardContent}>
                   <View
                     style={[styles.beerIcon, { backgroundColor: beerColor }]}
@@ -122,15 +155,9 @@ export function BatchesScreen() {
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <View style={styles.cardTopRow}>
-                      <Text style={styles.cardTitle}>
-                        Batch {item.id.slice(0, 8)}
-                      </Text>
-                      <Badge
-                        label={getStatusLabel(item.status)}
-                        variant={getStatusVariant(item.status)}
-                      />
-                    </View>
+                    <Text style={styles.cardTitle} numberOfLines={1}>
+                      {getRecipeName(item.recipeId, item.id)}
+                    </Text>
                   </View>
                   <Ionicons
                     name="chevron-forward"
@@ -168,11 +195,7 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    paddingTop: spacing.sm,
   },
   cardTitle: {
     fontSize: typography.size.body,

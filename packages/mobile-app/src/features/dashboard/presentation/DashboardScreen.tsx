@@ -1,4 +1,4 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
@@ -12,12 +12,14 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
+import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
 import { listBatches } from "@/features/batches/application/batches.use-cases";
 import { BatchSummary } from "@/features/batches/domain/batch.types";
 import { Ionicons } from "@expo/vector-icons";
+import { demoRecipes } from "@/mocks/demo-data";
 import { useQuery } from "@tanstack/react-query";
 
 // Time constants.
@@ -512,6 +514,48 @@ export function DashboardScreen() {
     [handleOpenProfilePanel, router],
   );
 
+  // Demo-mode hero: pin the fil-rouge mash batch as the dashboard
+  // hero so the marketing screenshot (and the soutenance live demo)
+  // open on a narrative "Marie is right in the middle of brewing
+  // 'La Première du dimanche'" card instead of an empty KPI grid.
+  // Returns null in live mode (or when the fil-rouge batch is not
+  // present), in which case the existing KPI + alerts layout shows.
+  const heroBatchInfo = useMemo(() => {
+    if (!dataSource.useDemoData) {
+      return null;
+    }
+    const heroBatch = batches.find(
+      (b) => b.id === "b-demo-pdd-mash" && b.status === "in_progress",
+    );
+    if (!heroBatch) {
+      return null;
+    }
+    const recipe = demoRecipes.find((r) => r.id === heroBatch.recipeId);
+    if (!recipe) {
+      return null;
+    }
+    const stepIndex = clampStepIndex(heroBatch.currentStepOrder);
+    const step = BREWING_STEPS[stepIndex];
+    const startedAt = parseDateOrNow(heroBatch.startedAt, referenceDate);
+    const elapsedMs = Math.max(
+      0,
+      referenceDate.getTime() - startedAt.getTime(),
+    );
+    const expectedMin = Math.round(step.expectedHours * 60);
+    const elapsedMin = Math.min(Math.round(elapsedMs / 60_000), expectedMin);
+    return {
+      batchId: heroBatch.id,
+      recipeName: recipe.name,
+      volumeLiters: recipe.stats?.volumeLiters ?? 5,
+      og: recipe.stats?.og ?? 1.048,
+      ibu: recipe.stats?.ibu ?? 22,
+      stepLabel: step.label,
+      stepIndex,
+      elapsedMin,
+      expectedMin,
+    };
+  }, [batches, referenceDate]);
+
   const kpis = useMemo(
     () => [
       {
@@ -581,99 +625,154 @@ export function DashboardScreen() {
           </View>
         </View>
 
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Vue d’ensemble</Text>
-          </View>
+        {heroBatchInfo ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Suivre le brassin ${heroBatchInfo.recipeName}`}
+            onPress={() =>
+              router.push(`/(app)/batches/${heroBatchInfo.batchId}`)
+            }
+            style={({ pressed }) => [
+              styles.heroCard,
+              pressed && styles.heroCardPressed,
+            ]}
+          >
+            <View style={styles.heroBadgeRow}>
+              <Ionicons name="flask" size={14} color={colors.neutral.white} />
+              <Text style={styles.heroBadgeText}>En cours</Text>
+            </View>
 
-          <View style={styles.kpiRow}>
-            {kpis.map((kpi) => (
-              <View key={kpi.id} style={styles.kpiCard}>
-                <View style={styles.kpiTopRow}>
-                  <Ionicons name={kpi.icon} size={18} color={kpi.color} />
-                  <Text style={styles.kpiValue}>{kpi.value}</Text>
-                </View>
-                <Text style={styles.kpiLabel}>{kpi.label}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
+            <Text style={styles.heroTitle}>{heroBatchInfo.recipeName}</Text>
+            <Text style={styles.heroSubtitle}>
+              {heroBatchInfo.volumeLiters} L · OG {heroBatchInfo.og.toFixed(3)}{" "}
+              · {heroBatchInfo.ibu} IBU
+            </Text>
 
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Alertes & échéances</Text>
-            <Text style={styles.sectionMeta}>Temps réel</Text>
-          </View>
-
-          {filteredAlerts.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={28}
-                color={colors.semantic.success}
-              />
-              <Text style={styles.emptyStateText}>
-                Aucune alerte sur la période
+            <View style={styles.heroStepRow}>
+              {BREWING_STEPS.slice(0, 3).map((step, index) => {
+                const isActive = index <= heroBatchInfo.stepIndex;
+                return (
+                  <View
+                    key={step.label}
+                    style={[
+                      styles.heroDot,
+                      isActive ? styles.heroDotActive : null,
+                    ]}
+                  />
+                );
+              })}
+              <Text style={styles.heroStepLabel}>
+                {heroBatchInfo.stepLabel} · {heroBatchInfo.elapsedMin} min sur{" "}
+                {heroBatchInfo.expectedMin}
               </Text>
             </View>
-          ) : (
-            <View style={styles.alertsList}>
-              {filteredAlerts.slice(0, 3).map((alert) => {
-                const statusColors = getStatusColors(alert.status);
 
-                return (
-                  <View key={alert.id} style={styles.alertItem}>
-                    <View style={styles.alertContent}>
-                      <Text style={styles.alertBatchName}>
-                        {alert.batchName}
-                      </Text>
-                      <Text style={styles.alertMetaText}>
-                        {alert.currentStepLabel} → {alert.nextStepLabel}
-                      </Text>
-                      <Text style={styles.alertDueText}>
-                        {formatRelativeDue(alert.dueAt, referenceDate)}
-                      </Text>
-                    </View>
+            <View style={styles.heroCta}>
+              <Text style={styles.heroCtaText}>Suivre mon brassin</Text>
+              <Ionicons
+                name="arrow-forward"
+                size={16}
+                color={colors.neutral.white}
+              />
+            </View>
+          </Pressable>
+        ) : (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Vue d’ensemble</Text>
+            </View>
 
-                    <View style={styles.alertActions}>
-                      <View
-                        style={[
-                          styles.statusPill,
-                          { backgroundColor: statusColors.background },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.statusPillText,
-                            { color: statusColors.foreground },
-                          ]}
-                        >
-                          {alert.status}
+            <View style={styles.kpiRow}>
+              {kpis.map((kpi) => (
+                <View key={kpi.id} style={styles.kpiCard}>
+                  <View style={styles.kpiTopRow}>
+                    <Ionicons name={kpi.icon} size={18} color={kpi.color} />
+                    <Text style={styles.kpiValue}>{kpi.value}</Text>
+                  </View>
+                  <Text style={styles.kpiLabel}>{kpi.label}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        )}
+
+        {heroBatchInfo ? null : (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Alertes & échéances</Text>
+              <Text style={styles.sectionMeta}>Temps réel</Text>
+            </View>
+
+            {filteredAlerts.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={28}
+                  color={colors.semantic.success}
+                />
+                <Text style={styles.emptyStateText}>
+                  Aucune alerte sur la période
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.alertsList}>
+                {filteredAlerts.slice(0, 3).map((alert) => {
+                  const statusColors = getStatusColors(alert.status);
+
+                  return (
+                    <View key={alert.id} style={styles.alertItem}>
+                      <View style={styles.alertContent}>
+                        <Text style={styles.alertBatchName}>
+                          {alert.batchName}
+                        </Text>
+                        <Text style={styles.alertMetaText}>
+                          {alert.currentStepLabel} → {alert.nextStepLabel}
+                        </Text>
+                        <Text style={styles.alertDueText}>
+                          {formatRelativeDue(alert.dueAt, referenceDate)}
                         </Text>
                       </View>
 
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`Ouvrir ${alert.batchName}`}
-                        onPress={() =>
-                          router.push(`/(app)/batches/${alert.batchId}`)
-                        }
-                        style={({ pressed }) => [
-                          styles.openBatchButton,
-                          pressed && styles.pressed,
-                        ]}
-                      >
-                        <Text style={styles.openBatchButtonText}>
-                          Ouvrir le brassin
-                        </Text>
-                      </Pressable>
+                      <View style={styles.alertActions}>
+                        <View
+                          style={[
+                            styles.statusPill,
+                            { backgroundColor: statusColors.background },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.statusPillText,
+                              { color: statusColors.foreground },
+                            ]}
+                          >
+                            {alert.status}
+                          </Text>
+                        </View>
+
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Ouvrir ${alert.batchName}`}
+                          onPress={() =>
+                            router.push(`/(app)/batches/${alert.batchId}`)
+                          }
+                          style={({ pressed }) => [
+                            styles.openBatchButton,
+                            pressed && styles.pressed,
+                          ]}
+                        >
+                          <Text style={styles.openBatchButtonText}>
+                            Ouvrir le brassin
+                          </Text>
+                        </Pressable>
+                      </View>
                     </View>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-        </Card>
+                  );
+                })}
+              </View>
+            )}
+          </Card>
+        )}
 
         <Card style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -896,6 +995,82 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     borderRadius: radius.lg,
+  },
+  heroCard: {
+    backgroundColor: colors.brand.primary,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.md,
+  },
+  heroCardPressed: {
+    opacity: 0.92,
+  },
+  heroBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    marginBottom: spacing.sm,
+    opacity: 0.85,
+  },
+  heroBadgeText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  heroTitle: {
+    color: colors.neutral.white,
+    fontSize: typography.size.h1,
+    lineHeight: typography.lineHeight.h1,
+    fontWeight: typography.weight.bold,
+  },
+  heroSubtitle: {
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+    opacity: 0.85,
+  },
+  heroStepRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xxs,
+    marginTop: spacing.md,
+  },
+  heroDot: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral.white,
+    opacity: 0.35,
+  },
+  heroDotActive: {
+    opacity: 1,
+  },
+  heroStepLabel: {
+    flex: 1,
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+    marginLeft: spacing.xs,
+  },
+  heroCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.white,
+  },
+  heroCtaText: {
+    color: colors.neutral.white,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
   },
   sectionHeader: {
     flexDirection: "row",

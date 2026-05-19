@@ -10,17 +10,20 @@ This document describes the Git workflow, branch/commit conventions, and quality
 
 | Branch | Role |
 |---|---|
-| `main` | Production (GitHub Pages deployment) |
-| `develop` | Continuous integration |
-| `feature/*` | Feature work |
+| `main` | Production (auto-deployed by [`website-deploy.yml`](../../.github/workflows/website-deploy.yml)) |
+| `feat/*` | Feature work |
+| `fix/*` | Targeted fixes |
 | `docs/*` | Documentation and governance |
-| `bugfix/*` | Targeted fixes |
+| `refactor/*` | Refactors with no behaviour change |
+| `chore/*` | Maintenance, CI, dependencies |
 
 Rules:
 1. Do not push directly to `main`.
-2. Open a PR to `develop`.
+2. Open a PR to `main`.
 3. Link the PR to its issue (example: `Refs #52`).
 4. Wait for green CI checks before merge.
+
+The `develop` integration branch from the standalone-website era no longer exists — the monorepo uses a single trunk model.
 
 ---
 
@@ -28,9 +31,9 @@ Rules:
 
 Use `kebab-case`:
 
-- `feature/epic-c-website-ci-cd`
-- `docs/epic-d-governance`
-- `bugfix/fix-french-cta-spacing`
+- `feat/website-pages-deploy`
+- `docs/website-governance`
+- `fix/french-cta-spacing`
 
 ---
 

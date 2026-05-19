@@ -1,8 +1,8 @@
 # Brasse-Bouillon Website
 
-Official website repository for the **Brasse-Bouillon** project.
+Marketing site package inside the **Brasse-Bouillon** monorepo (imported from the standalone `brasse-bouillon-website` repo on 2026-03-24 via `git subtree`).
 
-This repository contains a bilingual static landing page (FR/EN) and its CI/CD pipeline (quality gates + GitHub Pages deployment).
+This package contains a bilingual static landing page (FR/EN). Quality gates run in the monorepo CI (`website:` job in [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml)); GitHub Pages deployment runs in [`../../.github/workflows/website-deploy.yml`](../../.github/workflows/website-deploy.yml).
 
 ---
 
@@ -32,37 +32,28 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 - `docs/ROADMAP.md`: product roadmap
 - `docs/roadmap-feed.json`: machine-readable roadmap sync feed
 - `docs/GOVERNANCE.md`: backlog conventions, runbook, and repository governance
-- `.github/workflows/website-ci-cd.yml`: CI/CD pipeline
-- `.github/workflows/ingest-roadmap-update.yml`: roadmap auto-ingest pipeline
+- `../../.github/workflows/ci.yml` (`website:` job): quality gate runner on every PR
+- `../../.github/workflows/website-deploy.yml`: GitHub Pages publication pipeline
 - `scripts/quality_gate.py`: dependency-free local/CI quality gate
 - `scripts/roadmap_sync.py`: roadmap ingest and markdown table sync script
 - `CONTRIBUTING.md`: contribution conventions
 
 ---
 
-## ⚙️ CI/CD (Epic C)
-
-Workflows:
-- `.github/workflows/website-ci-cd.yml`
-- `.github/workflows/ingest-roadmap-update.yml`
+## ⚙️ CI/CD
 
 ### Quality gates
 
-Executed on `push` (`develop`, `main`) and `pull_request` (`develop`, `main`):
+The monorepo CI runs `scripts/quality_gate.py` (via the `website:` job in [`ci.yml`](../../.github/workflows/ci.yml)) on every PR whose diff touches `packages/website/**`. It checks:
+
 - presence of critical files,
 - minimal FR/EN HTML structure,
-- no Git conflict markers.
+- no Git conflict markers,
+- per-page structural rules (lang attribute, canonical, schema.org, etc.).
 
 ### Deployment
 
-The GitHub Pages deployment job runs only on:
-- `push` to `main`.
-
-### Roadmap auto-ingest
-
-The roadmap sync workflow ingests user-facing updates via `repository_dispatch` (`roadmap_user_facing_update`) and updates:
-- `docs/roadmap-feed.json`
-- `docs/ROADMAP.md` (Done table between dedicated markers)
+Any push to `main` whose diff touches `packages/website/**` (and `workflow_dispatch` for manual reruns) triggers [`website-deploy.yml`](../../.github/workflows/website-deploy.yml), which stages the public files (HTML, CSS, JS, brand assets, favicon, CNAME, sitemap, robots, `seo/`, `screenshots/`) into `_site/` and publishes via `actions/deploy-pages`. The repo's GitHub Pages source must be set to **"GitHub Actions"** in the Settings page for the deploy job to succeed.
 
 ---
 
@@ -79,11 +70,10 @@ python3 -m py_compile scripts/roadmap_sync.py
 
 ## 🔀 Workflow Git
 
-- `main`: production
-- `develop`: integration
-- `feature/*`, `docs/*`, `bugfix/*`: working branches
+- `main`: production (auto-deployed by `website-deploy.yml`)
+- `feat/*`, `fix/*`, `docs/*`, `refactor/*`, `chore/*`: working branches per the monorepo branch-naming convention
 
-All contributions go through a PR to `develop` (unless an explicit exception is decided).
+All contributions go through a PR to `main` (the `develop` integration branch from the standalone website repo era no longer exists).
 
 ---
 

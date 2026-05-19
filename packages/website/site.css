@@ -295,27 +295,6 @@
       opacity: 1;
     }
 
-    .feature-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      border: 1px solid rgba(141, 88, 50, 0.24);
-      background: linear-gradient(145deg, rgba(183, 130, 75, 0.22), rgba(141, 88, 50, 0.12));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.45rem;
-      box-shadow: 0 6px 14px rgba(78, 52, 32, 0.15);
-    }
-
-    .feature-card:nth-child(3n + 2) .feature-icon {
-      background: linear-gradient(145deg, rgba(217, 179, 100, 0.3), rgba(183, 130, 75, 0.12));
-    }
-
-    .feature-card:nth-child(3n) .feature-icon {
-      background: linear-gradient(145deg, rgba(126, 126, 49, 0.2), rgba(183, 130, 75, 0.12));
-    }
-
     .feature-card h3 {
       margin: 0;
       color: var(--color-secondary);
@@ -430,7 +409,7 @@
 
     .journey-step p {
       margin: 0;
-      color: #5b4b3f;
+      color: var(--color-muted);
       font-size: 0.95rem;
       line-height: 1.55;
     }

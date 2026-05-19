@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
@@ -53,61 +53,66 @@ export function BatchFinishedScreen() {
         }
       />
 
-      <View style={styles.kicker}>
-        <Text style={styles.kickerEmoji} accessible={false}>
-          🍻
-        </Text>
-        <Text style={styles.kickerText}>
-          Mise en bouteille le {HERO_BEER.packagedOn}
-        </Text>
-      </View>
-
-      <Card style={styles.bottleCard}>
-        <View style={styles.bottleLabel}>
-          <Text style={styles.labelOverline}>Brasserie maison</Text>
-          <Text style={styles.labelTitle}>{HERO_BEER.name}</Text>
-          <Text style={styles.labelStyle}>{HERO_BEER.style}</Text>
-          <View style={styles.labelDivider} />
-          <Text style={styles.labelStats}>
-            4,8 % alc./vol. · 33 cl · brassée par {HERO_BEER.brewer}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: bottomPadding }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.kicker}>
+          <Text style={styles.kickerEmoji} accessible={false}>
+            🍻
+          </Text>
+          <Text style={styles.kickerText}>
+            Mise en bouteille le {HERO_BEER.packagedOn}
           </Text>
         </View>
-      </Card>
 
-      <Text style={styles.sectionTitle}>Ta bière en chiffres</Text>
-      <View style={styles.statsGrid}>
-        {STATS.map((stat) => (
-          <Card key={stat.label} style={styles.statCard}>
-            <Text style={styles.statValue}>{stat.value}</Text>
-            <Text style={styles.statLabel}>{stat.label}</Text>
-          </Card>
-        ))}
-      </View>
-
-      <Text style={styles.sectionTitle}>
-        {HERO_BEER.durationDays} jours du grain à la bouteille
-      </Text>
-      <Card style={styles.timelineCard}>
-        {TIMELINE.map((entry, index) => (
-          <View
-            key={entry.date}
-            style={[
-              styles.timelineRow,
-              index === TIMELINE.length - 1 ? styles.timelineRowLast : null,
-            ]}
-          >
-            <Text style={styles.timelineDate}>{entry.date}</Text>
-            <Text style={styles.timelineLabel}>{entry.label}</Text>
+        <Card style={styles.bottleCard}>
+          <View style={styles.bottleLabel}>
+            <Text style={styles.labelOverline}>Brasserie maison</Text>
+            <Text style={styles.labelTitle}>{HERO_BEER.name}</Text>
+            <Text style={styles.labelStyle}>{HERO_BEER.style}</Text>
+            <View style={styles.labelDivider} />
+            <Text style={styles.labelStats}>
+              4,8 % alc./vol. · 33 cl · brassée par {HERO_BEER.brewer}
+            </Text>
           </View>
-        ))}
-      </Card>
+        </Card>
 
-      <View style={[styles.ctaStack, { paddingBottom: bottomPadding }]}>
-        <PrimaryButton label="Noter ma dégustation" onPress={handleGoBack} />
-        <Text style={styles.ctaHint}>
-          Partage ton brassin avec la communauté depuis l’onglet Communauté.
+        <Text style={styles.sectionTitle}>Ta bière en chiffres</Text>
+        <View style={styles.statsGrid}>
+          {STATS.map((stat) => (
+            <Card key={stat.label} style={styles.statCard}>
+              <Text style={styles.statValue}>{stat.value}</Text>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+            </Card>
+          ))}
+        </View>
+
+        <Text style={styles.sectionTitle}>
+          {HERO_BEER.durationDays} jours du grain à la bouteille
         </Text>
-      </View>
+        <Card style={styles.timelineCard}>
+          {TIMELINE.map((entry, index) => (
+            <View
+              key={entry.date}
+              style={[
+                styles.timelineRow,
+                index === TIMELINE.length - 1 ? styles.timelineRowLast : null,
+              ]}
+            >
+              <Text style={styles.timelineDate}>{entry.date}</Text>
+              <Text style={styles.timelineLabel}>{entry.label}</Text>
+            </View>
+          ))}
+        </Card>
+
+        <View style={styles.ctaStack}>
+          <PrimaryButton label="Noter ma dégustation" onPress={handleGoBack} />
+          <Text style={styles.ctaHint}>
+            Partage ton brassin avec la communauté depuis l’onglet Communauté.
+          </Text>
+        </View>
+      </ScrollView>
     </Screen>
   );
 }

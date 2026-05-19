@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     top: spacing.sm,
     right: spacing.sm,
     paddingHorizontal: spacing.xs,
-    paddingVertical: 1,
-    fontSize: 10,
-    lineHeight: 14,
+    paddingVertical: spacing.xxs,
+    fontSize: typography.size.micro,
+    lineHeight: typography.lineHeight.micro,
   },
 });

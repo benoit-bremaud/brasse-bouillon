@@ -8,6 +8,9 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { getSrmColor } from "@/features/tools/data/catalogs/srm";
+
+const ebcToSrm = (ebc: number): number => ebc * 0.508;
 
 type SocialPost = {
   id: string;
@@ -16,7 +19,7 @@ type SocialPost = {
   authorBadge: string;
   beerName: string;
   beerStyle: string;
-  beerColor: string;
+  beerColorEbc: number;
   postedAgo: string;
   likes: number;
   comments: number;
@@ -31,7 +34,7 @@ const POSTS: ReadonlyArray<SocialPost> = [
     authorBadge: "Premier brassin",
     beerName: "La Première du dimanche",
     beerStyle: "Blonde simple · EBC 8",
-    beerColor: "#f1c75a",
+    beerColorEbc: 8,
     postedAgo: "il y a 2 j",
     likes: 12,
     comments: 3,
@@ -45,7 +48,7 @@ const POSTS: ReadonlyArray<SocialPost> = [
     authorBadge: "BIAB · 8 brassins",
     beerName: "Saison fermière",
     beerStyle: "Saison belge · EBC 12",
-    beerColor: "#e3a936",
+    beerColorEbc: 12,
     postedAgo: "il y a 3 j",
     likes: 8,
     comments: 1,
@@ -59,7 +62,7 @@ const POSTS: ReadonlyArray<SocialPost> = [
     authorBadge: "All-grain · 32 brassins",
     beerName: "Imperial Stout maison",
     beerStyle: "Imperial Stout · EBC 80",
-    beerColor: "#2a1610",
+    beerColorEbc: 80,
     postedAgo: "il y a 1 sem.",
     likes: 24,
     comments: 6,
@@ -73,7 +76,7 @@ const POSTS: ReadonlyArray<SocialPost> = [
     authorBadge: "Premier brassin",
     beerName: "Petite APA du jardin",
     beerStyle: "American Pale Ale · EBC 14",
-    beerColor: "#d6873a",
+    beerColorEbc: 14,
     postedAgo: "il y a 2 sem.",
     likes: 15,
     comments: 4,
@@ -121,7 +124,10 @@ export function SocialFeedScreen() {
           <Card style={styles.postCard}>
             <View style={styles.postHeader}>
               <View
-                style={[styles.avatar, { backgroundColor: item.beerColor }]}
+                style={[
+                  styles.avatar,
+                  { backgroundColor: getSrmColor(ebcToSrm(item.beerColorEbc)) },
+                ]}
                 accessible={false}
               >
                 <Text style={styles.avatarText}>{item.authorInitials}</Text>

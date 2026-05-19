@@ -40,13 +40,18 @@ const getRecipeColorEbc = (recipeId: string): number => {
   return recipe?.stats?.colorEbc ?? DEFAULT_BATCH_COLOR_EBC;
 };
 
-const getRecipeName = (recipeId: string): string => {
-  if (!dataSource.useDemoData) {
-    return `Recipe ${recipeId.slice(0, 8)}`;
+const getRecipeName = (recipeId: string, batchId: string): string => {
+  if (dataSource.useDemoData) {
+    const recipe = demoRecipes.find((r) => r.id === recipeId);
+    if (recipe) {
+      return recipe.name;
+    }
   }
 
-  const recipe = demoRecipes.find((r) => r.id === recipeId);
-  return recipe?.name ?? `Recipe ${recipeId.slice(0, 8)}`;
+  // Live mode does not bundle the recipe with the batch summary, so we
+  // fall back to the brassin identifier in French until listBatches is
+  // extended to return the recipe name alongside the batch.
+  return `Brassin ${batchId.slice(0, 8)}`;
 };
 
 const getStatusLabel = (status: BatchStatus): string => {
@@ -137,7 +142,7 @@ export function BatchesScreen() {
                   </View>
                   <View style={styles.cardInfo}>
                     <Text style={styles.cardTitle} numberOfLines={1}>
-                      {getRecipeName(item.recipeId)}
+                      {getRecipeName(item.recipeId, item.id)}
                     </Text>
                   </View>
                   <Ionicons

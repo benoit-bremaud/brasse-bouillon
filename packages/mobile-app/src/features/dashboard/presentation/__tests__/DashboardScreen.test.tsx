@@ -130,11 +130,13 @@ describe("DashboardScreen", () => {
     // of "Profil" (both navigated to /(app)/profile). The single account
     // entry is now labelled "Mon compte". Regression guards: the old
     // duplicate must not render anywhere; the new label must render in
-    // BOTH the dashboard header (button "Mon compte") and the More-sheet
-    // (account entry "Mon compte") — hence the getAllByText assertion.
+    // the More-sheet (account entry "Mon compte"). The dashboard header
+    // action is icon-only since the layout refonte (chunk 2 of the demo
+    // dashboard refresh) but is still reachable via accessibilityLabel
+    // "Ouvrir Mon compte" — asserted separately below at line 149.
     expect(screen.queryByText("Paramètres globaux")).toBeNull();
     expect(screen.queryByText("Profil")).toBeNull();
-    expect(screen.getAllByText("Mon compte").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("Mon compte")).toBeTruthy();
 
     fireEvent.press(screen.getByLabelText("Ouvrir Mes étiquettes"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/labels");

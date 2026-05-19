@@ -168,35 +168,6 @@ function renderMoreSectionItem(
   );
 }
 
-type HeaderActionButtonProps = {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  accessibilityLabel: string;
-  onPress: () => void;
-};
-
-function HeaderActionButton({
-  icon,
-  label,
-  accessibilityLabel,
-  onPress,
-}: HeaderActionButtonProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.headerActionButton,
-        pressed && styles.pressed,
-      ]}
-    >
-      <Ionicons name={icon} size={18} color={colors.brand.secondary} />
-      <Text style={styles.headerActionButtonText}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
   "En retard": 0,
   Urgent: 1,
@@ -626,38 +597,57 @@ export function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerCard}>
-          <View style={styles.headerIdentity}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {displayName.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-            <View style={styles.headerText}>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerIdentity}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              </View>
               <Text style={styles.headerName} numberOfLines={1}>
                 Salut {displayName} 👋
               </Text>
-              <Text style={styles.headerSubtitle} numberOfLines={1}>
-                {heroBatchInfo
-                  ? `${heroBatchInfo.stepLabel} en cours · ${heroBatchInfo.recipeName}`
-                  : "Tableau de bord brassage"}
-              </Text>
+            </View>
+
+            <View style={styles.headerActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Ouvrir Mon compte"
+                onPress={handleOpenProfilePanel}
+                style={({ pressed }) => [
+                  styles.headerIconButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="person-circle-outline"
+                  size={22}
+                  color={colors.brand.secondary}
+                />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Voir plus de sections"
+                onPress={() => setIsMoreSheetVisible(true)}
+                style={({ pressed }) => [
+                  styles.headerIconButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="grid-outline"
+                  size={22}
+                  color={colors.brand.secondary}
+                />
+              </Pressable>
             </View>
           </View>
 
-          <View style={styles.headerActions}>
-            <HeaderActionButton
-              icon="person-circle-outline"
-              label="Mon compte"
-              accessibilityLabel="Ouvrir Mon compte"
-              onPress={handleOpenProfilePanel}
-            />
-            <HeaderActionButton
-              icon="grid-outline"
-              label="Voir plus"
-              accessibilityLabel="Voir plus de sections"
-              onPress={() => setIsMoreSheetVisible(true)}
-            />
-          </View>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>
+            {heroBatchInfo
+              ? `${heroBatchInfo.stepLabel} en cours · ${heroBatchInfo.recipeName}`
+              : "Tableau de bord brassage"}
+          </Text>
         </View>
 
         {heroBatchInfo ? (
@@ -1095,10 +1085,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.neutral.border,
-    padding: spacing.sm,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  headerTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: spacing.sm,
   },
   headerIdentity: {
     flexDirection: "row",
@@ -1107,15 +1101,19 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  headerText: {
-    flex: 1,
-    minWidth: 0,
-  },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
     flexShrink: 0,
+  },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.background,
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatar: {
     width: 40,
@@ -1131,12 +1129,15 @@ const styles = StyleSheet.create({
     color: colors.brand.secondary,
   },
   headerName: {
-    fontSize: typography.size.body,
+    flex: 1,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
   headerSubtitle: {
-    fontSize: typography.size.caption,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
     color: colors.neutral.textSecondary,
   },
   headerActionButton: {

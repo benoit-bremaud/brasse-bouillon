@@ -120,6 +120,11 @@ export function BatchesScreen() {
           return (
             <Pressable onPress={() => router.push(`/(app)/batches/${item.id}`)}>
               <Card style={styles.card}>
+                <Badge
+                  label={getStatusLabel(item.status)}
+                  variant={getStatusVariant(item.status)}
+                  style={styles.cornerBadge}
+                />
                 <View style={styles.cardContent}>
                   <View
                     style={[styles.beerIcon, { backgroundColor: beerColor }]}
@@ -131,15 +136,9 @@ export function BatchesScreen() {
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <View style={styles.cardTopRow}>
-                      <Text style={styles.cardTitle} numberOfLines={1}>
-                        {getRecipeName(item.recipeId)}
-                      </Text>
-                      <Badge
-                        label={getStatusLabel(item.status)}
-                        variant={getStatusVariant(item.status)}
-                      />
-                    </View>
+                    <Text style={styles.cardTitle} numberOfLines={1}>
+                      {getRecipeName(item.recipeId)}
+                    </Text>
                   </View>
                   <Ionicons
                     name="chevron-forward"
@@ -162,6 +161,16 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
+    position: "relative",
+  },
+  cornerBadge: {
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 1,
+    fontSize: 10,
+    lineHeight: 14,
   },
   cardContent: {
     flexDirection: "row",
@@ -177,15 +186,9 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: spacing.xs,
+    paddingTop: spacing.sm,
   },
   cardTitle: {
-    flex: 1,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,

@@ -1,0 +1,86 @@
+name: Website Deploy
+
+# Deploy the marketing site under `packages/website/` to GitHub Pages
+# whenever website assets change on `main`, or manually via the Actions
+# tab.
+#
+# The site used to live in a separate `brasse-bouillon-website` repo
+# (archived) which still owns the `brasse-bouillon.com` CNAME from its
+# legacy "Deploy from branch" Pages configuration. This workflow
+# replaces that legacy setup: it stages only the public files
+# (HTML / CSS / JS / images / CNAME / sitemap / screenshots / seo),
+# uploads them as a Pages artifact, and lets `actions/deploy-pages`
+# publish them as the canonical site source.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/website/**"
+      - ".github/workflows/website-deploy.yml"
+  workflow_dispatch:
+
+# A single in-flight Pages deployment at a time.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # Stage only the public-facing site under `_site/`. Everything that
+      # ships to the browser is whitelisted here; internal repo files
+      # (docs/, scripts/, tests/, CHANGELOG.md, CONTRIBUTING.md, README.md,
+      # CLAUDE.md, package.json, sonar-project.properties) stay out of
+      # the deployment.
+      - name: Stage public site assets
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          src=packages/website
+
+          # HTML / CSS / JS at the root of the website package
+          cp "$src"/*.html _site/
+          cp "$src"/site.css _site/
+          cp "$src"/site.js _site/
+
+          # Brand + tab assets
+          cp "$src"/*.png _site/
+          cp "$src"/*.svg _site/
+          cp "$src"/favicon.ico _site/
+          cp "$src"/CNAME _site/
+
+          # SEO surface and screenshots
+          cp "$src"/sitemap.xml _site/
+          cp "$src"/robots.txt _site/
+          # Optional dirs — copied when present, skipped silently otherwise.
+          [ -d "$src/seo" ] && cp -R "$src/seo" _site/seo || true
+          [ -d "$src/screenshots" ] && cp -R "$src/screenshots" _site/screenshots || true
+
+          echo "::group::Deployment payload"
+          find _site -maxdepth 2 -type f | sort
+          echo "::endgroup::"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

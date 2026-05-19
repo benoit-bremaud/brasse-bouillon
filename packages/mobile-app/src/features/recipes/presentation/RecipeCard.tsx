@@ -63,6 +63,11 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
       onPress={onPress}
     >
       <Card style={styles.card}>
+        <Badge
+          label={renderedBadgeLabel}
+          variant={renderedBadgeVariant}
+          placement="corner"
+        />
         <View style={styles.cardContent}>
           <View style={[styles.recipeIcon, { backgroundColor: beerColor }]}>
             <Ionicons
@@ -72,13 +77,9 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
             />
           </View>
           <View style={styles.cardInfo}>
-            <View style={styles.cardTopRow}>
-              <Text style={styles.cardTitle}>{recipe.name}</Text>
-              <Badge
-                label={renderedBadgeLabel}
-                variant={renderedBadgeVariant}
-              />
-            </View>
+            <Text style={styles.cardTitle} numberOfLines={1}>
+              {recipe.name}
+            </Text>
             {stats && (
               <View style={styles.statsRow}>
                 <Text style={styles.statItem}>{stats.ibu} IBU</Text>
@@ -118,11 +119,7 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    paddingTop: spacing.sm,
   },
   cardTitle: {
     fontSize: typography.size.body,

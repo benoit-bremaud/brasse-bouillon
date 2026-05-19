@@ -4,10 +4,20 @@ import { StyleSheet, Text, TextProps } from "react-native";
 import React from "react";
 
 type Variant = "neutral" | "info" | "success";
+type Placement = "inline" | "corner";
 
 type Props = TextProps & {
   label: string;
   variant?: Variant;
+  /**
+   * `inline` (default) keeps the badge in the parent's normal flow, sized
+   * for body text. `corner` pins the badge as an absolute marker in the
+   * top-right of its parent (e.g. status indicator on a list card) and
+   * shrinks the pill so it never competes with the parent's title for
+   * horizontal space. Pair it with a parent View — the absolute
+   * positioning anchors to the immediate parent in React Native.
+   */
+  placement?: Placement;
 };
 
 const variantStyles: Record<Variant, { container: object; text: object }> = {
@@ -34,12 +44,25 @@ const variantStyles: Record<Variant, { container: object; text: object }> = {
   },
 };
 
-export function Badge({ label, variant = "neutral", style, ...rest }: Props) {
+export function Badge({
+  label,
+  variant = "neutral",
+  placement = "inline",
+  style,
+  ...rest
+}: Props) {
   const selected = variantStyles[variant];
+  const placementStyle = placement === "corner" ? styles.corner : null;
   return (
     <Text
       {...rest}
-      style={[styles.base, selected.container, selected.text, style]}
+      style={[
+        styles.base,
+        selected.container,
+        selected.text,
+        placementStyle,
+        style,
+      ]}
     >
       {label.toUpperCase()}
     </Text>
@@ -56,5 +79,14 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.caption,
     fontWeight: typography.weight.bold,
     textTransform: "uppercase",
+  },
+  corner: {
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 1,
+    fontSize: 10,
+    lineHeight: 14,
   },
 });

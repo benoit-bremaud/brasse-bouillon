@@ -123,7 +123,7 @@ export function BatchesScreen() {
                 <Badge
                   label={getStatusLabel(item.status)}
                   variant={getStatusVariant(item.status)}
-                  style={styles.cornerBadge}
+                  placement="corner"
                 />
                 <View style={styles.cardContent}>
                   <View
@@ -161,16 +161,6 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
-    position: "relative",
-  },
-  cornerBadge: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 1,
-    fontSize: 10,
-    lineHeight: 14,
   },
   cardContent: {
     flexDirection: "row",

@@ -140,20 +140,21 @@ export function BatchDetailsScreen({ batchId }: Props) {
         contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
           <Card style={styles.stepCard}>
+            <Badge
+              label={item.status}
+              variant={
+                item.status === "completed"
+                  ? "success"
+                  : item.status === "in_progress"
+                    ? "info"
+                    : "neutral"
+              }
+              placement="corner"
+            />
             <View style={styles.stepHeader}>
               <Text style={styles.stepTitle}>
                 {item.stepOrder + 1}. {item.label}
               </Text>
-              <Badge
-                label={item.status}
-                variant={
-                  item.status === "completed"
-                    ? "success"
-                    : item.status === "in_progress"
-                      ? "info"
-                      : "neutral"
-                }
-              />
             </View>
             <Text style={styles.stepMeta}>{item.type}</Text>
             {item.description ? (

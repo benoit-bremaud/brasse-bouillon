@@ -98,9 +98,9 @@ describe("BatchesScreen", () => {
     renderBatchesScreen();
 
     // Recipe name resolved from the demo catalogue (not the batch id).
-    expect(
-      (await screen.findAllByText("La Première du dimanche")).length,
-    ).toBe(2);
+    expect((await screen.findAllByText("La Première du dimanche")).length).toBe(
+      2,
+    );
     expect(screen.getByText("IN PROGRESS")).toBeTruthy();
     expect(screen.getByText("DONE")).toBeTruthy();
   });

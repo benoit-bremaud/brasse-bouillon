@@ -26,6 +26,15 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const DEMO_FERMENTATION_TARGET_DAYS = 14;
 const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 
+// Dynamic widths cannot live in `StyleSheet.create()` because they
+// depend on the runtime progress percentage. Centralising the
+// computed object in a tiny helper keeps the JSX free of inline
+// style literals (project rule) while still letting React Native
+// merge it with the static `styles.progressFill` baseline.
+function progressFillWidth(percent: number) {
+  return { width: `${Math.max(0, Math.min(100, percent))}%` } as const;
+}
+
 type Props = {
   batchId: string;
 };
@@ -199,7 +208,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
             <View
               style={[
                 styles.progressFill,
-                { width: `${fermentationInfo.progressPct}%` },
+                progressFillWidth(fermentationInfo.progressPct),
               ]}
             />
           </View>
@@ -320,7 +329,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   progressTrack: {
-    height: 8,
+    height: spacing.xs,
     backgroundColor: colors.neutral.border,
     borderRadius: radius.full,
     overflow: "hidden",
@@ -343,7 +352,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
   },
   metricValue: {
     color: colors.neutral.textPrimary,
@@ -356,7 +364,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
-    marginTop: 2,
+    marginTop: spacing.xxs,
   },
   stepCard: {
     marginBottom: spacing.xs,

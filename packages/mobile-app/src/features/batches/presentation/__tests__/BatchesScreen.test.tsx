@@ -128,7 +128,7 @@ describe("BatchesScreen", () => {
     expect(await screen.findByText("Brassin b-orphan")).toBeTruthy();
   });
 
-  it("navigates to the batch detail when a card is pressed", async () => {
+  it("navigates to the batch detail when an in-progress card is pressed", async () => {
     dataSource.useDemoData = true;
     (listBatches as jest.Mock).mockResolvedValue([
       {
@@ -151,5 +151,55 @@ describe("BatchesScreen", () => {
     fireEvent.press(await screen.findByText("La Première du dimanche"));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b-demo-pdd-mash");
+  });
+
+  it("routes a completed brassin to the celebration mockup in demo mode", async () => {
+    dataSource.useDemoData = true;
+    (listBatches as jest.Mock).mockResolvedValue([
+      {
+        id: "b-demo-pdd-done",
+        ownerId: "u-demo-1",
+        recipeId: "r-demo-pdd",
+        status: "completed",
+        currentStepOrder: 2,
+        startedAt: "2026-04-22T09:00:00.000Z",
+        fermentationStartedAt: "2026-04-22T11:30:00.000Z",
+        fermentationCompletedAt: "2026-05-06T11:30:00.000Z",
+        completedAt: "2026-05-12T15:00:00.000Z",
+        createdAt: "2026-04-22T09:00:00.000Z",
+        updatedAt: "2026-05-12T15:00:00.000Z",
+      },
+    ]);
+
+    renderBatchesScreen();
+
+    fireEvent.press(await screen.findByText("La Première du dimanche"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/batches/celebration");
+  });
+
+  it("keeps the canonical details route for completed batches in live mode", async () => {
+    dataSource.useDemoData = false;
+    (listBatches as jest.Mock).mockResolvedValue([
+      {
+        id: "b-live-7",
+        ownerId: "u-live-1",
+        recipeId: "r-live-1",
+        status: "completed",
+        currentStepOrder: 2,
+        startedAt: "2026-04-22T09:00:00.000Z",
+        fermentationStartedAt: "2026-04-22T11:30:00.000Z",
+        fermentationCompletedAt: "2026-05-06T11:30:00.000Z",
+        completedAt: "2026-05-12T15:00:00.000Z",
+        createdAt: "2026-04-22T09:00:00.000Z",
+        updatedAt: "2026-05-12T15:00:00.000Z",
+      },
+    ]);
+
+    renderBatchesScreen();
+
+    fireEvent.press(await screen.findByText("Brassin b-live-7"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b-live-7");
   });
 });

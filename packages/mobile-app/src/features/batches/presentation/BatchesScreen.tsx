@@ -123,7 +123,21 @@ export function BatchesScreen() {
           const beerColor = getSrmColor(srm);
 
           return (
-            <Pressable onPress={() => router.push(`/(app)/batches/${item.id}`)}>
+            <Pressable
+              onPress={() => {
+                // Demo mode: a finished brassin opens the celebration
+                // mockup ("La Première du dimanche est prête à
+                // déguster") instead of the technical details view.
+                // Live mode keeps the canonical details navigation —
+                // the hardcoded celebration content would otherwise
+                // misrepresent a real user's batch.
+                if (item.status === "completed" && dataSource.useDemoData) {
+                  router.push("/(app)/batches/celebration");
+                  return;
+                }
+                router.push(`/(app)/batches/${item.id}`);
+              }}
+            >
               <Card style={styles.card}>
                 <Badge
                   label={getStatusLabel(item.status)}

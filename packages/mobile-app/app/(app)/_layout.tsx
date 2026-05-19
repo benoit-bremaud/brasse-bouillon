@@ -111,6 +111,13 @@ export default function AppLayout() {
               title: "Profil",
             }}
           />
+          <Tabs.Screen
+            name="social"
+            options={{
+              href: null,
+              title: "Communauté",
+            }}
+          />
         </Tabs>
       </View>
       <NavigationFooter />

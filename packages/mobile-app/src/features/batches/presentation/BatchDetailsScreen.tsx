@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, Text } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
-import { colors, spacing, typography } from "@/core/theme";
+import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   completeCurrentBatchStep,
   getBatchDetails,
@@ -12,16 +12,79 @@ import { Batch } from "@/features/batches/domain/batch.types";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
+import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import React from "react";
 import { Screen } from "@/core/ui/Screen";
+import { dataSource } from "@/core/data/data-source";
+import { demoRecipes } from "@/mocks/demo-data";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useRouter } from "expo-router";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const DEMO_FERMENTATION_TARGET_DAYS = 14;
+const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 
 type Props = {
   batchId: string;
 };
+
+// Demo-mode-only fermentation tracking card data. Live mode does not
+// expose a gravity / temperature feed yet (deferred to the fermenter
+// integration epic), so the rich tracker only renders when the
+// runtime flag is on AND the current step is fermentation in progress.
+function useFermentationTrackerInfo(batch: Batch | null) {
+  return React.useMemo(() => {
+    if (!batch || !dataSource.useDemoData) {
+      return null;
+    }
+    const currentStep = batch.steps?.find(
+      (step) => step.stepOrder === batch.currentStepOrder,
+    );
+    if (
+      !currentStep ||
+      currentStep.type !== "fermentation" ||
+      currentStep.status !== "in_progress" ||
+      !currentStep.startedAt
+    ) {
+      return null;
+    }
+
+    const startedAt = new Date(currentStep.startedAt);
+    if (Number.isNaN(startedAt.getTime())) {
+      return null;
+    }
+    const elapsedMs = Math.max(0, Date.now() - startedAt.getTime());
+    const daysElapsed = Math.min(
+      DEMO_FERMENTATION_TARGET_DAYS,
+      Math.floor(elapsedMs / DAY_MS),
+    );
+    const progressPct = Math.round(
+      (daysElapsed / DEMO_FERMENTATION_TARGET_DAYS) * 100,
+    );
+
+    // Estimate the current gravity as a linear interpolation between
+    // the recipe's OG and FG using the fermentation progress. Real
+    // attenuation is non-linear but for a demo tracker the eye sees
+    // a believable monotonic descent.
+    const recipe = demoRecipes.find((r) => r.id === batch.recipeId);
+    const og = recipe?.stats?.og ?? 1.048;
+    const fg = recipe?.stats?.fg ?? 1.012;
+    const ratio = daysElapsed / DEMO_FERMENTATION_TARGET_DAYS;
+    const currentSg = og - (og - fg) * ratio;
+
+    return {
+      daysElapsed,
+      daysTarget: DEMO_FERMENTATION_TARGET_DAYS,
+      progressPct,
+      currentSg,
+      targetFg: fg,
+      originalOg: og,
+      temperature: DEMO_FERMENTATION_TEMPERATURE_C,
+    };
+  }, [batch]);
+}
 
 export function BatchDetailsScreen({ batchId }: Props) {
   const bottomPadding = useNavigationFooterOffset();
@@ -92,6 +155,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
   };
 
   const isCompleted = batch?.status === "completed";
+  const fermentationInfo = useFermentationTrackerInfo(batch);
 
   return (
     <Screen
@@ -118,6 +182,47 @@ export function BatchDetailsScreen({ batchId }: Props) {
           <Text style={styles.meta}>
             Current step: {batch.currentStepOrder ?? "-"}
           </Text>
+        </Card>
+      ) : null}
+
+      {fermentationInfo ? (
+        <Card style={styles.fermentationCard}>
+          <View style={styles.fermentationHeader}>
+            <Ionicons name="flask" size={18} color={colors.brand.secondary} />
+            <Text style={styles.fermentationTitle}>Fermentation</Text>
+            <Text style={styles.fermentationDays}>
+              J+{fermentationInfo.daysElapsed} / J+{fermentationInfo.daysTarget}
+            </Text>
+          </View>
+
+          <View style={styles.progressTrack}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${fermentationInfo.progressPct}%` },
+              ]}
+            />
+          </View>
+
+          <View style={styles.metricsRow}>
+            <View style={styles.metric}>
+              <Text style={styles.metricLabel}>Densité actuelle</Text>
+              <Text style={styles.metricValue}>
+                {fermentationInfo.currentSg.toFixed(3)}
+              </Text>
+              <Text style={styles.metricHint}>
+                cible {fermentationInfo.targetFg.toFixed(3)} · départ{" "}
+                {fermentationInfo.originalOg.toFixed(3)}
+              </Text>
+            </View>
+            <View style={styles.metric}>
+              <Text style={styles.metricLabel}>Température</Text>
+              <Text style={styles.metricValue}>
+                {fermentationInfo.temperature} °C
+              </Text>
+              <Text style={styles.metricHint}>idéal 18–20 °C</Text>
+            </View>
+          </View>
         </Card>
       ) : null}
 
@@ -191,6 +296,68 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.body,
   },
   list: {},
+  fermentationCard: {
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  fermentationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  fermentationTitle: {
+    flex: 1,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  fermentationDays: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+  progressTrack: {
+    height: 8,
+    backgroundColor: colors.neutral.border,
+    borderRadius: radius.full,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors.semantic.success,
+    borderRadius: radius.full,
+  },
+  metricsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  metric: {
+    flex: 1,
+  },
+  metricLabel: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  metricValue: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+    marginTop: spacing.xxs,
+  },
+  metricHint: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: 2,
+  },
   stepCard: {
     marginBottom: spacing.xs,
     paddingTop: spacing.md,

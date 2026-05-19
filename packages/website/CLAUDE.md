@@ -4,8 +4,8 @@
 
 **Name:** Brasse Bouillon — Marketing Website
 **Stack:** Static HTML/CSS/JS, no framework. Hosted on GitHub Pages with custom domain via `CNAME`.
-**Deployment:** PR merge to `main` triggers GitHub Pages publication.
-**Quality gate:** Python script under `scripts/quality_gate.py`, tested in `tests/test_quality_gate.py`.
+**Deployment:** any push to `main` whose diff touches `packages/website/**` triggers the [`website-deploy.yml`](../../.github/workflows/website-deploy.yml) workflow, which stages the public files into `_site/` and publishes via `actions/deploy-pages`. Can also be re-run manually from the Actions tab (`workflow_dispatch`).
+**Quality gate:** Python script under `scripts/quality_gate.py`, tested in `tests/test_quality_gate.py`, executed by the `website:` job in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) on every PR that touches the package.
 
 The site is a thin marketing surface — not a SaaS frontend. Persistent product UX lives in `packages/mobile-app`.
 

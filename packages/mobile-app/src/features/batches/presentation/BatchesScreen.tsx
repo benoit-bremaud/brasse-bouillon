@@ -40,6 +40,15 @@ const getRecipeColorEbc = (recipeId: string): number => {
   return recipe?.stats?.colorEbc ?? DEFAULT_BATCH_COLOR_EBC;
 };
 
+const getRecipeName = (recipeId: string): string => {
+  if (!dataSource.useDemoData) {
+    return `Recipe ${recipeId.slice(0, 8)}`;
+  }
+
+  const recipe = demoRecipes.find((r) => r.id === recipeId);
+  return recipe?.name ?? `Recipe ${recipeId.slice(0, 8)}`;
+};
+
 const getStatusLabel = (status: BatchStatus): string => {
   const labels: Record<BatchStatus, string> = {
     in_progress: "In Progress",
@@ -123,8 +132,8 @@ export function BatchesScreen() {
                   </View>
                   <View style={styles.cardInfo}>
                     <View style={styles.cardTopRow}>
-                      <Text style={styles.cardTitle}>
-                        Batch {item.id.slice(0, 8)}
+                      <Text style={styles.cardTitle} numberOfLines={1}>
+                        {getRecipeName(item.recipeId)}
                       </Text>
                       <Badge
                         label={getStatusLabel(item.status)}

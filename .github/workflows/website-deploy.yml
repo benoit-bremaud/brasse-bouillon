@@ -37,32 +37,46 @@ jobs:
 
       # Stage only the public-facing site under `_site/`. Everything that
       # ships to the browser is whitelisted here; internal repo files
-      # (docs/, scripts/, tests/, CHANGELOG.md, CONTRIBUTING.md, README.md,
-      # CLAUDE.md, package.json, sonar-project.properties) stay out of
-      # the deployment.
+      # (scripts/, tests/, CHANGELOG.md, CONTRIBUTING.md, README.md,
+      # CLAUDE.md, package.json, sonar-project.properties, and the
+      # internal portion of docs/ such as GOVERNANCE.md, SEO_RUNBOOK.md,
+      # weekly/) stay out of the deployment.
       - name: Stage public site assets
         run: |
           set -euo pipefail
+          # Empty globs become empty lists (instead of leaving the literal
+          # in place), so `cp` is not called with a missing source if an
+          # asset class disappears one day — Codex P2 on PR #1020.
+          shopt -s nullglob
+
           mkdir -p _site
           src=packages/website
 
-          # HTML / CSS / JS at the root of the website package
-          cp "$src"/*.html _site/
-          cp "$src"/site.css _site/
-          cp "$src"/site.js _site/
+          # Glob copies — tolerate empty matches.
+          for f in "$src"/*.html "$src"/*.css "$src"/*.js "$src"/*.png "$src"/*.svg; do
+            cp "$f" _site/
+          done
 
-          # Brand + tab assets
-          cp "$src"/*.png _site/
-          cp "$src"/*.svg _site/
-          cp "$src"/favicon.ico _site/
-          cp "$src"/CNAME _site/
+          # Required scalar files — fail loudly if any go missing.
+          for required in favicon.ico CNAME sitemap.xml robots.txt; do
+            cp "$src/$required" _site/
+          done
 
-          # SEO surface and screenshots
-          cp "$src"/sitemap.xml _site/
-          cp "$src"/robots.txt _site/
-          # Optional dirs — copied when present, skipped silently otherwise.
-          [ -d "$src/seo" ] && cp -R "$src/seo" _site/seo || true
-          [ -d "$src/screenshots" ] && cp -R "$src/screenshots" _site/screenshots || true
+          # Optional public directories.
+          if [ -d "$src/seo" ]; then
+            cp -R "$src/seo" _site/seo
+          fi
+          if [ -d "$src/screenshots" ]; then
+            cp -R "$src/screenshots" _site/screenshots
+          fi
+
+          # Public docs explicitly linked from the homepage. ROADMAP.md
+          # is reachable via `<a href="docs/ROADMAP.md">` on both
+          # index.html (line 316) and index-en.html (line 253) — without
+          # this copy the link 404s after deploy. Other docs/ contents
+          # (GOVERNANCE.md, SEO_RUNBOOK.md, weekly/) stay internal.
+          mkdir -p _site/docs
+          cp "$src/docs/ROADMAP.md" _site/docs/ROADMAP.md
 
           echo "::group::Deployment payload"
           find _site -maxdepth 2 -type f | sort

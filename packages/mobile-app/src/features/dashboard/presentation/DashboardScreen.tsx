@@ -546,7 +546,7 @@ export function DashboardScreen() {
         referenceDate,
       );
       fermentationDay = Math.max(
-        1,
+        0,
         Math.floor((referenceDate.getTime() - startedAt.getTime()) / DAY_MS),
       );
     }
@@ -721,7 +721,7 @@ export function DashboardScreen() {
           </Card>
         )}
 
-        {ribbonInfo ? (
+        {heroBatchInfo && ribbonInfo ? (
           <View style={styles.ribbonRow}>
             <View style={styles.ribbonItem}>
               <Text style={styles.ribbonValue}>{ribbonInfo.totalBrassins}</Text>
@@ -846,7 +846,7 @@ export function DashboardScreen() {
           </Card>
         ) : null}
 
-        {heroBatchInfo ? null : (
+        {!heroBatchInfo && (
           <Card style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Alertes & échéances</Text>

@@ -556,6 +556,39 @@ export function DashboardScreen() {
     };
   }, [batches, referenceDate]);
 
+  // Demo-mode ribbon: three condensed figures pinned right under the
+  // hero card so the dashboard keeps its at-a-glance feel without the
+  // heavy KPI grid. All three values derive from `batches` so they
+  // stay consistent with the rest of the demo dataset.
+  const ribbonInfo = useMemo(() => {
+    if (!dataSource.useDemoData) {
+      return null;
+    }
+    const totalBrassins = batches.length;
+    const fermentingBatch = batches.find(
+      (b) => b.id === "b-demo-pdd-ferm" && b.fermentationStartedAt,
+    );
+    let fermentationDay: number | null = null;
+    if (fermentingBatch?.fermentationStartedAt) {
+      const startedAt = parseDateOrNow(
+        fermentingBatch.fermentationStartedAt,
+        referenceDate,
+      );
+      fermentationDay = Math.max(
+        1,
+        Math.floor((referenceDate.getTime() - startedAt.getTime()) / DAY_MS),
+      );
+    }
+    const mySignedRecipes = demoRecipes.filter(
+      (r) => r.ownerId === session?.user.id,
+    ).length;
+    return {
+      totalBrassins,
+      fermentationDay,
+      mySignedRecipes,
+    };
+  }, [batches, referenceDate, session?.user.id]);
+
   const kpis = useMemo(
     () => [
       {
@@ -601,10 +634,12 @@ export function DashboardScreen() {
             </View>
             <View style={styles.headerText}>
               <Text style={styles.headerName} numberOfLines={1}>
-                {displayName}
+                Salut {displayName} 👋
               </Text>
               <Text style={styles.headerSubtitle} numberOfLines={1}>
-                Tableau de bord brassage
+                {heroBatchInfo
+                  ? `${heroBatchInfo.stepLabel} en cours · ${heroBatchInfo.recipeName}`
+                  : "Tableau de bord brassage"}
               </Text>
             </View>
           </View>
@@ -695,6 +730,131 @@ export function DashboardScreen() {
             </View>
           </Card>
         )}
+
+        {ribbonInfo ? (
+          <View style={styles.ribbonRow}>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>{ribbonInfo.totalBrassins}</Text>
+              <Text style={styles.ribbonLabel}>brassins</Text>
+            </View>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>
+                {ribbonInfo.mySignedRecipes}
+              </Text>
+              <Text style={styles.ribbonLabel}>recette signée</Text>
+            </View>
+            <View style={styles.ribbonItem}>
+              <Text style={styles.ribbonValue}>
+                {ribbonInfo.fermentationDay !== null
+                  ? `J+${ribbonInfo.fermentationDay}`
+                  : "—"}
+              </Text>
+              <Text style={styles.ribbonLabel}>fermentation</Text>
+            </View>
+          </View>
+        ) : null}
+
+        {heroBatchInfo ? (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>À explorer</Text>
+            </View>
+            <View style={styles.exploreList}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Scanner une bière"
+                onPress={() => router.push("/(app)/dashboard/scan")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="barcode-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Scanne une bière qui t’inspire
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    Retrouve sa fiche, vois si tu peux la cloner
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Découvrir l'académie"
+                onPress={() => router.push("/(app)/academy")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="school-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Apprends un nouveau geste
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    L’académie te guide style par style
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Créer ma propre recette"
+                onPress={() => router.push("/(app)/recipes/catalog")}
+                style={({ pressed }) => [
+                  styles.exploreItem,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.exploreIcon}>
+                  <Ionicons
+                    name="document-text-outline"
+                    size={20}
+                    color={colors.brand.secondary}
+                  />
+                </View>
+                <View style={styles.exploreText}>
+                  <Text style={styles.exploreTitle}>
+                    Crée ta propre recette
+                  </Text>
+                  <Text style={styles.exploreSubtitle}>
+                    Pioche dans le catalogue et adapte
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.neutral.muted}
+                />
+              </Pressable>
+            </View>
+          </Card>
+        ) : null}
 
         {heroBatchInfo ? null : (
           <Card style={styles.sectionCard}>
@@ -1071,6 +1231,65 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
+  },
+  ribbonRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  ribbonItem: {
+    flex: 1,
+    backgroundColor: colors.neutral.white,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: "center",
+  },
+  ribbonValue: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+  },
+  ribbonLabel: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: spacing.xxs,
+    textAlign: "center",
+  },
+  exploreList: {
+    gap: spacing.xs,
+  },
+  exploreItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  exploreIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  exploreText: {
+    flex: 1,
+  },
+  exploreTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  exploreSubtitle: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    marginTop: 2,
   },
   sectionHeader: {
     flexDirection: "row",

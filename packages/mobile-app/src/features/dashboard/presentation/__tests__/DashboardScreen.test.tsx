@@ -107,7 +107,7 @@ describe("DashboardScreen", () => {
     renderDashboardScreen();
 
     expect(await screen.findByText("Tableau de bord brassage")).toBeTruthy();
-    expect(screen.getByText("Benoit")).toBeTruthy();
+    expect(screen.getByText(/Benoit/)).toBeTruthy();
     expect(screen.getByText("Vue d’ensemble")).toBeTruthy();
     expect(screen.getByText("Alertes & échéances")).toBeTruthy();
     expect(screen.getAllByText("Brassins actifs").length).toBeGreaterThan(0);

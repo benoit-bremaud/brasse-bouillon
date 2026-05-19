@@ -7,6 +7,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-19
 
+### PR #1018 merged (`e4c8f2d`) — feat(website): new-brewer journey section + screenshot-ready feature cards
+
+- Branch `feat/website-journey-screenshots`, 2 commits (`5c01201`, `441eb38`), +211/−12 net + 10 placeholder PNG assets. First marketing-site refresh consuming the polished mobile demo: a new `#journeyFr` / `#journeyEn` section between hero and features (FR + EN twins) walks the curious newcomer through the four-step parcours `Choisir → Brasser → Fermenter → Déguster`, each step backed by a wired image path under `packages/website/screenshots/`. The six feature cards swap their legacy emoji `.feature-icon` slot for a `.feature-screenshot` wrapper pointing to the matching mobile capture path. Hero card layout untouched in this PR (mascot + iPhone mockup combo deferred to a follow-up).
+- Round-1 review fix in `441eb38`: 3 inline comments addressed (1 Codex P1 Must Have + 2 Copilot Should Have). (1) The new `<img>` references pointed to files that did not exist — committed 10 valid 70-byte 1×1 transparent PNGs at the target paths so any deploy renders no broken-image icon while waiting for the real captures. When the real screenshots arrive, the placeholder PNGs get overwritten in place; no HTML edit needed. (2) `.journey-step p` hardcoded `#5b4b3f` — switched to `var(--color-muted)` (same value, single source of truth). (3) Removed the now-dead `.feature-icon` rule plus its two `nth-child(3n+2)` / `nth-child(3n)` background variants (21 lines deleted) once every feature card adopted `.feature-screenshot`.
+- Quality gate (`python3 scripts/quality_gate.py`) green throughout; pytest suite at 7/7. SonarCloud Quality Gate also passed. The new section is anchored on the validated "curious newcomer who hesitates to start" persona only — multi-persona is explicitly deferred per the Ydays soutenance scope.
+
+### PR #1017 merged (`996ba03`) — docs(log): add PROJECT_LOG entry for PR #1016
+
+- Branch `docs/log-pr-1016`, 1 commit (`2b8ba46`), +8. Audit-trail entry for PR #1016 (the demo-mode fermentation tracker) per the `project-log-entry` skill convention. No reviewer comments; merged via squash.
+
 ### PR #1016 merged (`7f903e5`) — feat(batches): demo-mode fermentation tracker on BatchDetails
 
 - Branch `feat/dashboard-fermentation-tracking`, 2 commits (`9674af2`, `9e32c7d`), +314/−23 net. Adds a dedicated `Fermentation` card to `BatchDetailsScreen`, pinned right under the existing batch header card. Renders only when `dataSource.useDemoData === true` AND the current step is typed `fermentation` AND `status === "in_progress"` AND the step has a parseable `startedAt`.

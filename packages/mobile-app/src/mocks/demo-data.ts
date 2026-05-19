@@ -2259,6 +2259,64 @@ export const demoRecipes: Recipe[] = [
     createdAt: "2026-02-01T10:00:00.000Z",
     updatedAt: "2026-02-15T10:00:00.000Z",
   },
+  {
+    id: "r-demo-pdd",
+    ownerId: demoUsers[0].id,
+    name: "La Première du dimanche",
+    description:
+      "Une blonde simple et indulgente, calibrée pour réussir son tout premier brassin. Empâtage unique à 67°C, houblonnage léger en fin d'ébullition, fermentation sèche US-05 à 19°C. Cinq litres, deux semaines de fermentation, deux semaines en bouteille.",
+    stats: {
+      ibu: 22,
+      abv: 4.8,
+      og: 1.048,
+      fg: 1.012,
+      volumeLiters: 5,
+      colorEbc: 8,
+    },
+    ingredients: [
+      {
+        ingredientId: "malt-1",
+        amount: 1.1,
+        unit: "kg",
+        timing: "mash",
+      },
+      {
+        ingredientId: "hop-1",
+        amount: 15,
+        unit: "g",
+        timing: "boil - 60 min",
+      },
+      {
+        ingredientId: "hop-1",
+        amount: 10,
+        unit: "g",
+        timing: "boil - 5 min",
+      },
+      {
+        ingredientId: "yeast-1",
+        amount: 1,
+        unit: "unit",
+        timing: "fermentation",
+        notes: "Dry pitch at 19°C",
+      },
+    ],
+    equipment: [
+      {
+        equipmentId: "eq-1",
+        role: "Mash & boil",
+      },
+      {
+        equipmentId: "eq-3",
+        role: "Fermentation",
+      },
+    ],
+    visibility: "private",
+    version: 1,
+    rootRecipeId: "r-demo-pdd",
+    parentRecipeId: null,
+    createdAt: "2026-04-15T10:00:00.000Z",
+    updatedAt: "2026-04-20T10:00:00.000Z",
+  },
 ];
 
 export const demoBatchSteps: BatchStep[] = [
@@ -2297,6 +2355,128 @@ export const demoBatchSteps: BatchStep[] = [
     completedAt: null,
     createdAt: "2026-02-06T10:05:00.000Z",
     updatedAt: "2026-02-06T10:05:00.000Z",
+  },
+];
+
+/**
+ * Steps for the "La Première du dimanche" fil-rouge batches.
+ * Three distinct arrays so each batch can carry its own progress state
+ * (mash in progress, fermentation in progress, fully completed).
+ */
+export const demoBatchStepsPddMash: BatchStep[] = [
+  {
+    batchId: "b-demo-pdd-mash",
+    stepOrder: 0,
+    type: "mash",
+    label: "Empâtage 67°C",
+    description: "30 min à 67°C, agitation toutes les 10 min",
+    status: "in_progress",
+    startedAt: "2026-05-19T09:00:00.000Z",
+    completedAt: null,
+    createdAt: "2026-05-19T09:00:00.000Z",
+    updatedAt: "2026-05-19T09:30:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-mash",
+    stepOrder: 1,
+    type: "boil",
+    label: "Ébullition 60 min",
+    description: "Houblonnage : 15 g amertume à 60 min, 10 g arôme à 5 min",
+    status: "pending",
+    startedAt: null,
+    completedAt: null,
+    createdAt: "2026-05-19T09:00:00.000Z",
+    updatedAt: "2026-05-19T09:00:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-mash",
+    stepOrder: 2,
+    type: "fermentation",
+    label: "Fermentation primaire",
+    description: "US-05 à 19°C pendant 14 jours",
+    status: "pending",
+    startedAt: null,
+    completedAt: null,
+    createdAt: "2026-05-19T09:00:00.000Z",
+    updatedAt: "2026-05-19T09:00:00.000Z",
+  },
+];
+
+export const demoBatchStepsPddFerm: BatchStep[] = [
+  {
+    batchId: "b-demo-pdd-ferm",
+    stepOrder: 0,
+    type: "mash",
+    label: "Empâtage 67°C",
+    description: "30 min à 67°C, agitation toutes les 10 min",
+    status: "completed",
+    startedAt: "2026-05-14T09:00:00.000Z",
+    completedAt: "2026-05-14T10:00:00.000Z",
+    createdAt: "2026-05-14T09:00:00.000Z",
+    updatedAt: "2026-05-14T10:00:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-ferm",
+    stepOrder: 1,
+    type: "boil",
+    label: "Ébullition 60 min",
+    description: "Houblonnage : 15 g amertume à 60 min, 10 g arôme à 5 min",
+    status: "completed",
+    startedAt: "2026-05-14T10:05:00.000Z",
+    completedAt: "2026-05-14T11:05:00.000Z",
+    createdAt: "2026-05-14T10:05:00.000Z",
+    updatedAt: "2026-05-14T11:05:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-ferm",
+    stepOrder: 2,
+    type: "fermentation",
+    label: "Fermentation primaire",
+    description: "US-05 à 19°C — jour 5 sur 14",
+    status: "in_progress",
+    startedAt: "2026-05-14T11:30:00.000Z",
+    completedAt: null,
+    createdAt: "2026-05-14T11:30:00.000Z",
+    updatedAt: "2026-05-19T08:00:00.000Z",
+  },
+];
+
+export const demoBatchStepsPddDone: BatchStep[] = [
+  {
+    batchId: "b-demo-pdd-done",
+    stepOrder: 0,
+    type: "mash",
+    label: "Empâtage 67°C",
+    description: "30 min à 67°C, agitation toutes les 10 min",
+    status: "completed",
+    startedAt: "2026-04-22T09:00:00.000Z",
+    completedAt: "2026-04-22T10:00:00.000Z",
+    createdAt: "2026-04-22T09:00:00.000Z",
+    updatedAt: "2026-04-22T10:00:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-done",
+    stepOrder: 1,
+    type: "boil",
+    label: "Ébullition 60 min",
+    description: "Houblonnage : 15 g amertume à 60 min, 10 g arôme à 5 min",
+    status: "completed",
+    startedAt: "2026-04-22T10:05:00.000Z",
+    completedAt: "2026-04-22T11:05:00.000Z",
+    createdAt: "2026-04-22T10:05:00.000Z",
+    updatedAt: "2026-04-22T11:05:00.000Z",
+  },
+  {
+    batchId: "b-demo-pdd-done",
+    stepOrder: 2,
+    type: "fermentation",
+    label: "Fermentation primaire",
+    description: "US-05 à 19°C pendant 14 jours, terminée le 6 mai",
+    status: "completed",
+    startedAt: "2026-04-22T11:30:00.000Z",
+    completedAt: "2026-05-06T11:30:00.000Z",
+    createdAt: "2026-04-22T11:30:00.000Z",
+    updatedAt: "2026-05-12T15:00:00.000Z",
   },
 ];
 
@@ -2458,6 +2638,45 @@ export const demoBatchSummaries: BatchSummary[] = [
     createdAt: "2025-11-01T12:00:00.000Z",
     updatedAt: "2025-11-12T12:00:00.000Z",
   },
+  {
+    id: "b-demo-pdd-mash",
+    ownerId: demoUsers[0].id,
+    recipeId: "r-demo-pdd",
+    status: "in_progress",
+    currentStepOrder: 0,
+    startedAt: "2026-05-19T09:00:00.000Z",
+    fermentationStartedAt: null,
+    fermentationCompletedAt: null,
+    completedAt: null,
+    createdAt: "2026-05-19T09:00:00.000Z",
+    updatedAt: "2026-05-19T09:30:00.000Z",
+  },
+  {
+    id: "b-demo-pdd-ferm",
+    ownerId: demoUsers[0].id,
+    recipeId: "r-demo-pdd",
+    status: "in_progress",
+    currentStepOrder: 2,
+    startedAt: "2026-05-14T09:00:00.000Z",
+    fermentationStartedAt: "2026-05-14T11:30:00.000Z",
+    fermentationCompletedAt: null,
+    completedAt: null,
+    createdAt: "2026-05-14T09:00:00.000Z",
+    updatedAt: "2026-05-19T08:00:00.000Z",
+  },
+  {
+    id: "b-demo-pdd-done",
+    ownerId: demoUsers[0].id,
+    recipeId: "r-demo-pdd",
+    status: "completed",
+    currentStepOrder: 2,
+    startedAt: "2026-04-22T09:00:00.000Z",
+    fermentationStartedAt: "2026-04-22T11:30:00.000Z",
+    fermentationCompletedAt: "2026-05-06T11:30:00.000Z",
+    completedAt: "2026-05-12T15:00:00.000Z",
+    createdAt: "2026-04-22T09:00:00.000Z",
+    updatedAt: "2026-05-12T15:00:00.000Z",
+  },
 ];
 
 export const demoBatches: Batch[] = [
@@ -2550,6 +2769,18 @@ export const demoBatches: Batch[] = [
       batchId: "b-demo-12",
       status: "completed",
     })),
+  },
+  {
+    ...demoBatchSummaries[12],
+    steps: demoBatchStepsPddMash,
+  },
+  {
+    ...demoBatchSummaries[13],
+    steps: demoBatchStepsPddFerm,
+  },
+  {
+    ...demoBatchSummaries[14],
+    steps: demoBatchStepsPddDone,
   },
 ];
 

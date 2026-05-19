@@ -37,9 +37,13 @@ export async function completeCurrentBatchStep(
 
 export async function startBatch(recipeId: string): Promise<Batch> {
   if (dataSource.useDemoData) {
-    throw new Error(
-      "Starting a batch is disabled when using demo data. Switch to live data to start a batch.",
-    );
+    const filRouge = demoBatches.find((item) => item.id === "b-demo-pdd-mash");
+    if (!filRouge) {
+      throw new Error(
+        "Demo data is missing the fil-rouge batch b-demo-pdd-mash.",
+      );
+    }
+    return filRouge;
   }
 
   return startBatchApi(recipeId);

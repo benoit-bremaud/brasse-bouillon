@@ -1111,7 +1111,237 @@
     .footer-links a:hover::after { transform: scaleX(1); }
 
     /* ========================================================================
-       Reduced motion
+       Kinetic boost — selective movement add-ons
+       ====================================================================== */
+
+    /* Floating embers inside the hero */
+    .hero-embers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .hero-embers span {
+      position: absolute;
+      bottom: -20px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 184, 114, 0.85) 0%, rgba(197, 116, 45, 0) 70%);
+      animation: emberRise 12s linear infinite;
+      opacity: 0;
+    }
+
+    .hero-embers span:nth-child(1) { left: 12%; animation-delay: 0s;   animation-duration: 14s; --drift:  20px; }
+    .hero-embers span:nth-child(2) { left: 28%; animation-delay: 2.5s; animation-duration: 11s; --drift: -28px; width: 6px; height: 6px; }
+    .hero-embers span:nth-child(3) { left: 46%; animation-delay: 5s;   animation-duration: 16s; --drift:  14px; width: 10px; height: 10px; }
+    .hero-embers span:nth-child(4) { left: 62%; animation-delay: 1s;   animation-duration: 13s; --drift: -18px; }
+    .hero-embers span:nth-child(5) { left: 78%; animation-delay: 6.5s; animation-duration: 15s; --drift:  24px; width: 7px; height: 7px; }
+    .hero-embers span:nth-child(6) { left: 90%; animation-delay: 3.5s; animation-duration: 12s; --drift: -12px; width: 5px; height: 5px; }
+
+    @keyframes emberRise {
+      0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+      15%  { opacity: 0.9; }
+      85%  { opacity: 0.6; }
+      100% { transform: translate(var(--drift, 0), -110vh) scale(1.1); opacity: 0; }
+    }
+
+    /* Staggered entrance for journey steps */
+    .journey-step {
+      animation: cardIn 0.9s var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    .journey-step:nth-child(1) { animation-delay: 0s; }
+    .journey-step:nth-child(2) { animation-delay: 0.08s; }
+    .journey-step:nth-child(3) { animation-delay: 0.16s; }
+    .journey-step:nth-child(4) { animation-delay: 0.24s; }
+
+    /* Staggered entrance for feature cards */
+    .feature-card {
+      animation: cardIn 0.9s var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    .feature-card:nth-child(1) { animation-delay: 0s; }
+    .feature-card:nth-child(2) { animation-delay: 0.1s; }
+    .feature-card:nth-child(3) { animation-delay: 0.2s; }
+
+    /* FAQ entrance stagger */
+    .faq-item {
+      animation: faqIn 0.7s var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 20%;
+    }
+    .faq-item:nth-child(1) { animation-delay: 0s; }
+    .faq-item:nth-child(2) { animation-delay: 0.06s; }
+    .faq-item:nth-child(3) { animation-delay: 0.12s; }
+    .faq-item:nth-child(4) { animation-delay: 0.18s; }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    }
+
+    @keyframes faqIn {
+      from { opacity: 0; transform: translateX(-16px); }
+      to   { opacity: 1; transform: translateX(0);     }
+    }
+
+    /* Eyebrow lines that draw in on view */
+    .section-eyebrow {
+      animation: eyebrowIn 1.2s var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    @keyframes eyebrowIn {
+      from { letter-spacing: 0.4em; opacity: 0; }
+      to   { letter-spacing: 0.22em; opacity: 1; }
+    }
+
+    .section-eyebrow::before,
+    .section-eyebrow::after {
+      animation: lineGrow 1s var(--ease-out-soft) 0.2s both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+      transform-origin: center;
+    }
+
+    @keyframes lineGrow {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+
+    /* Section title em — subtle continuous shimmer */
+    .section-title em,
+    .hero h1 em {
+      background: linear-gradient(90deg, var(--copper) 0%, var(--copper-deep) 35%, var(--ember, #ffb872) 50%, var(--copper-deep) 65%, var(--copper) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: emShimmer 6s ease-in-out infinite;
+    }
+
+    @keyframes emShimmer {
+      0%, 100% { background-position: 200% 50%; }
+      50%      { background-position: 0% 50%; }
+    }
+
+    :root { --ember: #ffb872; }
+
+    /* Journey numerals breathing */
+    .journey-num {
+      animation: numBreath 4.5s ease-in-out infinite;
+    }
+    .journey-step:nth-child(1) .journey-num { animation-delay: 0s; }
+    .journey-step:nth-child(2) .journey-num { animation-delay: 0.6s; }
+    .journey-step:nth-child(3) .journey-num { animation-delay: 1.2s; }
+    .journey-step:nth-child(4) .journey-num { animation-delay: 1.8s; }
+
+    @keyframes numBreath {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.92; }
+      50%      { transform: scale(1.05) rotate(-1.5deg); opacity: 1; }
+    }
+    .journey-step:hover .journey-num {
+      animation-play-state: paused;
+    }
+
+    /* Primary CTA — subtle glow pulse in idle */
+    .hero-actions .btn-primary,
+    .participate .btn-primary {
+      animation: ctaPulse 3.5s ease-in-out infinite;
+    }
+
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 12px 28px rgba(26, 17, 10, 0.4); }
+      50%      { box-shadow: 0 14px 36px rgba(26, 17, 10, 0.4), 0 0 28px rgba(197, 116, 45, 0.35); }
+    }
+
+    /* Arrow on hover for primary CTAs */
+    .btn-primary {
+      gap: 8px;
+    }
+    .btn-primary::after {
+      content: '→';
+      display: inline-block;
+      transform: translateX(-4px);
+      opacity: 0;
+      transition: transform 0.3s var(--ease-out-soft), opacity 0.3s var(--ease-out-soft);
+      font-family: var(--font-body);
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-primary:hover::after {
+      transform: translateX(2px);
+      opacity: 1;
+    }
+
+    /* Pill — tiny continuous tilt */
+    .pill {
+      animation: pillTilt 5s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes pillTilt {
+      0%, 100% { transform: rotate(0deg); }
+      50%      { transform: rotate(-1deg); }
+    }
+
+    /* Footer mark wobble */
+    .footer-mark {
+      animation: markWobble 7s ease-in-out infinite;
+    }
+    @keyframes markWobble {
+      0%, 100% { transform: rotate(0deg); }
+      25%      { transform: rotate(3deg); }
+      75%      { transform: rotate(-3deg); }
+    }
+
+    /* Hero mascot — softer continuous yaw on top of the existing float */
+    .hero-mascot {
+      animation: heroFloat 5s ease-in-out infinite, heroYaw 14s ease-in-out infinite;
+    }
+    @keyframes heroYaw {
+      0%, 100% { filter: drop-shadow(0 0 24px rgba(197, 116, 45, 0)); }
+      50%      { filter: drop-shadow(0 0 36px rgba(197, 116, 45, 0.35)); }
+    }
+
+    /* Marquee — slight vertical sway for a "carved on paper" feel */
+    .marquee-track span:nth-child(odd) {
+      display: inline-block;
+      animation: trackBob 4s ease-in-out infinite;
+    }
+    .marquee-track span:nth-child(even) {
+      display: inline-block;
+      animation: trackBob 4s ease-in-out infinite reverse;
+    }
+    @keyframes trackBob {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+
+    /* Feature screenshot — gentle continuous bob on screen */
+    .feature-screenshot {
+      animation: screenshotBob 6s ease-in-out infinite;
+    }
+    .feature-card:nth-child(2) .feature-screenshot { animation-delay: 1s; }
+    .feature-card:nth-child(3) .feature-screenshot { animation-delay: 2s; }
+    @keyframes screenshotBob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-4px) rotate(0.6deg); }
+    }
+    .feature-card:hover .feature-screenshot {
+      animation: none;
+    }
+
+    /* ========================================================================
+       Reduced motion — kill everything
        ====================================================================== */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1119,4 +1349,5 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
       }
+      .hero-embers { display: none; }
     }

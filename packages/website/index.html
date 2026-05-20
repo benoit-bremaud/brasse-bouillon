@@ -4,22 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brasse-Bouillon — Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
-  
+
   <!-- SEO Meta Tags -->
   <meta name="description" content="Brasse-Bouillon est l’application de brassage amateur pour créer des recettes de bière, calculer IBU/ABV, suivre la fermentation et réussir chaque brassin pas à pas.">
   <meta name="keywords" content="application brassage amateur, brassage maison, recette bière, calcul IBU, calcul ABV, suivi fermentation, guide brassage, journal de brassins, homebrew">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
-  
-  <!-- Open Graph / Facebook -->
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://brasse-bouillon.com/">
   <meta property="og:title" content="Brasse-Bouillon | Application de brassage amateur">
   <meta property="og:description" content="Crée des recettes de bière, calcule IBU/ABV et suis la fermentation avec un guide de brassage pas à pas.">
   <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
   <meta property="og:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
-  
+
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://brasse-bouillon.com/">
@@ -27,19 +27,19 @@
   <meta name="twitter:description" content="L’application des brasseurs amateurs : recettes de bière, calculs IBU/ABV, suivi fermentation et guide pas à pas.">
   <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
   <meta name="twitter:image:alt" content="Brasse-Bouillon, application mobile de brassage amateur">
-  
+
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
   <link rel="apple-touch-icon" href="logo-icon-32.png">
-  
-  <!-- Preconnect for performance -->
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="site.css">
-  
+
   <!-- Organization Schema -->
   <script type="application/ld+json">
   {
@@ -53,8 +53,7 @@
     "email": "contact@brasse-bouillon.com",
     "founder": {
       "@type": "Person",
-      "name": "Benoît Bremaud",
-      "url": "https://www.linkedin.com/in/benoit-bremaud"
+      "name": "Benoît Bremaud"
     },
     "contactPoint": {
       "@type": "ContactPoint",
@@ -67,9 +66,6 @@
       "Calcul IBU",
       "Calcul ABV",
       "Suivi de fermentation"
-    ],
-    "sameAs": [
-      "https://www.linkedin.com/in/benoit-bremaud"
     ]
   }
   </script>
@@ -82,51 +78,28 @@
     "mainEntity": [
       {
         "@type": "Question",
+        "name": "Faut-il être bricoleur pour brasser sa bière ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Pas du tout. Une casserole, un fermenteur, des bouteilles — et l’app qui te dit quoi faire à chaque étape. Si tu sais cuisiner des pâtes, tu sais brasser une bière." }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien ça coûte de se lancer ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Entre 60 et 120 € pour un kit débutant complet. Tu refais 5-6 brassins avec, et le matos est largement amorti par rapport au prix d’une bonne bière artisanale." }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien de temps dure un brassin (la première fois) ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Une demi-journée pour la session de brassage (4-5h), puis 2 à 3 semaines de fermentation où tu n’as quasiment rien à faire. L’app te rappelle les checkpoints critiques." }
+      },
+      {
+        "@type": "Question",
+        "name": "Et si je rate mon premier brassin ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ça arrive, et c’est presque toujours buvable. L’app fait le point sur chaque étape pour t’aider à comprendre ce qui s’est passé — et le brassin suivant repart meilleur." }
+      },
+      {
+        "@type": "Question",
         "name": "Quand l’app sera disponible ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Puis-je participer ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Oui : via le questionnaire, les retours UX et le contact direct."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Pour quel niveau ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "iOS, Android… ou les deux ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "L’objectif produit est une disponibilité sur les deux plateformes. Le déploiement se fera progressivement avec une phase bêta en amont."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Mes recettes et brassins seront-ils sauvegardés ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Oui. La trajectoire produit prévoit un historique structuré des recettes/brassins avec persistance pour suivre et reproduire plus facilement tes sessions."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Comment suivre les nouveautés ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "La roadmap et le journal de développement sont mis à jour en continu sur le site, avec un historique traçable des évolutions livrées."
-        }
+        "acceptedAnswer": { "@type": "Answer", "text": "Bêta progressive en 2026. Les inscrits à la waitlist passent en priorité." }
       }
     ]
   }
@@ -134,6 +107,7 @@
 </head>
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
 
   <header class="site-header">
     <div class="header-inner">
@@ -142,467 +116,288 @@
         <span>Brasse-Bouillon</span>
       </a>
       <nav class="header-nav">
-        <a href="#features">Fonctionnalités</a>
-        <a href="#brewAssistantFr">Assistant</a>
-        <a href="#roadmapHeadingFr">Roadmap</a>
+        <a href="#journeyFr">Parcours</a>
+        <a href="#features">L’app</a>
         <a href="#faq">FAQ</a>
-        <a href="#newsletterFr">Newsletter</a>
-        <a href="#contact">Contact</a>
+        <a href="#participerFr" class="header-cta">Rejoindre la waitlist</a>
       </nav>
-      <div class="header-right">
-        <div class="language-switch" role="navigation" aria-label="Choix de langue">
-          <a href="index.html" aria-label="Version française">🇫🇷 FR</a> ·
-          <a href="index-en.html" aria-label="Version anglaise">🇬🇧 EN</a>
-        </div>
-      </div>
     </div>
   </header>
 
   <main class="page" id="mainContentFr">
     <div class="shell">
       <p class="responsibility-banner">
-        🍺 Brasse-Bouillon s’adresse aux adultes (18+) et promeut une consommation responsable.
-        L’abus d’alcool est dangereux pour la santé.
+        Brasse-Bouillon s’adresse aux adultes (18+) et promeut une consommation responsable. L’abus d’alcool est dangereux pour la santé.
       </p>
 
       <section class="hero">
-        <div class="logo-wrap">
+        <div class="hero-embers" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span class="pill">Bêta 2026 · Places limitées</span>
+        <h1>
+          Brasse ta première bière <em>sans peur de rater.</em>
+        </h1>
+        <p class="intro">
+          De la recette choisie à la première gorgée, l’app te dit quoi faire, quand, et pourquoi.
+          Sans jargon, sans calcul de tête, sans surprise.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#participerFr">Rejoindre la waitlist</a>
+          <a class="btn btn-ghost" href="#journeyFr">Voir comment ça se passe</a>
+        </div>
+        <div class="hero-mascot">
           <img class="logo" src="logo-hero.png" alt="Mascotte officielle Brasse-Bouillon" loading="eager" width="180" height="180">
         </div>
-        <p class="pill">🚀 Bêta 2026 • Places limitées</p>
-        <h1>Brasse-Bouillon : ton copilote brassage pour réussir chaque brassin</h1>
-        <p class="intro">
-          Du premier kit à la recette avancée all-grain, Brasse-Bouillon te guide, t’assiste et te motive.
-          Objectif : un brassage plus simple, plus fun, plus précis — et des résultats dont tu es fier à chaque session.
-        </p>
-        <div class="actions">
-          <a class="btn btn-secondary" href="#brewAssistantFr">Voir le guide pas-à-pas</a>
-          <a class="btn btn-primary" href="#newsletterFr">Rejoindre la waitlist</a>
-          <a class="btn btn-secondary" href="#questionnaireFr">Influencer la roadmap</a>
-        </div>
-        <p class="badge">🔥 Newsletter + questionnaire + contact direct : 3 façons de participer au projet.</p>
       </section>
 
       <section class="section-block" id="journeyFr">
-        <h2 class="section-title">🧭 Comment ça se passe, ton premier brassin</h2>
-        <p class="section-intro">De la recette choisie à la première gorgée, Brasse-Bouillon t’accompagne à chaque étape — pour que tu te lances sans peur de rater.</p>
+        <p class="section-eyebrow">Le parcours</p>
+        <h2 class="section-title">De la recette à la <em>dégustation</em></h2>
+        <p class="section-intro">Quatre étapes, un copilote à chaque moment. Tu n’es jamais seul devant tes cuves.</p>
         <ol class="journey-grid">
           <li class="journey-step">
+            <span class="journey-num" aria-hidden="true">01</span>
             <div class="journey-screenshot">
               <img src="screenshots/journey-1-catalog.png" alt="Capture de l’écran Recettes avec « La Première du dimanche » sélectionnée dans le catalogue guidé" loading="lazy" width="320" height="640">
             </div>
-            <h3>1. Choisis ta première recette</h3>
-            <p>Un catalogue de recettes calibrées pour réussir dès le premier brassin — sans jargon, sans surprise.</p>
+            <h3>Choisis ta recette</h3>
+            <p>Un catalogue calibré pour réussir dès le premier brassin — sans jargon, sans surprise.</p>
           </li>
           <li class="journey-step">
+            <span class="journey-num" aria-hidden="true">02</span>
             <div class="journey-screenshot">
               <img src="screenshots/journey-2-brewing.png" alt="Capture de l’écran de pilotage du brassin pendant l’empâtage à 67°C, avec timer et étapes" loading="lazy" width="320" height="640">
             </div>
-            <h3>2. Brasse pas à pas</h3>
-            <p>L’app te dit quoi faire, quand, et pourquoi — empâtage, ébullition, refroidissement, sans louper une étape.</p>
+            <h3>Brasse pas à pas</h3>
+            <p>L’app te dit quoi faire, quand, et pourquoi — empâtage, ébullition, refroidissement.</p>
           </li>
           <li class="journey-step">
+            <span class="journey-num" aria-hidden="true">03</span>
             <div class="journey-screenshot">
               <img src="screenshots/journey-3-fermenting.png" alt="Capture de l’écran de fermentation avec la barre de progression jour 5 sur 14 et la densité actuelle" loading="lazy" width="320" height="640">
             </div>
-            <h3>3. Suis la fermentation</h3>
-            <p>Jours de fermentation, densité actuelle, température — un coup d’œil et tu sais où tu en es.</p>
+            <h3>Suis la fermentation</h3>
+            <p>Jours, densité, température. Un coup d’œil et tu sais où tu en es.</p>
           </li>
           <li class="journey-step">
+            <span class="journey-num" aria-hidden="true">04</span>
             <div class="journey-screenshot">
               <img src="screenshots/journey-4-deguste.png" alt="Capture de l’écran de célébration « brassin terminé » avec la bouteille et l’étiquette personnalisée" loading="lazy" width="320" height="640">
             </div>
-            <h3>4. Mets en bouteille, savoure</h3>
-            <p>Colle ton étiquette, partage avec tes amis, et savoure ta première création — la fierté en plus.</p>
+            <h3>Mets en bouteille, savoure</h3>
+            <p>Colle ton étiquette, partage avec tes amis, savoure ta première création.</p>
           </li>
         </ol>
       </section>
 
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Empâtage</span><span aria-hidden="true">·</span>
+          <span>Houblonnage</span><span aria-hidden="true">·</span>
+          <span>IBU 22</span><span aria-hidden="true">·</span>
+          <span>ABV 4.8 %</span><span aria-hidden="true">·</span>
+          <span>EBC 8</span><span aria-hidden="true">·</span>
+          <span>Fermentation</span><span aria-hidden="true">·</span>
+          <span>Cold crash</span><span aria-hidden="true">·</span>
+          <span>Refermentation</span><span aria-hidden="true">·</span>
+          <span>Mise en bouteille</span><span aria-hidden="true">·</span>
+          <span>Empâtage</span><span aria-hidden="true">·</span>
+          <span>Houblonnage</span><span aria-hidden="true">·</span>
+          <span>IBU 22</span><span aria-hidden="true">·</span>
+          <span>ABV 4.8 %</span><span aria-hidden="true">·</span>
+          <span>EBC 8</span><span aria-hidden="true">·</span>
+          <span>Fermentation</span><span aria-hidden="true">·</span>
+          <span>Cold crash</span><span aria-hidden="true">·</span>
+          <span>Refermentation</span><span aria-hidden="true">·</span>
+          <span>Mise en bouteille</span><span aria-hidden="true">·</span>
+        </div>
+      </div>
+
       <section class="section-block" id="features">
-        <h2 class="section-title">🍻 Les fonctionnalités qui vont te faire aimer chaque brassin</h2>
-        <p class="section-intro">Tout est pensé pour te faire gagner du temps, réduire les erreurs et progresser brassin après brassin.</p>
+        <p class="section-eyebrow">Trois outils, un copilote</p>
+        <h2 class="section-title">L’<em>essentiel</em>, rien que l’essentiel</h2>
+        <p class="section-intro">Pas de bardage de fonctionnalités. Trois piliers, pensés pour te faire gagner du temps et progresser.</p>
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-screenshot">
               <img src="screenshots/feature-studio-recipes.png" alt="Capture de l’écran Studio de recettes avec onglets Ingrédients et calculs en direct" loading="lazy" width="280" height="560">
             </div>
-            <h3>Studio de recettes ultra pratique</h3>
-            <p>Crée, duplique, ajuste et versionne tes recettes en quelques taps, sans te perdre dans des écrans complexes.</p>
+            <h3>Studio de recettes</h3>
+            <p>Crée, duplique, ajuste tes recettes en quelques taps. Versionne et compare sans te perdre.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
               <img src="screenshots/feature-calculs-hops.png" alt="Capture de l’écran Calcul houblons avec onglets Rapide, Inversé et BU:GU et sliders interactifs" loading="lazy" width="280" height="560">
             </div>
-            <h3>Calculs brassage fiables</h3>
-            <p>IBU, ABV, couleur, volumes, rendements : tous les indicateurs essentiels au même endroit pour décider vite.</p>
+            <h3>Calculs brassage</h3>
+            <p>IBU, ABV, couleur, volumes, rendements. Tous les indicateurs au même endroit, fiables.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
               <img src="screenshots/feature-pilotage-batches.png" alt="Capture de l’écran Pilotage temps réel avec timeline des étapes et statuts" loading="lazy" width="280" height="560">
             </div>
-            <h3>Pilotage temps réel de session</h3>
-            <p>Timeline claire, rappels utiles, checkpoints critiques : tu sais exactement quoi faire, quand, et pourquoi.</p>
-          </article>
-          <article class="feature-card">
-            <div class="feature-screenshot">
-              <img src="screenshots/feature-academy-empatage.png" alt="Capture de l’écran Académie avec un sujet d’empâtage détaillé et son contenu pédagogique" loading="lazy" width="280" height="560">
-            </div>
-            <h3>Assistant de brassage guidé</h3>
-            <p>Choisis ton parcours (All-grain, BIAB ou Kit/Extrait) et laisse-toi guider pas à pas : impossible de rater ton brassin.</p>
-          </article>
-          <article class="feature-card">
-            <div class="feature-screenshot">
-              <img src="screenshots/feature-batches-history.png" alt="Capture de l’écran Mes Brassins avec trois brassins « La Première du dimanche » à différents stades" loading="lazy" width="280" height="560">
-            </div>
-            <h3>Historique qui fait progresser</h3>
-            <p>Compare tes lots, retrouve tes décisions, identifie ce qui marche et améliore objectivement tes futures recettes.</p>
-          </article>
-          <article class="feature-card">
-            <div class="feature-screenshot">
-              <img src="screenshots/feature-social-feed.png" alt="Capture de l’écran Communauté avec des brassins partagés, leurs réactions et commentaires" loading="lazy" width="280" height="560">
-            </div>
-            <h3>Partage & feedback communauté</h3>
-            <p>Montre tes créations, récupère des retours utiles et découvre des idées inspirantes pour ton prochain brassin.</p>
+            <h3>Pilotage guidé</h3>
+            <p>Timeline claire, rappels utiles, checkpoints critiques. Tu sais quoi faire, quand, pourquoi.</p>
           </article>
         </div>
       </section>
 
-      <section class="section-block" id="brewAssistantFr">
-        <h2 class="section-title">🧭 Guide de brassage pas-à-pas : 3 parcours, un seul objectif</h2>
-        <p class="section-intro">Tu choisis ton niveau et ta méthode, Brasse-Bouillon te guide sur chaque étape critique jusqu’à la fermentation.</p>
-        <div class="guide-grid">
-          <article class="guide-card">
-            <h3>All-grain classique</h3>
-            <ul>
-              <li>Préparation eau + pH + concassage</li>
-              <li>Empâtage, paliers, rinçage et densités</li>
-              <li>Ébullition, houblonnage, refroidissement</li>
-              <li>Fermentation + suivi + conditionnement</li>
-            </ul>
-          </article>
-          <article class="guide-card">
-            <h3>BIAB (Brew In A Bag)</h3>
-            <ul>
-              <li>Setup BIAB rapide et sécurisant</li>
-              <li>Gestion température et extraction</li>
-              <li>Plan de houblonnage simplifié</li>
-              <li>Checklist anti-oubli jusqu’au cold crash</li>
-            </ul>
-          </article>
-          <article class="guide-card">
-            <h3>Kits / Extraits (débutants)</h3>
-            <ul>
-              <li>Démarrage facile sans jargon inutile</li>
-              <li>Volumes, dilution et sanitisation guidés</li>
-              <li>Aide aux timings et températures clés</li>
-              <li>Première réussite sans stress</li>
-            </ul>
-          </article>
-        </div>
-        <p class="badge">✅ Rappels contextuels, étapes obligatoires et points de contrôle : Brasse-Bouillon t’assiste du début à la mise en bouteille.</p>
-      </section>
-
-      <section class="section-block">
-        <h2 class="section-title" id="roadmapHeadingFr">🗺️ Roadmap du projet</h2>
-        <div class="roadmap-controls" id="roadmapControlsFr" role="toolbar" aria-label="Filtres de la roadmap">
-          <button class="chip active" data-filter="all" aria-pressed="true" onclick="filterRoadmapFr('all', this)">Toutes</button>
-          <button class="chip" data-filter="current" aria-pressed="false" onclick="filterRoadmapFr('current', this)">En cours</button>
-          <button class="chip" data-filter="next" aria-pressed="false" onclick="filterRoadmapFr('next', this)">À venir</button>
-          <button class="chip" data-filter="done" aria-pressed="false" onclick="filterRoadmapFr('done', this)">Terminées</button>
-        </div>
-        <div id="roadmapTrackFr" class="roadmap-track" role="region" aria-live="polite" aria-labelledby="roadmapHeadingFr"></div>
-        <p class="badge">
-          Historique détaillé des actions réalisées :
-          <a href="docs/ROADMAP.md" target="_blank" rel="noopener noreferrer">section “Done” de la feuille de route</a>.
-        </p>
-      </section>
-
-      <section class="section-block">
-        <h2 class="section-title">🧪 Journal de développement</h2>
-        <div class="section-grid">
-          <div class="mini-card">
-            <h3>Fin février 2026 · Côté produit</h3>
-            Suite des calculateurs finalisée (couleur/houblons/eau/conversions), expérience boutique enrichie (catégories + kits + contenus démo), hubs Académie/Outils simplifiés et accueil repensé en mode lecture avec découverte ingrédients.
-          </div>
-          <div class="mini-card">
-            <h3>Fin février 2026 · Côté plateforme</h3>
-            APIs produit étendues (Hub’Eau + ingrédients recette + métriques de brassage), détail recette “Mon livre” complété par des fiches malts “must-have”, et synchronisation roadmap/devlog maintenue.
-          </div>
+      <section class="section-block" id="faqSection">
+        <p class="section-eyebrow">Questions fréquentes</p>
+        <h2 class="section-title" id="faq">Les <em>doutes</em> avant de se lancer</h2>
+        <div class="faq-grid">
+          <details class="faq-item">
+            <summary>Faut-il être bricoleur pour brasser sa bière ?</summary>
+            <p>Pas du tout. Une casserole, un fermenteur, des bouteilles — et l’app qui te dit quoi faire à chaque étape. Si tu sais cuisiner des pâtes, tu sais brasser une bière.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Combien ça coûte de se lancer ?</summary>
+            <p>Entre 60 et 120 € pour un kit débutant complet. Tu refais 5-6 brassins avec, et le matos est largement amorti par rapport au prix d’une bonne bière artisanale.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Combien de temps dure un brassin (la première fois) ?</summary>
+            <p>Une demi-journée pour la session de brassage (4-5h), puis 2 à 3 semaines de fermentation où tu n’as quasiment rien à faire. L’app te rappelle les checkpoints critiques.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Et si je rate mon premier brassin ?</summary>
+            <p>Ça arrive, et c’est presque toujours buvable. L’app post-mortem chaque étape pour t’aider à comprendre ce qui s’est passé — et le brassin suivant repart meilleur.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Quand l’app sera disponible ?</summary>
+            <p>Bêta progressive en 2026. Les inscrits à la waitlist passent en priorité.</p>
+          </details>
         </div>
       </section>
 
-      <section class="section-block" id="guideBrassageSeoFr">
-        <h2 class="section-title">📘 Guide brassage amateur : réussir sa recette de bière de A à Z</h2>
+      <section class="section-block participate" id="participerFr">
+        <p class="section-eyebrow">Participer</p>
+        <h2 class="section-title">Rejoins la <em>première fournée</em></h2>
         <p class="section-intro">
-          Tu veux améliorer ton brassage maison ? Cette méthode simple t’aide à structurer chaque session :
-          préparation, calculs IBU/ABV, suivi fermentation et analyse post-brassin.
+          Laisse ton email pour entrer dans la boucle bêta. Tu peux aussi partager ton avis ou nous écrire en direct.
         </p>
-        <div class="section-grid">
-          <div class="mini-card">
-            <h3>1. Préparer une recette de bière claire et reproductible</h3>
-            Définis style, volume, densité cible et houblonnage, puis garde un historique propre pour comparer tes brassins.
-          </div>
-          <div class="mini-card">
-            <h3>2. Fiabiliser les calculs IBU, ABV et volumes</h3>
-            Vérifie les indicateurs clés avant l’ébullition pour limiter les écarts et garder le contrôle sur le résultat final.
-          </div>
-          <div class="mini-card">
-            <h3>3. Suivre la fermentation sans rien oublier</h3>
-            Utilise une timeline d’étapes, des checkpoints et des rappels pour sécuriser les décisions critiques jusqu’au conditionnement.
-          </div>
-        </div>
-        <p class="badge">
-          Pour aller plus loin :
-          <a href="#brewAssistantFr">assistant de brassage guidé</a>,
-          <a href="#faq">FAQ</a>,
-          <a href="#newsletterFr">newsletter</a>
-          et <a href="#contact">contact direct</a>.
-        </p>
-      </section>
 
-      <section class="section-block">
-        <h2 class="section-title" id="faq">❓ FAQ rapide</h2>
-        <div class="section-grid">
-          <div class="mini-card">
-            <h3>Quand l’app sera disponible ?</h3>
-            Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt.
-          </div>
-          <div class="mini-card">
-            <h3>Puis-je participer ?</h3>
-            Oui : via le questionnaire, les retours UX et le contact direct.
-          </div>
-          <div class="mini-card">
-            <h3>Pour quel niveau ?</h3>
-            Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser.
-          </div>
-          <div class="mini-card">
-            <h3>iOS, Android… ou les deux ?</h3>
-            L’objectif produit est une disponibilité sur les deux plateformes. Le déploiement se fera progressivement avec une phase bêta en amont.
-          </div>
-          <div class="mini-card">
-            <h3>Mes recettes et brassins seront-ils sauvegardés ?</h3>
-            Oui. La trajectoire produit prévoit un historique structuré des recettes/brassins avec persistance pour suivre et reproduire plus facilement tes sessions.
-          </div>
-          <div class="mini-card">
-            <h3>Comment suivre les nouveautés ?</h3>
-            La roadmap et le journal de développement sont mis à jour en continu sur le site, avec un historique traçable des évolutions livrées.
-          </div>
-        </div>
-      </section>
-
-      <section class="section-block">
-        <h2 class="section-title">🍺 Recette mise en avant</h2>
-        <div class="mini-card">
-          <h3>Session IPA “Citrus Bloom” (exemple)</h3>
-          Légère, aromatique, parfaite pour découvrir le suivi de recette dans Brasse-Bouillon.
-          Plus de recettes et de fiches détaillées arrivent bientôt.
-        </div>
-      </section>
-
-      <section class="section-block" id="newsletterFr">
-        <h2 class="section-title">📮 Newsletter Brasse-Bouillon</h2>
-        <p class="section-intro">
-          Reçois les avancées notables du produit et de la roadmap (rythme léger, sans spam).
-        </p>
-        <form id="newsletterFormFr" class="contact-form">
+        <form id="newsletterFormFr" class="contact-form" aria-describedby="newsletterStatusFr">
           <input type="hidden" name="_subject" value="Inscription newsletter Brasse-Bouillon (FR)">
           <input type="hidden" name="lang" value="fr">
           <input type="hidden" name="source" value="newsletter">
           <input type="hidden" name="message" value="Nouvelle inscription newsletter via le site (FR)">
 
-          <label class="sr-only" for="newsletterEmailFr">Adresse email newsletter</label>
-          <input id="newsletterEmailFr" type="email" name="email" placeholder="Ton email pour recevoir les nouveautés" required>
+          <label class="sr-only" for="newsletterEmailFr">Adresse email pour la waitlist</label>
+          <input id="newsletterEmailFr" type="email" name="email" placeholder="ton@email.fr" required>
 
           <label class="consent">
             <input type="checkbox" name="newsletter_consent" value="accepted" required>
-            J’accepte de recevoir les nouvelles de Brasse-Bouillon et je pourrai me désinscrire à tout moment.
+            J’accepte de recevoir les nouvelles de Brasse-Bouillon et je peux me désinscrire à tout moment.
           </label>
           <p class="consent-note">
-            En t’abonnant, tu acceptes notre
-            <a href="terms.html" target="_blank" rel="noopener noreferrer">Conditions d’utilisation</a>,
-            notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-            et notre <a href="cookies.html" target="_blank" rel="noopener noreferrer">Politique cookies</a>.
+            En t’abonnant, tu acceptes nos
+            <a href="terms.html" target="_blank" rel="noopener noreferrer">conditions</a>,
+            notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>
+            et notre <a href="cookies.html" target="_blank" rel="noopener noreferrer">politique cookies</a>.
           </p>
 
           <div class="actions actions-compact">
-            <button class="btn btn-primary" type="submit">S’abonner à la newsletter</button>
+            <button class="btn btn-primary" type="submit">Rejoindre la waitlist</button>
+            <button class="btn btn-ghost btn-toggle" id="questionnaireToggleFr" type="button" aria-expanded="false" aria-controls="questionnaireFormFr" onclick="toggleQuestionnaire('fr')">
+              <span>Partager ton avis</span>
+              <svg class="btn-chevron" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <a class="btn btn-ghost" href="mailto:contact@brasse-bouillon.com">Nous écrire</a>
           </div>
         </form>
         <p id="newsletterStatusFr" class="form-status" role="status" aria-live="polite"></p>
-      </section>
 
-      <section class="section-block" id="questionnaireFr">
-        <h2 class="section-title">🧾 Questionnaire communauté</h2>
-        <p class="section-intro">
-          2 minutes suffisent pour nous aider à construire Brasse-Bouillon. Tes réponses restent confidentielles.
-        </p>
-        <div class="actions">
-          <button class="btn btn-primary" id="questionnaireToggleFr" type="button" aria-expanded="false" onclick="toggleQuestionnaire('fr')">
-            Ouvrir le questionnaire
-          </button>
-          <a class="btn btn-secondary" href="mailto:contact@brasse-bouillon.com">Nous contacter</a>
-        </div>
+        <form id="questionnaireFormFr" class="questionnaire-form" data-open="false" inert>
+          <div class="questionnaire-inner">
+            <input type="hidden" name="_subject" value="Nouvelle réponse - Questionnaire Brasse-Bouillon (FR)">
+            <input type="hidden" name="lang" value="fr">
+            <input class="honeypot" type="text" name="_gotcha">
 
-        <form id="questionnaireFormFr" class="questionnaire-form" hidden>
-          <input type="hidden" name="_subject" value="Nouvelle réponse - Questionnaire Brasse-Bouillon (FR)">
-          <input type="hidden" name="lang" value="fr">
-          <input class="honeypot" type="text" name="_gotcha">
+            <div class="questionnaire-grid">
+              <fieldset class="form-field-full">
+                <legend>Tu en es où dans le brassage ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="profil" value="Curieux" required>Curieux, j’hésite à me lancer</label>
+                  <label><input type="radio" name="profil" value="Kit teste">J’ai testé un kit, j’ai envie d’aller plus loin</label>
+                  <label><input type="radio" name="profil" value="Regulier">Je brasse régulièrement, j’ai ma routine</label>
+                  <label><input type="radio" name="profil" value="Pro">Pro / micro-brasserie</label>
+                </div>
+              </fieldset>
 
-          <div class="questionnaire-grid">
-            <fieldset class="form-field-full">
-              <legend>1. Votre profil</legend>
-              <div class="radio-list">
-                <label><input type="radio" name="profil" value="Debutant" required>Débutant (-1 an)</label>
-                <label><input type="radio" name="profil" value="Amateur confirme">Amateur confirmé</label>
-                <label><input type="radio" name="profil" value="Passionne avance">Passionné avancé</label>
-                <label><input type="radio" name="profil" value="Professionnel">Micro-brasserie / Professionnel</label>
+              <fieldset class="form-field-full">
+                <legend>Combien de brassins par an, en moyenne ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="frequence" value="Aucun">Aucun pour l’instant</label>
+                  <label><input type="radio" name="frequence" value="1-3">1 à 3</label>
+                  <label><input type="radio" name="frequence" value="4-10">4 à 10</label>
+                  <label><input type="radio" name="frequence" value="10+">Plus de 10</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Ce qui te bloque le plus <span class="legend-hint">(jusqu’à 3 choix)</span></legend>
+                <div class="chip-list chip-list-multi">
+                  <label><input type="checkbox" name="blocages[]" value="Calculs">Les calculs (IBU, ABV, densité)</label>
+                  <label><input type="checkbox" name="blocages[]" value="Recette">Choisir une recette adaptée</label>
+                  <label><input type="checkbox" name="blocages[]" value="Pilotage">Le pilotage des étapes le jour J</label>
+                  <label><input type="checkbox" name="blocages[]" value="Fermentation">Le suivi de la fermentation</label>
+                  <label><input type="checkbox" name="blocages[]" value="Materiel">Choisir mon matériel</label>
+                  <label><input type="checkbox" name="blocages[]" value="Reproduire">Reproduire un brassin réussi</label>
+                  <label><input type="checkbox" name="blocages[]" value="Partage">Échanger avec d’autres brasseurs</label>
+                  <label><input type="checkbox" name="blocages[]" value="Aucun">Rien, tout roule</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Si tu n’avais qu’une seule fonction dans l’app, ce serait…</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="killer" value="Guide">Un guide pas-à-pas pendant le brassin</label>
+                  <label><input type="radio" name="killer" value="Calculs">Un calculateur fiable (IBU/ABV/couleur)</label>
+                  <label><input type="radio" name="killer" value="Recettes">Un livre de recettes prêtes à brasser</label>
+                  <label><input type="radio" name="killer" value="Fermentation">Un suivi de fermentation visuel</label>
+                  <label><input type="radio" name="killer" value="Journal">Un journal de mes brassins</label>
+                  <label><input type="radio" name="killer" value="Social">Un espace pour partager / comparer</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Tu serais prêt(e) à payer pour la version complète ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="payant" value="Gratuit">Non, je veux du gratuit</label>
+                  <label><input type="radio" name="payant" value="Quelques euros">Quelques € / an</label>
+                  <label><input type="radio" name="payant" value="5-10">5 à 10 € / mois</label>
+                  <label><input type="radio" name="payant" value="Sais pas">Je ne sais pas encore</label>
+                </div>
+              </fieldset>
+
+              <div class="form-field form-field-full">
+                <label for="qEmailFr">Email <span class="legend-hint">(optionnel — pour rester informé(e))</span></label>
+                <input id="qEmailFr" type="email" name="email" placeholder="ton@email.fr">
               </div>
-              <div class="form-field form-field-spacing-sm">
-                <label for="qProfilAutreFr">Autre</label>
-                <input id="qProfilAutreFr" type="text" name="profil_autre" placeholder="Précise ton profil si besoin">
-              </div>
-            </fieldset>
-
-            <div class="form-field form-field-full">
-              <label for="qFrequencyFr">2. Fréquence de brassage</label>
-              <select id="qFrequencyFr" name="frequence" required>
-                <option value="">Choisir…</option>
-                <option value="1-2 fois par an">1-2 fois par an</option>
-                <option value="3-6 fois par an">3-6 fois par an</option>
-                <option value="1 fois par mois">1 fois par mois</option>
-                <option value="Plus d'une fois par mois">Plus d'une fois par mois</option>
-                <option value="Je ne brasse pas encore">Je ne brasse pas encore</option>
-              </select>
             </div>
 
-            <fieldset class="form-field-full">
-              <legend>3. Difficultés principales (max 3)</legend>
-              <div class="checkbox-list">
-                <label><input type="checkbox" name="difficultes[]" value="Calcul IBU ABV">Calcul IBU / ABV</label>
-                <label><input type="checkbox" name="difficultes[]" value="Gestion recettes">Gestion des recettes</label>
-                <label><input type="checkbox" name="difficultes[]" value="Gestion stock">Gestion des stocks</label>
-                <label><input type="checkbox" name="difficultes[]" value="Journal brassin">Journal de brassage</label>
-                <label><input type="checkbox" name="difficultes[]" value="Reproductibilite">Reproductibilité</label>
-                <label><input type="checkbox" name="difficultes[]" value="Aucune">Aucune difficulté</label>
-              </div>
-              <div class="form-field form-field-spacing-sm">
-                <label for="qDifficultesAutreFr">Autre</label>
-                <input id="qDifficultesAutreFr" type="text" name="difficultes_autre" placeholder="Autre difficulté éventuelle">
-              </div>
-            </fieldset>
+            <label class="consent">
+              <input type="checkbox" name="rgpd" value="accepted" required>
+              J’accepte que mes données soient utilisées dans le cadre du développement de Brasse-Bouillon.
+            </label>
+            <p class="consent-note">
+              Voir notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>
+              et nos <a href="terms.html" target="_blank" rel="noopener noreferrer">conditions</a>.
+            </p>
 
-            <fieldset class="form-field-full">
-              <legend>4. Outils utilisés</legend>
-              <div class="checkbox-list">
-                <label><input type="checkbox" name="outils[]" value="Excel">Excel / Google Sheets</label>
-                <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
-                <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
-                <label><input type="checkbox" name="outils[]" value="Carnet papier">Carnet papier</label>
-                <label><input type="checkbox" name="outils[]" value="Application mobile">Application mobile</label>
-                <label><input type="checkbox" name="outils[]" value="Aucun">Aucun outil structuré</label>
-              </div>
-            </fieldset>
-
-            <fieldset class="form-field-full">
-              <legend>5. Importance des fonctionnalités (1 à 5)</legend>
-              <div class="form-field">
-                <label for="qCalcIbuFr">Calcul IBU / ABV</label>
-                <input id="qCalcIbuFr" type="range" name="calc_ibu" min="1" max="5" value="3">
-              </div>
-              <div class="form-field">
-                <label for="qRecettesFr">Recettes</label>
-                <input id="qRecettesFr" type="range" name="recettes" min="1" max="5" value="3">
-              </div>
-              <div class="form-field">
-                <label for="qJournalFr">Journal</label>
-                <input id="qJournalFr" type="range" name="journal" min="1" max="5" value="3">
-              </div>
-              <div class="form-field">
-                <label for="qStockFr">Stock</label>
-                <input id="qStockFr" type="range" name="stock" min="1" max="5" value="3">
-              </div>
-              <div class="form-field">
-                <label for="qPartageFr">Partage</label>
-                <input id="qPartageFr" type="range" name="partage" min="1" max="5" value="3">
-              </div>
-            </fieldset>
-
-            <fieldset class="form-field-full">
-              <legend>6. Vos 3 priorités absolues</legend>
-              <div class="checkbox-list">
-                <label><input type="checkbox" name="priorites[]" value="Calcul IBU ABV">Calcul IBU / ABV</label>
-                <label><input type="checkbox" name="priorites[]" value="Recettes">Recettes</label>
-                <label><input type="checkbox" name="priorites[]" value="Journal">Journal</label>
-                <label><input type="checkbox" name="priorites[]" value="Stock">Stock</label>
-                <label><input type="checkbox" name="priorites[]" value="Partage">Partage</label>
-              </div>
-              <p class="helper-text">Sélectionne entre 1 et 3 priorités pour nous aider à mieux cadrer la roadmap.</p>
-            </fieldset>
-
-            <fieldset class="form-field-full">
-              <legend>7. Application mobile</legend>
-              <div class="radio-list">
-                <label><input type="radio" name="mobile" value="Oui absolument" required>Oui absolument</label>
-                <label><input type="radio" name="mobile" value="Oui si valeur ajoutee">Oui si réelle valeur ajoutée</label>
-                <label><input type="radio" name="mobile" value="Peut etre">Peut-être</label>
-                <label><input type="radio" name="mobile" value="Non">Non</label>
-              </div>
-            </fieldset>
-
-            <div class="form-field form-field-full">
-              <label for="qSuggestionFr">8. Une fonctionnalité idéale ?</label>
-              <textarea id="qSuggestionFr" name="suggestion" rows="4" placeholder="Partage ton idée la plus utile pour ton quotidien de brasseur"></textarea>
+            <div class="actions actions-compact">
+              <button class="btn btn-primary" type="submit">Envoyer mon retour</button>
             </div>
-
-            <div class="form-field form-field-full">
-              <label for="qEmailFr">9. Rester informé (optionnel)</label>
-              <input id="qEmailFr" type="email" name="email" placeholder="Votre email (optionnel)">
-            </div>
-          </div>
-
-          <label class="consent">
-            <input type="checkbox" name="rgpd" value="accepted" required>
-            J’accepte que mes données soient utilisées dans le cadre du développement de Brasse-Bouillon.
-          </label>
-          <p class="consent-note">
-            Voir notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-            et notre <a href="terms.html" target="_blank" rel="noopener noreferrer">Conditions d’utilisation</a>.
-          </p>
-
-          <div class="actions actions-compact">
-            <button class="btn btn-primary" type="submit">Contribuer 🍻</button>
           </div>
         </form>
-
         <p id="questionnaireStatusFr" class="form-status" role="status" aria-live="polite"></p>
       </section>
 
-      <section class="section-block">
-        <h2 class="section-title" id="contact">📬 Contact direct</h2>
-        <form class="contact-form" action="https://formspree.io/f/mqaqqvab" method="POST">
-          <label class="sr-only" for="emailFr">Adresse email</label>
-          <input id="emailFr" type="email" name="email" placeholder="Ton email" required>
-          <label class="sr-only" for="messageFr">Message</label>
-          <textarea id="messageFr" name="message" placeholder="Ton message" required></textarea>
-          <label class="consent">
-            <input type="checkbox" name="contact_legal_acceptance" value="accepted" required>
-            J’accepte les conditions d’utilisation et la politique de confidentialité.
-          </label>
-          <p class="consent-note">
-            En envoyant ce message, tu acceptes notre
-            <a href="terms.html" target="_blank" rel="noopener noreferrer">Conditions d’utilisation</a>,
-            notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a>
-            et notre <a href="cookies.html" target="_blank" rel="noopener noreferrer">Politique cookies</a>.
-          </p>
-          <button class="btn btn-primary" type="submit">Envoyer</button>
-        </form>
-      </section>
-
       <footer class="footer">
-        Reste connecté(e) ! Tu peux aussi nous écrire à : <strong>contact@brasse-bouillon.com</strong>
-        <div class="badge">
-          Made with ❤️ by
-          <a href="https://www.linkedin.com/in/benoit-bremaud" target="_blank" rel="noopener noreferrer">Brasse-Bouillon</a>
+        <div class="footer-brand">
+          <span class="footer-mark">B·B</span>
+          <p>Brasse-Bouillon, l’app du brasseur amateur curieux. Contact : <strong>contact@brasse-bouillon.com</strong></p>
         </div>
         <div class="footer-links">
           <a href="legal.html">Mentions légales</a>
@@ -619,66 +414,20 @@
     const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
     const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
 
-    const ROADMAP_PHASES_FR = [
-      { phase: 1, title: 'Idéation & positionnement', state: 'done', points: ['MVP défini', 'Questionnaire utilisateur', 'Manifeste fondateur'] },
-      { phase: 2, title: 'Analyse des canaux de communication', state: 'done', points: ['Cibles identifiées', 'Ligne éditoriale', 'Partage des résultats'] },
-      { phase: 3, title: 'Conception & préparation', state: 'done', points: ['Maquettes UI/UX', 'Architecture technique', 'Feuille de route visuelle'] },
-      { phase: 4, title: 'Développement du MVP', state: 'done', points: ['Auth/JWT + base API sécurisée', 'CRUD recettes + persistance des étapes', 'Module brassins (workflow + persistance + endpoints)', 'Calculateur brassage v1 (IBU/ABV/conversions)'] },
-      { phase: 5, title: 'Consolidation produit & site vitrine', state: 'current', points: ['Suite calculateurs finalisée (couleur/houblons/eau/conversions)', 'Boutique et contenus démo enrichis (catégories/kits + recettes + brassins)', 'UX des hubs Académie/Outils consolidée (cartes cliquables + navigation fiabilisée)', 'Accueil “reading-first” + espaces découverte + données ingrédients live progressives', 'Détail recette “Mon livre” complété par fiches malts “must-have”', 'APIs produit enrichies (profil d’eau Hub’Eau + ingrédients recette + métriques)', 'Roadmap et devlog publics synchronisés'] },
-      { phase: 6, title: 'Tests bêta & communauté', state: 'next', points: ['Bêta publique', 'Collecte feedback', 'Espace communautaire'] },
-      { phase: 7, title: 'Lancement officiel', state: 'next', points: ['Stores iOS/Android', 'Démo publique', 'Communication multi-canal'] },
-      { phase: 8, title: 'Documentation & écosystème', state: 'next', points: ['Fiches de brassage', 'Glossaire', 'Échange recettes'] },
-      { phase: 9, title: 'Améliorations & ouverture', state: 'next', points: ['Optimisations UX', 'Modules complémentaires', 'API ouverte'] },
-      { phase: 10, title: 'Partenariats & impact', state: 'next', points: ['Microbrasseries', 'Kit Studio B22', 'Indicateurs open source'] }
-    ];
-
     const TOGGLE_LABELS = {
-      fr: { open: 'Ouvrir le questionnaire', close: 'Fermer le questionnaire' },
-      en: { open: 'Open questionnaire', close: 'Close questionnaire' }
+      fr: { open: 'Partager ton avis', close: 'Fermer le questionnaire' }
     };
 
-    function stateLabelFr(state) {
-      if (state === 'done') return 'Terminé';
-      if (state === 'current') return 'En cours';
-      return 'À venir';
-    }
-
-    function renderRoadmapFr(filter = 'all') {
-      BBShared.renderRoadmap({
-        rootId: 'roadmapTrackFr',
-        phases: ROADMAP_PHASES_FR,
-        filter,
-        getStateLabel: stateLabelFr
-      });
-    }
-
-    function filterRoadmapFr(filter, el) {
-      BBShared.setActiveRoadmapFilter({
-        controlsSelector: '#roadmapControlsFr .chip',
-        activeElement: el
-      });
-      renderRoadmapFr(filter);
-    }
-
     function toggleQuestionnaire(lang) {
-      BBShared.toggleQuestionnaire({
-        lang,
-        labels: TOGGLE_LABELS
-      });
+      BBShared.toggleQuestionnaire({ lang, labels: TOGGLE_LABELS });
     }
-
-    renderRoadmapFr();
 
     BBShared.setupQuestionnaire({
       formId: 'questionnaireFormFr',
       statusId: 'questionnaireStatusFr',
       endpoint: QUESTIONNAIRE_ENDPOINT,
       checkboxLimits: [
-        { fieldName: 'difficultes[]', maxChoices: 3, message: 'Maximum 3 choix autorisés pour cette question.' },
-        { fieldName: 'priorites[]', maxChoices: 3, message: 'Maximum 3 choix autorisés pour cette question.' }
-      ],
-      requiredCheckboxGroups: [
-        { fieldName: 'priorites[]', minRequired: 1, message: 'Sélectionne au moins 1 priorité avant d’envoyer le questionnaire.' }
+        { fieldName: 'blocages[]', maxChoices: 3, message: 'Maximum 3 choix pour cette question.' }
       ],
       messages: {
         endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
@@ -702,14 +451,14 @@
       messages: {
         endpointMissing: 'Endpoint newsletter non configuré.',
         sending: 'Inscription en cours…',
-        success: 'Super ! Ton inscription à la newsletter est confirmée.',
+        success: 'Super ! Ton inscription à la waitlist est confirmée.',
         http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
         http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
-        http5xx: 'Le service newsletter est temporairement indisponible. Réessaie un peu plus tard.',
+        http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
         httpGeneric: 'Impossible d’enregistrer l’inscription pour le moment. Réessaie dans quelques minutes.',
         offline: 'Tu sembles hors ligne. Vérifie ta connexion puis réessaie.',
         aborted: 'La requête a été interrompue. Réessaie l’inscription.',
-        networkOrCors: 'Impossible de contacter le service newsletter (réseau/CORS). Réessaie bientôt.',
+        networkOrCors: 'Impossible de contacter le service (réseau/CORS). Réessaie bientôt.',
         unexpected: 'Une erreur inattendue est survenue. Réessaie dans quelques instants.'
       }
     });

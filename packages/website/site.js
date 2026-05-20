@@ -1,87 +1,22 @@
 (function (global) {
   'use strict';
 
-  function createPhaseCard(phase, getStateLabel) {
-    const article = document.createElement('article');
-    article.className = 'phase-card';
-
-    const head = document.createElement('div');
-    head.className = 'phase-head';
-
-    const title = document.createElement('h3');
-    title.className = 'phase-title';
-    title.textContent = `Phase ${phase.phase} — ${phase.title}`;
-
-    const state = document.createElement('span');
-    state.className = `phase-state ${phase.state}`;
-    state.textContent = getStateLabel(phase.state);
-
-    head.appendChild(title);
-    head.appendChild(state);
-
-    const body = document.createElement('div');
-    body.className = 'phase-body';
-
-    const list = document.createElement('ul');
-    phase.points.forEach((point) => {
-      const item = document.createElement('li');
-      item.textContent = point;
-      list.appendChild(item);
-    });
-
-    body.appendChild(list);
-    article.appendChild(head);
-    article.appendChild(body);
-
-    return article;
-  }
-
-  function renderRoadmap(options) {
-    const { rootId, phases, filter, getStateLabel } = options;
-    const root = document.getElementById(rootId);
-    if (!root) return;
-
-    const list = filter === 'all' ? phases : phases.filter((phase) => phase.state === filter);
-    root.replaceChildren();
-
-    const fragment = document.createDocumentFragment();
-    list.forEach((phase) => {
-      fragment.appendChild(createPhaseCard(phase, getStateLabel));
-    });
-
-    root.appendChild(fragment);
-  }
-
-  function setActiveRoadmapFilter(options) {
-    const { controlsSelector, activeElement } = options;
-    document.querySelectorAll(controlsSelector).forEach((chip) => {
-      chip.classList.remove('active');
-      chip.setAttribute('aria-pressed', 'false');
-    });
-
-    if (activeElement) {
-      activeElement.classList.add('active');
-      activeElement.setAttribute('aria-pressed', 'true');
-    }
-  }
-
   function toggleQuestionnaire(options) {
-    const { lang, labels } = options;
-    const form = document.getElementById(lang === 'fr' ? 'questionnaireFormFr' : 'questionnaireFormEn');
-    const button = document.getElementById(lang === 'fr' ? 'questionnaireToggleFr' : 'questionnaireToggleEn');
+    const { lang } = options;
+    const formId = `questionnaireForm${lang === 'fr' ? 'Fr' : 'En'}`;
+    const buttonId = `questionnaireToggle${lang === 'fr' ? 'Fr' : 'En'}`;
+    const form = document.getElementById(formId);
+    const button = document.getElementById(buttonId);
     if (!form || !button) return;
 
-    const isHidden = form.hasAttribute('hidden');
+    const isOpen = form.dataset.open === 'true';
+    const next = !isOpen;
 
-    if (isHidden) {
-      form.removeAttribute('hidden');
-      button.textContent = labels[lang].close;
-    } else {
-      form.setAttribute('hidden', '');
-      button.textContent = labels[lang].open;
-    }
+    form.dataset.open = String(next);
+    button.setAttribute('aria-expanded', String(next));
 
-    button.setAttribute('aria-expanded', String(isHidden));
+    // Keep the collapsed form out of keyboard / screen-reader navigation.
+    form.inert = !next;
   }
 
   function setupCheckboxLimit(form, fieldName, maxChoices, message) {
@@ -180,7 +115,7 @@
 
         setStatus(status, 'error', resolveHttpErrorMessage(response, messages));
       } catch (error) {
-        console.error('Questionnaire submission error:', error);
+        console.error('Form submission error:', error);
         setStatus(status, 'error', resolveCatchErrorMessage(error, messages));
       } finally {
         submitBtn.disabled = false;
@@ -189,8 +124,6 @@
   }
 
   global.BBShared = {
-    renderRoadmap,
-    setActiveRoadmapFilter,
     toggleQuestionnaire,
     setupQuestionnaire
   };

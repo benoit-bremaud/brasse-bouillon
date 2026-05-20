@@ -12,6 +12,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { LabelModule } from './label/label.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
@@ -84,6 +85,9 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     WaterModule,
     LabelModule,
     ScanModule,
+
+    // Feedback module - public POST /feedback endpoint (epic #1026, #1027)
+    FeedbackModule,
 
     // Beer contribution module - 501 stubs anticipating the v0.2+
     // community contribution flow (Epic #693 part 4/5, ADR-0001 clause 3).

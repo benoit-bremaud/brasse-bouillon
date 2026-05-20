@@ -2,24 +2,18 @@
   'use strict';
 
   function toggleQuestionnaire(options) {
-    const { lang, labels } = options;
+    const { lang } = options;
     const formId = `questionnaireForm${lang === 'fr' ? 'Fr' : 'En'}`;
     const buttonId = `questionnaireToggle${lang === 'fr' ? 'Fr' : 'En'}`;
     const form = document.getElementById(formId);
     const button = document.getElementById(buttonId);
     if (!form || !button) return;
 
-    const isHidden = form.hasAttribute('hidden');
+    const isOpen = form.getAttribute('data-open') === 'true';
+    const next = !isOpen;
 
-    if (isHidden) {
-      form.removeAttribute('hidden');
-      button.textContent = labels[lang].close;
-    } else {
-      form.setAttribute('hidden', '');
-      button.textContent = labels[lang].open;
-    }
-
-    button.setAttribute('aria-expanded', String(isHidden));
+    form.setAttribute('data-open', String(next));
+    button.setAttribute('aria-expanded', String(next));
   }
 
   function setupCheckboxLimit(form, fieldName, maxChoices, message) {

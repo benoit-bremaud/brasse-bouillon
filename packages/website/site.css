@@ -378,10 +378,10 @@
     /* ---- HUGE mascot with 3 orbital rings ---- */
     .hero-mascot {
       position: absolute;
-      right: clamp(-60px, -4vw, 20px);
-      bottom: clamp(-80px, -6vw, -40px);
-      width: clamp(220px, 36vw, 440px);
-      height: clamp(220px, 36vw, 440px);
+      right: clamp(-70px, -5vw, 16px);
+      bottom: clamp(-100px, -7vw, -56px);
+      width: clamp(260px, 42vw, 520px);
+      height: clamp(260px, 42vw, 520px);
       border-radius: 50%;
       background:
         radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.98) 0%, rgba(251, 243, 218, 0.92) 55%, rgba(231, 207, 154, 0.55) 100%);
@@ -443,10 +443,10 @@
       .hero-actions { justify-content: center; }
       .hero-mascot {
         position: relative;
-        margin: 48px auto 0;
+        margin: 56px auto 0;
         right: auto; bottom: auto;
-        width: clamp(240px, 60vw, 320px);
-        height: clamp(240px, 60vw, 320px);
+        width: clamp(260px, 72vw, 380px);
+        height: clamp(260px, 72vw, 380px);
       }
     }
 
@@ -608,9 +608,10 @@
     }
 
     .journey-step:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: var(--shadow-lg);
-      border-color: rgba(197, 116, 45, 0.5);
+      transform: translateY(-14px) scale(1.06);
+      box-shadow: var(--shadow-lg), 0 24px 60px rgba(197, 116, 45, 0.18);
+      border-color: rgba(197, 116, 45, 0.55);
+      z-index: 3;
     }
 
     .journey-step:hover::before { transform: scaleX(1); }
@@ -624,11 +625,22 @@
       color: var(--copper);
       font-variation-settings: 'SOFT' 20, 'opsz' 144;
       opacity: 0.92;
-      transition: transform 0.4s var(--ease-out-soft);
+      transition: transform 0.45s var(--ease-out-soft), color 0.3s var(--ease-out-soft), text-shadow 0.4s var(--ease-out-soft);
+      display: inline-block;
+      transform-origin: left center;
     }
 
     .journey-step:hover .journey-num {
-      transform: scale(1.1) rotate(-3deg);
+      animation: numPop 0.7s var(--ease-out-soft) forwards;
+      color: var(--copper-deep);
+      text-shadow: 0 6px 18px rgba(197, 116, 45, 0.4);
+    }
+
+    @keyframes numPop {
+      0%   { transform: scale(1) rotate(0deg); }
+      35%  { transform: scale(1.45) rotate(-6deg); }
+      65%  { transform: scale(1.25) rotate(3deg); }
+      100% { transform: scale(1.3) rotate(-2deg); }
     }
 
     .journey-screenshot {
@@ -958,10 +970,9 @@
       background: linear-gradient(135deg, var(--copper) 0%, var(--copper-deep) 100%);
       opacity: 0;
       transition: opacity 0.35s var(--ease-out-soft);
-      z-index: 0;
+      z-index: -1;
     }
 
-    .btn-primary > * { position: relative; z-index: 1; }
     .btn-primary:hover { box-shadow: 0 20px 40px rgba(197, 116, 45, 0.5); }
     .btn-primary:hover::before { opacity: 1; }
 
@@ -981,15 +992,7 @@
 
     .contact-form { margin: 0 auto; max-width: 600px; display: grid; gap: 16px; }
 
-    .questionnaire-form {
-      margin-top: 28px;
-      padding: 30px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.78);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(6px);
-    }
+    /* Styles for .questionnaire-form are defined later (smooth open block). */
 
     .questionnaire-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .form-field { display: flex; flex-direction: column; gap: 8px; }
@@ -1262,26 +1265,6 @@
       50%      { box-shadow: 0 14px 36px rgba(26, 17, 10, 0.4), 0 0 28px rgba(197, 116, 45, 0.35); }
     }
 
-    /* Arrow on hover for primary CTAs */
-    .btn-primary {
-      gap: 8px;
-    }
-    .btn-primary::after {
-      content: '→';
-      display: inline-block;
-      transform: translateX(-4px);
-      opacity: 0;
-      transition: transform 0.3s var(--ease-out-soft), opacity 0.3s var(--ease-out-soft);
-      font-family: var(--font-body);
-      font-weight: 400;
-      position: relative;
-      z-index: 1;
-    }
-    .btn-primary:hover::after {
-      transform: translateX(2px);
-      opacity: 1;
-    }
-
     /* Pill — tiny continuous tilt */
     .pill {
       animation: pillTilt 5s ease-in-out infinite;
@@ -1312,19 +1295,7 @@
       50%      { filter: drop-shadow(0 0 36px rgba(197, 116, 45, 0.35)); }
     }
 
-    /* Marquee — slight vertical sway for a "carved on paper" feel */
-    .marquee-track span:nth-child(odd) {
-      display: inline-block;
-      animation: trackBob 4s ease-in-out infinite;
-    }
-    .marquee-track span:nth-child(even) {
-      display: inline-block;
-      animation: trackBob 4s ease-in-out infinite reverse;
-    }
-    @keyframes trackBob {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-3px); }
-    }
+    /* Marquee — text stays fixed on its line; only the track scrolls horizontally. */
 
     /* Feature screenshot — gentle continuous bob on screen */
     .feature-screenshot {
@@ -1338,6 +1309,185 @@
     }
     .feature-card:hover .feature-screenshot {
       animation: none;
+    }
+
+    /* ========================================================================
+       Scroll-driven element entrances (per-element within sections)
+       Each element surges in subtly as it crosses the viewport.
+       ====================================================================== */
+
+    .section-title,
+    .section-intro,
+    .marquee {
+      animation: surgeUp 0.9s var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+
+    .section-title { animation-delay: 0.05s; }
+    .section-intro { animation-delay: 0.15s; }
+
+    @keyframes surgeUp {
+      from { opacity: 0; transform: translateY(28px); filter: blur(2px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+    }
+
+    /* Marquee surge is purely opacity to avoid disturbing the scroll animation */
+    .marquee {
+      animation-name: marqueeFadeIn;
+    }
+    @keyframes marqueeFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ========================================================================
+       Toggle button — stable layout, rotating chevron
+       ====================================================================== */
+
+    .btn-toggle {
+      gap: 10px;
+      min-width: 200px;
+    }
+
+    .btn-chevron {
+      width: 12px;
+      height: 8px;
+      transition: transform 0.4s var(--ease-out-soft);
+      flex: 0 0 auto;
+    }
+
+    .btn-toggle[aria-expanded="true"] .btn-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* ========================================================================
+       Smooth questionnaire form open
+       Uses the grid-rows trick: animates from 0fr to 1fr.
+       ====================================================================== */
+
+    .questionnaire-form {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transform: translateY(-8px);
+      margin-top: 0;
+      pointer-events: none;
+      transition:
+        grid-template-rows 0.5s var(--ease-out-soft),
+        opacity 0.45s var(--ease-out-soft) 0.05s,
+        transform 0.45s var(--ease-out-soft) 0.05s,
+        margin-top 0.5s var(--ease-out-soft);
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 0;
+    }
+
+    .questionnaire-inner {
+      overflow: hidden;
+      min-height: 0;
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .questionnaire-form[data-open="true"] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transform: translateY(0);
+      margin-top: 28px;
+      pointer-events: auto;
+    }
+
+    /* ========================================================================
+       Chip-list — clickable pill answers (radio + checkbox)
+       Hides native input and styles label as a pill.
+       ====================================================================== */
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .chip-list label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--ink-soft);
+      font-size: 0.94rem;
+      font-weight: 500;
+      line-height: 1.3;
+      cursor: pointer;
+      transition: border-color 0.2s var(--ease-out-soft), background 0.2s var(--ease-out-soft), color 0.2s var(--ease-out-soft), transform 0.18s var(--ease-out-soft);
+      user-select: none;
+    }
+
+    .chip-list label:hover {
+      border-color: rgba(197, 116, 45, 0.55);
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px);
+    }
+
+    .chip-list input[type="radio"],
+    .chip-list input[type="checkbox"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .chip-list label:has(input:checked) {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--foam);
+      box-shadow: 0 4px 14px rgba(26, 17, 10, 0.22);
+    }
+
+    .chip-list-multi label:has(input:checked) {
+      background: var(--copper);
+      border-color: var(--copper);
+      color: var(--foam);
+      box-shadow: 0 4px 14px rgba(197, 116, 45, 0.32);
+    }
+
+    .legend-hint {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-left: 6px;
+    }
+
+    fieldset {
+      border: none;
+      padding: 0;
+      background: transparent;
+      margin: 0;
+    }
+
+    fieldset legend {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--ink);
+      font-variation-settings: 'SOFT' 50;
+      padding: 0;
     }
 
     /* ========================================================================

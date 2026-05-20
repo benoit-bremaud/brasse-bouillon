@@ -67,7 +67,7 @@ flowchart LR
     %% Cross-backend: webhook only (no DB write)
     PyDB -.->|SuggestionCreated webhook<br/>**PII: submitted_by_user_id**| NestNotif
 
-    %% Anti-pattern edges — must NEVER happen (drawn dashed-red below)
+    %% Anti-pattern edges — must NEVER happen (rendered dashed-red via linkStyle below)
     User -.->|raw EXIF (GPS) | Multipart
     Camera -.->|deviceName<br/>**PII LEAK**| Multipart
 
@@ -75,9 +75,12 @@ flowchart LR
     classDef source fill:#F4D35E,stroke:#333,color:#000
     classDef sink fill:#9CC,stroke:#333,color:#000
     classDef pii fill:#EE6C4D,stroke:#000,stroke-width:2px,color:#fff
-    classDef forbidden stroke:#F00,stroke-width:3px,stroke-dasharray:6 3
     class User,Sensors,Camera source
     class PyDB,Files,NestNotif sink
+
+    %% Forbidden edges are the last two declared (indices 14, 15) — style them red.
+    %% classDef cannot style links, so linkStyle targets them explicitly.
+    linkStyle 14,15 stroke:#F00,stroke-width:3px,stroke-dasharray:6 3
 ```
 
 ## Notes

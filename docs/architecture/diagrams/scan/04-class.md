@@ -8,7 +8,7 @@
 
 Domain entities and their relationships across the scan feature. Three persistence boundaries are visible:
 
-- **Server-side persisted** (Python beer-encyclopedia Postgres): `ScanCatalogItem`, `PanoramicCapture`, `BeerDataSuggestion`, `Keyframe`.
+- **Server-side persisted** (Python beer-encyclopedia Postgres): `ScanCatalogItem`, `PanoramicCapture`, `BeerDataSuggestion`.
 - **Mobile-side persisted** (AsyncStorage + filesystem): `OfflineCapture`.
 - **Transient / in-memory** (mobile only, never written): `Frame`, `BoundingBox`, `Token`.
 
@@ -45,21 +45,12 @@ classDiagram
         +UUID catalog_item_id
         +UUID triggered_by_request_id  /* cross-backend, nullable */
         +String panorama_url
-        +Jsonb keyframe_urls
+        +Jsonb keyframe_urls  /* ranked keyframes: url + sequence_index + text_density_score + sharpness_score per entry */
         +Int frame_count
         +Boolean loop_closure_detected
         +Float gyro_total_angle_deg
         +UUID submitted_by_user_id  /* cross-backend, nullable */
         +Datetime created_at
-    }
-
-    class Keyframe {
-        +UUID id
-        +UUID panoramic_capture_id
-        +String url
-        +Int sequence_index
-        +Float text_density_score
-        +Float sharpness_score
     }
 
     class BeerDataSuggestion {
@@ -110,7 +101,6 @@ classDiagram
     %% Relations
     ScanCatalogItem "1" o-- "0..*" PanoramicCapture : produces
     ScanCatalogItem "1" o-- "0..*" BeerDataSuggestion : has pending
-    PanoramicCapture "1" o-- "0..*" Keyframe : extracts
     BeerDataSuggestion ..> Token : consumes during creation
     Token "1" *-- "1" BoundingBox : has
     OfflineCapture ..> Frame : references via file_uris
@@ -119,7 +109,7 @@ classDiagram
     classDef server fill:#9CC,stroke:#333,color:#000
     classDef mobile fill:#FCB,stroke:#333,color:#000
     classDef transient fill:#FFC,stroke:#666,stroke-dasharray: 4 4,color:#000
-    class ScanCatalogItem,PanoramicCapture,Keyframe,BeerDataSuggestion server
+    class ScanCatalogItem,PanoramicCapture,BeerDataSuggestion server
     class OfflineCapture mobile
     class Frame,BoundingBox,Token transient
 ```
@@ -152,6 +142,6 @@ Implementations that try to create a real DB FK across these boundaries violate 
 
 ### Open questions
 
-- The `Keyframe.text_density_score` and `Keyframe.sharpness_score` are the ranking criteria for the 2-3 keyframe selection from the burst. The threshold values are TBD (resolve during #751-5 — backend stitching service). Surface as ADR if they encode a behavioral choice.
+- Keyframes are not a separate table — they live denormalised inside `PanoramicCapture.keyframe_urls` (jsonb), one entry per ranked keyframe carrying `url`, `sequence_index`, `text_density_score`, `sharpness_score` (per [scan-algorithms.md §4.2](../../specs/scan-algorithms.md)). The `text_density_score` / `sharpness_score` are the ranking criteria for the 2-3 keyframe selection from the burst; threshold values are TBD (resolve during #751-5 — backend stitching service). Surface as ADR if they encode a behavioral choice.
 - The `BeerDataSuggestion.proposed_fields` JSON shape is currently free-form. As the Phase 7 Claude schema stabilises (see [scan-algorithms.md §3 phase 7](../../specs/scan-algorithms.md#phase-7--multimodal-ai-structuring-claude-vision)), it should be tightened to a typed schema (Pydantic on the Python side). Track under #751-7.
 - The `OfflineCapture.created_at` triggers the 7-day TTL eviction. Should `last_attempt_at` also be tracked for monitoring? Track under #946.

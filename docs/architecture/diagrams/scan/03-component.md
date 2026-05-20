@@ -89,9 +89,9 @@ flowchart LR
     end
 
     %% Cross-package calls — ALWAYS via http-client (per ADR-0002)
-    HTTP -->|barcode + auth| NestScan
+    HTTP -->|barcode| NestScan
+    HTTP -->|auth| NestAuth
     HTTP -->|panoramic upload + SSE| PyAPI
-    NestAuth --> Mobile
     PyAPI -->|webhook SuggestionCreated| NestNotif
 
     %% Egress to external providers — only from Python beer-encyclopedia (per ADR-0002)

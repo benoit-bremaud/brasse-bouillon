@@ -9,11 +9,14 @@
     const button = document.getElementById(buttonId);
     if (!form || !button) return;
 
-    const isOpen = form.getAttribute('data-open') === 'true';
+    const isOpen = form.dataset.open === 'true';
     const next = !isOpen;
 
-    form.setAttribute('data-open', String(next));
+    form.dataset.open = String(next);
     button.setAttribute('aria-expanded', String(next));
+
+    // Keep the collapsed form out of keyboard / screen-reader navigation.
+    form.inert = !next;
   }
 
   function setupCheckboxLimit(form, fieldName, maxChoices, message) {

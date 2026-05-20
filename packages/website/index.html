@@ -78,23 +78,28 @@
     "mainEntity": [
       {
         "@type": "Question",
+        "name": "Faut-il être bricoleur pour brasser sa bière ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Pas du tout. Une casserole, un fermenteur, des bouteilles — et l’app qui te dit quoi faire à chaque étape. Si tu sais cuisiner des pâtes, tu sais brasser une bière." }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien ça coûte de se lancer ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Entre 60 et 120 € pour un kit débutant complet. Tu refais 5-6 brassins avec, et le matos est largement amorti par rapport au prix d’une bonne bière artisanale." }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien de temps dure un brassin (la première fois) ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Une demi-journée pour la session de brassage (4-5h), puis 2 à 3 semaines de fermentation où tu n’as quasiment rien à faire. L’app te rappelle les checkpoints critiques." }
+      },
+      {
+        "@type": "Question",
+        "name": "Et si je rate mon premier brassin ?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ça arrive, et c’est presque toujours buvable. L’app fait le point sur chaque étape pour t’aider à comprendre ce qui s’est passé — et le brassin suivant repart meilleur." }
+      },
+      {
+        "@type": "Question",
         "name": "Quand l’app sera disponible ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Nous avançons par phases. Une version bêta sera proposée dès qu’un socle stable sera prêt." }
-      },
-      {
-        "@type": "Question",
-        "name": "Pour quel niveau ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Débutants comme confirmés : l’objectif est d’aider tout le monde à mieux brasser." }
-      },
-      {
-        "@type": "Question",
-        "name": "iOS, Android… ou les deux ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "L’objectif produit est une disponibilité sur les deux plateformes, avec une phase bêta en amont." }
-      },
-      {
-        "@type": "Question",
-        "name": "Mes recettes et brassins seront-ils sauvegardés ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Oui. Tes recettes et brassins sont historisés pour suivre et reproduire facilement tes sessions." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Bêta progressive en 2026. Les inscrits à la waitlist passent en priorité." }
       }
     ]
   }
@@ -303,7 +308,7 @@
         </form>
         <p id="newsletterStatusFr" class="form-status" role="status" aria-live="polite"></p>
 
-        <form id="questionnaireFormFr" class="questionnaire-form" data-open="false">
+        <form id="questionnaireFormFr" class="questionnaire-form" data-open="false" inert>
           <div class="questionnaire-inner">
             <input type="hidden" name="_subject" value="Nouvelle réponse - Questionnaire Brasse-Bouillon (FR)">
             <input type="hidden" name="lang" value="fr">
@@ -313,7 +318,7 @@
               <fieldset class="form-field-full">
                 <legend>Tu en es où dans le brassage ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="profil" value="Curieux">Curieux, j’hésite à me lancer</label>
+                  <label><input type="radio" name="profil" value="Curieux" required>Curieux, j’hésite à me lancer</label>
                   <label><input type="radio" name="profil" value="Kit teste">J’ai testé un kit, j’ai envie d’aller plus loin</label>
                   <label><input type="radio" name="profil" value="Regulier">Je brasse régulièrement, j’ai ma routine</label>
                   <label><input type="radio" name="profil" value="Pro">Pro / micro-brasserie</label>
@@ -421,6 +426,9 @@
       formId: 'questionnaireFormFr',
       statusId: 'questionnaireStatusFr',
       endpoint: QUESTIONNAIRE_ENDPOINT,
+      checkboxLimits: [
+        { fieldName: 'blocages[]', maxChoices: 3, message: 'Maximum 3 choix pour cette question.' }
+      ],
       messages: {
         endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
         sending: 'Envoi en cours…',

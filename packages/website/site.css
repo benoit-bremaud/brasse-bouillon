@@ -111,7 +111,7 @@
       background: linear-gradient(90deg, var(--copper) 0%, var(--copper-deep) 50%, var(--moss) 100%);
       transform-origin: left center;
       transform: scaleX(0);
-      animation: scrollFill linear;
+      animation: scrollFill 1s linear both;
       animation-timeline: scroll(root);
     }
 

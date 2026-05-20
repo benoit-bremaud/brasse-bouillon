@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-19
 
+### PR #1020 merged (`99f2208`) — ci(website): GitHub Pages deploy workflow + reclaim brasse-bouillon.com from archived repo
+
+- Branch `feat/website-pages-deploy`, 4 commits (`09a5138`, `3374aae`, `59928ba`, `d2c35c7`).
+- Adds `.github/workflows/website-deploy.yml`: first GitHub Pages pipeline since the 2026-03-24 subtree merge. Deploys on push to `main` touching `packages/website/**` (+ `workflow_dispatch`), stages the public surface into `_site/`, publishes via `actions/deploy-pages@v4`, per-job permission scoping. `59928ba` scrubs obsolete standalone-website claims from `packages/website/CLAUDE.md`, `README.md`, `CONTRIBUTING.md`.
+- Live migration reclaimed the `brasse-bouillon.com` custom domain from the archived `brasse-bouillon-website` repo (drop legacy Pages → enable Pages on the monorepo → bind CNAME). Replay procedure: `.claude/skills/website-pages-deploy/SKILL.md`.
+
 ### PR #1018 merged (`e4c8f2d`) — feat(website): new-brewer journey section + screenshot-ready feature cards
 
 - Branch `feat/website-journey-screenshots`, 2 commits (`5c01201`, `441eb38`), +211/−12 net + 10 placeholder PNG assets. First marketing-site refresh consuming the polished mobile demo: a new `#journeyFr` / `#journeyEn` section between hero and features (FR + EN twins) walks the curious newcomer through the four-step parcours `Choisir → Brasser → Fermenter → Déguster`, each step backed by a wired image path under `packages/website/screenshots/`. The six feature cards swap their legacy emoji `.feature-icon` slot for a `.feature-screenshot` wrapper pointing to the matching mobile capture path. Hero card layout untouched in this PR (mascot + iPhone mockup combo deferred to a follow-up).

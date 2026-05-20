@@ -21,10 +21,10 @@ sequenceDiagram
     participant Ctx as ContextCollector<br/>(browser / RN)
     participant T as Transport<br/>(HTTP port)
     participant API as NestJS API<br/>(POST /feedback)
-    participant Cons as Consent SSoT<br/>(ADR-0003)
     participant DB as Feedback store
     participant Box as Outbox<br/>(localStorage / RN storage)
 
+    Note over U,V: v0.1 — consent is handled client-side<br/>(mobile store, ADR-0003) / website: widget<br/>consent checkbox (open question). NO backend gate yet.
     U->>V: Open widget, pick category + sub-type, type message
     V->>Core: buildFeedbackPayload(input)
     Core->>Ctx: collect()
@@ -40,15 +40,14 @@ sequenceDiagram
     else pre-flight passes
         Core->>T: send(payload)
         T->>API: POST /feedback
-        API->>Cons: check consent for this source
-        alt consent granted
-            API->>DB: persist feedback
+        alt API reachable
+            API->>DB: persist feedback (v0.1 — no backend consent gate)
             DB-->>API: stored
             API-->>T: 201 Created
             T-->>Core: { ok: true }
             Core-->>V: { ok: true }
             V-->>U: Confirmation
-        else consent missing / network error
+        else network / server error
             API-->>T: 4xx/5xx (or no response)
             T-->>Core: { ok: false, reason }
             Core->>Box: enqueue(payload)
@@ -71,7 +70,7 @@ sequenceDiagram
 
 - **`buildFeedbackPayload` is pure** — it validates the category/sub-category pairing and assembles `FeedbackPayload`. It throws only on invalid pairings (a programming error), never on user input. The user-facing validation (message 10–2000 chars) lives in the View adapter.
 - **`submitFeedback` runs pre-flight checks before any network call** — honeypot, minimum form-open time, and rate limit. A failed pre-flight returns `{ ok: false, reason }` without hitting the API. The NestJS endpoint (#1027) should re-enforce rate limiting server-side; client checks are advisory only.
-- **Consent is checked server-side** ([ADR-0003](../../decisions/0003-consent-single-source-of-truth.md)). The widget does not own consent state — the API gates persistence against the single source of truth. This is why the consent check sits in the API lane, not the widget.
+- **Consent is client-side at v0.1** ([ADR-0003](../../decisions/0003-consent-single-source-of-truth.md)). The consent store lives on the mobile client; there is **no backend consent module yet** (it ships in the ADR-0003 v0.2 roadmap, when auth-backed sync lands). The v0.1 endpoint therefore persists without a server-side consent gate. On the website surface, anonymous-visitor consent is an open question (widget checkbox vs documented legitimate-interest basis) — see [06 data flow](06-data-flow.md).
 
 ### Anti-patterns this diagram makes visible
 

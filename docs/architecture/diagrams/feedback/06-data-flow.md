@@ -21,18 +21,17 @@ flowchart LR
         Input[User input:<br/>message · category · subCategory · reporterName]
         Ctx[ContextCollector.collect]
         Payload[FeedbackPayload assembled]
+        Gate{Consent OK?<br/>client-side · ADR-0003}
         Input --> Payload
         Ctx --> Payload
+        Payload --> Gate
     end
 
-    subgraph API ["NestJS API — POST /feedback"]
-        Consent{Consent granted?<br/>ADR-0003}
+    subgraph API ["NestJS API — POST /feedback (v0.1 — persists, no backend gate)"]
         Store[(Feedback store)]
-        Drop[Reject / do not persist]
-        Consent -->|yes| Store
-        Consent -->|no| Drop
     end
 
+    Blocked[Not sent — consent denied]
     Maintainer((Maintainer))
 
     %% User-provided content
@@ -46,9 +45,10 @@ flowchart LR
     Ctx -.->|PII: sessionId| Payload
     Ctx -->|locale, viewport, scrollDepth, timestamp, widgetVersion, projectId| Payload
 
-    %% Transmission
-    Payload -->|HTTPS POST| Consent
-    Payload -.->|PII: message may contain free-text PII| Consent
+    %% Client-side consent gate, then transmission
+    Gate -->|granted · HTTPS POST| Store
+    Gate -.->|PII: message may contain free-text PII| Store
+    Gate -->|denied| Blocked
 
     %% Consumption
     Store -->|read for triage| Maintainer
@@ -75,7 +75,7 @@ flowchart LR
 
 ### What this diagram enforces
 
-- **Consent gates persistence, not collection-after-the-fact.** Per [ADR-0003](../../decisions/0003-consent-single-source-of-truth.md), the API checks the single source of truth *before* writing to the store. The `Consent` decision node has an explicit `no -> Drop` path — feedback without consent is rejected, not silently stored.
+- **Consent gates sending, client-side, at v0.1.** Per [ADR-0003](../../decisions/0003-consent-single-source-of-truth.md), the consent store is on the mobile client and there is **no backend consent module yet** (it ships in the ADR-0003 v0.2 roadmap). So the gate sits in the widget lane: a `denied` decision blocks the POST (`-> Blocked`), feedback is never sent. The v0.1 endpoint persists whatever it receives. Server-side gating arrives with the v0.2 backend consent sync.
 - **`reporterName` stays optional.** The dashed PII edge signals it must never be a required field. Anonymous feedback is valid.
 - **`message` is treated as PII by default.** Even though it is "just a comment", free text routinely carries personal data — flag it so retention/redaction is considered in #1027.
 

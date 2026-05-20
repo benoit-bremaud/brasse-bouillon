@@ -69,10 +69,10 @@ flowchart LR
         Ctrl[FeedbackController<br/>POST /feedback]
         Svc[FeedbackService]
         Ent[Feedback entity + migration]
-        Cons[Consent module<br/>ADR-0003]
+        Cons[Consent sync module<br/>v0.2 — ADR-0003 roadmap]
         Ctrl --> Svc
-        Svc --> Cons
         Svc --> Ent
+        Svc -.v0.2.-> Cons
     end
 
     %% Wiring
@@ -87,7 +87,7 @@ flowchart LR
     classDef future fill:#CFCFCF,stroke:#333,stroke-dasharray: 4 4,color:#000
     classDef shared fill:#A8DADC,stroke:#333,stroke-width:1px,color:#000
     class HTTP egress
-    class RnAd,RView,RHttp,RBox,RCtx future
+    class RnAd,RView,RHttp,RBox,RCtx,Cons future
     class Core,Ports,UseCases shared
 ```
 
@@ -97,7 +97,7 @@ flowchart LR
 
 - **One core, verbatim, on both surfaces.** `@feedback-widget/core` carries every use-case (`buildFeedbackPayload`, `submitFeedback`, `drainOutbox`) and every port. The web adapter exists today; the RN adapter (dashed) is net-new work tracked in feedback-widget#15 — it implements the *same* ports with native components, RN storage, and an RN context collector.
 - **Mobile egress is `core/http/http-client.ts`.** The RN adapter's `Transport` does **not** call `fetch` directly — it delegates to `http-client.ts`, the single mobile egress per [ADR-0002](../../decisions/0002-centralized-nestjs-backend.md). The web adapter's `HttpTransport` may POST directly (the website has no equivalent egress rule), which is why only the mobile lane routes through `HTTP`.
-- **Consent is a server-side dependency.** `FeedbackService` checks the Consent module ([ADR-0003](../../decisions/0003-consent-single-source-of-truth.md)) before persisting. Persistence from day one — no demo-only path.
+- **No backend consent gate at v0.1.** Per [ADR-0003](../../decisions/0003-consent-single-source-of-truth.md), the consent store is client-side (mobile); the backend `Consent sync module` is a **v0.2 roadmap item** (dashed/future in the diagram), wired only when auth-backed sync lands. The v0.1 `FeedbackService` persists directly. Persistence from day one — no demo-only path.
 
 ### Cross-package call patterns
 
@@ -107,7 +107,7 @@ flowchart LR
 | `@feedback-widget/web` `HttpTransport` | `api` `FeedbackController` | HTTPS POST `/feedback` | Submit from website |
 | `mobile-app` RN adapter `Transport` | `mobile-app` `http-client.ts` | in-bundle call | Route submission through canonical egress |
 | `mobile-app` `http-client.ts` | `api` `FeedbackController` | HTTPS POST `/feedback`, JWT | Submit from app |
-| `api` `FeedbackService` | `api` Consent module | in-process | Gate persistence per ADR-0003 |
+| `api` `FeedbackService` | `api` Consent sync module | in-process *(v0.2)* | Gate persistence per ADR-0003 — not wired at v0.1 |
 
 ### Anti-patterns this diagram makes visible
 

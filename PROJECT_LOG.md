@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-20
+
+### Backlog — epic #1026 created: beta distribution Android + in-product feedback loop
+
+- New epic `epic(feedback)` #1026 (label `epic:feedback`, added to the brasse-bouillon GitHub Project `PVT_kwHOB8rwIc4AuVew`). Reframes "APK link on the website?" into a full beta funnel: download + feedback loop on website and mobile app. Channel decided: APK now (EAS build -> GitHub Release asset), Play Store later; Android first.
+- Children: #1007 (C1 download page, adopted) · #1027 (C2 API feedback endpoint, foundation) · #1028 (C3 website widget) · #1029 (C4 in-app RN feedback) · #1030 (C5 UML conception). Reuses the `feedback-widget` project (hexagonal core + web adapter; RN adapter = feedback-widget#15).
+- Dependencies referenced not duplicated: EAS #975/#748/#967. Distinguished from #571 (Ydays site widget) and #896 (tasting feedback).
+
 ## 2026-05-19
 
 ### PR #1020 merged (`99f2208`) — ci(website): GitHub Pages deploy workflow + reclaim brasse-bouillon.com from archived repo

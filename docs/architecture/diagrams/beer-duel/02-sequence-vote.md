@@ -7,7 +7,7 @@
 
 ## Context
 
-Temporal flow from the user landing on the dashboard to the server-side Elo update. Covers the three outcomes (vote / cancelled match / dismissal). Per ADR-0002, the mobile app calls **only** the NestJS API through [`http-client.ts`](../../../packages/mobile-app/src/core/http/http-client.ts) — no direct third-party calls.
+Temporal flow from the user landing on the dashboard to the server-side Elo update. Covers the three outcomes (vote / cancelled match / dismissal). Per ADR-0002, the mobile app calls **only** the NestJS API through [`http-client.ts`](../../../../packages/mobile-app/src/core/http/http-client.ts) — no direct third-party calls.
 
 This diagram does **not** show data shapes ([04 class](04-class.md)) or the pop-up lifecycle states ([05 state](05-state-duel-session.md)).
 
@@ -23,37 +23,44 @@ sequenceDiagram
 
     U->>D: Land on dashboard (post-login)
     D->>S: Read last-shown / cooldown
-    alt Cooldown active OR corpus too small
+    alt Cooldown active (known client-side)
         S-->>D: Suppress pop-up
         Note over D: No duel this session
-    else Eligible to show
-        S-->>D: OK to show
+    else Cooldown elapsed
+        S-->>D: OK to attempt
         D->>API: GET /beer-duels/next
         API->>DB: Weighted pairing (favor low exposure,<br/>exclude user's recent pairs)
-        DB-->>API: Beer A, Beer B
-        API-->>D: { duelId, beerA, beerB }
-        D-->>U: Show pop-up (two beer cards)
 
-        alt User taps a beer card (vote)
-            U->>D: Tap preferred card
-            D->>API: POST /beer-duels/vote { duelId, winnerId }
-            API->>DB: Update Elo (winner +, loser −),<br/>exposure_count += 1 both
-            DB-->>API: OK
-            API-->>D: 201 acknowledged
-            D-->>U: "Merci pour ta participation"
-            D->>S: Set cooldown
-        else User taps "Je ne connais ni l'une ni l'autre"
-            U->>D: Tap "ni l'une ni l'autre"
-            D->>API: POST /beer-duels/vote { duelId, winnerId: null }
-            API->>DB: No Elo change,<br/>exposure_count += 1 both
-            DB-->>API: OK
-            API-->>D: 201 acknowledged
-            D-->>U: "Merci pour ta participation"
-            D->>S: Set cooldown
-        else User taps the close cross (dismiss)
-            U->>D: Tap cross
-            Note over D,API: Nothing persisted server-side
-            D->>S: Set cooldown only
+        alt A valid pair exists
+            DB-->>API: Beer A, Beer B
+            API-->>D: { duelId, beerA, beerB }
+            D-->>U: Show pop-up (two beer cards)
+
+            alt User taps a beer card (vote)
+                U->>D: Tap preferred card
+                D->>API: POST /beer-duels/vote { duelId, winnerId }
+                API->>DB: Update Elo (winner +, loser −),<br/>exposure_count += 1 both
+                DB-->>API: OK
+                API-->>D: 201 acknowledged
+                D-->>U: "Merci pour ta participation"
+                D->>S: Set cooldown
+            else User taps "Je ne connais ni l'une ni l'autre"
+                U->>D: Tap "ni l'une ni l'autre"
+                D->>API: POST /beer-duels/vote { duelId, winnerId: null }
+                API->>DB: No Elo change,<br/>exposure_count += 1 both
+                DB-->>API: OK
+                API-->>D: 201 acknowledged
+                D-->>U: "Merci pour ta participation"
+                D->>S: Set cooldown
+            else User taps the close cross (dismiss)
+                U->>D: Tap cross
+                Note over D,API: Nothing persisted server-side
+                D->>S: Set cooldown only
+            end
+        else Corpus too small / no eligible pair
+            DB-->>API: (no eligible pair)
+            API-->>D: 204 No Content
+            Note over D: No duel this session — corpus size is known<br/>only from this response, not upfront
         end
     end
 ```

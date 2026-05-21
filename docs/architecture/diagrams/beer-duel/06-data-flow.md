@@ -19,7 +19,7 @@ flowchart LR
 
     subgraph Wire ["HTTPS payload"]
         ReqNext["GET /beer-duels/next<br/>(auth header)"]
-        ReqVote["POST /beer-duels/vote<br/>{ duelId, winnerId? }"]
+        ReqVote["POST /beer-duels/vote<br/>{ duelId, winnerId }<br/>winnerId: beerId | null"]
         RespNext["{ duelId, beerA, beerB }"]
     end
 
@@ -33,14 +33,14 @@ flowchart LR
         Scores[("beer_elo_scores<br/>beer_id, score, exposure_count, updated_at")]
     end
 
-    Tap --> ReqVote
+    Tap -->|vote / cancelled match| ReqVote
     ReqVote --> Elo
     Elo --> Votes
     Elo --> Scores
     Pair --> RespNext
     ReqNext --> Pair
     RespNext --> Tap
-    Tap -.-> CD
+    Tap -.->|dismiss — no wire traffic| CD
 
     classDef pii fill:#E99695,stroke:#900,color:#000
     classDef store fill:#9CC,stroke:#333,color:#000
@@ -51,7 +51,8 @@ flowchart LR
 
 ## Notes
 
-- **🔒 `user_id` is the only PII** in this feature. It lives exclusively in `beer_duel_votes` (NestJS), never sent to the Python encyclopedia (which "carries no user data", ADR-0005). The `beer_elo_scores` aggregate carries **no** user data — which is exactly what makes it eligible for a later promotion to the public encyclopedia (ADR-0009 escape hatch).
+- **🔒 `user_id` is the only PII *at rest*** in this feature. It lives exclusively in `beer_duel_votes` (NestJS), never sent to the Python encyclopedia (which "carries no user data", ADR-0005). The `beer_elo_scores` aggregate carries **no** user data — which is exactly what makes it eligible for a later promotion to the public encyclopedia (ADR-0009 escape hatch).
+- **The JWT auth header is sensitive PII *in transit*.** Every authenticated call (`GET /beer-duels/next`, `POST /beer-duels/vote`) carries `Authorization: Bearer <token>`, which is user-linked. It is transport-only (TLS), never persisted by this feature, but it must not be logged. The "only PII at rest is `user_id`" claim above is about data *persisted by the duel feature*, not data in transit.
 - **The cooldown flag never leaves the device.** It is UX state, not analytics; no server round-trip.
 - **Dismissals produce no wire traffic.** Closing via the cross writes only the local cooldown — no row, no PII, nothing.
 - **Cancelled matches store `winner_id = NULL`** with `user_id` still attached. This is preference *abstention*, not anonymity — same PII handling as a real vote, but zero Elo effect.

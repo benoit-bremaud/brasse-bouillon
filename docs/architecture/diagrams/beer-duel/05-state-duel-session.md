@@ -6,7 +6,7 @@
 
 ## Context
 
-The lifecycle of the duel pop-up on the dashboard, governed by the client-side cooldown flag (à la [`scan.storage.ts`](../../../packages/mobile-app/src/features/scan/data/scan.storage.ts)). This is the **system rule** behind the trigger that the [use-case diagram](01-use-case.md) deliberately omits.
+The lifecycle of the duel pop-up on the dashboard, governed by the client-side cooldown flag (à la [`scan.storage.ts`](../../../../packages/mobile-app/src/features/scan/data/scan.storage.ts)). This is the **system rule** behind the trigger that the [use-case diagram](01-use-case.md) deliberately omits.
 
 ## Diagram
 

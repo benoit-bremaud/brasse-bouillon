@@ -58,7 +58,7 @@ flowchart TB
 
 ## Notes
 
-- **Single egress point.** All API traffic goes through [`core/http/http-client.ts`](../../../packages/mobile-app/src/core/http/http-client.ts) per ADR-0002 + the root CLAUDE.md forbidden-patterns rule. The `data` layer never calls `fetch()` directly.
+- **Single egress point.** All API traffic goes through [`core/http/http-client.ts`](../../../../packages/mobile-app/src/core/http/http-client.ts) per ADR-0002 + the root CLAUDE.md forbidden-patterns rule. The `data` layer never calls `fetch()` directly.
 - **Layering.** `presentation → application → data` is enforced: the modal never imports `beer-duel.api` directly, it goes through `beer-duel.use-cases` (mirrors the `features/batches/{data,application}` pattern).
 - **Votes & Elo in NestJS, not Python.** Per ADR-0009: votes carry `user_id` and the Python encyclopedia carries no user data. The aggregate ranking *could* later be promoted to the encyclopedia as a public beer fact — tracked as an ADR-0009 escape hatch, not built now.
 - **Beer reference is not a hard FK.** `Service` resolves the beer reference against `scan_catalog_items` today and `beers` at v0.2+; referential integrity across the package boundary is the application's responsibility (ADR-0005), shown as a dashed dependency.

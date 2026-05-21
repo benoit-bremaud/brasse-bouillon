@@ -1,6 +1,6 @@
 # Beer duel — community preference ranking via pairwise duels
 
-> **Status:** specification — implementation pending. Driven by epic `epic(beer-duel)` (to be filed). Priority **Nice-to-Have / v0.2+**.
+> **Status:** specification — implementation pending. Driven by epic [#1050](https://github.com/benoit-bremaud/brasse-bouillon/issues/1050) (`epic(beer-duel)`), sub-issues #1051–#1056. Priority **Nice-to-Have / v0.2+**.
 
 > ⚠️ **Backend ownership per [ADR-0005](../decisions/0005-backend-split-encyclopedia-vs-product.md) + [ADR-0009](../decisions/0009-beer-duel-preference-data-ownership.md)** — the **NestJS API** owns the votes and the derived Elo scores (they are *ratings / social features* tied to `users.id`; the Python encyclopedia "carries no user data"). The **beer reference** inside a duel is a cross-backend pointer (NestJS `scan_catalog_items` transitionally, Python `beers` at v0.2+), enforced in application code, not as a DB foreign key. See ADR-0009 for the full rationale and the "promote aggregate ranking to encyclopedia later" escape hatch.
 
@@ -38,7 +38,8 @@ The trade-off — pairwise comparison needs **many** duels before the ranking st
 On a **vote** (one winner, one loser):
 
 ```
-expected_winner = 1 / (1 + 10 ^ ((score_loser - score_winner) / 400))
+# note: ** / pow() is exponentiation — NOT ^ (which is bitwise XOR in TS/JS/Python)
+expected_winner = 1 / (1 + 10 ** ((score_loser - score_winner) / 400))
 expected_loser  = 1 - expected_winner
 
 score_winner += K * (1 - expected_winner)

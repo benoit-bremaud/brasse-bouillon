@@ -333,6 +333,46 @@
     }
 
     /* ========================================================================
+       BEER FOAM — creamy head crowning the very top of the page
+       ====================================================================== */
+
+    .beer-foam {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 0;
+      height: clamp(172px, 19vw, 264px);
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(255, 253, 248, 0.98) 0%,
+        rgba(254, 248, 233, 0.88) 55%,
+        rgba(251, 243, 218, 0.4) 84%,
+        rgba(251, 243, 218, 0) 100%
+      );
+      /* Organic foam bubbles are injected by site.js (setupFoam). */
+    }
+
+    .foam-bubble {
+      position: absolute;
+      left: var(--fx);
+      bottom: var(--fy);
+      width: var(--fs);
+      height: var(--fs);
+      border-radius: 50%;
+      transform: translate(-50%, 50%);
+      opacity: var(--fo);
+      background: radial-gradient(
+        circle at 36% 30%,
+        #ffffff 0 36%,
+        #fbf3da 74%,
+        #efe0b8 100%
+      );
+      box-shadow: 0 1px 2px rgba(150, 120, 70, 0.18);
+    }
+
+    /* ========================================================================
        HERO — KINETIC : massive mascot, parallax orbits, big type
        ====================================================================== */
 

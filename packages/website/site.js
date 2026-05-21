@@ -163,6 +163,42 @@
     layer.appendChild(fragment);
   }
 
+  /**
+   * Fills a `.beer-foam` background layer with irregular foam bubbles —
+   * varied size / position / opacity, denser and larger near the bottom
+   * so the underside reads as an organic, lumpy head spilling into the
+   * beer (rather than a regular tiled pattern). No-ops when the layer is
+   * absent.
+   */
+  function setupFoam(options) {
+    const foam = document.querySelector('.beer-foam');
+    if (!foam) return;
+
+    // Dense overlapping placement: many bubbles piled on top of one
+    // another so the head reads as a solid foam mass with no visible gaps
+    // between droplets. Larger bubbles sit lower (gravity), fine froth on
+    // top; high opacity so overlaps stay creamy and continuous.
+    const count = (options && options.count) || 4200;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i += 1) {
+      const bubble = document.createElement('span');
+      bubble.className = 'foam-bubble';
+
+      const vy = Math.pow(Math.random(), 1.35);
+      const size = 9 + (1 - vy) * 44 + Math.random() * 12;
+      const bottomPx = vy * 232 - 26;
+
+      bubble.style.setProperty('--fx', `${(Math.random() * 100).toFixed(2)}%`);
+      bubble.style.setProperty('--fy', `${bottomPx.toFixed(0)}px`);
+      bubble.style.setProperty('--fs', `${size.toFixed(0)}px`);
+      bubble.style.setProperty('--fo', (0.85 + Math.random() * 0.15).toFixed(2));
+      fragment.appendChild(bubble);
+    }
+
+    foam.appendChild(fragment);
+  }
+
   function onReady(fn) {
     if (document.readyState !== 'loading') {
       fn();
@@ -173,11 +209,13 @@
 
   onReady(function () {
     setupBubbles();
+    setupFoam();
   });
 
   global.BBShared = {
     toggleQuestionnaire,
     setupQuestionnaire,
-    setupBubbles
+    setupBubbles,
+    setupFoam
   };
 }(window));

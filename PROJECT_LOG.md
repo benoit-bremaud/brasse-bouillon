@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-21
 
+### PRs #1062 + #1063 merged — mobile responsive fix + accessible burger menu
+
+- PR #1062 (`fix(website)`): cards rendered left-shifted with horizontal scroll on mobile. Cause: `setupDew` baked an absolute px width/height into each `.dew-layer`, which went stale on viewport change and overflowed the (unclipped) cards, pushing `scrollWidth` past the viewport (measured 771 vs ~485 at 390px). Fix: size the layer to its host in CSS (`100%/100%`); `offsetWidth/Height` kept only for bead-count scaling. Deployed.
+- PR #1063 (`feat(website)`): accessible mobile burger menu (≤760px) — header links collapse behind a toggle into a dropdown panel; desktop unchanged. Re-applied on top of current `main` (the original work sat on a stale pre-ambiance base) so bubbles/foam/dew are fully preserved (verified open + closed locally). `setupMenu()` handles `data-open`, link-close, Escape. Review follow-ups: focus moves to the destination section on link-close (Copilot), and a `js`/`no-js` `<html>` flip keeps the nav visible without JavaScript (Codex P2). Quality-gate rules + regression test added. Deployed.
+
 ### PRs #1059 + #1060 merged — website ambiance perf + Firefox compositing fix (follow-ups to #1057)
 
 - PR #1059 (`aa5faa9`) `perf(website)`: the dew "lens" used `backdrop-filter` on ~440 elements (~5500 DOM nodes total) → compositing artifacts + jank. Removed `backdrop-filter` (look kept via highlight/rim/shadow) and cut counts.

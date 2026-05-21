@@ -14,6 +14,43 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - Epic #1031 tracks 12 sub-issues. Security (`security`+`priority:high`): #1032 security headers (+CSP-readiness note: inline script/onclick must be refactored first), #1033 HSTS, #1034 security.txt, #1035 Google Fonts privacy/GDPR, #1036 Formspree anti-abuse, #1042 SPF/DMARC. Functional (`type:bug`+`priority:high`): #1044 non-functional contact email. Quality: #1037 HTML/CSS lint CI, #1038 Lighthouse CI/link-checker, #1039 perf + image optimization (+CLS 0.75 on privacy.html note), #1043 custom 404, #1045 Open Graph missing on 9/10 pages + EN canonical/hreflang.
 - All 13 issues (epic + 12) added to project `PVT_kwHOB8rwIc4AuVew`. Structural constraint: GitHub Pages cannot set custom headers → header remediation needs a Cloudflare edge or `<meta>` fallback. Deferred (per owner): i18n / EN-pages removal (the `lang-switch` "Read in English" link lives on the 4 secondary pages, not the homepage) — to be captured as its own issue.
 
+### PRs #1062 + #1063 merged — mobile responsive fix + accessible burger menu
+
+- PR #1062 (`fix(website)`): cards rendered left-shifted with horizontal scroll on mobile. Cause: `setupDew` baked an absolute px width/height into each `.dew-layer`, which went stale on viewport change and overflowed the (unclipped) cards, pushing `scrollWidth` past the viewport (measured 771 vs ~485 at 390px). Fix: size the layer to its host in CSS (`100%/100%`); `offsetWidth/Height` kept only for bead-count scaling. Deployed.
+- PR #1063 (`feat(website)`): accessible mobile burger menu (≤760px) — header links collapse behind a toggle into a dropdown panel; desktop unchanged. Re-applied on top of current `main` (the original work sat on a stale pre-ambiance base) so bubbles/foam/dew are fully preserved (verified open + closed locally). `setupMenu()` handles `data-open`, link-close, Escape. Review follow-ups: focus moves to the destination section on link-close (Copilot), and a `js`/`no-js` `<html>` flip keeps the nav visible without JavaScript (Codex P2). Quality-gate rules + regression test added. Deployed.
+
+### PRs #1059 + #1060 merged — website ambiance perf + Firefox compositing fix (follow-ups to #1057)
+
+- PR #1059 (`aa5faa9`) `perf(website)`: the dew "lens" used `backdrop-filter` on ~440 elements (~5500 DOM nodes total) → compositing artifacts + jank. Removed `backdrop-filter` (look kept via highlight/rim/shadow) and cut counts.
+- PR #1060 (`12a7d4b`) `fix(website)`: on Firefox the high-contrast mascot ghosted into the fixed bubble/foam layers (GPU artifact; Chrome unaffected). Promoted `.bubbles`/`.beer-foam` to their own GPU layers (`translateZ(0)` + `backface-visibility`) and gave the mascot `.logo` `backface-visibility:hidden`, dropped `mix-blend-mode:multiply` on the grain overlay (kept via opacity), isolated the hero. Density rebalanced (foam 2600, bubbles 170, dew denser) — ~3400 nodes vs ~5500, and no `backdrop-filter` on the droplet/foam ambiance layers (the `.site-header`/`.pill`/questionnaire chrome keep theirs by design). Deployed.
+
+### PR #1057 merged (`bd56bb2`) — feat(website): "glass of beer" ambiance + 18+ band relocation
+
+- Branch `feat/website-responsibility-band`. Moves the Loi Évin 18+ notice from the top of the page to a full-bleed dark bottom band (FR + EN — the EN page previously had no notice, gap closed). Adds the "page = glass of beer" ambiance: rising CO2 bubbles accelerating up to the foam, a compact foam head crowning the top, condensation droplets on every card (perled beads + pear-shaped trickles with tapering fading trails), and an amber/gold backdrop deepening downward. Pure CSS/JS, no framework, `prefers-reduced-motion` respected.
+- Notable fixes during build: density scales with card area; dew layer raised in stacking (`.feature-card > *` z-index override) and sized explicitly (the `inset:0` 0-height quirk); for `<details>` FAQ items the dew attaches to the always-visible `<summary>` so it shows when collapsed. Copilot note addressed pre-merge (EN page now loads `site.js`).
+- Deployed to brasse-bouillon.com via `website-deploy.yml` (success). Merged `--admin --squash` (SonarCloud still pending; website quality gate + security-audit green).
+
+### Backlog — epic #1050 created: beer-duel community preference ranking (mobile pop-up + Elo)
+
+- New epic `epic(beer-duel)` #1050 (labels `type:epic` · `scope:frontend` · `scope:backend` · `area:ux` · `priority:nice-to-have` · `epic:community`; added to Project `PVT_kwHOB8rwIc4AuVew`). Occasional dashboard pop-up in the **mobile app**: pick the preferred of two beers (tap card), or "I know neither" (cancelled match), or dismiss. Aggregated as per-beer Elo → community ranking. Decisions: Elo (K=32 default), weighted pairing (favour low exposure), priority v0.2+ (needs corpus + active users).
+- Children (native sub-issues): #1051 (api: record vote) · #1052 (api: Elo + ranking) · #1053 (api: weighted pairing) · #1054 (frontend: dashboard pop-up) · #1055 (frontend: cooldown logic) · #1056 (docs: spec + UML + ADR).
+- Conception deliverables on branch `docs/beer-duel-backlog` (PR pending): spec `docs/architecture/specs/beer-duel.md`, 6 Mermaid diagrams `docs/architecture/diagrams/beer-duel/01..06`, `ADR-0006` (preference data = product/social → NestJS, per ADR-0005; beer ref cross-backend, not a hard FK). ADR README index also backfilled with the missing 0005 row.
+
+### Epic #1026 — C5 + C2 merged (UML conception + feedback endpoint)
+
+- PR #1040 merged (`30d0d77`) — `docs(feedback/architecture)`: 4 UML diagrams under `docs/architecture/diagrams/feedback/` (use-case, sequence, component, data-flow). Closes #1030 (C5). Consent modelled client-side per ADR-0003 (no backend gate at v0.1; backend sync = v0.2).
+- PR #1047 merged (`fbf7470`) — `feat(api)`: public anonymous `POST /feedback` endpoint, persisted to a new `feedback` table, rate-limited, with category/sub-category pairing validation. Closes #1027 (C2). Review caught a P1 (Feedback entity missing from `ormEntities` → runtime `EntityMetadataNotFoundError`); fixed + e2e added.
+- PR #1041 merged (`541f33b`) — `docs(log)`: the #1026 epic-creation entry below.
+- Still open on the epic: C1 (#1007, depends EAS #975/#748), C3 (#1028, now unblocked), C4 (#1029, depends feedback-widget#15).
+
+## 2026-05-20
+
+### Backlog — epic #1026 created: beta distribution Android + in-product feedback loop
+
+- New epic `epic(feedback)` #1026 (label `epic:feedback`, added to the brasse-bouillon GitHub Project `PVT_kwHOB8rwIc4AuVew`). Reframes "APK link on the website?" into a full beta funnel: download + feedback loop on website and mobile app. Channel decided: APK now (EAS build -> GitHub Release asset), Play Store later; Android first.
+- Children: #1007 (C1 download page, adopted) · #1027 (C2 API feedback endpoint, foundation) · #1028 (C3 website widget) · #1029 (C4 in-app RN feedback) · #1030 (C5 UML conception). Reuses the `feedback-widget` project (hexagonal core + web adapter; RN adapter = feedback-widget#15).
+- Dependencies referenced not duplicated: EAS #975/#748/#967. Distinguished from #571 (Ydays site widget) and #896 (tasting feedback).
+
 ## 2026-05-19
 
 ### PR #1020 merged (`99f2208`) — ci(website): GitHub Pages deploy workflow + reclaim brasse-bouillon.com from archived repo

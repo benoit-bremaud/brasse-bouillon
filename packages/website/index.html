@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="no-js">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Progressive enhancement: flip to `js` so the mobile nav only
+       collapses behind the burger when scripting is available. Without
+       JS the header nav stays visible (no-js fallback). -->
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
   <title>Brasse-Bouillon — Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
 
   <!-- SEO Meta Tags -->
@@ -38,7 +42,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="site.css?v=20260521-2">
 
   <!-- Organization Schema -->
   <script type="application/ld+json">
@@ -108,6 +112,7 @@
 <body>
   <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <div class="bubbles" aria-hidden="true"></div>
 
   <header class="site-header">
     <div class="header-inner">
@@ -115,7 +120,17 @@
         <img src="logo-hero.png" alt="Brasse-Bouillon" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
-      <nav class="header-nav">
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="headerNav"
+        aria-label="Ouvrir le menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+      <nav class="header-nav" id="headerNav">
         <a href="#journeyFr">Parcours</a>
         <a href="#features">L’app</a>
         <a href="#faq">FAQ</a>
@@ -126,10 +141,6 @@
 
   <main class="page" id="mainContentFr">
     <div class="shell">
-      <p class="responsibility-banner">
-        Brasse-Bouillon s’adresse aux adultes (18+) et promeut une consommation responsable. L’abus d’alcool est dangereux pour la santé.
-      </p>
-
       <section class="hero">
         <div class="hero-embers" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -409,7 +420,17 @@
     </div>
   </main>
 
-  <script src="site.js"></script>
+  <aside class="responsibility-band" aria-label="Avertissement légal">
+    <div class="responsibility-band__inner">
+      <span class="responsibility-band__badge" aria-hidden="true">18+</span>
+      <p>
+        L’abus d’alcool est dangereux pour la santé. À consommer avec modération.
+        Brasse-Bouillon s’adresse aux adultes et promeut une consommation responsable.
+      </p>
+    </div>
+  </aside>
+
+  <script src="site.js?v=20260521-2"></script>
   <script>
     const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
     const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
@@ -421,6 +442,10 @@
     function toggleQuestionnaire(lang) {
       BBShared.toggleQuestionnaire({ lang, labels: TOGGLE_LABELS });
     }
+
+    BBShared.setupMenu({
+      labels: { open: 'Ouvrir le menu', close: 'Fermer le menu' }
+    });
 
     BBShared.setupQuestionnaire({
       formId: 'questionnaireFormFr',

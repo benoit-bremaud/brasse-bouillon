@@ -283,8 +283,11 @@
           run.style.setProperty('--ds', `${(8 + Math.random() * 5).toFixed(1)}px`);
           run.style.setProperty('--dr-dist', `${Math.round(cardH * 0.72)}px`);
           run.style.setProperty('--dr-trail', `${(135 + Math.random() * 105).toFixed(0)}px`);
-          run.style.setProperty('--dr-dur', `${(5 + Math.random() * 4).toFixed(1)}s`);
-          run.style.setProperty('--dr-delay', `${(2 + Math.random() * 16).toFixed(1)}s`);
+          // Full cycle is mostly idle (the fall is ~22% of it), so a 12–20s
+          // duration yields a drip roughly every 12–20s, plus a staggered
+          // first-appearance delay so they don't all fall in unison.
+          run.style.setProperty('--dr-dur', `${(12 + Math.random() * 8).toFixed(1)}s`);
+          run.style.setProperty('--dr-delay', `${(Math.random() * 14).toFixed(1)}s`);
 
           const bead = document.createElement('span');
           bead.className = 'dew-run__bead';

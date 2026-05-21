@@ -518,7 +518,10 @@
       width: var(--ds);
       height: var(--ds);
       pointer-events: none;
-      /* accelerating fall (gravity): slow start, speeding up. */
+      /* accelerating fall (gravity): slow start, speeding up. `--dr-dur` is
+         the whole cycle, mostly idle — the fall occupies only its first
+         ~22%, so a drip appears occasionally rather than looping nonstop
+         (animation-delay alone only delays the first iteration). */
       animation: dew-run var(--dr-dur) cubic-bezier(0.6, 0.04, 0.98, 0.34)
         var(--dr-delay) infinite;
     }
@@ -573,14 +576,17 @@
     }
 
     @keyframes dew-run {
+      /* The fall happens in the first ~22% of the cycle; the rest is idle
+         (invisible, parked at the bottom) so a drip is occasional. */
       0% { transform: translateY(0); opacity: 0; }
-      10% { opacity: 1; }
-      88% { opacity: 1; }
+      2% { opacity: 1; }
+      22% { transform: translateY(var(--dr-dist)); opacity: 1; }
+      26% { transform: translateY(var(--dr-dist)); opacity: 0; }
       100% { transform: translateY(var(--dr-dist)); opacity: 0; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .dew--run { animation: none; }
+      .dew-run { animation: none; }
     }
 
     /* ========================================================================

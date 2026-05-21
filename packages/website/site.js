@@ -135,18 +135,27 @@
     if (!layer) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const count = (options && options.count) || 48;
+    const count = (options && options.count) || 110;
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i += 1) {
       const bubble = document.createElement('span');
       bubble.className = 'bubble';
-      bubble.style.setProperty('--size', `${(3 + Math.random() * 9).toFixed(1)}px`);
+
+      // Skew towards small bubbles with a few big ones (like real CO2):
+      // most are 2–8px, some medium, the rare large reaching ~22px.
+      const sizeFactor = Math.pow(Math.random(), 1.7);
+      const size = 2 + sizeFactor * 20;
+      // Larger bubbles tend to be a touch more opaque and rise faster.
+      const opacity = 0.25 + sizeFactor * 0.35 + Math.random() * 0.25;
+      const duration = 7 + (1 - sizeFactor) * 12 + Math.random() * 3;
+
+      bubble.style.setProperty('--size', `${size.toFixed(1)}px`);
       bubble.style.setProperty('--x', `${(Math.random() * 100).toFixed(2)}vw`);
-      bubble.style.setProperty('--dur', `${(9 + Math.random() * 13).toFixed(1)}s`);
-      bubble.style.setProperty('--delay', `${(-Math.random() * 22).toFixed(1)}s`);
-      bubble.style.setProperty('--sway', `${(6 + Math.random() * 22).toFixed(0)}px`);
-      bubble.style.setProperty('--op', (0.18 + Math.random() * 0.4).toFixed(2));
+      bubble.style.setProperty('--dur', `${duration.toFixed(1)}s`);
+      bubble.style.setProperty('--delay', `${(-Math.random() * 20).toFixed(1)}s`);
+      bubble.style.setProperty('--sway', `${(6 + Math.random() * 26).toFixed(0)}px`);
+      bubble.style.setProperty('--op', Math.min(opacity, 0.9).toFixed(2));
       fragment.appendChild(bubble);
     }
 

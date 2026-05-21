@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-21
 
+### PR #1066 merged (`2d1be2b`) — docs(beer-duel): spec + UML + ADR-0009 + backlog audit cleanup
+
+- Conception of epic #1050 (beer-duel community preference ranking, mobile pop-up + Elo): spec `docs/architecture/specs/beer-duel.md`, 6 Mermaid diagrams `docs/architecture/diagrams/beer-duel/01..06`, `ADR-0009` (votes + Elo = product/social data → NestJS per ADR-0005; beer ref cross-backend, not a hard FK). ADR README index backfilled with the missing 0005 row + a note that 0006–0008 are reserved (#833 journal, #834 monetization/AI, #879/#883 recipe license). Sub-issues #1051–#1056.
+- ADR renumbered 0006 → 0009 mid-PR after a backlog audit found 0006–0008 already reserved in open epics — avoided a numbering collision (the new ADR took the next free slot after the reserved block).
+- Review (Codex P2 + 14 Copilot inline) addressed in `57d8cf2`: broken diagram links (`../../../` → `../../../../packages`), Elo `^`→`**`, `winnerId: beerId|null`, PII at-rest vs JWT in-transit, vote/cancel POST vs dismiss split, corpus-size from `GET /next` 204. Merged `--admin --squash` (REVIEW_REQUIRED block; AI reviewers comment, don't approve).
+- Backlog audit (297 open issues, 47 epics) — quick wins applied: closed #753 (dup of #935), linked #643 under epic #740, linked the 12 website-audit findings (#1032-#1039, #1042-#1045) as native sub-issues of epic #1031. Deferred (needs scoping): a parent "Batches / Brew Journal" epic over #595 + #808-814, and the #810↔#811 gravity-metrics merge.
+
 ### PRs #1062 + #1063 merged — mobile responsive fix + accessible burger menu
 
 - PR #1062 (`fix(website)`): cards rendered left-shifted with horizontal scroll on mobile. Cause: `setupDew` baked an absolute px width/height into each `.dew-layer`, which went stale on viewport change and overflowed the (unclipped) cards, pushing `scrollWidth` past the viewport (measured 771 vs ~485 at 390px). Fix: size the layer to its host in CSS (`100%/100%`); `offsetWidth/Height` kept only for bead-count scaling. Deployed.

@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-21
 
+### PRs #1059 + #1060 merged — website ambiance perf + Firefox compositing fix (follow-ups to #1057)
+
+- PR #1059 (`aa5faa9`) `perf(website)`: the dew "lens" used `backdrop-filter` on ~440 elements (~5500 DOM nodes total) → compositing artifacts + jank. Removed `backdrop-filter` (look kept via highlight/rim/shadow) and cut counts.
+- PR #1060 (`12a7d4b`) `fix(website)`: on Firefox the high-contrast mascot ghosted into the fixed bubble/foam layers (GPU artifact; Chrome unaffected). Promoted `.bubbles`/`.beer-foam`/mascot to their own GPU layers (`translateZ(0)`/`backface-visibility`), dropped `mix-blend-mode:multiply` on the grain overlay (kept via opacity), isolated the hero. Density rebalanced (foam 2600, bubbles 170, dew denser) — ~3400 nodes vs ~5500, 0 `backdrop-filter`. Deployed.
+
 ### PR #1057 merged (`bd56bb2`) — feat(website): "glass of beer" ambiance + 18+ band relocation
 
 - Branch `feat/website-responsibility-band`. Moves the Loi Évin 18+ notice from the top of the page to a full-bleed dark bottom band (FR + EN — the EN page previously had no notice, gap closed). Adds the "page = glass of beer" ambiance: rising CO2 bubbles accelerating up to the foam, a compact foam head crowning the top, condensation droplets on every card (perled beads + pear-shaped trickles with tapering fading trails), and an amber/gold backdrop deepening downward. Pure CSS/JS, no framework, `prefers-reduced-motion` respected.

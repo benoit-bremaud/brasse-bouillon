@@ -31,9 +31,11 @@ export class AddFeedbackTable1795000000000 implements MigrationInterface {
         "locale" varchar(20) NOT NULL,
         "client_timestamp" datetime NOT NULL,
         "widget_version" varchar(40) NOT NULL,
-        "scroll_depth" float NOT NULL,
+        "scroll_depth" real NOT NULL,
         "session_id" varchar(128) NOT NULL,
-        "created_at" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+        "created_at" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+        CONSTRAINT "CHK_feedback_category" CHECK ("category" IN ('bug', 'typo', 'error', 'ambiguous', 'suggestion', 'other')),
+        CONSTRAINT "CHK_feedback_scroll_depth" CHECK ("scroll_depth" >= 0 AND "scroll_depth" <= 1)
       )
     `);
     await queryRunner.query(

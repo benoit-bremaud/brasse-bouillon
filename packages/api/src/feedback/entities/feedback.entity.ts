@@ -78,7 +78,7 @@ export class Feedback {
   widget_version: string;
 
   /** Scroll depth ratio in [0, 1] at submission time. */
-  @Column({ type: 'float' })
+  @Column({ type: 'real' })
   scroll_depth: number;
 
   /** Opaque client session identifier. */

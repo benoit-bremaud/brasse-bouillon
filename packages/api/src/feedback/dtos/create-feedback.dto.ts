@@ -1,11 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
   IsISO8601,
   IsNotEmpty,
+  IsNotEmptyObject,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Max,
@@ -68,14 +70,14 @@ export class CreateFeedbackDto {
   @IsEnum(TOP_LEVEL_CATEGORIES)
   category: TopLevelCategory;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     nullable: true,
     example: 'broken-feature',
     description:
       'Sub-category; must match the chosen category, or null for "other"',
   })
   @IsValidSubCategory()
-  subCategory: string | null;
+  subCategory?: string | null;
 
   @ApiProperty({
     example: 'The download button does nothing on Android 13.',
@@ -92,11 +94,14 @@ export class CreateFeedbackDto {
   @MaxLength(2048)
   url: string;
 
-  @ApiProperty({ nullable: true, example: 'https://brasse-bouillon.com/' })
+  @ApiPropertyOptional({
+    nullable: true,
+    example: 'https://brasse-bouillon.com/',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(2048)
-  referrer: string | null;
+  referrer?: string | null;
 
   @ApiProperty({ example: 'Mozilla/5.0 (...)' })
   @IsString()
@@ -104,6 +109,8 @@ export class CreateFeedbackDto {
   userAgent: string;
 
   @ApiProperty({ type: FeedbackViewportDto })
+  @IsObject()
+  @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => FeedbackViewportDto)
   viewport: FeedbackViewportDto;

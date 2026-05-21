@@ -54,7 +54,6 @@ flowchart LR
     Store -->|read for triage| Maintainer
 
     %% Styling
-    classDef pii fill:#EE6C4D,stroke:#333,stroke-width:1px,color:#fff
     classDef store fill:#F4D35E,stroke:#000,stroke-width:2px,color:#000
     class Store store
 ```

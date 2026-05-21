@@ -25,7 +25,7 @@ sequenceDiagram
     participant Box as Outbox<br/>(localStorage / RN storage)
 
     Note over U,V: v0.1 — consent is handled client-side<br/>(mobile store, ADR-0003) / website: widget<br/>consent checkbox (open question). NO backend gate yet.
-    U->>V: Open widget, pick category + sub-type, type message
+    U->>V: Open widget, pick category + subCategory, type message
     V->>Core: buildFeedbackPayload(input)
     Core->>Ctx: collect()
     Ctx-->>Core: BrowserContext (url, locale, viewport, sessionId, …)

@@ -28,7 +28,7 @@ flowchart LR
         subgraph Submission ["Submission domain"]
             UC1(("Send feedback<br/>from the website"))
             UC2(("Send feedback<br/>from the mobile app"))
-            UC3(("Categorize a report<br/>(type + sub-type)"))
+            UC3(("Categorize a report<br/>(category + subCategory)"))
             UC4(("Point at the area concerned<br/>(web only)"))
         end
         subgraph Review ["Review domain (future — no child issue yet)"]

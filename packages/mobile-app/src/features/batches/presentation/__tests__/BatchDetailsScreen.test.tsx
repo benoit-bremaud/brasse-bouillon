@@ -173,6 +173,25 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
     expect(screen.getByText("idéal 18–20 °C")).toBeTruthy();
   });
 
+  it("pins the headline to J+5 even when fermentation started long ago (regression)", async () => {
+    const longAgo = new Date(
+      Date.now() - 40 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const longAgoBatch = {
+      ...fermentationInProgressBatch,
+      steps: fermentationInProgressBatch.steps.map((step) =>
+        step.stepOrder === 2 ? { ...step, startedAt: longAgo } : step,
+      ),
+    };
+    (getBatchDetails as jest.Mock).mockResolvedValue(longAgoBatch);
+
+    renderBatchDetailsScreen("b-demo-pdd-ferm");
+
+    // A date-derived count would cap at J+14 here; the demo pin keeps J+5.
+    expect(await screen.findByText("Fermentation")).toBeTruthy();
+    expect(screen.getByText("J+5 / J+14")).toBeTruthy();
+  });
+
   it("hides the fermentation card in live mode (sad path)", async () => {
     dataSource.useDemoData = false;
 

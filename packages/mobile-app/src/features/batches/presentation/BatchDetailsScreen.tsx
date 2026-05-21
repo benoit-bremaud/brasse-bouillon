@@ -22,8 +22,12 @@ import { demoRecipes } from "@/mocks/demo-data";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useRouter } from "expo-router";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const DEMO_FERMENTATION_TARGET_DAYS = 14;
+// Pinned so the demo fermentation always reads exactly "J+5 / J+14" — the
+// state the marketing site showcases. Deriving the day count from a fixed
+// past `startedAt` would drift with the calendar (and disagree with the
+// step's own "jour 5 sur 14" copy).
+const DEMO_FERMENTATION_DAYS_ELAPSED = 5;
 const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 
 // Dynamic widths cannot live in `StyleSheet.create()` because they
@@ -60,18 +64,12 @@ function useFermentationTrackerInfo(batch: Batch | null) {
       return null;
     }
 
-    const startedAt = new Date(currentStep.startedAt);
-    if (Number.isNaN(startedAt.getTime())) {
-      return null;
-    }
-    const elapsedMs = Math.max(0, Date.now() - startedAt.getTime());
-    const daysElapsed = Math.min(
-      DEMO_FERMENTATION_TARGET_DAYS,
-      Math.floor(elapsedMs / DAY_MS),
-    );
-    const progressPct = Math.round(
-      (daysElapsed / DEMO_FERMENTATION_TARGET_DAYS) * 100,
-    );
+    // The day count is pinned (not derived from `startedAt`) so the demo
+    // always shows J+5 / J+14; `startedAt` is still required above as the
+    // signal that fermentation has actually begun.
+    const daysElapsed = DEMO_FERMENTATION_DAYS_ELAPSED;
+    const ratio = daysElapsed / DEMO_FERMENTATION_TARGET_DAYS;
+    const progressPct = Math.round(ratio * 100);
 
     // Estimate the current gravity as a linear interpolation between
     // the recipe's OG and FG using the fermentation progress. Real
@@ -80,7 +78,6 @@ function useFermentationTrackerInfo(batch: Batch | null) {
     const recipe = demoRecipes.find((r) => r.id === batch.recipeId);
     const og = recipe?.stats?.og ?? 1.048;
     const fg = recipe?.stats?.fg ?? 1.012;
-    const ratio = daysElapsed / DEMO_FERMENTATION_TARGET_DAYS;
     const currentSg = og - (og - fg) * ratio;
 
     return {

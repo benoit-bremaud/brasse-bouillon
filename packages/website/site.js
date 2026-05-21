@@ -150,10 +150,23 @@
       setOpen(nav.dataset.open !== 'true');
     });
 
-    // Close after following an in-page link.
+    // Close after following an in-page link. Focus would otherwise stay on
+    // the link CSS is about to hide, so move it to the destination section
+    // (same-page hash) — falling back to the toggle — to keep keyboard /
+    // assistive-tech focus on a visible element.
     nav.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
-        if (nav.dataset.open === 'true') setOpen(false);
+        if (nav.dataset.open !== 'true') return;
+        setOpen(false);
+
+        const hash = link.getAttribute('href') || '';
+        const target = hash.startsWith('#') ? document.getElementById(hash.slice(1)) : null;
+        if (target) {
+          if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: true });
+        } else {
+          toggle.focus();
+        }
       });
     });
 

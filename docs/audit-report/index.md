@@ -4,36 +4,77 @@ aside: true
 ---
 
 <VerdictHero
-  kicker="brasse-bouillon.com · historique d'audits"
-  verdict="Historique"
-  emphasis="des audits."
-  sub="Journal des audits qualité & sécurité du site brasse-bouillon.com. Chaque audit est daté, conserve ses constats et son plan de remédiation, et reste consultable ici. Le plus récent est mis en avant ci-dessous."
+  kicker="Audit qualité & sécurité · 2026-05-21"
+  verdict="Site sain,"
+  emphasis="12 axes de durcissement."
+  sub="brasse-bouillon.com est solide sur la qualité front (HTML 100 % valide, Lighthouse au plafond, politique cookies honnête, aucun secret exposé). Les faiblesses se concentrent sur la configuration DNS / e-mail, les en-têtes HTTP de sécurité et la complétude des métadonnées SEO."
   :meta="[
-    { label: 'Dernier audit', value: '2026-05-21' },
-    { label: 'Audits archivés', value: '1' },
-    { label: 'Suivi des constats', value: 'epic #1031' }
+    { label: 'Périmètre', value: 'site live + packages/website' },
+    { label: 'Pages auditées', value: '10' },
+    { label: 'Constats', value: '12' },
+    { label: 'Suivi', value: 'epic #1031' }
   ]"
 />
 
-## Dernier audit — 2026-05-21
+## Verdict en un coup d'œil
 
 <StatRow :items="[
-  { num: 'Sain', label: 'verdict global', color: 'var(--sev-ok)' },
-  { num: '12', label: 'constats ouverts', color: 'var(--sev-high)' },
+  { num: '12', label: 'constats ouverts (issues)', color: 'var(--sev-high)' },
   { num: '7', label: 'priorité haute', color: 'var(--sev-critical)' },
-  { num: '100', label: 'Lighthouse a11y / SEO / BP', color: 'var(--sev-ok)' }
+  { num: '0', label: 'secret / fuite détecté', color: 'var(--sev-ok)' },
+  { num: '0', label: 'erreur HTML (W3C)', color: 'var(--sev-ok)' }
 ]" />
 
-→ **[Ouvrir l'audit du 2026-05-21](/2026-05-21/)** · [Constats](/2026-05-21/findings) · [Remédiation](/2026-05-21/remediation) · [Méthodologie](/2026-05-21/methodology)
+Aucune vulnérabilité exploitable à distance ni fuite de données n'a été trouvée. Les constats
+relèvent du **durcissement** (en-têtes, DNS) et de la **conformité** (RGPD polices, métadonnées SEO),
+pas d'une compromission. Le risque dominant est l'**usurpation de l'identité e-mail du domaine** et
+le fait que l'adresse de contact publiée **ne reçoit pas le courrier**.
 
-## Tous les audits
+## Scores Lighthouse — page d'accueil (mobile)
 
-| Date | Périmètre | Verdict | Constats | Rapport |
-|------|-----------|---------|----------|---------|
-| **2026-05-21** | Site live + `packages/website` | Site sain, 12 axes de durcissement | 12 (7 hautes) | [Ouvrir](/2026-05-21/) |
+<ScoreGauge :items="[
+  { label: 'Performance (LCP 152 ms)', value: 99 },
+  { label: 'Accessibilité', value: 100 },
+  { label: 'Bonnes pratiques', value: 100 },
+  { label: 'SEO', value: 100 }
+]" />
 
-::: tip Ajouter un futur audit
-Créer un nouveau dossier daté `docs/audit-report/AAAA-MM-JJ/` (copier la structure de `2026-05-21/` :
-`index.md`, `findings.md`, `remediation.md`, `methodology.md`), ajouter une ligne à ce tableau et une
-entrée de sidebar dans `.vitepress/config.mjs`. Le thème et les composants sont partagés.
+> La page d'accueil est exemplaire : **LCP 152 ms, CLS 0.00**. Le bémol perf se trouve sur les pages
+> de texte (CLS 0.75 sur `privacy.html`, dû au *swap* des polices Google) — voir
+> [constat #1039](/findings#q-perf).
+
+## Couverture de l'audit
+
+<CoverageMatrix :cells="[
+  { dim: 'En-têtes HTTP de sécurité', state: 'bad', note: 'CSP / X-Frame / nosniff / Referrer / Permissions absents' },
+  { dim: 'TLS / HTTPS', state: 'ok', note: 'Let\'s Encrypt valide, redirection 301' },
+  { dim: 'HSTS', state: 'warn', note: 'présent mais sans includeSubDomains/preload' },
+  { dim: 'DNS e-mail (SPF/DMARC)', state: 'bad', note: 'domaine usurpable' },
+  { dim: 'Contact e-mail', state: 'bad', note: 'aucun MX — contact@ ne reçoit rien' },
+  { dim: 'Validation HTML (W3C)', state: 'ok', note: '0 erreur sur 6 pages' },
+  { dim: 'Accessibilité', state: 'ok', note: 'Lighthouse 100 (home + privacy)' },
+  { dim: 'SEO / métadonnées', state: 'warn', note: 'Open Graph manquant sur 9/10 pages' },
+  { dim: 'Confidentialité / cookies', state: 'ok', note: 'aucun cookie posé, politique exacte' },
+  { dim: 'Polices tierces (RGPD)', state: 'warn', note: 'Google Fonts via CDN Google' },
+  { dim: 'Secrets dans le source', state: 'ok', note: 'aucun' },
+  { dim: 'Outillage CI qualité', state: 'warn', note: 'pas de lint / Lighthouse CI / link-check' }
+]" />
+
+## Répartition des constats
+
+| Domaine | Constats | Priorité |
+|---|---|---|
+| Sécurité réseau / en-têtes | #1032, #1033, #1034 | <SeverityBadge level="high" /> |
+| Confidentialité / tiers | #1035, #1036 | <SeverityBadge level="high" /> |
+| DNS / e-mail | #1042, #1044 | <SeverityBadge level="high" /> |
+| SEO / métadonnées | #1045 | <SeverityBadge level="medium" /> |
+| Outillage CI | #1037, #1038 | <SeverityBadge level="medium" /> |
+| Perf / UX | #1039, #1043 | <SeverityBadge level="low" /> |
+
+→ Détail complet dans **[Constats](/findings)**, plan d'action dans **[Remédiation](/remediation)**.
+
+::: tip Contrainte structurante
+Le site est servi par **GitHub Pages**, qui **ne peut pas définir d'en-têtes de réponse
+personnalisés**. La correction des en-têtes (#1032, #1033) passe donc par un **proxy edge
+gratuit (Cloudflare)** devant le domaine, ou un repli partiel via `<meta http-equiv>`.
 :::

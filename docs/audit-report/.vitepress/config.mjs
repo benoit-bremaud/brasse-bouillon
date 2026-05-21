@@ -28,24 +28,27 @@ export default {
   themeConfig: {
     siteTitle: "Audit · brasse-bouillon.com",
     nav: [
-      { text: "Historique", link: "/" },
-      { text: "Dernier audit (2026-05-21)", link: "/2026-05-21/" },
-      { text: `v${siteVersion}`, link: "/" }
+      { text: "Synthèse", link: "/" },
+      { text: "Constats", link: "/findings" },
+      { text: "Remédiation", link: "/remediation" },
+      { text: "Méthodologie", link: "/methodology" },
+      { text: "Historique", link: "/historique" },
+      { text: `v${siteVersion}`, link: "/historique" }
     ],
     sidebar: [
       {
-        text: "Historique",
-        items: [{ text: "Tous les audits", link: "/" }]
-      },
-      {
-        text: "Audit du 2026-05-21",
+        text: "Audit du 2026-05-21 (dernier)",
         collapsed: false,
         items: [
-          { text: "Synthèse exécutive", link: "/2026-05-21/" },
-          { text: "Constats détaillés", link: "/2026-05-21/findings" },
-          { text: "Plan de remédiation", link: "/2026-05-21/remediation" },
-          { text: "Méthodologie & périmètre", link: "/2026-05-21/methodology" }
+          { text: "Synthèse exécutive", link: "/" },
+          { text: "Constats détaillés", link: "/findings" },
+          { text: "Plan de remédiation", link: "/remediation" },
+          { text: "Méthodologie & périmètre", link: "/methodology" }
         ]
+      },
+      {
+        text: "Historique",
+        items: [{ text: "Tous les audits", link: "/historique" }]
       }
     ],
     socialLinks: [

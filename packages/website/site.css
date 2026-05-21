@@ -420,11 +420,12 @@
         inset 1px 1px 2px rgba(255, 255, 255, 0.45),
         0 0 3px rgba(120, 90, 50, 0.18);
       opacity: 0;
-      will-change: translate, transform, opacity;
       /* Rise (Y) and sway (X) are split across the `translate` and
          `transform` properties so the acceleration isn't linearised by
-         sway waypoints. The bubble rises continuously to the top (foam),
-         fading only at the very top — never stopping mid-screen. */
+         sway waypoints. The bubble rises continuously to the top, fading
+         only at the very top — never stopping mid-screen. No `will-change`:
+         it would pin a permanent GPU layer per bubble (memory churn on
+         mobile); the compositor still promotes the animating transform. */
       animation:
         bubble-rise var(--dur) cubic-bezier(0.45, 0, 0.85, 0.4) var(--delay)
           infinite,
@@ -446,49 +447,6 @@
 
     @media (prefers-reduced-motion: reduce) {
       .bubbles { display: none; }
-    }
-
-    /* ========================================================================
-       BEER FOAM — creamy head crowning the very top of the page
-       ====================================================================== */
-
-    .beer-foam {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 0;
-      height: clamp(172px, 19vw, 264px);
-      pointer-events: none;
-      /* own GPU layer (Firefox ghosting fix) */
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      background: linear-gradient(
-        to bottom,
-        rgba(255, 253, 248, 0.98) 0%,
-        rgba(254, 248, 233, 0.88) 55%,
-        rgba(251, 243, 218, 0.4) 84%,
-        rgba(251, 243, 218, 0) 100%
-      );
-      /* Organic foam bubbles are injected by site.js (setupFoam). */
-    }
-
-    .foam-bubble {
-      position: absolute;
-      left: var(--fx);
-      bottom: var(--fy);
-      width: var(--fs);
-      height: var(--fs);
-      border-radius: 50%;
-      transform: translate(-50%, 50%);
-      opacity: var(--fo);
-      background: radial-gradient(
-        circle at 36% 30%,
-        #ffffff 0 36%,
-        #fbf3da 74%,
-        #efe0b8 100%
-      );
-      box-shadow: 0 1px 2px rgba(150, 120, 70, 0.18);
     }
 
     /* ========================================================================
@@ -560,7 +518,10 @@
       width: var(--ds);
       height: var(--ds);
       pointer-events: none;
-      /* accelerating fall (gravity): slow start, speeding up. */
+      /* accelerating fall (gravity): slow start, speeding up. `--dr-dur` is
+         the whole cycle, mostly idle — the fall occupies only its first
+         ~22%, so a drip appears occasionally rather than looping nonstop
+         (animation-delay alone only delays the first iteration). */
       animation: dew-run var(--dr-dur) cubic-bezier(0.6, 0.04, 0.98, 0.34)
         var(--dr-delay) infinite;
     }
@@ -615,14 +576,17 @@
     }
 
     @keyframes dew-run {
+      /* The fall happens in the first ~22% of the cycle; the rest is idle
+         (invisible, parked at the bottom) so a drip is occasional. */
       0% { transform: translateY(0); opacity: 0; }
-      10% { opacity: 1; }
-      88% { opacity: 1; }
+      2% { opacity: 1; }
+      22% { transform: translateY(var(--dr-dist)); opacity: 1; }
+      26% { transform: translateY(var(--dr-dist)); opacity: 0; }
       100% { transform: translateY(var(--dr-dist)); opacity: 0; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .dew--run { animation: none; }
+      .dew-run { animation: none; }
     }
 
     /* ========================================================================

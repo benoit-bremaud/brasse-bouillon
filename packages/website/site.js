@@ -191,7 +191,7 @@
     if (!layer) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const count = (options && options.count) || 170;
+    const count = (options && options.count) || 120;
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i += 1) {
@@ -216,42 +216,6 @@
     }
 
     layer.appendChild(fragment);
-  }
-
-  /**
-   * Fills a `.beer-foam` background layer with irregular foam bubbles —
-   * varied size / position / opacity, denser and larger near the bottom
-   * so the underside reads as an organic, lumpy head spilling into the
-   * beer (rather than a regular tiled pattern). No-ops when the layer is
-   * absent.
-   */
-  function setupFoam(options) {
-    const foam = document.querySelector('.beer-foam');
-    if (!foam) return;
-
-    // Dense overlapping placement: many bubbles piled on top of one
-    // another so the head reads as a solid foam mass with no visible gaps
-    // between droplets. Larger bubbles sit lower (gravity), fine froth on
-    // top; high opacity so overlaps stay creamy and continuous.
-    const count = (options && options.count) || 2600;
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 0; i < count; i += 1) {
-      const bubble = document.createElement('span');
-      bubble.className = 'foam-bubble';
-
-      const vy = Math.pow(Math.random(), 1.35);
-      const size = 9 + (1 - vy) * 44 + Math.random() * 12;
-      const bottomPx = vy * 232 - 26;
-
-      bubble.style.setProperty('--fx', `${(Math.random() * 100).toFixed(2)}%`);
-      bubble.style.setProperty('--fy', `${bottomPx.toFixed(0)}px`);
-      bubble.style.setProperty('--fs', `${size.toFixed(0)}px`);
-      bubble.style.setProperty('--fo', (0.85 + Math.random() * 0.15).toFixed(2));
-      fragment.appendChild(bubble);
-    }
-
-    foam.appendChild(fragment);
   }
 
   /**
@@ -307,19 +271,23 @@
       }
 
       if (!reduce) {
-        // fewer, more scattered trickling drops (1 per ~230000 px²), 1–5.
-        const runners = Math.min(5, Math.max(1, Math.round(area / 230000)));
-        const cardHeight = cardH;
-        for (let i = 0; i < runners; i += 1) {
+        // A trickling drop is rare and expensive: at most one per card, and
+        // only on roughly half the cards, with a long random delay so a drip
+        // appears only "every so often" rather than continuously.
+        const hasRunner = Math.random() < 0.5;
+        if (hasRunner) {
           const run = document.createElement('span');
           run.className = 'dew-run';
           run.style.setProperty('--dx', `${(10 + Math.random() * 80).toFixed(1)}%`);
           run.style.setProperty('--dy', `${(5 + Math.random() * 20).toFixed(1)}%`);
           run.style.setProperty('--ds', `${(8 + Math.random() * 5).toFixed(1)}px`);
-          run.style.setProperty('--dr-dist', `${Math.round(cardHeight * 0.72)}px`);
+          run.style.setProperty('--dr-dist', `${Math.round(cardH * 0.72)}px`);
           run.style.setProperty('--dr-trail', `${(135 + Math.random() * 105).toFixed(0)}px`);
-          run.style.setProperty('--dr-dur', `${(4 + Math.random() * 5).toFixed(1)}s`);
-          run.style.setProperty('--dr-delay', `${(Math.random() * 9).toFixed(1)}s`);
+          // Full cycle is mostly idle (the fall is ~22% of it), so a 12–20s
+          // duration yields a drip roughly every 12–20s, plus a staggered
+          // first-appearance delay so they don't all fall in unison.
+          run.style.setProperty('--dr-dur', `${(12 + Math.random() * 8).toFixed(1)}s`);
+          run.style.setProperty('--dr-delay', `${(Math.random() * 14).toFixed(1)}s`);
 
           const bead = document.createElement('span');
           bead.className = 'dew-run__bead';
@@ -342,7 +310,6 @@
 
   onReady(function () {
     setupBubbles();
-    setupFoam();
   });
 
   // Dew density depends on final card sizes — run once layout is settled.
@@ -357,7 +324,6 @@
     setupQuestionnaire,
     setupMenu,
     setupBubbles,
-    setupFoam,
     setupDew
   };
 }(window));

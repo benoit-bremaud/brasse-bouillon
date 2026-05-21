@@ -7,6 +7,18 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-21
 
+### PR #1057 merged (`bd56bb2`) — feat(website): "glass of beer" ambiance + 18+ band relocation
+
+- Branch `feat/website-responsibility-band`. Moves the Loi Évin 18+ notice from the top of the page to a full-bleed dark bottom band (FR + EN — the EN page previously had no notice, gap closed). Adds the "page = glass of beer" ambiance: rising CO2 bubbles accelerating up to the foam, a compact foam head crowning the top, condensation droplets on every card (perled beads + pear-shaped trickles with tapering fading trails), and an amber/gold backdrop deepening downward. Pure CSS/JS, no framework, `prefers-reduced-motion` respected.
+- Notable fixes during build: density scales with card area; dew layer raised in stacking (`.feature-card > *` z-index override) and sized explicitly (the `inset:0` 0-height quirk); for `<details>` FAQ items the dew attaches to the always-visible `<summary>` so it shows when collapsed. Copilot note addressed pre-merge (EN page now loads `site.js`).
+- Deployed to brasse-bouillon.com via `website-deploy.yml` (success). Merged `--admin --squash` (SonarCloud still pending; website quality gate + security-audit green).
+
+### Backlog — epic #1050 created: beer-duel community preference ranking (mobile pop-up + Elo)
+
+- New epic `epic(beer-duel)` #1050 (labels `type:epic` · `scope:frontend` · `scope:backend` · `area:ux` · `priority:nice-to-have` · `epic:community`; added to Project `PVT_kwHOB8rwIc4AuVew`). Occasional dashboard pop-up in the **mobile app**: pick the preferred of two beers (tap card), or "I know neither" (cancelled match), or dismiss. Aggregated as per-beer Elo → community ranking. Decisions: Elo (K=32 default), weighted pairing (favour low exposure), priority v0.2+ (needs corpus + active users).
+- Children (native sub-issues): #1051 (api: record vote) · #1052 (api: Elo + ranking) · #1053 (api: weighted pairing) · #1054 (frontend: dashboard pop-up) · #1055 (frontend: cooldown logic) · #1056 (docs: spec + UML + ADR).
+- Conception deliverables on branch `docs/beer-duel-backlog` (PR pending): spec `docs/architecture/specs/beer-duel.md`, 6 Mermaid diagrams `docs/architecture/diagrams/beer-duel/01..06`, `ADR-0006` (preference data = product/social → NestJS, per ADR-0005; beer ref cross-backend, not a hard FK). ADR README index also backfilled with the missing 0005 row.
+
 ### Epic #1026 — C5 + C2 merged (UML conception + feedback endpoint)
 
 - PR #1040 merged (`30d0d77`) — `docs(feedback/architecture)`: 4 UML diagrams under `docs/architecture/diagrams/feedback/` (use-case, sequence, component, data-flow). Closes #1030 (C5). Consent modelled client-side per ADR-0003 (no backend gate at v0.1; backend sync = v0.2).

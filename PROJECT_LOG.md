@@ -15,7 +15,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PRs #1059 + #1060 merged — website ambiance perf + Firefox compositing fix (follow-ups to #1057)
 
 - PR #1059 (`aa5faa9`) `perf(website)`: the dew "lens" used `backdrop-filter` on ~440 elements (~5500 DOM nodes total) → compositing artifacts + jank. Removed `backdrop-filter` (look kept via highlight/rim/shadow) and cut counts.
-- PR #1060 (`12a7d4b`) `fix(website)`: on Firefox the high-contrast mascot ghosted into the fixed bubble/foam layers (GPU artifact; Chrome unaffected). Promoted `.bubbles`/`.beer-foam`/mascot to their own GPU layers (`translateZ(0)`/`backface-visibility`), dropped `mix-blend-mode:multiply` on the grain overlay (kept via opacity), isolated the hero. Density rebalanced (foam 2600, bubbles 170, dew denser) — ~3400 nodes vs ~5500, 0 `backdrop-filter`. Deployed.
+- PR #1060 (`12a7d4b`) `fix(website)`: on Firefox the high-contrast mascot ghosted into the fixed bubble/foam layers (GPU artifact; Chrome unaffected). Promoted `.bubbles`/`.beer-foam` to their own GPU layers (`translateZ(0)` + `backface-visibility`) and gave the mascot `.logo` `backface-visibility:hidden`, dropped `mix-blend-mode:multiply` on the grain overlay (kept via opacity), isolated the hero. Density rebalanced (foam 2600, bubbles 170, dew denser) — ~3400 nodes vs ~5500, and no `backdrop-filter` on the droplet/foam ambiance layers (the `.site-header`/`.pill`/questionnaire chrome keep theirs by design). Deployed.
 
 ### PR #1057 merged (`bd56bb2`) — feat(website): "glass of beer" ambiance + 18+ band relocation
 

@@ -68,9 +68,8 @@ function useFermentationTrackerInfo(batch: Batch | null) {
     // always shows J+5 / J+14; `startedAt` is still required above as the
     // signal that fermentation has actually begun.
     const daysElapsed = DEMO_FERMENTATION_DAYS_ELAPSED;
-    const progressPct = Math.round(
-      (daysElapsed / DEMO_FERMENTATION_TARGET_DAYS) * 100,
-    );
+    const ratio = daysElapsed / DEMO_FERMENTATION_TARGET_DAYS;
+    const progressPct = Math.round(ratio * 100);
 
     // Estimate the current gravity as a linear interpolation between
     // the recipe's OG and FG using the fermentation progress. Real
@@ -79,7 +78,6 @@ function useFermentationTrackerInfo(batch: Batch | null) {
     const recipe = demoRecipes.find((r) => r.id === batch.recipeId);
     const og = recipe?.stats?.og ?? 1.048;
     const fg = recipe?.stats?.fg ?? 1.012;
-    const ratio = daysElapsed / DEMO_FERMENTATION_TARGET_DAYS;
     const currentSg = og - (og - fg) * ratio;
 
     return {

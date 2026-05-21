@@ -46,7 +46,12 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0003](0003-consent-single-source-of-truth.md) | Consent as a single source of truth | Accepted | 2026-04-24 |
 | [0004](0004-data-locality-hybrid-principle.md) | Data locality: hybrid principle | Accepted | 2026-04-24 |
 | [0005](0005-backend-split-encyclopedia-vs-product.md) | Backend split: encyclopedia vs product | Accepted | 2026-05-02 |
-| [0006](0006-beer-duel-preference-data-ownership.md) | Beer-duel preference data ownership | Accepted | 2026-05-21 |
+| [0009](0009-beer-duel-preference-data-ownership.md) | Beer-duel preference data ownership | Accepted | 2026-05-21 |
+
+> **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
+> referenced by open epics: 0006 — private journal vs. social product (#833),
+> 0007 — monetization model (#834, #879, #883), 0008 — AI-generated content
+> policy (#834). They will be added here when drafted.
 
 ---
 

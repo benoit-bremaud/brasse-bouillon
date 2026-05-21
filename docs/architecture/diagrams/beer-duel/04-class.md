@@ -2,12 +2,12 @@
 
 > **Feature**: epic `epic(beer-duel)` — community beer preference ranking via pairwise duels.
 > **Source specs**: [`docs/architecture/specs/beer-duel.md`](../../specs/beer-duel.md) §3 (rules), §4 (dependencies).
-> **Related ADRs**: [ADR-0005](../../decisions/0005-backend-split-encyclopedia-vs-product.md), [ADR-0006](../../decisions/0006-beer-duel-preference-data-ownership.md).
+> **Related ADRs**: [ADR-0005](../../decisions/0005-backend-split-encyclopedia-vs-product.md), [ADR-0009](../../decisions/0009-beer-duel-preference-data-ownership.md).
 > **Companion**: [03-component.md](03-component.md).
 
 ## Context
 
-Domain entities owned by the **NestJS product backend** (per ADR-0006). The beer reference is a cross-backend pointer, **not** a hard foreign key.
+Domain entities owned by the **NestJS product backend** (per ADR-0009). The beer reference is a cross-backend pointer, **not** a hard foreign key.
 
 This diagram does **not** show behaviour (see [02 sequence](02-sequence-vote.md)), packages (see [03 component](03-component.md)), or the pop-up lifecycle (see [05 state](05-state-duel-session.md)).
 

@@ -1,4 +1,4 @@
-# ADR-0006 — Beer-duel preference data is product/social data → owned by NestJS
+# ADR-0009 — Beer-duel preference data is product/social data → owned by NestJS
 
 **Status**  Accepted
 **Date**    2026-05-21

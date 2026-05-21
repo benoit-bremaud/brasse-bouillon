@@ -2,7 +2,7 @@
 
 > **Feature**: epic `epic(beer-duel)` — community beer preference ranking via pairwise duels.
 > **Source specs**: [`docs/architecture/specs/beer-duel.md`](../../specs/beer-duel.md) §3 (canonical rules).
-> **Related ADRs**: [ADR-0002](../../decisions/0002-centralized-nestjs-backend.md), [ADR-0005](../../decisions/0005-backend-split-encyclopedia-vs-product.md), [ADR-0006](../../decisions/0006-beer-duel-preference-data-ownership.md).
+> **Related ADRs**: [ADR-0002](../../decisions/0002-centralized-nestjs-backend.md), [ADR-0005](../../decisions/0005-backend-split-encyclopedia-vs-product.md), [ADR-0009](../../decisions/0009-beer-duel-preference-data-ownership.md).
 > **Companion**: [01-use-case.md](01-use-case.md), [05-state-duel-session.md](05-state-duel-session.md).
 
 ## Context

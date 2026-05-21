@@ -232,12 +232,11 @@
 
       // Density proportional to card area so small and large cards keep a
       // consistent look (one bead per ~10000 px²), clamped to sane bounds.
+      // offsetWidth/Height are read only to size bead counts — the layer
+      // itself is stretched to the host in CSS (100%/100%), so it stays in
+      // sync after a resize instead of overflowing with a stale px width.
       const cardW = host.offsetWidth || 300;
       const cardH = host.offsetHeight || 240;
-      // Size the layer explicitly — `inset:0` yields a 0-height box on some
-      // cards (e.g. <details> FAQ items), hiding the drops.
-      layer.style.width = `${cardW}px`;
-      layer.style.height = `${cardH}px`;
       const area = cardW * cardH;
       const beads = Math.min(110, Math.max(9, Math.round(area / 13000)));
       for (let i = 0; i < beads; i += 1) {

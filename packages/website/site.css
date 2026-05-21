@@ -421,8 +421,13 @@
       position: absolute;
       top: 0;
       left: 0;
-      /* width/height set in JS from the measured card (some cards, e.g.
-         <details> FAQ items, give a 0-height box with inset:0). */
+      /* Match the host via percentages, not baked-in pixels: a px width
+         measured at one viewport stays stale after a resize/orientation
+         change and overflows the card, causing horizontal page scroll on
+         mobile. 100%/100% resolves against the (position:relative) host —
+         including the <details> summary the FAQ dew is attached to. */
+      width: 100%;
+      height: 100%;
       z-index: 30;
       border-radius: inherit;
       overflow: hidden;

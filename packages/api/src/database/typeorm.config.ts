@@ -8,6 +8,7 @@ import { DistributorOrmEntity } from '../catalog/distributor/entities/distributo
 import { EquipmentProfileOrmEntity } from '../equipment/entities/equipment-profile.orm.entity';
 import { EquipmentTemplateDistributorOrmEntity } from '../catalog/equipment/entities/equipment-template-distributor.orm.entity';
 import { EquipmentTemplateOrmEntity } from '../catalog/equipment/entities/equipment-template.orm.entity';
+import { Feedback } from '../feedback/entities/feedback.entity';
 import { FermentableDistributorOrmEntity } from '../catalog/fermentable/entities/fermentable-distributor.orm.entity';
 import { FermentableOrmEntity } from '../catalog/fermentable/entities/fermentable.orm.entity';
 import { HopDistributorOrmEntity } from '../catalog/hop/entities/hop-distributor.orm.entity';
@@ -73,6 +74,7 @@ export const ormEntities = [
   YeastDistributorOrmEntity,
   MiscTemplateDistributorOrmEntity,
   EquipmentTemplateDistributorOrmEntity,
+  Feedback,
 ];
 
 const parseBooleanEnv = (name: string, defaultValue: boolean): boolean => {

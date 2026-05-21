@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="no-js">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Progressive enhancement: flip to `js` so the mobile nav only
+       collapses behind the burger when scripting is available. Without
+       JS the header nav stays visible (no-js fallback). -->
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
   <title>Brasse-Bouillon — Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
 
   <!-- SEO Meta Tags -->

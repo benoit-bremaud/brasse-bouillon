@@ -199,6 +199,85 @@
     foam.appendChild(fragment);
   }
 
+  /**
+   * Adds condensation (dew) droplets clinging to the front of each card,
+   * like beads on a cold glass. A measured few static beads per card, plus
+   * one or two that trickle down with a faint wet trail. Foreground layer,
+   * pointer-events disabled so it never blocks interaction. Trickling is
+   * skipped under prefers-reduced-motion.
+   */
+  function setupDew(options) {
+    const selector =
+      (options && options.selector) ||
+      '.hero, .journey-step, .feature-card, .faq-item, .participate';
+    const cards = document.querySelectorAll(selector);
+    if (!cards.length) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    cards.forEach((card) => {
+      // A closed <details> hides every child except its <summary>, so for
+      // those cards attach the dew to the always-visible <summary>.
+      const host =
+        card.tagName === 'DETAILS'
+          ? card.querySelector(':scope > summary') || card
+          : card;
+
+      if (host.querySelector(':scope > .dew-layer')) return;
+      if (window.getComputedStyle(host).position === 'static') {
+        host.style.position = 'relative';
+      }
+
+      const layer = document.createElement('span');
+      layer.className = 'dew-layer';
+
+      // Density proportional to card area so small and large cards keep a
+      // consistent look (one bead per ~10000 px²), clamped to sane bounds.
+      const cardW = host.offsetWidth || 300;
+      const cardH = host.offsetHeight || 240;
+      // Size the layer explicitly — `inset:0` yields a 0-height box on some
+      // cards (e.g. <details> FAQ items), hiding the drops.
+      layer.style.width = `${cardW}px`;
+      layer.style.height = `${cardH}px`;
+      const area = cardW * cardH;
+      const beads = Math.min(150, Math.max(13, Math.round(area / 10000)));
+      for (let i = 0; i < beads; i += 1) {
+        const drop = document.createElement('span');
+        drop.className = 'dew';
+        drop.style.setProperty('--dx', `${(5 + Math.random() * 90).toFixed(1)}%`);
+        drop.style.setProperty('--dy', `${(5 + Math.random() * 88).toFixed(1)}%`);
+        // skew small: lots of fine beads, a few larger ones
+        const beadSize = 3 + Math.pow(Math.random(), 1.8) * 11;
+        drop.style.setProperty('--ds', `${beadSize.toFixed(1)}px`);
+        layer.appendChild(drop);
+      }
+
+      if (!reduce) {
+        // fewer, more scattered trickling drops (1 per ~230000 px²), 1–5.
+        const runners = Math.min(5, Math.max(1, Math.round(area / 230000)));
+        const cardHeight = cardH;
+        for (let i = 0; i < runners; i += 1) {
+          const run = document.createElement('span');
+          run.className = 'dew-run';
+          run.style.setProperty('--dx', `${(10 + Math.random() * 80).toFixed(1)}%`);
+          run.style.setProperty('--dy', `${(5 + Math.random() * 20).toFixed(1)}%`);
+          run.style.setProperty('--ds', `${(8 + Math.random() * 5).toFixed(1)}px`);
+          run.style.setProperty('--dr-dist', `${Math.round(cardHeight * 0.72)}px`);
+          run.style.setProperty('--dr-trail', `${(135 + Math.random() * 105).toFixed(0)}px`);
+          run.style.setProperty('--dr-dur', `${(4 + Math.random() * 5).toFixed(1)}s`);
+          run.style.setProperty('--dr-delay', `${(Math.random() * 9).toFixed(1)}s`);
+
+          const bead = document.createElement('span');
+          bead.className = 'dew-run__bead';
+          run.appendChild(bead);
+          layer.appendChild(run);
+        }
+      }
+
+      host.appendChild(layer);
+    });
+  }
+
   function onReady(fn) {
     if (document.readyState !== 'loading') {
       fn();
@@ -212,10 +291,18 @@
     setupFoam();
   });
 
+  // Dew density depends on final card sizes — run once layout is settled.
+  if (document.readyState === 'complete') {
+    setupDew();
+  } else {
+    window.addEventListener('load', setupDew);
+  }
+
   global.BBShared = {
     toggleQuestionnaire,
     setupQuestionnaire,
     setupBubbles,
-    setupFoam
+    setupFoam,
+    setupDew
   };
 }(window));

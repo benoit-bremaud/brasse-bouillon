@@ -220,9 +220,90 @@
       transform: translateY(-2px) scale(1.03);
     }
 
+    /* Burger toggle — hidden on desktop, revealed at the mobile breakpoint. */
+    .nav-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--ink);
+      transition: background-color 0.2s var(--ease-out-soft);
+    }
+
+    .nav-toggle:hover { background: rgba(58, 40, 24, 0.06); }
+
+    .nav-toggle__bars,
+    .nav-toggle__bars::before,
+    .nav-toggle__bars::after {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--ink);
+      transition: transform 0.22s var(--ease-out-soft), opacity 0.22s var(--ease-out-soft);
+    }
+
+    .nav-toggle__bars { position: relative; }
+    .nav-toggle__bars::before { position: absolute; top: -6px; left: 0; }
+    .nav-toggle__bars::after { position: absolute; top: 6px; left: 0; }
+
+    .nav-toggle[aria-expanded='true'] .nav-toggle__bars { background: transparent; }
+    .nav-toggle[aria-expanded='true'] .nav-toggle__bars::before { transform: translateY(6px) rotate(45deg); }
+    .nav-toggle[aria-expanded='true'] .nav-toggle__bars::after { transform: translateY(-6px) rotate(-45deg); }
+
     @media (max-width: 760px) {
-      .header-nav { gap: 18px; font-size: 0.88rem; }
-      .header-nav .header-cta { padding: 8px 14px; }
+      .nav-toggle { display: inline-flex; }
+
+      /* Nav collapses into a dropdown panel under the sticky header. */
+      .header-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        padding: 10px 24px 18px;
+        background: rgba(255, 252, 244, 0.97);
+        backdrop-filter: blur(14px) saturate(1.15);
+        -webkit-backdrop-filter: blur(14px) saturate(1.15);
+        border-bottom: 1px solid var(--line);
+        box-shadow: var(--shadow-md);
+        /* Closed state — removed from layout and tab order. */
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 0.22s var(--ease-out-soft),
+          transform 0.22s var(--ease-out-soft), visibility 0.22s;
+      }
+
+      .header-nav[data-open='true'] {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      /* Comfortable touch targets (>= 44px) for each link. */
+      .header-nav a {
+        padding: 12px 4px;
+        font-size: 1rem;
+      }
+
+      .header-nav a:not(.header-cta)::after { display: none; }
+
+      .header-nav .header-cta {
+        margin-top: 6px;
+        text-align: center;
+        padding: 13px 14px;
+      }
     }
 
     /* ---- Page shell ---- */

@@ -18,7 +18,7 @@ def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
     legal_html_template = (
-        "<!DOCTYPE html><html lang=\"{lang}\"><head>"
+        '<!DOCTYPE html><html lang="{lang}"><head>'
         "<title>{title}</title></head><body></body></html>"
     )
     legal_pages = [
@@ -49,6 +49,13 @@ def _create_valid_fixture(base: Path) -> None:
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
+  <header class="site-header"><div class="header-inner">
+    <button class="nav-toggle" id="navToggle" type="button"
+      aria-expanded="false" aria-controls="headerNav" aria-label="Ouvrir le menu">
+      <span class="nav-toggle__bars"></span>
+    </button>
+    <nav class="header-nav" id="headerNav"><a href="#features">L'app</a></nav>
+  </div></header>
   <main id="mainContentFr"></main>
 </body>
 </html>
@@ -126,9 +133,7 @@ class QualityGateTests(unittest.TestCase):
             )
 
             errors = quality_gate.collect_errors(root)
-            self.assertTrue(
-                any("meta robots noindex,follow" in err for err in errors)
-            )
+            self.assertTrue(any("meta robots noindex,follow" in err for err in errors))
 
     def test_detects_disallowed_software_application_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -146,8 +151,23 @@ class QualityGateTests(unittest.TestCase):
 
             errors = quality_gate.collect_errors(root)
             expected = "SoftwareApplication non autorisé"
+            self.assertTrue(any(expected in err for err in errors))
+
+    def test_detects_missing_burger_toggle(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            fr_path = root / "index.html"
+            fr_content = fr_path.read_text(encoding="utf-8")
+            # Drop the burger button — header nav becomes inaccessible on mobile.
+            fr_path.write_text(
+                fr_content.replace('class="nav-toggle"', 'class="removed"'),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
             self.assertTrue(
-                any(expected in err for err in errors)
+                any("bouton burger .nav-toggle manquant" in err for err in errors)
             )
 
     def test_detects_sitemap_not_fr_only(self) -> None:
@@ -167,9 +187,7 @@ class QualityGateTests(unittest.TestCase):
 
             errors = quality_gate.collect_errors(root)
             expected = "sitemap.xml: doit contenir uniquement"
-            self.assertTrue(
-                any(expected in err for err in errors)
-            )
+            self.assertTrue(any(expected in err for err in errors))
 
     def test_detects_missing_robots_directive(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -185,10 +203,7 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
 
             errors = quality_gate.collect_errors(root)
             self.assertTrue(
-                any(
-                    "directive requise manquante: Allow: /" in err
-                    for err in errors
-                )
+                any("directive requise manquante: Allow: /" in err for err in errors)
             )
 
     def test_detects_disallowed_aggregate_rating_fields(self) -> None:
@@ -210,12 +225,8 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
             self.assertTrue(
                 any("aggregateRating non autorisé" in err for err in errors)
             )
-            self.assertTrue(
-                any("ratingValue non autorisé" in err for err in errors)
-            )
-            self.assertTrue(
-                any("ratingCount non autorisé" in err for err in errors)
-            )
+            self.assertTrue(any("ratingValue non autorisé" in err for err in errors))
+            self.assertTrue(any("ratingCount non autorisé" in err for err in errors))
 
 
 if __name__ == "__main__":

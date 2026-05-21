@@ -36,23 +36,34 @@ REQUIRED_FILES = [
 HTML_RULES = {
     "index.html": [
         (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
-        (r"<html\s+lang=\"fr\"", "balise <html lang=\"fr\"> manquante"),
+        (r"<html\s+lang=\"fr\"", 'balise <html lang="fr"> manquante'),
         (r"<title>.+</title>", "balise <title> manquante"),
         (r"id=\"mainContentFr\"", "ancre principale #mainContentFr manquante"),
         (
             r"<link\s+rel=\"canonical\"\s+href=\""
             r"https://brasse-bouillon\.com/\"",
-            "canonical FR vers "
-            "https://brasse-bouillon.com/ manquante",
+            "canonical FR vers https://brasse-bouillon.com/ manquante",
         ),
         (
             r'"@type"\s*:\s*"Organization"',
             "schema Organization manquant dans index.html",
         ),
+        (
+            r'<nav[^>]*\bid="headerNav"',
+            "id #headerNav manquant sur la nav (cible du menu burger)",
+        ),
+        (
+            r'class="nav-toggle"',
+            "bouton burger .nav-toggle manquant dans le header",
+        ),
+        (
+            r'aria-controls="headerNav"',
+            'attribut aria-controls="headerNav" manquant sur le bouton burger',
+        ),
     ],
     "index-en.html": [
         (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
-        (r"<html\s+lang=\"en\"", "balise <html lang=\"en\"> manquante"),
+        (r"<html\s+lang=\"en\"", 'balise <html lang="en"> manquante'),
         (r"<title>.+</title>", "balise <title> manquante"),
         (r"id=\"mainContentEn\"", "ancre principale #mainContentEn manquante"),
         (
@@ -62,8 +73,7 @@ HTML_RULES = {
         (
             r"<link\s+rel=\"canonical\"\s+href=\""
             r"https://brasse-bouillon\.com/\"",
-            "canonical EN vers "
-            "https://brasse-bouillon.com/ manquante",
+            "canonical EN vers https://brasse-bouillon.com/ manquante",
         ),
     ],
 }
@@ -187,8 +197,7 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
     if loc_values != [HOMEPAGE_URL]:
         found = ", ".join(loc_values) if loc_values else "aucune URL"
         errors.append(
-            "sitemap.xml: doit contenir uniquement "
-            f"{HOMEPAGE_URL} (trouvé: {found})"
+            f"sitemap.xml: doit contenir uniquement {HOMEPAGE_URL} (trouvé: {found})"
         )
 
     return errors
@@ -213,9 +222,7 @@ def check_robots_policy(root: Path = ROOT) -> list[str]:
 
     for directive in ROBOTS_REQUIRED_DIRECTIVES:
         if directive.lower() not in known_directives:
-            errors.append(
-                f"robots.txt: directive requise manquante: {directive}"
-            )
+            errors.append(f"robots.txt: directive requise manquante: {directive}")
 
     return errors
 

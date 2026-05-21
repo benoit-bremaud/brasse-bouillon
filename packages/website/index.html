@@ -117,7 +117,17 @@
         <img src="logo-hero.png" alt="Brasse-Bouillon" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
-      <nav class="header-nav">
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="headerNav"
+        aria-label="Ouvrir le menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+      <nav class="header-nav" id="headerNav">
         <a href="#journeyFr">Parcours</a>
         <a href="#features">L’app</a>
         <a href="#faq">FAQ</a>
@@ -429,6 +439,10 @@
     function toggleQuestionnaire(lang) {
       BBShared.toggleQuestionnaire({ lang, labels: TOGGLE_LABELS });
     }
+
+    BBShared.setupMenu({
+      labels: { open: 'Ouvrir le menu', close: 'Fermer le menu' }
+    });
 
     BBShared.setupQuestionnaire({
       formId: 'questionnaireFormFr',

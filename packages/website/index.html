@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="no-js">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Progressive enhancement: flip to `js` so the mobile nav only
+       collapses behind the burger when scripting is available. Without
+       JS the header nav stays visible (no-js fallback). -->
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
   <title>Brasse-Bouillon — Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
 
   <!-- SEO Meta Tags -->
@@ -117,7 +121,17 @@
         <img src="logo-hero.png" alt="Brasse-Bouillon" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
-      <nav class="header-nav">
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="headerNav"
+        aria-label="Ouvrir le menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+      <nav class="header-nav" id="headerNav">
         <a href="#journeyFr">Parcours</a>
         <a href="#features">L’app</a>
         <a href="#faq">FAQ</a>
@@ -429,6 +443,10 @@
     function toggleQuestionnaire(lang) {
       BBShared.toggleQuestionnaire({ lang, labels: TOGGLE_LABELS });
     }
+
+    BBShared.setupMenu({
+      labels: { open: 'Ouvrir le menu', close: 'Fermer le menu' }
+    });
 
     BBShared.setupQuestionnaire({
       formId: 'questionnaireFormFr',

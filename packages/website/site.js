@@ -124,6 +124,62 @@
   }
 
   /**
+   * Wires the mobile header burger button to the collapsible nav. The nav's
+   * open state is held on `data-open`; CSS reveals it only at the mobile
+   * breakpoint. Closes after following an in-page link and on Escape (then
+   * returns focus to the toggle). No-ops when either element is absent.
+   */
+  function setupMenu(options = {}) {
+    const navId = options.navId || 'headerNav';
+    const toggleId = options.toggleId || 'navToggle';
+    const labels = options.labels || { open: 'Ouvrir le menu', close: 'Fermer le menu' };
+
+    const nav = document.getElementById(navId);
+    const toggle = document.getElementById(toggleId);
+    if (!nav || !toggle) return;
+
+    function setOpen(next) {
+      nav.dataset.open = String(next);
+      toggle.setAttribute('aria-expanded', String(next));
+      toggle.setAttribute('aria-label', next ? labels.close : labels.open);
+    }
+
+    setOpen(false);
+
+    toggle.addEventListener('click', () => {
+      setOpen(nav.dataset.open !== 'true');
+    });
+
+    // Close after following an in-page link. Focus would otherwise stay on
+    // the link CSS is about to hide, so move it to the destination section
+    // (same-page hash) — falling back to the toggle — to keep keyboard /
+    // assistive-tech focus on a visible element.
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (nav.dataset.open !== 'true') return;
+        setOpen(false);
+
+        const hash = link.getAttribute('href') || '';
+        const target = hash.startsWith('#') ? document.getElementById(hash.slice(1)) : null;
+        if (target) {
+          if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: true });
+        } else {
+          toggle.focus();
+        }
+      });
+    });
+
+    // Close on Escape and return focus to the toggle.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.dataset.open === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+
+  /**
    * Populates a `.bubbles` layer with rising CO₂ bubbles, like gas in a
    * glass of beer. Each bubble gets randomized custom properties (size,
    * horizontal position, duration, start delay, sway amplitude, opacity)
@@ -299,6 +355,7 @@
   global.BBShared = {
     toggleQuestionnaire,
     setupQuestionnaire,
+    setupMenu,
     setupBubbles,
     setupFoam,
     setupDew

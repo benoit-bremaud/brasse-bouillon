@@ -135,7 +135,7 @@
     if (!layer) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const count = (options && options.count) || 110;
+    const count = (options && options.count) || 170;
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i += 1) {
@@ -177,7 +177,7 @@
     // another so the head reads as a solid foam mass with no visible gaps
     // between droplets. Larger bubbles sit lower (gravity), fine froth on
     // top; high opacity so overlaps stay creamy and continuous.
-    const count = (options && options.count) || 1500;
+    const count = (options && options.count) || 2600;
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i += 1) {
@@ -239,7 +239,7 @@
       layer.style.width = `${cardW}px`;
       layer.style.height = `${cardH}px`;
       const area = cardW * cardH;
-      const beads = Math.min(80, Math.max(7, Math.round(area / 17000)));
+      const beads = Math.min(110, Math.max(9, Math.round(area / 13000)));
       for (let i = 0; i < beads; i += 1) {
         const drop = document.createElement('span');
         drop.className = 'dew';

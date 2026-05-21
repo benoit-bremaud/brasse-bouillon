@@ -123,8 +123,51 @@
     });
   }
 
+  /**
+   * Populates a `.bubbles` layer with rising CO₂ bubbles, like gas in a
+   * glass of beer. Each bubble gets randomized custom properties (size,
+   * horizontal position, duration, start delay, sway amplitude, opacity)
+   * consumed by the CSS `bubble-rise` animation. No-ops when the user
+   * prefers reduced motion or when no `.bubbles` layer is present.
+   */
+  function setupBubbles(options) {
+    const layer = document.querySelector('.bubbles');
+    if (!layer) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const count = (options && options.count) || 48;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i += 1) {
+      const bubble = document.createElement('span');
+      bubble.className = 'bubble';
+      bubble.style.setProperty('--size', `${(3 + Math.random() * 9).toFixed(1)}px`);
+      bubble.style.setProperty('--x', `${(Math.random() * 100).toFixed(2)}vw`);
+      bubble.style.setProperty('--dur', `${(9 + Math.random() * 13).toFixed(1)}s`);
+      bubble.style.setProperty('--delay', `${(-Math.random() * 22).toFixed(1)}s`);
+      bubble.style.setProperty('--sway', `${(6 + Math.random() * 22).toFixed(0)}px`);
+      bubble.style.setProperty('--op', (0.18 + Math.random() * 0.4).toFixed(2));
+      fragment.appendChild(bubble);
+    }
+
+    layer.appendChild(fragment);
+  }
+
+  function onReady(fn) {
+    if (document.readyState !== 'loading') {
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  onReady(function () {
+    setupBubbles();
+  });
+
   global.BBShared = {
     toggleQuestionnaire,
-    setupQuestionnaire
+    setupQuestionnaire,
+    setupBubbles
   };
 }(window));

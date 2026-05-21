@@ -5,6 +5,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-21
+
+### Epic #1026 — C5 + C2 merged (UML conception + feedback endpoint)
+
+- PR #1040 merged (`30d0d77`) — `docs(feedback/architecture)`: 4 UML diagrams under `docs/architecture/diagrams/feedback/` (use-case, sequence, component, data-flow). Closes #1030 (C5). Consent modelled client-side per ADR-0003 (no backend gate at v0.1; backend sync = v0.2).
+- PR #1047 merged (`fbf7470`) — `feat(api)`: public anonymous `POST /feedback` endpoint, persisted to a new `feedback` table, rate-limited, with category/sub-category pairing validation. Closes #1027 (C2). Review caught a P1 (Feedback entity missing from `ormEntities` → runtime `EntityMetadataNotFoundError`); fixed + e2e added.
+- PR #1041 merged (`541f33b`) — `docs(log)`: the #1026 epic-creation entry below.
+- Still open on the epic: C1 (#1007, depends EAS #975/#748), C3 (#1028, now unblocked), C4 (#1029, depends feedback-widget#15).
+
 ## 2026-05-20
 
 ### Backlog — epic #1026 created: beta distribution Android + in-product feedback loop

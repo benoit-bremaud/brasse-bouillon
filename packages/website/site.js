@@ -123,8 +123,185 @@
     });
   }
 
+  /**
+   * Populates a `.bubbles` layer with rising CO₂ bubbles, like gas in a
+   * glass of beer. Each bubble gets randomized custom properties (size,
+   * horizontal position, duration, start delay, sway amplitude, opacity)
+   * consumed by the CSS `bubble-rise` animation. No-ops when the user
+   * prefers reduced motion or when no `.bubbles` layer is present.
+   */
+  function setupBubbles(options) {
+    const layer = document.querySelector('.bubbles');
+    if (!layer) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const count = (options && options.count) || 520;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i += 1) {
+      const bubble = document.createElement('span');
+      bubble.className = 'bubble';
+
+      // Strong skew towards small bubbles with a few bigger ones (like real
+      // CO2): the bulk are tiny 2–6px fizz, some medium, the largest ~15px.
+      const sizeFactor = Math.pow(Math.random(), 2.4);
+      const size = 2 + sizeFactor * 13;
+      // Larger bubbles tend to be a touch more opaque and rise faster.
+      const opacity = 0.45 + sizeFactor * 0.3 + Math.random() * 0.25;
+      const duration = 5 + (1 - sizeFactor) * 8 + Math.random() * 2;
+
+      bubble.style.setProperty('--size', `${size.toFixed(1)}px`);
+      bubble.style.setProperty('--x', `${(Math.random() * 100).toFixed(2)}vw`);
+      bubble.style.setProperty('--dur', `${duration.toFixed(1)}s`);
+      bubble.style.setProperty('--delay', `${(-Math.random() * 20).toFixed(1)}s`);
+      bubble.style.setProperty('--sway', `${(6 + Math.random() * 26).toFixed(0)}px`);
+      bubble.style.setProperty('--op', Math.min(opacity, 0.9).toFixed(2));
+      fragment.appendChild(bubble);
+    }
+
+    layer.appendChild(fragment);
+  }
+
+  /**
+   * Fills a `.beer-foam` background layer with irregular foam bubbles —
+   * varied size / position / opacity, denser and larger near the bottom
+   * so the underside reads as an organic, lumpy head spilling into the
+   * beer (rather than a regular tiled pattern). No-ops when the layer is
+   * absent.
+   */
+  function setupFoam(options) {
+    const foam = document.querySelector('.beer-foam');
+    if (!foam) return;
+
+    // Dense overlapping placement: many bubbles piled on top of one
+    // another so the head reads as a solid foam mass with no visible gaps
+    // between droplets. Larger bubbles sit lower (gravity), fine froth on
+    // top; high opacity so overlaps stay creamy and continuous.
+    const count = (options && options.count) || 4200;
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i += 1) {
+      const bubble = document.createElement('span');
+      bubble.className = 'foam-bubble';
+
+      const vy = Math.pow(Math.random(), 1.35);
+      const size = 9 + (1 - vy) * 44 + Math.random() * 12;
+      const bottomPx = vy * 232 - 26;
+
+      bubble.style.setProperty('--fx', `${(Math.random() * 100).toFixed(2)}%`);
+      bubble.style.setProperty('--fy', `${bottomPx.toFixed(0)}px`);
+      bubble.style.setProperty('--fs', `${size.toFixed(0)}px`);
+      bubble.style.setProperty('--fo', (0.85 + Math.random() * 0.15).toFixed(2));
+      fragment.appendChild(bubble);
+    }
+
+    foam.appendChild(fragment);
+  }
+
+  /**
+   * Adds condensation (dew) droplets clinging to the front of each card,
+   * like beads on a cold glass. A measured few static beads per card, plus
+   * one or two that trickle down with a faint wet trail. Foreground layer,
+   * pointer-events disabled so it never blocks interaction. Trickling is
+   * skipped under prefers-reduced-motion.
+   */
+  function setupDew(options) {
+    const selector =
+      (options && options.selector) ||
+      '.hero, .journey-step, .feature-card, .faq-item, .participate';
+    const cards = document.querySelectorAll(selector);
+    if (!cards.length) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    cards.forEach((card) => {
+      // A closed <details> hides every child except its <summary>, so for
+      // those cards attach the dew to the always-visible <summary>.
+      const host =
+        card.tagName === 'DETAILS'
+          ? card.querySelector(':scope > summary') || card
+          : card;
+
+      if (host.querySelector(':scope > .dew-layer')) return;
+      if (window.getComputedStyle(host).position === 'static') {
+        host.style.position = 'relative';
+      }
+
+      const layer = document.createElement('span');
+      layer.className = 'dew-layer';
+
+      // Density proportional to card area so small and large cards keep a
+      // consistent look (one bead per ~10000 px²), clamped to sane bounds.
+      const cardW = host.offsetWidth || 300;
+      const cardH = host.offsetHeight || 240;
+      // Size the layer explicitly — `inset:0` yields a 0-height box on some
+      // cards (e.g. <details> FAQ items), hiding the drops.
+      layer.style.width = `${cardW}px`;
+      layer.style.height = `${cardH}px`;
+      const area = cardW * cardH;
+      const beads = Math.min(150, Math.max(13, Math.round(area / 10000)));
+      for (let i = 0; i < beads; i += 1) {
+        const drop = document.createElement('span');
+        drop.className = 'dew';
+        drop.style.setProperty('--dx', `${(5 + Math.random() * 90).toFixed(1)}%`);
+        drop.style.setProperty('--dy', `${(5 + Math.random() * 88).toFixed(1)}%`);
+        // skew small: lots of fine beads, a few larger ones
+        const beadSize = 3 + Math.pow(Math.random(), 1.8) * 11;
+        drop.style.setProperty('--ds', `${beadSize.toFixed(1)}px`);
+        layer.appendChild(drop);
+      }
+
+      if (!reduce) {
+        // fewer, more scattered trickling drops (1 per ~230000 px²), 1–5.
+        const runners = Math.min(5, Math.max(1, Math.round(area / 230000)));
+        const cardHeight = cardH;
+        for (let i = 0; i < runners; i += 1) {
+          const run = document.createElement('span');
+          run.className = 'dew-run';
+          run.style.setProperty('--dx', `${(10 + Math.random() * 80).toFixed(1)}%`);
+          run.style.setProperty('--dy', `${(5 + Math.random() * 20).toFixed(1)}%`);
+          run.style.setProperty('--ds', `${(8 + Math.random() * 5).toFixed(1)}px`);
+          run.style.setProperty('--dr-dist', `${Math.round(cardHeight * 0.72)}px`);
+          run.style.setProperty('--dr-trail', `${(135 + Math.random() * 105).toFixed(0)}px`);
+          run.style.setProperty('--dr-dur', `${(4 + Math.random() * 5).toFixed(1)}s`);
+          run.style.setProperty('--dr-delay', `${(Math.random() * 9).toFixed(1)}s`);
+
+          const bead = document.createElement('span');
+          bead.className = 'dew-run__bead';
+          run.appendChild(bead);
+          layer.appendChild(run);
+        }
+      }
+
+      host.appendChild(layer);
+    });
+  }
+
+  function onReady(fn) {
+    if (document.readyState !== 'loading') {
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  onReady(function () {
+    setupBubbles();
+    setupFoam();
+  });
+
+  // Dew density depends on final card sizes — run once layout is settled.
+  if (document.readyState === 'complete') {
+    setupDew();
+  } else {
+    window.addEventListener('load', setupDew);
+  }
+
   global.BBShared = {
     toggleQuestionnaire,
-    setupQuestionnaire
+    setupQuestionnaire,
+    setupBubbles,
+    setupFoam,
+    setupDew
   };
 }(window));

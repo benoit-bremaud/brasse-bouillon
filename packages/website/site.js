@@ -135,16 +135,17 @@
     if (!layer) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const count = (options && options.count) || 110;
+    const count = (options && options.count) || 135;
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i += 1) {
       const bubble = document.createElement('span');
       bubble.className = 'bubble';
 
-      // Skew towards small bubbles with a few big ones (like real CO2):
-      // most are 2–8px, some medium, the rare large reaching ~22px.
-      const sizeFactor = Math.pow(Math.random(), 1.7);
+      // Strong skew towards small bubbles with a few big ones (like real
+      // CO2): the bulk are tiny 2–6px fizz, some medium, the rare large
+      // reaching ~22px.
+      const sizeFactor = Math.pow(Math.random(), 2.4);
       const size = 2 + sizeFactor * 20;
       // Larger bubbles tend to be a touch more opaque and rise faster.
       const opacity = 0.25 + sizeFactor * 0.35 + Math.random() * 0.25;

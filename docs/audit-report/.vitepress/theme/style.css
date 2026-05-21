@@ -1,0 +1,546 @@
+/* =========================================================================
+   Brasse-Bouillon — Audit report theme
+   Aesthetic: "editorial technical dossier" — credible, structured, warm.
+   Display: Fraunces (on-brand with the audited site). Body: IBM Plex Sans.
+   Evidence/code: IBM Plex Mono. Palette derived from the live site tokens.
+   ========================================================================= */
+
+:root {
+  /* ---- Brand palette (from packages/website/site.css :root) ---- */
+  --bb-paper: #f4ecd8;
+  --bb-paper-2: #efe4ca;
+  --bb-card: #fffdf7;
+  --bb-ink: #1a110a;
+  --bb-ink-soft: #3a2818;
+  --bb-muted: #6b5a4c;
+  --bb-line: rgba(58, 40, 24, 0.16);
+  --bb-copper: #c5742d;
+  --bb-copper-deep: #8d4a13;
+
+  /* ---- Severity system ---- */
+  --sev-critical: #b3261e;
+  --sev-high: #c5742d;
+  --sev-medium: #b8860b;
+  --sev-low: #5a6b8c;
+  --sev-ok: #2f7d4f;
+  --sev-critical-soft: rgba(179, 38, 30, 0.12);
+  --sev-high-soft: rgba(197, 116, 45, 0.14);
+  --sev-medium-soft: rgba(184, 134, 11, 0.14);
+  --sev-low-soft: rgba(90, 107, 140, 0.14);
+  --sev-ok-soft: rgba(47, 125, 79, 0.14);
+
+  /* ---- VitePress brand overrides ---- */
+  --vp-c-brand-1: var(--bb-copper-deep);
+  --vp-c-brand-2: var(--bb-copper);
+  --vp-c-brand-3: #d68b4a;
+  --vp-c-brand-soft: var(--sev-high-soft);
+
+  --vp-c-bg: var(--bb-paper);
+  --vp-c-bg-alt: var(--bb-paper-2);
+  --vp-c-bg-soft: var(--bb-card);
+  --vp-c-text-1: var(--bb-ink);
+  --vp-c-text-2: var(--bb-ink-soft);
+  --vp-c-divider: var(--bb-line);
+  --vp-c-gutter: var(--bb-line);
+
+  --vp-font-family-base: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --vp-font-family-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+
+  --vp-layout-max-width: 1200px;
+  --vp-content-container-max-width: 980px;
+}
+
+/* Subtle paper grain across the whole report. */
+html {
+  background-color: var(--bb-paper);
+  background-image:
+    radial-gradient(ellipse at 8% -6%, rgba(255, 244, 209, 0.9) 0%, transparent 44%),
+    radial-gradient(ellipse at 96% 4%, rgba(231, 207, 154, 0.7) 0%, transparent 40%),
+    radial-gradient(circle at 50% 118%, rgba(197, 116, 45, 0.12) 0%, transparent 52%);
+  background-attachment: fixed;
+}
+
+/* ---- Typography: Fraunces display for headings ---- */
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.VPHero .name,
+.VPHero .text {
+  font-family: "Fraunces", Georgia, serif;
+  letter-spacing: -0.012em;
+  font-optical-sizing: auto;
+}
+
+.vp-doc h1 {
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1.05;
+}
+
+.vp-doc h2 {
+  font-weight: 700;
+  margin-top: 3rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--bb-line);
+}
+
+.vp-doc h2::before {
+  content: "§ ";
+  color: var(--bb-copper);
+  font-weight: 600;
+}
+
+.vp-doc h3 {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* Monospace evidence blocks read like a terminal capture. */
+.vp-doc div[class*="language-"] {
+  border-radius: 10px;
+  border: 1px solid var(--bb-line);
+}
+
+.vp-doc :not(pre) > code {
+  background: var(--sev-high-soft);
+  color: var(--bb-copper-deep);
+  font-weight: 500;
+}
+
+/* =========================================================================
+   Verdict hero
+   ========================================================================= */
+.bb-hero {
+  position: relative;
+  margin: -1.5rem -1.5rem 2.5rem;
+  padding: 3rem 2rem 2.5rem;
+  border-radius: 0 0 20px 20px;
+  color: #fbf3da;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 12% -10%, #3a2818 0%, transparent 55%),
+    radial-gradient(130% 150% at 100% 0%, #8d4a13 0%, transparent 60%),
+    linear-gradient(135deg, #241710 0%, #1a110a 100%);
+  box-shadow: var(--vp-shadow-3, 0 12px 32px rgba(26, 17, 10, 0.3));
+}
+
+.bb-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(251, 243, 218, 0.07) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none;
+}
+
+.bb-hero__kicker {
+  position: relative;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bb-copper);
+  margin-bottom: 0.8rem;
+}
+
+.bb-hero__verdict {
+  position: relative;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1.02;
+  margin: 0 0 0.6rem;
+  color: #fbf3da;
+}
+
+.bb-hero__verdict em {
+  font-style: italic;
+  color: var(--bb-copper);
+}
+
+.bb-hero__sub {
+  position: relative;
+  max-width: 60ch;
+  color: rgba(251, 243, 218, 0.82);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.bb-hero__meta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin-top: 1.6rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  color: rgba(251, 243, 218, 0.7);
+}
+
+.bb-hero__meta b {
+  color: #fbf3da;
+  font-weight: 600;
+}
+
+/* =========================================================================
+   Score gauges + stat row
+   ========================================================================= */
+.bb-gauges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.bb-gauge {
+  background: var(--bb-card);
+  border: 1px solid var(--bb-line);
+  border-radius: 14px;
+  padding: 1.1rem 0.6rem 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(40, 22, 10, 0.05);
+}
+
+.bb-gauge__ring {
+  --val: 100;
+  --col: var(--sev-ok);
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 0.6rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    conic-gradient(var(--col) calc(var(--val) * 1%), var(--bb-paper-2) 0);
+  position: relative;
+}
+
+.bb-gauge__ring::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--bb-card);
+}
+
+.bb-gauge__num {
+  position: relative;
+  font-family: "Fraunces", serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--bb-ink);
+}
+
+.bb-gauge__label {
+  font-size: 0.78rem;
+  color: var(--bb-muted);
+  font-weight: 500;
+}
+
+.bb-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.8rem;
+  margin: 1.6rem 0 2rem;
+}
+
+.bb-stat {
+  border: 1px solid var(--bb-line);
+  border-left: 4px solid var(--col, var(--bb-copper));
+  border-radius: 10px;
+  background: var(--bb-card);
+  padding: 0.9rem 1rem;
+}
+
+.bb-stat__num {
+  font-family: "Fraunces", serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--bb-ink);
+}
+
+.bb-stat__label {
+  font-size: 0.8rem;
+  color: var(--bb-muted);
+  margin-top: 0.3rem;
+}
+
+/* =========================================================================
+   Severity badge
+   ========================================================================= */
+.bb-sev {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.bb-sev::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.bb-sev--critical { color: var(--sev-critical); background: var(--sev-critical-soft); border-color: rgba(179, 38, 30, 0.25); }
+.bb-sev--high     { color: var(--sev-high);     background: var(--sev-high-soft);     border-color: rgba(197, 116, 45, 0.3); }
+.bb-sev--medium   { color: #8a6608;             background: var(--sev-medium-soft);   border-color: rgba(184, 134, 11, 0.3); }
+.bb-sev--low      { color: var(--sev-low);      background: var(--sev-low-soft);      border-color: rgba(90, 107, 140, 0.3); }
+.bb-sev--ok       { color: var(--sev-ok);       background: var(--sev-ok-soft);       border-color: rgba(47, 125, 79, 0.3); }
+
+/* =========================================================================
+   Finding card
+   ========================================================================= */
+.bb-finding {
+  position: relative;
+  border: 1px solid var(--bb-line);
+  border-radius: 14px;
+  background: var(--bb-card);
+  padding: 1.2rem 1.3rem 1.3rem 1.6rem;
+  margin: 1.1rem 0;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bb-finding::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--rail, var(--bb-copper));
+}
+
+.bb-finding:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(60, 35, 16, 0.13);
+}
+
+.bb-finding[data-sev="critical"] { --rail: var(--sev-critical); }
+.bb-finding[data-sev="high"]     { --rail: var(--sev-high); }
+.bb-finding[data-sev="medium"]   { --rail: var(--sev-medium); }
+.bb-finding[data-sev="low"]      { --rail: var(--sev-low); }
+
+.bb-finding__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.bb-finding__id {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bb-copper-deep);
+  text-decoration: none;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--bb-line);
+  border-radius: 6px;
+}
+
+.bb-finding__id:hover { background: var(--sev-high-soft); }
+
+.bb-finding__title {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  flex: 1 1 60%;
+  color: var(--bb-ink);
+}
+
+.bb-finding__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.bb-tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--bb-muted);
+  background: var(--bb-paper-2);
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+}
+
+.bb-finding__body {
+  color: var(--bb-ink-soft);
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.bb-finding__body :deep(strong) { color: var(--bb-ink); }
+
+.bb-finding__evidence {
+  margin-top: 0.7rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  background: #1f160e;
+  color: #e7d8b8;
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+/* =========================================================================
+   Coverage matrix
+   ========================================================================= */
+.bb-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+
+.bb-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--bb-line);
+  border-radius: 10px;
+  background: var(--bb-card);
+  padding: 0.7rem 0.85rem;
+}
+
+.bb-cell__mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.bb-cell--ok .bb-cell__mark   { background: var(--sev-ok); }
+.bb-cell--warn .bb-cell__mark { background: var(--sev-medium); }
+.bb-cell--bad .bb-cell__mark  { background: var(--sev-critical); }
+
+.bb-cell__dim {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--bb-ink);
+}
+
+.bb-cell__note {
+  font-size: 0.78rem;
+  color: var(--bb-muted);
+  margin-top: 0.15rem;
+}
+
+/* =========================================================================
+   Status badge (À faire / En cours / Fait)
+   ========================================================================= */
+.bb-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.bb-status__mark { font-size: 0.85em; line-height: 1; }
+
+.bb-status--todo {
+  color: var(--bb-muted);
+  background: rgba(107, 90, 76, 0.12);
+  border-color: var(--bb-line);
+}
+.bb-status--doing {
+  color: #2563a8;
+  background: rgba(37, 99, 168, 0.14);
+  border-color: rgba(37, 99, 168, 0.3);
+}
+.bb-status--done {
+  color: var(--sev-ok);
+  background: var(--sev-ok-soft);
+  border-color: rgba(47, 125, 79, 0.35);
+}
+
+/* Inline status badge inside remediation lists. */
+.vp-doc li > .bb-status { margin-left: 0.35rem; vertical-align: middle; }
+
+@media (max-width: 640px) {
+  .bb-hero { margin: -1rem -1rem 2rem; padding: 2.2rem 1.2rem; }
+}
+
+/* =========================================================================
+   Dark mode — dark brewing palette. VitePress toggles `.dark` on <html>.
+   The --vp-c-* vars derive from --bb-* (see :root), so redefining the brand
+   tokens here cascades through the whole theme automatically.
+   ========================================================================= */
+.dark {
+  --bb-paper: #18110b;
+  --bb-paper-2: #221710;
+  --bb-card: #251a11;
+  --bb-ink: #f1e6cf;
+  --bb-ink-soft: #dac9ab;
+  --bb-muted: #ab9a83;
+  --bb-line: rgba(241, 230, 207, 0.13);
+  --bb-copper: #e0975a;
+  --bb-copper-deep: #d68b4a;
+
+  --sev-medium: #d6a93a;
+  --sev-low: #8aa0c8;
+  --sev-critical: #e5675f;
+  --sev-ok: #57b483;
+
+  --sev-critical-soft: rgba(229, 103, 95, 0.16);
+  --sev-high-soft: rgba(224, 151, 90, 0.18);
+  --sev-medium-soft: rgba(214, 169, 58, 0.18);
+  --sev-low-soft: rgba(138, 160, 200, 0.18);
+  --sev-ok-soft: rgba(87, 180, 131, 0.18);
+
+  --vp-c-brand-1: #e0975a;
+  --vp-c-brand-2: #d68b4a;
+  --vp-c-brand-3: #ecae72;
+}
+
+.dark html,
+html.dark {
+  background-color: var(--bb-paper);
+  background-image:
+    radial-gradient(ellipse at 8% -6%, rgba(58, 40, 24, 0.55) 0%, transparent 46%),
+    radial-gradient(ellipse at 96% 4%, rgba(141, 74, 19, 0.32) 0%, transparent 42%),
+    radial-gradient(circle at 50% 118%, rgba(197, 116, 45, 0.16) 0%, transparent 54%);
+}
+
+.dark .bb-gauge,
+.dark .bb-stat,
+.dark .bb-finding,
+.dark .bb-cell {
+  background: var(--bb-card);
+}
+
+.dark .bb-gauge__ring::before,
+.dark .bb-gauge__num { background: var(--bb-card); }
+.dark .bb-gauge__num { background: transparent; }
+
+.dark .bb-sev--medium { color: #e3bd55; }
+.dark .bb-status--doing { color: #7db2ec; background: rgba(125, 178, 236, 0.16); }
+
+/* The hero is dark in both themes; lift its border in dark mode. */
+.dark .bb-hero { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }

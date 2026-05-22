@@ -5,6 +5,27 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-22
+
+### PR #1084 merged (`66fc5bb`) — fix(mobile/batches): localize batch detail screen to French
+
+- Branch `fix/batch-details-localization` (`8334b91` localization + `1574b36` review fixes).
+- New `getBatchDetailsViewModel` resolves the recipe name (via `getRecipeDetails`, works in demo + backend) so the title shows the recipe name instead of `Batch <id>`, with a `Brassin <id>` fallback. New `batch-display.constants.ts` maps batch/step status + step-phase enums to FR; `BatchDetailsScreen` and `BatchesScreen` localized.
+- Automated review (P1) addressed in `1574b36`: recipe lookup is best-effort (try/catch → fallback title) so a recipe API failure no longer breaks the screen; `BatchDetailsViewModel` is an `interface`; test helper typed to `Batch`/`BatchDetailsViewModel`. 41 batches tests pass.
+- Backlog: epic #1082 — B1 (EN/debug labels) marked FIXED; new B2 = per-step countdown timer (no timer component exists yet).
+
+### PR #1083 merged (`6aeeb44`) — feat(website): add beer scan recognition section to landing page
+
+- Branch `feat/website-scan-section`. New `#scanFr` section on `index.html` between the features grid and the FAQ, presenting the signature label-scan recognition (instant recognition + community clone-recipes), reusing the existing `.features-grid`/`.feature-card` classes (no new CSS). Two WebP captures added. Cache-bust `?v=20260522`. Deployed to brasse-bouillon.com.
+
+### PR #1080 merged (`e118918`) — fix(mobile/auth): keep login fields visible above the keyboard
+
+- Branch `fix/login-keyboard-avoidance`. `KeyboardAvoidingView` + Android `softwareKeyboardLayoutMode: "pan"` + return-key chaining so the email/password fields stay above the on-screen keyboard. The `pan` behaviour only manifests in a dev/release build (not Expo Go).
+
+### PR #1079 merged (`ef149de`) — feat(website): real app screenshots (catalogue, fermentation, studio, hop calculator)
+
+- Branch `feat/website-real-screenshots-wave1`. Replaced 4 of the placeholder screenshots with real emulator captures (demo mode): journey-1 catalogue, journey-3 fermentation (J+5/J+14), studio recipes, hop calculator. WebP-optimized, status bar cropped. Deployed.
+
 ## 2026-05-21
 
 ### Quality & security audit of brasse-bouillon.com — epic #1031 + 12 findings

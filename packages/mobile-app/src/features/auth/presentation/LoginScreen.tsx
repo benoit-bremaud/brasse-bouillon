@@ -1,7 +1,9 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -37,6 +39,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [localInfo, setLocalInfo] = useState<string | null>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const clearFeedback = () => {
     setLocalError(null);
@@ -178,160 +181,177 @@ export function LoginScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <BrandLogo size={156} style={styles.logo} />
-        <Text style={styles.title}>Brasse Bouillon</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
-
-        {mode !== "forgot" ? (
-          <View style={styles.tabs}>
-            <Pressable
-              style={[styles.tab, mode === "login" && styles.tabActive]}
-              onPress={() => onSwitchMode("login")}
-              disabled={isLoading}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  mode === "login" && styles.tabTextActive,
-                ]}
-              >
-                Connexion
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.tab, mode === "signup" && styles.tabActive]}
-              onPress={() => onSwitchMode("signup")}
-              disabled={isLoading}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  mode === "signup" && styles.tabTextActive,
-                ]}
-              >
-                Créer un compte
-              </Text>
-            </Pressable>
-          </View>
-        ) : null}
-
-        {mode !== "forgot" ? (
-          <>
-            <Pressable
-              style={({ pressed }) => [
-                styles.googleButton,
-                pressed && styles.buttonPressed,
-              ]}
-              onPress={onGooglePressComingSoon}
-              disabled={isLoading}
-              accessibilityRole="button"
-              accessibilityLabel="Continuer avec Google (bientôt disponible)"
-            >
-              <Text style={styles.googleG}>G</Text>
-              <Text style={styles.googleButtonText}>Continuer avec Google</Text>
-            </Pressable>
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>ou</Text>
-              <View style={styles.dividerLine} />
-            </View>
-          </>
-        ) : null}
-
-        <TextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          placeholder="Email"
-          placeholderTextColor={colors.neutral.muted}
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-        />
-
-        {mode !== "forgot" ? (
-          <>
-            <TextInput
-              placeholder="Mot de passe"
-              placeholderTextColor={colors.neutral.muted}
-              secureTextEntry
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-            />
-            {mode === "signup" ? (
-              <Text style={styles.helper}>{PASSWORD_HELPER}</Text>
-            ) : null}
-          </>
-        ) : null}
-
-        {localInfo ? <Text style={styles.info}>{localInfo}</Text> : null}
-        {localError ? <Text style={styles.error}>{localError}</Text> : null}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={onSubmit}
-          disabled={isLoading}
-          accessibilityRole="button"
-          accessibilityLabel={submitLabel}
-          accessibilityState={{ disabled: isLoading, busy: isLoading }}
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
-          {isLoading ? (
-            <BeerMugLoader
-              size="small"
-              accessibilityLabel="Authentification en cours"
-            />
-          ) : (
-            <Text style={styles.buttonText}>{submitLabel}</Text>
-          )}
-        </Pressable>
+          <BrandLogo size={156} style={styles.logo} />
+          <Text style={styles.title}>Brasse Bouillon</Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
 
-        {mode === "login" ? (
-          <Pressable
-            onPress={() => onSwitchMode("forgot")}
-            disabled={isLoading}
-            hitSlop={8}
-          >
-            <Text style={styles.linkText}>Mot de passe oublié ?</Text>
-          </Pressable>
-        ) : null}
+          {mode !== "forgot" ? (
+            <View style={styles.tabs}>
+              <Pressable
+                style={[styles.tab, mode === "login" && styles.tabActive]}
+                onPress={() => onSwitchMode("login")}
+                disabled={isLoading}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    mode === "login" && styles.tabTextActive,
+                  ]}
+                >
+                  Connexion
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.tab, mode === "signup" && styles.tabActive]}
+                onPress={() => onSwitchMode("signup")}
+                disabled={isLoading}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    mode === "signup" && styles.tabTextActive,
+                  ]}
+                >
+                  Créer un compte
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
 
-        {mode === "forgot" ? (
-          <Pressable
-            onPress={() => onSwitchMode("login")}
-            disabled={isLoading}
-            hitSlop={8}
-          >
-            <Text style={styles.linkText}>← Retour à la connexion</Text>
-          </Pressable>
-        ) : null}
+          {mode !== "forgot" ? (
+            <>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.googleButton,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={onGooglePressComingSoon}
+                disabled={isLoading}
+                accessibilityRole="button"
+                accessibilityLabel="Continuer avec Google (bientôt disponible)"
+              >
+                <Text style={styles.googleG}>G</Text>
+                <Text style={styles.googleButtonText}>
+                  Continuer avec Google
+                </Text>
+              </Pressable>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>ou</Text>
+                <View style={styles.dividerLine} />
+              </View>
+            </>
+          ) : null}
 
-        {showDemoButton ? (
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            placeholder="Email"
+            placeholderTextColor={colors.neutral.muted}
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+
+          {mode !== "forgot" ? (
+            <>
+              <TextInput
+                ref={passwordRef}
+                placeholder="Mot de passe"
+                placeholderTextColor={colors.neutral.muted}
+                secureTextEntry
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                returnKeyType="go"
+                onSubmitEditing={onSubmit}
+              />
+              {mode === "signup" ? (
+                <Text style={styles.helper}>{PASSWORD_HELPER}</Text>
+              ) : null}
+            </>
+          ) : null}
+
+          {localInfo ? <Text style={styles.info}>{localInfo}</Text> : null}
+          {localError ? <Text style={styles.error}>{localError}</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
           <Pressable
             style={({ pressed }) => [
-              styles.secondaryButton,
+              styles.button,
               pressed && styles.buttonPressed,
             ]}
-            onPress={onDemoSubmit}
+            onPress={onSubmit}
             disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel={submitLabel}
+            accessibilityState={{ disabled: isLoading, busy: isLoading }}
           >
-            <Text style={styles.secondaryButtonText}>Connexion démo</Text>
+            {isLoading ? (
+              <BeerMugLoader
+                size="small"
+                accessibilityLabel="Authentification en cours"
+              />
+            ) : (
+              <Text style={styles.buttonText}>{submitLabel}</Text>
+            )}
           </Pressable>
-        ) : null}
-      </ScrollView>
+
+          {mode === "login" ? (
+            <Pressable
+              onPress={() => onSwitchMode("forgot")}
+              disabled={isLoading}
+              hitSlop={8}
+            >
+              <Text style={styles.linkText}>Mot de passe oublié ?</Text>
+            </Pressable>
+          ) : null}
+
+          {mode === "forgot" ? (
+            <Pressable
+              onPress={() => onSwitchMode("login")}
+              disabled={isLoading}
+              hitSlop={8}
+            >
+              <Text style={styles.linkText}>← Retour à la connexion</Text>
+            </Pressable>
+          ) : null}
+
+          {showDemoButton ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={onDemoSubmit}
+              disabled={isLoading}
+            >
+              <Text style={styles.secondaryButtonText}>Connexion démo</Text>
+            </Pressable>
+          ) : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flexGrow: 1,
     justifyContent: "center",

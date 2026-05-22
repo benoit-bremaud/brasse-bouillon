@@ -2,8 +2,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
-import { getBatchDetailsViewModel } from "@/features/batches/application/batches.use-cases";
+import {
+  getBatchDetailsViewModel,
+  type BatchDetailsViewModel,
+} from "@/features/batches/application/batches.use-cases";
+import { Batch } from "@/features/batches/domain/batch.types";
 import { dataSource } from "@/core/data/data-source";
+
+// Shared timestamps so fixtures satisfy the full `Batch` shape without noise.
+const TS = "2026-05-01T08:00:00.000Z";
 
 const mockReplace = jest.fn();
 
@@ -23,11 +30,15 @@ jest.mock("expo-router", () => {
   };
 });
 
-const mashBatch = {
+const mashBatch: Batch = {
   id: "b1",
+  ownerId: "u-demo-1",
   recipeId: "r1",
   status: "in_progress",
   currentStepOrder: 0,
+  startedAt: TS,
+  createdAt: TS,
+  updatedAt: TS,
   steps: [
     {
       batchId: "b1",
@@ -35,6 +46,8 @@ const mashBatch = {
       type: "mash",
       label: "Empâtage 67°C",
       status: "in_progress",
+      createdAt: TS,
+      updatedAt: TS,
     },
     {
       batchId: "b1",
@@ -42,12 +55,17 @@ const mashBatch = {
       type: "boil",
       label: "Ébullition 60 min",
       status: "pending",
+      createdAt: TS,
+      updatedAt: TS,
     },
   ],
 };
 
 // Helper: the screen now consumes a view-model { batch, recipeName }.
-const viewModel = (batch: unknown, recipeName: string | null) => ({
+const viewModel = (
+  batch: Batch,
+  recipeName: string | null,
+): BatchDetailsViewModel => ({
   batch,
   recipeName,
 });
@@ -149,12 +167,15 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
     Date.now() - 5 * 24 * 60 * 60 * 1000,
   ).toISOString();
 
-  const fermentationInProgressBatch = {
+  const fermentationInProgressBatch: Batch = {
     id: "b-demo-pdd-ferm",
     ownerId: "u-demo-1",
     recipeId: "r-demo-pdd",
     status: "in_progress",
     currentStepOrder: 2,
+    startedAt: TS,
+    createdAt: TS,
+    updatedAt: TS,
     steps: [
       {
         batchId: "b-demo-pdd-ferm",
@@ -162,6 +183,8 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
         type: "mash",
         label: "Empâtage 67°C",
         status: "completed",
+        createdAt: TS,
+        updatedAt: TS,
       },
       {
         batchId: "b-demo-pdd-ferm",
@@ -169,6 +192,8 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
         type: "boil",
         label: "Ébullition 60 min",
         status: "completed",
+        createdAt: TS,
+        updatedAt: TS,
       },
       {
         batchId: "b-demo-pdd-ferm",
@@ -177,6 +202,8 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
         label: "Fermentation primaire",
         status: "in_progress",
         startedAt: fiveDaysAgo,
+        createdAt: TS,
+        updatedAt: TS,
       },
     ],
   };

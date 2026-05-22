@@ -29,10 +29,10 @@ export async function getBatchDetails(batchId: string): Promise<Batch | null> {
 // store and the backend `BatchDto`), but the detail screen needs the recipe
 // name as its title. `getRecipeDetails` already branches on the demo/backend
 // toggle, so resolving the name here works in both modes.
-export type BatchDetailsViewModel = {
+export interface BatchDetailsViewModel {
   batch: Batch;
   recipeName: string | null;
-};
+}
 
 export async function getBatchDetailsViewModel(
   batchId: string,
@@ -41,8 +41,18 @@ export async function getBatchDetailsViewModel(
   if (!batch) {
     return null;
   }
-  const recipe = await getRecipeDetails(batch.recipeId);
-  return { batch, recipeName: recipe?.name ?? null };
+  // The recipe name is a best-effort title enrichment, not core batch data.
+  // A failed/forbidden/missing recipe lookup (e.g. a 404 or transient API
+  // error in backend mode) must not break the batch details screen — fall
+  // back to the "Brassin <id>" title instead of rejecting the whole query.
+  let recipeName: string | null = null;
+  try {
+    const recipe = await getRecipeDetails(batch.recipeId);
+    recipeName = recipe?.name ?? null;
+  } catch {
+    recipeName = null;
+  }
+  return { batch, recipeName };
 }
 
 export async function completeCurrentBatchStep(

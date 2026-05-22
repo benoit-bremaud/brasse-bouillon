@@ -219,5 +219,14 @@ describe("batches use-cases", () => {
       expect(result).toBeNull();
       expect(mockedGetRecipeDetails).not.toHaveBeenCalled();
     });
+
+    it("still returns the batch with a null recipe name when the recipe lookup throws (degraded path)", async () => {
+      mockedGetRecipeDetails.mockRejectedValue(new Error("recipe API 404"));
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.batch.id).toBe("b-demo-pdd-mash");
+      expect(result?.recipeName).toBeNull();
+    });
   });
 });

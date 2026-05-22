@@ -1,6 +1,7 @@
 import {
   completeCurrentBatchStep,
   getBatchDetails,
+  getBatchDetailsViewModel,
   listBatches,
   startBatch,
 } from "@/features/batches/application/batches.use-cases";
@@ -12,6 +13,7 @@ import {
 } from "@/features/batches/data/batches.api";
 
 import { dataSource } from "@/core/data/data-source";
+import { getRecipeDetails } from "@/features/recipes/application/recipes.use-cases";
 
 jest.mock("@/core/data/data-source", () => ({
   dataSource: {
@@ -25,6 +27,14 @@ jest.mock("@/features/batches/data/batches.api", () => ({
   completeCurrentStep: jest.fn(),
   startBatch: jest.fn(),
 }));
+
+jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
+  getRecipeDetails: jest.fn(),
+}));
+
+const mockedGetRecipeDetails = getRecipeDetails as jest.MockedFunction<
+  typeof getRecipeDetails
+>;
 
 const mockedListMine = listMine as jest.MockedFunction<typeof listMine>;
 const mockedGetMineById = getMineById as jest.MockedFunction<
@@ -44,6 +54,7 @@ describe("batches use-cases", () => {
     mockedGetMineById.mockReset();
     mockedCompleteCurrentStep.mockReset();
     mockedStartBatchApi.mockReset();
+    mockedGetRecipeDetails.mockReset();
   });
 
   it("returns demo batches list when demo data is enabled", async () => {
@@ -177,5 +188,36 @@ describe("batches use-cases", () => {
 
     expect(mockedStartBatchApi).toHaveBeenCalledWith("r-live-1");
     expect(batch.id).toBe("b-live-2");
+  });
+
+  describe("getBatchDetailsViewModel", () => {
+    it("enriches the batch with the recipe name (happy path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.batch.id).toBe("b-demo-pdd-mash");
+      expect(result?.recipeName).toBe("La Première du dimanche");
+      expect(mockedGetRecipeDetails).toHaveBeenCalledWith("r-demo-pdd");
+    });
+
+    it("returns a null recipe name when the recipe is not found (sad path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue(null);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.batch.id).toBe("b-demo-pdd-mash");
+      expect(result?.recipeName).toBeNull();
+    });
+
+    it("returns null and skips the recipe lookup when the batch is missing (edge path)", async () => {
+      const result = await getBatchDetailsViewModel("");
+
+      expect(result).toBeNull();
+      expect(mockedGetRecipeDetails).not.toHaveBeenCalled();
+    });
   });
 });

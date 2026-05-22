@@ -8,6 +8,7 @@ import { Batch, BatchSummary } from "@/features/batches/domain/batch.types";
 import { demoBatchSummaries, demoBatches } from "@/mocks/demo-data";
 
 import { dataSource } from "@/core/data/data-source";
+import { getRecipeDetails } from "@/features/recipes/application/recipes.use-cases";
 
 export async function listBatches(): Promise<BatchSummary[]> {
   return dataSource.useDemoData ? demoBatchSummaries : listMine();
@@ -21,6 +22,27 @@ export async function getBatchDetails(batchId: string): Promise<Batch | null> {
     return demoBatches.find((item) => item.id === batchId) ?? null;
   }
   return getMineById(batchId);
+}
+
+// View-model that enriches a batch with its recipe name for display.
+// The Batch domain object only carries `recipeId` (true for both the demo
+// store and the backend `BatchDto`), but the detail screen needs the recipe
+// name as its title. `getRecipeDetails` already branches on the demo/backend
+// toggle, so resolving the name here works in both modes.
+export type BatchDetailsViewModel = {
+  batch: Batch;
+  recipeName: string | null;
+};
+
+export async function getBatchDetailsViewModel(
+  batchId: string,
+): Promise<BatchDetailsViewModel | null> {
+  const batch = await getBatchDetails(batchId);
+  if (!batch) {
+    return null;
+  }
+  const recipe = await getRecipeDetails(batch.recipeId);
+  return { batch, recipeName: recipe?.name ?? null };
 }
 
 export async function completeCurrentBatchStep(

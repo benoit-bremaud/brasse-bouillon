@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
+import { BATCH_STATUS_LABELS } from "@/features/batches/presentation/batch-display.constants";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -55,11 +56,7 @@ const getRecipeName = (recipeId: string, batchId: string): string => {
 };
 
 const getStatusLabel = (status: BatchStatus): string => {
-  const labels: Record<BatchStatus, string> = {
-    in_progress: "In Progress",
-    completed: "Done",
-  };
-  return labels[status] ?? status;
+  return BATCH_STATUS_LABELS[status] ?? status;
 };
 
 const getStatusVariant = (status: BatchStatus): "success" | "info" => {

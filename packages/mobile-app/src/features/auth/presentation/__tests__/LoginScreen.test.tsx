@@ -302,4 +302,36 @@ describe("LoginScreen — keyboard avoidance", () => {
       screen.getByPlaceholderText("Mot de passe").props.returnKeyType,
     ).toBe("go");
   });
+
+  it("moves to the password field when the email return key is pressed", () => {
+    render(<LoginScreen />);
+
+    // Runs the email onSubmitEditing handler (focuses the password ref)
+    // without dismissing the keyboard; should not throw.
+    expect(() =>
+      fireEvent(screen.getByPlaceholderText("Email"), "submitEditing"),
+    ).not.toThrow();
+  });
+
+  it("submits the login when the password return key (go) is pressed", async () => {
+    mockLogin.mockResolvedValue(undefined);
+    render(<LoginScreen />);
+
+    fireEvent.changeText(
+      screen.getByPlaceholderText("Email"),
+      "lea@brasse-bouillon.test",
+    );
+    fireEvent.changeText(
+      screen.getByPlaceholderText("Mot de passe"),
+      "StrongPass123!",
+    );
+    fireEvent(screen.getByPlaceholderText("Mot de passe"), "submitEditing");
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith(
+        "lea@brasse-bouillon.test",
+        "StrongPass123!",
+      );
+    });
+  });
 });

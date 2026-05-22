@@ -30,6 +30,7 @@ export default {
     nav: [
       { text: "Home", link: "/" },
       { text: "Synthesis", link: "/04-synthesis" },
+      { text: "Backlog", link: "/04b-prioritized-backlog" },
       { text: "Method", link: "/00-method" },
       { text: "Interview guide", link: "/05-interview-guide" },
       { text: `epic #1075`, link: "https://github.com/benoit-bremaud/brasse-bouillon/issues/1075" }
@@ -40,7 +41,8 @@ export default {
         collapsed: false,
         items: [
           { text: "Overview", link: "/" },
-          { text: "Synthesis & positioning", link: "/04-synthesis" }
+          { text: "Synthesis & positioning", link: "/04-synthesis" },
+          { text: "Prioritized backlog (needs → features)", link: "/04b-prioritized-backlog" }
         ]
       },
       {

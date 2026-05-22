@@ -1,0 +1,93 @@
+/* ==========================================================================
+   Brasse-Bouillon — Needs Study report theme
+   Reuses the brasse-bouillon.com "Kinetic" charter tokens (copper / paper /
+   Fraunces + Inter), sober variant tuned for long-form reading: brand identity
+   without the animated motifs (bubbles / dew) of the marketing site.
+   Token source: packages/website/site.css :root
+   ========================================================================== */
+
+:root {
+  /* Brand charter tokens */
+  --bb-paper: #f1e3bf;
+  --bb-foam: #fbf3da;
+  --bb-ink: #1a110a;
+  --bb-ink-soft: #3a2818;
+  --bb-copper: #c5742d;
+  --bb-copper-deep: #8d4a13;
+  --bb-moss: #4a5a2b;
+  --bb-muted: #6b5a4c;
+  --bb-line: rgba(58, 40, 24, 0.16);
+  --bb-accent-soft: rgba(197, 116, 45, 0.16);
+
+  --font-display: "Fraunces", "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* VitePress brand mapping (copper-deep for link/text AA contrast on light bg) */
+  --vp-c-brand-1: var(--bb-copper-deep);
+  --vp-c-brand-2: var(--bb-copper);
+  --vp-c-brand-3: var(--bb-copper);
+  --vp-c-brand-soft: var(--bb-accent-soft);
+
+  /* Warm but light backgrounds for readability */
+  --vp-c-bg: #faf5e8;
+  --vp-c-bg-alt: #f3e8cc;
+  --vp-c-bg-soft: #f6eed7;
+  --vp-c-bg-elv: #ffffff;
+
+  --vp-c-text-1: var(--bb-ink);
+  --vp-c-text-2: var(--bb-ink-soft);
+  --vp-c-text-3: var(--bb-muted);
+  --vp-c-divider: var(--bb-line);
+  --vp-c-gutter: var(--bb-line);
+
+  --vp-font-family-base: var(--font-body);
+}
+
+/* Headings in the display serif (Fraunces) */
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc h4,
+.VPHomeHero .name,
+.VPHomeHero .text,
+.VPNavBarTitle .title {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.vp-doc h1 {
+  font-weight: 900;
+}
+.vp-doc h2 {
+  font-weight: 700;
+}
+
+/* Zebra-stripe dense tables (the study has many) */
+.vp-doc tr:nth-child(2n) {
+  background-color: var(--vp-c-bg-soft);
+}
+.vp-doc th {
+  background-color: var(--bb-accent-soft);
+}
+
+/* Blockquotes get a copper edge — used for positioning statements & wedges */
+.vp-doc blockquote {
+  border-left-color: var(--bb-copper);
+  background: var(--vp-c-bg-soft);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Dark mode: keep the copper accent legible on a deep-amber ink ground */
+.dark {
+  --vp-c-bg: #17110b;
+  --vp-c-bg-alt: #1f1810;
+  --vp-c-bg-soft: #211a11;
+  --vp-c-bg-elv: #211a11;
+  --vp-c-text-1: var(--bb-foam);
+  --vp-c-text-2: #d8c5a3;
+  --vp-c-text-3: #b09a78;
+  --vp-c-brand-1: #e08a3d;
+  --vp-c-brand-2: var(--bb-copper);
+  --vp-c-brand-3: var(--bb-copper);
+  --vp-c-divider: rgba(251, 243, 218, 0.14);
+}

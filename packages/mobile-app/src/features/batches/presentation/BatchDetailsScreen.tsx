@@ -2,13 +2,19 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
+  BatchDetailsViewModel,
   completeCurrentBatchStep,
-  getBatchDetails,
+  getBatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Badge } from "@/core/ui/Badge";
 import { Batch } from "@/features/batches/domain/batch.types";
+import {
+  BATCH_STATUS_LABELS,
+  BATCH_STEP_STATUS_LABELS,
+  BATCH_STEP_TYPE_LABELS,
+} from "@/features/batches/presentation/batch-display.constants";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
@@ -100,16 +106,19 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const missingBatchId = !batchId;
 
   const {
-    data: batch = null,
+    data: viewModel = null,
     isLoading,
     isFetching,
     error: queryError,
     refetch,
-  } = useQuery<Batch | null>({
+  } = useQuery<BatchDetailsViewModel | null>({
     queryKey: ["batches", "details", batchId],
-    queryFn: () => getBatchDetails(batchId),
+    queryFn: () => getBatchDetailsViewModel(batchId),
     enabled: !missingBatchId,
   });
+
+  const batch = viewModel?.batch ?? null;
+  const recipeName = viewModel?.recipeName ?? null;
 
   const {
     mutate: mutateCompleteCurrentStep,
@@ -119,24 +128,26 @@ export function BatchDetailsScreen({ batchId }: Props) {
     mutationFn: () => completeCurrentBatchStep(batchId),
     onSuccess: (nextBatch) => {
       setMutationError(null);
-      queryClient.setQueryData<Batch | null>(
+      queryClient.setQueryData<BatchDetailsViewModel | null>(
         ["batches", "details", batchId],
-        nextBatch,
+        nextBatch ? { batch: nextBatch, recipeName } : null,
       );
       void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
     },
     onError: (error) => {
-      setMutationError(getErrorMessage(error, "Failed to complete step"));
+      setMutationError(
+        getErrorMessage(error, "Échec de la validation de l'étape"),
+      );
     },
   });
 
   const error = missingBatchId
-    ? "Missing batch id."
+    ? "Identifiant de brassin manquant."
     : (mutationError ??
       (queryError
         ? isFetching
           ? null
-          : getErrorMessage(queryError, "Failed to load batch")
+          : getErrorMessage(queryError, "Impossible de charger le brassin")
         : null));
 
   const isRetryingWithError = isFetching && Boolean(queryError);
@@ -182,11 +193,16 @@ export function BatchDetailsScreen({ batchId }: Props) {
       />
       {batch ? (
         <Card style={styles.headerCard}>
-          <Text style={styles.title}>Batch {batch.id.slice(0, 8)}</Text>
+          <Text style={styles.title}>
+            {recipeName ?? `Brassin ${batch.id.slice(0, 8)}`}
+          </Text>
           <BatchTimeline steps={batch.steps} />
-          <Text style={styles.meta}>Status: {batch.status}</Text>
           <Text style={styles.meta}>
-            Current step: {batch.currentStepOrder ?? "-"}
+            Statut : {BATCH_STATUS_LABELS[batch.status]}
+          </Text>
+          <Text style={styles.meta}>
+            Étape en cours :{" "}
+            {batch.currentStepOrder != null ? batch.currentStepOrder + 1 : "—"}
           </Text>
         </Card>
       ) : null}
@@ -235,16 +251,16 @@ export function BatchDetailsScreen({ batchId }: Props) {
       <PrimaryButton
         label={
           isCompleted
-            ? "Batch completed"
+            ? "Brassin terminé"
             : isCompleting
-              ? "Completing..."
-              : "Complete current step"
+              ? "Validation…"
+              : "Terminer l'étape en cours"
         }
         onPress={handleComplete}
         disabled={isCompleting || isCompleted || isLoading}
       />
 
-      <Text style={styles.sectionTitle}>Steps</Text>
+      <Text style={styles.sectionTitle}>Étapes</Text>
       <FlatList
         data={batch?.steps ?? []}
         keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
@@ -252,7 +268,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
         renderItem={({ item }) => (
           <Card style={styles.stepCard}>
             <Badge
-              label={item.status}
+              label={BATCH_STEP_STATUS_LABELS[item.status]}
               variant={
                 item.status === "completed"
                   ? "success"
@@ -265,7 +281,9 @@ export function BatchDetailsScreen({ batchId }: Props) {
             <Text style={styles.stepTitle} numberOfLines={1}>
               {item.stepOrder + 1}. {item.label}
             </Text>
-            <Text style={styles.stepMeta}>{item.type}</Text>
+            <Text style={styles.stepMeta}>
+              {BATCH_STEP_TYPE_LABELS[item.type]}
+            </Text>
             {item.description ? (
               <Text style={styles.stepDescription}>{item.description}</Text>
             ) : null}

@@ -101,8 +101,9 @@ describe("BatchesScreen", () => {
     expect((await screen.findAllByText("La Première du dimanche")).length).toBe(
       2,
     );
-    expect(screen.getByText("IN PROGRESS")).toBeTruthy();
-    expect(screen.getByText("DONE")).toBeTruthy();
+    // French status labels, uppercased by the Badge component.
+    expect(screen.getByText("EN COURS")).toBeTruthy();
+    expect(screen.getByText("TERMINÉ")).toBeTruthy();
   });
 
   it("falls back to a French Brassin <id> label when no recipe is found (sad path)", async () => {

@@ -66,10 +66,10 @@ is the open lane.
 | Tooling | Commercial apps: BeerSmith, Brewfather, Brewer's Friend | Free/open + homegrown: **Beerxcel (Excel), Joliebulle (open-source), Little Bock**, BYOB |
 | Sharing model | App clouds + BeerXML files; forum text | Forum *is* the shared library; communal Beerxcel/recipe DBs; values free tools |
 | Pricing sensitivity | Subscription-skeptical but pays | More resistant to paywalls (Little Bock going paid drew friction) |
-| Instability | Mature, stable incumbents | **Joliebulle status uncertain** (one source: closed early 2025; but joliebulle.org + "Joliebulle Studio" appear active) — *conflicting/unconfirmed* |
+| Instability | Mature, stable incumbents | **Joliebulle closed (2010–2025)** — appeared uncertain in this pass, later **confirmed** in `03b`/`03d` |
 
 **Bilingual implications**
-- Localize clone seed-content per region (Belgian/Trappist + French macro for FR; US/UK craft for EN) — clone catalogs are not interchangeable.
+- Localize clone seed-content per region (Belgian/Trappist for FR; US/UK craft for EN) — clone catalogs are not interchangeable. (`03d` finds FR *macro lager* is NOT a meaningful clone target, despite Kronenbourg 1664 appearing in the sub-forum list above — treat the FR clone-targets cell as raw observation, not a seed-content priority.)
 - FR audience more price-sensitive and free-tool-loyal → the freemium boundary matters more there (consistent with keeping BeerXML/BeerJSON export paid only if the free tier stays genuinely useful).
 - FR expects responsive, present maintainers → community management is part of the product.
 - BeerXML import/export is table-stakes both sides (capture migrants from BeerSmith/Brewfather EN, Joliebulle/Little Bock FR).
@@ -81,7 +81,7 @@ threads* (#5), on top of two validated foundations users currently hack together
 and tracking (#4). The moat is **not** calculation; it is curation + community + reliability + fair
 pricing + frictionless import/export.
 
-**Key uncertainties:** HBT findings snippet-based (403); frequency qualitative; Joliebulle closure unconfirmed.
+**Key uncertainties:** HBT findings snippet-based (403); frequency qualitative. (Joliebulle closure, flagged uncertain in this pass, was later **confirmed** in `03b`/`03d`.)
 
 ## Sources
 - https://www.homebrewtalk.com/threads/is-there-a-clone-recipe-database.679618/

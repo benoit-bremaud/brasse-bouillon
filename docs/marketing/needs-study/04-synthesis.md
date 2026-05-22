@@ -9,8 +9,8 @@ FR-specific and market-context refinements below.
 ## Headline
 
 The differentiating hypothesis — **a community for cloning and sharing recipes** — is **supported**
-by all three sources, and **sharpened**: the defensible wedge is not "social" or "clone list" alone,
-but their intersection.
+across all six desk passes, and **sharpened**: the defensible wedge is not "social" or "clone list"
+alone, but their intersection.
 
 ## The sharpened wedge
 

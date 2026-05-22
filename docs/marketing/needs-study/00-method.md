@@ -58,6 +58,6 @@ Six desk passes across source families:
 
 ## Status
 
-- Secondary research: complete (captured in `01`–`03`, consolidated in `04`).
+- Secondary research: complete (captured in `01`–`03d`, consolidated in `04`).
 - Primary research: not started.
 - Final report: not started.

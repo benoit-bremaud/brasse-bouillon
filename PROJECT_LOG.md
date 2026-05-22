@@ -11,7 +11,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 - Branch `fix/batch-details-localization` (`8334b91` localization + `1574b36` review fixes).
 - New `getBatchDetailsViewModel` resolves the recipe name (via `getRecipeDetails`, works in demo + backend) so the title shows the recipe name instead of `Batch <id>`, with a `Brassin <id>` fallback. New `batch-display.constants.ts` maps batch/step status + step-phase enums to FR; `BatchDetailsScreen` and `BatchesScreen` localized.
-- Review (Codex P1 + Copilot) addressed in `1574b36`: recipe lookup is best-effort (try/catch → fallback title) so a recipe API failure no longer breaks the screen; `BatchDetailsViewModel` is an `interface`; test helper typed to `Batch`/`BatchDetailsViewModel`. 41 batches tests pass.
+- Automated review (P1) addressed in `1574b36`: recipe lookup is best-effort (try/catch → fallback title) so a recipe API failure no longer breaks the screen; `BatchDetailsViewModel` is an `interface`; test helper typed to `Batch`/`BatchDetailsViewModel`. 41 batches tests pass.
 - Backlog: epic #1082 — B1 (EN/debug labels) marked FIXED; new B2 = per-step countdown timer (no timer component exists yet).
 
 ### PR #1083 merged (`6aeeb44`) — feat(website): add beer scan recognition section to landing page

@@ -33,7 +33,9 @@ aside: true
 | **2026-05-21** | Site live + `packages/website` | Site sain, 12 axes de durcissement | 12 (7 hautes) | [Ouvrir](/) |
 
 ::: tip Ajouter un futur audit
-Créer un nouveau dossier daté `docs/audit-report/AAAA-MM-JJ/` (copier la structure de `2026-05-21/` :
-`index.md`, `findings.md`, `remediation.md`, `methodology.md`), ajouter une ligne à ce tableau et une
-entrée de sidebar dans `.vitepress/config.mjs`. Le thème et les composants sont partagés.
+Aujourd'hui la structure est **plate** : un seul audit à la racine (`index.md` = synthèse,
+`findings.md`, `remediation.md`, `methodology.md`) et ce journal dans `historique.md`. Au **2ᵉ audit**,
+on migre vers des **dossiers datés** `docs/audit-report/AAAA-MM-JJ/` (un dossier par campagne, URLs
+stables), on ajoute une ligne à ce tableau et un groupe de sidebar dans `.vitepress/config.mjs`. Le
+thème et les composants restent partagés — aucun changement de design.
 :::

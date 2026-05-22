@@ -1,6 +1,7 @@
 # Constats détaillés
 
-12 constats, classés par domaine. Chaque carte renvoie à son issue GitHub de suivi sous
+12 constats, classés par domaine, suivis d'une décision différée (#1046) — soit 13 cartes au total.
+Chaque carte renvoie à son issue GitHub de suivi sous
 l'[epic #1031](https://github.com/benoit-bremaud/brasse-bouillon/issues/1031). Niveaux de sévérité :
 <SeverityBadge level="critical" /> <SeverityBadge level="high" /> <SeverityBadge level="medium" /> <SeverityBadge level="low" />.
 

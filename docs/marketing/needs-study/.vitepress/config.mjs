@@ -45,6 +45,7 @@ const sidebarFr = [
     items: [
       { text: "Guide d'entretien", link: "/05-interview-guide" },
       { text: "Sondage (questionnaire)", link: "/c-sondage" },
+      { text: "Kit de diffusion", link: "/c-diffusion" },
       { text: "Résultats", link: "/c-resultats" }
     ]
   },
@@ -88,6 +89,7 @@ const sidebarEn = [
     items: [
       { text: "Interview guide", link: "/en/05-interview-guide" },
       { text: "Survey (questionnaire)", link: "/en/c-survey" },
+      { text: "Distribution kit", link: "/en/c-distribution" },
       { text: "Results", link: "/en/c-resultats" }
     ]
   },

@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react-native";
 
 import { LoginScreen } from "@/features/auth/presentation/LoginScreen";
-import { Alert } from "react-native";
+import { Alert, KeyboardAvoidingView } from "react-native";
 import React from "react";
 
 const mockLogin = jest.fn();
@@ -278,5 +278,28 @@ describe("LoginScreen (Issue #764 — simplified signup)", () => {
       );
       alertSpy.mockRestore();
     });
+  });
+});
+
+describe("LoginScreen — keyboard avoidance", () => {
+  beforeEach(() => {
+    dataSourceMock.useDemoData = true;
+  });
+
+  it("wraps the form in a KeyboardAvoidingView so fields stay above the keyboard", () => {
+    render(<LoginScreen />);
+
+    expect(screen.UNSAFE_getByType(KeyboardAvoidingView)).toBeTruthy();
+  });
+
+  it("exposes return-key actions: email goes to the next field, password submits", () => {
+    render(<LoginScreen />);
+
+    expect(screen.getByPlaceholderText("Email").props.returnKeyType).toBe(
+      "next",
+    );
+    expect(
+      screen.getByPlaceholderText("Mot de passe").props.returnKeyType,
+    ).toBe("go");
   });
 });

@@ -1,5 +1,5 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -39,6 +39,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [localInfo, setLocalInfo] = useState<string | null>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const clearFeedback = () => {
     setLocalError(null);
@@ -260,17 +261,23 @@ export function LoginScreen() {
             style={styles.input}
             value={email}
             onChangeText={setEmail}
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => passwordRef.current?.focus()}
           />
 
           {mode !== "forgot" ? (
             <>
               <TextInput
+                ref={passwordRef}
                 placeholder="Mot de passe"
                 placeholderTextColor={colors.neutral.muted}
                 secureTextEntry
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
+                returnKeyType="go"
+                onSubmitEditing={onSubmit}
               />
               {mode === "signup" ? (
                 <Text style={styles.helper}>{PASSWORD_HELPER}</Text>

@@ -1,73 +1,74 @@
-# Desk Research — French Homebrew Market (snowball pass)
+# Desk research — Marché français du homebrew (passe boule de neige)
 
-Snowball pass aimed at the biggest data gap: the size of the FRENCH / EU amateur-homebrewer base.
-**Vocabulary kept strictly separate:** *brasseur amateur* (hobbyist — TARGET) vs *microbrasserie /
-brasseur artisanal* (professional — adjacent, not the target). Reliability flags as in `03c`.
+Passe boule de neige visant la plus grande lacune de données : la taille de la base FRANÇAISE / UE de brasseurs amateurs.
+**Vocabulaire maintenu strictement distinct :** *brasseur amateur* (hobbyiste — CIBLE) vs *microbrasserie /
+brasseur artisanal* (professionnel — adjacent, pas la cible). Drapeaux de fiabilité comme dans `03c`.
 
-## French homebrewer population — the honest answer
+## Population de brasseurs amateurs français — la réponse honnête
 
-**[N/F] There is NO official or reliable count of French amateur homebrewers**, confirmed by insiders:
-- The admin of BrassageAmateur.com: *"Tu ne trouveras aucun chiffre officiel"* — no official figure exists.
-- Expertise Bière Conseil (2023): *"Paradoxe : une pratique répandue et en croissance, mais des chiffres
-  inexistants"* — no registry, no centralized monitoring.
+**[N/F] Il n'existe AUCUN comptage officiel ou fiable des brasseurs amateurs français**, confirmé par des initiés :
+- L'admin de BrassageAmateur.com : *« Tu ne trouveras aucun chiffre officiel »* — aucun chiffre officiel n'existe.
+- Expertise Bière Conseil (2023) : *« Paradoxe : une pratique répandue et en croissance, mais des chiffres
+  inexistants »* — pas de registre, pas de suivi centralisé.
 
-**Best community-size proxies (no national total derivable):**
-- **BrassageAmateur.com** (reference FR forum, since 2003): **~22,467 registered members, ~498k posts,
-  36,250 topics**; peak 5,321 simultaneous users (Feb 2026). Cumulative registrations, francophone (not FR-only). [MED]
-- **549 beer-related associations** in France's RNA (2020-04-01), one category being *brassage amateur*;
-  no per-category membership; excludes Alsace-Moselle (real total higher); densest in North/Pas-de-Calais. [MED]
-- **FNABRA** (Fédération Nationale des Associations Brassicoles, 2002; EBCU member 2022): *"plusieurs
-  milliers de membres"* (mixes amateur brewers + tasting clubs — not a pure homebrewer count). [MED]
-- **Paris Beer Club > 300 members**; runs an annual amateur brewing competition. [MED]
-- Competition turnout (activity signal): Les Amis de la Bière 27th amateur competition (Sept 2025) judged
-  **61 beers** (18 entrants at the 1998 first edition) — competitive participation grows slowly, small in absolute terms. [MED]
+**Meilleurs proxys de taille de communauté (aucun total national dérivable) :**
+- **BrassageAmateur.com** (forum FR de référence, depuis 2003) : **~22 467 membres enregistrés, ~498k messages,
+  36 250 sujets** ; pic de 5 321 utilisateurs simultanés (févr. 2026). Inscriptions cumulées, francophone (pas FR uniquement). [MED]
+- **549 associations liées à la bière** dans le RNA français (2020-04-01), une catégorie étant *brassage amateur* ;
+  pas d'adhésion par catégorie ; exclut l'Alsace-Moselle (total réel plus élevé) ; plus dense dans le Nord/Pas-de-Calais. [MED]
+- **FNABRA** (Fédération Nationale des Associations Brassicoles, 2002 ; membre EBCU 2022) : *« plusieurs
+  milliers de membres »* (mélange brasseurs amateurs + clubs de dégustation — pas un comptage pur de brasseurs amateurs). [MED]
+- **Paris Beer Club > 300 membres** ; organise un concours annuel de brassage amateur. [MED]
+- Affluence aux concours (signal d'activité) : 27e concours amateur des Amis de la Bière (sept. 2025) a jugé
+  **61 bières** (18 inscrits à la 1re édition de 1998) — la participation compétitive croît lentement, faible en valeur absolue. [MED]
 
-## French homebrew market signals
+## Signaux du marché français du homebrew
 
-- **Recent legalization (strategically important):** amateur homebrewing was clarified/legalized
-  **2021-01-01** via **Article 520 bis CGI** (2021 Finance Law). Home-brewed beer for personal/family/guest
-  use is excise-exempt and freed from warehouse-keeper obligations, provided it is not sold. The hobby only
-  fully left the legal grey-zone ~5 years ago — which partly explains the missing historical data and signals
-  a young, expanding legal market. [HIGH]
-- **Saveur Bière** (2007; FR online leader; AB InBev since 2016): ~105 employees, CA "plusieurs dizaines de
-  millions d'euros"; reported rising demand; brewing kit among best-sellers. **Rebranded PerfectDraft Europe
-  in 2023**, pivoting toward the draft-machine line (a partial move *away* from pure homebrew kit retail). [MED]
-- **Mature France-based supplier ecosystem** (was import-dependent): Rolling Beers, Brouwland, Autobrasseur,
-  Le Comptoir du Brasseur, Radis et Capucine, etc.; extract-kit vs all-grain segmentation; Amazon.fr "Kits de
-  brassage maison" bestseller category. Qualitative growth, **no hard sales figures [N/F]**. [MED/LOW]
+- **Légalisation récente (stratégiquement importante) :** le brassage amateur a été clarifié/légalisé
+  **2021-01-01** via l'**Article 520 bis CGI** (loi de finances 2021). La bière brassée à domicile pour usage
+  personnel/familial/entre invités est exonérée d'accise et libérée des obligations d'entrepositaire agréé, à condition
+  de ne pas être vendue. Le loisir n'a pleinement quitté la zone grise juridique qu'il y a ~5 ans — ce qui explique en
+  partie l'absence de données historiques et signale un marché légal jeune, en expansion. [HIGH]
+- **Saveur Bière** (2007 ; leader FR en ligne ; AB InBev depuis 2016) : ~105 employés, CA « plusieurs dizaines de
+  millions d'euros » ; demande en hausse rapportée ; kit de brassage parmi les meilleures ventes. **Rebaptisé PerfectDraft
+  Europe en 2023**, pivotant vers la gamme de machines à pression (un mouvement partiel *à l'écart* de la vente de pur kit de homebrew). [MED]
+- **Écosystème mature de fournisseurs basés en France** (était dépendant des imports) : Rolling Beers, Brouwland, Autobrasseur,
+  Le Comptoir du Brasseur, Radis et Capucine, etc. ; segmentation kit-extrait vs tout-grain ; catégorie best-seller Amazon.fr
+  « Kits de brassage maison ». Croissance qualitative, **aucun chiffre de vente solide [N/F]**. [MED/LOW]
 
-## French craft microbrewery context (PROFESSIONAL — adjacent, well documented)
+## Contexte des microbrasseries artisanales françaises (PROFESSIONNEL — adjacent, bien documenté)
 
-Useful for beer-culture vitality, clone targets, B2B/partnership angles — **not the target**:
-- **~2,500–2,589 breweries in France (2024–2025); France is #1 in Europe by brewery count**; 10,000+ references. [HIGH]
-- Growth then maturation: ~200 (2006) → 1,600 (2018) → ~2,500 (2024); ~7× between 2011–2022; +15% over 5 years. [HIGH]
-- **Now plateauing:** 2025 ≈ 209 closures vs 213 openings (~4 closures/week) — professional segment matured. [HIGH]
-- Sector employment ~130,500; FR per-capita consumption ~33 L/yr (lowest in EU); SNBI represents independents. [HIGH/MED]
+Utile pour la vitalité de la culture bière, les cibles de clones, les angles B2B/partenariat — **pas la cible** :
+- **~2 500-2 589 brasseries en France (2024-2025) ; la France est n°1 en Europe par nombre de brasseries** ; 10 000+ références. [HIGH]
+- Croissance puis maturation : ~200 (2006) → 1 600 (2018) → ~2 500 (2024) ; ~7x entre 2011-2022 ; +15 % sur 5 ans. [HIGH]
+- **Maintenant en plateau :** 2025 ≈ 209 fermetures vs 213 ouvertures (~4 fermetures/semaine) — segment professionnel arrivé à maturité. [HIGH]
+- Emploi du secteur ~130 500 ; consommation FR par habitant ~33 L/an (la plus basse de l'UE) ; le SNBI représente les indépendants. [HIGH/MED]
 
-## Homebrewer profile / demographics
+## Profil / démographie des brasseurs amateurs
 
-- **France: [N/F]** — no demographic study found (only anecdote: more curious newcomers starting).
-- **US proxy (use cautiously):** AHA/Brewers Association 2017 (18k+ respondents): 1.1M (now ~1.2M); avg age
-  **42**, 52% aged 30–49, predominantly male, 68% college-educated, ~68% household income ≥$75k; **40% started
-  within the prior 4 years** (strong newcomer influx). [HIGH for US]
+- **France : [N/F]** — aucune étude démographique trouvée (seulement de l'anecdotique : davantage de nouveaux venus curieux qui se lancent).
+- **Proxy US (à utiliser avec prudence) :** AHA/Brewers Association 2017 (18k+ répondants) : 1,1 M (désormais ~1,2 M) ; âge moyen
+  **42**, 52 % âgés de 30 à 49 ans, majoritairement hommes, 68 % diplômés du supérieur, ~68 % de revenu de ménage ≥75k$ ; **40 % ont commencé
+  au cours des 4 années précédentes** (fort afflux de nouveaux venus). [HIGH pour les US]
 
-## New leads / snowball threads to follow
+## Nouvelles pistes / fils boule de neige à suivre
 
-- **BrassageAmateur.com** — largest FR community; single best venue for a direct user survey to fill the data gap + competition (BRASSAM) reach.
-- **FNABRA** — could be asked directly for an aggregate member/club estimate.
-- **Projet Amertume** (already bookmarked in memory) — brewery time-series + associations list.
-- Regional/club leads: Les Amis de la Bière (FIBA), ABAHF, Paris Beer Club, BAF, Elsassbrau.
-- Events/salons: Salon du Brasseur, Saint-Malo Craft Beer Expo, CRAB, FIBA.
-- Supplier blogs/communities as funnels: Saveur Bière/PerfectDraft, Rolling Beers, Brouwland, Autobrasseur, Carnet d'un brasseur amateur.
-- Studies to chase: AHA full demographic deck (US benchmark); Belgian Brewers Federation report (only structured EU data, per forum admin); EBCU.
+- **BrassageAmateur.com** — plus grande communauté FR ; meilleur lieu unique pour une enquête utilisateur directe afin de combler la lacune de données + portée du concours (BRASSAM).
+- **FNABRA** — pourrait être sollicitée directement pour une estimation agrégée de membres/clubs.
+- **Projet Amertume** (déjà mis en favori en mémoire) — série temporelle des brasseries + liste d'associations.
+- Pistes régionales/clubs : Les Amis de la Bière (FIBA), ABAHF, Paris Beer Club, BAF, Elsassbrau.
+- Événements/salons : Salon du Brasseur, Saint-Malo Craft Beer Expo, CRAB, FIBA.
+- Blogs/communautés de fournisseurs comme entonnoirs : Saveur Bière/PerfectDraft, Rolling Beers, Brouwland, Autobrasseur, Carnet d'un brasseur amateur.
+- Études à poursuivre : deck démographique complet de l'AHA (référence US) ; rapport de la Fédération belge des brasseurs (seules données UE structurées, selon l'admin du forum) ; EBCU.
 
-## Strategic note
+## Note stratégique
 
-**Reinforces the strategy.** The absence of any official homebrewer count is itself a moat — no incumbent owns
-this data; Brasse-Bouillon could *become* the dataset by instrumenting its own community. Recent (2021)
-legalization + a now-mature FR supplier ecosystem + a saturating *professional* microbrewery market all point
-to a young, under-served, growing *hobbyist* base whose natural pull is community + clone/share. Caveat: the
-only hard demographics (age 30–49, male, educated, affluent, recent starters) are US — validate on FR users in interviews.
+**Renforce la stratégie.** L'absence de tout comptage officiel des brasseurs amateurs est en soi un fossé défensif — aucun
+acteur en place ne possède cette donnée ; Brasse-Bouillon pourrait *devenir* le jeu de données en instrumentant sa propre
+communauté. La légalisation récente (2021) + un écosystème de fournisseurs FR désormais mature + un marché *professionnel* des
+microbrasseries en saturation pointent tous vers une base de *hobbyistes* jeune, sous-servie, en croissance, dont l'attraction
+naturelle est communauté + clone/partage. Réserve : les seules démographies solides (30-49 ans, hommes, diplômés, aisés,
+débutants récents) sont américaines — à valider sur les utilisateurs FR en entretiens.
 
 ## Sources
 - https://www.brassageamateur.com/forum/ftopic23796.html

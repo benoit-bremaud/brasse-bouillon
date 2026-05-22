@@ -1,46 +1,49 @@
-# Brewer Interview Guide — Needs Validation
+# Guide d'entretien brasseur — Validation des besoins
 
-Primary-research instrument for the marketing needs study (epic #1075, sub-issue #1076).
-Built on a Jobs-to-be-Done (JTBD) frame: understand the *job* a homebrewer is trying to get done,
-not whether they like our idea. **Bilingual** — run in EN on r/Homebrewing, in FR on brassageamateur.
+Instrument de recherche primaire pour l'étude de besoins marketing (épic #1075, sous-issue #1076).
+Construit sur un cadre Jobs-to-be-Done (JTBD) : comprendre le *job* qu'un brasseur amateur cherche à
+accomplir, et non s'il aime notre idée. **Bilingue** — mené en EN sur r/Homebrewing, en FR sur brassageamateur.
 
-## Golden rules (read before every interview)
+## Règles d'or (à lire avant chaque entretien)
 
-- **Never pitch.** The interviewee must not know what we're building until the very end (optional).
-  The moment they sense an app, they answer to be polite — useless data.
-- **Ask about the past, not the future.** "Tell me about the last time you…" beats "Would you use…".
-  Memories are facts; predictions are fiction.
-- **Dig into stories, not opinions.** When they make a claim, ask for the specific episode behind it.
-- **Embrace silence.** Let them fill it. The best signal comes after the pause.
-- **Capture verbatim.** Record exact words (with consent) — the language is gold for copy later.
+- **Ne jamais pitcher.** L'interviewé ne doit pas savoir ce que nous construisons avant la toute fin
+  (optionnel). Dès qu'il devine une app, il répond par politesse — données inutiles.
+- **Interroger le passé, pas le futur.** « Parle-moi de la dernière fois où tu… » vaut mieux que
+  « Utiliserais-tu… ». Les souvenirs sont des faits ; les prédictions sont de la fiction.
+- **Creuser les histoires, pas les opinions.** Quand l'interviewé avance une affirmation, demande l'épisode
+  précis qui se cache derrière.
+- **Accueillir le silence.** Laisse-le le combler. Le meilleur signal arrive après la pause.
+- **Capturer mot pour mot.** Note les mots exacts (avec consentement) — le langage est précieux pour la
+  rédaction publicitaire plus tard.
 
-## Target & recruitment
+## Cible et recrutement
 
-- **Segment:** regular / intermediate homebrewers (brew several times a year; not first-batch beginners,
-  not all-grain pros wedded to a tool). Screen for it (Q0).
-- **Recruit from:** r/Homebrewing (EN), brassageamateur.com (FR). Aim 10-15 total, mixed EN/FR.
-- **Format:** 25-35 min, voice if possible. Ask consent to record + to quote anonymously.
+- **Segment :** brasseurs amateurs réguliers / intermédiaires (brassent plusieurs fois par an ; ni débutants
+  au premier brassin, ni pros tout-grain attachés à un seul outil). Filtrer pour cela (Q0).
+- **Recruter depuis :** r/Homebrewing (EN), brassageamateur.com (FR). Viser 10-15 au total, mélange EN/FR.
+- **Format :** 25-35 min, en voix si possible. Demander le consentement pour enregistrer + pour citer
+  anonymement.
 
-## What we're trying to learn (the 3 risky beliefs)
+## Ce que nous cherchons à apprendre (les 3 croyances risquées)
 
-| # | Belief under test | If FALSE, then… |
+| # | Croyance testée | Si FAUSSE, alors… |
 |---|---|---|
-| B1 | They want to **clone specific beers** and would value **versioned, community-refined** clones | The "hero" loses its emotional pull |
-| B2 | Sharers care about **author credit / attribution** (strong EN, unproven FR) | The credit/attribution mechanic is wasted effort |
-| B3 | They'd **switch** from their current tool, and **auto-rescale** of shared recipes is a real need | The wedge isn't enough to overcome inertia |
+| B1 | Ils veulent **cloner des bières précises** et valoriseraient des clones **versionnés, affinés par la communauté** | Le « pilier » perd son attrait émotionnel |
+| B2 | Ceux qui partagent tiennent au **crédit / à l'attribution de l'auteur** (fort en EN, non prouvé en FR) | Le mécanisme de crédit/attribution est un effort gaspillé |
+| B3 | Ils **changeraient** d'outil actuel, et la **remise à l'échelle automatique** des recettes partagées est un vrai besoin | Le coin n'est pas suffisant pour vaincre l'inertie |
 
-The questions below are sequenced to surface these without naming them.
+Les questions ci-dessous sont séquencées pour faire émerger ces croyances sans les nommer.
 
 ---
 
-## Section 0 — Screen & warm-up (3 min)
+## Section 0 — Filtrage et mise en confiance (3 min)
 
 - **EN:** How long have you been brewing, and roughly how many batches a year? What's your setup?
 - **FR:** Tu brasses depuis combien de temps, et à peu près combien de brassins par an ? Quel est ton matériel ?
 
-*(Keep if: brews regularly, beyond first batches, not a hardcore single-tool pro. Otherwise thank & end.)*
+*(Conserver si : brasse régulièrement, au-delà des premiers brassins, pas un pro attaché à un seul outil. Sinon remercier et clore.)*
 
-## Section 1 — The job & current workflow (8 min) — JTBD / pains
+## Section 1 — Le job et le flux de travail actuel (8 min) — JTBD / douleurs
 
 - **EN:** Walk me through your last brew, from choosing what to brew to drinking it. Where did the recipe come from?
 - **FR:** Raconte-moi ton dernier brassin, du choix de la recette jusqu'à la dégustation. D'où venait la recette ?
@@ -51,9 +54,9 @@ The questions below are sequenced to surface these without naming them.
 - **EN:** Tell me about the last time you couldn't find or organize a recipe the way you wanted.
 - **FR:** Parle-moi de la dernière fois où tu n'as pas réussi à retrouver ou organiser une recette comme tu voulais.
 
-*Tags: pain, current-alternative, vocabulary, foundation-need (organize/track).*
+*Étiquettes : douleur, alternative actuelle, vocabulaire, besoin fondation (organiser/suivre).*
 
-## Section 2 — Cloning a specific beer (7 min) — probes B1
+## Section 2 — Cloner une bière précise (7 min) — sonde B1
 
 - **EN:** Have you ever tried to recreate a specific commercial beer you love? Tell me about that — start to finish.
 - **FR:** As-tu déjà essayé de reproduire une bière commerciale précise que tu aimes ? Raconte — du début à la fin.
@@ -64,9 +67,9 @@ The questions below are sequenced to surface these without naming them.
 - **EN:** (If they adapted it) How did you know what to change? Did you write your version down anywhere?
 - **FR:** (S'ils l'ont adaptée) Comment savais-tu quoi changer ? As-tu noté ta version quelque part ?
 
-*Tags: B1 clone-desire, B1 versioning-need (do they iterate?), trigger, desired-outcome.*
+*Étiquettes : B1 désir-de-clone, B1 besoin-de-versionnement (itèrent-ils ?), déclencheur, résultat-souhaité.*
 
-## Section 3 — Sharing & community (7 min) — probes B2
+## Section 3 — Partage et communauté (7 min) — sonde B2
 
 - **EN:** Have you ever shared one of your recipes with another brewer? What happened? How did you share it?
 - **FR:** As-tu déjà partagé une de tes recettes avec un autre brasseur ? Comment ? Que s'est-il passé ?
@@ -77,9 +80,9 @@ The questions below are sequenced to surface these without naming them.
 - **EN:** (If they shared) How did you feel about others using or changing your recipe? Did you want credit?
 - **FR:** (S'ils ont partagé) Qu'as-tu ressenti à l'idée que d'autres utilisent ou modifient ta recette ? Voulais-tu être crédité ?
 
-*Tags: B2 attribution-sensitivity (note EN vs FR!), sharing-willingness, social-job.*
+*Étiquettes : B2 sensibilité-à-l'attribution (noter EN vs FR !), volonté-de-partage, job-social.*
 
-## Section 4 — Tools & switching (6 min) — probes B3
+## Section 4 — Outils et changement d'outil (6 min) — sonde B3
 
 - **EN:** What apps or tools do you use for brewing today? What made you pick that one?
 - **FR:** Quels logiciels ou outils utilises-tu pour brasser aujourd'hui ? Pourquoi celui-là ?
@@ -90,9 +93,9 @@ The questions below are sequenced to surface these without naming them.
 - **EN:** When you take someone else's recipe, how do you adjust it to your own equipment? Walk me through it.
 - **FR:** Quand tu prends la recette de quelqu'un d'autre, comment l'adaptes-tu à ton propre matériel ? Décris-moi.
 
-*Tags: B3 switching-barrier, B3 rescale-need, current-alternative, objection.*
+*Étiquettes : B3 barrière-au-changement, B3 besoin-de-remise-à-l'échelle, alternative actuelle, objection.*
 
-## Section 5 — Wrap (3 min)
+## Section 5 — Conclusion (3 min)
 
 - **EN:** If you had a magic wand for the recipe side of brewing, what would you change? Anything I didn't ask about?
 - **FR:** Si tu avais une baguette magique pour la partie recettes du brassage, que changerais-tu ? Un sujet que j'ai oublié ?
@@ -100,26 +103,27 @@ The questions below are sequenced to surface these without naming them.
 - **EN:** Who else like you should I talk to? (referral)
 - **FR:** Qui d'autre, dans ton genre, devrais-je interviewer ? (recommandation)
 
-*(Optional, only at the very end: briefly describe the concept and watch the honest reaction — but data above is what counts.)*
+*(Optionnel, uniquement à la toute fin : décrire brièvement le concept et observer la réaction honnête — mais ce sont les données ci-dessus qui comptent.)*
 
 ---
 
-## After each interview — capture sheet
+## Après chaque entretien — fiche de capture
 
-Fill within 1 hour, per `customer-research` extraction fields:
+À remplir dans l'heure, selon les champs d'extraction de `customer-research` :
 
-- **Source / language / date / profile** (years brewing, batches/yr, setup, EN or FR).
-- **JTBD** (functional / emotional / social).
-- **Top pains** (verbatim, mark unprompted + emotional ones).
-- **Trigger events.**
-- **Desired outcomes** (exact quotes = money quotes).
-- **Alternatives considered** (tools, forums, doing nothing).
-- **Per-belief verdict:** B1 / B2 / B3 → supports / refutes / unclear, with the quote that decides it.
+- **Source / langue / date / profil** (années de brassage, brassins/an, matériel, EN ou FR).
+- **JTBD** (fonctionnel / émotionnel / social).
+- **Principales douleurs** (mot pour mot, marquer celles qui sont spontanées + émotionnelles).
+- **Événements déclencheurs.**
+- **Résultats souhaités** (citations exactes = citations en or).
+- **Alternatives envisagées** (outils, forums, ne rien faire).
+- **Verdict par croyance :** B1 / B2 / B3 → soutient / réfute / incertain, avec la citation qui tranche.
 
-## Synthesis (after ~10 interviews)
+## Synthèse (après ~10 entretiens)
 
-- Cluster pains by theme; score frequency × intensity; **confidence label** (High = 3+ independent
-  sources, unprompted, consistent; Medium = 2 sources or prompted; Low = single source).
-- **Compare EN vs FR explicitly** on B2 (attribution) — this is the known divergence to resolve.
-- Feed verdicts + money quotes into the final report (`06-report.md`).
-- Sample-bias caveat: r/Homebrewing skews technical/opinionated; forum posters skew "stuck" — weight accordingly.
+- Regrouper les douleurs par thème ; scorer fréquence × intensité ; **label de confiance** (Élevé = 3+ sources
+  indépendantes, spontanées, cohérentes ; Moyen = 2 sources ou suscitées ; Faible = source unique).
+- **Comparer EN vs FR explicitement** sur B2 (attribution) — c'est la divergence connue à résoudre.
+- Injecter les verdicts + citations en or dans le rapport final (`06-report.md`).
+- Mise en garde sur le biais d'échantillon : r/Homebrewing penche technique/affirmé ; les posteurs de forums
+  penchent « bloqués » — pondérer en conséquence.

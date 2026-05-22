@@ -1,119 +1,119 @@
-# Desk Research — French-Language Sources
+# Desk research — Sources francophones
 
-Dedicated French pass to rebalance an English-skewed corpus (the product is bilingual FR + EN).
-Covers FR blogs, software sites, the forum's own sharing app, FB/YouTube/Discord signal.
-brassageamateur.com cited only where it adds NEW specifics. Confidence flagged per claim.
+Passe francophone dédiée pour rééquilibrer un corpus biaisé vers l'anglais (le produit est bilingue FR + EN).
+Couvre les blogs FR, les sites de logiciels, l'app de partage du forum lui-même, ainsi que les signaux FB/YouTube/Discord.
+brassageamateur.com n'est cité que là où il apporte des spécificités NOUVELLES. Confiance signalée par affirmation.
 
-## Ranked French-specific themes / needs
+## Thèmes / besoins spécifiques à la France, classés
 
-### 1. Cloning commercial beers is mainstream, first-class — VERY HIGH
-"Brasser un clone" is settled vocabulary; hundreds of clone recipes live in FR tool libraries and on blogs.
+### 1. Le clonage de bières commerciales est courant, de premier rang — TRÈS ÉLEVÉ
+« Brasser un clone » est un vocabulaire établi ; des centaines de recettes de clones vivent dans les bibliothèques d'outils FR et sur les blogs.
 - https://comment-brasser-sa-biere.fr/recette-ipa/
 - https://labrowar.blogspot.com/2016/01/recette-clone-orval.html
 - https://www.littlebock.fr/recettes-bieres/24/nom/punk-ipa-clone
 
-### 2. Tools must do the tedious math AND auto-rescale to the brewer's equipment — HIGH
-FR blogs frame software value as offloading OG/FG, IBU, EBC/SRM, ABV, mash steps; mash-efficiency
-customization that "automatically adjusts recipe quantities" is explicitly wanted. (Directly supports
-the auto-rescale enabler of the hero.)
+### 2. Les outils doivent faire les calculs fastidieux ET ré-échelonner automatiquement vers l'équipement du brasseur — ÉLEVÉ
+Les blogs FR présentent la valeur du logiciel comme le fait de déléguer OG/FG, IBU, EBC/SRM, ABV, les paliers d'empâtage ;
+la personnalisation du rendement d'empâtage qui « ajuste automatiquement les quantités de la recette » est explicitement souhaitée.
+(Soutient directement le facteur de ré-échelonnage automatique du discours phare.)
 - https://blog.littlebock.fr/creer-recette-biere-logiciel-brassage/
 - https://www.brassageamateur.com/forum/viewtopic.php?t=42555
 
-### 3. French-language UI matters — English is a stated dealbreaker — HIGH (FR-specific)
-Brewfather (the strongest tool) is repeatedly flagged as "en anglais, ce qui peut être rédhibitoire."
-A genuine competitive lever absent from the English corpus.
+### 3. L'interface en français compte — l'anglais est un point de blocage déclaré — ÉLEVÉ (spécifique FR)
+Brewfather (l'outil le plus solide) est régulièrement signalé comme « en anglais, ce qui peut être rédhibitoire ».
+Un véritable levier concurrentiel absent du corpus anglophone.
 - https://univers-biere.net/logiciels.php
 
-### 4. Community recipe sharing is wanted — and ALREADY PARTIALLY SERVED in FR — HIGH
-brassageamateur.com built its own "BrewRecipes" app (BeerXML import, search/filter, community ratings,
-350+ recipes); Little Bock's public library is a core draw. So in FR the sharing angle competes against
-incumbents, not a vacuum.
+### 4. Le partage communautaire de recettes est souhaité — et DÉJÀ PARTIELLEMENT SERVI en FR — ÉLEVÉ
+brassageamateur.com a construit sa propre app « BrewRecipes » (import BeerXML, recherche/filtre, notes communautaires,
+350+ recettes) ; la bibliothèque publique de Little Bock est un atout central. Donc en FR l'angle du partage affronte
+des acteurs en place, et non un vide.
 - https://www.brassageamateur.com/wiki/Beerxml
 - https://www.littlebock.fr/
 
-### 5. Brew/fermentation tracking expected but bolted on — MEDIUM-HIGH
-Per-brassin notes/measures, history, fermentation graph, brew-day reminders. Brewfather wins via device
-integrations (iSpindel, Tilt, Plaato); Little Bock offers per-brassin notes. Caveat: in the main
-"quel logiciel" debate, the focus was ease-of-use/offline/calc accuracy, not tracking.
+### 5. Suivi de brassin/fermentation attendu mais ajouté en surcouche — MOYEN-ÉLEVÉ
+Notes/mesures par brassin, historique, courbe de fermentation, rappels de jour de brassage. Brewfather l'emporte grâce
+aux intégrations d'appareils (iSpindel, Tilt, Plaato) ; Little Bock propose des notes par brassin. Réserve : dans le débat
+principal « quel logiciel », l'accent portait sur la facilité d'usage/hors-ligne/précision de calcul, pas sur le suivi.
 - https://apps.apple.com/fr/app/brewfather/id1488585822
 
-### 6. Tool reliability / data-durability anxiety — MEDIUM (strategically important)
-Little Bock suffered a major hosting outage (OVH SBG3) with a degraded read-only backup; some calc
-distrust. Joliebulle's shutdown amplifies fear of losing recipe history. → BeerXML import/export +
-reliability are TRUST features, not nice-to-haves.
+### 6. Anxiété de fiabilité / durabilité des données des outils — MOYEN (stratégiquement important)
+Little Bock a subi une panne d'hébergement majeure (OVH SBG3) avec une sauvegarde dégradée en lecture seule ; une certaine
+méfiance sur le calcul. La fermeture de Joliebulle amplifie la peur de perdre l'historique des recettes. → L'import/export
+BeerXML + la fiabilité sont des fonctionnalités de CONFIANCE, pas des options accessoires.
 - https://www.brassageamateur.com/forum/viewtopic.php?t=37899
 
-### 7. Strong price sensitivity / low-cost ethos — MEDIUM-HIGH
-Recurrent "brasser pour pas cher"; pro tools rejected as overkill ("Easybeer 29€/mois… beaucoup trop
-cher… un simple fichier Excel suffit"). A generous free tier is near-mandatory; paid features must be
-clearly amateur-relevant (consistent with export-as-paid).
+### 7. Forte sensibilité au prix / éthos low-cost — MOYEN-ÉLEVÉ
+Récurrent « brasser pour pas cher » ; outils pro rejetés comme surdimensionnés (« Easybeer 29€/mois… beaucoup trop
+cher… un simple fichier Excel suffit »). Un palier gratuit généreux est quasi obligatoire ; les fonctionnalités payantes
+doivent être clairement pertinentes pour l'amateur (cohérent avec l'export-en-payant).
 - https://www.happybeertime.com/blog/2016/12/26/5-conseils-brasser-amateur-facon-low-cost/
 
-## French tooling landscape
+## Paysage des outils francophones
 
-- **Little Bock** (littlebock.fr) — FR online recipe builder + community library + profiles + per-brassin
-  notes + inventory. **Active, freemium** (free tier capped). Often called the best/most intuitive FR tool;
-  criticized for a limited free tier, carbonation calc overestimation, and a past outage. Maintainer
-  present but slowed.
-- **Joliebulle** (joliebulle.org) — open-source desktop tool, loved for being simple/offline/free.
-  **CLOSED — confirmed** (lifespan stated 2010–2025; site in past tense). No official successor; community
-  redirects to Little Bock / Brewfather / Brewtarget. → **displaced user base actively seeking a home =
-  concrete acquisition opportunity.** (A Gumroad page persists; purchasability post-shutdown uncertain.)
-- **Beerxcel** — free Excel all-in-one; comprehensive but hard to learn; dev active on forum. Active, free.
-- **Brewtarget** — open-source, free, cross-platform, FR manual; functional but dated (v4.01, Aug 2024).
-- **Brewfather** — online, freemium; best fermentation tracking via device integrations; recurrent
-  complaint = English-only.
-- **BeerSmith** — FR translation/community exists; legacy paid heavyweight, not heavily tested by FR users.
-- **BiboWeb** — could NOT be confirmed this pass. **Unverified** — probe before citing.
-- Also: BYOB (free web), Brewy (free Android), Easybeer (pro, 29€/mo, "too expensive" for amateurs).
+- **Little Bock** (littlebock.fr) — créateur de recettes en ligne FR + bibliothèque communautaire + profils + notes
+  par brassin + inventaire. **Actif, freemium** (palier gratuit plafonné). Souvent cité comme le meilleur/le plus intuitif
+  des outils FR ; critiqué pour un palier gratuit limité, une surestimation du calcul de carbonatation et une panne passée.
+  Mainteneur présent mais ralenti.
+- **Joliebulle** (joliebulle.org) — outil de bureau open-source, apprécié pour sa simplicité/hors-ligne/gratuité.
+  **FERMÉ — confirmé** (durée de vie indiquée 2010-2025 ; site au passé). Pas de successeur officiel ; la communauté
+  redirige vers Little Bock / Brewfather / Brewtarget. → **base d'utilisateurs déplacée cherchant activement un point
+  d'attache = opportunité d'acquisition concrète.** (Une page Gumroad subsiste ; achetabilité post-fermeture incertaine.)
+- **Beerxcel** — tout-en-un Excel gratuit ; complet mais difficile à apprendre ; développeur actif sur le forum. Actif, gratuit.
+- **Brewtarget** — open-source, gratuit, multi-plateforme, manuel FR ; fonctionnel mais daté (v4.01, août 2024).
+- **Brewfather** — en ligne, freemium ; meilleur suivi de fermentation via intégrations d'appareils ; plainte récurrente = anglais uniquement.
+- **BeerSmith** — traduction/communauté FR existante ; poids lourd payant historique, peu testé par les utilisateurs FR.
+- **BiboWeb** — n'a PAS pu être confirmé à cette passe. **Non vérifié** — sonder avant de citer.
+- Aussi : BYOB (web gratuit), Brewy (Android gratuit), Easybeer (pro, 29€/mois, « trop cher » pour les amateurs).
 
-Sources: https://univers-biere.net/logiciels.php · https://joliebulle.org/ · https://www.littlebock.fr/fonctionnalites-et-tarifs
+Sources : https://univers-biere.net/logiciels.php · https://joliebulle.org/ · https://www.littlebock.fr/fonctionnalites-et-tarifs
 
-## French clone targets
+## Cibles de clones françaises
 
-- **Belgian / Trappist** (strong FR/BE cultural anchor): Orval, La Chouffe, Westmalle Triple, Belgian
-  quad. Lean on *Brew Like a Monk*, EBC/IBU/attenuation matching.
-- **International craft icons**, dominated by **BrewDog Punk IPA** (many clone versions, fed by BrewDog's
-  "DIY DOG" release); general IPA/APA clones common.
-- **French macro lager (Kronenbourg/1664, Heineken-style) did NOT surface as a meaningful clone target** —
-  demand skews Belgian abbey/Trappist + craft IPA. (Soft/negative finding; corrects an earlier assumption
-  that FR macro lager was a primary clone target.)
+- **Belge / trappiste** (fort ancrage culturel FR/BE) : Orval, La Chouffe, Westmalle Triple, quadruple belge. S'appuyer
+  sur *Brew Like a Monk*, l'appariement EBC/IBU/atténuation.
+- **Icônes craft internationales**, dominées par la **BrewDog Punk IPA** (nombreuses versions de clones, alimentées par
+  la publication « DIY DOG » de BrewDog) ; clones d'IPA/APA génériques courants.
+- **La lager macro française (Kronenbourg/1664, style Heineken) N'a PAS émergé comme cible de clone significative** —
+  la demande penche vers l'abbaye/trappiste belge + l'IPA craft. (Constat faible/négatif ; corrige une hypothèse
+  antérieure selon laquelle la lager macro FR était une cible de clone primaire.)
 
-Sources: https://univers-biere.net/rec_chouffe.php · https://labrowar.blogspot.com/2016/01/recette-clone-orval.html · https://www.littlebock.fr/recettes-bieres/24/nom/punk-ipa-clone
+Sources : https://univers-biere.net/rec_chouffe.php · https://labrowar.blogspot.com/2016/01/recette-clone-orval.html · https://www.littlebock.fr/recettes-bieres/24/nom/punk-ipa-clone
 
-## French audience specifics (marketing)
+## Spécificités de l'audience française (marketing)
 
-- **High, culturally explicit price sensitivity.** Generous free tier near-mandatory; paid must be amateur-relevant.
-- **Free/open-tool loyalty.** A purely closed SaaS meets cultural friction (Joliebulle/Brewtarget/Beerxcel ethos).
-- **High expectations of maintainer presence + data durability.** Active devs are rewarded; tool deaths/outages
-  created real anxiety → portability + reliability are trust levers.
-- **Where the FR community congregates:**
-  - **Forum (brassageamateur.com)** = structured hub — and hosts its own recipe-sharing app, so it is a
-    *partial direct competitor* on the sharing axis.
-  - **Facebook** = high-volume informal layer (national "brassage.amateur.biere" + regional groups).
-  - **Discord** = support/chat layer (Joliebulle ran a praised one), not a recipe repository.
-  - **YouTube** FR channels active (Bricole Brassicole, Brassage TV, Craft My Brewery) — partnership/marketing, tutorial-skewed.
-  - **Local clubs/associations** (ABAHF, Fauve Homebrew Club) = real in-person layer.
+- **Sensibilité au prix forte, culturellement explicite.** Palier gratuit généreux quasi obligatoire ; le payant doit être pertinent pour l'amateur.
+- **Fidélité aux outils gratuits/open.** Un SaaS purement fermé rencontre une friction culturelle (éthos Joliebulle/Brewtarget/Beerxcel).
+- **Fortes attentes de présence du mainteneur + durabilité des données.** Les développeurs actifs sont récompensés ; les
+  morts d'outils/pannes ont créé une réelle anxiété → portabilité + fiabilité sont des leviers de confiance.
+- **Où se rassemble la communauté FR :**
+  - **Forum (brassageamateur.com)** = hub structuré — et héberge sa propre app de partage de recettes, c'est donc un
+    *concurrent direct partiel* sur l'axe du partage.
+  - **Facebook** = couche informelle à fort volume (groupe national « brassage.amateur.biere » + groupes régionaux).
+  - **Discord** = couche support/discussion (Joliebulle en animait un apprécié), pas un dépôt de recettes.
+  - **YouTube** chaînes FR actives (Bricole Brassicole, Brassage TV, Craft My Brewery) — partenariat/marketing, orienté tutoriel.
+  - **Clubs/associations locaux** (ABAHF, Fauve Homebrew Club) = vraie couche en présentiel.
 
-Sources: https://www.brassageamateur.com/wiki/Beerxml · https://fr-fr.facebook.com/brassage.amateur.biere/ · https://abahf.ovh/ · https://www.youtube.com/c/BricoleBrassicole
+Sources : https://www.brassageamateur.com/wiki/Beerxml · https://fr-fr.facebook.com/brassage.amateur.biere/ · https://abahf.ovh/ · https://www.youtube.com/c/BricoleBrassicole
 
-## Does FR confirm or diverge from EN?
+## La FR confirme-t-elle ou diverge-t-elle de l'EN ?
 
-Mostly **CONFIRMS** (a good saturation signal), with FR-specific sharpenings:
+Majoritairement **CONFIRME** (bon signal de saturation), avec des affinages spécifiques à la FR :
 
-- Clone demand high → **confirmed**, arguably stronger/more legitimate in FR.
-- Sharing wanted → **confirmed**, BUT already partially served in FR (forum BrewRecipes + Little Bock) →
-  differentiation must come from **versioning + credit/attribution + auto-rescale**, not "sharing exists."
-- Attribution-sensitivity → **only weakly corroborated in FR** (strong in EN). **Do not assume it transfers —
-  test explicitly in interviews.**
-- Organization/tracking hacked together → **confirmed**; no FR tool unifies organization + versioned sharing + tracking.
-- Don't compete on calculation → **confirmed and reinforced** (calc is table-stakes; tools already trusted/distrusted on it).
+- Demande de clones élevée → **confirmée**, sans doute plus forte/plus légitime en FR.
+- Partage souhaité → **confirmé**, MAIS déjà partiellement servi en FR (BrewRecipes du forum + Little Bock) →
+  la différenciation doit venir du **versionnage + crédit/attribution + ré-échelonnage automatique**, pas de « le partage existe ».
+- Sensibilité à l'attribution → **seulement faiblement corroborée en FR** (forte en EN). **Ne pas supposer qu'elle se
+  transfère — la tester explicitement en entretiens.**
+- Organisation/suivi bricolés → **confirmé** ; aucun outil FR n'unifie organisation + partage versionné + suivi.
+- Ne pas se battre sur le calcul → **confirmé et renforcé** (le calcul est un prérequis ; les outils sont déjà jugés fiables/non fiables là-dessus).
 
-**FR-specific strategic adds:** (1) French-first UI is a real competitive lever; (2) Joliebulle's 2025 death =
-displaced users seeking a home; (3) data durability + BeerXML portability are trust-critical after recent FR tool failures.
+**Ajouts stratégiques spécifiques FR :** (1) une interface « français d'abord » est un vrai levier concurrentiel ;
+(2) la mort de Joliebulle en 2025 = utilisateurs déplacés cherchant un point d'attache ; (3) la durabilité des données +
+la portabilité BeerXML sont critiques pour la confiance après les récents échecs d'outils FR.
 
-## Uncertainties flagged
-- BiboWeb unverified.
-- Joliebulle Gumroad purchasability post-shutdown unclear.
-- FR attribution-sensitivity under-evidenced — do not assume parity with EN.
-- FB group member counts not retrieved.
+## Incertitudes signalées
+- BiboWeb non vérifié.
+- Achetabilité Gumroad de Joliebulle post-fermeture incertaine.
+- Sensibilité FR à l'attribution sous-documentée — ne pas supposer la parité avec l'EN.
+- Nombres de membres des groupes FB non récupérés.

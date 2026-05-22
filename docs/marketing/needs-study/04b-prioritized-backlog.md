@@ -1,86 +1,88 @@
-# Prioritized Backlog — Needs → Features → Build Order
+# Backlog priorisé — Besoins → Fonctionnalités → Ordre de construction
 
-This page turns the desk findings into a **prioritized build order**: which real need each feature
-serves, how strong the opportunity is, how confident we are, and in what order to build.
+Cette page transforme les conclusions du desk research en un **ordre de construction priorisé** : quel besoin
+réel chaque fonctionnalité sert, à quel point l'opportunité est forte, à quel point nous sommes confiants, et
+dans quel ordre construire.
 
 ::: warning Read this first
-This ranking is built on **secondary research** (desk) — strong hypotheses, not field-confirmed truth.
-Two biases to keep in mind:
-1. The desk scan mostly probed **intermediate** pains (clone, sharing, sync), so it **under-weights the
-   beginner guided-assistant need** — which is real but evidenced only indirectly (the "I built my own
-   brew-day app" threads, the steep-UX complaints, the 40% newcomer inflow). Those rows are tagged
-   *under-probed* and the interviews must confirm them.
-2. The founder is a **beginner** building (first) for **beginners** — so we deliberately sequence
-   **assistant-first**, even where the raw desk score would put the intermediate clone wedge on top.
+Ce classement repose sur la **recherche secondaire** (desk) — des hypothèses solides, pas une vérité confirmée sur le terrain.
+Deux biais à garder à l'esprit :
+1. Le desk research a surtout sondé les points de douleur **intermédiaires** (clone, partage, synchronisation), il
+   **sous-pondère donc le besoin d'assistant guidé pour débutant** — réel mais étayé seulement indirectement (les fils
+   « j'ai construit ma propre application de jour de brassage », les plaintes sur une UX trop ardue, les 40 % de flux de
+   nouveaux arrivants). Ces lignes sont taguées *sous-sondé* et les entretiens doivent les confirmer.
+2. Le fondateur est un **débutant** qui construit (d'abord) pour des **débutants** — nous séquençons donc délibérément
+   **l'assistant en premier**, même là où le score brut du desk placerait le créneau de clone intermédiaire en tête.
 :::
 
-## Prioritization rule
+## Règle de priorisation
 
-> **Opportunity = Importance (how strong/frequent the need) × Under-served (how poorly incumbents do it).**
-> Then **sequence by journey stage**, starting with the beginner assistant (acquisition), because that is
-> the founder's accessible segment and the lowest-risk entry (a daily-useful utility beats a
-> community that needs a crowd to exist — cf. AHA Brew Guru's 2026 shutdown).
+> **Opportunité = Importance (force/fréquence du besoin) × Sous-servi (mauvaise qualité du traitement par les acteurs en place).**
+> Puis **séquencer par étape du parcours**, en commençant par l'assistant débutant (acquisition), parce que c'est
+> le segment accessible au fondateur et l'entrée la moins risquée (un utilitaire utile au quotidien bat une
+> communauté qui a besoin d'une foule pour exister — cf. l'arrêt d'AHA Brew Guru en 2026).
 
-**Confidence labels:** `validated` (strong, multi-source desk signal) · `hypothesis` (inferred, plausible)
-· `under-probed` (real but thinly evidenced — interviews must confirm).
+**Étiquettes de confiance :** `validé` (signal de desk fort et multi-sources) · `hypothèse` (déduit, plausible)
+· `sous-sondé` (réel mais faiblement étayé — les entretiens doivent confirmer).
 
-## The journey = the spine
+## Le parcours = la colonne vertébrale
 
 ```
-Stage 1 — BEGINNER (guided assistant)   →  ACQUISITION   →  the 4-step journey
-Stage 2 — REGULAR  (organize & track)   →  RETENTION
-Stage 3 — INTERMEDIATE (clone & share)  →  DEPTH         →  the desk's headline wedge
+Étape 1 — DÉBUTANT (assistant guidé)        →  ACQUISITION   →  le parcours en 4 étapes
+Étape 2 — RÉGULIER (organiser & suivre)     →  RÉTENTION
+Étape 3 — INTERMÉDIAIRE (cloner & partager) →  PROFONDEUR     →  le créneau phare du desk
 ```
 
-## Stage 1 — Beginner assistant · the 4-step journey (build first)
+## Étape 1 — Assistant débutant · le parcours en 4 étapes (construire en premier)
 
-| Need | Feature | Opportunity | Confidence |
+| Besoin | Fonctionnalité | Opportunité | Confiance |
 |---|---|---|---|
-| Don't ruin a brew; know what to do, when & why | **Guided step-by-step brew-day assistant** (mash/boil/cooling, timers, temps, the "why") | High × High = **High** | under-probed |
-| Succeed on the very first batch, no jargon | **Beginner-calibrated recipe catalog** (curated, IBU/ABV/volume shown) — journey step 1 | High × Med-High = **High** | hypothesis |
-| Know where my fermentation stands | **Fermentation tracking** (days, gravity, temperature, progress bar) — journey step 3 | High × Med = **Med-High** | validated |
-| Finish & celebrate | **Bottling + label + share with friends** — journey step 4 | Med × Med = **Med** | hypothesis |
-| Brewing happens offline (garage/cellar) | **Offline-tolerant**, no forced sync / no data duplication | High × High = **High** | validated |
-| Tools feel overwhelming | **Clean, uncluttered, playful UX** (the proven differentiator) | High × Med = **Med** (quality bar) | validated |
+| Ne pas rater un brassage ; savoir quoi faire, quand & pourquoi | **Assistant de jour de brassage guidé pas à pas** (empâtage/ébullition/refroidissement, minuteurs, températures, le « pourquoi ») | Élevé × Élevé = **Élevé** | sous-sondé |
+| Réussir dès le tout premier lot, sans jargon | **Catalogue de recettes calibré pour débutant** (organisé, IBU/ABV/volume affichés) — étape 1 du parcours | Élevé × Moyen-élevé = **Élevé** | hypothèse |
+| Savoir où en est ma fermentation | **Suivi de fermentation** (jours, densité, température, barre de progression) — étape 3 du parcours | Élevé × Moyen = **Moyen-élevé** | validé |
+| Terminer & célébrer | **Mise en bouteille + étiquette + partage avec des amis** — étape 4 du parcours | Moyen × Moyen = **Moyen** | hypothèse |
+| Le brassage se fait hors-ligne (garage/cave) | **Tolérant au hors-ligne**, pas de synchronisation forcée / pas de duplication des données | Élevé × Élevé = **Élevé** | validé |
+| Les outils donnent une impression de surcharge | **UX épurée, sans encombrement et ludique** (le différenciateur éprouvé) | Élevé × Moyen = **Moyen** (exigence de qualité) | validé |
 
-## Stage 2 — Regular brewer · organize & track (retention)
+## Étape 2 — Brasseur régulier · organiser & suivre (rétention)
 
-| Need | Feature | Opportunity | Confidence |
+| Besoin | Fonctionnalité | Opportunité | Confiance |
 |---|---|---|---|
-| My recipes are scattered (notebooks, sheets) | **Recipe organization & search** (tags by style/ingredient/outcome) | High × Med-High = **High** | validated |
-| Remember what I did across batches | **Batch history / brew log** with reviewable notes | High × Med = **Med-High** | validated |
-| Don't trap my data | **BeerXML / BeerJSON import-export** (no lock-in, lossless) | High × Med = **Med-High** | validated |
-| Reliability / don't lose my history | **Durable storage, no data loss** (a trust message, esp. FR after Joliebulle/Little Bock) | High × Med = **Med-High** | validated |
+| Mes recettes sont éparpillées (carnets, feuilles) | **Organisation & recherche de recettes** (tags par style/ingrédient/résultat) | Élevé × Moyen-élevé = **Élevé** | validé |
+| Me souvenir de ce que j'ai fait d'un lot à l'autre | **Historique de lots / journal de brassage** avec notes consultables | Élevé × Moyen = **Moyen-élevé** | validé |
+| Ne pas enfermer mes données | **Import-export BeerXML / BeerJSON** (pas de verrouillage, sans perte) | Élevé × Moyen = **Moyen-élevé** | validé |
+| Fiabilité / ne pas perdre mon historique | **Stockage durable, pas de perte de données** (un message de confiance, surtout en FR après Joliebulle/Little Bock) | Élevé × Moyen = **Moyen-élevé** | validé |
 
-## Stage 3 — Intermediate · clone & community (depth — the desk wedge)
+## Étape 3 — Intermédiaire · cloner & communauté (profondeur — le créneau du desk)
 
-| Need | Feature | Opportunity | Confidence |
+| Besoin | Fonctionnalité | Opportunité | Confiance |
 |---|---|---|---|
-| Recreate a specific beer I love | **Searchable, curated clone repository** | Very High × High = **Very High** | validated |
-| Published clones are wrong / static | **Versioned, community-validated clones** (the iteration loop nobody owns) | High × Very High = **High** | hypothesis |
-| Share without losing authorship | **Sharing with author credit** (multi-group, bulk export) | Med-High × High = **High** | validated (EN) / hypothesis (FR) |
-| A shared recipe doesn't fit my kit | **Auto-rescale to the recipient's equipment** | Med × High = **Med-High** | hypothesis |
+| Recréer une bière précise que j'aime | **Dépôt de clones consultable et organisé** | Très élevé × Élevé = **Très élevé** | validé |
+| Les clones publiés sont erronés / statiques | **Clones versionnés, validés par la communauté** (la boucle d'itération que personne ne possède) | Élevé × Très élevé = **Élevé** | hypothèse |
+| Partager sans perdre la paternité | **Partage avec crédit de l'auteur** (multi-groupe, export en lot) | Moyen-élevé × Élevé = **Élevé** | validé (EN) / hypothèse (FR) |
+| Une recette partagée ne correspond pas à mon matériel | **Remise à l'échelle automatique vers l'équipement du destinataire** | Moyen × Élevé = **Moyen-élevé** | hypothèse |
 
-**Cross-cutting (all stages):** a **fair, generous free tier** — paywall fatigue is one of the strongest
-desk signals; it's a pricing principle, not a feature. Don't compete on calculation (incumbents win there).
+**Transversal (toutes les étapes) :** une **offre gratuite juste et généreuse** — la fatigue des paywalls est l'un
+des signaux les plus forts du desk ; c'est un principe de tarification, pas une fonctionnalité. Ne pas concurrencer
+sur le calcul (les acteurs en place y gagnent).
 
-## Build order (the answer to "what do we implement, and in what order")
+## Ordre de construction (la réponse à « qu'implémente-t-on, et dans quel ordre »)
 
-1. **P0 — the assistant entry (Stage 1):** guided brew-day assistant + beginner catalog + fermentation
-   tracking + clean UX + offline tolerance. *This is the wedge we ship and validate first.*
-2. **P1 — retention (Stage 2):** organization & search, batch history, BeerXML import/export, durability.
-3. **P2 — depth (Stage 3):** clone repository → versioned clones → credited sharing → auto-rescale.
+1. **P0 — l'entrée par l'assistant (Étape 1) :** assistant de jour de brassage guidé + catalogue débutant + suivi
+   de fermentation + UX épurée + tolérance au hors-ligne. *C'est le créneau que nous livrons et validons en premier.*
+2. **P1 — rétention (Étape 2) :** organisation & recherche, historique de lots, import/export BeerXML, durabilité.
+3. **P2 — profondeur (Étape 3) :** dépôt de clones → clones versionnés → partage crédité → remise à l'échelle automatique.
 
-The clone repository scores **Very High** on raw opportunity, but it lives in Stage 3 because it serves
-intermediates and needs a crowd. We **enter** by the assistant and **grow into** the community — "the app
-that grows with the brewer."
+Le dépôt de clones obtient un score **Très élevé** en opportunité brute, mais il vit à l'Étape 3 parce qu'il sert
+les intermédiaires et a besoin d'une foule. Nous **entrons** par l'assistant et **grandissons vers** la communauté —
+« l'application qui grandit avec le brasseur ».
 
-## What the interviews must settle (ties to the [interview guide](/05-interview-guide))
+## Ce que les entretiens doivent trancher (liens vers le [guide d'entretien](/05-interview-guide))
 
-- **The biggest open risk:** is the **beginner assistant** truly a strong, willing-to-pay-attention need,
-  or do brewers "graduate" past it too fast to build a business on? (the *under-probed* rows above).
-- Whether **attribution-sensitivity** holds in FR as it does in EN.
-- Whether **versioning + auto-rescale** is felt as a real need or a nice-to-have.
-- Whether intermediates would **switch** from an entrenched tool.
+- **Le plus grand risque ouvert :** l'**assistant débutant** est-il vraiment un besoin fort, qui mérite qu'on s'y attarde,
+  ou les brasseurs « passent-ils ce stade » trop vite pour en faire une activité viable ? (les lignes *sous-sondé* ci-dessus).
+- Si la **sensibilité à la paternité** tient en FR comme en EN.
+- Si le **versioning + la remise à l'échelle automatique** est ressenti comme un besoin réel ou un simple agrément.
+- Si les intermédiaires **changeraient** d'un outil retranché.
 
-Until these are answered, treat the order above as the **best current bet**, not a settled roadmap.
+Tant que ces questions ne sont pas tranchées, traitez l'ordre ci-dessus comme le **meilleur pari actuel**, et non comme une feuille de route arrêtée.

@@ -1,63 +1,65 @@
-# Marketing Needs Study — Method
+# Étude des besoins marketing — Méthode
 
-## Why this study exists
+## Pourquoi cette étude existe
 
-No formal user-needs study had ever been done for Brasse-Bouillon. Before investing further
-in features and positioning, we run a proper marketing needs study to identify what
-intermediate homebrewers actually want, validate (or kill) our differentiating hypothesis,
-and ground product decisions in evidence rather than assumption.
+Aucune étude formelle des besoins utilisateurs n'avait jamais été menée pour Brasse-Bouillon. Avant
+d'investir davantage dans les fonctionnalités et le positionnement, nous menons une véritable étude
+des besoins marketing afin d'identifier ce que les brasseurs amateurs intermédiaires veulent
+réellement, de valider (ou d'écarter) notre hypothèse différenciante, et d'ancrer les décisions
+produit dans des preuves plutôt que dans des suppositions.
 
-## Strategic frame (decided during the kickoff debrief)
+## Cadre stratégique (décidé lors du débrief de lancement)
 
-- **Primary target (beachhead):** regular / intermediate homebrewers; international / English-speaking
-  first, French also in scope.
-- **Product language:** bilingual FR + EN (implies an i18n effort tracked as a separate epic).
-- **Positioning hypothesis:**
-  - **Hook (hero):** a community for cloning and sharing beer recipes.
-  - **Foundation (table-stakes):** recipe organization + brew/fermentation tracking.
-- **Starting channels (2):** r/Homebrewing (users) + Indie Hackers (founder build-in-public);
-  LinkedIn kept in French for the founder's reconversion narrative.
+- **Cible principale (tête de pont) :** brasseurs amateurs réguliers / intermédiaires ; international /
+  anglophones d'abord, le français étant également dans le périmètre.
+- **Langue du produit :** bilingue FR + EN (ce qui implique un effort d'i18n suivi comme un epic distinct).
+- **Hypothèse de positionnement :**
+  - **Accroche (hero) :** une communauté pour cloner et partager des recettes de bière.
+  - **Socle (table-stakes) :** organisation des recettes + suivi du brassage / de la fermentation.
+- **Canaux de départ (2) :** r/Homebrewing (utilisateurs) + Indie Hackers (fondateur en build-in-public) ;
+  LinkedIn conservé en français pour le récit de reconversion du fondateur.
 
-## Research design
+## Conception de la recherche
 
-Two phases, cheap-to-expensive:
+Deux phases, du moins coûteux au plus coûteux :
 
-1. **Secondary research (desk research) — DONE.** Mine what already exists publicly: competitor
-   app reviews, Reddit, homebrewing forums. Cheap, fast, generates hypotheses.
-2. **Primary research — TODO.** Talk to real brewers: a structured interview guide
-   (via the `customer-research` skill) + 10-15 interviews to confirm or refute the desk findings.
+1. **Recherche secondaire (desk research) — FAIT.** Exploiter ce qui existe déjà publiquement : avis sur
+   les applications concurrentes, Reddit, forums de brassage amateur. Peu coûteux, rapide, générateur
+   d'hypothèses.
+2. **Recherche primaire — À FAIRE.** Parler à de vrais brasseurs : un guide d'entretien structuré
+   (via le skill `customer-research`) + 10-15 entretiens pour confirmer ou infirmer les conclusions du desk research.
 
-The order matters: secondary first to build hypotheses, primary second to confirm with real people.
+L'ordre compte : le secondaire d'abord pour construire des hypothèses, le primaire ensuite pour confirmer auprès de vraies personnes.
 
-## Secondary research execution
+## Exécution de la recherche secondaire
 
-Six desk passes across source families:
+Six passes de desk research à travers des familles de sources :
 
-- `01-desk-competitors.md` — reviews of Brewfather, BeerSmith, Brewer's Friend, BrewBuddy, and adjacent apps.
-- `02-desk-reddit.md` — r/Homebrewing recurring questions and pains.
+- `01-desk-competitors.md` — avis sur Brewfather, BeerSmith, Brewer's Friend, BrewBuddy et applications adjacentes.
+- `02-desk-reddit.md` — questions et points de douleur récurrents sur r/Homebrewing.
 - `03-desk-forums.md` — HomeBrewTalk (EN) + brassageamateur.com (FR).
-- `03b-desk-french.md` — dedicated French-language pass (FR blogs, tools, community channels).
-- `03c-desk-market-data.md` — quantitative layer (market size, downloads, recipe-DB sizes, uncovered competitors).
-- `03d-desk-french-market.md` — snowball pass on the French homebrewer population / market (fills the FR data gap).
-- `04-synthesis.md` — consolidated needs map + market context + one-sentence positioning statement.
-- `05-interview-guide.md` — bilingual primary-research instrument (JTBD interview guide).
-- `06-report.md` — final report (epic closure deliverable; written after primary research).
+- `03b-desk-french.md` — passe dédiée en langue française (blogs FR, outils, canaux communautaires).
+- `03c-desk-market-data.md` — couche quantitative (taille du marché, téléchargements, taille des bases de recettes, concurrents non couverts).
+- `03d-desk-french-market.md` — passe en boule de neige sur la population / le marché français des brasseurs amateurs (comble le manque de données FR).
+- `04-synthesis.md` — carte consolidée des besoins + contexte marché + énoncé de positionnement en une phrase.
+- `05-interview-guide.md` — instrument de recherche primaire bilingue (guide d'entretien JTBD).
+- `06-report.md` — rapport final (livrable de clôture de l'epic ; rédigé après la recherche primaire).
 
-## Method limitations (read before trusting the numbers)
+## Limites de la méthode (à lire avant de faire confiance aux chiffres)
 
-- **Reddit and HomeBrewTalk block automated fetching (HTTP 403).** r/Homebrewing findings are
-  *inferred* from adjacent forums and from the prevalence of clone-recipe compilations, not from
-  direct thread reads or upvote counts. HomeBrewTalk findings rely on search-result snippets.
-  brassageamateur.com was fetched directly.
-- **Frequency signals are qualitative** (recurrence of distinct threads / reviews), not scraped counts.
-  Treat rankings as directional.
-- **Forums over-represent people who are stuck** — a strong hypothesis generator, not proof.
-  This is exactly why primary research (interviews) follows.
-- To harden: read a sample of r/Homebrewing threads via an authenticated/API path and tag posts by
-  theme for true counts.
+- **Reddit et HomeBrewTalk bloquent la récupération automatisée (HTTP 403).** Les conclusions sur
+  r/Homebrewing sont *déduites* de forums adjacents et de la prévalence des compilations de recettes de
+  clones, et non de lectures directes de fils ou de comptages de votes. Les conclusions sur HomeBrewTalk
+  reposent sur des extraits de résultats de recherche. brassageamateur.com a été récupéré directement.
+- **Les signaux de fréquence sont qualitatifs** (récurrence de fils / avis distincts), et non des comptages
+  scrapés. Traitez les classements comme indicatifs.
+- **Les forums sur-représentent les personnes qui sont bloquées** — un puissant générateur d'hypothèses,
+  pas une preuve. C'est exactement pourquoi la recherche primaire (entretiens) suit.
+- Pour consolider : lire un échantillon de fils r/Homebrewing via un accès authentifié / API et taguer les
+  publications par thème pour obtenir de vrais comptages.
 
-## Status
+## Statut
 
-- Secondary research: complete (captured in `01`–`03d`, consolidated in `04`).
-- Primary research: not started.
-- Final report: not started.
+- Recherche secondaire : terminée (consignée dans `01`–`03d`, consolidée dans `04`).
+- Recherche primaire : non commencée.
+- Rapport final : non commencé.

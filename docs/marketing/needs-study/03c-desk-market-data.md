@@ -1,79 +1,79 @@
-# Desk Research — Quantitative / Market Data
+# Desk research — Données quantitatives / de marché
 
-A quantitative layer added on top of the qualitative passes. **Read the reliability flag on every
-figure.** Legend: **[HIGH]** trade-body/platform-published · **[MED]** third-party analytics estimate
-(Similarweb/AppBrain) · **[LOW]** blog/secondary estimate · **[N/F]** not found (do not invent).
+Une couche quantitative ajoutée par-dessus les passes qualitatives. **Lire le drapeau de fiabilité sur chaque
+chiffre.** Légende : **[HIGH]** publié par un organisme professionnel/une plateforme · **[MED]** estimation
+analytique tierce (Similarweb/AppBrain) · **[LOW]** estimation de blog/secondaire · **[N/F]** non trouvé (ne pas inventer).
 
-## Market size / population
+## Taille du marché / population
 
-| Metric | Figure | Reliability | Source |
+| Métrique | Chiffre | Fiabilité | Source |
 |---|---|---|---|
-| US homebrewers | ~1.1–1.2 million | [HIGH] | AHA / Brewers Association (2015, 2017) |
-| US homebrew production | >1.4M barrels/yr (~1% of US beer) | [HIGH] | AHA (2017) |
-| AHA paid membership | "more than 20,000" (some pages 30,000+) | [MED] (AHA pages inconsistent) | AHA |
-| US homebrew supply shops | 815 (2015) | [HIGH] | AHA economic study |
-| US homebrew direct shop revenue | $764M (2015) | [HIGH] | AHA economic study |
-| US homebrew total economic impact | $1.225B incl. multiplier; ~11,672 jobs | [HIGH] | AHA economic study |
-| Registered AHA homebrew clubs | 2,100+ (US + worldwide) | [HIGH] | AHA Club Connection |
-| **France / Europe homebrewer count** | **NOT FOUND** | [N/F] | — genuine data gap |
+| Brasseurs amateurs US | ~1,1-1,2 million | [HIGH] | AHA / Brewers Association (2015, 2017) |
+| Production homebrew US | >1,4 M de barils/an (~1 % de la bière US) | [HIGH] | AHA (2017) |
+| Adhésions payantes AHA | « more than 20,000 » (certaines pages 30 000+) | [MED] (pages AHA incohérentes) | AHA |
+| Magasins de fournitures homebrew US | 815 (2015) | [HIGH] | étude économique AHA |
+| Revenu direct des magasins homebrew US | 764 M$ (2015) | [HIGH] | étude économique AHA |
+| Impact économique total du homebrew US | 1,225 Md$ effet multiplicateur inclus ; ~11 672 emplois | [HIGH] | étude économique AHA |
+| Clubs de homebrew enregistrés AHA | 2 100+ (US + monde) | [HIGH] | AHA Club Connection |
+| **Nombre de brasseurs amateurs France / Europe** | **NON TROUVÉ** | [N/F] | — véritable lacune de données |
 
-**Equipment / machine market value** — report scopes diverge wildly; directional only:
-- Home-brewing **equipment** (hobby): ~$2.08B (2023) → $3.38B (2030), ~7.65% CAGR [MED]. **Use this as the TAM anchor.**
-- Home-brewing **machine** reports ($26B–$85B) almost certainly bundle countertop appliances/commercial kit — **not comparable**; do not cite as hobby TAM.
+**Valeur du marché de l'équipement / des machines** — les périmètres des rapports divergent énormément ; à titre indicatif seulement :
+- **Équipement** de brassage maison (loisir) : ~2,08 Md$ (2023) → 3,38 Md$ (2030), ~7,65 % de TCAC [MED]. **À utiliser comme ancrage de TAM.**
+- Rapports sur les **machines** de brassage maison (26 Md$-85 Md$) regroupent presque certainement les appareils de comptoir/le matériel commercial — **non comparable** ; ne pas citer comme TAM du loisir.
 
-## Demand signals
+## Signaux de demande
 
-- **Google Trends** — [N/F] for indexed values this pass (needs a manual capture). Qualitative proxy:
-  clone-recipe content is a large, evergreen vertical (BYO 300-recipe clone book; Beer Maverick "100+
-  official brewery clones"; Northern Brewer/Homebrew Finds clone hubs) → durable, non-seasonal demand [LOW].
-- **App scale:**
-  - Brewfather ≈ 230,000 Play downloads, ~510/day, 4.9/5 [MED].
-  - BeerSmith Recipe Cloud = 43,000 registered users; claims "world's largest single recipe repository" [HIGH/MED].
-  - Brewer's Friend ≈ 14,000 Android downloads [MED].
-- **Public recipe-DB sizes (differentiator-relevant):**
-  - Brewer's Friend = **320,000+ public recipes** [HIGH].
-  - Brewfather library = "thousands", no exact count [MED/N-F].
-  - Grainfather app = "1000s" [MED]. Little Bock (FR) = no published count [N/F].
+- **Google Trends** — [N/F] pour les valeurs indexées à cette passe (nécessite une capture manuelle). Proxy qualitatif :
+  le contenu de recettes de clones est une verticale vaste et pérenne (livre de 300 recettes de clones de BYO ; Beer Maverick
+  « 100+ official brewery clones » ; hubs de clones Northern Brewer/Homebrew Finds) → demande durable, non saisonnière [LOW].
+- **Échelle des apps :**
+  - Brewfather ≈ 230 000 téléchargements Play, ~510/jour, 4,9/5 [MED].
+  - BeerSmith Recipe Cloud = 43 000 utilisateurs enregistrés ; revendique « world's largest single recipe repository » [HIGH/MED].
+  - Brewer's Friend ≈ 14 000 téléchargements Android [MED].
+- **Tailles des bases de recettes publiques (pertinent pour le différenciateur) :**
+  - Brewer's Friend = **320 000+ recettes publiques** [HIGH].
+  - Bibliothèque Brewfather = « thousands », pas de compte exact [MED/N-F].
+  - App Grainfather = « 1000s » [MED]. Little Bock (FR) = aucun compte publié [N/F].
 
-**Takeaway:** incumbents already host large public recipe corpora (Brewer's Friend 320k+) — but they are
-*repositories with weak social / clone-lineage features*. The cloning-and-sharing community angle is not
-their core. That gap is the quantitatively-supportable wedge.
+**À retenir :** les acteurs en place hébergent déjà de larges corpus publics de recettes (Brewer's Friend 320k+) — mais ce
+sont des *dépôts aux fonctionnalités sociales / de lignée de clones faibles*. L'angle communauté de clonage-et-partage n'est
+pas leur cœur. Cette lacune est le coin défendable quantitativement.
 
-## Uncovered competitors / adjacent products
+## Concurrents découverts / produits adjacents
 
-| Product | What it is | Status | Clone / community / sharing? |
+| Produit | Ce que c'est | Statut | Clone / communauté / partage ? |
 |---|---|---|---|
-| Grainfather Community app | Recipe builder + brew controller, hardware-tied; 1000s recipes; device integrations | Active, hardware-led | Yes, but ecosystem-gated |
-| Brew Ninja | Commercial **brewery management** (B2B) | Active | No (pro/commercial) |
-| BrewBench | Open-source brew **controller / fermentation monitor** | Active, niche/DIY | No |
-| Captain Brew | Free recipe builder + discovery + calculators | Active | Partial (discovery; no clone lineage) |
-| Plaato / Brewbrain Float / Tilt / iSpindel | Fermentation telemetry devices + apps | Active hardware | No (telemetry only) |
-| Brewspy / monitor.beer | Aggregators for fermentation-device data | Active | No |
-| BeerSmith Recipe Cloud | Web recipe repository (43k users) | Active | Partial (repo, weak social) |
-| Brewist / Brewterix | named but [N/F] — no reliable info; do not characterize | — | — |
+| Grainfather Community app | Créateur de recettes + contrôleur de brassage, lié au matériel ; milliers de recettes ; intégrations d'appareils | Actif, mené par le matériel | Oui, mais verrouillé à l'écosystème |
+| Brew Ninja | **Gestion de brasserie** commerciale (B2B) | Actif | Non (pro/commercial) |
+| BrewBench | **Contrôleur / moniteur de fermentation** open-source | Actif, niche/DIY | Non |
+| Captain Brew | Créateur de recettes gratuit + découverte + calculateurs | Actif | Partiel (découverte ; pas de lignée de clones) |
+| Plaato / Brewbrain Float / Tilt / iSpindel | Appareils de télémétrie de fermentation + apps | Matériel actif | Non (télémétrie seulement) |
+| Brewspy / monitor.beer | Agrégateurs pour les données d'appareils de fermentation | Actif | Non |
+| BeerSmith Recipe Cloud | Dépôt de recettes web (43k utilisateurs) | Actif | Partiel (dépôt, social faible) |
+| Brewist / Brewterix | nommés mais [N/F] — aucune info fiable ; ne pas caractériser | — | — |
 
-**Pattern:** the fermentation-device category is **adjacent, not competitive** (telemetry, not recipe
-community). The recipe-community space is genuinely thin beyond Brewer's Friend, BeerSmith Cloud,
-Brewfather — and none lead with **clone lineage / social cloning** as their headline.
+**Schéma :** la catégorie des appareils de fermentation est **adjacente, non concurrente** (télémétrie, pas communauté de
+recettes). L'espace de la communauté de recettes est réellement maigre au-delà de Brewer's Friend, BeerSmith Cloud,
+Brewfather — et aucun ne met en avant la **lignée de clones / le clonage social** comme accroche.
 
-## Reddit numbers
+## Chiffres Reddit
 
-- **r/Homebrewing ≈ 1.2M members** [MED]. Notably ≈ the entire AHA US-homebrewer estimate — the sub
-  alone is roughly the size of the US homebrew population, indicating strong international + lapsed-hobbyist reach.
-- Thread-level vote/comment counts: [N/F] this pass (Reddit not directly fetchable).
+- **r/Homebrewing ≈ 1,2 M de membres** [MED]. Notamment ≈ l'estimation entière des brasseurs amateurs US de l'AHA — le
+  subreddit à lui seul fait à peu près la taille de la population homebrew US, ce qui indique une forte portée internationale + de loisirs lapsés.
+- Comptes de votes/commentaires au niveau des fils : [N/F] à cette passe (Reddit non directement récupérable).
 
-## Adjacent markets (brief)
+## Marchés adjacents (bref)
 
-- **Germany** — among Europe's largest homebrew scenes. **MaischeMalzundMehr** (recipe DB) and
-  **Hobbybrauer.de** (forum) are heavily cross-referenced and Brewfather-importable. No published
-  counts [N/F]. A **future-expansion / localization signal** (DE after FR+EN), not an immediate competitor.
+- **Allemagne** — parmi les plus grandes scènes homebrew d'Europe. **MaischeMalzundMehr** (base de recettes) et
+  **Hobbybrauer.de** (forum) sont fortement référencés mutuellement et importables dans Brewfather. Pas de comptes
+  publiés [N/F]. Un **signal d'expansion future / de localisation** (DE après FR+EN), pas un concurrent immédiat.
 
-## Data gaps to state honestly in the report
+## Lacunes de données à énoncer honnêtement dans le rapport
 
-1. France/Europe homebrewer population — **not found**; state explicitly, do not estimate.
-2. Google Trends indexed values — need a manual capture.
-3. Brewfather / Little Bock exact recipe-library counts — not published.
-4. Equipment-vs-machine market reports disagree ~40x by scope; only ~$2B hobby-equipment / ~7.5% CAGR is safe to cite.
+1. Population des brasseurs amateurs France/Europe — **non trouvée** ; l'énoncer explicitement, ne pas estimer.
+2. Valeurs indexées Google Trends — nécessitent une capture manuelle.
+3. Comptes exacts des bibliothèques de recettes Brewfather / Little Bock — non publiés.
+4. Les rapports équipement-vs-machines divergent d'environ 40x selon le périmètre ; seuls les ~2 Md$ d'équipement-loisir / ~7,5 % de TCAC sont sûrs à citer.
 
 ## Sources
 - https://homebrewersassociation.org/news/economic-impact-homebrewing/

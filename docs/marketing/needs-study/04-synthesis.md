@@ -1,104 +1,112 @@
-# Synthesis — Needs Map & Positioning
+# Synthèse — Carte des besoins & Positionnement
 
-Consolidation of six desk-research passes (`01` competitors, `02` Reddit, `03` forums, `03b` French
-sources, `03c` market/quant data, `03d` French market). This is a hypothesis set built from secondary
-research; it is **not yet confirmed** by primary research (interviews). Read `00-method.md` for
-limitations. Later passes largely **confirmed** earlier findings (a saturation signal) while adding the
-FR-specific and market-context refinements below.
+Consolidation de six passes de desk research (`01` concurrents, `02` Reddit, `03` forums, `03b` sources
+françaises, `03c` données marché / quantitatives, `03d` marché français). Il s'agit d'un ensemble
+d'hypothèses construit à partir de la recherche secondaire ; il n'est **pas encore confirmé** par la
+recherche primaire (entretiens). Lire `00-method.md` pour les limites. Les passes ultérieures ont
+largement **confirmé** les conclusions antérieures (un signal de saturation) tout en ajoutant les
+raffinements spécifiques au marché FR et au contexte marché ci-dessous.
 
-## Headline
+## Message clé
 
-The differentiating hypothesis — **a community for cloning and sharing recipes** — is **supported**
-across all six desk passes, and **sharpened**: the defensible wedge is not "social" or "clone list"
-alone, but their intersection.
+L'hypothèse différenciante — **une communauté pour cloner et partager des recettes** — est **soutenue**
+à travers les six passes de desk research, et **affinée** : le créneau défendable n'est pas le « social »
+ou la « liste de clones » seuls, mais leur intersection.
 
-## The sharpened wedge
+## Le créneau affiné
 
-> The place where the community collaboratively dials in the clone of a specific beer, with a
-> recipe that is **versioned, credited to its authors, and auto-rescaled** to each brewer's equipment.
+> L'endroit où la communauté met au point de manière collaborative le clone d'une bière précise, avec une
+> recette **versionnée, créditée à ses auteurs et automatiquement remise à l'échelle** de l'équipement de chaque brasseur.
 
-No incumbent owns this. Today the market splits into:
-- **Static clone lists** (AHA, Beer Maverick, BrewDog DIY Dog) — no iteration loop, no rescaling.
-- **Calculators with a recipe library** (Brewfather, Brewer's Friend, BeerSmith) — publishing
-  paywalled, sharing strips authorship, no conversation around a recipe.
+Aucun acteur en place ne possède cela. Aujourd'hui, le marché se divise en :
+- **Listes de clones statiques** (AHA, Beer Maverick, BrewDog DIY Dog) — pas de boucle d'itération, pas de remise à l'échelle.
+- **Calculateurs avec une bibliothèque de recettes** (Brewfather, Brewer's Friend, BeerSmith) — publication
+  derrière un paywall, le partage supprime la paternité, aucune conversation autour d'une recette.
 
-## Needs map (ranked by signal, with hero/foundation tag)
+## Carte des besoins (classés par signal, avec étiquette hero/socle)
 
-| # | Need | Signal | Role |
+| # | Besoin | Signal | Rôle |
 |---|---|---|---|
-| 1 | Searchable, curated **clone** repository for specific beers | Very high | **Hero** |
-| 2 | **Versioned / community-validated** clones (not a static, often-wrong PDF) | High | **Hero** |
-| 3 | Low-friction **sharing with author credit** (multi-group, bulk, attribution kept) | Med-high | **Hero** |
-| 4 | Auto **rescaling** of a shared recipe to the recipient's equipment | Medium | Hero enabler |
-| 5 | Reliable **organization & search** (tags by style/ingredient/outcome) | High | Foundation |
-| 6 | Solid **brew-day / fermentation tracking** (logs, notes, history) | High | Foundation |
-| 7 | **Frictionless sync + offline** without paying or duplicating data | Very high | Foundation / table-stakes |
-| 8 | **Fair pricing** (subscription/paywall fatigue; crippled free tiers) | Very high | Table-stakes |
-| 9 | **Data portability** — BeerXML/BeerJSON import/export, no lock-in, no data loss | High | Table-stakes |
-| 10 | Modern, uncluttered **mobile UX** | Frequent | Table-stakes |
+| 1 | Dépôt **de clones** consultable et organisé pour des bières précises | Très élevé | **Hero** |
+| 2 | Clones **versionnés / validés par la communauté** (et non un PDF statique, souvent erroné) | Élevé | **Hero** |
+| 3 | **Partage à faible friction avec crédit de l'auteur** (multi-groupe, en lot, paternité conservée) | Moyen-élevé | **Hero** |
+| 4 | **Remise à l'échelle** automatique d'une recette partagée vers l'équipement du destinataire | Moyen | Facilitateur hero |
+| 5 | **Organisation & recherche** fiables (tags par style / ingrédient / résultat) | Élevé | Socle |
+| 6 | **Suivi de jour de brassage / fermentation** solide (journaux, notes, historique) | Élevé | Socle |
+| 7 | **Synchronisation + hors-ligne sans friction** sans payer ni dupliquer les données | Très élevé | Socle / table-stakes |
+| 8 | **Tarification juste** (fatigue des abonnements/paywalls ; offres gratuites bridées) | Très élevé | Table-stakes |
+| 9 | **Portabilité des données** — import/export BeerXML/BeerJSON, pas de verrouillage, pas de perte de données | Élevé | Table-stakes |
+| 10 | **UX mobile** moderne et épurée | Fréquent | Table-stakes |
 
-Heroes 1-4 are where Brasse-Bouillon can win. 5-10 are required to be credible and to retain, but
-do not differentiate (incumbents already do most, and win on calculation).
+Les hero 1-4 sont là où Brasse-Bouillon peut gagner. Les 5-10 sont indispensables pour être crédible et
+fidéliser, mais ne différencient pas (les acteurs en place font déjà la plupart, et gagnent sur le calcul).
 
-## What the evidence says about each risky belief
+## Ce que les preuves disent de chaque croyance à risque
 
-- **Do brewers want to clone specific beers?** Yes — strong, durable, emotionally-driven. *Validated.*
-- **Will they share their own recipes (not just consume)?** Net-positive culture, but with a
-  consumption skew and a hard condition: **attribution/credit must be preserved**. *Plausible, to confirm in interviews.*
-- **Is the need already met elsewhere?** No — clones are wrong/static, sharing tools strip authorship
-  and paywall publishing, and there's no conversation layer. *Gap is real.*
-- **Would they switch tools?** Risky — incumbents are entrenched on calculation and own the user's
-  history. Mitigation: don't fight on calc; lead with the clone/community loop + BeerXML import to
-  lower switching cost. *Highest-risk belief — test explicitly.*
+- **Les brasseurs veulent-ils cloner des bières précises ?** Oui — fort, durable, porté par l'émotion. *Validé.*
+- **Partageront-ils leurs propres recettes (et pas seulement consommer) ?** Culture globalement positive, mais
+  avec un biais vers la consommation et une condition impérative : **la paternité / le crédit doit être préservé**. *Plausible, à confirmer en entretiens.*
+- **Le besoin est-il déjà satisfait ailleurs ?** Non — les clones sont erronés/statiques, les outils de partage
+  suppriment la paternité et mettent la publication derrière un paywall, et il n'y a pas de couche de conversation. *L'écart est réel.*
+- **Changeraient-ils d'outil ?** Risqué — les acteurs en place sont retranchés sur le calcul et possèdent
+  l'historique de l'utilisateur. Atténuation : ne pas se battre sur le calcul ; mener avec la boucle clone/communauté
+  + l'import BeerXML pour abaisser le coût de changement. *Croyance la plus risquée — à tester explicitement.*
 
-## Strategic guardrails (from the evidence)
+## Garde-fous stratégiques (issus des preuves)
 
-- **Don't compete on calculation.** Moat = curation + community + reliability + fair pricing + interop.
-- **Frame community as connective tissue around clone-sharing**, not standalone social
-  (cf. AHA Brew Guru community app sunset Feb 2026).
-- **Bilingual ≠ duplicated.** Localize clone seed-content per region; respect the FR audience's
-  higher price-sensitivity and expectation of a present maintainer.
-- **Watch Build-A-Beer** (AI clone generation + share) — the closest direct competitor to the wedge.
+- **Ne pas concurrencer sur le calcul.** Le rempart = curation + communauté + fiabilité + tarification juste + interopérabilité.
+- **Présenter la communauté comme le tissu conjonctif autour du partage de clones**, et non comme un réseau
+  social autonome (cf. arrêt de l'application communautaire AHA Brew Guru en février 2026).
+- **Bilingue ≠ dupliqué.** Localiser le contenu d'amorçage des clones par région ; respecter la plus grande
+  sensibilité au prix de l'audience FR et son attente d'un mainteneur présent.
+- **Surveiller Build-A-Beer** (génération de clones par IA + partage) — le concurrent direct le plus proche du créneau.
 
-## Market context (from `03c` / `03d`)
+## Contexte marché (issu de `03c` / `03d`)
 
-- **TAM anchor:** ~$2B home-brewing *hobby-equipment* market, ~7.5% CAGR (ignore the $26B–$85B "machine"
-  reports — different scope). US homebrewers ≈ 1.1–1.2M; r/Homebrewing ≈ 1.2M members.
-- **Incumbent recipe corpora are large** (Brewer's Friend 320k+ public recipes) but lead with *repository +
-  calculators*, not clone-lineage/social — quantitatively confirming the wedge is open.
-- **France: no official homebrewer count exists** (confirmed by insiders) — a data gap that is itself a moat:
-  Brasse-Bouillon could *become* the dataset by instrumenting its community. Proxies: brassageamateur ≈ 22.5k
-  members; 549 beer associations; FNABRA "several thousand" members.
-- **French hobby only legalized 2021** (Art. 520 bis CGI) → young, expanding legal market; mature FR supplier
-  ecosystem; the *professional* microbrewery market (France #1 in Europe, ~2,500) is now plateauing.
-- **Only hard demographics are US** (age 30–49, male, educated, affluent, 40% recent starters) — validate on FR.
+- **Ancrage du TAM :** marché des *équipements de loisir* du brassage maison d'environ 2 Md$, ~7,5 % de TCAC
+  (ignorer les rapports « machines » à 26-85 Md$ — périmètre différent). Brasseurs amateurs US ≈ 1,1-1,2 M ;
+  r/Homebrewing ≈ 1,2 M de membres.
+- **Les corpus de recettes des acteurs en place sont vastes** (Brewer's Friend 320 k+ recettes publiques) mais
+  mènent avec un *dépôt + des calculateurs*, et non avec la lignée de clones / le social — confirmant
+  quantitativement que le créneau est ouvert.
+- **France : aucun décompte officiel des brasseurs amateurs n'existe** (confirmé par des initiés) — un manque de
+  données qui est lui-même un rempart : Brasse-Bouillon pourrait *devenir* le jeu de données en instrumentant sa
+  communauté. Approximations : brassageamateur ≈ 22,5 k membres ; 549 associations de bière ; FNABRA « plusieurs milliers » de membres.
+- **Loisir français légalisé seulement en 2021** (Art. 520 bis CGI) → marché légal jeune et en expansion ;
+  écosystème de fournisseurs FR mature ; le marché *professionnel* des microbrasseries (France n°1 en Europe, ~2 500)
+  plafonne désormais.
+- **Les seules données démographiques solides sont américaines** (âge 30-49 ans, masculin, diplômé, aisé, 40 % de
+  débutants récents) — à valider en FR.
 
-## French-specific refinements (from `03b`)
+## Raffinements spécifiques à la France (issus de `03b`)
 
-- **French-first UI is a real competitive lever** — Brewfather's English-only is a stated dealbreaker
-  for part of the FR audience. Bilingual is not just localization; it is a wedge in FR.
-- **In FR, sharing is already partially served** (brassageamateur's own BrewRecipes app + Little Bock's
-  public library). So FR differentiation cannot be "sharing exists" — it must be
-  **versioning + author credit + auto-rescale**.
-- **Joliebulle closed (2010–2025, confirmed)** → a displaced FR user base is actively seeking a new home.
-  Concrete acquisition opportunity; BeerXML import lowers their switching cost.
-- **Data durability + BeerXML portability are trust-critical in FR** after recent tool failures
-  (Joliebulle death, Little Bock outage). Reliability is a marketing message, not just an SLA.
-- **FR clone targets** skew Belgian / Trappist (Orval, La Chouffe, Westmalle) + craft (Punk IPA).
-  French macro lager did NOT surface as a meaningful target (corrects an earlier assumption).
-- **Attribution-sensitivity is strong in EN but under-evidenced in FR** — do not assume it transfers;
-  test explicitly in interviews (see below).
+- **Une UI en priorité française est un véritable levier concurrentiel** — le tout-anglais de Brewfather est un
+  facteur rédhibitoire déclaré pour une partie de l'audience FR. Le bilinguisme n'est pas qu'une localisation ;
+  c'est un créneau en FR.
+- **En FR, le partage est déjà partiellement servi** (l'application BrewRecipes de brassageamateur elle-même + la
+  bibliothèque publique de Little Bock). La différenciation FR ne peut donc pas être « le partage existe » — elle
+  doit être **versioning + crédit de l'auteur + remise à l'échelle automatique**.
+- **Joliebulle a fermé (2010-2025, confirmé)** → une base d'utilisateurs FR déplacée cherche activement un nouveau
+  foyer. Opportunité d'acquisition concrète ; l'import BeerXML abaisse leur coût de changement.
+- **La durabilité des données + la portabilité BeerXML sont critiques pour la confiance en FR** après les récentes
+  défaillances d'outils (mort de Joliebulle, panne de Little Bock). La fiabilité est un message marketing, pas seulement un SLA.
+- **Les cibles de clones FR** penchent vers le belge / trappiste (Orval, La Chouffe, Westmalle) + le craft (Punk IPA).
+  La lager macro française n'a PAS émergé comme une cible significative (corrige une hypothèse antérieure).
+- **La sensibilité à la paternité est forte en EN mais peu étayée en FR** — ne pas supposer qu'elle se transfère ;
+  à tester explicitement en entretiens (voir ci-dessous).
 
-## One-sentence positioning (draft, to validate)
+## Positionnement en une phrase (brouillon, à valider)
 
-> For regular homebrewers who want to reliably recreate the beers they love, Brasse-Bouillon is the
-> community recipe app where clones are collaboratively refined, credited, and rescaled to your own
-> setup — with the recipe organization and brew tracking you'd expect, and no lock-in.
+> Pour les brasseurs amateurs réguliers qui veulent recréer de façon fiable les bières qu'ils aiment,
+> Brasse-Bouillon est l'application de recettes communautaire où les clones sont affinés collaborativement,
+> crédités et remis à l'échelle de votre propre installation — avec l'organisation des recettes et le suivi
+> de brassage que vous attendez, et sans verrouillage.
 
-## Next step: primary research
+## Étape suivante : recherche primaire
 
-Confirm or refute with 10-15 interviews of regular homebrewers, recruited from r/Homebrewing (EN) and
-brassageamateur (FR). Priority beliefs to test: (a) **attribution-sensitivity** — strong in EN,
-under-evidenced in FR, so probe both audiences; (b) **switching** — would they leave an entrenched tool;
-(c) whether the **versioning + auto-rescale** angle is felt as a real need or a nice-to-have. The
-interview guide is in `05-interview-guide.md` (built with the `customer-research` skill). Findings feed `06-report.md`.
+Confirmer ou infirmer avec 10-15 entretiens de brasseurs amateurs réguliers, recrutés sur r/Homebrewing (EN) et
+brassageamateur (FR). Croyances prioritaires à tester : (a) **sensibilité à la paternité** — forte en EN,
+peu étayée en FR, donc sonder les deux audiences ; (b) **changement d'outil** — quitteraient-ils un outil
+retranché ; (c) si l'angle **versioning + remise à l'échelle automatique** est ressenti comme un besoin réel ou
+un simple agrément. Le guide d'entretien se trouve dans `05-interview-guide.md` (construit avec le skill
+`customer-research`). Les conclusions alimentent `06-report.md`.

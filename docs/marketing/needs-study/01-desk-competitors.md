@@ -1,75 +1,76 @@
-# Desk Research — Competitor App Reviews
+# Recherche documentaire — Analyse des avis sur les apps concurrentes
 
-Source families: App Store / Google Play review summaries, Reddit/forum comparisons, comparison
-blogs, official docs. **Caveat:** HomeBrewTalk and some review pages returned 403; Reddit thread
-bodies were not retrievable, so a few claims lean on search snippets and are flagged. Star ratings
-are listing summaries at time of search (May 2026).
+Familles de sources : synthèses d'avis App Store / Google Play, comparaisons Reddit/forums, blogs
+comparatifs, documentation officielle. **Mise en garde :** HomeBrewTalk et certaines pages d'avis ont
+renvoyé une erreur 403 ; le corps des fils Reddit n'a pas pu être récupéré, si bien que quelques
+affirmations s'appuient sur des extraits de recherche et sont signalées comme telles. Les notes en
+étoiles correspondent aux synthèses de fiches au moment de la recherche (mai 2026).
 
-## Per-competitor findings
+## Constats par concurrent
 
-### Brewfather (cloud-based; the sentiment leader)
+### Brewfather (basé sur le cloud ; le leader en matière de satisfaction)
 
-**Praise**
-- Best-in-class cross-device cloud sync (design on laptop, log gravity on phone) — the most-cited reason to switch.
-- Clean, modern, non-overwhelming UI; fast onboarding.
-- Strong batch system (each brew = a variation of a master recipe) + fermentation tracking; Tilt/Grainfather integrations (the in-app Tilt chart is a named purchase driver).
-- Ad-free, responsive dev support, cheap (~$20/yr).
+**Points forts**
+- Synchronisation cloud multi-appareils inégalée (concevoir sur un ordinateur portable, relever la densité sur le téléphone) — la raison de changement la plus souvent citée.
+- Interface épurée, moderne, non écrasante ; prise en main rapide.
+- Système de brassins robuste (chaque brassin = une variation d'une recette mère) + suivi de fermentation ; intégrations Tilt/Grainfather (le graphique Tilt intégré à l'app est un déclencheur d'achat nommément cité).
+- Sans publicité, support développeur réactif, peu coûteux (~20 $/an).
 
-**Complaints / gaps**
-- Subscription-only for full features; no one-time purchase — recurring-cost resentment is the most common con.
-- Limited offline functionality (needs internet for most features).
-- Can feel feature-overwhelming at first.
-- Community library exists but **publishing recipes is paid-tier-gated**, and free users hit recipe-count limits even when *copying* a community recipe.
+**Reproches / lacunes**
+- Abonnement obligatoire pour les fonctionnalités complètes ; pas d'achat unique — le ressentiment lié au coût récurrent est le reproche le plus fréquent.
+- Fonctionnement hors ligne limité (la plupart des fonctionnalités nécessitent Internet).
+- Peut sembler surchargé en fonctionnalités au premier abord.
+- Une bibliothèque communautaire existe, mais **la publication de recettes est réservée à l'abonnement payant**, et les utilisateurs gratuits atteignent une limite de nombre de recettes même lorsqu'ils *copient* une recette de la communauté.
 
-### BeerSmith Mobile (one-time purchase; desktop heritage) — worst-rated (≈2.9★ App Store)
+### BeerSmith Mobile (achat unique ; héritage desktop) — la moins bien notée (≈2,9★ App Store)
 
-**Praise**
-- Most established/trusted calculation engine in the hobby; very accurate once tuned.
-- Integrated brew-day timer with step-by-step reminders.
-- One-time purchase, no subscription.
+**Points forts**
+- Le moteur de calcul le plus établi et le plus reconnu du loisir ; très précis une fois calibré.
+- Minuteur de jour de brassage intégré avec rappels étape par étape.
+- Achat unique, sans abonnement.
 
-**Complaints / gaps**
-- Painful sync: desktop → cloud → phone, so "the same recipe exists 3 times." **Strongest, most concrete pain in the set.**
-- Clunky, slow, dated nested-folder UI; search breaks inside nested folders (dev acknowledged file-storage/menu complaints).
-- Awkward flows (must go "back" to start the timer after editing).
-- No `.bsmx` import on mobile; profiles re-entered per device; sharing requires a cloud download. High learning curve.
+**Reproches / lacunes**
+- Synchronisation pénible : desktop → cloud → téléphone, si bien que « la même recette existe en 3 exemplaires ». **Le point de douleur le plus fort et le plus concret de l'ensemble.**
+- Interface à dossiers imbriqués lourde, lente et datée ; la recherche se casse à l'intérieur des dossiers imbriqués (le développeur a reconnu les plaintes sur le stockage des fichiers et les menus).
+- Parcours maladroits (il faut revenir « en arrière » pour lancer le minuteur après une modification).
+- Pas d'import `.bsmx` sur mobile ; profils à ressaisir sur chaque appareil ; le partage exige un téléchargement depuis le cloud. Courbe d'apprentissage élevée.
 
-### Brewer's Friend (web-first + apps; calculators reputation)
+### Brewer's Friend (web d'abord + apps ; réputation des calculateurs)
 
-**Praise**
-- Best-regarded brewing calculators ("unparalleled") and water-chemistry tools.
-- Fully web-based — recipes safe in the cloud.
-- Direct ingredient purchasing; large public recipe database.
+**Points forts**
+- Les calculateurs de brassage les mieux considérés (« sans équivalent ») et des outils de chimie de l'eau.
+- Entièrement basé sur le web — les recettes sont à l'abri dans le cloud.
+- Achat d'ingrédients direct ; vaste base de données publique de recettes.
 
-**Complaints / gaps**
-- Free tier capped at 5 recipes **and shows ads**; sync/ad-removal require Premium.
-- Weak mobile usability (timer hard to find); some "regret the annual fee" and switched away.
-- Reported Android bugs (gravity not updating, metric↔imperial errors, edits not saving) with slow fixes.
+**Reproches / lacunes**
+- Niveau gratuit plafonné à 5 recettes **et avec publicités** ; la synchronisation et la suppression des publicités exigent l'offre Premium.
+- Faible ergonomie mobile (minuteur difficile à trouver) ; certains « regrettent l'abonnement annuel » et sont partis ailleurs.
+- Bugs Android signalés (densité qui ne se met pas à jour, erreurs métrique↔impérial, modifications non enregistrées) avec des corrections lentes.
 
-### BrewBuddy (iOS utility) — contrast point, not a direct competitor
-- Deliberately minimal offline calculators; no accounts, no data saved, no tracking.
-- Confirms a niche that distrusts cloud/subscription apps and just wants offline tools.
+### BrewBuddy (utilitaire iOS) — point de contraste, pas un concurrent direct
+- Calculateurs hors ligne volontairement minimalistes ; pas de comptes, pas de données sauvegardées, pas de suivi.
+- Confirme l'existence d'une niche qui se méfie des apps cloud/abonnement et veut simplement des outils hors ligne.
 
-### Adjacent / signal points
-- **Grainfather app:** calculations diverge from Brewfather for the same recipe (equipment profiles) — friction moving recipes between ecosystems.
-- **AHA Brew Guru** (recipe + deals + community app): **sunset Feb 1, 2026**, folded back into the AHA website; "limited content," mixed feedback. A dedicated community/recipe app that failed to sustain — a caution for the community hero.
-- **Build-A-Beer:** free app whose headline feature is **AI clone-recipe generation** from a beer's characteristics + "share your creations." Direct competitor to the clone/share angle — track it.
+### Points adjacents / signaux
+- **App Grainfather :** les calculs divergent de Brewfather pour une même recette (profils d'équipement) — friction lors du déplacement de recettes entre écosystèmes.
+- **AHA Brew Guru** (app recette + bons plans + communauté) : **arrêtée le 1er février 2026**, réintégrée au site web de l'AHA ; « contenu limité », retours mitigés. Une app communauté/recettes dédiée qui n'a pas su perdurer — une mise en garde pour le pilier communautaire.
+- **Build-A-Beer :** app gratuite dont la fonctionnalité phare est la **génération de recettes de clone par IA** à partir des caractéristiques d'une bière + « partagez vos créations ». Concurrent direct sur l'angle clone/partage — à surveiller.
 
-## Top unmet needs (ranked by signal strength)
+## Principaux besoins non satisfaits (classés par force du signal)
 
-1. **Frictionless sync + true offline without paying or duplicating data** — *very frequent.* BeerSmith triple-copy is the loudest single complaint; Brewfather online dependency echoes it. Brewing happens in garages/cellars with poor connectivity.
-2. **Subscription / paywall friction** — *very frequent.* Free tiers feel crippled (publishing, sync, import/export gated).
-3. **Modern, uncluttered mobile UX** — *frequent.* Brewfather wins precisely by being clean — UX is a proven differentiator.
-4. **Reliable recipe organization & search** — *moderate.* BeerSmith search breaks in nested folders.
-5. **Easy, low-friction recipe sharing** — *moderate.* Sharing is awkward (cloud download / paid publishing). Demand exists but is partly served.
-6. **Bug-free reliability & accurate calculations** — *moderate.* Cross-app calculation divergence undermines trust when moving recipes.
-7. **Inventory / cost tracking, device integrations (Tilt)** — *occasional but loyalty-driving.*
+1. **Synchronisation sans friction + véritable hors ligne sans payer ni dupliquer les données** — *très fréquent.* Le triple exemplaire de BeerSmith est la plainte unique la plus bruyante ; la dépendance en ligne de Brewfather y fait écho. Le brassage se fait dans des garages/caves à mauvaise connectivité.
+2. **Friction liée à l'abonnement / au paywall** — *très fréquent.* Les niveaux gratuits semblent bridés (publication, synchronisation, import/export verrouillés).
+3. **UX mobile moderne et épurée** — *fréquent.* Brewfather gagne précisément en étant épuré — l'UX est un différenciateur prouvé.
+4. **Organisation et recherche de recettes fiables** — *modéré.* La recherche de BeerSmith se casse dans les dossiers imbriqués.
+5. **Partage de recettes facile et sans friction** — *modéré.* Le partage est maladroit (téléchargement cloud / publication payante). La demande existe mais n'est que partiellement satisfaite.
+6. **Fiabilité sans bugs et calculs précis** — *modéré.* La divergence des calculs entre apps mine la confiance lors du déplacement des recettes.
+7. **Suivi des stocks / des coûts, intégrations matérielles (Tilt)** — *occasionnel mais facteur de fidélité.*
 
-## Signal on the SHARING / CLONING / COMMUNITY hero hypothesis
+## Signal sur l'hypothèse du pilier PARTAGE / CLONAGE / COMMUNAUTÉ
 
-- **Cloning commercial beers: strong, durable demand.** AHA 50-state clone guides, BrewDog *DIY Dog*, Beer Maverick 100+, Build-A-Beer all exist because demand is real and recurring. Validates the clone angle.
-- **Community recipe libraries: validated but partly served and hard to monetize.** Brewfather/Brewer's Friend show users want to browse/copy others' recipes — but publishing is paywalled and copying is capped, leaving an opening for a more open, sharing-first model. Caution: Brew Guru's Feb-2026 sunset shows in-app social is unproven as a *primary* retention driver; most "community" lives on Reddit/Discord/Facebook/forums today.
-- **Implication:** the *cloning + open sharing* combination is the most defensible hero. Frame pure "social" as connective tissue around clone-sharing, not a standalone feature. Foundation features target the top-4 unmet needs and are table-stakes for retention.
+- **Cloner des bières commerciales : demande forte et durable.** Les guides de clones des 50 États de l'AHA, *DIY Dog* de BrewDog, les 100+ de Beer Maverick, Build-A-Beer existent tous parce que la demande est réelle et récurrente. Valide l'angle clone.
+- **Bibliothèques de recettes communautaires : validées mais partiellement satisfaites et difficiles à monétiser.** Brewfather/Brewer's Friend montrent que les utilisateurs veulent parcourir/copier les recettes des autres — mais la publication est derrière un paywall et la copie est plafonnée, ce qui laisse une ouverture pour un modèle plus ouvert, centré sur le partage. Prudence : l'arrêt de Brew Guru en février 2026 montre que le social intégré à l'app n'est pas prouvé comme moteur *principal* de rétention ; aujourd'hui, l'essentiel de la « communauté » vit sur Reddit/Discord/Facebook/les forums.
+- **Implication :** la combinaison *clonage + partage ouvert* est le pilier le plus défendable. Présenter le « social » pur comme le tissu conjonctif autour du partage de clones, et non comme une fonctionnalité autonome. Les fonctionnalités fondations ciblent les 4 premiers besoins non satisfaits et constituent le minimum vital pour la rétention.
 
 ## Sources
 - https://homebrewacademy.com/brewing-software-comparison/

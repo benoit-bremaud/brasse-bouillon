@@ -40,7 +40,8 @@ Six desk passes across source families:
 - `03c-desk-market-data.md` — quantitative layer (market size, downloads, recipe-DB sizes, uncovered competitors).
 - `03d-desk-french-market.md` — snowball pass on the French homebrewer population / market (fills the FR data gap).
 - `04-synthesis.md` — consolidated needs map + market context + one-sentence positioning statement.
-- `05-report.md` — final report (epic closure deliverable; written after primary research).
+- `05-interview-guide.md` — bilingual primary-research instrument (JTBD interview guide).
+- `06-report.md` — final report (epic closure deliverable; written after primary research).
 
 ## Method limitations (read before trusting the numbers)
 

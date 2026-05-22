@@ -100,5 +100,5 @@ do not differentiate (incumbents already do most, and win on calculation).
 Confirm or refute with 10-15 interviews of regular homebrewers, recruited from r/Homebrewing (EN) and
 brassageamateur (FR). Priority beliefs to test: (a) **attribution-sensitivity** — strong in EN,
 under-evidenced in FR, so probe both audiences; (b) **switching** — would they leave an entrenched tool;
-(c) whether the **versioning + auto-rescale** angle is felt as a real need or a nice-to-have. Build the
-interview guide with the `customer-research` skill. Findings feed `05-report.md`.
+(c) whether the **versioning + auto-rescale** angle is felt as a real need or a nice-to-have. The
+interview guide is in `05-interview-guide.md` (built with the `customer-research` skill). Findings feed `06-report.md`.

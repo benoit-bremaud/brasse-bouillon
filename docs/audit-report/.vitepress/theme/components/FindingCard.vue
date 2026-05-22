@@ -19,7 +19,7 @@ const REPO = "https://github.com/benoit-bremaud/brasse-bouillon/issues/";
         class="bb-finding__id"
         :href="href || REPO + id.replace('#', '')"
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
         >{{ id }}</a
       >
       <span class="bb-finding__title">{{ title }}</span>

@@ -149,7 +149,7 @@ html { background-color: var(--bb-paper); }
 .bb-finding__tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-left: auto; }
 .bb-tag { font-family: "JetBrains Mono", monospace; font-size: 0.66rem; color: var(--bb-muted); background: var(--bb-paper-2); border-radius: 3px; padding: 0.08rem 0.35rem; }
 .bb-finding__body { color: var(--bb-ink-soft); font-size: 0.93rem; line-height: 1.55; }
-.bb-finding__body :deep(strong) { color: var(--bb-ink); }
+.bb-finding__body strong { color: var(--bb-ink); }
 .bb-finding__evidence {
   margin-top: 0.7rem; font-family: "JetBrains Mono", monospace; font-size: 0.78rem;
   background: var(--bb-paper-2); color: var(--bb-ink); border: 1px solid var(--bb-line);

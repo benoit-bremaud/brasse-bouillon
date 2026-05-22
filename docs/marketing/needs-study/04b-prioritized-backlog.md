@@ -4,7 +4,7 @@ Cette page transforme les conclusions du desk research en un **ordre de construc
 réel chaque fonctionnalité sert, à quel point l'opportunité est forte, à quel point nous sommes confiants, et
 dans quel ordre construire.
 
-::: warning Read this first
+::: warning À lire d'abord
 Ce classement repose sur la **recherche secondaire** (desk) — des hypothèses solides, pas une vérité confirmée sur le terrain.
 Deux biais à garder à l'esprit :
 1. Le desk research a surtout sondé les points de douleur **intermédiaires** (clone, partage, synchronisation), il

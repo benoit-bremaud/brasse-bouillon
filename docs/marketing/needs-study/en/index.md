@@ -23,10 +23,10 @@ Everything else (a launched product, a school deliverable, a future activity, a 
 
 The original four-step journey as the entry point:
 
-> 1. **Choisis ta recette** — a catalog calibrated to succeed on the first batch.
-> 2. **Brasse pas à pas** — the app tells you what to do, when, and why.
-> 3. **Suis la fermentation** — days, gravity, temperature, at a glance.
-> 4. **Mets en bouteille, savoure** — label, share, taste.
+> 1. **Pick your recipe** — a catalog calibrated to succeed on the first batch.
+> 2. **Brew step by step** — the app tells you what to do, when, and why.
+> 3. **Track fermentation** — days, gravity, temperature, at a glance.
+> 4. **Bottle it, enjoy** — label, share, taste.
 
 ## How this report is organized
 

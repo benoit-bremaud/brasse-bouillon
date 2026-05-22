@@ -44,6 +44,7 @@ const sidebarFr = [
     collapsed: false,
     items: [
       { text: "Guide d'entretien", link: "/05-interview-guide" },
+      { text: "Sondage (questionnaire)", link: "/c-sondage" },
       { text: "Résultats", link: "/c-resultats" }
     ]
   },
@@ -86,6 +87,7 @@ const sidebarEn = [
     collapsed: false,
     items: [
       { text: "Interview guide", link: "/en/05-interview-guide" },
+      { text: "Survey (questionnaire)", link: "/en/c-survey" },
       { text: "Results", link: "/en/c-resultats" }
     ]
   },

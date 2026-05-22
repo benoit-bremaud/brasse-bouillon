@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-05-21
 
+### Quality & security audit of brasse-bouillon.com — epic #1031 + 12 findings
+
+- Owner-requested **exhaustive** audit of the live site + `packages/website` source (security, perf, a11y, SEO, DNS/email, all 10 pages). No code changes; findings filed as issues.
+- Live checks (read-only): TLS Let's Encrypt R13 valid; HTTP→HTTPS 301 OK; HSTS present without `includeSubDomains`/`preload`; **missing** CSP / X-Frame-Options / X-Content-Type-Options / Referrer-Policy / Permissions-Policy; no `/.well-known/security.txt`. Lighthouse mobile homepage 100/100/100/100, LCP 152 ms / CLS 0.00. W3C Nu validation: 0 errors on all 6 main pages. DNS: no SPF/DMARC; no MX (advertised `contact@` is dead). Cookie policy accurate (zero cookies set, confirmed in source).
+- Epic #1031 tracks 12 sub-issues. Security (`security`+`priority:high`): #1032 security headers (+CSP-readiness note: inline script/onclick must be refactored first), #1033 HSTS, #1034 security.txt, #1035 Google Fonts privacy/GDPR, #1036 Formspree anti-abuse, #1042 SPF/DMARC. Functional (`type:bug`+`priority:high`): #1044 non-functional contact email. Quality: #1037 HTML/CSS lint CI, #1038 Lighthouse CI/link-checker, #1039 perf + image optimization (+CLS 0.75 on privacy.html note), #1043 custom 404, #1045 Open Graph missing on 9/10 pages + EN canonical/hreflang.
+- All 13 issues (epic + 12) added to project `PVT_kwHOB8rwIc4AuVew`. Structural constraint: GitHub Pages cannot set custom headers → header remediation needs a Cloudflare edge or `<meta>` fallback. Deferred (per owner): i18n / EN-pages removal (the `lang-switch` "Read in English" link lives on the 4 secondary pages, not the homepage) — to be captured as its own issue.
+
 ### PR #1066 merged (`2d1be2b`) — docs(beer-duel): spec + UML + ADR-0009 + backlog audit cleanup
 
 - Conception of epic #1050 (beer-duel community preference ranking, mobile pop-up + Elo): spec `docs/architecture/specs/beer-duel.md`, 6 Mermaid diagrams `docs/architecture/diagrams/beer-duel/01..06`, `ADR-0009` (votes + Elo = product/social data → NestJS per ADR-0005; beer ref cross-backend, not a hard FK). ADR README index backfilled with the missing 0005 row + a note that 0006–0008 are reserved (#833 journal, #834 monetization/AI, #879/#883 recipe license). Sub-issues #1051–#1056.

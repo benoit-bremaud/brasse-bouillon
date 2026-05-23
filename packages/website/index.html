@@ -577,13 +577,7 @@
       }
     });
   </script>
-  <!-- Feedback widget (Cloudflare Worker; submissions only from the prod domain via CORS) -->
-  <script type="module">
-    import { mountFeedbackWidget } from 'https://feedback-pipeline-worker.bbd-concept.workers.dev/widget.js'
-    mountFeedbackWidget({
-      projectId: 'brasse-bouillon',
-      endpoint: 'https://feedback-pipeline-worker.bbd-concept.workers.dev/ingest',
-    })
-  </script>
+  <!-- Feedback widget — local loader; mounts the Cloudflare Worker widget on prod only -->
+  <script type="module" src="feedback-widget.js?v=20260523"></script>
 </body>
 </html>

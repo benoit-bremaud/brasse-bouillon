@@ -71,6 +71,36 @@ are listing summaries at time of search (May 2026).
 - **Community recipe libraries: validated but partly served and hard to monetize.** Brewfather/Brewer's Friend show users want to browse/copy others' recipes — but publishing is paywalled and copying is capped, leaving an opening for a more open, sharing-first model. Caution: Brew Guru's Feb-2026 sunset shows in-app social is unproven as a *primary* retention driver; most "community" lives on Reddit/Discord/Facebook/forums today.
 - **Implication:** the *cloning + open sharing* combination is the most defensible hero. Frame pure "social" as connective tissue around clone-sharing, not a standalone feature. Foundation features target the top-4 unmet needs and are table-stakes for retention.
 
+## Positioning map
+
+A **positioning map** places competitors on two axes that matter to the user, to make the **corner nobody
+occupies** visible. The two axes, drawn from the desk research:
+
+- **horizontal**: *Simple / guided* ←→ *Powerful / calculation-expert*;
+- **vertical**: *Solo / private* ←→ *Community (recipe sharing)*.
+
+|  | **Simple / guided** | **Powerful / calc-expert** |
+|---|---|---|
+| **Community (sharing)** | ◎ **Brasse-Bouillon** (target) · Build-A-Beer | Brewer's Friend |
+| **Solo / private** | Little Bock | Brewfather · BeerSmith |
+
+**Placements (desk perception, confidence level):**
+
+- **BeerSmith** — far *powerful + solo*: desktop heritage, deep calculations, near-zero sharing, duplicated data. [HIGH]
+- **Brewfather** — *powerful + mostly solo*: modern UX, but library/publishing paywalled → community capped. [HIGH]
+- **Brewer's Friend** — *powerful + somewhat community*: reputed calculators + recipe browsing/copying, publishing capped. [MED]
+- **Little Bock** (FR) — *fairly simple + somewhat community*: accessible FR tool, recipe base, free. [MED]
+- **Build-A-Beer** — *simple + community*: AI clone-recipe generation + sharing, free. **Sole occupant of our corner.** [HIGH]
+- **Brasse-Bouillon** (target) — *simple/guided + community*: beginner assistant first, then versioned/credited/re-scaled clone.
+
+**Strategic reading:**
+
+- The *simple + community* corner (top-left) is **near-empty**: only **Build-A-Beer** sits there → that is our battleground, **not** Brewfather/BeerSmith (who dominate the bottom-right *powerful + solo*, terrain we avoid — consistent with "don't compete on calculation").
+- Differentiation *within* the corner, against Build-A-Beer: disposable AI generation is not a **versioned + credited + re-scaled** community clone recipe backed by a **guided assistant**. That is the depth Build-A-Beer lacks.
+- Guardrail: the community zone is lethal if led *alone* (Brew Guru sunset, Feb 2026) → enter via the **assistant** (bottom-left → top-left), community as a **retention layer**.
+
+*Hypothesis to confirm in the field: these placements reflect desk-derived perception, not a measurement.*
+
 ## Sources
 - https://homebrewacademy.com/brewing-software-comparison/
 - https://play.google.com/store/apps/details?id=com.warpkode.brewfather&hl=en_US

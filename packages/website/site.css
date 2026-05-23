@@ -1372,6 +1372,7 @@
     }
 
     textarea { min-height: 120px; resize: vertical; }
+    textarea.textarea-compact { min-height: 64px; }
 
     fieldset {
       margin: 0; padding: 14px 16px;

@@ -95,12 +95,31 @@ fidéliser, mais ne différencient pas (les acteurs en place font déjà la plup
 - **La sensibilité à la paternité est forte en EN mais peu étayée en FR** — ne pas supposer qu'elle se transfère ;
   à tester explicitement en entretiens (voir ci-dessous).
 
-## Positionnement en une phrase (brouillon, à valider)
+## Positionnement (brouillon, à valider en terrain)
+
+**Énoncé en une phrase :**
 
 > Pour les brasseurs amateurs réguliers qui veulent recréer de façon fiable les bières qu'ils aiment,
 > Brasse-Bouillon est l'application de recettes communautaire où les clones sont affinés collaborativement,
 > crédités et remis à l'échelle de votre propre installation — avec l'organisation des recettes et le suivi
 > de brassage que vous attendez, et sans verrouillage.
+
+**Découpage formel (template Geoffrey Moore)** — chaque case s'appuie sur le desk et la
+[carte de positionnement](/01-desk-competitors) ; à confirmer en entretiens :
+
+| Case | Contenu |
+|---|---|
+| **Pour** (cible) | les brasseurs amateurs réguliers |
+| **qui** (besoin) | veulent recréer de façon fiable les bières qu'ils aiment, sans repartir de zéro |
+| **Brasse-Bouillon est** (catégorie) | l'application de recettes-clones **communautaire** |
+| **qui** (bénéfice clé) | affine collaborativement chaque clone, **crédite ses auteurs** et le **remet à l'échelle** de votre équipement — avec l'organisation et le suivi de brassage attendus, sans verrouillage |
+| **Contrairement à** (alternatives) | la génération IA *jetable* de Build-A-Beer, et les calculateurs (Brewfather, Brewer's Friend, BeerSmith) qui mettent la publication derrière un paywall et effacent la paternité |
+| **nous** (différenciation) | donnons à chaque clone une **lignée créditée et versionnée** que la communauté améliore dans le temps |
+
+**Tagline (piste, à tester) :** *« Le clone, en mieux — ensemble. »*
+
+> Garde-fou : le positionnement *mène* par l'assistant guidé (entrée à faible risque) ; la communauté
+> de clones est la **profondeur** qui retient, pas l'accroche d'acquisition (cf. arrêt de Brew Guru).
 
 ## Étape suivante : recherche primaire
 

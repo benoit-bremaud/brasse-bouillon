@@ -201,12 +201,14 @@
     function adaptiveBubbleCount() {
       const area = window.innerWidth * window.innerHeight;
       let n = Math.round(area / 6500);
+      // Data Saver: a deliberate hard minimum of 60, intentionally below the
+      // normal floor (lightest possible while still hinting the effect).
       if (navigator.connection?.saveData) return 60;
       const memory = navigator.deviceMemory;
       const cores = navigator.hardwareConcurrency;
       if ((memory && memory <= 4) || (cores && cores <= 4)) n = Math.round(n * 0.5);
-      // Floor low so small screens really are sparser; cap kept moderate so
-      // big screens stay lush but smooth. Gradient (≈): phone ~70,
+      // Otherwise floor low so small screens really are sparser; cap kept
+      // moderate so big screens stay lush but smooth. Gradient (≈): phone ~70,
       // tablet ~120, laptop ~160, desktop/ultrawide capped at 200.
       return Math.max(70, Math.min(n, 200));
     }
@@ -272,7 +274,7 @@
       layer.className = 'dew-layer';
 
       // Density proportional to card area so small and large cards keep a
-      // consistent look (one bead per ~10000 px²), clamped to sane bounds.
+      // consistent look (≈ one bead per 18000 px²), clamped to sane bounds.
       // offsetWidth/Height are read only to size bead counts — the layer
       // itself is stretched to the host in CSS (100%/100%), so it stays in
       // sync after a resize instead of overflowing with a stale px width.

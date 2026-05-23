@@ -72,6 +72,36 @@ affirmations s'appuient sur des extraits de recherche et sont signalées comme t
 - **Bibliothèques de recettes communautaires : validées mais partiellement satisfaites et difficiles à monétiser.** Brewfather/Brewer's Friend montrent que les utilisateurs veulent parcourir/copier les recettes des autres — mais la publication est derrière un paywall et la copie est plafonnée, ce qui laisse une ouverture pour un modèle plus ouvert, centré sur le partage. Prudence : l'arrêt de Brew Guru en février 2026 montre que le social intégré à l'app n'est pas prouvé comme moteur *principal* de rétention ; aujourd'hui, l'essentiel de la « communauté » vit sur Reddit/Discord/Facebook/les forums.
 - **Implication :** la combinaison *clonage + partage ouvert* est le pilier le plus défendable. Présenter le « social » pur comme le tissu conjonctif autour du partage de clones, et non comme une fonctionnalité autonome. Les fonctionnalités fondations ciblent les 4 premiers besoins non satisfaits et constituent le minimum vital pour la rétention.
 
+## Carte de positionnement
+
+Une **carte de positionnement** place les concurrents sur deux axes qui comptent pour l'utilisateur, pour
+rendre visible le **coin que personne n'occupe**. Les deux axes retenus, tirés du desk :
+
+- **horizontal** : *Simple / guidé* ←→ *Puissant / orienté calcul-expert* ;
+- **vertical** : *Solo / privé* ←→ *Communautaire (partage de recettes)*.
+
+|  | **Simple / guidé** | **Puissant / calcul-expert** |
+|---|---|---|
+| **Communautaire (partage)** | ◎ **Brasse-Bouillon** (cible) · Build-A-Beer | Brewer's Friend |
+| **Solo / privé** | Little Bock | Brewfather · BeerSmith |
+
+**Placements (perception desk, niveau de confiance) :**
+
+- **BeerSmith** — extrême *puissant + solo* : héritage desktop, calculs profonds, partage quasi nul, données dupliquées. [HIGH]
+- **Brewfather** — *puissant + plutôt solo* : UX moderne, mais bibliothèque/publication derrière paywall → communauté bridée. [HIGH]
+- **Brewer's Friend** — *puissant + un peu communautaire* : calculateurs réputés + parcours/copie de recettes, publication plafonnée. [MED]
+- **Little Bock** (FR) — *plutôt simple + un peu communautaire* : outil FR accessible, base de recettes, gratuit. [MED]
+- **Build-A-Beer** — *simple + communautaire* : génération de clone par IA + partage, gratuit. **Seul occupant de notre coin.** [HIGH]
+- **Brasse-Bouillon** (cible) — *simple/guidé + communautaire* : assistant débutant d'abord, puis clone versionné, crédité, remis à l'échelle.
+
+**Lecture stratégique :**
+
+- Le coin *simple + communautaire* (haut-gauche) est **quasi vide** : seul **Build-A-Beer** y est → c'est notre champ de bataille, **pas** Brewfather/BeerSmith (qui dominent le bas-droit *puissant + solo*, terrain qu'on évite — cohérent avec « ne pas concourir sur le calcul »).
+- Différenciation *dans* le coin, face à Build-A-Beer : une génération IA jetable n'est pas une recette clone **versionnée + créditée + remise à l'échelle** adossée à un **assistant guidé**. C'est la profondeur qui manque à Build-A-Beer.
+- Garde-fou : la zone communautaire est mortelle si menée *seule* (arrêt de Brew Guru, fév. 2026) → entrer par l'**assistant** (bas-gauche → haut-gauche), la communauté en **couche de rétention**.
+
+*Hypothèse à confirmer en terrain : ces placements reflètent la perception issue du desk, pas une mesure.*
+
 ## Sources
 - https://homebrewacademy.com/brewing-software-comparison/
 - https://play.google.com/store/apps/details?id=com.warpkode.brewfather&hl=en_US

@@ -89,11 +89,30 @@ do not differentiate (incumbents already do most, and win on calculation).
 - **Attribution-sensitivity is strong in EN but under-evidenced in FR** — do not assume it transfers;
   test explicitly in interviews (see below).
 
-## One-sentence positioning (draft, to validate)
+## Positioning (draft, to validate in the field)
+
+**One-sentence statement:**
 
 > For regular homebrewers who want to reliably recreate the beers they love, Brasse-Bouillon is the
 > community recipe app where clones are collaboratively refined, credited, and rescaled to your own
 > setup — with the recipe organization and brew tracking you'd expect, and no lock-in.
+
+**Formal slots (Geoffrey Moore template)** — each slot rests on the desk research and the
+[positioning map](/en/01-desk-competitors#positioning-map); to confirm in interviews:
+
+| Slot | Content |
+|---|---|
+| **For** (target) | regular homebrewers |
+| **who** (need) | want to reliably recreate the beers they love, without starting from scratch |
+| **Brasse-Bouillon is** (category) | the **community** clone-recipe app |
+| **that** (key benefit) | collaboratively refines each clone, **credits its authors**, and **rescales** it to your equipment — with the organization and brew tracking you'd expect, no lock-in |
+| **Unlike** (alternatives) | Build-A-Beer's *disposable* AI generation, and calculators (Brewfather, Brewer's Friend, BeerSmith) that paywall publishing and strip authorship |
+| **we** (differentiation) | give each clone a **credited, versioned lineage** the community improves over time |
+
+**Tagline (candidate, to test):** *"The clone, made better — together."*
+
+> Guardrail: the positioning *leads* with the guided assistant (low-risk entry); the clone community is
+> the **depth** that retains, not the acquisition hook (cf. the Brew Guru sunset).
 
 ## Next step: primary research
 

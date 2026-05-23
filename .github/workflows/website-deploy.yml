@@ -53,7 +53,7 @@ jobs:
           src=packages/website
 
           # Glob copies — tolerate empty matches.
-          for f in "$src"/*.html "$src"/*.css "$src"/*.js "$src"/*.png "$src"/*.svg; do
+          for f in "$src"/*.html "$src"/*.css "$src"/*.js "$src"/*.png "$src"/*.svg "$src"/*.webp; do
             cp "$f" _site/
           done
 

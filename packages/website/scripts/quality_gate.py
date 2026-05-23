@@ -31,7 +31,25 @@ REQUIRED_FILES = [
     "favicon.ico",
     "sitemap.xml",
     "robots.txt",
+    "feedback-widget.js",
 ]
+
+# Every public HTML page must reference the feedback widget loader (a single
+# local module) so the "Report" button is never accidentally dropped from one
+# page during a future edit.
+WIDGET_HTML_FILES = [
+    "index.html",
+    "index-en.html",
+    "legal.html",
+    "legal-en.html",
+    "privacy.html",
+    "privacy-en.html",
+    "cookies.html",
+    "cookies-en.html",
+    "terms.html",
+    "terms-en.html",
+]
+WIDGET_LOADER = "feedback-widget.js"
 
 HTML_RULES = {
     "index.html": [
@@ -176,6 +194,21 @@ def check_html_files(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_feedback_widget(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for rel_path in WIDGET_HTML_FILES:
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+        content = full_path.read_text(encoding="utf-8")
+        if WIDGET_LOADER not in content:
+            errors.append(
+                f"{rel_path}: référence au widget de feedback "
+                f"({WIDGET_LOADER}) manquante"
+            )
+    return errors
+
+
 def check_sitemap_policy(root: Path = ROOT) -> list[str]:
     sitemap_path = root / "sitemap.xml"
     if not sitemap_path.exists():
@@ -231,6 +264,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
     errors.extend(check_html_files(root))
+    errors.extend(check_feedback_widget(root))
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
     return errors

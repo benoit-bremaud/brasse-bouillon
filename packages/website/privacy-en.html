@@ -51,6 +51,13 @@
       <li>Contact details (email, message) through the contact form.</li>
       <li>Newsletter subscription data (email).</li>
       <li>Product questionnaire data (profile, usage, priorities, suggestions).</li>
+      <li>
+        Feedback sent through the “Report” widget: the feedback <em>content</em> (the message you write
+        + minimal technical context — the page, the previous page, browser, screen size, language) is
+        sent only when you click to submit. Note: simply loading the widget on the page already issues a
+        request to the third-party processor (Cloudflare), which then receives your IP address and the
+        request's standard headers.
+      </li>
     </ul>
     <p>
       The site uses no third-party audience measurement tool and no tracking cookies.
@@ -62,12 +69,14 @@
       <li><strong>Replying to messages</strong>: legitimate interest and/or pre-contractual steps.</li>
       <li><strong>Sending newsletters</strong>: explicit consent (form checkbox).</li>
       <li><strong>Improving the product</strong> through questionnaire responses: explicit consent.</li>
+      <li><strong>Handling feedback</strong> sent via the “Report” widget: legitimate interest (fixing and improving the site/product).</li>
     </ul>
 
     <h2>4. Recipients and international transfers</h2>
     <p>
-      Data may be processed by technical processors (Formspree for receiving forms, GitHub Pages
-      for static hosting). These services may involve transfers outside the EU (including the US).
+      Data may be processed by technical processors (Formspree for receiving forms, a Cloudflare
+      Workers service for receiving the “Report” widget feedback, GitHub Pages for static hosting).
+      These services may involve transfers outside the EU (including the US).
       Where required, appropriate safeguards are used (such as standard contractual clauses or
       equivalent mechanisms).
     </p>
@@ -77,6 +86,7 @@
       <li>Contact data: up to 3 years after the last interaction.</li>
       <li>Newsletter data: until unsubscribe, or 3 years of inactivity.</li>
       <li>Questionnaire data: up to 3 years for product analysis.</li>
+      <li>“Report” widget feedback: up to 2 years, then deleted or anonymized.</li>
     </ul>
 
     <h2>6. Your rights</h2>
@@ -108,5 +118,7 @@
   <footer>
     © 2025-2026 Brasse-Bouillon — All rights reserved
   </footer>
+  <!-- Feedback widget — local loader; mounts the Cloudflare Worker widget on prod only -->
+  <script type="module" src="feedback-widget.js?v=20260523"></script>
 </body>
 </html>

@@ -17,9 +17,11 @@ def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
+    _write_file(base, "feedback-widget.js", "// feedback widget loader\n")
+    widget_tag = '<script type="module" src="feedback-widget.js"></script>'
     legal_html_template = (
         '<!DOCTYPE html><html lang="{lang}"><head>'
-        "<title>{title}</title></head><body></body></html>"
+        f"<title>{{title}}</title></head><body>{widget_tag}</body></html>"
     )
     legal_pages = [
         ("legal.html", "fr", "legal"),
@@ -57,6 +59,7 @@ def _create_valid_fixture(base: Path) -> None:
     <nav class="header-nav" id="headerNav"><a href="#features">L'app</a></nav>
   </div></header>
   <main id="mainContentFr"></main>
+  <script type="module" src="feedback-widget.js"></script>
 </body>
 </html>
 """,
@@ -75,6 +78,7 @@ def _create_valid_fixture(base: Path) -> None:
 </head>
 <body>
   <main id="mainContentEn"></main>
+  <script type="module" src="feedback-widget.js"></script>
 </body>
 </html>
 """,
@@ -152,6 +156,24 @@ class QualityGateTests(unittest.TestCase):
             errors = quality_gate.collect_errors(root)
             expected = "SoftwareApplication non autorisé"
             self.assertTrue(any(expected in err for err in errors))
+
+    def test_detects_missing_feedback_widget(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            cookies_path = root / "cookies.html"
+            cookies_path.write_text(
+                cookies_path.read_text(encoding="utf-8").replace(
+                    '<script type="module" src="feedback-widget.js"></script>',
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("widget de feedback" in err for err in errors)
+            )
 
     def test_detects_missing_burger_toggle(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

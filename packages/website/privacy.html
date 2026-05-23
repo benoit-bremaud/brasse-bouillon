@@ -51,6 +51,13 @@
       <li>Données de contact (email, message) via formulaire de contact.</li>
       <li>Données d’inscription newsletter (email).</li>
       <li>Données de questionnaire produit (profil, usages, priorités, suggestions).</li>
+      <li>
+        Retours envoyés via le widget « Signaler » : le <em>contenu</em> du retour (le message que vous
+        rédigez + un contexte technique minimal — page concernée, page précédente, navigateur, taille
+        d’écran, langue) n’est transmis que lorsque vous cliquez pour envoyer. À noter : le simple
+        chargement du widget sur la page déclenche déjà une requête vers le prestataire tiers
+        (Cloudflare), qui reçoit alors votre adresse IP et les en-têtes standard de la requête.
+      </li>
     </ul>
     <p>
       Le site n’utilise aucun outil de mesure d’audience tiers et aucun cookie de tracking.
@@ -62,12 +69,14 @@
       <li><strong>Répondre aux messages</strong> : intérêt légitime et/ou mesures précontractuelles.</li>
       <li><strong>Envoyer la newsletter</strong> : consentement explicite (case à cocher au formulaire).</li>
       <li><strong>Améliorer le produit</strong> via questionnaire : consentement explicite.</li>
+      <li><strong>Traiter les retours</strong> envoyés via le widget « Signaler » : intérêt légitime (corriger et améliorer le site/produit).</li>
     </ul>
 
     <h2>4. Destinataires et transferts internationaux</h2>
     <p>
       Les données peuvent être traitées par des sous-traitants techniques (Formspree pour la réception
-      des formulaires, GitHub Pages pour l’hébergement statique). Ces services peuvent impliquer des
+      des formulaires, un service Cloudflare Workers pour la réception des retours du widget « Signaler »,
+      GitHub Pages pour l’hébergement statique). Ces services peuvent impliquer des
       transferts hors UE (notamment vers les États-Unis). Lorsque nécessaire, des garanties appropriées
       sont utilisées (clauses contractuelles types ou mécanisme équivalent).
     </p>
@@ -77,6 +86,7 @@
       <li>Contact : jusqu’à 3 ans après le dernier échange.</li>
       <li>Newsletter : jusqu’au désabonnement ou 3 ans d’inactivité.</li>
       <li>Questionnaire : jusqu’à 3 ans pour l’analyse produit.</li>
+      <li>Retours du widget « Signaler » : jusqu’à 2 ans, puis suppression ou anonymisation.</li>
     </ul>
 
     <h2>6. Vos droits</h2>
@@ -108,5 +118,7 @@
   <footer>
     © 2025-2026 Brasse-Bouillon — Tous droits réservés
   </footer>
+  <!-- Feedback widget — local loader; mounts the Cloudflare Worker widget on prod only -->
+  <script type="module" src="feedback-widget.js?v=20260523"></script>
 </body>
 </html>

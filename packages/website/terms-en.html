@@ -107,5 +107,13 @@
   <footer>
     © 2025-2026 Brasse-Bouillon — All rights reserved
   </footer>
+  <!-- Feedback widget (Cloudflare Worker; submissions only from the prod domain via CORS) -->
+  <script type="module">
+    import { mountFeedbackWidget } from 'https://feedback-pipeline-worker.bbd-concept.workers.dev/widget.js'
+    mountFeedbackWidget({
+      projectId: 'brasse-bouillon',
+      endpoint: 'https://feedback-pipeline-worker.bbd-concept.workers.dev/ingest',
+    })
+  </script>
 </body>
 </html>

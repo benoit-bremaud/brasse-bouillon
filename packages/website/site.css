@@ -1347,6 +1347,7 @@
     .questionnaire-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .form-field { display: flex; flex-direction: column; gap: 8px; }
     .form-field-full { grid-column: 1 / -1; }
+    .questionnaire-lead { margin: 0 0 4px; color: var(--ink); opacity: 0.85; font-size: 0.95rem; line-height: 1.5; }
 
     .form-field label, fieldset legend {
       font-weight: 600; color: var(--ink); font-size: 0.92rem;
@@ -1371,6 +1372,7 @@
     }
 
     textarea { min-height: 120px; resize: vertical; }
+    textarea.textarea-compact { min-height: 64px; }
 
     fieldset {
       margin: 0; padding: 14px 16px;

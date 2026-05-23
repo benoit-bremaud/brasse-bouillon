@@ -42,7 +42,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="site.css?v=20260521-2">
+  <link rel="stylesheet" href="site.css?v=20260523">
 
   <!-- Organization Schema -->
   <script type="application/ld+json">
@@ -343,76 +343,145 @@
 
         <form id="questionnaireFormFr" class="questionnaire-form" data-open="false" inert>
           <div class="questionnaire-inner">
-            <input type="hidden" name="_subject" value="Nouvelle réponse - Questionnaire Brasse-Bouillon (FR)">
+            <input type="hidden" name="_subject" value="Nouvelle réponse - Sondage brasseurs Brasse-Bouillon (FR)">
             <input type="hidden" name="lang" value="fr">
             <input class="honeypot" type="text" name="_gotcha">
 
+            <p class="questionnaire-lead">
+              3 à 5 minutes pour nous aider à construire la bonne app. Tes réponses orientent directement ce
+              qu’on développe. Tout est anonyme ; un contact n’est demandé qu’à la fin, en option.
+            </p>
+
             <div class="questionnaire-grid">
               <fieldset class="form-field-full">
-                <legend>Tu en es où dans le brassage ?</legend>
+                <legend>Depuis combien de temps brasses-tu ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="profil" value="Curieux" required>Curieux, j’hésite à me lancer</label>
-                  <label><input type="radio" name="profil" value="Kit teste">J’ai testé un kit, j’ai envie d’aller plus loin</label>
-                  <label><input type="radio" name="profil" value="Regulier">Je brasse régulièrement, j’ai ma routine</label>
-                  <label><input type="radio" name="profil" value="Pro">Pro / micro-brasserie</label>
+                  <label><input type="radio" name="anciennete" value="Moins de 6 mois" required>Moins de 6 mois</label>
+                  <label><input type="radio" name="anciennete" value="6 mois - 2 ans">6 mois à 2 ans</label>
+                  <label><input type="radio" name="anciennete" value="2 - 5 ans">2 à 5 ans</label>
+                  <label><input type="radio" name="anciennete" value="5 ans et +">5 ans et plus</label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Combien de brassins par an, en moyenne ?</legend>
+                <legend>Combien de brassins par an, environ ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="frequence" value="Aucun">Aucun pour l’instant</label>
-                  <label><input type="radio" name="frequence" value="1-3">1 à 3</label>
-                  <label><input type="radio" name="frequence" value="4-10">4 à 10</label>
-                  <label><input type="radio" name="frequence" value="10+">Plus de 10</label>
+                  <label><input type="radio" name="frequence" value="0-2" required>0 à 2</label>
+                  <label><input type="radio" name="frequence" value="3-6">3 à 6</label>
+                  <label><input type="radio" name="frequence" value="7-12">7 à 12</label>
+                  <label><input type="radio" name="frequence" value="12+">12 et plus</label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Ce qui te bloque le plus <span class="legend-hint">(jusqu’à 3 choix)</span></legend>
+                <legend>Tu brasses où ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="lieu" value="France">France</label>
+                  <label><input type="radio" name="lieu" value="Belgique">Belgique</label>
+                  <label><input type="radio" name="lieu" value="Suisse">Suisse</label>
+                  <label><input type="radio" name="lieu" value="Québec">Québec</label>
+                  <label><input type="radio" name="lieu" value="Autre">Autre</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Où vivent tes recettes et tes notes de brassin aujourd’hui ? <span class="legend-hint">(plusieurs réponses)</span></legend>
                 <div class="chip-list chip-list-multi">
-                  <label><input type="checkbox" name="blocages[]" value="Calculs">Les calculs (IBU, ABV, densité)</label>
-                  <label><input type="checkbox" name="blocages[]" value="Recette">Choisir une recette adaptée</label>
-                  <label><input type="checkbox" name="blocages[]" value="Pilotage">Le pilotage des étapes le jour J</label>
-                  <label><input type="checkbox" name="blocages[]" value="Fermentation">Le suivi de la fermentation</label>
-                  <label><input type="checkbox" name="blocages[]" value="Materiel">Choisir mon matériel</label>
-                  <label><input type="checkbox" name="blocages[]" value="Reproduire">Reproduire un brassin réussi</label>
-                  <label><input type="checkbox" name="blocages[]" value="Partage">Échanger avec d’autres brasseurs</label>
-                  <label><input type="checkbox" name="blocages[]" value="Aucun">Rien, tout roule</label>
+                  <label><input type="checkbox" name="stockage[]" value="Dans ma tête">Dans ma tête</label>
+                  <label><input type="checkbox" name="stockage[]" value="Papier / carnet">Papier / carnet</label>
+                  <label><input type="checkbox" name="stockage[]" value="Tableur">Tableur (Excel, Sheets)</label>
+                  <label><input type="checkbox" name="stockage[]" value="Une application">Une application</label>
+                  <label><input type="checkbox" name="stockage[]" value="Sur un forum">Sur un forum</label>
+                  <label><input type="checkbox" name="stockage[]" value="Autre">Autre</label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Si tu n’avais qu’une seule fonction dans l’app, ce serait…</legend>
-                <div class="chip-list">
-                  <label><input type="radio" name="killer" value="Guide">Un guide pas-à-pas pendant le brassin</label>
-                  <label><input type="radio" name="killer" value="Calculs">Un calculateur fiable (IBU/ABV/couleur)</label>
-                  <label><input type="radio" name="killer" value="Recettes">Un livre de recettes prêtes à brasser</label>
-                  <label><input type="radio" name="killer" value="Fermentation">Un suivi de fermentation visuel</label>
-                  <label><input type="radio" name="killer" value="Journal">Un journal de mes brassins</label>
-                  <label><input type="radio" name="killer" value="Social">Un espace pour partager / comparer</label>
-                </div>
-              </fieldset>
-
-              <fieldset class="form-field-full">
-                <legend>Tu serais prêt(e) à payer pour la version complète ?</legend>
-                <div class="chip-list">
-                  <label><input type="radio" name="payant" value="Gratuit">Non, je veux du gratuit</label>
-                  <label><input type="radio" name="payant" value="Quelques euros">Quelques € / an</label>
-                  <label><input type="radio" name="payant" value="5-10">5 à 10 € / mois</label>
-                  <label><input type="radio" name="payant" value="Sais pas">Je ne sais pas encore</label>
+                <legend>Quel(s) outil(s) ou app utilises-tu ? <span class="legend-hint">(plusieurs réponses)</span></legend>
+                <div class="chip-list chip-list-multi">
+                  <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
+                  <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
+                  <label><input type="checkbox" name="outils[]" value="Little Bock">Little Bock</label>
+                  <label><input type="checkbox" name="outils[]" value="Brewer's Friend">Brewer’s Friend</label>
+                  <label><input type="checkbox" name="outils[]" value="Aucun">Aucun</label>
+                  <label><input type="checkbox" name="outils[]" value="Autre">Autre</label>
                 </div>
               </fieldset>
 
               <div class="form-field form-field-full">
-                <label for="qEmailFr">Email <span class="legend-hint">(optionnel — pour rester informé(e))</span></label>
-                <input id="qEmailFr" type="email" name="email" placeholder="ton@email.fr">
+                <label for="qAgacementFr">Qu’est-ce qui t’agace le plus dans ta façon de gérer tes recettes / brassins ?</label>
+                <textarea id="qAgacementFr" class="textarea-compact" name="agacement" rows="2" placeholder="En quelques mots…"></textarea>
+              </div>
+
+              <fieldset class="form-field-full">
+                <legend>T’arrive-t-il de rater un brassin, ou d’être perdu pendant le processus ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="difficulte" value="Souvent">Souvent</label>
+                  <label><input type="radio" name="difficulte" value="Parfois">Parfois</label>
+                  <label><input type="radio" name="difficulte" value="Rarement">Rarement</label>
+                  <label><input type="radio" name="difficulte" value="Jamais">Jamais</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>As-tu déjà essayé de reproduire (cloner) une bière commerciale précise ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="clone" value="Oui, réussi">Oui, réussi</label>
+                  <label><input type="radio" name="clone" value="Oui, mais déçu">Oui, mais déçu du résultat</label>
+                  <label><input type="radio" name="clone" value="Jamais, mais j'aimerais">Jamais essayé, mais j’aimerais</label>
+                  <label><input type="radio" name="clone" value="Pas intéressé">Pas intéressé</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Partages-tu tes recettes avec d’autres brasseurs ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="partage" value="Souvent">Souvent</label>
+                  <label><input type="radio" name="partage" value="Parfois">Parfois</label>
+                  <label><input type="radio" name="partage" value="Non, mais ouvert">Non, mais je serais ouvert</label>
+                  <label><input type="radio" name="partage" value="Non, je garde">Non, je préfère les garder</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Si tu partages une recette, être crédité comme auteur, ça compte pour toi ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="attribution" value="Beaucoup">Beaucoup</label>
+                  <label><input type="radio" name="attribution" value="Un peu">Un peu</label>
+                  <label><input type="radio" name="attribution" value="Pas du tout">Pas du tout</label>
+                  <label><input type="radio" name="attribution" value="Je ne partage pas">Je ne partage pas</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Qu’est-ce qui te ferait essayer une nouvelle app de brassage ? <span class="legend-hint">(plusieurs réponses)</span></legend>
+                <div class="chip-list chip-list-multi">
+                  <label><input type="checkbox" name="declencheur[]" value="La simplicité">La simplicité</label>
+                  <label><input type="checkbox" name="declencheur[]" value="Gratuit">Gratuit</label>
+                  <label><input type="checkbox" name="declencheur[]" value="Suivi guidé pas-à-pas">Un suivi guidé pas-à-pas</label>
+                  <label><input type="checkbox" name="declencheur[]" value="Une communauté">Une communauté</label>
+                  <label><input type="checkbox" name="declencheur[]" value="Importer mes recettes">Pouvoir importer mes recettes</label>
+                  <label><input type="checkbox" name="declencheur[]" value="Autre">Autre</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-field-full">
+                <legend>Serais-tu d’accord pour un échange de 15 min, pour m’en dire plus ?</legend>
+                <div class="chip-list">
+                  <label><input type="radio" name="entretien" value="Oui">Oui</label>
+                  <label><input type="radio" name="entretien" value="Non">Non</label>
+                </div>
+              </fieldset>
+
+              <div class="form-field form-field-full">
+                <label for="qContactFr">Si oui, ton email ou pseudo <span class="legend-hint">(optionnel — jamais partagé)</span></label>
+                <input id="qContactFr" type="text" name="contact" placeholder="ton@email.fr ou @pseudo">
               </div>
             </div>
 
             <label class="consent">
               <input type="checkbox" name="rgpd" value="accepted" required>
-              J’accepte que mes données soient utilisées dans le cadre du développement de Brasse-Bouillon.
+              J’accepte que mes réponses soient utilisées dans le cadre du développement de Brasse-Bouillon.
             </label>
             <p class="consent-note">
               Voir notre <a href="privacy.html" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>
@@ -420,7 +489,7 @@
             </p>
 
             <div class="actions actions-compact">
-              <button class="btn btn-primary" type="submit">Envoyer mon retour</button>
+              <button class="btn btn-primary" type="submit">Envoyer mes réponses</button>
             </div>
           </div>
         </form>
@@ -473,9 +542,7 @@
       formId: 'questionnaireFormFr',
       statusId: 'questionnaireStatusFr',
       endpoint: QUESTIONNAIRE_ENDPOINT,
-      checkboxLimits: [
-        { fieldName: 'blocages[]', maxChoices: 3, message: 'Maximum 3 choix pour cette question.' }
-      ],
+      checkboxLimits: [],
       messages: {
         endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
         sending: 'Envoi en cours…',

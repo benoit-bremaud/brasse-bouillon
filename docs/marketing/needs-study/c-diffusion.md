@@ -1,7 +1,8 @@
 # C · Kit de diffusion du sondage
 
 Posts **prêts à coller** pour recruter des réponses au [sondage](/c-sondage), de façon passive et
-respectueuse des communautés. Remplace `[LIEN DU SONDAGE]` par l'URL réelle du Google Form une fois créé.
+respectueuse des communautés. Le sondage est **natif sur le site** (formulaire Formspree, section
+« Participer ») : le lien à diffuser est **https://brasse-bouillon.com/#participerFr**.
 
 ::: tip Principes (pour ne pas se faire retirer / downvoter)
 - **Cadrage « débutant qui apprend »**, jamais « teste mon app ».
@@ -27,7 +28,7 @@ J'ai préparé un court questionnaire (3-5 min) pour apprendre de vos pratiques 
 ça m'aiderait énormément. Je partagerai bien sûr une synthèse des réponses ici
 même, pour que ça serve à tout le monde.
 
-[LIEN DU SONDAGE]
+https://brasse-bouillon.com/#participerFr
 
 Merci beaucoup pour votre temps ! (Un contact est demandé en option à la fin,
 uniquement si vous acceptez un échange ; il n'est jamais partagé.)
@@ -42,7 +43,7 @@ Je débute le brassage et je cherche à comprendre comment vous gérez vos recet
 et vos brassins. Petit questionnaire de 3-5 min — ça m'aide beaucoup, et je
 partagerai les résultats au groupe.
 
-[LIEN DU SONDAGE]
+https://brasse-bouillon.com/#participerFr
 
 Merci ! (Contact optionnel en fin de questionnaire, jamais partagé.)
 ```
@@ -70,11 +71,15 @@ commentaire. Je partagerai ce que j'apprends, ici, au fil de l'eau.
 #brassage #buildinpublic #reconversion #produit
 ```
 
-**Premier commentaire (à poster juste après) :** `Le questionnaire (3-5 min) : [LIEN DU SONDAGE] — merci à ceux qui prennent le temps !`
+**Premier commentaire (à poster juste après) :** `Le questionnaire (3-5 min) : https://brasse-bouillon.com/#participerFr — merci à ceux qui prennent le temps !`
 
 ## 4 · r/Homebrewing (EN, rules-aware)
 
 ⚠ Lire d'abord les règles du sub : beaucoup interdisent les sondages hors fil dédié. Proposer aux modos.
+
+> **En attente d'un formulaire EN.** Le sondage natif du site est **FR uniquement** (la page EN est encore
+> un « coming soon ») : ne pas envoyer une audience anglophone vers le formulaire FR. Garder ce post **en
+> réserve** jusqu'à la mise en ligne d'une version EN du formulaire (`[SURVEY LINK]` = à remplir alors).
 
 **Title:** New to brewing — how do you manage your recipes and batches? (quick survey)
 
@@ -95,7 +100,8 @@ never shared.) Mods — happy to move this to a dedicated thread if you prefer.
 
 ## 5 · CTA site web — section « Participer » (FR)
 
-À câbler quand le lien existe (lien, pas iframe, pour le consentement RGPD ; parité FR/EN obligatoire).
+**Déjà en place sur le site** : le formulaire est natif dans la section « Participer » de
+`index.html` (Formspree, consentement RGPD intégré). Copie de référence ci-dessous.
 
 ```
 Aide-nous à construire la bonne app
@@ -103,7 +109,7 @@ Aide-nous à construire la bonne app
 Brasse-Bouillon se construit avec vous. Répondez à notre court questionnaire
 (3-5 min) : vos réponses orientent directement ce qu'on développe.
 
-[ Bouton : Donner mon avis → [LIEN DU SONDAGE] ]
+[ Bouton : Donner mon avis → https://brasse-bouillon.com/#participerFr ]
 
 Contact optionnel, jamais partagé.
 ```

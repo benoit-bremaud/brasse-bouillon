@@ -1,7 +1,8 @@
 # C · Survey distribution kit
 
 **Ready-to-paste** posts to recruit responses to the [survey](/en/c-survey), passively and respectfully
-of each community. Replace `[SURVEY LINK]` with the real Google Form URL once created.
+of each community. The survey is **native on the site** (Formspree form, "Participate" section): the link
+to share is **https://brasse-bouillon.com/#participerFr** (FR only for now — see the r/Homebrewing note).
 
 ::: tip Principles (so you don't get removed / downvoted)
 - **"Beginner who's learning" framing**, never "test my app".
@@ -25,7 +26,7 @@ expérimentés, gérez vos recettes, vos brassins et vos notes au quotidien.
 J'ai préparé un court questionnaire (3-5 min) pour apprendre de vos pratiques —
 ça m'aiderait énormément. Je partagerai bien sûr une synthèse des réponses ici.
 
-[LIEN DU SONDAGE]
+https://brasse-bouillon.com/#participerFr
 
 Merci beaucoup ! (Contact optionnel à la fin, jamais partagé.)
 ```
@@ -39,7 +40,7 @@ Je débute le brassage et je cherche à comprendre comment vous gérez vos recet
 et vos brassins. Petit questionnaire de 3-5 min — ça m'aide beaucoup, et je
 partagerai les résultats au groupe.
 
-[LIEN DU SONDAGE]
+https://brasse-bouillon.com/#participerFr
 
 Merci ! (Contact optionnel, jamais partagé.)
 ```
@@ -67,11 +68,15 @@ partagerai ce que j'apprends, au fil de l'eau.
 #brassage #buildinpublic #reconversion #produit
 ```
 
-**First comment:** `Le questionnaire (3-5 min) : [LIEN DU SONDAGE] — merci !`
+**First comment:** `Le questionnaire (3-5 min) : https://brasse-bouillon.com/#participerFr — merci !`
 
 ## 4 · r/Homebrewing (EN, rules-aware)
 
 ⚠ Read the sub's rules first: many disallow surveys outside a dedicated thread. Offer to move it.
+
+> **Waiting on an EN form.** The native site survey is **FR only** (the EN page is still a "coming soon"):
+> don't send an English-speaking audience to the FR form. Keep this post **on hold** until an EN version of
+> the form ships (`[SURVEY LINK]` = fill in then).
 
 **Title:** New to brewing — how do you manage your recipes and batches? (quick survey)
 
@@ -92,7 +97,8 @@ never shared.) Mods — happy to move this to a dedicated thread if you prefer.
 
 ## 5 · Website CTA — "Participate" section (EN)
 
-To wire once the link exists (link, not iframe, for GDPR consent; FR/EN parity required).
+The FR survey is **already live** in the site's "Participate" section (native Formspree form). The EN copy
+below is for when the **EN site page** ships (today it is a "coming soon" stub).
 
 ```
 Help us build the right app

@@ -10,7 +10,7 @@ du sondage. C'est **l'action n°1** de l'étude (validation-first) — voir le [
 - **Qualitatif — 10-15 entretiens** de brasseurs (EN via r/Homebrewing, FR via brassageamateur), cadrage
   « débutant qui apprend ». Cible réaliste vu les contraintes : **viser la profondeur**, accepter un
   échantillon modeste et l'**afficher honnêtement**.
-- **Quantitatif — un sondage** (Google Forms) diffusé dans les communautés, pour chiffrer les besoins et
+- **Quantitatif — un sondage** (formulaire natif du site, Formspree) diffusé dans les communautés, pour chiffrer les besoins et
   commencer à combler le **trou de données FR**.
 
 ## Hypothèses prioritaires à trancher

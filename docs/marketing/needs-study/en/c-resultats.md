@@ -10,7 +10,7 @@ study's **#1 action** (validation-first) — see the [interview guide](/en/05-in
 - **Qualitative — 10-15 interviews** of brewers (EN via r/Homebrewing, FR via brassageamateur), framed as
   "a beginner who's learning". Realistic target given the constraints: **aim for depth**, accept a modest
   sample, and **state it honestly**.
-- **Quantitative — a survey** (Google Forms) distributed in the communities, to quantify needs and begin
+- **Quantitative — a survey** (native site form, Formspree) distributed in the communities, to quantify needs and begin
   filling the **FR data gap**.
 
 ## Priority hypotheses to settle

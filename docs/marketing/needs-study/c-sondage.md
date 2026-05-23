@@ -7,7 +7,8 @@ hypothèses de l'étude et commencer à **chiffrer** les besoins (et combler le 
 ::: tip Méthode
 Court et surtout **fermé** (max de réponses, données chiffrables) + 2 questions ouvertes pour le *pourquoi*.
 Dernière question = **opt-in** pour un échange de 15 min → les volontaires viennent à toi, sans démarchage.
-Cadrage « débutant qui apprend » (pas « teste mon app »). À créer en **Google Forms** (gratuit).
+Cadrage « débutant qui apprend » (pas « teste mon app »). Hébergé en **formulaire natif sur le site**
+(Formspree), section « Participer » — pas de Google Forms.
 :::
 
 ## Texte d'introduction (à mettre en tête du formulaire / du post)

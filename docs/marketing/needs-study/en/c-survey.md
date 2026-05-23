@@ -7,7 +7,8 @@ and start to **quantify** needs (and fill the FR data gap).
 ::: tip Method
 Short and mostly **closed** (max responses, quantifiable) + 2 open questions for the *why*. The last
 question is an **opt-in** for a 15-min chat → volunteers come to you, no cold outreach. Framed as "a
-beginner who's learning" (not "test my app"). Build it in **Google Forms** (free).
+beginner who's learning" (not "test my app"). Hosted as a **native form on the site** (Formspree),
+"Participate" section — no Google Forms.
 :::
 
 ## Intro text (top of the form / post)

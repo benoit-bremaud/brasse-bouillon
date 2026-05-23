@@ -51,6 +51,11 @@
       <li>Contact details (email, message) through the contact form.</li>
       <li>Newsletter subscription data (email).</li>
       <li>Product questionnaire data (profile, usage, priorities, suggestions).</li>
+      <li>
+        Feedback sent through the “Report” widget: the message you write, plus minimal technical
+        context (the page, the previous page, browser, screen size, language). Sent only when you
+        click to submit.
+      </li>
     </ul>
     <p>
       The site uses no third-party audience measurement tool and no tracking cookies.
@@ -66,8 +71,9 @@
 
     <h2>4. Recipients and international transfers</h2>
     <p>
-      Data may be processed by technical processors (Formspree for receiving forms, GitHub Pages
-      for static hosting). These services may involve transfers outside the EU (including the US).
+      Data may be processed by technical processors (Formspree for receiving forms, a Cloudflare
+      Workers service for receiving the “Report” widget feedback, GitHub Pages for static hosting).
+      These services may involve transfers outside the EU (including the US).
       Where required, appropriate safeguards are used (such as standard contractual clauses or
       equivalent mechanisms).
     </p>

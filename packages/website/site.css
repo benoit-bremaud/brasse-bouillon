@@ -414,11 +414,9 @@
           rgba(255, 255, 255, 0.2) 84%,
           transparent 93%
         );
-      box-shadow:
-        /* faint dark contour gives the bubble a visible edge on light bg */
-        inset 0 0 0 0.6px rgba(108, 80, 46, 0.3),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.45),
-        0 0 3px rgba(120, 90, 50, 0.18);
+      /* No box-shadow: the two radial gradients above already give the rim +
+         specular highlight. Dropping the (paint-expensive) multi-layer shadow
+         keeps hundreds of animated bubbles cheap to rasterize. */
       opacity: 0;
       /* Rise (Y) and sway (X) are split across the `translate` and
          `transform` properties so the acceleration isn't linearised by
@@ -444,6 +442,11 @@
       from { transform: translateX(calc(var(--sway) * -1)) scale(0.92); }
       to { transform: translateX(var(--sway)) scale(1.12); }
     }
+
+    /* Tab hidden: site.js sets `.anim-paused` on <html> so the compositor
+       stops spending frames on ambient motion nobody is watching. */
+    .anim-paused .bubble,
+    .anim-paused .dew-run { animation-play-state: paused; }
 
     @media (prefers-reduced-motion: reduce) {
       .bubbles { display: none; }
@@ -518,12 +521,11 @@
       width: var(--ds);
       height: var(--ds);
       pointer-events: none;
-      /* accelerating fall (gravity): slow start, speeding up. `--dr-dur` is
-         the whole cycle, mostly idle — the fall occupies only its first
-         ~22%, so a drip appears occasionally rather than looping nonstop
-         (animation-delay alone only delays the first iteration). */
-      animation: dew-run var(--dr-dur) cubic-bezier(0.6, 0.04, 0.98, 0.34)
-        var(--dr-delay) infinite;
+      /* accelerating fall (gravity): slow start, speeding up. Runs ONCE per
+         drip — site.js spawns one element, plays this single iteration, then
+         removes it on `animationend` and schedules the next drop. `forwards`
+         holds the end frame until removal so there is no snap-back. */
+      animation: dew-run var(--dr-dur) cubic-bezier(0.55, 0.06, 0.9, 0.32) forwards;
     }
 
     .dew-run__bead {
@@ -576,13 +578,13 @@
     }
 
     @keyframes dew-run {
-      /* The fall happens in the first ~22% of the cycle; the rest is idle
-         (invisible, parked at the bottom) so a drip is occasional. */
+      /* One-shot fall over the whole (short) duration. `--dr-dist` carries the
+         bead just past the card's bottom edge, so the clipped `.dew-layer`
+         masks it exactly as it leaves the card — it slides off instead of
+         stopping mid-card. Stays opaque throughout; the clip does the hiding. */
       0% { transform: translateY(0); opacity: 0; }
-      2% { opacity: 1; }
-      22% { transform: translateY(var(--dr-dist)); opacity: 1; }
-      26% { transform: translateY(var(--dr-dist)); opacity: 0; }
-      100% { transform: translateY(var(--dr-dist)); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(var(--dr-dist)); opacity: 1; }
     }
 
     @media (prefers-reduced-motion: reduce) {

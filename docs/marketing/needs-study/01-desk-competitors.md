@@ -92,12 +92,12 @@ rendre visible le **coin que personne n'occupe**. Les deux axes retenus, tirés 
 - **Brewer's Friend** — *puissant + un peu communautaire* : calculateurs réputés + parcours/copie de recettes, publication plafonnée. [MED]
 - **Little Bock** (FR) — *plutôt simple + un peu communautaire* : outil FR accessible, base de recettes, gratuit. [MED]
 - **Build-A-Beer** — *simple + communautaire* : génération de clone par IA + partage, gratuit. **Seul occupant de notre coin.** [HIGH]
-- **Brasse-Bouillon** (cible) — *simple/guidé + communautaire* : assistant débutant d'abord, puis clone versionné/crédité/re-scalé.
+- **Brasse-Bouillon** (cible) — *simple/guidé + communautaire* : assistant débutant d'abord, puis clone versionné, crédité, remis à l'échelle.
 
 **Lecture stratégique :**
 
 - Le coin *simple + communautaire* (haut-gauche) est **quasi vide** : seul **Build-A-Beer** y est → c'est notre champ de bataille, **pas** Brewfather/BeerSmith (qui dominent le bas-droit *puissant + solo*, terrain qu'on évite — cohérent avec « ne pas concourir sur le calcul »).
-- Différenciation *dans* le coin, face à Build-A-Beer : une génération IA jetable n'est pas une recette clone **versionnée + créditée + re-scalée** adossée à un **assistant guidé**. C'est la profondeur qui manque à Build-A-Beer.
+- Différenciation *dans* le coin, face à Build-A-Beer : une génération IA jetable n'est pas une recette clone **versionnée + créditée + remise à l'échelle** adossée à un **assistant guidé**. C'est la profondeur qui manque à Build-A-Beer.
 - Garde-fou : la zone communautaire est mortelle si menée *seule* (arrêt de Brew Guru, fév. 2026) → entrer par l'**assistant** (bas-gauche → haut-gauche), la communauté en **couche de rétention**.
 
 *Hypothèse à confirmer en terrain : ces placements reflètent la perception issue du desk, pas une mesure.*

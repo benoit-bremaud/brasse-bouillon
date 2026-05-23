@@ -105,7 +105,7 @@ fidéliser, mais ne différencient pas (les acteurs en place font déjà la plup
 > de brassage que vous attendez, et sans verrouillage.
 
 **Découpage formel (template Geoffrey Moore)** — chaque case s'appuie sur le desk et la
-[carte de positionnement](/01-desk-competitors) ; à confirmer en entretiens :
+[carte de positionnement](/01-desk-competitors#carte-de-positionnement) ; à confirmer en entretiens :
 
 | Case | Contenu |
 |---|---|

@@ -98,7 +98,7 @@ do not differentiate (incumbents already do most, and win on calculation).
 > setup — with the recipe organization and brew tracking you'd expect, and no lock-in.
 
 **Formal slots (Geoffrey Moore template)** — each slot rests on the desk research and the
-[positioning map](/en/01-desk-competitors); to confirm in interviews:
+[positioning map](/en/01-desk-competitors#positioning-map); to confirm in interviews:
 
 | Slot | Content |
 |---|---|

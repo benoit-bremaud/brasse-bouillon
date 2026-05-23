@@ -5,7 +5,7 @@ Première synthèse SWOT issue du desk — *à valider/affiner après le terrain
 
 | Interne | |
 |---|---|
-| **Forces** | Fondateur = membre de sa cible (débutant) → empathie & dogfooding. Conviction forte. Créneau différenciant identifié (clone versionné/crédité/re-scalé). Charte & site déjà en place. |
+| **Forces** | Fondateur = membre de sa cible (débutant) → empathie & dogfooding. Conviction forte. Créneau différenciant identifié (clone versionné, crédité, remis à l'échelle). Charte & site déjà en place. |
 | **Faiblesses** | Solo, temps contraint. **Pas dans la cible intermédiaire** (pour la couche communauté). Budget **0 €**. Recrutement terrain **à froid** (nouveau dans les communautés). Pas encore de produit testable. |
 
 | Externe | |

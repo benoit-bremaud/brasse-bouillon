@@ -33,10 +33,13 @@ classDiagram
     +LocalCartItem[] items
   }
   class LocalCartItem {
-    +string refId
+    +string key
     +LocalCartItemSource source
+    +string refId
+    +string name
     +ShopCategory category
     +int quantity
+    +string unit
   }
 
   ShoppingList "1" o-- "0..*" LocalCartItem
@@ -45,18 +48,19 @@ classDiagram
 
   class ShopCategory {
     <<enumeration>>
-    malt
-    hop
-    yeast
-    equipment
-    consumable
+    malts
+    houblons
+    levures
+    materiel
+    accessoires
+    kits
   }
   class PriceUnit {
     <<enumeration>>
-    eur_per_kg
-    eur_per_100g
-    eur_per_sachet
-    eur_per_piece
+    eurPerKg
+    eurPer100g
+    eurPerSachet
+    eurPerPiece
   }
   class LocalCartItemSource {
     <<enumeration>>
@@ -67,9 +71,12 @@ classDiagram
 
 ## Notes / suggestions
 
-- **Existing**: `Product` (price/priceUnit/category), `LocalCartItem`
-  (source/quantity), `ShopCategory`, `PriceUnit` are real. `Equipment` fields +
-  `EquipmentType` are the #621 CRUD addition (today equipment is read-only demo).
+- **Existing & real values**: `ShopCategory` = `malts / houblons / levures /
+  materiel / accessoires / kits` (French, `shop.types.ts`); `PriceUnit` literals
+  are `"€/kg" | "€/100g" | "€/sachet" | "€/pièce"` (shown as `eurPerKg`… in the
+  enum — Mermaid avoids `€` and `/`). `LocalCartItem` = `key/source/refId/name/
+  category/quantity/unit` (`cart.types.ts`). `Equipment` fields + `EquipmentType`
+  are the #621 CRUD addition (today equipment is read-only demo).
 - **`ShoppingList` is local** (the "cart" that was never surfaced, #653) — not a
   server order. **Suggestion**: persist it per user (so it survives reinstall)
   and let any recipe/scan append to the *same* list.

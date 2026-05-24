@@ -38,7 +38,7 @@ sequenceDiagram
 - **Local & persisted**: the list lives client-side (AsyncStorage), survives app
   restarts. No server order. **Suggestion** — one list per user, appended to from
   any recipe or scan (#777), not a per-recipe ephemeral cart.
-- **Grouping**: items group by `ShopCategory` (malts / hops / yeast / equipment)
+- **Grouping**: items group by `ShopCategory` (malts / houblons / levures / materiel / accessoires / kits)
   so the brewer shops efficiently.
 - **Share** is text today (parity with labels share) — a richer export (checklist
   PDF) is a later enhancement.

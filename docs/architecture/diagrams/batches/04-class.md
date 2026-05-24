@@ -2,7 +2,9 @@
 
 > **Feature**: epic #595; data model #605; 5-section detail #606.
 > **Shared entities**: `Measurement`, `Observation`, `Alert`, `BatchStep` are
-> detailed in `diagrams/brewing-session/04-class.md` — not redrawn here.
+> detailed in the sibling brewing-session conception (PR #1096 →
+> `docs/architecture/diagrams/brewing-session/04-class.md` once merged) — not
+> redrawn here.
 
 ## Context
 
@@ -59,8 +61,10 @@ classDiagram
 
   class BatchStatus {
     <<enumeration>>
+    planned
     in_progress
     completed
+    archived
   }
 ```
 
@@ -72,7 +76,9 @@ classDiagram
 - **`recipeId` is a snapshot link**: the batch references the recipe it was
   started from, but its step list is copied at start (see brewing-session) so a
   later recipe edit/fork does not mutate a recorded batch.
-- **`archivedAt`** is the only field this journal adds beyond #605 (for UC9
-  archive); confirm with the data-model issue before migration.
+- **`BatchStatus`** today is only `in_progress`/`completed` (mobile
+  `batch.types.ts`); **`planned` + `archived` are the #595/#605 additions** that
+  the lifecycle (`05-state`) introduces — flagged, confirm before migration.
+  `archivedAt` is the matching new timestamp (for UC9 archive).
 - **Entity field detail** (Measurement/Observation/Alert columns, enums) lives in
-  `brewing-session/04-class.md` — single source, cross-referenced.
+  the sibling brewing-session class diagram (PR #1096) — single source, cross-referenced.

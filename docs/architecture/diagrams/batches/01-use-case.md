@@ -2,8 +2,8 @@
 
 > **Feature**: epic #595 (Mes Brassins detail rewrite); #605 (data model),
 > #606 (5-section detail), #607 (measurement/observation entry), #608 (step state).
-> **Related**: the live guided execution is `diagrams/brewing-session/` — this
-> feature is the **journal / management** around batches.
+> **Related**: the live guided execution is the sibling brewing-session
+> conception (PR #1096) — this feature is the **journal / management** around batches.
 > **Personas**: Nicolas (track & compare batches), Claire (document experiments).
 
 ## Context

@@ -7,8 +7,8 @@
 
 Two journal interactions: loading the 5-section batch detail, and recording a
 measurement from the Measurements section (retrospective entry, any time — not
-necessarily mid-live-step). The live-step start/complete flow is in
-`brewing-session/02-sequence`.
+necessarily mid-live-step). The live-step start/complete flow is in the sibling
+brewing-session conception (PR #1096).
 
 ## Open the 5-section detail
 
@@ -42,10 +42,10 @@ sequenceDiagram
   participant DB as "DB"
 
   B->>S: Tap "Ajouter une mesure", pick type (OG/temp/pH), enter value
-  S->>UC: recordMeasurement(batchId, stepId?, type, value, unit)
-  UC->>HTTP: POST /batches/:id/measurements
+  S->>UC: recordMeasurement(batchId, stepId?, type, value, unit, takenAt=client now)
+  UC->>HTTP: POST /batches/:id/measurements (client timestamp in payload, #607)
   HTTP->>API: forward
-  API->>DB: insert Measurement (timestamp = now)
+  API->>DB: insert Measurement (persist client takenAt)
   API->>API: re-evaluate threshold alerts
   API-->>S: 201 { measurement, alerts? }
   S-->>B: append row to the Measurements table (+ alert badge if raised)

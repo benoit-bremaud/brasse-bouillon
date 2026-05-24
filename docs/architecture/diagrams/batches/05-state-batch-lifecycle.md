@@ -1,7 +1,8 @@
 # State diagram — batches — batch lifecycle (journal view)
 
 > **Feature**: epic #595; status model (#605).
-> **Related**: the per-step state machine is `brewing-session/05-state-batch-step.md`.
+> **Related**: the per-step state machine is the sibling brewing-session
+> conception (PR #1096 → `diagrams/brewing-session/05-state-batch-step.md`).
 
 ## Context
 
@@ -19,8 +20,8 @@ stateDiagram-v2
   in_progress --> completed: last step (Packaging) complete
   completed --> archived: Archive
   planned --> archived: Abandon (archive without brewing)
-  archived --> [*]
-  completed --> [*]
+  archived --> [*]: end of tracking
+  completed --> [*]: end of tracking (kept in history)
 ```
 
 ## Notes

@@ -22,7 +22,7 @@ classDiagram
     +string name
     +IngredientCategory category
     +bool isCustom
-    +UUID ownerId
+    +UUID ownerId «nullable — null if curated»
   }
   class Malt {
     +float colorEbc
@@ -46,7 +46,7 @@ classDiagram
   class SpecRow {
     +string label
     +string value
-    +string unit
+    +string unit «optional»
   }
   class RecipeIngredientRef {
     +UUID ingredientId

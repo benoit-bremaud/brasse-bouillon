@@ -13,12 +13,12 @@ users' catalogs and documents the (optional) promotion path.
 
 ```mermaid
 stateDiagram-v2
-  [*] --> custom_private: Brewer creates (isCustom=true, ownerId set)
-  custom_private --> custom_private: Brewer edits specs
-  custom_private --> curated: Maintainer promotes (isCustom=false, ownerId cleared)
-  custom_private --> [*]: Brewer deletes
-  [*] --> curated: Maintainer adds from reference (BrewDog DIY Dog, BeerXML fixtures)
-  curated --> [*]: Maintainer retires
+  [*] --> CustomPrivate: Brewer creates (isCustom=true, ownerId set)
+  CustomPrivate --> CustomPrivate: Brewer edits specs
+  CustomPrivate --> Curated: Maintainer promotes (isCustom=false, ownerId cleared)
+  CustomPrivate --> [*]: Brewer deletes
+  [*] --> Curated: Maintainer adds from reference (BrewDog DIY Dog, BeerXML fixtures)
+  Curated --> [*]: Maintainer retires
 ```
 
 ## Notes

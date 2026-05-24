@@ -17,34 +17,35 @@ that bypasses real auth.
 sequenceDiagram
   actor U as User
   participant S as "Mobile — LoginScreen"
-  participant UC as "Mobile — auth.use-cases"
+  participant Ctx as "core/auth/auth-context (useAuth)"
   participant HTTP as "core/http/http-client"
   participant API as "API — auth controller"
 
   U->>S: Enter email, tap "Continuer"
-  alt demo trigger credentials
-    S->>S: isDemoTriggerCredentials(email,pwd) → enter demo mode
-  else real account
-    S->>UC: checkIdentifier(email)
-    UC->>HTTP: POST /auth/identifier
-    HTTP->>API: forward
-    Note over API: enumeration-safe — same shape + timing whether or not the email exists
-    API-->>S: 200 { nextStep: "password" | "create" }
-    alt nextStep = password
-      U->>S: Enter password, tap "Se connecter"
-      S->>UC: signIn(email, password)
-      UC->>HTTP: POST /auth/login
+  S->>Ctx: checkIdentifier(email)
+  Ctx->>HTTP: POST /auth/identifier
+  HTTP->>API: forward
+  Note over API: enumeration-safe — same shape + timing whether or not the email exists
+  API-->>S: 200 { nextStep: "password" | "create" }
+  alt nextStep = password
+    U->>S: Enter password, tap "Se connecter"
+    S->>Ctx: signIn(email, password)
+    Note over Ctx: isDemoTriggerCredentials(email, password) checked HERE (needs both) → demo mode
+    alt demo trigger credentials
+      Ctx-->>S: enter demo mode (no API call)
+    else real account
+      Ctx->>HTTP: POST /auth/login
       HTTP->>API: forward
       API-->>S: 200 { user, accessToken }
       S->>S: persist token (session.ts), redirect to app
-    else nextStep = create
-      U->>S: Set a password, tap "Créer mon compte"
-      S->>UC: register(email, password)
-      UC->>HTTP: POST /auth/register
-      HTTP->>API: forward
-      API-->>S: 201 { user, accessToken }
-      S->>S: persist token, redirect to app
     end
+  else nextStep = create
+    U->>S: Set a password, tap "Créer mon compte"
+    S->>Ctx: register(email, password)
+    Ctx->>HTTP: POST /auth/register
+    HTTP->>API: forward
+    API-->>S: 201 { user, accessToken }
+    S->>S: persist token, redirect to app
   end
 ```
 

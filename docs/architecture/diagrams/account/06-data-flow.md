@@ -25,7 +25,8 @@ flowchart LR
   App -->|"PII: name, username, avatar, prefs"| API
   User -->|"Request export"| App
   App -->|"GET /account/export"| API
-  API -->|"PII: full account bundle"| Export
+  API -->|"PII: full account bundle (response)"| App
+  App -->|"writes export file (local)"| Export
   Export -.->|"shared via OS by the user"| User
   User -->|"Request deletion"| App
   App -->|"DELETE /account"| API

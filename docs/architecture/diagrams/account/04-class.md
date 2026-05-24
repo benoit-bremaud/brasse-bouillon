@@ -18,10 +18,15 @@ classDiagram
     +string email
     +string username
     +string firstName
+    +string lastName
     +Role role
+    +bool isActive
+    +Date createdAt
+    +Date updatedAt
   }
   class Session {
     +string accessToken
+    +User user
     +Date expiresAt
   }
   class Profile {
@@ -44,6 +49,7 @@ classDiagram
   class Role {
     <<enumeration>>
     USER
+    MODERATOR
     ADMIN
     CREATOR
   }
@@ -61,13 +67,15 @@ classDiagram
 
 ## Notes / suggestions
 
-- **Today** the `User` has `id/email/username/firstName/role` (role is a
-  `string`); `Session` has only `accessToken`. Everything else (`Profile`,
-  `Consent`, `expiresAt`, the enums) is the **#645/#836 addition** — flagged, not
-  assumed.
-- **`Role` enum (#821)**: promote the current `string` role to a typed enum with
-  CREATOR above ADMIN (single-holder, seeded once). **Suggestion**: capture the
-  CREATOR-uniqueness invariant in an ADR — it is a structural rule, not just data.
+- **Today** (`features/auth/domain/auth.types.ts`) the `User` is
+  `id/email/username/firstName?/lastName?/role:string/isActive/createdAt/updatedAt`;
+  `AuthSession` = `accessToken` + `user`. `Profile`, `Consent`, `expiresAt`, and
+  the typed enums are the **#645/#836 additions** — flagged, not assumed.
+- **`Role` enum**: the API enum today is `USER / MODERATOR / ADMIN`
+  (`packages/api/src/common/enums/role.enum.ts`); **`CREATOR` is planned (#821)**,
+  not yet in the enum. Promote the mobile `string` role to the typed enum.
+  **Suggestion**: capture the CREATOR-uniqueness invariant (single-holder above
+  ADMIN) in an ADR — a structural rule, not just data.
 - **`Locale` ties to the bilingual FR/EN epic** (#512): the language preference
   here is the per-user override of the app default — coordinate with the i18n
   chantier so there is one source of truth for locale.

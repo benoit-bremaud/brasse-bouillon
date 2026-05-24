@@ -5,8 +5,8 @@
 ## Context
 
 The app's authentication state, from anonymous to authenticated, including the
-demo-mode branch and token expiry. Drives the `(auth)` vs `(app)` route guard in
-`app/_layout.tsx`.
+demo-mode branch and token expiry. Drives the `(auth)` vs `(app)` route guard
+(redirects in `app/(auth)/_layout.tsx` and `app/(app)/_layout.tsx`).
 
 ## Diagram
 

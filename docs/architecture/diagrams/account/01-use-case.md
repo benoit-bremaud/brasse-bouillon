@@ -64,7 +64,9 @@ flowchart LR
   profile (ux-refonte target); they are separate domains, linked here.
 - **RGPD (UC9/UC10)**: data export + account deletion are first-class user
   rights (#645) — see the data-flow diagram for the PII involved.
-- **RBAC (UC11)**: roles are USER / ADMIN / CREATOR (#821, CREATOR single-holder
-  above ADMIN). Role assignment is an admin goal, distinct from self-service.
+- **RBAC (UC11)**: roles today are USER / MODERATOR / ADMIN
+  (`role.enum.ts`); **CREATOR is planned (#821**, single-holder above ADMIN).
+  Role assignment is an admin goal, distinct from self-service.
 - **Demo mode**: typing the reserved demo credentials on UC1 enters demo mode
-  (existing `isDemoTriggerCredentials`), not a real auth — a separate path.
+  (checked in `core/auth/auth-context`, `isDemoTriggerCredentials`), not a real
+  auth — a separate path.

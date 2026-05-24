@@ -29,20 +29,20 @@ flowchart LR
     UCs --> HTTP
   end
 
-  subgraph API ["packages/api — batches module"]
+  subgraph API ["packages/api/src/batch — batch module"]
     direction TB
-    Ctrl["batches.controller (REST: steps start/complete/...)"]
-    Svc["batches.service (state machine, alert eval)"]
+    Ctrl["BatchController (REST: steps start/complete/...)"]
+    Svc["BatchService (state machine, alert eval)"]
     Ent["domain entities + TypeORM (Batch, BatchStep, Measurement, Observation, Alert)"]
     Ctrl --> Svc
     Svc --> Ent
   end
 
-  subgraph Recipes ["packages/api — recipe module"]
+  subgraph Recipes ["packages/api/src/recipe — recipe module"]
     RStep["RecipeStep (source of the step list)"]
   end
 
-  DB[("PostgreSQL")]
+  DB[("SQLite (better-sqlite3, TypeORM)")]
 
   HTTP -->|"HTTPS REST"| Ctrl
   Ent --> DB
@@ -56,7 +56,7 @@ flowchart LR
   bypass visible.
 - **Demo toggle**: `core/data/data-source` lets the use-cases short-circuit to
   the in-memory demo batch — the demo path does not hit the API.
-- **Recipe-derived**: `batches.service` reads `RecipeStep` from the recipe module
+- **Recipe-derived**: `BatchService` reads `RecipeStep` from the recipe module
   to seed the batch step list at session start (snapshot), then never depends on
   it again — keeps an in-flight batch stable if the recipe changes.
 - **ADR-0005**: batch/session data is product data → lives in `packages/api`

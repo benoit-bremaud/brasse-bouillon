@@ -6,8 +6,9 @@
 ## Context
 
 The domain entities a guided session needs and their relations. Captures the
-#605 extension (Measurement / Observation / Alert + batch metadata + step
-timestamps) and the recipe link that makes the step list **recipe-derived**.
+data-model extension from #605 (Measurement / Observation / Alert + batch
+metadata + step timestamps) and the recipe link that makes the step list
+**recipe-derived**.
 This is the conceptual model (cross-package); the persistence mapping (TypeORM
 entities) and the API/mobile split live in `03-component.md`.
 
@@ -75,7 +76,7 @@ classDiagram
   BatchStep "1" o-- "0..*" Measurement
   BatchStep "1" o-- "0..*" Observation
   BatchStep "1" o-- "0..*" Alert
-  RecipeStep "1" ..> "1" BatchStep : seeds (recipe-derived)
+  RecipeStep "1" ..> "0..*" BatchStep : seeds (one step → many batch steps)
 
   class BatchStatus {
     <<enumeration>>

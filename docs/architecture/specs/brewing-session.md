@@ -31,9 +31,9 @@ typical for an all-grain ale.
 | # | Phase (FR) | Typ. temp | Typ. duration | Derived from (recipe data) | Optional |
 |---|-----------|-----------|---------------|----------------------------|----------|
 | 1 | **Empâtage** (Mash) | ~65–67 °C | 60 min | mash step(s) `type=infusion/temperature` | no |
-| 2 | **Rinçage** (Sparge / mash-out) | ~75–77 °C | 10–30 min | mash-out + sparge (BeerJSON: sparge = mash step) | no (BIAB may skip) |
+| 2 | **Rinçage** (Sparge / mash-out) | ~75–77 °C | 10–30 min | mash-out + sparge (BeerJSON: sparge = mash step) | optional (BIAB skips) |
 | 3 | **Ébullition** (Boil) | 100 °C | 60–90 min (`boil_time`) | boil step + hop schedule (60/30/15/5/flameout) | no |
-| 4 | **Whirlpool / hop-stand** | ~80 °C | 10–20 min | aroma/whirlpool hop additions | optional |
+| 4 | **Whirlpool / hop-stand** | ~80 °C | 10–20 min | aroma/whirlpool hop additions | optional (see D2) |
 | 5 | **Refroidissement** (Cool/Chill) | → 18–22 °C | 20–60 min | cool step to pitch temp | no |
 | 6 | **Levurage** (Pitch) | 18–22 °C | instant | yeast + pitch temp | no |
 | 7 | **Fermentation primaire** | yeast temp (~18–20 °C ale) | 7–14 days (`primary_age`) | fermentation stage 1 | no |
@@ -41,9 +41,12 @@ typical for an all-grain ale.
 | 9 | **Garde + conditionnement** (Cold crash / Packaging) | < 4 °C crash; then carbonation | 1–2 h active + 2–3 wks bottle conditioning | packaging + `carbonation`/`age` | no |
 
 Mapping to the current API `RecipeStepType` enum (MASH, BOIL, WHIRLPOOL,
-FERMENTATION, PACKAGING — 5 values): **#781 extends it** toward the 9-phase set
-(add SPARGE, COOL, PITCH, split FERMENTATION into PRIMARY/DRY_HOP/CONDITION).
-This extension is a schema decision → to be ratified in an ADR before build.
+FERMENTATION, PACKAGING — 5 values): **#781 extends it** toward the 9-phase
+`BrewPhase` set used in the class diagram — `mash, sparge, boil, whirlpool, cool,
+pitch, primary_fermentation, dry_hop, conditioning_packaging` (adds SPARGE, COOL,
+PITCH; splits FERMENTATION into `primary_fermentation` + `dry_hop`; PACKAGING
+becomes `conditioning_packaging`). This extension is a schema decision (D1) → to
+be ratified in an ADR before build.
 
 ## Pedagogical tips (the "why", vulgarized FR)
 
@@ -75,7 +78,8 @@ During a session the brewer records, per step:
 
 `pending → in_progress → completed`, plus `paused` (resumable) and `skipped`
 (with reason, for optional phases). Transitions persist real timestamps
-(`actual_start`, `actual_end`). Countdown timers run on the `in_progress` step
+(`actualStart`, `actualEnd` in the domain model; `actual_start` / `actual_end`
+as TypeORM snake_case columns). Countdown timers run on the `in_progress` step
 from its planned duration; the start timestamp is persisted so the timer
 survives app close/reopen. Long phases (fermentation 7+ days) display in
 days/hours, not seconds.

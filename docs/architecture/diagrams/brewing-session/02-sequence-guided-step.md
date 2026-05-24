@@ -19,7 +19,7 @@ sequenceDiagram
   participant S as "Mobile — BrewingSessionScreen"
   participant UC as "Mobile — step.use-cases"
   participant HTTP as "core/http/http-client"
-  participant API as "API — batches controller"
+  participant API as "API — BatchController (src/batch)"
   participant DB as "DB"
 
   Note over S: current step = in_progress (recipe-derived)

@@ -22,7 +22,7 @@ classDiagram
     +string name
     +IngredientCategory category
     +bool isCustom
-    +UUID ownerId «nullable — null if curated»
+    +UUID ownerId
   }
   class Malt {
     +float colorEbc
@@ -46,7 +46,7 @@ classDiagram
   class SpecRow {
     +string label
     +string value
-    +string unit «optional»
+    +string unit
   }
   class RecipeIngredientRef {
     +UUID ingredientId
@@ -86,7 +86,9 @@ classDiagram
   sparse) so a recipe can reference an exotic ingredient not yet curated.
 - **Datasheet** = `SpecGroup`/`SpecRow` (the mobile spec-group structure), e.g.
   Malt → "Color 6 EBC", "Extract 80%". Curated entries are rich; custom ones may
-  have just a name + the one or two specs the brewer knows.
+  have just a name + the one or two specs the brewer knows. `ownerId` is
+  **nullable** (null when curated); `SpecRow.unit` is **optional** (matches
+  `Malt/Hop/YeastSpecRow`).
 - **API catalog** has more categories than the mobile union (fermentable / water
   / misc / style / equipment / producer / distributor) — those are read-only
   reference tables (intentionally parallel, see the repo's CPD exclusions). The

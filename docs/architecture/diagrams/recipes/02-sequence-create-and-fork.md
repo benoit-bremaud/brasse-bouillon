@@ -19,7 +19,7 @@ sequenceDiagram
   participant S as "Mobile — RecipeEditorScreen"
   participant UC as "Mobile — recipes.use-cases (NEW)"
   participant HTTP as "core/http/http-client"
-  participant API as "API — recipe.controller"
+  participant API as "API — RecipeController (src/recipe)"
   participant DB as "DB"
 
   B->>S: Fill name, style, targets (OG/IBU/volume)
@@ -30,10 +30,10 @@ sequenceDiagram
   API->>DB: insert Recipe (version=1, rootRecipeId=self, visibility=private)
   API-->>S: 201 { recipe }
 
-  loop Add ingredients / steps
+  loop Add ingredients / steps (endpoints to ADD — see note)
     B->>S: Add hop / fermentable / yeast / step
     S->>UC: addIngredient(recipeId, item) / addStep(recipeId, step)
-    UC->>HTTP: POST /recipes/:id/{hops|fermentables|yeasts|steps}
+    UC->>HTTP: POST /recipes/:id/{hops|fermentables|yeasts|steps} (planned)
     HTTP->>API: forward
     API->>DB: insert satellite (recipe_id FK)
     API-->>S: 201
@@ -42,7 +42,10 @@ sequenceDiagram
   S-->>B: render the 5-tab detail (live-scaled stats)
 ```
 
-## Fork a recipe into a new version
+## Fork a recipe into a new version (PLANNED — no REST route yet)
+
+> Fork exists only as a pure domain service today (#882/#883); the
+> `POST /recipes/:id/fork` route + mobile use-case below are the target to build.
 
 ```mermaid
 sequenceDiagram
@@ -50,12 +53,12 @@ sequenceDiagram
   participant S as "Mobile — RecipeDetailsScreen"
   participant UC as "Mobile — recipes.use-cases (NEW)"
   participant HTTP as "core/http/http-client"
-  participant API as "API — recipe.controller"
+  participant API as "API — RecipeController (src/recipe)"
   participant DB as "DB"
 
   B->>S: Tap "Enregistrer comme nouvelle version"
   S->>UC: forkRecipe(sourceId)
-  UC->>HTTP: POST /recipes/:id/fork
+  UC->>HTTP: POST /recipes/:id/fork (planned)
   HTTP->>API: forward
   API->>DB: deep-copy satellites; new Recipe (version+1, same rootRecipeId, parentRecipeId=source)
   API-->>S: 201 { recipe }

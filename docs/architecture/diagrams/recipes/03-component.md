@@ -29,16 +29,16 @@ flowchart LR
     Data --> HTTP
   end
 
-  subgraph API ["packages/api — recipe module"]
+  subgraph API ["packages/api/src/recipe — recipe module"]
     direction TB
-    Ctrl["recipe.controller (REST: CRUD, steps, ingredients, import-from-community, fork)"]
-    Svc["recipe.service (versioning, deep-copy, provenance)"]
+    Ctrl["RecipeController (REST: CRUD, GET/PATCH steps, ingredients, import-from-community)"]
+    Svc["RecipeService (versioning, deep-copy, provenance) — fork = domain service, not yet exposed"]
     Ent["entities: Recipe + Step/Hop/Fermentable/Yeast/Additive/Water (TypeORM)"]
     Ctrl --> Svc
     Svc --> Ent
   end
 
-  DB[("PostgreSQL")]
+  DB[("SQLite (better-sqlite3, TypeORM)")]
 
   HTTP -->|"HTTPS REST"| Ctrl
   Ent --> DB
@@ -49,8 +49,10 @@ flowchart LR
 - **Egress**: all recipe network calls go through `data/recipes.api` →
   `core/http/http-client`. No direct `fetch` in screens.
 - **Gap made visible**: the mobile `application` + `presentation` write path
-  (create/edit/delete/fork + RecipeEditorScreen) is the missing layer — backend
-  controller/service/entities already expose it.
+  (create/edit/delete + RecipeEditorScreen) is the missing layer — the backend
+  already exposes **create/update/delete + GET/PATCH steps + import-from-community**.
+  **Fork is not yet a REST route** (only a pure domain service today, #882/#883) —
+  it needs both an endpoint and the mobile UI.
 - **ADR-0005**: recipe data is product data → `packages/api`, never the
   beer-encyclopedia service. The encyclopedia only feeds *scan* matching (a
   recipe's `style` tag is used there, read-only).

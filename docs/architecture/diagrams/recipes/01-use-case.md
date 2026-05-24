@@ -60,15 +60,17 @@ flowchart LR
 
 ## Notes
 
-- **Status today** (see `06-status` note in PR): UC7–UC12 (read/list/scale/clone/
-  start) are implemented; **UC1–UC6 (write CRUD + fork) have backend endpoints
-  but no mobile UI** — the central open gap (#410–#420). UC13/UC14 (BeerXML) are
-  planned (#778/#865/#881).
+- **Status today**: UC7–UC12 (read/list/scale/clone/start) are implemented.
+  **UC1–UC5 (create/edit/delete + ingredients/steps)** have backend **create/update/
+  delete** endpoints (steps are GET + PATCH today) but **no mobile UI** — the
+  central open gap (#410–#420). **UC6 fork** has no REST route yet (pure domain
+  service only, #882/#883). UC13/UC14 (BeerXML) are planned (#778/#865/#881).
 - **Clone vs fork** are distinct goals: UC11 *clone a community recipe* deep-copies
   a public recipe into a **new private root** (own lineage, provenance kept); UC6
   *fork* creates a **new version within my own lineage** (`version+1`,
   `parentRecipeId` → source). Both reuse the same versioning model (class diagram).
 - **UC12 (start a session)** is the hand-off to the brewing-session feature — its
-  own use-case set lives in `diagrams/brewing-session/`.
+  own use-case set is the sibling conception PR #1096 (merges into
+  `docs/architecture/diagrams/brewing-session/`).
 - **No `Beer` actor/entity**: recipes are the core unit; the old "Recipe.cloneOf →
   Beer.id" note is superseded by the root/parent versioning model.

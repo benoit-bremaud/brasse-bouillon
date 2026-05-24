@@ -38,6 +38,9 @@ classDiagram
     +int brewCount
     +float avgRating
     +bool isOfficial
+    +Date lastBrewedAt
+    +Date createdAt
+    +Date updatedAt
   }
   class RecipeStep {
     +UUID recipeId
@@ -87,6 +90,7 @@ classDiagram
     +float mashTemperatureC
     +float spargeTemperatureC
     +float calciumPpm
+    +float magnesiumPpm
     +float sulfatePpm
     +float chloridePpm
     +float phTarget
@@ -136,5 +140,6 @@ classDiagram
 - **Ingredient satellites** are one-to-many by `recipeId` FK; `RecipeWater` is
   0..1 (one water profile per recipe). Enums shown are the load-bearing ones;
   fermentable/yeast/additive type enums omitted for space (exist in the API).
-- **`RecipeStepType` (5 values)** is shared with the brewing session; its 9-phase
-  extension is brewing-session **D1** (ADR before build), not decided here.
+- **`RecipeStepType` (5 values)** is shared with the brewing session; its planned
+  9-phase extension (decision **D1**, tracked in #781/#866 and the sibling
+  brewing-session conception PR #1096) needs an ADR before build — not decided here.

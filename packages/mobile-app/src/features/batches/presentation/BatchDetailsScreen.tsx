@@ -182,7 +182,6 @@ export function BatchDetailsScreen({ batchId }: Props) {
     >
       <ListHeader
         title="Détails du brassin"
-        subtitle={`ID : ${batchId.slice(0, 8)}`}
         action={
           <HeaderBackButton
             label="Mes brassins"

@@ -31,12 +31,12 @@ export default function AppLayout() {
             headerShown: true,
             headerTransparent: true,
             headerStyle: {
-              height: 152,
+              height: 72,
             },
             tabBarStyle: { display: "none", position: "absolute" },
             headerTitle: () => (
               <View style={styles.headerTitleContainer}>
-                <BrandLogo variant="icon" size={120} />
+                <BrandLogo variant="icon" size={38} />
                 <Text style={styles.headerTitleText}>Brasse Bouillon</Text>
               </View>
             ),
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
   },
   headerTitleText: {
     color: colors.brand.secondary,
-    fontSize: typography.size.h2,
-    lineHeight: typography.lineHeight.h2,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
   },
 });

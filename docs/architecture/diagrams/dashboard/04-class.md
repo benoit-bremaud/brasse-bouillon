@@ -34,7 +34,7 @@ classDiagram
     +int batchesInProgress
     +float successRate
     +float volumeBrewedL
-    +int recipesSigned
+    +int recipesAuthored
   }
   class StatisticsSnapshot {
     +UUID userId
@@ -47,10 +47,9 @@ classDiagram
 
   class Period {
     <<enumeration>>
-    last_30d
-    last_90d
     year
-    all
+    90d
+    30d
   }
   class AlertSeverity {
     <<enumeration>>
@@ -63,7 +62,12 @@ classDiagram
 ## Notes / suggestions
 
 - **Derived, not stored**: both view-models are computed from `Batch`/`Recipe`
-  (see batches/recipes class diagrams). No new core entity is required for v0.
+  (see the sibling batches/recipes conception PRs #1098/#1097). No new core entity
+  is required for v0.
+- **`Period`** mirrors the existing mobile `PeriodKey` = `"year" | "90d" | "30d"`
+  (`DashboardScreen.tsx`); there is no `all` option.
+- **`recipesAuthored`** = recipes created/owned by the user (renamed from the
+  ambiguous "recipesSigned").
 - **`StatisticsSnapshot` is optional**: only worth persisting if aggregation
   over many batches becomes slow. **Suggestion** — start with on-the-fly compute
   (KISS); add the snapshot cache only if profiling shows a need (YAGNI).

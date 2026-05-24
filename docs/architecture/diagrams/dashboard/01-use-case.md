@@ -1,7 +1,8 @@
 # Use-case diagram — dashboard — overview & unified statistics
 
 > **Feature**: home rewrite #829; unified Statistics screen #646; nav unify #611.
-> **Refonte**: `docs/design/ux-refonte/02-target-ia.md` (Accueil + Statistiques).
+> **Refonte**: sibling PR #1094 → `docs/design/ux-refonte/02-target-ia.md`
+> (Accueil + Statistiques), once merged.
 > **Personas**: Léa (clear next action), Nicolas/Marc (track & compare).
 
 ## Context

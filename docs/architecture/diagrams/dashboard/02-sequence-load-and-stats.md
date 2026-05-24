@@ -20,10 +20,10 @@ sequenceDiagram
 
   B->>S: Open Accueil
   S->>UC: getDashboardViewModel()
-  UC->>HTTP: GET /batches?status=active
+  UC->>HTTP: GET /batches (no status param today)
   HTTP->>API: forward
-  API-->>UC: active batches (+ steps, alerts)
-  UC->>UC: derive KPIs (active count, due actions, critical alerts)
+  API-->>UC: batches (+ steps, alerts)
+  UC->>UC: filter active + derive KPIs (active count, due actions, critical alerts)
   UC-->>S: DashboardViewModel
   S-->>B: render KPIs + alerts + active batches + journey entries
 ```
@@ -40,12 +40,12 @@ sequenceDiagram
 
   B->>S: Open Statistiques (default period = year)
   S->>UC: getStatistics(period)
-  UC->>HTTP: GET /batches + /recipes (period-filtered)
+  UC->>HTTP: GET /batches + /recipes (no period param — filter client-side)
   HTTP->>API: forward
   API-->>UC: rows
-  UC->>UC: aggregate (brewed, in-progress, success rate, volume, signed recipes)
+  UC->>UC: filter by period + aggregate (brewed, in-progress, success rate, volume, authored recipes)
   UC-->>S: StatisticsViewModel
-  B->>S: Change period (30d / 90d / all)
+  B->>S: Change period (year / 90d / 30d)
   S->>UC: getStatistics(newPeriod)
   UC-->>S: recomputed StatisticsViewModel
 ```

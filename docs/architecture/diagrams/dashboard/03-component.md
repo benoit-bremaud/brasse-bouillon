@@ -1,7 +1,9 @@
 # Component diagram — dashboard — structure & boundaries
 
 > **Feature**: home rewrite #829; unified Statistics #646.
-> **ADRs**: ADR-0002 (centralized backend), ADR-0005 (product data in the API).
+> **Related ADRs**: [ADR-0002](../../decisions/0002-centralized-nestjs-backend.md)
+> (centralized backend), [ADR-0005](../../decisions/0005-backend-split-encyclopedia-vs-product.md)
+> (product data in the API).
 
 ## Context
 
@@ -34,8 +36,8 @@ flowchart LR
     Recipes["recipe module"]
   end
 
-  HTTP -->|"GET active batches"| Batches
-  HTTP -->|"GET recipes / counts"| Recipes
+  HTTP -->|"GET /batches"| Batches
+  HTTP -->|"GET /recipes"| Recipes
 ```
 
 ## Notes / suggestions

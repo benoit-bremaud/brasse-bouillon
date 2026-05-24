@@ -19,17 +19,17 @@ sequenceDiagram
   participant EX as "Export (expo-print / pdf-lib)"
 
   B->>Bd: "Créer l'étiquette" (from finished batch)
-  Bd->>UC: buildAutofill(batchId)
-  UC-->>E: LabelDraft (autofill: name/style/ABV/volume/brewer/date)
-  B->>E: Pick template / palette / icon, adjust name
-  E->>E: live preview (legal mention always rendered)
+  Bd->>UC: createLabelDraftFromBatch(batchId)
+  UC-->>E: LabelDraft (autofillFields: beerName/style/abv/volumeLiters/breweryName/brewDateIso)
+  B->>E: Pick template / palette / icon, adjust name + subtitle
+  E->>E: live preview (legalHint always rendered)
   B->>E: Save draft
-  E->>UC: saveLabelDraft(draft)
+  E->>UC: updateLabelDraft(draft)
 
   rect rgb(245,245,245)
-    note over B,EX: Export (#629)
+    note over B,EX: Export — PLANNED (#629, not yet implemented)
     B->>E: Tap "Exporter", choose format + quantity
-    E->>UC: exportLabel(draftId, format, quantity)
+    E->>UC: exportLabel(draftId, format, quantity) (to build)
     UC->>EX: render (PDF A4 N-up + cut marks / PNG / print)
     EX-->>UC: file / print job
     UC-->>B: OS share/print sheet

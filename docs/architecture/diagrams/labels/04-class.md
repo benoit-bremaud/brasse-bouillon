@@ -14,29 +14,33 @@ code. The mandatory legal mention is a domain constant, not an editable field.
 ```mermaid
 classDiagram
   class LabelDraft {
-    +UUID id
-    +UUID batchId
-    +UUID recipeId
-    +LabelDraftStatus status
+    +string id
+    +string batchId
     +LabelBottleFormat bottleFormat
-    +LabelAutofillFields autofill
-    +LabelEditableFields editable
-    +Date createdAt
+    +LabelTemplateId templateId
+    +LabelEditableFields editableFields
+    +LabelAutofillFields autofillFields
+    +LabelPreviewSnapshot previewSnapshot
+    +LabelDraftStatus status
+    +string updatedAt
   }
   class LabelAutofillFields {
     +string beerName
     +string style
     +float abv
     +float volumeLiters
-    +string brewer
-    +Date brewDate
+    +string breweryName
+    +string brewDateIso
   }
   class LabelEditableFields {
     +string name
-    +string style
-    +LabelTemplateId templateId
+    +string subtitle
     +LabelPaletteId paletteId
     +LabelIconId iconId
+  }
+  class LabelPreviewSnapshot {
+    +string title
+    +string legalHint
   }
   class LabelExport {
     +ExportFormat format
@@ -48,8 +52,9 @@ classDiagram
 
   LabelDraft "1" o-- "1" LabelAutofillFields
   LabelDraft "1" o-- "1" LabelEditableFields
-  LabelDraft "1" ..> "1" LegalMention : always rendered (Loi Évin)
-  LabelDraft "1" ..> "0..*" LabelExport : produces
+  LabelDraft "1" o-- "1" LabelPreviewSnapshot
+  LabelPreviewSnapshot "1" ..> "1" LegalMention : legalHint (Loi Évin)
+  LabelDraft "1" ..> "0..*" LabelExport : produces (planned #629)
 
   class LabelDraftStatus {
     <<enumeration>>
@@ -58,9 +63,8 @@ classDiagram
   }
   class LabelBottleFormat {
     <<enumeration>>
-    cl33
-    cl44
-    cl75
+    33cl_long_neck
+    75cl_champenoise
   }
   class LabelTemplateId {
     <<enumeration>>

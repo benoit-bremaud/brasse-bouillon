@@ -34,16 +34,16 @@ sequenceDiagram
   participant S as "Mobile — topic / tip with term"
   participant UC as "Mobile — glossary.use-cases"
   participant HTTP as "core/http/http-client"
-  participant API as "API — glossary (#914)"
+  participant API as "API — academy glossary (#914)"
 
-  B->>S: Tap a highlighted term
+  B->>S: Long-press a highlighted term (#783)
   S->>UC: getGlossaryTerm(slug)
   alt cached / bundled
     UC-->>S: term + definition (local)
   else API-backed
-    UC->>HTTP: GET /glossary/:slug
+    UC->>HTTP: GET /academy/glossary (list, then resolve slug) — #914
     HTTP->>API: forward
-    API-->>S: term + definition
+    API-->>S: terms + definitions
   end
   S-->>B: tooltip / modal
 ```

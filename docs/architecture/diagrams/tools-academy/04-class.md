@@ -33,16 +33,23 @@ classDiagram
   }
   class WaterStylePreset {
     +WaterStylePresetId id
-    +IonRange calcium
-    +IonRange sulfate
-    +IonRange chloride
+    +string name
+    +string description
+    +IonRange ca
+    +IonRange mg
+    +IonRange na
+    +IonRange so4
+    +IonRange cl
+    +IonRange hco3
   }
   class AcademyTopic {
     +string slug
     +string title
     +AcademyTopicStatus status
-    +AcademyMascotVariant mascot
-    +CalculatorSlug calculator
+    +AcademyMascotVariant mascotVariant
+    +string mascotAlt
+    +string calculatorDescription
+    +int calculatorOrder
   }
   class GlossaryTerm {
     +string term
@@ -51,7 +58,7 @@ classDiagram
 
   Calculator ..> CalculationResult : produces
   SavedCalculation ..> CalculationResult : stores
-  AcademyTopic ..> Calculator : links (optional)
+  AcademyTopic ..> Calculator : links by slug (calculatorOrder/Description)
   AcademyTopic ..> GlossaryTerm : references
 
   class CalculatorSlug {
@@ -77,8 +84,11 @@ classDiagram
 - **Calculators are pure** (`@/core/brewing-calculations`): inputs → result, no
   state. `SavedCalculation` (#657) is the only persistence, and only if save is
   built — KISS/YAGNI until then.
-- **`AcademyTopic.calculator`** already links a topic to its calculator (UC8) —
-  the learn→compute bridge exists in the type.
+- **`AcademyTopic`** has no direct `calculator` field; it carries
+  `calculatorDescription` + `calculatorOrder` and links to a calculator **by slug
+  convention** (the learn→compute bridge). `AcademyTopicStatus` literals are
+  `"ready"` / `"coming-soon"` (rendered `coming_soon` in the enum — Mermaid avoids
+  the hyphen).
 - **`GlossaryTerm`** is content; **suggestion** — back it by the API (#914) and
   reuse it for the brewing-session pedagogical tips + recipe term tooltips, so
   there is **one glossary** across the app rather than three.

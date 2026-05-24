@@ -1,8 +1,8 @@
 # Use-case diagram — tools & academy — calculators & learning
 
-> **Feature**: brewing calculators (E03, shipped) + academy/glossary (E06,
-> shipped); enrichments #657 (save/history), #783/#914 (glossary tooltips→API),
-> #660 (unit i18n), #892 (BJCP styles).
+> **Feature**: brewing calculators (E03, shipped) + academy topics (E06; the
+> `glossaire` topic itself is still `status: "coming-soon"`); enrichments #657
+> (save/history), #783/#914 (glossary tooltips→API), #660 (unit i18n), #892 (BJCP).
 > **Refonte**: ux-refonte merges these into one "Apprendre & outils" hub.
 > **Personas**: Léa (learn the why), Nicolas/Marc (compute precisely).
 

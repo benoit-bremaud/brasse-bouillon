@@ -1,4 +1,4 @@
-import { colors, spacing, typography } from "@/core/theme";
+import { brandHeader, colors, spacing, typography } from "@/core/theme";
 import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
@@ -31,12 +31,12 @@ export default function AppLayout() {
             headerShown: true,
             headerTransparent: true,
             headerStyle: {
-              height: 72,
+              height: brandHeader.height,
             },
             tabBarStyle: { display: "none", position: "absolute" },
             headerTitle: () => (
               <View style={styles.headerTitleContainer}>
-                <BrandLogo variant="icon" size={38} />
+                <BrandLogo variant="icon" size={brandHeader.logoSize} />
                 <Text style={styles.headerTitleText}>Brasse Bouillon</Text>
               </View>
             ),

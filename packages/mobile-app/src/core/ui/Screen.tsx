@@ -1,4 +1,4 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { brandHeader, colors, radius, spacing, typography } from "@/core/theme";
 import {
   ImageBackground,
   Pressable,
@@ -33,7 +33,7 @@ export function Screen({
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.includes("auth");
-  const topPadding = isAuth ? spacing.md : 64; // clears the compact transparent brand header
+  const topPadding = isAuth ? spacing.md : brandHeader.contentClearance;
 
   if (isLoading) {
     return (

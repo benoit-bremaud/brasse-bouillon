@@ -1,4 +1,4 @@
-import { colors, radius, spacing, typography } from "@/core/theme";
+import { brandHeader, colors, radius, spacing, typography } from "@/core/theme";
 import {
   ImageBackground,
   Pressable,
@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BeerMugLoader } from "@/core/ui/BeerMugLoader";
 import { usePathname } from "expo-router";
-import yellowBackground from "@/../assets/images/Yellow_Background.png";
+import appBackground from "@/../assets/images/beer-gradient-background.png";
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -33,12 +33,12 @@ export function Screen({
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.includes("auth");
-  const topPadding = isAuth ? spacing.md : 120; // 120px clears the transparent header
+  const topPadding = isAuth ? spacing.md : brandHeader.contentClearance;
 
   if (isLoading) {
     return (
       <ImageBackground
-        source={yellowBackground}
+        source={appBackground}
         style={styles.background}
         resizeMode="cover"
       >
@@ -59,7 +59,7 @@ export function Screen({
 
   return (
     <ImageBackground
-      source={yellowBackground}
+      source={appBackground}
       style={styles.background}
       resizeMode="cover"
     >

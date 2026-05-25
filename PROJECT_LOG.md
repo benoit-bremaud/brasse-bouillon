@@ -9,9 +9,9 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### PR #1093 merged (`c75bdee`) — feat(ui): compact brand header + beer-gradient background + refreshed app captures
 
-- Branch `feat/app-look-refresh-and-captures`. Mobile-app: global tab header mascot 120→38px (header height 152→72), `Screen` top padding 120→64 — dimensions extracted to a `brandHeader` theme token (`src/core/theme/layout.ts`) so the padding derives from the header height; sign-in keeps the 156px hero. Background swapped from the 1.9 MB textured `Yellow_Background.png` to a 13.6 KB "glass of beer" gradient mirroring brasse-bouillon.com. Batch detail: dropped the internal `ID : <id>` header subtitle.
+- Branch `feat/app-look-refresh-and-captures`. Mobile-app: global tab header mascot 120→38px (header height 152→72), `Screen` top padding 120→64 — dimensions extracted to a `brandHeader` theme token (`packages/mobile-app/src/core/theme/layout.ts`) so the padding derives from the header height; sign-in keeps the 156px hero. Background swapped from the 1.9 MB textured `Yellow_Background.png` to a 13.6 KB "glass of beer" gradient mirroring brasse-bouillon.com. Batch detail: dropped the internal `ID : <id>` header subtitle.
 - Website: replaced the last two placeholder visuals with real emulator captures (demo mode) — `feature-pilotage-batches` (Pilotage step timeline) + `journey-4-deguste` (celebration). WebP, `?v=20260524`. Deployed.
-- Automated review (P1) addressed: magic numbers (`64`/`72`/logo size) → single `brandHeader` token. Added the first dedicated `Screen` test (render branches) + a `brandHeader` token test → **100% new-code coverage** (Sonar quality gate green).
+- Automated review (P1) addressed: magic numbers (`64`/`72`/logo size) → single `brandHeader` token. Added the first dedicated `Screen` test (render branches) + a `brandHeader` token test → **100% new-code coverage** (SonarCloud Quality Gate green).
 - Backlog: the broader UX/IA refonte (5-tab nav + central Scan, unified Statistics, Profile hub, compact-hero recipe detail) is studied UML-first under epic #1082 — dossier `docs/design/ux-refonte/` + prioritized roadmap (PR #1094), implementation post-soutenance.
 
 ## 2026-05-22

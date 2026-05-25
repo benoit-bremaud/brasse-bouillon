@@ -5,6 +5,31 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-25
+
+### UML conception sweep — whole-app domain modelling (11 PRs merged)
+
+Conception-first / UML-first pass: every previously-unmodelled domain now has a
+diagram set under `docs/architecture/diagrams/` (joining the existing scan /
+beer-duel / feedback). All squash-merged after Copilot review (fixes + summary +
+resolved threads). Implementation deferred post-soutenance.
+
+- PR #1096 (`bebd0bf`) — **brewing-session**: process spec (`docs/architecture/specs/brewing-session.md`, 9 recipe-derived phases, BeerXML/BeerJSON + BrewDog DIY Dog) + use-case/sequence/component/class/state. Refs #868 #781 #605 #608.
+- PR #1097 (`16d58c4`) — **recipes**: use-case/sequence/component/class/state (write CRUD #410–#420 + clone/fork modelled). Refs #740 #882 #883.
+- PR #1098 (`e2d6634`) — **batches / Mes Brassins journal**: use-case/sequence/class/state. Refs #595 #605 #606 #607.
+- PR #1099 (`edca486`) — **ingredients**: catalog + custom (Strategy B). Refs #915 #624.
+- PR #1100 (`3eabe7c`) — **account/profile**: + data-flow (PII/RGPD). Refs #1081 #645 #836 #644 #821.
+- PR #1101 (`ef7d7f2`) — **dashboard + statistics**. Refs #829 #646 #611.
+- PR #1102 (`bc7198a`) — **labels** (journey 4, export #629).
+- PR #1103 (`968d096`) — **tools & academy** (calculators + glossary).
+- PR #1104 (`6ad88c2`) — **equipment & shop** (local shopping list #653 #621 #650).
+- PR #1094 (`5dd9967`) — **UX/IA refonte study** (`docs/design/ux-refonte/`) + prioritized roadmap (`docs/product-backlog/prioritized-roadmap.md`), epic #1082.
+- PR #1095 (`0ef42eb`) — PROJECT_LOG entry for #1093.
+
+Copilot review caught real accuracy issues, all corrected: SQLite (better-sqlite3) not PostgreSQL; `src/batch` module + `BatchController`; planned-vs-existing API surface (fork, POST steps, label export, custom ingredient = planned); enums/types aligned to code; login enumeration-safety; Mermaid validity.
+
+Decisions surfaced → **ADRs to open**: D1 (`RecipeStepType` 5→9 phases), CREATOR role (#821), RGPD anonymize-vs-erase on public recipes, single shared glossary.
+
 ## 2026-05-24
 
 ### PR #1093 merged (`c75bdee`) — feat(ui): compact brand header + beer-gradient background + refreshed app captures

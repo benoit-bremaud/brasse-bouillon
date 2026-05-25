@@ -45,9 +45,10 @@ conditioning_packaging`.
 - **Optional phases** (`sparge` for BIAB, `whirlpool`, `dry_hop`) appear only
   when the recipe carries the matching data — the step list is recipe-derived,
   never a fixed 9.
-- **Migration is additive**: existing rows keep `mash/boil/whirlpool/fermentation/
-  packaging`; a data migration maps legacy `fermentation → primary_fermentation`
-  and `packaging → conditioning_packaging`. No row is dropped.
+- **Migration is additive**: existing rows keep their legacy values (`mash`,
+  `boil`, `whirlpool`, `fermentation`, `packaging`); a data migration maps legacy
+  `fermentation → primary_fermentation` and `packaging → conditioning_packaging`.
+  No row is dropped.
 - **BeerXML/BeerJSON mapping (#866)** is the translation layer: BeerJSON's
   explicit boil/whirlpool steps and sparge-as-mash-step map onto these phases;
   the mapping table lives with #866, not duplicated here.

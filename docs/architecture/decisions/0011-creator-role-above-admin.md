@@ -27,14 +27,18 @@ owner. A distinct top role makes "who can manage admins" unambiguous.
 **Add a `CREATOR` role as the highest privilege, held by exactly one account,
 seeded once.**
 
-- Enum becomes `USER < MODERATOR < ADMIN < CREATOR` (monotonic privilege order).
+- `UserRole` stays a **string enum**; privilege order is expressed by an explicit
+  rank map, not by comparing the strings. Define `ROLE_RANK = { user: 0,
+  moderator: 1, admin: 2, creator: 3 }` and a helper
+  `hasAtLeast(role, min) => ROLE_RANK[role] >= ROLE_RANK[min]`.
 - **Single-holder invariant**: at most one `CREATOR` exists, created by a
   one-time seed; the role is **not** grantable through the normal role-assignment
   UI/endpoint. Enforced in application code + a DB uniqueness guard.
 - `CREATOR` inherits all `ADMIN` capabilities and additionally may assign/revoke
   `ADMIN`/`MODERATOR`.
-- Authorization checks compare on the privilege order, not on equality, so new
-  admin-or-above checks read `role >= ADMIN`.
+- Authorization checks use the rank helper, so an admin-or-above check is
+  `hasAtLeast(user.role, UserRole.ADMIN)` — never a raw `role === 'admin'` or a
+  string `>=`.
 
 ---
 
@@ -49,8 +53,8 @@ seeded once.**
 
 - The single-holder invariant must be enforced in **two** places (app guard + DB
   constraint) and covered by tests — a uniqueness rule, not just data.
-- Existing role checks that used `=== ADMIN` must migrate to `>= ADMIN` to avoid
-  accidentally excluding `CREATOR`.
+- Existing role checks that used `=== ADMIN` must migrate to
+  `hasAtLeast(role, ADMIN)` to avoid accidentally excluding `CREATOR`.
 
 ### Rejected alternatives
 

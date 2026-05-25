@@ -47,6 +47,9 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0004](0004-data-locality-hybrid-principle.md) | Data locality: hybrid principle | Accepted | 2026-04-24 |
 | [0005](0005-backend-split-encyclopedia-vs-product.md) | Backend split: encyclopedia vs product | Accepted | 2026-05-02 |
 | [0009](0009-beer-duel-preference-data-ownership.md) | Beer-duel preference data ownership | Accepted | 2026-05-21 |
+| [0010](0010-recipe-step-type-nine-phase.md) | Extend `RecipeStepType` to the 9-phase brewing set | Proposed | 2026-05-25 |
+| [0011](0011-creator-role-above-admin.md) | Single-holder `CREATOR` role above `ADMIN` | Proposed | 2026-05-25 |
+| [0012](0012-rgpd-anonymize-authored-public-content.md) | RGPD: anonymize authored public content on deletion | Proposed | 2026-05-25 |
 
 > **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
 > referenced by open epics: 0006 — private journal vs. social product (#833),

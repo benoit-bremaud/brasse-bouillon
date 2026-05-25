@@ -2336,6 +2336,9 @@ export const demoBatchStepsPddMash: BatchStep[] = [
     completedAt: null,
     createdAt: "2026-05-19T09:00:00.000Z",
     updatedAt: "2026-05-19T09:30:00.000Z",
+    plannedDurationMin: 30,
+    pedagogicalTip:
+      "Pourquoi empâter à 67°C ? À cette température, l'alpha-amylase convertit l'amidon en sucres fermentescibles. Plus chaud donne une bière plus ronde (sucres résiduels), plus froid une bière plus sèche.",
   },
   {
     batchId: "b-demo-pdd-mash",
@@ -2348,6 +2351,9 @@ export const demoBatchStepsPddMash: BatchStep[] = [
     completedAt: null,
     createdAt: "2026-05-19T09:00:00.000Z",
     updatedAt: "2026-05-19T09:00:00.000Z",
+    plannedDurationMin: 60,
+    pedagogicalTip:
+      "L'ébullition stérilise le moût, isomérise les acides alpha du houblon (création de l'amertume) et concentre les sucres. Les ajouts tardifs (5 min) préservent les arômes.",
   },
   {
     batchId: "b-demo-pdd-mash",
@@ -2360,6 +2366,8 @@ export const demoBatchStepsPddMash: BatchStep[] = [
     completedAt: null,
     createdAt: "2026-05-19T09:00:00.000Z",
     updatedAt: "2026-05-19T09:00:00.000Z",
+    pedagogicalTip:
+      "La levure transforme les sucres en alcool et CO₂. Maintiens 18–20°C : trop chaud, elle stresse et produit des arômes indésirables (esters, phénols).",
   },
 ];
 

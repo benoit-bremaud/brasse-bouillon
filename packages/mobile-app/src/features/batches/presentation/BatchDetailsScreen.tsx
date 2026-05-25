@@ -1,5 +1,13 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { BrewStepTimer } from "@/features/batches/presentation/BrewStepTimer";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   BatchDetailsViewModel,
@@ -8,14 +16,10 @@ import {
 } from "@/features/batches/application/batches.use-cases";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "@/core/ui/Badge";
 import { Batch } from "@/features/batches/domain/batch.types";
-import {
-  BATCH_STATUS_LABELS,
-  BATCH_STEP_STATUS_LABELS,
-  BATCH_STEP_TYPE_LABELS,
-} from "@/features/batches/presentation/batch-display.constants";
+import { BATCH_STATUS_LABELS } from "@/features/batches/presentation/batch-display.constants";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
+import { StepCard } from "@/features/batches/presentation/StepCard";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,6 +47,16 @@ const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 // merge it with the static `styles.progressFill` baseline.
 function progressFillWidth(percent: number) {
   return { width: `${Math.max(0, Math.min(100, percent))}%` } as const;
+}
+
+function getCompleteButtonLabel(
+  isCompleted: boolean,
+  isCompleting: boolean,
+): string {
+  if (isCompleted) {
+    return "Brassin terminé";
+  }
+  return isCompleting ? "Validation…" : "Terminer l'étape en cours";
 }
 
 type Props = {
@@ -173,6 +187,14 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const isCompleted = batch?.status === "completed";
   const fermentationInfo = useFermentationTrackerInfo(batch);
+  const activeStep =
+    batch?.steps?.find((step) => step.status === "in_progress") ?? null;
+  const [openTip, setOpenTip] = React.useState<{
+    label: string;
+    tip: string;
+  } | null>(null);
+
+  const completeButtonLabel = getCompleteButtonLabel(isCompleted, isCompleting);
 
   return (
     <Screen
@@ -247,14 +269,12 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
+      {activeStep ? (
+        <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
+      ) : null}
+
       <PrimaryButton
-        label={
-          isCompleted
-            ? "Brassin terminé"
-            : isCompleting
-              ? "Validation…"
-              : "Terminer l'étape en cours"
-        }
+        label={completeButtonLabel}
         onPress={handleComplete}
         disabled={isCompleting || isCompleted || isLoading}
       />
@@ -265,30 +285,33 @@ export function BatchDetailsScreen({ batchId }: Props) {
         keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
         contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         renderItem={({ item }) => (
-          <Card style={styles.stepCard}>
-            <Badge
-              label={BATCH_STEP_STATUS_LABELS[item.status]}
-              variant={
-                item.status === "completed"
-                  ? "success"
-                  : item.status === "in_progress"
-                    ? "info"
-                    : "neutral"
-              }
-              placement="corner"
-            />
-            <Text style={styles.stepTitle} numberOfLines={1}>
-              {item.stepOrder + 1}. {item.label}
-            </Text>
-            <Text style={styles.stepMeta}>
-              {BATCH_STEP_TYPE_LABELS[item.type]}
-            </Text>
-            {item.description ? (
-              <Text style={styles.stepDescription}>{item.description}</Text>
-            ) : null}
-          </Card>
+          <StepCard step={item} onOpenTip={setOpenTip} />
         )}
       />
+
+      <Modal
+        visible={openTip !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpenTip(null)}
+      >
+        <Pressable style={styles.tipBackdrop} onPress={() => setOpenTip(null)}>
+          <Pressable style={styles.tipCard}>
+            <View style={styles.tipHeader}>
+              <Ionicons
+                name="information-circle"
+                size={20}
+                color={colors.brand.secondary}
+              />
+              <Text style={styles.tipTitle}>{openTip?.label}</Text>
+            </View>
+            <Text style={styles.tipBody}>{openTip?.tip}</Text>
+            <Pressable style={styles.tipClose} onPress={() => setOpenTip(null)}>
+              <Text style={styles.tipCloseText}>Compris</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
@@ -380,26 +403,48 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.caption,
     marginTop: spacing.xxs,
   },
-  stepCard: {
-    marginBottom: spacing.xs,
-    paddingTop: spacing.md,
+  tipBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.lg,
   },
-  stepTitle: {
-    fontWeight: typography.weight.medium,
+  tipCard: {
+    backgroundColor: colors.neutral.white,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    width: "100%",
+  },
+  tipHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  tipTitle: {
+    flex: 1,
     color: colors.neutral.textPrimary,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
   },
-  stepMeta: {
+  tipBody: {
     color: colors.neutral.textSecondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    marginTop: spacing.xs,
-    textTransform: "uppercase",
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
-  stepDescription: {
-    marginTop: spacing.sm,
-    color: colors.neutral.textSecondary,
+  tipClose: {
+    marginTop: spacing.md,
+    alignSelf: "flex-end",
+    backgroundColor: colors.brand.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+  },
+  tipCloseText: {
+    color: colors.neutral.white,
+    fontWeight: typography.weight.medium,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
   },

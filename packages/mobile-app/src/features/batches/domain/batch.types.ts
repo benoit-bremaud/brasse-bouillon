@@ -34,6 +34,12 @@ export type BatchStep = {
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  // Planned active duration for the step's countdown timer (brewing assistant,
+  // #781). Optional: long phases (fermentation) use the day-based tracker, and
+  // legacy steps may omit it.
+  plannedDurationMin?: number | null;
+  // Vulgarized "why" surfaced via the ⓘ icon on the step (brewing assistant).
+  pedagogicalTip?: string | null;
 };
 
 export type Batch = BatchSummary & {

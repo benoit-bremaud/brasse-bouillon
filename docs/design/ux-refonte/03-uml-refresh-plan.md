@@ -3,7 +3,8 @@
 The refonte changes the information architecture, so the UML must be refreshed
 **before** implementation (project rule: conception precedes code). This lists
 which diagrams to create or update, per the UML conventions
-(`docs/architecture/diagrams/<feature>/<NN>-<type>.md`, Mermaid, six types).
+(`docs/architecture/diagrams/<feature>/<NN>[a/b]-<type>[-<scope>].md`, e.g. the
+existing `scan/01a-use-case-barcode.md`; Mermaid, six types).
 
 UML orthodoxy reminder: use cases are **actor-initiated goals**; group them by
 **domain**, never by backend package; the Mobile/API split lives only in the

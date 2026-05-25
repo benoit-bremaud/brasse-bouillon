@@ -20,25 +20,27 @@ inserts a 7th, Communauté, before Profil):
 | (demo) | Communauté | people-outline | `/social` |
 
 **Routes hidden from the bar** (`href: null` in `app/(app)/_layout.tsx`):
-Shop, Ingredients, Tools, Equipment, Social (demo-gated), plus nested
-Labels/Scan sub-routes. History: #613 moved Shop + Tools out of the bar;
-#646 anticipated a dedicated Statistiques screen (not built).
+Shop, Ingredients, Tools, Social (demo-gated), plus nested Labels/Scan
+sub-routes. (`equipment` is declared **without** `href: null` — it inherits the
+Tabs header but is simply absent from the custom `NavigationFooter` item list.)
+History: #613 moved Shop + Tools out of the bar; #646 anticipated a dedicated
+Statistiques screen (not built).
 
 ## Routes / screens (delegated app/ → src/features/*/presentation)
 
 - **dashboard**: `DashboardScreen`; nested `scan/*` (ScanScreen, PendingScansScreen, BeerInfoCardScreen, ScanResultScreen) and `labels/*` (LabelsScreen, LabelDetailsScreen, LabelSelectBatchScreen, LabelEditorScreen).
-- **recipes**: RecipesScreen, CatalogScreen, RecipeDetailsScreen (5-tab: Overview, Ingredients, Brewing, Water, Notes).
+- **recipes**: RecipesScreen, CatalogScreen, RecipeDetailsScreen (5-tab vertical side-rail, in order: Vue / Ingrédients / Eau / Brassage / Notes).
 - **batches**: BatchesScreen, BatchDetailsScreen (timeline + demo fermentation tracker), BatchFinishedScreen (celebration, demo).
 - **ingredients**: IngredientsScreen → category → details (malts/hops/yeast).
 - **tools**: ToolsHubScreen + 8 calculators (color, fermentables, hops, yeast, water, efficiency, carbonation, advanced).
-- **academy**: AcademyHubScreen (10 topics) + topic detail + placeholder.
+- **academy**: AcademyHubScreen (10 topics) + topic detail + placeholder — note the academy screens live under `src/features/tools/` (not a separate `academy` module).
 - **equipment**: EquipmentScreen. **shop**: ShopScreen + category. **social**: SocialFeedScreen (demo). **profile**: ProfileScreen. **auth**: LoginScreen.
 
 ## Feature modules (src/features/)
 
-auth, dashboard, batches, recipes, scan, labels, ingredients, equipment, tools,
-academy, shop, social. Tools and Academy are tightly linked (calculators hang
-off academy topics).
+auth, dashboard, batches, recipes, scan, labels, ingredients, equipment, tools
+(**includes academy** — academy screens are under `features/tools/`), shop,
+social. Tools and Academy are tightly linked (calculators hang off academy topics).
 
 ## Statistics / numbers — scattered (no unified feature)
 

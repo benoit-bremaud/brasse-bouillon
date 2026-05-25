@@ -53,7 +53,7 @@ The biggest product hole; needed by all personas.
 
 | Need | Persona(s) | Covered by | Tier | Status |
 |------|-----------|------------|------|--------|
-| Scan a beer (barcode) | Léa | UC barcode (01a), #594 | P-done | done |
+| Scan a beer (barcode) | Léa | UC barcode (01a), #594 | done | done |
 | Scan craft label (panoramic) | Léa, Claire | UC panoramic (01b), #751 | P3 | open |
 | Find / browse recipes | all | E02 read, #408/#409 | done | done |
 | **Create / edit recipes** | Claire, Nicolas | #410–#417, #420 | **P1** | **open** |

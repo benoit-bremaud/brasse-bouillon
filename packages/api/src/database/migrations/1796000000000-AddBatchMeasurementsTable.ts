@@ -24,7 +24,8 @@ export class AddBatchMeasurementsTable1796000000000 implements MigrationInterfac
         "unit" varchar(20),
         "taken_at" datetime NOT NULL,
         "created_at" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-        CONSTRAINT "CHK_batch_measurements_type" CHECK ("type" IN ('og', 'fg', 'sg_spot', 'temperature', 'ph'))
+        CONSTRAINT "CHK_batch_measurements_type" CHECK ("type" IN ('og', 'fg', 'sg_spot', 'temperature', 'ph')),
+        CONSTRAINT "FK_batch_measurements_batch_id" FOREIGN KEY ("batch_id") REFERENCES "batches" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
       )
     `);
     await queryRunner.query(

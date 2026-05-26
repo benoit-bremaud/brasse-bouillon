@@ -5,6 +5,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-26
+
+### Soutenance prep + website journey (3 PRs merged)
+
+- **#1107** (`4e2e9d6`) feat(brassins): brewing assistant slice — step countdown timer + pedagogical tips (partial #781); + website real `journey-2-brewing` capture.
+- **#1108** (`71a2020`) docs(soutenance): optional guided-brewing beat in the 90s demo script (#702).
+- **#1109** (`67afba9`) feat(website): homepage journey now leads with scan→clone (5 steps), retitled "Du scan à la dégustation".
+
+Open: **#1110** (draft) website capture worklist — placeholder cards for recipe-detail + Mes Brassins, to be replaced by real captures post-soutenance.
+
 ## 2026-05-25
 
 ### UML conception sweep — 9 domain models + refonte study + log (11 PRs merged)

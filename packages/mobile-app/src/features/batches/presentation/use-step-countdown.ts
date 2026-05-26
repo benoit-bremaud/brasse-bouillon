@@ -28,11 +28,24 @@ export function useStepCountdown(
   const totalSec =
     step?.plannedDurationMin != null ? step.plannedDurationMin * 60 : 0;
 
-  // Lazily fix the anchor (epoch ms from which elapsed time is measured) once,
-  // so the countdown doesn't reset on every render.
+  // Identity of the step the anchor was fixed for. When it changes — the active
+  // step moves on, or `startedAt` arrives late from persisted state — the anchor
+  // must be recomputed, otherwise the countdown keeps measuring from the
+  // previous step (the #781 P1 review finding).
+  const stepKey =
+    step != null && totalSec > 0
+      ? `${step.batchId}:${step.stepOrder}:${step.startedAt ?? ""}`
+      : null;
+
+  // Epoch ms from which elapsed time is measured. Re-anchored during render
+  // whenever `stepKey` changes (deriving state from props without an effect).
   const anchorRef = React.useRef<number | null>(null);
-  if (anchorRef.current === null && totalSec > 0) {
-    if (useDemoData) {
+  const anchorKeyRef = React.useRef<string | null>(null);
+  if (stepKey !== anchorKeyRef.current) {
+    anchorKeyRef.current = stepKey;
+    if (stepKey === null) {
+      anchorRef.current = null;
+    } else if (useDemoData) {
       anchorRef.current = Date.now() - totalSec * DEMO_ELAPSED_FRACTION * 1000;
     } else if (step?.startedAt) {
       anchorRef.current = new Date(step.startedAt).getTime();
@@ -55,10 +68,11 @@ export function useStepCountdown(
     if (totalSec <= 0) {
       return;
     }
+    // Re-syncs immediately on step change (stepKey dep), then ticks each second.
     setRemainingSec(readRemaining());
     const id = setInterval(() => setRemainingSec(readRemaining()), 1000);
     return () => clearInterval(id);
-  }, [totalSec, readRemaining]);
+  }, [totalSec, readRemaining, stepKey]);
 
   if (totalSec <= 0) {
     return null;

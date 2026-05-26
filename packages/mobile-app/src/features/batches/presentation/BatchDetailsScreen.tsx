@@ -296,7 +296,9 @@ export function BatchDetailsScreen({ batchId }: Props) {
         onRequestClose={() => setOpenTip(null)}
       >
         <Pressable style={styles.tipBackdrop} onPress={() => setOpenTip(null)}>
-          <Pressable style={styles.tipCard}>
+          {/* Capture touches so taps inside the card don't bubble to the
+              backdrop and close the modal (#781 review). */}
+          <View style={styles.tipCard} onStartShouldSetResponder={() => true}>
             <View style={styles.tipHeader}>
               <Ionicons
                 name="information-circle"
@@ -309,7 +311,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
             <Pressable style={styles.tipClose} onPress={() => setOpenTip(null)}>
               <Text style={styles.tipCloseText}>Compris</Text>
             </Pressable>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </Screen>
@@ -405,7 +407,7 @@ const styles = StyleSheet.create({
   },
   tipBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: colors.overlay.scrim,
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.lg,

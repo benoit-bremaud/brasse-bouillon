@@ -78,4 +78,47 @@ describe("useStepCountdown", () => {
     const later = result.current?.remainingSec ?? 0;
     expect(later).toBeLessThan(first);
   });
+
+  // P1 regression: when the active step changes, the anchor must reset so the
+  // countdown measures the NEW step, not continue from the previous one.
+  it("re-anchors when the step changes", () => {
+    const { result, rerender } = renderHook(
+      ({ step }: { step: BatchStep }) => useStepCountdown(step, true),
+      {
+        initialProps: {
+          step: makeStep({ stepOrder: 0, plannedDurationMin: 30 }),
+        },
+      },
+    );
+    act(() => {
+      jest.advanceTimersByTime(120_000);
+    });
+
+    rerender({ step: makeStep({ stepOrder: 1, plannedDurationMin: 60 }) });
+
+    // Re-anchored to ~60% elapsed of the new 60 min step (~1440s left), not the
+    // ~600s that the old 30 min step had drained to.
+    expect(result.current?.totalSec).toBe(3600);
+    expect(result.current?.remainingSec).toBeGreaterThanOrEqual(1400);
+    expect(result.current?.remainingSec).toBeLessThanOrEqual(1480);
+  });
+
+  // Live mode: a late-arriving startedAt re-anchors to the real start time.
+  it("re-anchors when startedAt arrives late (live mode)", () => {
+    const startedAt = new Date(Date.now() - 5 * 60_000).toISOString(); // 5 min ago
+    const { result, rerender } = renderHook(
+      ({ step }: { step: BatchStep }) => useStepCountdown(step, false),
+      {
+        initialProps: {
+          step: makeStep({ plannedDurationMin: 30, startedAt: undefined }),
+        },
+      },
+    );
+
+    rerender({ step: makeStep({ plannedDurationMin: 30, startedAt }) });
+
+    // 30 min total, 5 min elapsed → ~25 min (1500s) remaining.
+    expect(result.current?.remainingSec).toBeGreaterThanOrEqual(1480);
+    expect(result.current?.remainingSec).toBeLessThanOrEqual(1500);
+  });
 });

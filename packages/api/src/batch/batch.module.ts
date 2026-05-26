@@ -8,6 +8,7 @@ import { BatchReminderOrmEntity } from './entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from './entities/batch.orm.entity';
 import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
+import { ObservationOrmEntity } from './entities/observation.orm.entity';
 import { BatchService } from './services/batch.service';
 
 @Module({
@@ -17,6 +18,7 @@ import { BatchService } from './services/batch.service';
       BatchStepOrmEntity,
       BatchReminderOrmEntity,
       MeasurementOrmEntity,
+      ObservationOrmEntity,
     ]),
     RecipeModule,
   ],

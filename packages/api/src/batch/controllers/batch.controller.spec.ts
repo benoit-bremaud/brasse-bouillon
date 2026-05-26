@@ -12,6 +12,7 @@ import { CreateBatchReminderDto } from '../dtos/create-batch-reminder.dto';
 import { MeasurementOrmEntity } from '../entities/measurement.orm.entity';
 import { MeasurementType } from '../domain/enums/measurement-type.enum';
 import { NotFoundException } from '@nestjs/common';
+import { ObservationOrmEntity } from '../entities/observation.orm.entity';
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { StartBatchDto } from '../dtos/start-batch.dto';
 import { UpdateBatchReminderDto } from '../dtos/update-batch-reminder.dto';
@@ -116,6 +117,8 @@ describe('BatchController', () => {
             completeMineCurrentStep: jest.fn(),
             listMineMeasurements: jest.fn(),
             createMineMeasurement: jest.fn(),
+            listMineObservations: jest.fn(),
+            createMineObservation: jest.fn(),
           },
         },
       ],
@@ -558,6 +561,82 @@ describe('BatchController', () => {
         mockUser.id,
         mockBatchOrm.id,
         expect.objectContaining({ takenAt: undefined }),
+      );
+    });
+  });
+
+  /**
+   * Observations — GET/POST /batches/:id/observations (#607)
+   */
+  describe('observations', () => {
+    const mockObservation: ObservationOrmEntity = {
+      id: '550e8400-e29b-41d4-a716-446655440040',
+      batch_id: mockBatchOrm.id,
+      step_order: 2,
+      free_text: 'Krausen bien formé',
+      photo_refs: ['photos/1.jpg'],
+      mood_score: 4,
+      observed_at: new Date('2026-05-20T18:00:00.000Z'),
+      created_at: new Date('2026-05-20T18:00:01.000Z'),
+    };
+
+    it('listMineObservations() delegates with ownership and maps DTOs', async () => {
+      const spy = jest
+        .spyOn(service, 'listMineObservations')
+        .mockResolvedValue([mockObservation]);
+
+      const result = await controller.listMineObservations(
+        mockUser,
+        mockBatchOrm.id,
+      );
+
+      expect(spy).toHaveBeenCalledWith(mockUser.id, mockBatchOrm.id);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(mockObservation.id);
+    });
+
+    it('createMineObservation() parses observedAt to a Date and returns a DTO', async () => {
+      const spy = jest
+        .spyOn(service, 'createMineObservation')
+        .mockResolvedValue(mockObservation);
+
+      const result = await controller.createMineObservation(
+        mockUser,
+        mockBatchOrm.id,
+        {
+          freeText: 'Krausen bien formé',
+          stepOrder: 2,
+          moodScore: 4,
+          observedAt: '2026-05-20T18:00:00.000Z',
+        },
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockBatchOrm.id,
+        expect.objectContaining({
+          freeText: 'Krausen bien formé',
+          moodScore: 4,
+        }),
+      );
+      const input = spy.mock.calls[0][2];
+      expect(input.observedAt).toBeInstanceOf(Date);
+      expect(result.id).toBe(mockObservation.id);
+    });
+
+    it('createMineObservation() forwards undefined observedAt when omitted', async () => {
+      const spy = jest
+        .spyOn(service, 'createMineObservation')
+        .mockResolvedValue(mockObservation);
+
+      await controller.createMineObservation(mockUser, mockBatchOrm.id, {
+        freeText: 'Quick note',
+      });
+
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockBatchOrm.id,
+        expect.objectContaining({ observedAt: undefined }),
       );
     });
   });

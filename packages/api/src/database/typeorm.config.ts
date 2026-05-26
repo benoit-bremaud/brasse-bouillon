@@ -16,6 +16,7 @@ import { HopOrmEntity } from '../catalog/hop/entities/hop.orm.entity';
 import { LabelDraftOrmEntity } from '../label/entities/label-draft.orm.entity';
 import { MashProfileOrmEntity } from '../catalog/mash/entities/mash-profile.orm.entity';
 import { MashStepOrmEntity } from '../catalog/mash/entities/mash-step.orm.entity';
+import { MeasurementOrmEntity } from '../batch/entities/measurement.orm.entity';
 import { MiscTemplateDistributorOrmEntity } from '../catalog/misc/entities/misc-template-distributor.orm.entity';
 import { MiscTemplateOrmEntity } from '../catalog/misc/entities/misc-template.orm.entity';
 import { ProducerOrmEntity } from '../catalog/producer/entities/producer.orm.entity';
@@ -46,6 +47,7 @@ export const ormEntities = [
   BatchOrmEntity,
   BatchStepOrmEntity,
   BatchReminderOrmEntity,
+  MeasurementOrmEntity,
   RecipeOrmEntity,
   RecipeStepOrmEntity,
   RecipeFermentableOrmEntity,

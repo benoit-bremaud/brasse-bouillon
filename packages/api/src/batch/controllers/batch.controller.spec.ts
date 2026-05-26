@@ -9,6 +9,8 @@ import { BatchStatus } from '../domain/enums/batch-status.enum';
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
 import { BatchStepStatus } from '../domain/enums/batch-step-status.enum';
 import { CreateBatchReminderDto } from '../dtos/create-batch-reminder.dto';
+import { MeasurementOrmEntity } from '../entities/measurement.orm.entity';
+import { MeasurementType } from '../domain/enums/measurement-type.enum';
 import { NotFoundException } from '@nestjs/common';
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { StartBatchDto } from '../dtos/start-batch.dto';
@@ -112,6 +114,8 @@ describe('BatchController', () => {
             createMineReminder: jest.fn(),
             updateMineReminder: jest.fn(),
             completeMineCurrentStep: jest.fn(),
+            listMineMeasurements: jest.fn(),
+            createMineMeasurement: jest.fn(),
           },
         },
       ],
@@ -478,6 +482,81 @@ describe('BatchController', () => {
         expect.objectContaining({ status: dto.status }),
       );
       expect(result).toBeDefined();
+    });
+  });
+
+  /**
+   * Measurements — GET/POST /batches/:id/measurements (#607)
+   */
+  describe('measurements', () => {
+    const mockMeasurement: MeasurementOrmEntity = {
+      id: '550e8400-e29b-41d4-a716-446655440030',
+      batch_id: mockBatchOrm.id,
+      step_order: null,
+      type: MeasurementType.OG,
+      value: 1.048,
+      unit: null,
+      taken_at: new Date('2026-05-20T10:00:00.000Z'),
+      created_at: new Date('2026-05-20T10:00:01.000Z'),
+    };
+
+    it('listMineMeasurements() delegates with ownership and maps DTOs', async () => {
+      const spy = jest
+        .spyOn(service, 'listMineMeasurements')
+        .mockResolvedValue([mockMeasurement]);
+
+      const result = await controller.listMineMeasurements(
+        mockUser,
+        mockBatchOrm.id,
+      );
+
+      expect(spy).toHaveBeenCalledWith(mockUser.id, mockBatchOrm.id);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(mockMeasurement.id);
+    });
+
+    it('createMineMeasurement() parses takenAt to a Date and returns a DTO', async () => {
+      const spy = jest
+        .spyOn(service, 'createMineMeasurement')
+        .mockResolvedValue(mockMeasurement);
+
+      const result = await controller.createMineMeasurement(
+        mockUser,
+        mockBatchOrm.id,
+        {
+          type: MeasurementType.OG,
+          value: 1.048,
+          takenAt: '2026-05-20T10:00:00.000Z',
+        },
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockBatchOrm.id,
+        expect.objectContaining({
+          type: MeasurementType.OG,
+          value: 1.048,
+          takenAt: expect.any(Date),
+        }),
+      );
+      expect(result.id).toBe(mockMeasurement.id);
+    });
+
+    it('createMineMeasurement() forwards undefined takenAt when omitted', async () => {
+      const spy = jest
+        .spyOn(service, 'createMineMeasurement')
+        .mockResolvedValue(mockMeasurement);
+
+      await controller.createMineMeasurement(mockUser, mockBatchOrm.id, {
+        type: MeasurementType.TEMPERATURE,
+        value: 19,
+      });
+
+      expect(spy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockBatchOrm.id,
+        expect.objectContaining({ takenAt: undefined }),
+      );
     });
   });
 });

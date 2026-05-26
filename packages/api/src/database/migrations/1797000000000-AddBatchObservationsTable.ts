@@ -23,7 +23,7 @@ export class AddBatchObservationsTable1797000000000 implements MigrationInterfac
         "mood_score" integer,
         "observed_at" datetime NOT NULL,
         "created_at" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-        CONSTRAINT "CHK_batch_observations_mood" CHECK ("mood_score" IS NULL OR ("mood_score" >= 1 AND "mood_score" <= 5)),
+        CONSTRAINT "CHK_batch_observations_mood" CHECK ("mood_score" IS NULL OR ("mood_score" >= 1 AND "mood_score" <= 5 AND "mood_score" = CAST("mood_score" AS INTEGER))),
         CONSTRAINT "FK_batch_observations_batch_id" FOREIGN KEY ("batch_id") REFERENCES "batches" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
       )
     `);

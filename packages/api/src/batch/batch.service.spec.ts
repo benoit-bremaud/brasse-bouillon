@@ -13,6 +13,7 @@ import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
 import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
 import { MeasurementType } from './domain/enums/measurement-type.enum';
+import { ObservationOrmEntity } from './entities/observation.orm.entity';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
@@ -31,6 +32,7 @@ describe('BatchService', () => {
   let recipeRepo: Repository<RecipeOrmEntity>;
   let recipeStepRepo: Repository<RecipeStepOrmEntity>;
   let measurementRepo: Repository<MeasurementOrmEntity>;
+  let observationRepo: Repository<ObservationOrmEntity>;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -46,6 +48,7 @@ describe('BatchService', () => {
             BatchStepOrmEntity,
             BatchReminderOrmEntity,
             MeasurementOrmEntity,
+            ObservationOrmEntity,
           ],
           synchronize: true,
           logging: false,
@@ -58,6 +61,7 @@ describe('BatchService', () => {
           BatchStepOrmEntity,
           BatchReminderOrmEntity,
           MeasurementOrmEntity,
+          ObservationOrmEntity,
         ]),
       ],
       providers: [RecipeService, BatchService],
@@ -71,6 +75,7 @@ describe('BatchService', () => {
     recipeRepo = module.get(getRepositoryToken(RecipeOrmEntity));
     recipeStepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
     measurementRepo = module.get(getRepositoryToken(MeasurementOrmEntity));
+    observationRepo = module.get(getRepositoryToken(ObservationOrmEntity));
   });
 
   afterAll(async () => {
@@ -78,6 +83,7 @@ describe('BatchService', () => {
   });
 
   beforeEach(async () => {
+    await observationRepo.clear();
     await measurementRepo.clear();
     await batchStepRepo.clear();
     await batchRepo.clear();
@@ -424,6 +430,60 @@ describe('BatchService', () => {
     ).rejects.toThrow(NotFoundException);
     await expect(
       batchService.listMineMeasurements(otherOwner, batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  // #607 — observation entry (happy path)
+  it('createMineObservation() persists a note and listMineObservations() returns it', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    const saved = await batchService.createMineObservation(ownerId, batch.id, {
+      freeText: 'Krausen bien formé, odeur fruitée',
+      stepOrder: 2,
+      photoRefs: ['photos/1.jpg'],
+      moodScore: 4,
+    });
+
+    expect(saved.id).toBeDefined();
+    expect(saved.batch_id).toBe(batch.id);
+    expect(saved.free_text).toBe('Krausen bien formé, odeur fruitée');
+    expect(saved.mood_score).toBe(4);
+
+    const list = await batchService.listMineObservations(ownerId, batch.id);
+    expect(list).toHaveLength(1);
+    expect(list[0].id).toBe(saved.id);
+  });
+
+  // #607 — sad path: domain invariant violation surfaces as 400
+  it('createMineObservation() rejects an out-of-range mood with BadRequest', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineObservation(ownerId, batch.id, {
+        freeText: 'Looks fine',
+        moodScore: 9,
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // #607 — edge: ownership enforced on both routes
+  it('observation routes reject a batch the user does not own', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineObservation(otherOwner, batch.id, {
+        freeText: 'Sneaky note',
+      }),
+    ).rejects.toThrow(NotFoundException);
+    await expect(
+      batchService.listMineObservations(otherOwner, batch.id),
     ).rejects.toThrow(NotFoundException);
   });
 });

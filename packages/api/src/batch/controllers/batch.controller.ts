@@ -30,7 +30,9 @@ import { BatchReminderDto } from '../dtos/batch-reminder.dto';
 import { BatchSummaryDto } from '../dtos/batch-summary.dto';
 import { CreateBatchReminderDto } from '../dtos/create-batch-reminder.dto';
 import { CreateMeasurementDto } from '../dtos/create-measurement.dto';
+import { CreateObservationDto } from '../dtos/create-observation.dto';
 import { MeasurementDto } from '../dtos/measurement.dto';
+import { ObservationDto } from '../dtos/observation.dto';
 import { StartBatchDto } from '../dtos/start-batch.dto';
 import { UpdateBatchReminderDto } from '../dtos/update-batch-reminder.dto';
 import { BatchService } from '../services/batch.service';
@@ -213,5 +215,36 @@ export class BatchController {
       takenAt: dto.takenAt ? new Date(dto.takenAt) : undefined,
     });
     return MeasurementDto.fromEntity(saved);
+  }
+
+  @Get(':id/observations')
+  @ApiOperation({ summary: 'List observations for one of my batches' })
+  @ApiOkResponse({ type: ObservationDto, isArray: true })
+  async listMineObservations(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<ObservationDto[]> {
+    const rows = await this.service.listMineObservations(user.id, id);
+    return rows.map((row) => ObservationDto.fromEntity(row));
+  }
+
+  @Post(':id/observations')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Log an observation on one of my batches' })
+  @ApiCreatedResponse({ type: ObservationDto })
+  async createMineObservation(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: CreateObservationDto,
+  ): Promise<ObservationDto> {
+    const saved = await this.service.createMineObservation(user.id, id, {
+      freeText: dto.freeText,
+      stepOrder: dto.stepOrder,
+      photoRefs: dto.photoRefs,
+      moodScore: dto.moodScore,
+      observedAt: dto.observedAt ? new Date(dto.observedAt) : undefined,
+    });
+    return ObservationDto.fromEntity(saved);
   }
 }

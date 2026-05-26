@@ -25,6 +25,12 @@ import {
   Measurement,
   MeasurementValidationError,
 } from '../domain/measurement.factory';
+import { ObservationOrmEntity } from '../entities/observation.orm.entity';
+import {
+  createObservation,
+  Observation,
+  ObservationValidationError,
+} from '../domain/observation.factory';
 
 export interface BatchWithSteps {
   batch: BatchOrmEntity;
@@ -37,6 +43,14 @@ export interface CreateMeasurementInput {
   stepOrder?: number | null;
   unit?: string | null;
   takenAt?: Date;
+}
+
+export interface CreateObservationInput {
+  freeText: string;
+  stepOrder?: number | null;
+  photoRefs?: string[] | null;
+  moodScore?: number | null;
+  observedAt?: Date;
 }
 
 export interface CreateBatchReminderInput {
@@ -63,6 +77,8 @@ export class BatchService {
     private readonly reminderRepo: Repository<BatchReminderOrmEntity>,
     @InjectRepository(MeasurementOrmEntity)
     private readonly measurementRepo: Repository<MeasurementOrmEntity>,
+    @InjectRepository(ObservationOrmEntity)
+    private readonly observationRepo: Repository<ObservationOrmEntity>,
     private readonly recipeService: RecipeService,
   ) {}
 
@@ -386,6 +402,53 @@ export class BatchService {
       taken_at: normalised.takenAt,
     });
     return this.measurementRepo.save(measurement);
+  }
+
+  async listMineObservations(
+    ownerId: string,
+    batchId: string,
+  ): Promise<ObservationOrmEntity[]> {
+    await this.getMineBatch(ownerId, batchId);
+    return this.observationRepo.find({
+      where: { batch_id: batchId },
+      order: { observed_at: 'ASC' },
+    });
+  }
+
+  async createMineObservation(
+    ownerId: string,
+    batchId: string,
+    input: CreateObservationInput,
+  ): Promise<ObservationOrmEntity> {
+    await this.getMineBatch(ownerId, batchId);
+
+    let normalised: Observation;
+    try {
+      normalised = createObservation({
+        batchId,
+        freeText: input.freeText,
+        stepOrder: input.stepOrder,
+        photoRefs: input.photoRefs,
+        moodScore: input.moodScore,
+        observedAt: input.observedAt,
+      });
+    } catch (error) {
+      if (error instanceof ObservationValidationError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
+    const observation = this.observationRepo.create({
+      id: randomUUID(),
+      batch_id: batchId,
+      step_order: normalised.stepOrder,
+      free_text: normalised.freeText,
+      photo_refs: normalised.photoRefs,
+      mood_score: normalised.moodScore,
+      observed_at: normalised.observedAt,
+    });
+    return this.observationRepo.save(observation);
   }
 
   private async getMineBatch(

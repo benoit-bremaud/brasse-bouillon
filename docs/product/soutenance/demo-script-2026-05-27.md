@@ -85,6 +85,24 @@ The reference timing on stage. Aim for ~85s spoken, leaving ~5s of breathing roo
 
 **Final cue**: speaker steps back from the device, lets the imported-recipe screen breathe for 1-2 seconds before the next slide.
 
+### [Optional, +20s] BREW — guided brewing assistant (#781)
+
+Play this beat **only if time allows or the jury asks "and then what?"** — the nominal 90s ends at import. This extension shows that Brasse-Bouillon does not stop at "find a recipe": it guides the brew itself. Shipped in PR #1107 (demo slice).
+
+**Stage**:
+
+- From *Mes Brassins*, speaker opens the in-progress batch **« La Première du dimanche »** (or taps *« Suivre mon brassin »* on the dashboard) → **Détails du brassin**
+- The **« Minuterie d'étape »** card is front and centre: **Empâtage 67°C**, a large **MM:SS countdown** ticking down, a progress bar, and the **« X / 30 min »** scale
+- Speaker taps the **ⓘ** next to the *Empâtage 67°C* step → a tip modal opens explaining the *why* in plain French (alpha-amylase converting starch at 67°C)
+
+**Speaker (FR)**:
+
+> « Et une fois la recette choisie, l'application ne lâche pas Léa. Elle l'accompagne pendant le brassage, étape par étape : un minuteur pour l'empâtage à 67°C, et surtout — le *pourquoi*. Pourquoi 67°C ? L'appli lui explique, en un tap. C'est ça, démocratiser le brassage : pas juste donner une recette, mais transmettre le geste. »
+
+**Final cue**: close the tip modal with *« Compris »*, let the countdown tick for a second, then step back.
+
+**Time budget**: ~20s. Drop entirely if the 90s nominal already ran long — this is a bonus, not a dependency.
+
 ---
 
 ## 2. Jury-beer adaptive variants

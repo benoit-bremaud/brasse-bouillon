@@ -33,7 +33,7 @@ describe('ObservationDto.fromEntity', () => {
       ...base,
       step_order: null,
       mood_score: null,
-      photo_refs: null as unknown as string[],
+      photo_refs: null,
     });
 
     expect(dto.step_order).toBeNull();

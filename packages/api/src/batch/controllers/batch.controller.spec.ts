@@ -536,9 +536,11 @@ describe('BatchController', () => {
         expect.objectContaining({
           type: MeasurementType.OG,
           value: 1.048,
-          takenAt: expect.any(Date),
         }),
       );
+      // takenAt: the controller parses the ISO string into a Date.
+      const input = spy.mock.calls[0][2];
+      expect(input.takenAt).toBeInstanceOf(Date);
       expect(result.id).toBe(mockMeasurement.id);
     });
 

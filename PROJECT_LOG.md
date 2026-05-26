@@ -15,6 +15,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 Open: PR #1110 (draft) — website capture worklist (placeholder cards for recipe-detail + Mes Brassins), to be replaced by real captures post-soutenance.
 
+### Mes Brassins data model (#605) + measurement endpoints (#607) + journey fix (4 PRs, drained through a GitHub Actions partial outage)
+
+- PR #1113 (`5637b69`) — feat(api/batches): Observation entity + table (#605 slice 2; integer-mood DB CHECK per Codex).
+- PR #1114 (`bec699a`) — fix(website): homepage journey back to 4 steps — scan stays only in « La reconnaissance » (supersedes #1109's 5-step scan-first; captions kept).
+- PR #1115 (`82648d9`) — feat(api/batches): Alert entity + table (#605 slice 3).
+- PR #1116 (`859c105`) — feat(api/batches): measurement entry + list endpoints `GET`/`POST /batches/:id/measurements` (#607 slice A).
+
+#605 data model now complete on `main` (Measurement #1112 + Observation + Alert, FK CASCADE + CHECK guards + tested domain factories). Merged via `--admin --squash` during a GitHub Actions *Partial Outage*: CI re-run after recovery + validated locally (lint/build/unit/e2e) before each merge; the three API branches rebased on `main` (typeorm.config / batch.module conflicts resolved keeping all three entities).
+
 ## 2026-05-25
 
 ### UML conception sweep — 9 domain models + refonte study + log (11 PRs merged)

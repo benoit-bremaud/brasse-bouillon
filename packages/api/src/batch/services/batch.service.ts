@@ -18,10 +18,25 @@ import { BatchStatus } from '../domain/enums/batch-status.enum';
 import { BatchReminderOrmEntity } from '../entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
+import { MeasurementOrmEntity } from '../entities/measurement.orm.entity';
+import { MeasurementType } from '../domain/enums/measurement-type.enum';
+import {
+  createMeasurement,
+  Measurement,
+  MeasurementValidationError,
+} from '../domain/measurement.factory';
 
 export interface BatchWithSteps {
   batch: BatchOrmEntity;
   steps: BatchStepOrmEntity[];
+}
+
+export interface CreateMeasurementInput {
+  type: MeasurementType;
+  value: number;
+  stepOrder?: number | null;
+  unit?: string | null;
+  takenAt?: Date;
 }
 
 export interface CreateBatchReminderInput {
@@ -46,6 +61,8 @@ export class BatchService {
     private readonly stepRepo: Repository<BatchStepOrmEntity>,
     @InjectRepository(BatchReminderOrmEntity)
     private readonly reminderRepo: Repository<BatchReminderOrmEntity>,
+    @InjectRepository(MeasurementOrmEntity)
+    private readonly measurementRepo: Repository<MeasurementOrmEntity>,
     private readonly recipeService: RecipeService,
   ) {}
 
@@ -320,6 +337,55 @@ export class BatchService {
       startedAt: step.started_at ?? undefined,
       completedAt: step.completed_at ?? undefined,
     };
+  }
+
+  async listMineMeasurements(
+    ownerId: string,
+    batchId: string,
+  ): Promise<MeasurementOrmEntity[]> {
+    await this.getMineBatch(ownerId, batchId);
+    return this.measurementRepo.find({
+      where: { batch_id: batchId },
+      order: { taken_at: 'ASC' },
+    });
+  }
+
+  async createMineMeasurement(
+    ownerId: string,
+    batchId: string,
+    input: CreateMeasurementInput,
+  ): Promise<MeasurementOrmEntity> {
+    await this.getMineBatch(ownerId, batchId);
+
+    // The domain factory enforces per-type range invariants the DTO can't
+    // express; surface a violation as a 400 rather than a 500.
+    let normalised: Measurement;
+    try {
+      normalised = createMeasurement({
+        batchId,
+        type: input.type,
+        value: input.value,
+        stepOrder: input.stepOrder,
+        unit: input.unit,
+        takenAt: input.takenAt,
+      });
+    } catch (error) {
+      if (error instanceof MeasurementValidationError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
+    const measurement = this.measurementRepo.create({
+      id: randomUUID(),
+      batch_id: batchId,
+      step_order: normalised.stepOrder,
+      type: normalised.type,
+      value: normalised.value,
+      unit: normalised.unit,
+      taken_at: normalised.takenAt,
+    });
+    return this.measurementRepo.save(measurement);
   }
 
   private async getMineBatch(

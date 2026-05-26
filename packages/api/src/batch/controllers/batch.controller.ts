@@ -29,6 +29,8 @@ import { BatchDto } from '../dtos/batch.dto';
 import { BatchReminderDto } from '../dtos/batch-reminder.dto';
 import { BatchSummaryDto } from '../dtos/batch-summary.dto';
 import { CreateBatchReminderDto } from '../dtos/create-batch-reminder.dto';
+import { CreateMeasurementDto } from '../dtos/create-measurement.dto';
+import { MeasurementDto } from '../dtos/measurement.dto';
 import { StartBatchDto } from '../dtos/start-batch.dto';
 import { UpdateBatchReminderDto } from '../dtos/update-batch-reminder.dto';
 import { BatchService } from '../services/batch.service';
@@ -180,5 +182,36 @@ export class BatchController {
       },
     );
     return BatchReminderDto.fromEntity(updated);
+  }
+
+  @Get(':id/measurements')
+  @ApiOperation({ summary: 'List measurements for one of my batches' })
+  @ApiOkResponse({ type: MeasurementDto, isArray: true })
+  async listMineMeasurements(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<MeasurementDto[]> {
+    const rows = await this.service.listMineMeasurements(user.id, id);
+    return rows.map((row) => MeasurementDto.fromEntity(row));
+  }
+
+  @Post(':id/measurements')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Record a measurement on one of my batches' })
+  @ApiCreatedResponse({ type: MeasurementDto })
+  async createMineMeasurement(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: CreateMeasurementDto,
+  ): Promise<MeasurementDto> {
+    const saved = await this.service.createMineMeasurement(user.id, id, {
+      type: dto.type,
+      value: dto.value,
+      stepOrder: dto.stepOrder,
+      unit: dto.unit,
+      takenAt: dto.takenAt ? new Date(dto.takenAt) : undefined,
+    });
+    return MeasurementDto.fromEntity(saved);
   }
 }

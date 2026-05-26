@@ -92,7 +92,7 @@ Play this beat **only if time allows or the jury asks "and then what?"** — the
 **Stage**:
 
 - From *Mes Brassins*, speaker opens the in-progress batch **« La Première du dimanche »** (or taps *« Suivre mon brassin »* on the dashboard) → **Détails du brassin**
-- The **« Minuterie d'étape »** card is front and centre: **Empâtage 67°C**, a large **MM:SS countdown** ticking down, a progress bar, and the **« X / 30 min »** scale
+- The **« Minuterie d'étape »** card is front and center: **Empâtage 67°C**, a large **MM:SS countdown** ticking down, a progress bar, and the **« X / 30 min »** scale
 - Speaker taps the **ⓘ** next to the *Empâtage 67°C* step → a tip modal opens explaining the *why* in plain French (alpha-amylase converting starch at 67°C)
 
 **Speaker (FR)**:

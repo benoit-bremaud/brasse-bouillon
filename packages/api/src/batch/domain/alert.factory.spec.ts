@@ -90,15 +90,18 @@ describe('createAlert', () => {
     ).toThrow(/dismissedAt/);
   });
 
-  // Edge: negative stepOrder
-  it('rejects a negative stepOrder', () => {
-    expect(() =>
-      createAlert({
-        batchId: 'b-1',
-        trigger: AlertTrigger.OVERDUE,
-        severity: AlertSeverity.INFO,
-        stepOrder: -1,
-      }),
-    ).toThrow(/stepOrder/);
-  });
+  // Edge: negative or non-integer stepOrder
+  it.each([-1, 2.5])(
+    'rejects a negative or non-integer stepOrder %p',
+    (stepOrder) => {
+      expect(() =>
+        createAlert({
+          batchId: 'b-1',
+          trigger: AlertTrigger.OVERDUE,
+          severity: AlertSeverity.INFO,
+          stepOrder,
+        }),
+      ).toThrow(/stepOrder/);
+    },
+  );
 });

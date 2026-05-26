@@ -310,3 +310,58 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
     expect(screen.queryByText("Densité actuelle")).toBeNull();
   });
 });
+
+describe("BatchDetailsScreen — brewing step timer + pedagogical tip (#781)", () => {
+  const guidedMashBatch: Batch = {
+    ...mashBatch,
+    steps: [
+      {
+        ...mashBatch.steps[0],
+        plannedDurationMin: 30,
+        pedagogicalTip:
+          "À 67°C, l'alpha-amylase convertit l'amidon en sucres fermentescibles.",
+      },
+      mashBatch.steps[1],
+    ],
+  };
+
+  beforeEach(() => {
+    mockReplace.mockReset();
+    dataSource.useDemoData = true;
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(guidedMashBatch, "La Première du dimanche"),
+    );
+  });
+
+  // Happy path: an in-progress step with a planned duration shows the timer.
+  it("renders the step timer when the active step has a planned duration", async () => {
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Minuterie d'étape")).toBeTruthy();
+  });
+
+  // Sad path: a step without a planned duration hides the timer.
+  it("hides the step timer when the active step has no planned duration", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(mashBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    await screen.findByText("Ma recette test");
+    expect(screen.queryByText("Minuterie d'étape")).toBeNull();
+  });
+
+  // Edge: the ⓘ action opens the tip modal, and "Compris" dismisses it.
+  it("opens the pedagogical-tip modal from ⓘ and dismisses it", async () => {
+    renderBatchDetailsScreen();
+
+    await screen.findByText("La Première du dimanche");
+
+    fireEvent.press(screen.getByLabelText("Astuce pour l'étape Empâtage 67°C"));
+    expect(screen.getByText(/alpha-amylase convertit l'amidon/)).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Compris"));
+    expect(screen.queryByText(/alpha-amylase convertit l'amidon/)).toBeNull();
+  });
+});

@@ -25,4 +25,9 @@ export const colors = {
     infoBackground: "#f8f8f8",
     warningBackground: "#fdf3df",
   },
+  overlay: {
+    // Scrim behind modals/dialogs. Uses the app's dark neutral (not pure black)
+    // at 40% so every backdrop across the app matches.
+    scrim: "rgba(30, 30, 30, 0.4)",
+  },
 } as const;

@@ -11,6 +11,8 @@ import { BatchService } from './services/batch.service';
 import { BatchStatus } from './domain/enums/batch-status.enum';
 import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
+import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
+import { MeasurementType } from './domain/enums/measurement-type.enum';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
@@ -28,6 +30,7 @@ describe('BatchService', () => {
   let batchReminderRepo: Repository<BatchReminderOrmEntity>;
   let recipeRepo: Repository<RecipeOrmEntity>;
   let recipeStepRepo: Repository<RecipeStepOrmEntity>;
+  let measurementRepo: Repository<MeasurementOrmEntity>;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -42,6 +45,7 @@ describe('BatchService', () => {
             BatchOrmEntity,
             BatchStepOrmEntity,
             BatchReminderOrmEntity,
+            MeasurementOrmEntity,
           ],
           synchronize: true,
           logging: false,
@@ -53,6 +57,7 @@ describe('BatchService', () => {
           BatchOrmEntity,
           BatchStepOrmEntity,
           BatchReminderOrmEntity,
+          MeasurementOrmEntity,
         ]),
       ],
       providers: [RecipeService, BatchService],
@@ -65,6 +70,7 @@ describe('BatchService', () => {
     batchReminderRepo = module.get(getRepositoryToken(BatchReminderOrmEntity));
     recipeRepo = module.get(getRepositoryToken(RecipeOrmEntity));
     recipeStepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
+    measurementRepo = module.get(getRepositoryToken(MeasurementOrmEntity));
   });
 
   afterAll(async () => {
@@ -72,6 +78,7 @@ describe('BatchService', () => {
   });
 
   beforeEach(async () => {
+    await measurementRepo.clear();
     await batchStepRepo.clear();
     await batchRepo.clear();
     await batchReminderRepo.clear();
@@ -362,6 +369,61 @@ describe('BatchService', () => {
 
     await expect(
       batchService.listMineReminders(otherOwner, started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  // #607 — measurement entry (happy path)
+  it('createMineMeasurement() persists a reading and listMineMeasurements() returns it', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    const saved = await batchService.createMineMeasurement(ownerId, batch.id, {
+      type: MeasurementType.OG,
+      value: 1.048,
+      stepOrder: 0,
+      unit: 'SG',
+    });
+
+    expect(saved.id).toBeDefined();
+    expect(saved.batch_id).toBe(batch.id);
+    expect(saved.type).toBe(MeasurementType.OG);
+    expect(saved.value).toBeCloseTo(1.048);
+
+    const list = await batchService.listMineMeasurements(ownerId, batch.id);
+    expect(list).toHaveLength(1);
+    expect(list[0].id).toBe(saved.id);
+  });
+
+  // #607 — sad path: domain range violation surfaces as 400
+  it('createMineMeasurement() rejects an out-of-range value with BadRequest', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineMeasurement(ownerId, batch.id, {
+        type: MeasurementType.PH,
+        value: 99,
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // #607 — edge: ownership enforced on both routes
+  it('measurement routes reject a batch the user does not own', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineMeasurement(otherOwner, batch.id, {
+        type: MeasurementType.FG,
+        value: 1.012,
+      }),
+    ).rejects.toThrow(NotFoundException);
+    await expect(
+      batchService.listMineMeasurements(otherOwner, batch.id),
     ).rejects.toThrow(NotFoundException);
   });
 });

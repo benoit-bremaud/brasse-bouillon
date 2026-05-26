@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RecipeModule } from '../recipe/recipe.module';
 
+import { AlertOrmEntity } from './entities/alert.orm.entity';
 import { BatchController } from './controllers/batch.controller';
 import { BatchReminderOrmEntity } from './entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from './entities/batch.orm.entity';
@@ -19,6 +20,7 @@ import { BatchService } from './services/batch.service';
       BatchReminderOrmEntity,
       MeasurementOrmEntity,
       ObservationOrmEntity,
+      AlertOrmEntity,
     ]),
     RecipeModule,
   ],

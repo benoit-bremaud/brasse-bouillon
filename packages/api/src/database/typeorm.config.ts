@@ -1,5 +1,6 @@
 import * as path from 'path';
 
+import { AlertOrmEntity } from '../batch/entities/alert.orm.entity';
 import { BatchOrmEntity } from '../batch/entities/batch.orm.entity';
 import { BatchReminderOrmEntity } from '../batch/entities/batch-reminder.orm.entity';
 import { BatchStepOrmEntity } from '../batch/entities/batch-step.orm.entity';
@@ -50,6 +51,7 @@ export const ormEntities = [
   BatchReminderOrmEntity,
   MeasurementOrmEntity,
   ObservationOrmEntity,
+  AlertOrmEntity,
   RecipeOrmEntity,
   RecipeStepOrmEntity,
   RecipeFermentableOrmEntity,

@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -29,6 +30,12 @@ export class CreateObservationDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  // Stored as a TypeORM simple-array (comma-delimited): commas would corrupt
+  // the list on read-back, so reject any ref containing one.
+  @Matches(/^[^,]*$/, {
+    each: true,
+    message: 'photoRefs must not contain commas',
+  })
   photoRefs?: string[];
 
   @ApiProperty({ required: false, minimum: 1, maximum: 5, example: 4 })

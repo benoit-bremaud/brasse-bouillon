@@ -69,6 +69,17 @@ describe('createObservation', () => {
     ).toThrow(/photoRefs/);
   });
 
+  // Edge: a comma would be split by simple-array persistence
+  it('rejects a photo ref containing a comma', () => {
+    expect(() =>
+      createObservation({
+        batchId: 'b-1',
+        freeText: 'note',
+        photoRefs: ['photos/a,b.jpg'],
+      }),
+    ).toThrow(/comma/);
+  });
+
   // Edge: negative stepOrder
   it('rejects a negative stepOrder', () => {
     expect(() =>

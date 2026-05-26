@@ -75,6 +75,11 @@ export function createObservation(input: ObservationInput): Observation {
   if (photoRefs.some((ref) => typeof ref !== 'string' || ref.trim() === '')) {
     throw new ObservationValidationError('photoRefs must be non-empty strings');
   }
+  // photo_refs is persisted as a TypeORM simple-array (comma-delimited), so a
+  // ref containing a comma would be silently split on read-back. Reject it.
+  if (photoRefs.some((ref) => ref.includes(','))) {
+    throw new ObservationValidationError('photoRefs must not contain commas');
+  }
 
   return {
     batchId: input.batchId,

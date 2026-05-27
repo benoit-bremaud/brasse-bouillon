@@ -33,6 +33,13 @@ node_modules/
 **/venv/
 **/__pycache__/
 
+# Local prebuild output — keep the build on the managed workflow (continuous
+# native generation), matching the May 2026 APKs. These dirs are gitignored
+# local artifacts; uploading them flips EAS into the bare workflow and breaks
+# the appVersion runtimeVersion policy. Anchored to the package root.
+/android/
+/ios/
+
 # Local artifacts (can appear in either workspace or package)
 .expo/
 coverage/

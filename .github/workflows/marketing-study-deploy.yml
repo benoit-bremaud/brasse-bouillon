@@ -7,7 +7,7 @@ name: Marketing Study Deploy
 # This automates the manual Wrangler Direct Upload runbook documented at
 # docs/marketing/needs-study/cloudflare-pages-deployment.md. The site is a
 # static VitePress build (own package.json + lock, outside the npm
-# workspace graph); `dist/` is gitignored and rebuilt fresh in CI.
+# workspace graph); `.vitepress/dist/` is gitignored and rebuilt fresh in CI.
 #
 # Secrets required (GitHub Actions repo secrets):
 #   - CLOUDFLARE_API_TOKEN  (must include Account > Cloudflare Pages > Edit)

@@ -5,7 +5,21 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-27
+
+### PR #1119 merged (`e4fa604`) — feat(website): refresh app captures on beer-gradient bg + dark phone bezel
+
+- Branch `feat/website-refresh-captures-darkframe`, 2 commits (`b22b10e`, `4ea8303`).
+- All 9 in-app captures (4 journey + 5 feature) recaptured from the current build on the beer-gradient background (#1093); `.journey-screenshot` / `.feature-screenshot` frames switched to a dark ink bezel; cache-bust bumped (`?v=20260526` on captures, `?v=20260526-3` on `site.css`).
+- Part of the app-to-site capture refresh (#1079, #1110).
+
 ## 2026-05-26
+
+### PR #1118 merged (`697e17b`) — feat(api/batches): observation entry + list endpoints (#607 slice B)
+
+- Branch `feat/batch-observation-endpoint-607`, 3 commits (`94a4c27`, `f2413e4`, `ffd5544`).
+- Owner-scoped `GET`/`POST /batches/:id/observations`, mirroring measurement slice A (#1116); domain-validated via `createObservation` (#605). Part of #607.
+- Codex P2: `photo_refs` simple-array storage would split commas → rejected at the DTO (`@Matches`) + the domain factory.
 
 ### Soutenance prep + website journey (3 PRs merged)
 

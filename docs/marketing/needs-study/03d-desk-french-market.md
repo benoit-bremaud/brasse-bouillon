@@ -36,6 +36,31 @@ brasseur artisanal* (professionnel — adjacent, pas la cible). Drapeaux de fiab
   Le Comptoir du Brasseur, Radis et Capucine, etc. ; segmentation kit-extrait vs tout-grain ; catégorie best-seller Amazon.fr
   « Kits de brassage maison ». Croissance qualitative, **aucun chiffre de vente solide [N/F]**. [MED/LOW]
 
+## Recomposition des outils FR de brassage amateur (2025) — signal de marché
+
+Les *logiciels de brassage* sont des concurrents (vocabulaire cohérent : ce sont des outils pour brasseurs amateurs, donc
+sur cible). Leurs fiches détaillées vivent dans `01-desk-competitors` et `03b-desk-french` ; ce qui suit est le **signal de
+marché** spécifiquement FR, rafraîchi en mai 2026 :
+
+- **Joliebulle, le logiciel FR historique, a fermé début 2025.** Sa propre page d'accueil le formalise au passé :
+  *« c'était joliebulle, un logiciel pour les brasseurs amateurs et artisans, de 2010 à 2025 »*. Outil desktop open-source
+  (GPL) devenu en partie payant (distribution Gumroad) en fin de vie. Sa disparition **déplace une base d'utilisateurs FR**
+  qui cherche un nouveau foyer ; la **migration des fichiers Joliebulle** vers d'autres outils est possible mais imparfaite
+  (conversions d'unités erronées rapportées à l'import XML). [HIGH]
+- **Little Bock (littlebock.fr) est le successeur FR naturel** — et le seul outil de recettes/brassage *web* franco-français
+  encore actif à grande échelle. Réserve structurelle : c'est un produit **mono-mainteneur**, créé et développé par une
+  seule personne (Michaël, alias « Micka », brasseur amateur + développeur + auteur du blog). 100 % navigateur (recettes
+  accessibles depuis n'importe quel terminal), base d'ingrédients fournie, suivi de brassin poussé, **profils de brasseurs +
+  partage communautaire de recettes**. Modèle **freemium** : gratuit plafonné à **5 recettes + 5 brassins** ; **Premium
+  19,99 €/an (ou 1,99 €/mois)** → recettes/brassins illimités, gestion des coûts, alertes de stock, accès API, sans
+  publicité. Sentiment communautaire (forum BrassageAmateur) **positif** : interface claire, calculs cohérents, créateur
+  réactif. [MED]
+- **Lecture stratégique.** En 2025 le marché FR des outils amateurs a perdu son acteur historique (Joliebulle) et repose
+  désormais largement sur **un produit solo** (Little Bock) — un signal de **fragilité / durabilité** qui sert directement le
+  créneau de Brasse-Bouillon (données durables, partage **versionné et crédité**, mainteneur présent et pluriel). Le plafond
+  gratuit de Little Bock (5 recettes) laisse en outre un espace pour une offre gratuite plus généreuse. La fiabilité est donc
+  ici un **message marketing**, pas seulement un SLA. [MED]
+
 ## Contexte des microbrasseries artisanales françaises (PROFESSIONNEL — adjacent, bien documenté)
 
 Utile pour la vitalité de la culture bière, les cibles de clones, les angles B2B/partenariat — **pas la cible** :
@@ -86,3 +111,9 @@ débutants récents) sont américaines — à valider sur les utilisateurs FR en
 - https://fr.statista.com/statistiques/830080/nombre-micro-brasseries-france/
 - https://homebrewersassociation.org/news/1-1-million-americans-homebrew-beer/
 - https://www.insee.fr/fr/statistiques/6535287
+- https://joliebulle.org/ (page d'accueil au passé : « de 2010 à 2025 » — fermeture confirmée)
+- https://colibre.org/jolibulle-le-logiciel-de-brassage-amateur-open-source/ (historique GPL → fin de vie)
+- https://www.littlebock.fr/fonctionnalites-et-tarifs (freemium : gratuit 5 recettes/5 brassins ; Premium 19,99 €/an)
+- https://www.littlebock.fr/a-propos (projet mono-mainteneur — fondateur Michaël)
+- https://www.brassageamateur.com/forum/viewtopic.php?t=35668 (sentiment communautaire Little Bock)
+- https://superpotion.fr/etat-des-lieux-marche-brassicole/ (état des lieux marché brassicole 2026 — plateau/consolidation)

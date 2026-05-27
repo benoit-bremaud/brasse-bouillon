@@ -36,6 +36,29 @@ brasseur artisanal* (professional — adjacent, not the target). Reliability fla
   Le Comptoir du Brasseur, Radis et Capucine, etc.; extract-kit vs all-grain segmentation; Amazon.fr "Kits de
   brassage maison" bestseller category. Qualitative growth, **no hard sales figures [N/F]**. [MED/LOW]
 
+## FR amateur-brewing tooling shake-up (2025) — market signal
+
+*Brewing software* are competitors (consistent vocabulary: they are tools for amateur brewers, hence on-target). Their
+detailed profiles live in `01-desk-competitors` and `03b-desk-french`; what follows is the specifically-FR **market signal**,
+refreshed May 2026:
+
+- **Joliebulle, the historic FR software, shut down in early 2025.** Its own homepage states it in the past tense:
+  *"c'était joliebulle, un logiciel pour les brasseurs amateurs et artisans, de 2010 à 2025"*. An open-source (GPL) desktop
+  tool that turned partly paid (Gumroad distribution) at end of life. Its disappearance **displaces an FR user base** looking
+  for a new home; **migrating Joliebulle files** to other tools is possible but imperfect (unit-conversion errors reported on
+  XML import). [HIGH]
+- **Little Bock (littlebock.fr) is the natural FR successor** — and the only French-built *web* recipe/brewing tool still
+  active at scale. Structural caveat: it is a **single-maintainer** product, created and developed by one person (Michaël,
+  aka "Micka", amateur brewer + developer + blog author). Fully browser-based (recipes accessible from any device), solid
+  ingredient database, deep batch tracking, **brewer profiles + community recipe sharing**. **Freemium** model: free tier
+  capped at **5 recipes + 5 batches**; **Premium €19.99/yr (or €1.99/mo)** → unlimited recipes/batches, cost management,
+  stock alerts, API access, no ads. Community sentiment (BrassageAmateur forum) is **positive**: clear interface, coherent
+  calculations, responsive creator. [MED]
+- **Strategic read.** In 2025 the FR amateur-tooling market lost its historic player (Joliebulle) and now leans largely on a
+  **solo product** (Little Bock) — a **fragility / durability** signal that directly serves Brasse-Bouillon's wedge (durable
+  data, **versioned and credited** sharing, a present and plural maintainer). Little Bock's free cap (5 recipes) also leaves
+  room for a more generous free tier. Here reliability is a **marketing message**, not just an SLA. [MED]
+
 ## French craft microbrewery context (PROFESSIONAL — adjacent, well documented)
 
 Useful for beer-culture vitality, clone targets, B2B/partnership angles — **not the target**:
@@ -85,3 +108,9 @@ only hard demographics (age 30–49, male, educated, affluent, recent starters) 
 - https://fr.statista.com/statistiques/830080/nombre-micro-brasseries-france/
 - https://homebrewersassociation.org/news/1-1-million-americans-homebrew-beer/
 - https://www.insee.fr/fr/statistiques/6535287
+- https://joliebulle.org/ (homepage in past tense: "de 2010 à 2025" — closure confirmed)
+- https://colibre.org/jolibulle-le-logiciel-de-brassage-amateur-open-source/ (GPL history → end of life)
+- https://www.littlebock.fr/fonctionnalites-et-tarifs (freemium: free 5 recipes/5 batches; Premium €19.99/yr)
+- https://www.littlebock.fr/a-propos (single-maintainer project — founder Michaël)
+- https://www.brassageamateur.com/forum/viewtopic.php?t=35668 (Little Bock community sentiment)
+- https://superpotion.fr/etat-des-lieux-marche-brassicole/ (2026 brewing-market state of play — plateau/consolidation)

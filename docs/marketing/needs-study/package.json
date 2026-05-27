@@ -1,6 +1,6 @@
 {
   "name": "@brasse-bouillon/marketing-needs-study",
-  "version": "2026.05.22-1",
+  "version": "2026.05.27-1",
   "private": true,
   "type": "module",
   "description": "VitePress site presenting the Brasse-Bouillon marketing needs study (epic #1075).",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "docs:dev": "vitepress dev .",
-    "docs:build": "vitepress build .",
+    "docs:build": "vitepress build . && cp .vitepress/public/_headers .vitepress/dist/_headers",
     "docs:preview": "vitepress preview ."
   },
   "devDependencies": {

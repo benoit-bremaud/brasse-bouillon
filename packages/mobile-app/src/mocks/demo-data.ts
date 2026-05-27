@@ -2680,6 +2680,101 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     notesSource:
       "Brasserie de Lancelot public datasheet (56460 Le Roc-Saint-André, Bretagne)",
   }),
+  // --- Physical bottles scanned for the 2026-05-27 soutenance demo.
+  // Identities resolved through our own OpenFoodFacts client
+  // (packages/api/src/scan/services/openfoodfacts.client.ts). OFF only
+  // carries name/brand/ABV, so style/IBU/EBC are style-based estimates
+  // (flagged via buildDemoScanCatalogItem's isXxxEstimated defaults). ---
+
+  // Punk IPA — UK 0,33L bottle EAN, a 3rd physical SKU of the same beer
+  // already keyed under 5060277380019 (UK 0,5L) + 4260649360279 (DE
+  // 0,33L). Routes to the canonical Punk IPA values + official clone.
+  "5056025440494": buildDemoScanCatalogItem({
+    id: "demo-scan-punk-ipa-uk-033",
+    barcode: "5056025440494",
+    name: "Punk IPA",
+    brewery: "BrewDog",
+    style: "IPA",
+    abv: 5.4,
+    ibu: 35,
+    colorEbc: 14,
+    aromaticTags: "tropical, citrus, pine",
+    notesSource: "BrewDog DIY Dog 2019 (open-source recipe book)",
+  }),
+  // La Chouffe — 0,33L bottle EAN alias (OFF "BIERE BLONDE CHOUFFE 8%").
+  // Same beer as the canonical 5410702000133 entry.
+  "5410769100081": buildDemoScanCatalogItem({
+    id: "demo-scan-la-chouffe-033",
+    barcode: "5410769100081",
+    name: "La Chouffe",
+    brewery: "Brasserie d Achouffe",
+    style: "Belgian Strong Pale Ale",
+    abv: 8.0,
+    ibu: 20,
+    colorEbc: 14,
+    aromaticTags: "banana, clove, coriander",
+    notesSource: "Brasserie d'Achouffe — official datasheet",
+  }),
+  // Bush Caractère — Brasserie Dubuisson. OFF: amber strong Belgian.
+  // ABV 12% (brewery); IBU/EBC style-based estimates.
+  "5411551300818": buildDemoScanCatalogItem({
+    id: "demo-scan-bush-caractere",
+    barcode: "5411551300818",
+    name: "Bush Caractère",
+    brewery: "Brasserie Dubuisson",
+    style: "Belgian Strong Amber Ale",
+    abv: 12.0,
+    ibu: 24,
+    colorEbc: 35,
+    aromaticTags: "caramel, dried fruit, toffee, warming alcohol",
+    notesSource:
+      "OpenFoodFacts 2026-05-27 + Dubuisson datasheet (IBU/EBC estimated)",
+  }),
+  // Bière À la fût IPA — OFF lists no brand; organic French IPA. ABV
+  // absent on OFF → left null (flagged estimated by the builder).
+  "3770012913076": buildDemoScanCatalogItem({
+    id: "demo-scan-a-la-fut-ipa",
+    barcode: "3770012913076",
+    name: "À la fût IPA",
+    brewery: "Brasserie À la fût",
+    style: "IPA",
+    abv: null,
+    ibu: 50,
+    colorEbc: 14,
+    aromaticTags: "citrus, resinous hops, grapefruit",
+    notesSource: "OpenFoodFacts 2026-05-27 (ABV/IBU/EBC estimated)",
+  }),
+  // Pauwel Kwak — Brouwerij Bosteels. OFF brand "PAUWEL", strong
+  // Belgian. ABV 8.4 (brewery); IBU/EBC estimates. EAN-8 SKU.
+  "54050051": buildDemoScanCatalogItem({
+    id: "demo-scan-pauwel-kwak",
+    barcode: "54050051",
+    name: "Pauwel Kwak",
+    brewery: "Brouwerij Bosteels",
+    style: "Belgian Strong Amber Ale",
+    abv: 8.4,
+    ibu: 18,
+    colorEbc: 30,
+    aromaticTags: "banana, caramel, ripe fruit, spice",
+    notesSource:
+      "OpenFoodFacts 2026-05-27 + Bosteels datasheet (IBU/EBC estimated)",
+  }),
+  // BrewDog Wingman — 0,33L bottle (distinct from the 0,5L can
+  // 5056025476097). Session IPA 4.3% (OFF category "session-ipa").
+  // IBU/EBC estimated. No official DIY Dog clone wired (only Punk IPA).
+  "5056025475885": buildDemoScanCatalogItem({
+    id: "demo-scan-brewdog-wingman",
+    barcode: "5056025475885",
+    name: "Wingman",
+    brewery: "BrewDog",
+    style: "Session IPA",
+    abv: 4.3,
+    ibu: 40,
+    colorEbc: 12,
+    aromaticTags: "tropical, citrus, light body",
+    notesSource:
+      "OpenFoodFacts 2026-05-27 (Wingman session IPA; IBU/EBC estimated)",
+  }),
 };
 
 /**
@@ -2752,6 +2847,77 @@ const PUNK_IPA_RECIPE_MATCHES: ScanRecipeMatch[] = [
   },
 ];
 
+// IPA-family equivalents (no official clone) — reused for scanned IPAs
+// that are not the BrewDog Punk IPA: the À la fût IPA and the Wingman
+// session IPA. Same 3 community picks as the Punk IPA equivalents,
+// minus the official DIY Dog row.
+const IPA_EQUIVALENT_MATCHES: ScanRecipeMatch[] =
+  PUNK_IPA_RECIPE_MATCHES.filter((match) => match.isOfficial !== true);
+
+// La Chouffe neighbours — shared by both the canonical 5410702000133
+// entry and the 5410769100081 physical-bottle alias.
+const LA_CHOUFFE_RECIPE_MATCHES: ScanRecipeMatch[] = [
+  {
+    recipeId: "r-demo-6",
+    publicRecipeId: "00000000-0000-4000-8000-000000000004",
+    name: "Belgian Tripel",
+    brewer: "Caroline",
+    rating: 4.8,
+    brewedCount: 31,
+    score: 0.93,
+  },
+  {
+    recipeId: "r-demo-9",
+    publicRecipeId: "00000000-0000-4000-8000-000000000005",
+    name: "Saison Farmhouse",
+    brewer: "Hugo",
+    rating: 4.6,
+    brewedCount: 19,
+    score: 0.86,
+  },
+  {
+    recipeId: "r-demo-2",
+    publicRecipeId: "00000000-0000-4000-8000-000000000006",
+    name: "Witbier Orange",
+    brewer: "Sophie",
+    rating: 4.2,
+    brewedCount: 9,
+    score: 0.74,
+  },
+];
+
+// Strong Belgian amber neighbours — shared by the scanned Bush
+// Caractère (12%) and Pauwel Kwak (8.4%) bottles. Malty, strong picks.
+const BELGIAN_STRONG_RECIPE_MATCHES: ScanRecipeMatch[] = [
+  {
+    recipeId: "r-demo-6",
+    publicRecipeId: "00000000-0000-4000-8000-000000000004",
+    name: "Belgian Tripel",
+    brewer: "Caroline",
+    rating: 4.8,
+    brewedCount: 31,
+    score: 0.9,
+  },
+  {
+    recipeId: "r-demo-15",
+    publicRecipeId: "00000000-0000-4000-8000-000000000007",
+    name: "Scotch Ale Wee Heavy",
+    brewer: "Pierre",
+    rating: 4.9,
+    brewedCount: 27,
+    score: 0.83,
+  },
+  {
+    recipeId: "r-demo-9",
+    publicRecipeId: "00000000-0000-4000-8000-000000000005",
+    name: "Saison Farmhouse",
+    brewer: "Hugo",
+    rating: 4.6,
+    brewedCount: 19,
+    score: 0.71,
+  },
+];
+
 export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   // Punk IPA — UK 0,5L bottle EAN (canonical seed entry).
   "5060277380019": PUNK_IPA_RECIPE_MATCHES,
@@ -2759,36 +2925,13 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
   // verification before soutenance blanche). Same beer, different
   // SKU — both bottles route to the same matches.
   "4260649360279": PUNK_IPA_RECIPE_MATCHES,
-  // La Chouffe — Belgian Strong Pale Ale neighbours.
-  "5410702000133": [
-    {
-      recipeId: "r-demo-6",
-      publicRecipeId: "00000000-0000-4000-8000-000000000004",
-      name: "Belgian Tripel",
-      brewer: "Caroline",
-      rating: 4.8,
-      brewedCount: 31,
-      score: 0.93,
-    },
-    {
-      recipeId: "r-demo-9",
-      publicRecipeId: "00000000-0000-4000-8000-000000000005",
-      name: "Saison Farmhouse",
-      brewer: "Hugo",
-      rating: 4.6,
-      brewedCount: 19,
-      score: 0.86,
-    },
-    {
-      recipeId: "r-demo-2",
-      publicRecipeId: "00000000-0000-4000-8000-000000000006",
-      name: "Witbier Orange",
-      brewer: "Sophie",
-      rating: 4.2,
-      brewedCount: 9,
-      score: 0.74,
-    },
-  ],
+  // Punk IPA — UK 0,33L bottle EAN (3rd physical SKU, soutenance
+  // 2026-05-27). Same beer → same official clone + 3 equivalents.
+  "5056025440494": PUNK_IPA_RECIPE_MATCHES,
+  // La Chouffe — Belgian Strong Pale Ale neighbours. The canonical EAN
+  // and the 5410769100081 physical-bottle alias share the same matches.
+  "5410702000133": LA_CHOUFFE_RECIPE_MATCHES,
+  "5410769100081": LA_CHOUFFE_RECIPE_MATCHES,
   // Rochefort 10 — strong dark ale neighbours.
   "5410799000115": [
     {
@@ -2850,6 +2993,14 @@ export const demoEquivalentRecipes: Record<string, ScanRecipeMatch[]> = {
       score: 0.76,
     },
   ],
+  // Bush Caractère (Dubuisson, strong amber) — malty strong neighbours.
+  "5411551300818": BELGIAN_STRONG_RECIPE_MATCHES,
+  // À la fût IPA — IPA family equivalents (no official clone).
+  "3770012913076": IPA_EQUIVALENT_MATCHES,
+  // Pauwel Kwak (Bosteels, strong amber) — same strong Belgian picks.
+  "54050051": BELGIAN_STRONG_RECIPE_MATCHES,
+  // BrewDog Wingman (session IPA) — IPA family equivalents.
+  "5056025475885": IPA_EQUIVALENT_MATCHES,
 };
 
 /**

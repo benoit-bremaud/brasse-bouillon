@@ -40,6 +40,7 @@ const sidebarFr = [
     collapsed: false,
     items: [
       { text: "Guide d'entretien", link: "/05-interview-guide" },
+      { text: "Recrutement entretiens", link: "/c-recrutement-entretiens" },
       { text: "Sondage (questionnaire)", link: "/c-sondage" },
       { text: "Kit de diffusion", link: "/c-diffusion" },
       { text: "Résultats", link: "/c-resultats" }
@@ -84,6 +85,7 @@ const sidebarEn = [
     collapsed: false,
     items: [
       { text: "Interview guide", link: "/en/05-interview-guide" },
+      { text: "Interview recruitment", link: "/en/c-interview-recruitment" },
       { text: "Survey (questionnaire)", link: "/en/c-survey" },
       { text: "Distribution kit", link: "/en/c-distribution" },
       { text: "Results", link: "/en/c-resultats" }

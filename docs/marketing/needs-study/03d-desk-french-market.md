@@ -61,6 +61,20 @@ marché** spécifiquement FR, rafraîchi en mai 2026 :
   gratuit de Little Bock (5 recettes) laisse en outre un espace pour une offre gratuite plus généreuse. La fiabilité est donc
   ici un **message marketing**, pas seulement un SLA. [MED]
 
+### Forum vs outil — qui sert quoi (chiffres sourcés)
+
+Confusion fréquente : **BrassageAmateur.com et Little Bock ne jouent pas le même rôle**. Le premier est un *forum*
+(communauté), le second un *logiciel* (app de brassage). Ils ne se comparent pas terme à terme — ils se recoupent seulement
+sur la fonction « partage de recettes ».
+
+| Acteur | Nature | Partage de recettes | Chiffres clés (sourcés) |
+|---|---|---|---|
+| **BrassageAmateur.com** | Forum communautaire FR de référence (depuis 2003) | Couche légère via son app **BrewRecipes** (import BeerXML, filtres, styles BJCP, notes/commentaires, analyse IA, timeline) | ~**22 467 membres**, ~498k messages, 36 250 sujets [MED] ; **BrewRecipes : 350+ recettes** partagées [MED] |
+| **Little Bock** | Logiciel de brassage *web* (création + calculs + suivi de brassin + stocks) | Bibliothèque communautaire intégrée + profils de brasseurs | **Pas de total officiel publié [N/F]** ; annuaire de brasseurs fortement paginé + profils à dizaines/centaines de recettes (profil officiel : 50 recettes, **2 288 abonnés**) → communauté d'un ordre de grandeur de plusieurs milliers de brasseurs [LOW/MED] |
+
+- **Lien entre les deux : aucun.** Pas d'affiliation ; le seul partenaire listé par Little Bock est Brewspot (ateliers de brassage). [HIGH]
+- **Implication.** En FR, le « partage de recettes » est déjà partiellement servi par les **deux** — la couche sociale du forum (BrewRecipes) *et* l'app Little Bock. Mais aucun n'offre la **lignée versionnée + crédit auteur + remise à l'échelle automatique** : c'est précisément l'écart que vise Brasse-Bouillon. [MED]
+
 ## Contexte des microbrasseries artisanales françaises (PROFESSIONNEL — adjacent, bien documenté)
 
 Utile pour la vitalité de la culture bière, les cibles de clones, les angles B2B/partenariat — **pas la cible** :
@@ -117,3 +131,7 @@ débutants récents) sont américaines — à valider sur les utilisateurs FR en
 - https://www.littlebock.fr/a-propos (projet mono-mainteneur — fondateur Michaël)
 - https://www.brassageamateur.com/forum/viewtopic.php?t=35668 (sentiment communautaire Little Bock)
 - https://superpotion.fr/etat-des-lieux-marche-brassicole/ (état des lieux marché brassicole 2026 — plateau/consolidation)
+- https://www.brassageamateur.com/ (app BrewRecipes du forum — 350+ recettes, import BeerXML, styles BJCP, analyse IA, timeline)
+- https://www.littlebock.fr/brasseurs/ (annuaire des brasseurs Little Bock — profils, recettes, abonnés)
+- https://docs.littlebock.fr/ (documentation Little Bock)
+- https://www.littlebock.fr/partenaires (partenaire unique listé : Brewspot — aucune affiliation à BrassageAmateur)

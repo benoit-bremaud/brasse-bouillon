@@ -59,6 +59,19 @@ refreshed May 2026:
   data, **versioned and credited** sharing, a present and plural maintainer). Little Bock's free cap (5 recipes) also leaves
   room for a more generous free tier. Here reliability is a **marketing message**, not just an SLA. [MED]
 
+### Forum vs tool — who serves what (sourced figures)
+
+Common confusion: **BrassageAmateur.com and Little Bock do not play the same role.** The former is a *forum* (community), the
+latter a *software* (brewing app). They are not term-for-term comparable — they only overlap on the "recipe sharing" function.
+
+| Player | Nature | Recipe sharing | Key figures (sourced) |
+|---|---|---|---|
+| **BrassageAmateur.com** | Reference FR community forum (since 2003) | Light layer via its **BrewRecipes** app (BeerXML import, filters, BJCP styles, comments/ratings, AI analysis, timeline) | ~**22,467 members**, ~498k posts, 36,250 topics [MED]; **BrewRecipes: 350+ shared recipes** [MED] |
+| **Little Bock** | *Web* brewing software (recipe building + calculations + batch tracking + stock) | Built-in community library + brewer profiles | **No official total published [N/F]**; heavily-paginated brewer directory + profiles with tens/hundreds of recipes (official profile: 50 recipes, **2,288 followers**) → a community on the order of several thousand brewers [LOW/MED] |
+
+- **Link between them: none.** No affiliation; Little Bock's only listed partner is Brewspot (brewing workshops). [HIGH]
+- **Implication.** In FR, "recipe sharing" is already partly served by **both** — the forum's social layer (BrewRecipes) *and* the Little Bock app. But neither offers **versioned lineage + author credit + automatic rescaling**: precisely the gap Brasse-Bouillon targets. [MED]
+
 ## French craft microbrewery context (PROFESSIONAL — adjacent, well documented)
 
 Useful for beer-culture vitality, clone targets, B2B/partnership angles — **not the target**:
@@ -114,3 +127,7 @@ only hard demographics (age 30–49, male, educated, affluent, recent starters) 
 - https://www.littlebock.fr/a-propos (single-maintainer project — founder Michaël)
 - https://www.brassageamateur.com/forum/viewtopic.php?t=35668 (Little Bock community sentiment)
 - https://superpotion.fr/etat-des-lieux-marche-brassicole/ (2026 brewing-market state of play — plateau/consolidation)
+- https://www.brassageamateur.com/ (forum's BrewRecipes app — 350+ recipes, BeerXML import, BJCP styles, AI analysis, timeline)
+- https://www.littlebock.fr/brasseurs/ (Little Bock brewer directory — profiles, recipes, followers)
+- https://docs.littlebock.fr/ (Little Bock documentation)
+- https://www.littlebock.fr/partenaires (sole listed partner: Brewspot — no affiliation with BrassageAmateur)

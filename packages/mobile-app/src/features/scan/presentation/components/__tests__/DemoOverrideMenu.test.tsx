@@ -9,16 +9,24 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
       <DemoOverrideMenu visible onClose={jest.fn()} onSelectBeer={jest.fn()} />,
     );
 
-    // Sample assertions on a few well-known seeds. Punk IPA has two
-    // EAN variants (UK 0,5L canonical + DE 0,33L physical alias —
-    // Issue #807) so it appears twice; the menu is per-EAN by
-    // design so the speaker can force the exact bottle they have.
-    expect(screen.getAllByText("Punk IPA")).toHaveLength(2);
-    expect(screen.getByText("La Chouffe")).toBeTruthy();
+    // Sample assertions on a few well-known seeds. Punk IPA has three
+    // EAN variants (UK 0,5L canonical + DE 0,33L alias, Issue #807, +
+    // UK 0,33L alias for the 2026-05-27 soutenance) so it appears
+    // three times; the menu is per-EAN by design so the speaker can
+    // force the exact bottle they have.
+    expect(screen.getAllByText("Punk IPA")).toHaveLength(3);
+    // La Chouffe also has two EAN variants now (canonical + 0,33L
+    // physical alias 5410769100081).
+    expect(screen.getAllByText("La Chouffe")).toHaveLength(2);
     expect(screen.getByText("Rochefort 10")).toBeTruthy();
     // Issue #804 — these 5 entries were API-only until the sync.
     // Asserting on one of them guards against future drift.
     expect(screen.getByText("Karmeliet Tripel")).toBeTruthy();
+    // Physical bottles wired for the 2026-05-27 soutenance — guard
+    // that the new seeds reach the override menu too.
+    expect(screen.getByText("Bush Caractère")).toBeTruthy();
+    expect(screen.getByText("Pauwel Kwak")).toBeTruthy();
+    expect(screen.getByText("Wingman")).toBeTruthy();
     expect(screen.getByText(/Démo — bières seedées/i)).toBeTruthy();
   });
 
@@ -72,9 +80,10 @@ describe("DemoOverrideMenu (Issue #642 — soutenance backup)", () => {
       <DemoOverrideMenu visible onClose={jest.fn()} onSelectBeer={jest.fn()} />,
     );
 
-    // Punk IPA: BrewDog · IPA · 5.4 % — appears on both EAN
-    // variants (UK 0,5L + DE 0,33L alias, Issue #807).
-    expect(screen.getAllByText(/BrewDog · IPA · 5\.4 %/i)).toHaveLength(2);
+    // Punk IPA: BrewDog · IPA · 5.4 % — appears on all three EAN
+    // variants (UK 0,5L + DE 0,33L alias, Issue #807, + UK 0,33L
+    // alias). Wingman is a separate "Session IPA" line, not matched.
+    expect(screen.getAllByText(/BrewDog · IPA · 5\.4 %/i)).toHaveLength(3);
   });
 
   it("shows the EAN-13 barcode on each row (so the speaker can sanity-check it)", () => {

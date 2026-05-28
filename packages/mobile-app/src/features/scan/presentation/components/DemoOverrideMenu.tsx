@@ -65,6 +65,11 @@ export function DemoOverrideMenu({ visible, onClose, onSelectBeer }: Props) {
           <FlatList
             data={beers}
             keyExtractor={(item) => item.barcode}
+            // Render every seeded beer up-front. The list is short (a
+            // dozen-odd demo bottles) and this is a stage-emergency
+            // menu — the speaker must be able to reach any beer, and
+            // virtualisation windowing would otherwise hide the tail.
+            initialNumToRender={beers.length}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             renderItem={({ item }) => (
               <Pressable

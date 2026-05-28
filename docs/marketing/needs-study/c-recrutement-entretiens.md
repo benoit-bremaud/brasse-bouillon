@@ -94,9 +94,10 @@ Bonjour [prénom], merci beaucoup d'avoir accepté !
 visio, au tél ou en personne si on est proches — comme tu préfères.
 
 Pour ne rien rater de ce que tu me dis, j'aimerais enregistrer et
-transcrire notre échange (avec un petit dictaphone) : c'est uniquement
-pour mes notes, les citations seront anonymisées et l'enregistrement ne
-sera jamais partagé. C'est OK pour toi ?
+transcrire notre échange (avec un petit dictaphone dont la transcription
+passe par un service en ligne) : c'est uniquement pour mes notes, les
+citations seront anonymisées et l'enregistrement ne sera jamais partagé.
+C'est OK pour toi ?
 
 À très vite, et merci encore !
 ```

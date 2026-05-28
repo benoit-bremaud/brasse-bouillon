@@ -92,8 +92,9 @@ Would [slot 1] or [slot 2] work? The chat runs 25-30 min — over video, a
 call, or in person if we're nearby, whatever suits you.
 
 So I don't miss anything you tell me, I'd like to record and transcribe our
-chat (with a small voice recorder): it's only for my notes, quotes will be
-anonymised, and the recording is never shared. Is that okay with you?
+chat (with a small voice recorder whose transcription runs through an online
+service): it's only for my notes, quotes will be anonymised, and the
+recording is never shared. Is that okay with you?
 
 Talk soon, and thanks again!
 ```

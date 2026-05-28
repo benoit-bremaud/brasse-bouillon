@@ -20,6 +20,17 @@
         "EXPO_PUBLIC_USE_DEMO_DATA": "false"
       }
     },
+    "preview-demo": {
+      "distribution": "internal",
+      "channel": "preview-demo",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://brasse-bouillon-api.fly.dev",
+        "EXPO_PUBLIC_USE_DEMO_DATA": "true"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "channel": "production"

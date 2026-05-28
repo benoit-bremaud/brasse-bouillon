@@ -71,6 +71,13 @@
 /packages/mobile-app/dist/
 /packages/mobile-app/coverage/
 
+# Local prebuild output (gitignored, created locally on 2026-05-24). Uploading
+# these flips EAS into the bare workflow, which rejects the appVersion
+# runtimeVersion policy and breaks the build. The committed project is managed
+# (no native dirs tracked), matching the May 2026 APKs — keep it that way.
+/packages/mobile-app/android/
+/packages/mobile-app/ios/
+
 # Anywhere-in-the-tree dependency caches and build outputs
 **/.venv/
 **/venv/

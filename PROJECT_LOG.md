@@ -5,6 +5,21 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-05-28
+
+### PR #1124 merged (`80b0588`) — feat(scan): recognize six physical demo bottles in the offline catalogue
+
+- Branch `feat/scan-demo-physical-bottles`, 3 commits (`2770213`, `fe20008`, `882517c`).
+- Six real bottles scanned for the soutenance wired into `demoScanCatalog` + `demoEquivalentRecipes` so demo-mode (offline) scan surfaces a beer card + selectable equivalents: Punk IPA UK 0,33L (`5056025440494`) and La Chouffe 0,33L (`5410769100081`) as aliases of existing entries; Bush Caractère, À la fût IPA, Pauwel Kwak, BrewDog Wingman as new entries. Identities resolved via the OpenFoodFacts client; style/IBU/EBC are style-based estimates.
+- `DemoOverrideMenu` now renders the full list (`initialNumToRender`) so the stage-emergency menu reaches every beer regardless of count.
+- Copilot (5) + Codex (1, P2): IBU/EBC estimation flags were silently exact despite the notesSource → set `isIbuEstimated`/`isColorEbcEstimated: true` on the 4 new bottles + added offline-lookup tests (`882517c`).
+
+### PR #1123 merged (`7cc52a5`) — chore(mobile): add EAS preview-demo profile and exclude local native dirs
+
+- Branch `chore/eas-preview-demo-profile`, 1 commit (`4140e4c`).
+- New `preview-demo` EAS profile (internal APK, `EXPO_PUBLIC_USE_DEMO_DATA=true`) to build an offline demo APK; `.easignore` (root + package) excludes `packages/mobile-app/android|ios` so a local prebuild stops flipping EAS into the bare workflow (which rejected the `appVersion` runtimeVersion policy and broke the build).
+- Both PRs merged via `--admin --squash` (AI-only reviewers, no human approval possible; CI green + every comment answered).
+
 ## 2026-05-27
 
 ### PR #1119 merged (`e4fa604`) — feat(website): refresh app captures on beer-gradient bg + dark phone bezel

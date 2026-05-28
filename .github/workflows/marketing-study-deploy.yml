@@ -1,0 +1,59 @@
+name: Marketing Study Deploy
+
+# Build the marketing needs-study VitePress site (docs/marketing/needs-study)
+# and deploy it to Cloudflare Pages (project `brasse-bouillon-marketing`)
+# whenever the study changes on `main`, or manually via the Actions tab.
+#
+# This automates the manual Wrangler Direct Upload runbook documented at
+# docs/marketing/needs-study/cloudflare-pages-deployment.md. The site is a
+# static VitePress build (own package.json + lock, outside the npm
+# workspace graph); `.vitepress/dist/` is gitignored and rebuilt fresh in CI.
+#
+# Secrets required (GitHub Actions repo secrets):
+#   - CLOUDFLARE_API_TOKEN  (must include Account > Cloudflare Pages > Edit)
+#   - CLOUDFLARE_ACCOUNT_ID
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/marketing/needs-study/**"
+      - ".github/workflows/marketing-study-deploy.yml"
+  workflow_dispatch:
+
+# A single in-flight deployment at a time; newer pushes supersede.
+concurrency:
+  group: marketing-study-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    defaults:
+      run:
+        working-directory: docs/marketing/needs-study
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build VitePress site
+        run: |
+          npm ci
+          npm run docs:build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: docs/marketing/needs-study
+          command: >-
+            pages deploy .vitepress/dist
+            --project-name=brasse-bouillon-marketing
+            --branch=main

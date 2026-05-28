@@ -2726,6 +2726,8 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     abv: 12.0,
     ibu: 24,
     colorEbc: 35,
+    isIbuEstimated: true,
+    isColorEbcEstimated: true,
     aromaticTags: "caramel, dried fruit, toffee, warming alcohol",
     notesSource:
       "OpenFoodFacts 2026-05-27 + Dubuisson datasheet (IBU/EBC estimated)",
@@ -2741,6 +2743,8 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     abv: null,
     ibu: 50,
     colorEbc: 14,
+    isIbuEstimated: true,
+    isColorEbcEstimated: true,
     aromaticTags: "citrus, resinous hops, grapefruit",
     notesSource: "OpenFoodFacts 2026-05-27 (ABV/IBU/EBC estimated)",
   }),
@@ -2755,6 +2759,8 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     abv: 8.4,
     ibu: 18,
     colorEbc: 30,
+    isIbuEstimated: true,
+    isColorEbcEstimated: true,
     aromaticTags: "banana, caramel, ripe fruit, spice",
     notesSource:
       "OpenFoodFacts 2026-05-27 + Bosteels datasheet (IBU/EBC estimated)",
@@ -2771,6 +2777,8 @@ export const demoScanCatalog: Record<string, ScanCatalogItem> = {
     abv: 4.3,
     ibu: 40,
     colorEbc: 12,
+    isIbuEstimated: true,
+    isColorEbcEstimated: true,
     aromaticTags: "tropical, citrus, light body",
     notesSource:
       "OpenFoodFacts 2026-05-27 (Wingman session IPA; IBU/EBC estimated)",

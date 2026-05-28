@@ -1,6 +1,7 @@
 import {
   demoEquivalentRecipes,
   demoRecipes,
+  demoScanCatalog,
   getDemoEquivalentRecipes,
 } from "@/mocks/demo-data";
 
@@ -146,5 +147,43 @@ describe("demoEquivalentRecipes (Issue #911)", () => {
         }
       }
     });
+  });
+});
+
+describe("demoScanCatalog — offline lookup for scanned bottles", () => {
+  const ALL_SCANNED_BARCODES = [
+    PUNK_IPA_BARCODE_UK_ALIAS,
+    ...SCANNED_DEMO_BARCODES_NO_OFFICIAL,
+  ];
+
+  it.each(ALL_SCANNED_BARCODES)(
+    "resolves %s to a catalogue entry so the demo lookup succeeds offline",
+    (barcode) => {
+      // demoScanCatalog is the only source the demo-mode lookup reads
+      // (no backend). Each scanned bottle must resolve here or the scan
+      // shows "not in catalogue".
+      const item = demoScanCatalog[barcode];
+
+      expect(item).toBeDefined();
+      expect(item.barcode).toBe(barcode);
+      expect(item.name.length).toBeGreaterThan(0);
+    },
+  );
+
+  it("flags IBU and EBC as estimated when they are style-based guesses", () => {
+    // notesSource on these entries states IBU/EBC are estimates — the
+    // technical-sheet UI badge relies on isIbuEstimated / isColorEbcEstimated.
+    const estimatedBottles = [
+      "5411551300818", // Bush Caractère
+      "3770012913076", // À la fût IPA
+      "54050051", // Pauwel Kwak
+      "5056025475885", // BrewDog Wingman
+    ];
+
+    for (const barcode of estimatedBottles) {
+      const item = demoScanCatalog[barcode];
+      expect(item.isIbuEstimated).toBe(true);
+      expect(item.isColorEbcEstimated).toBe(true);
+    }
   });
 });

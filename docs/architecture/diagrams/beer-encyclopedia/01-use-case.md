@@ -70,9 +70,9 @@ flowchart LR
   class UC5,UC6,UC9 planned;
 ```
 
-_Même cas d'usage en **PlantUML** (notation UML magistrale : acteurs, ovales, triangle de
+*Même cas d'usage en **PlantUML** (notation UML magistrale : acteurs, ovales, triangle de
 généralisation natif, «include» / «extend», stéréotypes). À garder **synchronisé** avec le
-bloc Mermaid ci-dessus._
+bloc Mermaid ci-dessus.*
 
 ```plantuml
 @startuml
@@ -164,7 +164,7 @@ endlegend
   **source externe** en frontière (cible de UC4 sur absence locale), pas un acteur.
 - **Sécurité / maintenance** : les écritures (UC7/UC8) et la modération (UC9) supposent un
   acteur authentifié/autorisé. Le code Python n'impose aucune auth aujourd'hui (divergence
-  + faille → #1151). La maintenance passera par une **interface web admin dédiée**, jamais
+  - faille → #1151). La maintenance passera par une **interface web admin dédiée**, jamais
   par le mobile (#1152).
 
 ## Spécifications des cas d'usage (Cockburn)
@@ -179,8 +179,8 @@ endlegend
     2. Le système affiche la liste paginée.
     3. Le Visiteur navigue (pages).
 - **Extensions**
-    - 1a. Filtre appliqué (style, brasserie, pays, plage d'ABV) → liste filtrée.
-    - 2a. Rubrique vide → message « aucun élément ».
+  - 1a. Filtre appliqué (style, brasserie, pays, plage d'ABV) → liste filtrée.
+  - 2a. Rubrique vide → message « aucun élément ».
 - **Postcondition :** aucune modification. · **Relations :** association Visiteur seule.
 
 ### UC2 — Rechercher (bière ou brasserie) par nom — *livré*
@@ -192,8 +192,8 @@ endlegend
     2. Le système renvoie les résultats classés par pertinence (recherche floue, paginés).
     3. Le Visiteur ouvre un résultat → navigation vers UC3.
 - **Extensions**
-    - 1a. Terme vide / trop court → invite à préciser.
-    - 2a. Aucun résultat → message + orientation (UC1, ou scan code-barres UC4).
+  - 1a. Terme vide / trop court → invite à préciser.
+  - 2a. Aucun résultat → message + orientation (UC1, ou scan code-barres UC4).
 - **Postcondition :** aucune modification. · **Relations :** association Visiteur seule (les styles ne sont pas cherchables aujourd'hui).
 
 ### UC3 — Consulter une fiche (bière / brasserie / style) — *livré*
@@ -207,7 +207,7 @@ endlegend
         - **Brasserie** : nom, type, localisation, année de fondation, site web, ses bières.
         - **Style** : nom, catégorie, plages ABV/IBU/SRM, description.
 - **Extensions**
-    - 1a. Entité introuvable → message « introuvable » (404).
+  - 1a. Entité introuvable → message « introuvable » (404).
 - **Postcondition :** aucune modification. · **Relations :** **inclus par UC4** ; point d'arrivée de la navigation UC1/UC2.
 
 ### UC4 — Identifier une bière par code-barres — *livré*
@@ -221,11 +221,11 @@ endlegend
     2. Le système recherche la bière dans la base Brasse-Bouillon (par EAN).
     3. La bière existe → affichage de la fiche (**«include» UC3**).
 - **Extensions**
-    - 2a. Absente de Brasse-Bouillon :
-        - 2a1. Le système interroge Open Food Facts (par EAN).
-        - 2a2. Trouvée → import (`source=openfoodfacts`, non vérifiée) puis affichage de la fiche (reprise étape 3).
-        - 2a3. Introuvable (référence non trouvée) → le système **propose le scan d'étiquette** (**«extend» UC5**).
-    - \*a. Code-barres illisible/invalide → message d'erreur ; réessayer ou scanner l'étiquette.
+  - 2a. Absente de Brasse-Bouillon :
+    - 2a1. Le système interroge Open Food Facts (par EAN).
+    - 2a2. Trouvée → import (`source=openfoodfacts`, non vérifiée) puis affichage de la fiche (reprise étape 3).
+    - 2a3. Introuvable (référence non trouvée) → le système **propose le scan d'étiquette** (**«extend» UC5**).
+  - \*a. Code-barres illisible/invalide → message d'erreur ; réessayer ou scanner l'étiquette.
 - **Postcondition :** en cas de succès, une fiche existe (éventuellement importée) et est affichée ; sinon, aucun changement et orientation vers UC5.
 - **Relations :** association Visiteur ; **«include» UC3** ; **étendu par UC5**.
 
@@ -241,8 +241,8 @@ endlegend
     2. Le système analyse l'image (détection → OCR → reconnaissance).
     3. Le système identifie la bière et affiche la fiche (UC3).
 - **Extensions**
-    - 3a. Identification incertaine/partielle → création d'une **proposition de fiche** à valider par un Mainteneur ; le Visiteur est informé.
-    - 2a. Étiquette illisible / analyse en échec → message d'erreur ; proposer une nouvelle capture.
+  - 3a. Identification incertaine/partielle → création d'une **proposition de fiche** à valider par un Mainteneur ; le Visiteur est informé.
+  - 2a. Étiquette illisible / analyse en échec → message d'erreur ; proposer une nouvelle capture.
 - **Postcondition :** si succès, bière identifiée (fiche) ou proposition en attente ; sinon aucun changement.
 - **Relations :** **«extend» UC4**. La validation des suggestions de scan est une modération distincte de UC9 (à réconcilier via l'étude `scan/` + l'interface admin #1152).
 
@@ -258,8 +258,8 @@ endlegend
     3. Le système enregistre une correction « pending » (`community_corrections`) sans toucher la donnée publiée.
     4. Le système confirme la soumission.
 - **Extensions**
-    - 2a. Valeur vide / identique → rejet, invite à corriger.
-    - 3a. Limite anti-abus atteinte → message (throttling).
+  - 2a. Valeur vide / identique → rejet, invite à corriger.
+  - 3a. Limite anti-abus atteinte → message (throttling).
 - **Postcondition :** une correction « pending » existe ; donnée publique inchangée jusqu'à UC9.
 - **Relations :** association Contributeur. Lien UC6 → UC9 = cycle de vie (voir `05-state`).
 
@@ -274,10 +274,10 @@ endlegend
     2. Le système valide (champs obligatoires, FK `brewery_id`/`style_id`, formats légaux/EAN) et génère un slug unique.
     3. Le système enregistre l'entité.
 - **Extensions**
-    - 2a. FK inexistante → rejet (422).
-    - 2b. Donnée invalide (EAN, dénomination légale, groupe d'alcool, pays) → rejet.
-    - 2c. Collision de slug → suffixe automatique (`-2`, `-3`).
-    - 2d. EAN déjà utilisé → rejet (unicité).
+  - 2a. FK inexistante → rejet (422).
+  - 2b. Donnée invalide (EAN, dénomination légale, groupe d'alcool, pays) → rejet.
+  - 2c. Collision de slug → suffixe automatique (`-2`, `-3`).
+  - 2d. EAN déjà utilisé → rejet (unicité).
 - **Variantes :** Modifier (PATCH partiel) ; Supprimer (cascade profil/ingrédients/médias).
 - **Postcondition :** le catalogue reflète l'opération. La lecture (« R » de CRUD) relève de UC1/UC3 ; les styles relèvent de UC8.
 - **Relations :** association Mainteneur seule. **Sécurité :** endpoints d'écriture sans auth aujourd'hui → #1151.
@@ -293,8 +293,8 @@ endlegend
     2. Le système insère ou met à jour chaque entrée par sa clé naturelle (slug / code / nom), sans doublon.
     3. Le système confirme le nombre d'entrées créées / mises à jour.
 - **Extensions**
-    - 2a. Entrée déjà présente et identique → ignorée (idempotence).
-    - 2b. Entrée hors vocabulaire contrôlé → rejet / erreur signalée.
+  - 2a. Entrée déjà présente et identique → ignorée (idempotence).
+  - 2b. Entrée hors vocabulaire contrôlé → rejet / erreur signalée.
 - **Postcondition :** référentiels à l'état canonique ; UC7 et UC3 peuvent s'y référer.
 - **Relations :** association Mainteneur seule (la dépendance de UC7 aux référentiels est une précondition de données, pas un «include»).
 
@@ -309,13 +309,13 @@ endlegend
     2. Il examine une correction ou un **groupe de signalements identiques** (entité, champ, valeur actuelle, valeur proposée, raison, **nombre de signalements**).
     3. Il **approuve** (en l'état ou après **amendement** de la valeur) → le système applique la valeur, passe la/les correction(s) à « approved » (reviewer + date), **consigne la décision dans l'historique** et **notifie le(s) contributeur(s)** (remerciement + résultat).
 - **Extensions**
-    - 3a. Il **rejette** → « rejected » (reviewer + date + raison) ; entité inchangée ; contributeur(s) notifié(s).
-    - 2a. Correction obsolète (donnée déjà modifiée, détecté via l'historique) → rejet motivé (ne pas écraser un changement déjà appliqué).
-    - 2b. Valeur invalide (vocabulaire légal, format) → rejet / demande de reformulation.
-    - 2c. Conflit : plusieurs corrections concurrentes sur le même champ → **le Mainteneur tranche** ; l'historique évite de ré-appliquer un changement déjà fait.
+  - 3a. Il **rejette** → « rejected » (reviewer + date + raison) ; entité inchangée ; contributeur(s) notifié(s).
+  - 2a. Correction obsolète (donnée déjà modifiée, détecté via l'historique) → rejet motivé (ne pas écraser un changement déjà appliqué).
+  - 2b. Valeur invalide (vocabulaire légal, format) → rejet / demande de reformulation.
+  - 2c. Conflit : plusieurs corrections concurrentes sur le même champ → **le Mainteneur tranche** ; l'historique évite de ré-appliquer un changement déjà fait.
 - **Règles**
-    - **Priorité par agrégation** (#1153) : une même correction (même entité + champ + valeur proposée) signalée par plusieurs contributeurs distincts gagne en priorité. Le compteur brut est **pondéré par la réputation** du contributeur (le nombre seul est manipulable).
-    - **Notifications** (#1154) : le résultat est notifié au contributeur — dépendance inter-service (utilisateurs côté NestJS, ADR-0005).
-    - **Historique / audit** (#1155) : journal des changements (qui, quand, ancienne → nouvelle valeur).
+  - **Priorité par agrégation** (#1153) : une même correction (même entité + champ + valeur proposée) signalée par plusieurs contributeurs distincts gagne en priorité. Le compteur brut est **pondéré par la réputation** du contributeur (le nombre seul est manipulable).
+  - **Notifications** (#1154) : le résultat est notifié au contributeur — dépendance inter-service (utilisateurs côté NestJS, ADR-0005).
+  - **Historique / audit** (#1155) : journal des changements (qui, quand, ancienne → nouvelle valeur).
 - **Postcondition :** correction(s) « approved »/« rejected », horodatée(s) et attribuée(s) ; décision dans l'historique ; contributeur(s) notifié(s) ; donnée publiée à jour si approuvée.
 - **Relations :** association Mainteneur seule. Cycle de vie UC6 → UC9 (`05-state`). Validation des suggestions de scan = modération distincte (#1152).

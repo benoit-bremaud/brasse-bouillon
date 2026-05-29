@@ -8,14 +8,14 @@
 ## Périmètre actuel
 
 Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres packages au fil des revues.
-Étude de cas d'usage : [`01-use-case.md`](../../packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/01-use-case.md).
+Étude de cas d'usage : [`01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md).
 
 ## État des diagrammes — beer-encyclopedia
 
 | Diagramme | Fichier | État |
 |-----------|---------|------|
-| Cas d'usage | [`01-use-case.md`](../../packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/01-use-case.md) | ✅ |
-| Séquence — UC4 (backend) | [`02-sequence-import-by-ean.md`](../../packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/02-sequence-import-by-ean.md) | ✅ |
+| Cas d'usage | [`01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md) | ✅ |
+| Séquence — UC4 (backend) | [`02-sequence-import-by-ean.md`](diagrams/beer-encyclopedia/02-sequence-import-by-ean.md) | ✅ |
 | Séquence — UC5 (scan/identification) | `02-sequence-scan.md` | ⬜ à recadrer (identification) |
 | Composant | `03-component.md` | ⬜ à revoir + FR |
 | Classes | `04-class.md` | ⬜ à revoir + FR |
@@ -54,6 +54,6 @@ Légende : ✅ fait · ⬜ à venir · — non applicable.
 
 ## Renvois
 
-- Cas d'usage et fiches Cockburn : [`01-use-case.md`](../../packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/01-use-case.md)
+- Cas d'usage et fiches Cockburn : [`01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md)
 - ADR structurant : [`0013-beer-canonical-model-and-conception-order.md`](decisions/0013-beer-canonical-model-and-conception-order.md)
 - Suivi de la revue : [`CONCEPTION-REVIEW-PROGRESS.md`](../../packages/beer-encyclopedia/docs/CONCEPTION-REVIEW-PROGRESS.md)

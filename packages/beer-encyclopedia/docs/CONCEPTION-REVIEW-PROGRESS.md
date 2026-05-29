@@ -14,9 +14,10 @@
 - **Étude de conception en français** — exception assumée à la règle « docs en anglais »
   (projet perso, support d'apprentissage). Reste en anglais : code, commits, corps de PR,
   issues, ADR. (repo ADR-0013, clause 7)
-- **Monorepo conservé ; split multi-repos différé** (aucun déclencheur). Diagrammes
-  **composant** in-package (co-location, modèle C4) ; artefacts **système/transverse**
-  (matrice de traçabilité `docs/architecture/traceability-matrix.md`) au **central**.
+- **Monorepo conservé ; split multi-repos différé** (aucun déclencheur). **Toute la
+  conception est centralisée** sous `docs/architecture/` : diagrammes par feature dans
+  `docs/architecture/diagrams/beer-encyclopedia/` (comme les 11 autres features), matrice
+  de traçabilité `docs/architecture/traceability-matrix.md`. Plus d'exception in-package.
   (repo ADR-0013, clause 4)
 - **Modèle `Beer` normalisé = canonique** ; `scan_catalog_items` (NestJS) = cache transitoire.
   (repo ADR-0013, clauses 1-2)

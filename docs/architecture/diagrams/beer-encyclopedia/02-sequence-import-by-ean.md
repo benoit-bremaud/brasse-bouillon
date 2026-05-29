@@ -4,7 +4,7 @@
 > **Endpoint :** `POST /beers/import-by-ean`
 > **Code concerné :** `api/routers/beers.py`, `importers/openfoodfacts.py`, `importers/persistence.py`
 > **ADR liés :** ADR-0003 (connecteur Open Food Facts), repo ADR-0013 (la conception fait foi)
-> **Voir aussi :** `01-use-case.md` (fiche UC4) · `../../../../docs/architecture/traceability-matrix.md`
+> **Voir aussi :** `01-use-case.md` (fiche UC4) · `../../traceability-matrix.md`
 
 ## Contexte
 

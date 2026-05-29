@@ -85,19 +85,32 @@ jobs:
           find _site -maxdepth 2 -type f | sort
           echo "::endgroup::"
 
-      # Create the Pages project on first run; no-op afterwards. The
-      # API errors if the project already exists, hence continue-on-error.
-      - name: Ensure Pages project exists
-        uses: cloudflare/wrangler-action@v3
-        continue-on-error: true
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create brasse-bouillon-website --production-branch=main
-
+      # Bootstrap the Pages project on first run, then deploy. The branch
+      # passed to `pages deploy` is derived from the ref: pushes/dispatches
+      # on `main` hit the production branch (`--production-branch=main`),
+      # while a manual dispatch from any other branch produces a Cloudflare
+      # *preview* deployment instead of overwriting production.
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=brasse-bouillon-website --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          project=brasse-bouillon-website
+
+          # Create the project on first run. Tolerate ONLY the
+          # "already exists" case — any other failure (auth, API outage,
+          # quota) must fail the job rather than be silently swallowed.
+          if ! out=$(npx --yes wrangler@3 pages project create "$project" --production-branch=main 2>&1); then
+            echo "$out"
+            if echo "$out" | grep -qiE 'already exists|exists with the name'; then
+              echo "Project '$project' already exists — continuing."
+            else
+              echo "::error::Unexpected failure creating Pages project '$project'."
+              exit 1
+            fi
+          fi
+
+          npx --yes wrangler@3 pages deploy _site \
+            --project-name="$project" \
+            --branch="$GITHUB_REF_NAME"

@@ -42,12 +42,16 @@ documentation-location exception. It extends repo ADR-0005.
    in favour of the canonical model (nullable in the knowledge base; a barcode is
    not mandatory for a beer fiche).
 
-4. **Diagram-location exception.** The beer-encyclopedia UML study lives **in the
-   package** (`packages/beer-encyclopedia/docs/diagrams/`), not in the central
-   `docs/architecture/diagrams/`. Rationale: the monorepo is expected to be split
-   into separate repositories; the package must remain self-contained and carry its
-   own conception. This is a deliberate, recorded exception to the central
-   convention, not an oversight.
+4. **Diagram location: in-package (co-location).** The beer-encyclopedia UML study lives
+   **in the package** (`packages/beer-encyclopedia/docs/diagrams/`). Rationale:
+   **co-location** of component-level conception with the code it describes (C4-style).
+   **System-level / cross-component artifacts** (product use cases, the traceability
+   matrix, cross-cutting ADRs) live centrally under `docs/architecture/`. A monorepo split
+   is **deferred** — no concrete trigger today (no second team, no independent
+   deploy/versioning need, no open-sourcing of a package, repo size fine); the monorepo
+   gives the wanted separation via packages + ADR-0005 without scattering the docs. If a
+   split ever happens, in-package conception extracts cleanly and the central layer becomes
+   a dedicated architecture repo.
 
 5. **Conception order going forward.** UML-first is restored: any further
    beer-encyclopedia work (notably the mobile to encyclopedia-API wiring, and the

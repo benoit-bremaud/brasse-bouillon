@@ -1,21 +1,28 @@
-# Sequence diagram — beer-encyclopedia — import a beer by EAN
+# Diagramme de séquence — beer-encyclopedia — Identifier une bière par code-barres (UC4, réalisation backend)
 
-> **Feature**: `POST /beers/import-by-ean`
-> **Source code**: `api/routers/beers.py`, `importers/openfoodfacts.py`,
-> `importers/persistence.py`
-> **Related ADRs**: ADR-0003 (Open Food Facts connector)
+> **Réalise (partiellement) :** UC4 — Identifier une bière par code-barres (côté **backend**)
+> **Endpoint :** `POST /beers/import-by-ean`
+> **Code concerné :** `api/routers/beers.py`, `importers/openfoodfacts.py`, `importers/persistence.py`
+> **ADR liés :** ADR-0003 (connecteur Open Food Facts), repo ADR-0013 (la conception fait foi)
+> **Voir aussi :** `01-use-case.md` (fiche UC4) · `../../../../docs/architecture/traceability-matrix.md`
 
-## Context
+## Contexte
 
-The DB-first import scenario as actually coded. Shows the four HTTP outcomes
-(200 / 201 / 404 / 503) and the conservative upsert + audit-trail write. Field
-mapping and refresh policy are summarized in the notes, not duplicated here.
+**Réalisation backend de UC4.** Cette séquence documente le flux **serveur**
+(`import-by-ean`) : recherche DB-first, repli Open Food Facts, upsert conservateur, piste
+d'audit, et les quatre issues HTTP (200 / 201 / 404 / 503). **La conception fait foi : le
+code s'y conforme.**
 
-## Diagram
+**Périmètre (option A) :** le **scan du code-barres** (étape 1 de UC4) et l'**affichage de
+la fiche** (UC3, étape 3) sont réalisés **côté mobile** → ils relèvent d'une **séquence
+mobile** (à venir). UC4 est donc réalisé par une **collaboration** : séquence mobile +
+cette séquence backend (voir la matrice de traçabilité).
+
+## Diagramme
 
 ```mermaid
 sequenceDiagram
-  actor C as Caller (mobile / NestJS)
+  actor C as Appelant (mobile / NestJS)
   participant API as FastAPI (/beers/import-by-ean)
   participant DB as PostgreSQL (beers)
   participant OFFAPI as Open Food Facts
@@ -23,28 +30,29 @@ sequenceDiagram
 
   C->>API: POST /beers/import-by-ean {ean}
   API->>DB: SELECT beer WHERE ean_code = ean
-  alt Local hit (DB-first)
-    DB-->>API: existing beer
+  alt Trouvée en base (DB-first)
+    DB-->>API: bière existante
     API-->>C: 200 OK (BeerRead)
-  else Local miss
+  else Absente en base
     API->>OFFAPI: GET /api/v2/product/{ean}.json
-    alt Transport / payload error
-      OFFAPI-->>API: error
+    alt Erreur transport / payload
+      OFFAPI-->>API: erreur
       API-->>C: 503 (off_unavailable)
-    else Product not found
+    else Produit introuvable
       OFFAPI-->>API: status 0 / 404
       API-->>C: 404 (not_found)
-    else Product found
+      Note over C: Référence non trouvée →<br/>le client propose UC5 (scan d'étiquette)
+    else Produit trouvé
       OFFAPI-->>API: ExternalBeerSnapshot
       API->>P: upsert(snapshot, source="openfoodfacts")
-      alt Source row not seeded
+      alt Source non seedée
         P-->>API: SourceNotSeededError
         API-->>C: 503 (source_not_seeded)
       else Upsert OK
-        P->>DB: upsert brewery (by name) + beer (by ean_code)
+        P->>DB: upsert brasserie (par nom) + bière (par ean_code, is_verified=false)
         P->>DB: upsert EntitySource (audit, raw_data)
         P-->>API: UpsertResult{beer, created}
-        API-->>C: 201 if created else 200 (BeerRead)
+        API-->>C: 201 si créé, sinon 200 (BeerRead)
       end
     end
   end
@@ -52,13 +60,17 @@ sequenceDiagram
 
 ## Notes
 
-- **DB-first** (`api/routers/beers.py`): a local `ean_code` hit returns 200 without
-  any network call — Open Food Facts is only queried on a miss.
-- **Conservative refresh** (`importers/persistence.py`): a re-import never overwrites
-  hand-edited fields (`name`, `slug`, `description`, `style_id`, `legal_denomination`)
-  and never clears a field — it only writes a value the snapshot actually carries.
-- **Audit trail**: every successful import upserts an `EntitySource` row keyed by
-  `(source_id, entity_type='beer', external_id=ean)`, keeping the raw OFF payload in
-  `raw_data`.
-- **Seed dependency**: the `openfoodfacts` row must exist in `sources` (via
-  `scripts/seed_sources.py`) or the import surfaces as 503, not a silent failure.
+- **Périmètre backend :** le scan du code-barres et l'affichage de la fiche (UC3) sont
+  côté mobile (séquence à venir). UC4 = collaboration **mobile + backend**.
+- **DB-first** (`api/routers/beers.py`) : un hit local sur `ean_code` renvoie 200 sans
+  aucun appel réseau — Open Food Facts n'est interrogé qu'en cas d'absence.
+- **Import non vérifié** (fiche UC4, 2a2) : une bière importée d'OFF est créée avec
+  `source=openfoodfacts` et **`is_verified=false`** (donnée à valider ensuite).
+- **Refresh conservateur** (`importers/persistence.py`) : un ré-import n'écrase jamais les
+  champs édités à la main (`name`, `slug`, `description`, `style_id`, `legal_denomination`)
+  et n'efface jamais un champ — il n'écrit que les valeurs portées par le snapshot.
+- **Piste d'audit** : chaque import réussi upsert une ligne `EntitySource` clé par
+  `(source_id, entity_type='beer', external_id=ean)`, conservant la charge OFF brute dans `raw_data`.
+- **Dépendance au seed** : la ligne `openfoodfacts` doit exister dans `sources` (via
+  `scripts/seed_sources.py`), sinon l'import remonte en 503 (pas d'échec silencieux).
+- **Conformité conception ↔ code** : cette séquence est la **référence** ; toute divergence se corrige côté code.

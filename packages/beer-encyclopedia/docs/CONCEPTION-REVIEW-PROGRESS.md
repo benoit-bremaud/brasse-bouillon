@@ -14,8 +14,10 @@
 - **Étude de conception en français** — exception assumée à la règle « docs en anglais »
   (projet perso, support d'apprentissage). Reste en anglais : code, commits, corps de PR,
   issues, ADR. (repo ADR-0013, clause 7)
-- **Diagrammes in-package** (`packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/`)
-  en prévision d'un futur découpage multi-repos. (repo ADR-0013, clause 4)
+- **Monorepo conservé ; split multi-repos différé** (aucun déclencheur). Diagrammes
+  **composant** in-package (co-location, modèle C4) ; artefacts **système/transverse**
+  (matrice de traçabilité `docs/architecture/traceability-matrix.md`) au **central**.
+  (repo ADR-0013, clause 4)
 - **Modèle `Beer` normalisé = canonique** ; `scan_catalog_items` (NestJS) = cache transitoire.
   (repo ADR-0013, clauses 1-2)
 - **Deux notations** par diagramme de cas d'usage : Mermaid (aperçu rapide) + PlantUML
@@ -29,7 +31,7 @@
 | Diagramme | État | Langue | Notes |
 |-----------|------|--------|-------|
 | `01-use-case.md` | ✅ revu & validé (UC1→UC9) | FR | Mermaid + PlantUML + 9 fiches Cockburn |
-| `02-sequence-import-by-ean.md` | ✅ revu | FR | flux cible UC4 |
+| `02-sequence-import-by-ean.md` | ✅ revu | FR | UC4 — **réalisation backend** (option A) |
 | `02-sequence-scan.md` | ⬜ à revoir | EN | décrit la reco recettes (à recadrer : UC5 = identification → le code s'adapte) |
 | `03-component.md` | ⬜ à revoir | EN | |
 | `04-class.md` | ⬜ à revoir | EN | + divergence `scan/04-class` (#1148) |
@@ -47,20 +49,27 @@
 - **Doc 2 (séquence import-by-ean / UC4)** traduit en FR, recadré « cible ».
 - **ADR-0013** complété (clauses 6 « conception fait foi » + 7 « étude en FR »).
 - **Issues créées** : #1151, #1152, #1153, #1154, #1155 (voir ci-dessous).
+- **Décision repo** : rester en **monorepo**, split **différé** (cf. principe ci-dessus).
+- **Matrice de traçabilité** créée : `docs/architecture/traceability-matrix.md` (niveau système).
+- **Séquence UC4** recadrée **option A** (réalisation backend ; scan+affichage = séquence mobile à venir).
 - Outils : extension VSCode `jebbs.plantuml` + rendu **local** (`plantuml.render: Local`).
 
 ## Prochaines étapes (reprise de session)
 
-1. **Doc 3 — composant** : revue + FR. Frontière api → ml/db/importers + inter-backend (ADR-0005).
-2. **Doc 4 — classes** : revue + FR ; vérifier la conformité champ-à-champ avec `db/models/*` ;
-   acter la divergence `scan/04-class` (#1148).
-3. **Doc 5 — états** : revue + FR ; cycle de vie `CommunityCorrection` (pending→approved/rejected)
-   + intégrer l'historique/audit (#1155) et la provenance `Beer`.
-4. **Doc 6 — data-flow** : revue + FR ; PII (rien vers OFF) ; flux d'import.
-5. **Séquence UC5 (scan d'étiquette)** : créer ; identification → fiche / proposition ;
-   recadrer `02-sequence-scan` (la reco recettes sort → le code s'adapte).
-6. **Cohérence finale** : relire l'ensemble, vérifier les renvois croisés, puis entrée
-   `PROJECT_LOG.md` à la fusion de la PR #1146.
+_(Ordre : les **séquences** d'abord — juste après les cas d'usage — puis composant / classes / états / data-flow.)_
+
+1. **Séquence UC5 (scan d'étiquette)** : recadrer `02-sequence-scan` en *identification* (FR) ;
+   la reco recettes sort du périmètre → le **code s'adapte** ; renvoi à l'étude `scan/`.
+2. **Doc 3 — composant** : revue + FR. Frontière api → ml/db/importers + inter-backend (ADR-0005).
+3. **Doc 4 — classes** : revue + FR ; conformité champ-à-champ avec `db/models/*` ;
+   divergence `scan/04-class` (#1148).
+4. **Doc 5 — états** : revue + FR ; cycle de vie `CommunityCorrection` (pending→approved/rejected)
+   + historique/audit (#1155) + provenance `Beer`.
+5. **Doc 6 — data-flow** : revue + FR ; PII (rien vers OFF) ; flux d'import.
+6. **Cohérence finale** : compléter la **matrice de traçabilité**, vérifier les renvois croisés,
+   puis entrée `PROJECT_LOG.md` à la fusion de la PR #1146.
+
+_Rappel : UC1/2/3/7/8 n'ont **pas** de séquence (texte suffit) ; séquences = UC4 ✅, UC5, UC9 (plus tard)._
 
 ## Issues ouvertes (suivi)
 

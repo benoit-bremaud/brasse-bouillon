@@ -18,15 +18,15 @@ la fiche** (UC3, étape 3) sont réalisés **côté mobile** → ils relèvent d
 mobile** (à venir). UC4 est donc réalisé par une **collaboration** : séquence mobile +
 cette séquence backend (voir la matrice de traçabilité).
 
-## Diagramme
+## Diagramme (Mermaid — aperçu rapide)
 
 ```mermaid
 sequenceDiagram
   actor C as Appelant (mobile / NestJS)
   participant API as FastAPI (/beers/import-by-ean)
-  participant DB as PostgreSQL (beers)
+  participant DB as PostgreSQL
   participant OFFAPI as Open Food Facts
-  participant P as upsert_beer_from_snapshot
+  participant P as Persistence (importers)
 
   C->>API: POST /beers/import-by-ean {ean}
   API->>DB: SELECT beer WHERE ean_code = ean
@@ -34,6 +34,7 @@ sequenceDiagram
     DB-->>API: bière existante
     API-->>C: 200 OK (BeerRead)
   else Absente en base
+    DB-->>API: aucune ligne
     API->>OFFAPI: GET /api/v2/product/{ean}.json
     alt Erreur transport / payload
       OFFAPI-->>API: erreur
@@ -44,18 +45,66 @@ sequenceDiagram
       Note over C: Référence non trouvée →<br/>le client propose UC5 (scan d'étiquette)
     else Produit trouvé
       OFFAPI-->>API: ExternalBeerSnapshot
-      API->>P: upsert(snapshot, source="openfoodfacts")
+      API->>P: upsert_beer_from_snapshot(snapshot, source="openfoodfacts")
       alt Source non seedée
         P-->>API: SourceNotSeededError
         API-->>C: 503 (source_not_seeded)
       else Upsert OK
-        P->>DB: upsert brasserie (par nom) + bière (par ean_code, is_verified=false)
+        P->>DB: upsert brasserie (par nom)
+        P->>DB: upsert bière (par ean_code, is_verified=false)
         P->>DB: upsert EntitySource (audit, raw_data)
         P-->>API: UpsertResult{beer, created}
         API-->>C: 201 si créé, sinon 200 (BeerRead)
       end
     end
   end
+```
+
+_Même séquence en **PlantUML** (notation UML magistrale : frame `sd`, base de données,
+numérotation). À garder **synchronisée** avec le bloc Mermaid ci-dessus._
+
+```plantuml
+@startuml
+title sd — UC4 Identifier par code-barres (backend)
+autonumber
+
+actor "Appelant\n(mobile / NestJS)" as C
+participant "FastAPI\n/beers/import-by-ean" as API
+database "PostgreSQL" as DB
+participant "Open Food Facts" as OFFAPI
+participant "Persistence\n(importers)" as P
+
+C -> API : POST /beers/import-by-ean {ean}
+API -> DB : SELECT beer WHERE ean_code = ean
+alt Trouvée en base (DB-first)
+  DB --> API : bière existante
+  API --> C : 200 OK (BeerRead)
+else Absente en base
+  DB --> API : aucune ligne
+  API -> OFFAPI : GET /api/v2/product/{ean}.json
+  alt Erreur transport / payload
+    OFFAPI --> API : erreur
+    API --> C : 503 (off_unavailable)
+  else Produit introuvable
+    OFFAPI --> API : status 0 / 404
+    API --> C : 404 (not_found)
+    note over C : Référence non trouvée →\nle client propose UC5 (scan d'étiquette)
+  else Produit trouvé
+    OFFAPI --> API : ExternalBeerSnapshot
+    API -> P : upsert_beer_from_snapshot(snapshot, source="openfoodfacts")
+    alt Source non seedée
+      P --> API : SourceNotSeededError
+      API --> C : 503 (source_not_seeded)
+    else Upsert OK
+      P -> DB : upsert brasserie (par nom)
+      P -> DB : upsert bière (ean_code, is_verified=false)
+      P -> DB : upsert EntitySource (audit, raw_data)
+      P --> API : UpsertResult{beer, created}
+      API --> C : 201 si créé, sinon 200 (BeerRead)
+    end
+  end
+end
+@enduml
 ```
 
 ## Notes

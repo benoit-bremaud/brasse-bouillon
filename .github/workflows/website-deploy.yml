@@ -1,16 +1,18 @@
 name: Website Deploy
 
-# Deploy the marketing site under `packages/website/` to GitHub Pages
+# Deploy the marketing site under `packages/website/` to Cloudflare Pages
 # whenever website assets change on `main`, or manually via the Actions
 # tab.
 #
-# The site used to live in a separate `brasse-bouillon-website` repo
-# (archived) which still owns the `brasse-bouillon.com` CNAME from its
-# legacy "Deploy from branch" Pages configuration. This workflow
-# replaces that legacy setup: it stages only the public files
-# (HTML / CSS / JS / images / CNAME / sitemap / screenshots / seo),
-# uploads them as a Pages artifact, and lets `actions/deploy-pages`
-# publish them as the canonical site source.
+# History: the site previously shipped to GitHub Pages on the custom
+# domain `brasse-bouillon.com`. When the repo turned private on a Free
+# plan, GitHub Pages stopped serving (custom domain returned 404), so
+# delivery moved to Cloudflare Pages (Direct Upload). This workflow
+# stages only the public files (HTML / CSS / JS / images / sitemap /
+# screenshots / seo) under `_site/` and uploads that directory to the
+# `brasse-bouillon-website` Cloudflare Pages project via `wrangler`.
+# Cloudflare credentials live in repo Actions secrets
+# (CLOUDFLARE_API_TOKEN scoped to Pages:Edit, CLOUDFLARE_ACCOUNT_ID).
 
 on:
   push:
@@ -20,20 +22,18 @@ on:
       - ".github/workflows/website-deploy.yml"
   workflow_dispatch:
 
-# A single in-flight Pages deployment at a time.
+# A single in-flight website deployment at a time.
 concurrency:
-  group: pages
+  group: website-deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/configure-pages@v5
 
       # Stage only the public-facing site under `_site/`. Everything that
       # ships to the browser is whitelisted here; internal repo files
@@ -58,6 +58,9 @@ jobs:
           done
 
           # Required scalar files — fail loudly if any go missing.
+          # CNAME is GitHub-Pages-specific and unused by Cloudflare Pages,
+          # but kept in staging until the custom domain is cut over so a
+          # rollback to Pages stays possible.
           for required in favicon.ico CNAME sitemap.xml robots.txt; do
             cp "$src/$required" _site/
           done
@@ -82,19 +85,32 @@ jobs:
           find _site -maxdepth 2 -type f | sort
           echo "::endgroup::"
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
+      # Bootstrap the Pages project on first run, then deploy. The branch
+      # passed to `pages deploy` is derived from the ref: pushes/dispatches
+      # on `main` hit the production branch (`--production-branch=main`),
+      # while a manual dispatch from any other branch produces a Cloudflare
+      # *preview* deployment instead of overwriting production.
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          project=brasse-bouillon-website
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          # Create the project on first run. Tolerate ONLY the
+          # "already exists" case — any other failure (auth, API outage,
+          # quota) must fail the job rather than be silently swallowed.
+          if ! out=$(npx --yes wrangler@3 pages project create "$project" --production-branch=main 2>&1); then
+            echo "$out"
+            if echo "$out" | grep -qiE 'already exists|exists with the name'; then
+              echo "Project '$project' already exists — continuing."
+            else
+              echo "::error::Unexpected failure creating Pages project '$project'."
+              exit 1
+            fi
+          fi
+
+          npx --yes wrangler@3 pages deploy _site \
+            --project-name="$project" \
+            --branch="$GITHUB_REF_NAME"

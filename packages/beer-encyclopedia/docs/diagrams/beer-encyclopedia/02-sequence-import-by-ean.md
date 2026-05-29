@@ -18,7 +18,7 @@ sequenceDiagram
   actor C as Caller (mobile / NestJS)
   participant API as FastAPI (/beers/import-by-ean)
   participant DB as PostgreSQL (beers)
-  participant OFF as Open Food Facts
+  participant OFFAPI as Open Food Facts
   participant P as upsert_beer_from_snapshot
 
   C->>API: POST /beers/import-by-ean {ean}
@@ -27,15 +27,15 @@ sequenceDiagram
     DB-->>API: existing beer
     API-->>C: 200 OK (BeerRead)
   else Local miss
-    API->>OFF: GET /api/v2/product/{ean}.json
+    API->>OFFAPI: GET /api/v2/product/{ean}.json
     alt Transport / payload error
-      OFF-->>API: error
+      OFFAPI-->>API: error
       API-->>C: 503 (off_unavailable)
     else Product not found
-      OFF-->>API: status 0 / 404
+      OFFAPI-->>API: status 0 / 404
       API-->>C: 404 (not_found)
     else Product found
-      OFF-->>API: ExternalBeerSnapshot
+      OFFAPI-->>API: ExternalBeerSnapshot
       API->>P: upsert(snapshot, source="openfoodfacts")
       alt Source row not seeded
         P-->>API: SourceNotSeededError

@@ -108,6 +108,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadSession();
   }, []);
 
+  // Register a global handler invoked when any *authenticated* request
+  // returns 401 (token expired/invalidated mid-session). Purge the session
+  // so the router falls back to the sign-in screen. The demo session never
+  // reaches the live backend, so it is left untouched as a safety net.
+  useEffect(() => {
+    authSession.setUnauthorizedHandler(() => {
+      if (dataSource.useDemoData) {
+        return;
+      }
+      void authSession.clear();
+      setSession(null);
+      setError("Session expirée, reconnecte-toi.");
+    });
+
+    return () => {
+      authSession.setUnauthorizedHandler(null);
+    };
+  }, []);
+
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);

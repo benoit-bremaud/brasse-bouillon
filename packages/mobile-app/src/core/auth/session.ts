@@ -5,6 +5,12 @@ const ACCESS_TOKEN_KEY = "brassebouillon.access_token";
 let accessToken: string | null = null;
 let secureStoreAvailable: boolean | null = null;
 
+// Invoked by the HTTP client when an *authenticated* request comes back
+// 401 (token expired/invalidated mid-session). The auth context registers
+// a handler here to purge the session and bounce the user to sign-in.
+// Kept on this low-level module so the HTTP client never imports React.
+let unauthorizedHandler: (() => void) | null = null;
+
 async function canUseSecureStore(): Promise<boolean> {
   if (secureStoreAvailable !== null) {
     return secureStoreAvailable;
@@ -115,5 +121,11 @@ export const authSession = {
   async clear() {
     accessToken = null;
     await deletePersistedToken();
+  },
+  setUnauthorizedHandler(handler: (() => void) | null) {
+    unauthorizedHandler = handler;
+  },
+  notifyUnauthorized() {
+    unauthorizedHandler?.();
   },
 };

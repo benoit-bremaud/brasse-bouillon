@@ -5,6 +5,7 @@ import { HttpError } from "@/core/http/http-error";
 jest.mock("@/core/auth/session", () => ({
   authSession: {
     getAccessToken: jest.fn(),
+    notifyUnauthorized: jest.fn(),
   },
 }));
 
@@ -20,6 +21,11 @@ jest.mock("@/core/config/env", () => ({
 const mockGetAccessToken = authSession.getAccessToken as jest.MockedFunction<
   typeof authSession.getAccessToken
 >;
+
+const mockNotifyUnauthorized =
+  authSession.notifyUnauthorized as jest.MockedFunction<
+    typeof authSession.notifyUnauthorized
+  >;
 
 const fetchMock = jest.fn() as jest.MockedFunction<typeof fetch>;
 
@@ -45,6 +51,7 @@ describe("http-client / request", () => {
   beforeEach(() => {
     fetchMock.mockReset();
     mockGetAccessToken.mockReset();
+    mockNotifyUnauthorized.mockReset();
   });
 
   describe("URL construction", () => {
@@ -216,6 +223,42 @@ describe("http-client / request", () => {
 
       expect(rejected).toBeInstanceOf(HttpError);
       expect((rejected as HttpError).status).toBe(500);
+    });
+  });
+
+  describe("401 / session expiry (#1130)", () => {
+    it("happy: notifies unauthorized on a 401 from an authenticated request", async () => {
+      fetchMock.mockResolvedValueOnce(
+        buildResponse({ message: "Unauthorized" }, { status: 401 }),
+      );
+
+      await request("/auth/me").catch(() => undefined);
+
+      expect(mockNotifyUnauthorized).toHaveBeenCalledTimes(1);
+    });
+
+    it("sad: does NOT notify on a 401 from an unauthenticated request (login with bad credentials)", async () => {
+      fetchMock.mockResolvedValueOnce(
+        buildResponse({ message: "Invalid credentials" }, { status: 401 }),
+      );
+
+      await request("/auth/login", {
+        method: "POST",
+        body: { email: "a@b.c", password: "wrong" },
+        auth: false,
+      }).catch(() => undefined);
+
+      expect(mockNotifyUnauthorized).not.toHaveBeenCalled();
+    });
+
+    it("edge: does NOT notify on a non-401 error from an authenticated request", async () => {
+      fetchMock.mockResolvedValueOnce(
+        buildResponse({ message: "Forbidden" }, { status: 403 }),
+      );
+
+      await request("/recipes").catch(() => undefined);
+
+      expect(mockNotifyUnauthorized).not.toHaveBeenCalled();
     });
   });
 });

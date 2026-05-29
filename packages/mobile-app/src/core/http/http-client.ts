@@ -67,6 +67,15 @@ export async function request<T>(
   const payload = await parseBody(response);
 
   if (!response.ok) {
+    // A 401 on an *authenticated* request means the token expired or was
+    // invalidated mid-session — notify so the session can be purged. Gated
+    // on `auth` so a 401 from an unauthenticated call (e.g. login with bad
+    // credentials, which passes `auth: false`) is treated as a normal
+    // failure and never triggers a logout/redirect.
+    if (response.status === 401 && auth) {
+      authSession.notifyUnauthorized();
+    }
+
     const message =
       typeof payload === "object" && payload && "message" in payload
         ? String(payload.message)

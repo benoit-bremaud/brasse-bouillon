@@ -88,9 +88,10 @@ only**.
 
 - [x] PR #1144 — deploy workflow → Cloudflare Pages; live on
   `brasse-bouillon-website.pages.dev`.
-- [ ] Delegate NS Namecheap → Cloudflare; apply the clean-slate zone; add the
-  Pages custom domains (`brasse-bouillon.com`, `www`).
-- [ ] Remove the vestigial `packages/website/CNAME` from the repo + staging.
+- [x] Delegate NS Namecheap → Cloudflare; apply the clean-slate zone; add the
+  Pages custom domains (`brasse-bouillon.com`, `www`). Done 2026-06-01.
+- [x] Remove the vestigial `packages/website/CNAME` from the repo + staging
+  (this PR).
 - [ ] (Optional) Enable DNSSEC via Cloudflare (DS record added at Namecheap).
 
 ## References

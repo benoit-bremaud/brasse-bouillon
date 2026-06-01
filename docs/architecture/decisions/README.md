@@ -56,6 +56,10 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 > referenced by open epics: 0006 — private journal vs. social product (#833),
 > 0007 — monetization model (#834, #879, #883), 0008 — AI-generated content
 > policy (#834). They will be added here when drafted.
+>
+> **0013** (beer canonical model & conception order) is being drafted on a
+> separate branch and is not yet merged to `main`; it will be added to this
+> index when it lands. That is why the index jumps from 0012 to 0014.
 
 ---
 

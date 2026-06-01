@@ -58,10 +58,7 @@ jobs:
           done
 
           # Required scalar files — fail loudly if any go missing.
-          # CNAME is GitHub-Pages-specific and unused by Cloudflare Pages,
-          # but kept in staging until the custom domain is cut over so a
-          # rollback to Pages stays possible.
-          for required in favicon.ico CNAME sitemap.xml robots.txt; do
+          for required in favicon.ico sitemap.xml robots.txt; do
             cp "$src/$required" _site/
           done
 

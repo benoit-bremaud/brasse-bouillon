@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-01
 
+### PR #1158 — feat(website): feedback widget → staging-only + new staging environment
+
+- Branch `feat/website-widget-staging-only`. The feedback widget is reframed as a dev-only tool: its host gate is flipped from production (`brasse-bouillon.com`) to `staging.brasse-bouillon-website.pages.dev` + `localhost`/`127.0.0.1`, so it no longer loads on prod. Cache-bust `feedback-widget.js?v=20260601` on all 10 pages.
+- New **staging** environment: the deploy workflow now also triggers on a long-lived `staging` branch (Cloudflare Pages branch alias → stable URL `staging.brasse-bouillon-website.pages.dev`); `concurrency` scoped per branch so staging/prod deploys don't block each other.
+- Cross-repo follow-up: `feedback-pipeline-worker` CORS allow-list must add `https://staging.brasse-bouillon-website.pages.dev` for the submit flow to work on staging.
+
 ### Website production domain `brasse-bouillon.com` cut over to Cloudflare
 
 - DNS authority delegated Namecheap → Cloudflare (NS `craig.ns.cloudflare.com` + `noor.ns.cloudflare.com`); Namecheap now registrar-only, no DNSSEC. Zone reduced to `TXT google-site-verification` + proxied `CNAME @` / `www → brasse-bouillon-website.pages.dev` (CNAME flattening on the apex).

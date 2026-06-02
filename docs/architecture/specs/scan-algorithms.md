@@ -214,6 +214,8 @@ If the BeerMugLoader animation lands (Lottie of a beer mug filling), the SSE eve
 
 **Goal:** produce one high-quality panoramic image plus 2-3 keyframes from the raw frames the mobile uploaded.
 
+> **Open question (§7.5):** whether this stitching step is needed at all, or whether the N keyframes can be OCR'd + fused directly without producing a panorama. See [§7](#7-open-implementation-choices) item 5.
+
 **Mobile → backend handoff:**
 
 - The mobile uploads the raw JPEG frames + capture metadata to a new endpoint hosted by the **Python beer-encyclopedia** (per ADR-0005): `POST /panoramic-captures` (FastAPI route, exact path TBD when the service is wired). Multipart upload, frames bundled in a single request (typical payload: 15 × ~80 KB = ~1.2 MB).
@@ -419,6 +421,14 @@ These are deliberately deferred to the implementation issues. They do not block 
 3. **Loop-closure threshold values:** `min_frames_before_closure = 12`, `match_score_threshold = 0.7`. Both are first-cut guesses; tune on real captures during the spike.
 
 4. **Frame upload chunking:** if total payload exceeds 5 MB, switch to chunked upload (signed URLs). Probably not needed for 15 × 80 KB but document the constraint.
+
+5. **Stitching vs. multi-keyframe fusion — do we need OpenCV at all?**
+   - **Option A (current spec):** Phase 5 stitches the frames into one panorama via OpenCV, then Phase 6 OCRs the panorama + keyframes.
+   - **Option B:** skip stitching entirely — send the N selected keyframes straight to Phase 6 OCR (and/or the Phase 7 Claude-vision multimodal call) and **fuse the per-frame text extractions in code**, deduplicating overlapping regions.
+   - **What prompted this:** a manual end-to-end walkthrough on a real bottle (BrewDog Hazy Jane, ~11 frames covering the full 360°) reached a fully-populated catalog record by reading each frame and merging the results — `name`, `brewery`, `brewery_address`, `country`, `style`, `abv`, `volume_ml`, `ingredients`, `allergens`, `is_vegan` all recovered. No stitched image was required to read the full-label text; the only fields left unread (`ibu`, `color_ebc`) are absent from every label and belong to Phase 8 regardless.
+   - **Why it matters:** if fusion-without-stitching matches stitching quality on a representative bottle set, Option B removes OpenCV, the Phase 5 stitching service, and the `panoramic_capture.panorama_url` dependency from the MVP — a significant simplification (KISS) and one fewer backend capability to build before a demo.
+   - **Trade-off / what we'd lose:** the stitched panorama is also the clean single image shown on the Phase 9 maintainer-review screen and stored for provenance. Option B leaves only keyframes for that. A middle path is to keep stitching purely as the human-review/provenance artefact while extraction runs on keyframes — i.e. stitching becomes optional, not on the critical path.
+   - **Decision owner / when:** evaluate during the 751-1 tech-spike on a representative bottle set (industrial + craft + traditional-with-back-label). Record the outcome as a dated decision (next free `D<n>`) here.
 
 ---
 

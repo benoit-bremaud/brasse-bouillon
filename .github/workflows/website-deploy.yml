@@ -16,15 +16,17 @@ name: Website Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
     paths:
       - "packages/website/**"
       - ".github/workflows/website-deploy.yml"
   workflow_dispatch:
 
-# A single in-flight website deployment at a time.
+# One in-flight deployment per branch: `main` (production) and `staging`
+# (the long-lived staging environment, alias staging.brasse-bouillon-website.pages.dev)
+# deploy independently and must not block each other.
 concurrency:
-  group: website-deploy
+  group: website-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

@@ -462,7 +462,17 @@ function MatchingRecipesSection({
         `La recette « ${recipe.name} » sera ajoutée à ton carnet.`,
         [
           { text: "Annuler", style: "cancel" },
-          { text: "Importer", onPress: () => importMutation.mutate(recipe) },
+          {
+            text: "Importer",
+            // Re-check before firing: a second confirmation (e.g. another
+            // row's Alert opened before this one was answered) must not
+            // launch a concurrent import. Restores the guard the previous
+            // performImport had at call time.
+            onPress: () => {
+              if (importMutation.isPending) return;
+              importMutation.mutate(recipe);
+            },
+          },
         ],
         { cancelable: true },
       );

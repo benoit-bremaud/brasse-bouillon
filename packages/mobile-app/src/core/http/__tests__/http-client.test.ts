@@ -227,7 +227,10 @@ describe("http-client / request", () => {
   });
 
   describe("401 / session expiry (#1130)", () => {
-    it("happy: notifies unauthorized on a 401 from an authenticated request", async () => {
+    it("happy: notifies unauthorized on a 401 when the request token is still current", async () => {
+      // getAccessToken is read twice: to attach the header and to compare
+      // against the still-current token on the 401 path — keep it constant.
+      mockGetAccessToken.mockReturnValue("the-jwt");
       fetchMock.mockResolvedValueOnce(
         buildResponse({ message: "Unauthorized" }, { status: 401 }),
       );
@@ -235,6 +238,22 @@ describe("http-client / request", () => {
       await request("/auth/me").catch(() => undefined);
 
       expect(mockNotifyUnauthorized).toHaveBeenCalledTimes(1);
+    });
+
+    it("edge: does NOT notify on a stale 401 whose token was replaced mid-flight (logout/re-login race)", async () => {
+      // Token attached to the request ("old"), then the user logged out and
+      // back in so the current token is now "new". The stale 401 must not
+      // purge the freshly authenticated session.
+      mockGetAccessToken
+        .mockReturnValueOnce("old-token") // attach
+        .mockReturnValueOnce("new-token"); // compare on 401
+      fetchMock.mockResolvedValueOnce(
+        buildResponse({ message: "Unauthorized" }, { status: 401 }),
+      );
+
+      await request("/auth/me").catch(() => undefined);
+
+      expect(mockNotifyUnauthorized).not.toHaveBeenCalled();
     });
 
     it("sad: does NOT notify on a 401 from an unauthenticated request (login with bad credentials)", async () => {

@@ -48,10 +48,10 @@ export class RecipeIngredientsService {
   // ─── Fermentables ───────────────────────────────────────────────────────────
 
   async listFermentables(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeFermentableOrmEntity[]> {
-    await this.assertReadable(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.fermentableRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -114,10 +114,10 @@ export class RecipeIngredientsService {
   // ─── Hops ───────────────────────────────────────────────────────────────────
 
   async listHops(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeHopOrmEntity[]> {
-    await this.assertReadable(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.hopRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -184,10 +184,10 @@ export class RecipeIngredientsService {
   // ─── Yeasts ─────────────────────────────────────────────────────────────────
 
   async listYeasts(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeYeastOrmEntity[]> {
-    await this.assertReadable(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.yeastRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -254,10 +254,10 @@ export class RecipeIngredientsService {
   // ─── Additives ──────────────────────────────────────────────────────────────
 
   async listAdditives(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeAdditiveOrmEntity[]> {
-    await this.assertReadable(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.additiveRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -321,10 +321,10 @@ export class RecipeIngredientsService {
   // ─── Water Profile (1:1) ────────────────────────────────────────────────────
 
   async getWater(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeWaterOrmEntity | null> {
-    await this.assertReadable(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.waterRepo.findOne({ where: { recipe_id: recipeId } });
   }
 

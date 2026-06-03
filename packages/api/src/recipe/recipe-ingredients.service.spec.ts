@@ -422,7 +422,7 @@ describe('RecipeIngredientsService', () => {
       await expect(service.getWater(OTHER, recipe.id)).resolves.toBeNull();
     });
 
-    it('still hides a PRIVATE recipe ingredients from a non-owner', async () => {
+    it("still hides a PRIVATE recipe's ingredients from a non-owner", async () => {
       const recipe = await createRecipe(); // private by default
       await service.addFermentable(OWNER, recipe.id, {
         name: 'Secret Malt',

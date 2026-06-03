@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-03
 
+### PR #1167 merged (`f0cb399`) — feat(recipes/api): allow reading ingredients of public recipes
+
+- Branch `feat/recipe-ingredients-public-read`, 2 commits (`9f1bf14`, `51356b7`).
+- Part of #1134 (backend half — read access). The ingredient sub-resource GET reads (`listFermentables/Hops/Yeasts/Additives` + `getWater`) were owner-only, so a viewer of a PUBLIC recipe got 404. New private `assertReadable` guard → `RecipeService.getReadableById` (owner OR public, NotFound otherwise — no private/unlisted leak). Writes keep `assertOwnership`; steps were already public-readable.
+- Copilot (6), all resolved: rename read params `ownerId` → `viewerId` on the 5 read methods + a test-name grammar fix.
+- 146 recipe-module specs pass incl. new H/S/E (non-owner reads public / private hidden / writes still owner-only). No migration.
+- **Not yet effective on prod**: needs a manual `flyctl deploy` + seeding recipe content (ingredients/steps) for public recipes — the remaining #1134 work.
+
 ### PR #1165 merged (`84cd493`) — feat(recipes): show recipe ingredients in live mode
 
 - Branch `feat/recipe-live-ingredients`, 3 commits (`ae5704b`, `9827d34`, `e251ef5`).

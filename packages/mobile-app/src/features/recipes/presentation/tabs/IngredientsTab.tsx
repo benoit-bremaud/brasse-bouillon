@@ -149,7 +149,7 @@ export function IngredientsTab(props: IngredientsTabProps) {
                       <Pressable
                         style={styles.listItemMain}
                         accessibilityRole="button"
-                        accessibilityLabel={`Open ingredient details for ${item.ingredient?.name ?? "unknown ingredient"}`}
+                        accessibilityLabel={`Open ingredient details for ${item.name}`}
                         disabled={!item.ingredient}
                         onPress={() => {
                           if (!item.ingredient) {
@@ -158,9 +158,7 @@ export function IngredientsTab(props: IngredientsTabProps) {
                           onOpenIngredient(item.ingredient);
                         }}
                       >
-                        <Text style={styles.listItemTitle}>
-                          {item.ingredient?.name ?? "Ingrédient inconnu"}
-                        </Text>
+                        <Text style={styles.listItemTitle}>{item.name}</Text>
                         <Text style={styles.listItemMeta}>
                           {quantity}
                           {item.timing ? ` • ${item.timing}` : ""}
@@ -173,7 +171,7 @@ export function IngredientsTab(props: IngredientsTabProps) {
                       <Pressable
                         testID={`recipe-add-ingredient-${item.ingredientId}-${index}`}
                         accessibilityRole="button"
-                        accessibilityLabel={`Add ${item.ingredient?.name ?? "ingredient"} to local cart`}
+                        accessibilityLabel={`Add ${item.name} to local cart`}
                         style={styles.addActionButton}
                         onPress={() => onAddIngredientToCart(item)}
                       >

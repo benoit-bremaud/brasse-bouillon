@@ -83,6 +83,8 @@ const baseViewModel = {
   ingredients: [
     {
       ingredientId: "hop-1",
+      name: "Citra",
+      category: "hop",
       amount: 25,
       unit: "g",
       timing: "boil - 10 min",
@@ -250,6 +252,8 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
       ingredients: [
         {
           ingredientId: "malt-1",
+          name: "Pale Ale Malt",
+          category: "malt",
           amount: 4.2,
           unit: "kg",
           timing: "mash",

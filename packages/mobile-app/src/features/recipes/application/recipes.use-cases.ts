@@ -5,6 +5,12 @@ import {
   listPublic,
   listSteps,
 } from "@/features/recipes/data/recipes.api";
+import {
+  listRecipeAdditives,
+  listRecipeFermentables,
+  listRecipeHops,
+  listRecipeYeasts,
+} from "@/features/recipes/data/recipe-ingredients.api";
 import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
 import {
   Equipment,
@@ -19,6 +25,12 @@ import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
 
 export type RecipeDetailsIngredientItem = {
   ingredientId: string;
+  // Denormalised display fields (#1134). In demo mode they mirror the
+  // resolved catalog `ingredient`; in live mode they come straight from
+  // the recipe-ingredient sub-resource rows (which carry their own name),
+  // and `ingredient` stays null (no catalog deep-link available live).
+  name: string;
+  category: "malt" | "hop" | "yeast" | "other";
   amount: number;
   unit: string;
   timing?: string | null;
@@ -146,38 +158,39 @@ export async function getRecipeDetailsViewModel(
     return null;
   }
 
-  if (
-    !dataSource.useDemoData &&
-    ((recipe.ingredients?.length ?? 0) > 0 ||
-      (recipe.equipment?.length ?? 0) > 0)
-  ) {
-    throw new Error(
-      "Ingredient and equipment catalogs are not available when useDemoData is false. Ensure the catalog API is available before calling getRecipeDetailsViewModel.",
-    );
-  }
-
   const steps = [...rawSteps].sort((a, b) => a.stepOrder - b.stepOrder);
 
-  const ingredientCatalog = dataSource.useDemoData ? demoIngredients : [];
-  const equipmentCatalog = dataSource.useDemoData ? demoEquipments : [];
+  // Demo: resolve each recipe ingredient ref against the bundled catalog.
+  // Live (#1134): the recipe DTO never inlines ingredients — fetch the
+  // per-type sub-resources, which are self-describing (name + weight).
+  const ingredients = dataSource.useDemoData
+    ? (recipe.ingredients ?? []).map((ref): RecipeDetailsIngredientItem => {
+        const ingredient =
+          demoIngredients.find((item) => item.id === ref.ingredientId) ?? null;
+        return {
+          ingredientId: ref.ingredientId,
+          name: ingredient?.name ?? "Ingrédient inconnu",
+          category: ingredient?.category ?? "other",
+          amount: ref.amount,
+          unit: ref.unit,
+          timing: ref.timing,
+          notes: ref.notes,
+          ingredient,
+        };
+      })
+    : await buildLiveRecipeIngredients(recipeId);
 
-  const ingredients = (recipe.ingredients ?? []).map((ref) => ({
-    ingredientId: ref.ingredientId,
-    amount: ref.amount,
-    unit: ref.unit,
-    timing: ref.timing,
-    notes: ref.notes,
-    ingredient:
-      ingredientCatalog.find((item) => item.id === ref.ingredientId) ?? null,
-  }));
-
-  const equipment = (recipe.equipment ?? []).map((ref) => ({
-    equipmentId: ref.equipmentId,
-    role: ref.role,
-    notes: ref.notes,
-    equipment:
-      equipmentCatalog.find((item) => item.id === ref.equipmentId) ?? null,
-  }));
+  // Equipment: demo only — there is no recipe↔equipment link in the live
+  // API yet, so live recipes surface no equipment (#1134, out of scope).
+  const equipment = dataSource.useDemoData
+    ? (recipe.equipment ?? []).map((ref) => ({
+        equipmentId: ref.equipmentId,
+        role: ref.role,
+        notes: ref.notes,
+        equipment:
+          demoEquipments.find((item) => item.id === ref.equipmentId) ?? null,
+      }))
+    : [];
 
   return {
     recipe,
@@ -185,4 +198,63 @@ export async function getRecipeDetailsViewModel(
     ingredients,
     equipment,
   };
+}
+
+/**
+ * Live recipe ingredients (#1134) — aggregates the four self-describing
+ * sub-resources into the unified view-model item shape. `ingredient`
+ * stays null (the rows are denormalised; the live DTOs expose no catalog
+ * id, so there is no deep-link). Additives fall in the "other" group.
+ */
+async function buildLiveRecipeIngredients(
+  recipeId: string,
+): Promise<RecipeDetailsIngredientItem[]> {
+  const [fermentables, hops, yeasts, additives] = await Promise.all([
+    listRecipeFermentables(recipeId),
+    listRecipeHops(recipeId),
+    listRecipeYeasts(recipeId),
+    listRecipeAdditives(recipeId),
+  ]);
+
+  const malts: RecipeDetailsIngredientItem[] = fermentables.map((row) => ({
+    ingredientId: row.id,
+    name: row.name,
+    category: "malt",
+    amount: row.weightG / 1000,
+    unit: "kg",
+    ingredient: null,
+  }));
+
+  const hopItems: RecipeDetailsIngredientItem[] = hops.map((row) => ({
+    ingredientId: row.id,
+    name: row.variety,
+    category: "hop",
+    amount: row.weightG,
+    unit: "g",
+    timing:
+      row.additionTimeMin != null
+        ? `${row.additionStage} · ${row.additionTimeMin} min`
+        : row.additionStage,
+    ingredient: null,
+  }));
+
+  const yeastItems: RecipeDetailsIngredientItem[] = yeasts.map((row) => ({
+    ingredientId: row.id,
+    name: row.name,
+    category: "yeast",
+    amount: row.amountG,
+    unit: "g",
+    ingredient: null,
+  }));
+
+  const additiveItems: RecipeDetailsIngredientItem[] = additives.map((row) => ({
+    ingredientId: row.id,
+    name: row.name,
+    category: "other",
+    amount: row.amountG,
+    unit: "g",
+    ingredient: null,
+  }));
+
+  return [...malts, ...hopItems, ...yeastItems, ...additiveItems];
 }

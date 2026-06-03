@@ -51,10 +51,13 @@ export async function request<T>(
     ...headers,
   };
 
+  // Captured outside the block so the 401 path below can tell whether the
+  // token that produced the 401 is still the current one.
+  let attachedToken: string | null = null;
   if (auth) {
-    const token = authSession.getAccessToken();
-    if (token) {
-      mergedHeaders.Authorization = `Bearer ${token}`;
+    attachedToken = authSession.getAccessToken();
+    if (attachedToken) {
+      mergedHeaders.Authorization = `Bearer ${attachedToken}`;
     }
   }
 
@@ -67,6 +70,22 @@ export async function request<T>(
   const payload = await parseBody(response);
 
   if (!response.ok) {
+    // A 401 on an *authenticated* request means the token expired or was
+    // invalidated mid-session — notify so the session can be purged. Gated
+    // on `auth` so a 401 from an unauthenticated call (e.g. login with bad
+    // credentials, which passes `auth: false`) is treated as a normal
+    // failure and never triggers a logout/redirect. Also require the token
+    // that produced this 401 to still be the current one: a stale in-flight
+    // request from before a logout/re-login must not purge the fresh session.
+    if (
+      response.status === 401 &&
+      auth &&
+      attachedToken &&
+      attachedToken === authSession.getAccessToken()
+    ) {
+      authSession.notifyUnauthorized();
+    }
+
     const message =
       typeof payload === "object" && payload && "message" in payload
         ? String(payload.message)

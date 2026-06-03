@@ -18,11 +18,18 @@ const mockSessionLoad = jest.fn();
 const mockSessionSetAccessToken = jest.fn();
 const mockSessionClear = jest.fn();
 
+// Capture the handler the provider registers via setUnauthorizedHandler,
+// so tests can simulate a mid-session 401 by invoking it directly.
+let capturedUnauthorizedHandler: (() => void) | null = null;
+
 jest.mock("@/core/auth/session", () => ({
   authSession: {
     load: () => mockSessionLoad(),
     setAccessToken: (token: string) => mockSessionSetAccessToken(token),
     clear: () => mockSessionClear(),
+    setUnauthorizedHandler: (handler: (() => void) | null) => {
+      capturedUnauthorizedHandler = handler;
+    },
   },
 }));
 
@@ -65,6 +72,7 @@ describe("AuthProvider — demo-trigger credentials (Issue #822)", () => {
     mockSessionClear.mockReset().mockResolvedValue(undefined);
     dataSourceMock.useDemoData = false;
     envMock.useDemoData = false;
+    capturedUnauthorizedHandler = null;
   });
 
   it("happy path: demo trigger credentials flip dataSource into demo mode and create a synthetic session without hitting the API", async () => {
@@ -200,6 +208,77 @@ describe("AuthProvider — demo-trigger credentials (Issue #822)", () => {
 
     expect(mockApiGetCurrentUser).not.toHaveBeenCalled();
     expect(dataSourceMock.useDemoData).toBe(true);
+    expect(result.current.session?.user.email).toBe(
+      "marie.brasseur@example.com",
+    );
+  });
+});
+
+describe("AuthProvider — mid-session 401 / token expiry (#1130)", () => {
+  beforeEach(() => {
+    mockApiLogin.mockReset();
+    mockSessionLoad.mockReset().mockResolvedValue(null);
+    mockSessionSetAccessToken.mockReset().mockResolvedValue(undefined);
+    mockSessionClear.mockReset().mockResolvedValue(undefined);
+    dataSourceMock.useDemoData = false;
+    envMock.useDemoData = false;
+    capturedUnauthorizedHandler = null;
+  });
+
+  it("happy: a registered live session is purged when the unauthorized handler fires", async () => {
+    mockApiLogin.mockResolvedValue({
+      accessToken: "real-token-abc",
+      user: {
+        id: "u-real-1",
+        email: "lea@brasse-bouillon.test",
+        username: "lea",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-04-30T00:00:00.000Z",
+        updatedAt: "2026-04-30T00:00:00.000Z",
+      },
+    });
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.login("lea@brasse-bouillon.test", "StrongPass123!");
+    });
+    expect(result.current.session?.user.id).toBe("u-real-1");
+
+    expect(capturedUnauthorizedHandler).not.toBeNull();
+    await act(async () => {
+      capturedUnauthorizedHandler?.();
+    });
+
+    expect(mockSessionClear).toHaveBeenCalled();
+    expect(result.current.session).toBeNull();
+    expect(result.current.error).toBe("Session expirée, reconnecte-toi.");
+  });
+
+  it("edge: the unauthorized handler is a no-op in demo mode (demo session preserved)", async () => {
+    dataSourceMock.useDemoData = true;
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.login(DEMO_TRIGGER_EMAIL, DEMO_TRIGGER_PASSWORD);
+    });
+    expect(result.current.session?.user.email).toBe(
+      "marie.brasseur@example.com",
+    );
+
+    await act(async () => {
+      capturedUnauthorizedHandler?.();
+    });
+
+    expect(mockSessionClear).not.toHaveBeenCalled();
     expect(result.current.session?.user.email).toBe(
       "marie.brasseur@example.com",
     );

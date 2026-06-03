@@ -16,13 +16,17 @@ import {
 } from './public-recipes.seed';
 import { buildRepoMock, RepoMock } from './seed-test-utils';
 
-/** UUIDs of the three scan-reachable recipes garnished with full
- * content (Punk IPA official + its two IPA-family equivalents). */
+/** UUIDs of the four scan-reachable recipes garnished with full
+ * content: the Punk IPA "official" row plus its three IPA-family
+ * equivalents (Session IPA, NEIPA, White IPA), which the mobile
+ * `PUNK_IPA_RECIPE_MATCHES` list all expose for a Punk IPA scan. */
 const SESSION_IPA_ID = '00000000-0000-4000-8000-000000000001';
 const NEIPA_ID = '00000000-0000-4000-8000-000000000002';
 const WHITE_IPA_ID = '00000000-0000-4000-8000-000000000003';
 const PUNK_IPA_ID = '00000000-0000-4000-8000-00000000000b';
-const GARNISHED_IDS = [SESSION_IPA_ID, WHITE_IPA_ID, PUNK_IPA_ID];
+const GARNISHED_IDS = [SESSION_IPA_ID, NEIPA_ID, WHITE_IPA_ID, PUNK_IPA_ID];
+/** A recipe that intentionally stays metadata-only (Belgian Tripel). */
+const METADATA_ONLY_ID = '00000000-0000-4000-8000-000000000004';
 
 function buildSubRepos(): {
   fermentableRepo: RepoMock;
@@ -210,7 +214,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
 
 describe('public recipe content (ingredients + steps, #1134)', () => {
   describe('seed data integrity', () => {
-    it('garnishes exactly the three scan-reachable recipes with full content', () => {
+    it('garnishes exactly the four scan-reachable recipes with full content', () => {
       const withContent = PUBLIC_RECIPES_SEED.filter((r) => r.fermentables);
       expect(withContent.map((r) => r.id).sort()).toEqual(
         [...GARNISHED_IDS].sort(),
@@ -230,12 +234,12 @@ describe('public recipe content (ingredients + steps, #1134)', () => {
       }
     });
 
-    it('leaves the metadata-only recipes (e.g. NEIPA Tropical) without content arrays', () => {
-      const neipa = PUBLIC_RECIPES_SEED.find((r) => r.id === NEIPA_ID);
-      expect(neipa?.fermentables).toBeUndefined();
-      expect(neipa?.hops).toBeUndefined();
-      expect(neipa?.yeasts).toBeUndefined();
-      expect(neipa?.steps).toBeUndefined();
+    it('leaves the metadata-only recipes (e.g. Belgian Tripel) without content arrays', () => {
+      const tripel = PUBLIC_RECIPES_SEED.find((r) => r.id === METADATA_ONLY_ID);
+      expect(tripel?.fermentables).toBeUndefined();
+      expect(tripel?.hops).toBeUndefined();
+      expect(tripel?.yeasts).toBeUndefined();
+      expect(tripel?.steps).toBeUndefined();
     });
 
     it('uses valid enum values and positive quantities across all content', () => {
@@ -320,29 +324,38 @@ describe('public recipe content (ingredients + steps, #1134)', () => {
   });
 
   describe('sub-resource seeding (sad / edge)', () => {
-    it('leaves sub-tables untouched for a metadata-only recipe even when subRepos is supplied', async () => {
+    it('leaves every sub-table untouched (no delete, no create) for a metadata-only recipe even when subRepos is supplied', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
       const sub = buildSubRepos();
-      const neipa = PUBLIC_RECIPES_SEED.find((r) => r.id === NEIPA_ID);
+      const tripel = PUBLIC_RECIPES_SEED.find((r) => r.id === METADATA_ONLY_ID);
 
       await seedPublicRecipes(
         repo as unknown as Repository<RecipeOrmEntity>,
-        [neipa!],
+        [tripel!],
         sub as unknown as PublicRecipeSubResourceRepos,
       );
 
-      expect(sub.fermentableRepo.delete).not.toHaveBeenCalled();
-      expect(sub.fermentableRepo.create).not.toHaveBeenCalled();
-      expect(sub.hopRepo.create).not.toHaveBeenCalled();
-      expect(sub.yeastRepo.create).not.toHaveBeenCalled();
-      expect(sub.stepRepo.create).not.toHaveBeenCalled();
+      // Assert neither delete nor create fires on ANY of the four
+      // repos — a metadata-only recipe must not touch its content
+      // sub-tables, so a regression that started wiping hops/yeasts/
+      // steps for such rows would be caught here.
+      for (const childRepo of [
+        sub.fermentableRepo,
+        sub.hopRepo,
+        sub.yeastRepo,
+        sub.stepRepo,
+      ]) {
+        expect(childRepo.delete).not.toHaveBeenCalled();
+        expect(childRepo.create).not.toHaveBeenCalled();
+      }
     });
 
     it('returns the same {inserted,updated,total} shape whether or not subRepos is passed', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
       const sub = buildSubRepos();
+      const total = PUBLIC_RECIPES_SEED.length;
 
       const result = await seedPublicRecipes(
         repo as unknown as Repository<RecipeOrmEntity>,
@@ -350,7 +363,7 @@ describe('public recipe content (ingredients + steps, #1134)', () => {
         sub as unknown as PublicRecipeSubResourceRepos,
       );
 
-      expect(result).toEqual({ inserted: 11, updated: 0, total: 11 });
+      expect(result).toEqual({ inserted: total, updated: 0, total });
     });
   });
 });

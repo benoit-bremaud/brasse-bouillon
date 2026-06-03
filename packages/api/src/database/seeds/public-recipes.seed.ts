@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { RecipeFermentableOrmEntity } from '../../recipe/entities/recipe-fermentable.orm.entity';
 import { RecipeFermentableType } from '../../recipe/domain/enums/recipe-fermentable-type.enum';
@@ -299,6 +299,89 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     efficiency_target: 70,
     avg_rating: 4.5,
     brew_count: 18,
+    // Hazy NEIPA: oat/wheat base for body + haze, minimal bittering,
+    // the bitterness budget spent late — big whirlpool + dry-hop of
+    // Citra + Mosaic for the "dry-hop massif" tropical nose. London
+    // Ale III yeast for the fruity esters and soft mouthfeel.
+    fermentables: [
+      {
+        name: 'Pale Ale Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 3400,
+        color_ebc: 7,
+      },
+      {
+        name: 'Wheat Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 1000,
+        color_ebc: 4,
+      },
+      {
+        name: 'Flaked Oats',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 500,
+        color_ebc: 2,
+      },
+    ],
+    hops: [
+      {
+        variety: 'Magnum',
+        type: RecipeHopType.PELLET,
+        weight_g: 8,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 15,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 5,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 25,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Mosaic',
+        type: RecipeHopType.PELLET,
+        weight_g: 25,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 30,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+      {
+        variety: 'Mosaic',
+        type: RecipeHopType.PELLET,
+        weight_g: 30,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+    ],
+    yeasts: [
+      {
+        name: 'Wyeast 1318 London Ale III',
+        type: RecipeYeastType.ALE,
+        amount_g: 11.5,
+        attenuation_percent: 75,
+        temperature_min_c: 18,
+        temperature_max_c: 22,
+      },
+    ],
+    steps: DEFAULT_WORKFLOW_STEPS,
   },
   {
     id: '00000000-0000-4000-8000-000000000003',
@@ -696,9 +779,27 @@ export interface PublicRecipeSubResourceRepos {
 }
 
 /**
+ * Resolves the four sub-resource repositories from a DataSource —
+ * the single place every entrypoint (the `run-public-recipes-seed` /
+ * `run-demo-batch-seed` scripts, prod `fly ssh` invocations) builds
+ * them, so none can silently fall back to metadata-only seeding by
+ * forgetting a repo (Codex review on PR #1170).
+ */
+export function buildPublicRecipeSubResourceRepos(
+  dataSource: DataSource,
+): PublicRecipeSubResourceRepos {
+  return {
+    fermentableRepo: dataSource.getRepository(RecipeFermentableOrmEntity),
+    hopRepo: dataSource.getRepository(RecipeHopOrmEntity),
+    yeastRepo: dataSource.getRepository(RecipeYeastOrmEntity),
+    stepRepo: dataSource.getRepository(RecipeStepOrmEntity),
+  };
+}
+
+/**
  * Wipe-and-refill the sub-tables for one recipe. Mirrors the BrewDog
  * DIY Dog seed: for each declared ingredient/step array, delete the
- * recipe's existing rows then bulk-insert the seed's — so re-running
+ * recipe's existing rows then insert the seed's one by one — so re-running
  * converges on exactly what the seed declares, regardless of drift.
  * An undeclared array is left untouched (no delete), so metadata-only
  * recipes never lose data they never owned.

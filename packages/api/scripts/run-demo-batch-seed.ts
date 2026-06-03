@@ -23,7 +23,10 @@ import { BatchStepOrmEntity } from '../src/batch/entities/batch-step.orm.entity'
 import { RecipeOrmEntity } from '../src/recipe/entities/recipe.orm.entity';
 import { User } from '../src/user/entities/user.entity';
 import { seedDemoBatch } from '../src/database/seeds/demo-batch.seed';
-import { seedPublicRecipes } from '../src/database/seeds/public-recipes.seed';
+import {
+  buildPublicRecipeSubResourceRepos,
+  seedPublicRecipes,
+} from '../src/database/seeds/public-recipes.seed';
 import { seedSystemUser } from '../src/database/seeds/system-user.seed';
 
 async function main(): Promise<void> {
@@ -41,7 +44,11 @@ async function main(): Promise<void> {
   // recipe_id). Required even on re-runs because it brings the
   // schema row up to the latest curated values.
   const recipeRepo = dataSource.getRepository(RecipeOrmEntity);
-  const recipeResult = await seedPublicRecipes(recipeRepo);
+  const recipeResult = await seedPublicRecipes(
+    recipeRepo,
+    undefined,
+    buildPublicRecipeSubResourceRepos(dataSource),
+  );
   console.log('Public recipes seed:', recipeResult);
 
   // Step 3 — demo batch + 7 brewing-day steps.

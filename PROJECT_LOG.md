@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-03
 
+### PR #1165 merged (`84cd493`) — feat(recipes): show recipe ingredients in live mode
+
+- Branch `feat/recipe-live-ingredients`, 3 commits (`ae5704b`, `9827d34`, `e251ef5`).
+- Part of #1134 (mobile half). `GET /recipes/:id` never inlines ingredients, so the live recipe detail fetched the per-type sub-resources (`/fermentables` `/hops` `/yeasts` `/additives`) and aggregates them into the view model; `RecipeDetailsIngredientItem` carries denormalised `name`/`category` (additives → "other" group), demo output unchanged.
+- Codex (1, P1) + Copilot (2), all resolved: ingredient endpoints are owner-only, so each fetch now degrades to empty for non-owner/public recipes (no crash); reused `RecipeIngredientGroupKey`; DTO/row shapes → `interface`; added DTO-mapping coverage to clear the new-code gate.
+- Known follow-up (#1134 backend half): ingredient/step endpoints are owner-only → PUBLIC recipes won't surface content to a normal user until a public-readable read path is added (+ seeding rows).
+
 ### PR #1146 merged (`a5a0296`) — docs(beer-encyclopedia): UML conception study + backfill ADRs
 
 - Branch `docs/beer-encyclopedia-conception`, squash of 18 commits. Documentation-only (no application code, config, or migration).

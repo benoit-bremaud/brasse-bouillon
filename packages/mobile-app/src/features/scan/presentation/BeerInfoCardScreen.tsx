@@ -205,6 +205,11 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
     // pointless. Recoverable variants expose a manual "Réessayer" button
     // (canRetry) wired to refetch(), matching the previous behaviour.
     retry: false,
+    // Always fetch on mount/scan instead of serving the provider's
+    // inherited 30s-stale cache: a freshly catalogued beer (or a fixed
+    // not-found) must surface immediately on re-scan, as it did before
+    // the migration (the useEffect re-ran on every mount).
+    staleTime: 0,
   });
 
   const status = useMemo<ScreenStatus>(() => {
@@ -216,14 +221,23 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
         canRetry: false,
       };
     }
-    if (lookupQuery.isError) {
-      return mapErrorToStatus(lookupQuery.error);
-    }
     if (lookupQuery.data) {
       return { kind: "ready", result: lookupQuery.data };
     }
+    // `isError` stays true while a manual refetch() is in flight, so only
+    // surface the error UI when no fetch is running — otherwise pressing
+    // "Réessayer" would keep the error visible instead of showing loading.
+    if (lookupQuery.isError && !lookupQuery.isFetching) {
+      return mapErrorToStatus(lookupQuery.error);
+    }
     return { kind: "loading" };
-  }, [barcode, lookupQuery.isError, lookupQuery.error, lookupQuery.data]);
+  }, [
+    barcode,
+    lookupQuery.data,
+    lookupQuery.isError,
+    lookupQuery.isFetching,
+    lookupQuery.error,
+  ]);
 
   const handleRetry = useCallback(() => {
     void lookupQuery.refetch();
@@ -394,6 +408,9 @@ function MatchingRecipesSection({
     queryFn: () => getMatchingRecipes(beer),
     // Single attempt then surface the load-error card, as before.
     retry: false,
+    // Re-fetch matches on each scan rather than serving the inherited
+    // 30s-stale cache (consistent with the lookup query above).
+    staleTime: 0,
   });
   const matching = matchingQuery.data ?? null;
 

@@ -326,6 +326,37 @@ describe("BeerInfoCardScreen", () => {
       ).toBeTruthy();
     });
 
+    it("shows the loading state (hides the error) while a retry is in flight", async () => {
+      mockedLookup.mockRejectedValueOnce(
+        new ScanLookupServiceUnavailableError("5060277380019"),
+      );
+      // Second lookup: a controllable pending promise so we can observe
+      // the in-flight state after pressing Réessayer.
+      let resolveRetry: (result: ScanLookupResult) => void = () => {};
+      mockedLookup.mockImplementationOnce(
+        () =>
+          new Promise<ScanLookupResult>((resolve) => {
+            resolveRetry = resolve;
+          }),
+      );
+
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      await screen.findByText(/temporairement indisponible/);
+      fireEvent.press(screen.getByText("Réessayer"));
+
+      // The refetch is in flight: isError stays true, but the screen must
+      // transition to loading, so the error message must disappear.
+      await waitFor(() =>
+        expect(screen.queryByText(/temporairement indisponible/)).toBeNull(),
+      );
+
+      await act(async () => {
+        resolveRetry(buildResult());
+      });
+      expect(await screen.findByText("Punk IPA")).toBeTruthy();
+    });
+
     describe("unknown beer graceful UX (Issue #796)", () => {
       let openUrlSpy: jest.SpyInstance;
 

@@ -37,7 +37,7 @@
 | `03-component.md` | ✅ revu & validé (simple) | FR | Mermaid + PlantUML ; OFF = seule source dessinée (active) ; pipeline OCR/IA + importers Untappd/RateBeer = cible, renvoi `scan/03-component` (**à peaufiner** plus tard) ; divergences #1156 / #1161 |
 | `04-class.md` | ✅ revu & validé | FR | Mermaid + PlantUML ; conforme `db/models/*` ; `source=scan` en vue cible (#1156) ; CHECK `ck_media_parent_required` ; divergence inter-études `scan/04-class` #1148 |
 | `05-state.md` | ✅ revu & validé | FR | Mermaid + PlantUML (2 cycles) ; modération `status` (amendement = approbation) ; provenance Beer + `scan` cible #1156 |
-| `06-data-flow.md` | ⬜ à revoir | EN | PII / import OFF |
+| `06-data-flow.md` | ✅ revu & validé | FR | Mermaid + PlantUML ; import EAN + PII (rien vers OFF) ; PII image scan → `scan/06` |
 
 ## Fait le 2026-05-29
 

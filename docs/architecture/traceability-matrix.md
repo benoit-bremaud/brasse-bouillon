@@ -20,7 +20,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 | Composant | [`03-component.md`](diagrams/beer-encyclopedia/03-component.md) | ✅ (simple ; sources cibles → `scan/`) |
 | Classes | [`04-class.md`](diagrams/beer-encyclopedia/04-class.md) | ✅ (conforme code ; `source=scan` cible) |
 | États | [`05-state.md`](diagrams/beer-encyclopedia/05-state.md) | ✅ (modération + provenance) |
-| Data-flow | `06-data-flow.md` | ⬜ à revoir + FR |
+| Data-flow | [`06-data-flow.md`](diagrams/beer-encyclopedia/06-data-flow.md) | ✅ (import EAN + PII) |
 | Séquence mobile — UC4 (scan + affichage) | _(package mobile, futur chantier mobile↔API)_ | ⬜ à créer |
 
 ## Matrice — cas d'usage → réalisations

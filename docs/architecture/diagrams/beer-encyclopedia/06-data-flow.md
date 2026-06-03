@@ -1,50 +1,95 @@
-# Data-flow diagram — beer-encyclopedia — EAN import & PII
+# Diagramme de flux de données — beer-encyclopedia — import EAN & PII
 
-> **Feature**: data flow of `POST /beers/import-by-ean` + PII inventory
-> **Source code**: `importers/openfoodfacts.py`, `importers/persistence.py`,
+> **Périmètre :** flux de données de `POST /beers/import-by-ean` + inventaire PII
+> **Code concerné :** `importers/openfoodfacts.py`, `importers/persistence.py`,
 > `db/models/beer.py`, `db/models/source.py`
-> **Related ADRs**: ADR-0003 (Open Food Facts connector)
+> **ADR liés :** ADR-0003 (connecteur Open Food Facts)
+> **Voir aussi :** `02-sequence-import-by-ean.md` · `../scan/06-data-flow.md` (PII image du scan) · `../../traceability-matrix.md`
 
-## Context
+## Contexte
 
-Where beer data flows during an EAN import and which fields are sensitive. The point of
-this diagram is to make the privacy boundary explicit: **no user identity is sent to the
-external source**.
+Où circulent les données de bière pendant un import EAN, et quels champs sont sensibles.
+Objectif : rendre **explicite la frontière de confidentialité** — **aucune identité
+utilisateur n'est envoyée à la source externe**.
 
-## Diagram
+**Périmètre (simple d'abord)** : ce diagramme couvre l'import EAN (OFF). Le flux du **scan
+d'étiquette** (UC5) et sa PII image (EXIF, `deviceName`) sont traités dans
+`../scan/06-data-flow.md` — renvoi en note, pas de duplication.
+
+## Diagramme (Mermaid — aperçu rapide)
 
 ```mermaid
 flowchart LR
-  Caller(("Caller (mobile / NestJS)"))
-  OFF["Open Food Facts (external)"]
+  Caller(("Appelant (mobile / NestJS)"))
+  OFF["Open Food Facts (externe)"]
   subgraph PY ["beer-encyclopedia"]
     API["/beers/import-by-ean"]
-    Map["map product to ExternalBeerSnapshot"]
+    Map["map produit → ExternalBeerSnapshot"]
     Upsert["upsert_beer_from_snapshot"]
   end
   Beers[("beers")]
   Breweries[("breweries")]
   ES[("entity_sources (raw_data)")]
 
-  Caller -->|"EAN code only"| API
-  API -->|"EAN code only"| OFF
-  OFF -->|"name, brand, abv, country, allergens, image_url, raw payload"| Map
-  Map -->|"normalized snapshot (non-PII beer facts)"| Upsert
+  Caller -->|"code EAN uniquement"| API
+  API -->|"code EAN uniquement"| OFF
+  OFF -->|"name, brand, abv, country, allergens, image_url, payload brut"| Map
+  Map -->|"snapshot normalisé (faits bière, non-PII)"| Upsert
   Upsert -->|"name, abv, country, allergens, ean_code"| Beers
-  Upsert -->|"brand to name"| Breweries
-  Upsert -->|"external_id, raw OFF payload"| ES
-  API -.->|"contributed_by: loose user UUID — NEVER sent outward"| Beers
+  Upsert -->|"brand → name"| Breweries
+  Upsert -->|"external_id, payload OFF brut"| ES
+  API -.->|"contributed_by : UUID utilisateur lâche — JAMAIS envoyé dehors"| Beers
+```
+
+_Même flux en **PlantUML** (notation magistrale). À garder **synchronisé** avec le bloc Mermaid._
+
+```plantuml
+@startuml
+title dfd — beer-encyclopedia (import EAN & PII)
+skinparam shadowing false
+left to right direction
+
+actor "Appelant\n(mobile / NestJS)" as Caller
+cloud "Open Food Facts\n(externe)" as OFF
+
+package "beer-encyclopedia" {
+  component "/beers/import-by-ean" as API
+  component "map → ExternalBeerSnapshot" as Map
+  component "upsert_beer_from_snapshot" as Upsert
+}
+
+database "beers" as Beers
+database "breweries" as Breweries
+database "entity_sources\n(raw_data)" as ES
+
+Caller --> API : code EAN uniquement
+API --> OFF : code EAN uniquement
+OFF --> Map : name, brand, abv, country,\nallergens, image_url, payload brut
+Map --> Upsert : snapshot normalisé\n(faits bière, non-PII)
+Upsert --> Beers : name, abv, country,\nallergens, ean_code
+Upsert --> Breweries : brand → name
+Upsert --> ES : external_id, payload OFF brut
+API ..> Beers : contributed_by (UUID lâche)\nJAMAIS envoyé vers l'extérieur
+
+note bottom
+  Aucune PII vers OFF : seul le code EAN sort.
+  Flux scan d'étiquette (UC5) + PII image (EXIF, deviceName)
+  -> voir scan/06-data-flow.
+end note
+@enduml
 ```
 
 ## Notes
 
-- **No PII to OFF**: the only thing sent to Open Food Facts is the **EAN code**. No
-  `user_id`, no device data, no auth token crosses the boundary.
-- **`contributed_by`** is a loose user UUID (no FK to the NestJS users table). It stays
-  inside the encyclopedia DB and is never part of any outbound request — drawn as the
-  dashed PII edge.
-- **`raw_data` retention**: the full OFF payload is stored in `entity_sources.raw_data`
-  for re-transform-without-refetch and audit. It contains product facts, not personal
-  data.
-- **Allergens** are normalized to a deduplicated token list before storage (regulatory
-  field per ADR-0002), not free text.
+- **Aucune PII vers OFF** : la seule donnée envoyée à Open Food Facts est le **code EAN**.
+  Ni `user_id`, ni données d'appareil, ni jeton d'auth ne franchissent la frontière.
+- **`contributed_by`** est un UUID utilisateur lâche (pas de FK vers la table users de
+  NestJS). Il reste dans la DB de l'encyclopédie et n'est jamais inclus dans une requête
+  sortante — dessiné comme l'arête PII pointillée.
+- **Rétention `raw_data`** : le payload OFF complet est stocké dans
+  `entity_sources.raw_data` pour re-transformer sans re-fetch et pour l'audit. Il contient
+  des faits produit, pas de données personnelles.
+- **Allergènes** normalisés en liste de tokens dédupliquée avant stockage (champ
+  réglementaire ADR-0002), pas du texte libre.
+- **Scan d'étiquette (UC5)** : la PII image (EXIF GPS, `Constants.deviceName`) et son
+  stripping obligatoire sont hors de ce diagramme — voir `../scan/06-data-flow.md`.

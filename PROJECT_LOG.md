@@ -11,7 +11,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 - Branch `docs/beer-encyclopedia-conception`, squash of 18 commits. Documentation-only (no application code, config, or migration).
 - Refs #1147 (epic). Retro-documents the as-built backend, which had shipped without a conforming UML-first conception study.
-- 6 diagrams under `docs/architecture/diagrams/beer-encyclopedia/` (use-case + 9 Cockburn specs, sequence import-by-ean / scan, component, class, state, data-flow) — French, dual Mermaid + PlantUML, render-validated. System-level traceability matrix added.
+- 7 diagram files (6 UML types; the sequence type covers both UC4 and UC5) under `docs/architecture/diagrams/beer-encyclopedia/` (use-case + 9 Cockburn specs, sequence import-by-ean / scan, component, class, state, data-flow) — French, dual Mermaid + PlantUML, render-validated. System-level traceability matrix added.
 - ADRs: repo [ADR-0013](docs/architecture/decisions/0013-beer-canonical-model-and-conception-order.md) + package ADR-0004 (auxiliary entities) / ADR-0005 (recommender scoring weights).
 - **Decisions**:
   - `conception-is-source-of-truth` — the UML study is canonical; code conforms, divergences are tracked. Recorded on ADR-0013 clause 6.

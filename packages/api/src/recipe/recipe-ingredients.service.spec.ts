@@ -17,6 +17,7 @@ import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
 import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
 import { RecipeStepType } from './domain/enums/recipe-step-type.enum';
+import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
 import { RecipeWaterOrmEntity } from './entities/recipe-water.orm.entity';
 import { RecipeYeastOrmEntity } from './entities/recipe-yeast.orm.entity';
 import { RecipeYeastType } from './domain/enums/recipe-yeast-type.enum';
@@ -387,6 +388,64 @@ describe('RecipeIngredientsService', () => {
       await expect(service.getWater(OTHER, recipe.id)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  // ─── Public-readable reads (#1134) ──────────────────────────────────────────
+
+  describe('public-readable reads (#1134)', () => {
+    async function makePublic(recipeId: string) {
+      await recipeRepo.update(recipeId, {
+        visibility: RecipeVisibility.PUBLIC,
+      });
+    }
+
+    it('lets a non-owner read the ingredients of a PUBLIC recipe', async () => {
+      const recipe = await createRecipe();
+      await service.addFermentable(OWNER, recipe.id, {
+        name: 'Maris Otter',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 5000,
+      });
+      await makePublic(recipe.id);
+
+      // Owner-seeded fermentable is visible to the non-owner viewer, and the
+      // other (empty) ingredient reads no longer throw for a public recipe.
+      await expect(
+        service.listFermentables(OTHER, recipe.id),
+      ).resolves.toHaveLength(1);
+      await expect(service.listHops(OTHER, recipe.id)).resolves.toEqual([]);
+      await expect(service.listYeasts(OTHER, recipe.id)).resolves.toEqual([]);
+      await expect(service.listAdditives(OTHER, recipe.id)).resolves.toEqual(
+        [],
+      );
+      await expect(service.getWater(OTHER, recipe.id)).resolves.toBeNull();
+    });
+
+    it("still hides a PRIVATE recipe's ingredients from a non-owner", async () => {
+      const recipe = await createRecipe(); // private by default
+      await service.addFermentable(OWNER, recipe.id, {
+        name: 'Secret Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 1000,
+      });
+
+      await expect(service.listFermentables(OTHER, recipe.id)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('keeps writes owner-only even on a PUBLIC recipe', async () => {
+      const recipe = await createRecipe();
+      await makePublic(recipe.id);
+
+      await expect(
+        service.addFermentable(OTHER, recipe.id, {
+          name: 'Sneaky Malt',
+          type: RecipeFermentableType.GRAIN,
+          weight_g: 1,
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

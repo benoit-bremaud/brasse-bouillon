@@ -25,7 +25,9 @@ import { UpsertRecipeWaterDto } from '../dtos/upsert-recipe-water.dto';
  * Application service for managing recipe ingredients:
  * fermentables, hops, yeasts, additives (1:N) and water profile (1:1).
  *
- * All operations enforce ownership via RecipeService.getMineById().
+ * Writes enforce ownership via RecipeService.getMineById(); reads use
+ * RecipeService.getReadableById() so a viewer can read a PUBLIC recipe's
+ * ingredients (owner or public — #1134), never a private/unlisted one.
  */
 @Injectable()
 export class RecipeIngredientsService {
@@ -46,10 +48,10 @@ export class RecipeIngredientsService {
   // ─── Fermentables ───────────────────────────────────────────────────────────
 
   async listFermentables(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeFermentableOrmEntity[]> {
-    await this.assertOwnership(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.fermentableRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -112,10 +114,10 @@ export class RecipeIngredientsService {
   // ─── Hops ───────────────────────────────────────────────────────────────────
 
   async listHops(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeHopOrmEntity[]> {
-    await this.assertOwnership(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.hopRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -182,10 +184,10 @@ export class RecipeIngredientsService {
   // ─── Yeasts ─────────────────────────────────────────────────────────────────
 
   async listYeasts(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeYeastOrmEntity[]> {
-    await this.assertOwnership(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.yeastRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -252,10 +254,10 @@ export class RecipeIngredientsService {
   // ─── Additives ──────────────────────────────────────────────────────────────
 
   async listAdditives(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeAdditiveOrmEntity[]> {
-    await this.assertOwnership(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.additiveRepo.find({
       where: { recipe_id: recipeId },
       order: { created_at: 'ASC' },
@@ -319,10 +321,10 @@ export class RecipeIngredientsService {
   // ─── Water Profile (1:1) ────────────────────────────────────────────────────
 
   async getWater(
-    ownerId: string,
+    viewerId: string,
     recipeId: string,
   ): Promise<RecipeWaterOrmEntity | null> {
-    await this.assertOwnership(ownerId, recipeId);
+    await this.assertReadable(viewerId, recipeId);
     return this.waterRepo.findOne({ where: { recipe_id: recipeId } });
   }
 
@@ -388,6 +390,20 @@ export class RecipeIngredientsService {
     recipeId: string,
   ): Promise<void> {
     await this.recipeService.getMineById(ownerId, recipeId);
+  }
+
+  /**
+   * Asserts that the recipe is READABLE by the viewer — i.e. they own it
+   * or it is PUBLIC (#1134). Throws NotFoundException otherwise (no leak of
+   * private/unlisted recipes). Used by the read paths so the Catalog / scan
+   * detail can hydrate a public recipe's ingredients; writes keep using
+   * assertOwnership.
+   */
+  private async assertReadable(
+    viewerId: string,
+    recipeId: string,
+  ): Promise<void> {
+    await this.recipeService.getReadableById(viewerId, recipeId);
   }
 
   private async findFermentableOrThrow(

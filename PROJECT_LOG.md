@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-03
 
+### PR #1170 merged (`a3f4d8b`) — feat(api/seeds): seed ingredients + steps for scan-reachable public recipes
+
+- Branch `feat/seed-public-recipe-content`, 2 commits (`649fb35`, `c185745`).
+- Part of #1134 (final slice — content data). Public recipes carried metadata only, and a non-owner viewer never triggers the lazy `ensureDefaultSteps` write (#779), so the live recipe-detail screen was an empty shell. Garnished the 4 scan-reachable IPA-family rows — `BrewDog DIY Dog Punk IPA` (`…00b`), `Session IPA Citra` (`…001`), `NEIPA Tropical` (`…002`), `White IPA` (`…003`), all in the mobile `PUNK_IPA_RECIPE_MATCHES` list — with grain bill + hop schedule + yeast + the default 5-step workflow. `PublicRecipeSeed` gains optional `fermentables/hops/yeasts/steps`; `seedPublicRecipes` wipe-and-refills declared sub-tables idempotently (metadata-only behaviour + `{inserted,updated,total}` result shape preserved).
+- New exported `buildPublicRecipeSubResourceRepos(dataSource)`; both `run-public-recipes-seed.ts` and `run-demo-batch-seed.ts` wired through it so the documented seed path inserts content, not metadata only.
+- Reviews — Codex (2, P2) + Copilot (3), all resolved: NEIPA was scan-reachable yet left empty (now garnished); runners seeded metadata-only (now wired); hardened the no-op test, used `PUBLIC_RECIPES_SEED.length`, reworded the "bulk-insert" doc.
+- 18 seed specs + full seeds/recipe suites green (302). Deployed to Fly.io + seeded prod (11 recipes updated; Punk IPA now serves 2 fermentables / 12 hops / 1 yeast / 5 steps over the live API, verified via a throwaway QA account). Idempotent.
+
 ### PR #1167 merged (`f0cb399`) — feat(recipes/api): allow reading ingredients of public recipes
 
 - Branch `feat/recipe-ingredients-public-read`, 2 commits (`9f1bf14`, `51356b7`).

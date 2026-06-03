@@ -18,7 +18,10 @@ import 'reflect-metadata';
 import dataSource from '../src/database/data-source';
 import { RecipeOrmEntity } from '../src/recipe/entities/recipe.orm.entity';
 import { User } from '../src/user/entities/user.entity';
-import { seedPublicRecipes } from '../src/database/seeds/public-recipes.seed';
+import {
+  buildPublicRecipeSubResourceRepos,
+  seedPublicRecipes,
+} from '../src/database/seeds/public-recipes.seed';
 import { seedSystemUser } from '../src/database/seeds/system-user.seed';
 
 async function main(): Promise<void> {
@@ -32,9 +35,16 @@ async function main(): Promise<void> {
   const userResult = await seedSystemUser(userRepo);
   console.log('System user seed:', userResult);
 
-  // Step 2 — public recipes owned by the system user.
+  // Step 2 — public recipes owned by the system user, with their
+  // full content (ingredients + steps) for the scan-reachable rows.
+  // The sub-resource repos must be passed or the content sub-tables
+  // stay empty (Codex review on PR #1170).
   const recipeRepo = dataSource.getRepository(RecipeOrmEntity);
-  const recipeResult = await seedPublicRecipes(recipeRepo);
+  const recipeResult = await seedPublicRecipes(
+    recipeRepo,
+    undefined,
+    buildPublicRecipeSubResourceRepos(dataSource),
+  );
   console.log('Public recipes seed:', recipeResult);
 
   await dataSource.destroy();

@@ -17,7 +17,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 | Cas d'usage | [`01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md) | ✅ |
 | Séquence — UC4 (backend) | [`02-sequence-import-by-ean.md`](diagrams/beer-encyclopedia/02-sequence-import-by-ean.md) | ✅ |
 | Séquence — UC5 (scan/identification) | [`02-sequence-scan.md`](diagrams/beer-encyclopedia/02-sequence-scan.md) | ✅ (délègue à `scan/02b`) |
-| Composant | `03-component.md` | ⬜ à revoir + FR |
+| Composant | [`03-component.md`](diagrams/beer-encyclopedia/03-component.md) | ✅ (simple ; sources cibles → `scan/`) |
 | Classes | `04-class.md` | ⬜ à revoir + FR |
 | États | `05-state.md` | ⬜ à revoir + FR |
 | Data-flow | `06-data-flow.md` | ⬜ à revoir + FR |

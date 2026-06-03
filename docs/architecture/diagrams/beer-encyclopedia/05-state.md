@@ -2,7 +2,7 @@
 
 > **Périmètre :** cycle de vie de `CommunityCorrection.status` et de la provenance `Beer`
 > **Code concerné :** `db/models/correction.py`, `db/models/beer.py`
-> **ADR liés :** ADR-0001 (champs de provenance), repo ADR-0005
+> **ADR liés :** ADR-0003 (`Beer.source` / EntitySource), repo ADR-0013 (modèle canonique)
 > **Voir aussi :** `01-use-case.md` (UC6/UC9) · `04-class.md` · `../../traceability-matrix.md`
 
 ## Contexte

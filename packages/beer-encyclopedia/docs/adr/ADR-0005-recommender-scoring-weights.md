@@ -57,5 +57,5 @@ bundled `data/recipes.sample.json`, decoupled from the `beers` catalog.
 ## Links
 
 - `ml/recommender.py`, `data/recipes.sample.json`
-- `docs/diagrams/beer-encyclopedia/02-sequence-scan.md`
+- `docs/architecture/diagrams/beer-encyclopedia/02-sequence-scan.md`
 - ADR-0001 (detection-first) — defers ranking refinement

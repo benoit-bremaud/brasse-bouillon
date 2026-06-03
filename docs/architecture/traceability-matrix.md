@@ -2,8 +2,9 @@
 
 > **Artefact système / transverse** (foyer central, modèle C4). Relie chaque **cas d'usage**
 > à ses **réalisations** (séquences, composant, classes, états, data-flow), où qu'elles
-> vivent. Les diagrammes **composant** vivent in-package ; cette matrice, **transverse**,
-> vit ici (repo ADR-0013, clause 4). Langue : **français** (cohérence avec l'étude de conception).
+> vivent. Tous les diagrammes vivent **centralement** sous `docs/architecture/diagrams/<feature>/`
+> (une règle, pas d'exception — repo ADR-0013, clause 4) ; cette matrice, **transverse**, vit
+> à côté. Langue : **français** (cohérence avec l'étude de conception).
 
 ## Périmètre actuel
 

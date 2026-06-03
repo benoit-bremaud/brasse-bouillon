@@ -20,8 +20,9 @@ unreconciled facts:
    both the Python model (shape) and the NestJS table (location + nullability).
 3. Several built entities had no ADR (addressed by package ADR-0004 / ADR-0005).
 
-This ADR settles the canonical model, the fate of `scan_catalog_items`, and a
-documentation-location exception. It extends repo ADR-0005.
+This ADR settles the canonical model, the fate of `scan_catalog_items`, and the
+diagram-location rule (central, by feature — no per-feature exception). It extends
+repo ADR-0005.
 
 ## Decision
 
@@ -61,13 +62,15 @@ documentation-location exception. It extends repo ADR-0005.
 ### Positive
 
 - One source of truth for beer data; no normalized/denormalized ambiguity.
-- The as-built backend finally has a conception study (the in-package diagrams).
-- Each package can leave the monorepo with its own ADRs and diagrams intact.
+- The as-built backend finally has a conception study (the central diagrams).
+- All features follow one rule: diagrams live centrally under
+  `docs/architecture/diagrams/<feature>/`; nothing special to remember per feature.
 
 ### Negative / trade-offs
 
-- A documentation split: most features keep diagrams centrally, beer-encyclopedia
-  keeps them in-package. The exception is recorded here to avoid confusion.
+- No documentation split: beer-encyclopedia diagrams were moved from the package to
+  the central `docs/architecture/diagrams/beer-encyclopedia/` location to match every
+  other feature (clause 4). The earlier in-package placement is gone.
 - The scan-pipeline study under `docs/architecture/diagrams/scan/` remains a future
   target that diverges from today's simple pipeline; it must be reconciled or
   explicitly flagged as "target, not built".
@@ -75,7 +78,7 @@ documentation-location exception. It extends repo ADR-0005.
 ## Links
 
 - ADR-0005 — backend split (extended here).
-- `packages/beer-encyclopedia/docs/diagrams/beer-encyclopedia/` — in-package UML study.
+- `docs/architecture/diagrams/beer-encyclopedia/` — central UML study (clause 4).
 - `packages/beer-encyclopedia/docs/adr/ADR-0004` — auxiliary entities.
 - `packages/beer-encyclopedia/docs/adr/ADR-0005` — recommender scoring.
 - `docs/architecture/diagrams/scan/04-class.md` — diagram to correct (clause 3).

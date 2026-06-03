@@ -28,7 +28,7 @@ Keep the four auxiliary entities as part of the normalized knowledge-base model:
 - **`Ingredient` + `BeerIngredient`** — many-to-many between beers and brewing
   ingredients, with a composite-PK junction carrying `amount` and `usage_phase`.
 - **`Media`** — images attached to **exactly one** parent (beer XOR brewery),
-  enforced by `ck_media_exactly_one_parent` (polymorphic-by-nullable-FK).
+  enforced by `ck_media_parent_required` (polymorphic-by-nullable-FK).
 - **`CommunityCorrection`** — a write-side moderation queue: polymorphic
   `(entity_type, entity_id)` target (no FK), `status` ∈ `{pending, approved,
   rejected}`, reviewer fields. Persistence only — no API surface yet.
@@ -61,6 +61,6 @@ Keep the four auxiliary entities as part of the normalized knowledge-base model:
 
 - `db/models/tasting_profile.py`, `db/models/ingredient.py`,
   `db/models/media.py`, `db/models/correction.py`
-- `docs/diagrams/beer-encyclopedia/04-class.md` — class diagram
-- `docs/diagrams/beer-encyclopedia/05-state.md` — correction lifecycle
+- `docs/architecture/diagrams/beer-encyclopedia/04-class.md` — class diagram
+- `docs/architecture/diagrams/beer-encyclopedia/05-state.md` — correction lifecycle
 - Issue #803 — community contribution / moderation flow (future)

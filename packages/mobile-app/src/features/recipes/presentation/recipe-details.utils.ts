@@ -93,7 +93,7 @@ export function groupIngredientsByType(
 }
 
 export function mapIngredientCategoryToShopCategory(
-  category: "malt" | "hop" | "yeast" | "other" | null | undefined,
+  category: RecipeIngredientGroupKey | null | undefined,
 ): ShopCategory {
   if (category === "malt") {
     return "malts";

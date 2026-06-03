@@ -205,4 +205,26 @@ describe("getRecipeDetailsViewModel — live mode (#1134)", () => {
 
     expect(hop?.timing).toBe("dry-hop");
   });
+
+  it("edge: an owner-only sub-resource that 403s degrades to empty without breaking the view", async () => {
+    // A non-owner viewing a PUBLIC recipe gets a 403 on the owner-only
+    // ingredient endpoints. The failed section must degrade to empty, not
+    // reject the whole detail view (keeps public recipes readable).
+    mockedFermentables.mockRejectedValue(new Error("403 Forbidden"));
+    mockedHops.mockResolvedValue([
+      {
+        id: "h1",
+        variety: "Citra",
+        weightG: 30,
+        additionStage: "boil",
+        additionTimeMin: 10,
+      },
+    ]);
+
+    const vm = await getRecipeDetailsViewModel("r-live-1");
+    const items = vm?.ingredients ?? [];
+
+    expect(items.find((i) => i.category === "malt")).toBeUndefined();
+    expect(items.find((i) => i.category === "hop")?.name).toBe("Citra");
+  });
 });

@@ -7,7 +7,7 @@ import { request } from "@/core/http/http-client";
  * its own display name + weight), so no catalog lookup is needed.
  */
 
-type RecipeFermentableDto = {
+interface RecipeFermentableDto {
   id: string;
   recipe_id: string;
   name: string;
@@ -15,9 +15,9 @@ type RecipeFermentableDto = {
   weight_g: number;
   potential_gravity?: number | null;
   color_ebc?: number | null;
-};
+}
 
-type RecipeHopDto = {
+interface RecipeHopDto {
   id: string;
   recipe_id: string;
   variety: string;
@@ -26,50 +26,50 @@ type RecipeHopDto = {
   alpha_acid_percent?: number | null;
   addition_stage: string;
   addition_time_min?: number | null;
-};
+}
 
-type RecipeYeastDto = {
+interface RecipeYeastDto {
   id: string;
   recipe_id: string;
   name: string;
   type: string;
   amount_g: number;
   attenuation_percent?: number | null;
-};
+}
 
-type RecipeAdditiveDto = {
+interface RecipeAdditiveDto {
   id: string;
   recipe_id: string;
   name: string;
   type: string;
   amount_g: number;
-};
+}
 
-export type RecipeFermentableRow = {
+export interface RecipeFermentableRow {
   id: string;
   name: string;
   weightG: number;
-};
+}
 
-export type RecipeHopRow = {
+export interface RecipeHopRow {
   id: string;
   variety: string;
   weightG: number;
   additionStage: string;
   additionTimeMin: number | null;
-};
+}
 
-export type RecipeYeastRow = {
+export interface RecipeYeastRow {
   id: string;
   name: string;
   amountG: number;
-};
+}
 
-export type RecipeAdditiveRow = {
+export interface RecipeAdditiveRow {
   id: string;
   name: string;
   amountG: number;
-};
+}
 
 export async function listRecipeFermentables(
   recipeId: string,

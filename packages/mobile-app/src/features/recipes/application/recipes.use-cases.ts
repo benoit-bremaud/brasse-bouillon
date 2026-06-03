@@ -209,11 +209,19 @@ export async function getRecipeDetailsViewModel(
 async function buildLiveRecipeIngredients(
   recipeId: string,
 ): Promise<RecipeDetailsIngredientItem[]> {
+  // The ingredient sub-resource endpoints are owner-only (the backend
+  // asserts ownership on every read), so a non-owner viewing a PUBLIC
+  // recipe gets a 403/404. Degrade each fetch to an empty list instead of
+  // failing the whole detail view — the recipe still renders, just without
+  // that section. Surfacing ingredients for public recipes needs a
+  // public-readable endpoint (tracked under #1134's backend half).
+  const orEmpty = <T>(rows: Promise<T[]>): Promise<T[]> =>
+    rows.catch(() => [] as T[]);
   const [fermentables, hops, yeasts, additives] = await Promise.all([
-    listRecipeFermentables(recipeId),
-    listRecipeHops(recipeId),
-    listRecipeYeasts(recipeId),
-    listRecipeAdditives(recipeId),
+    orEmpty(listRecipeFermentables(recipeId)),
+    orEmpty(listRecipeHops(recipeId)),
+    orEmpty(listRecipeYeasts(recipeId)),
+    orEmpty(listRecipeAdditives(recipeId)),
   ]);
 
   const malts: RecipeDetailsIngredientItem[] = fermentables.map((row) => ({

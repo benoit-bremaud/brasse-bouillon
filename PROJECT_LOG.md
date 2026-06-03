@@ -5,6 +5,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-03
+
+### PR #1145 merged (`2169793`) — feat(auth): purge session on mid-session 401 (token expiry)
+
+- Branch `feat/live-auth-session-expiry`, 2 commits (`6a46629`, `0aac70a`).
+- Closes #1130. Part of #1128 (connect mobile app to the live Fly.io API).
+- Global mid-session 401 handling: an authenticated request returning 401 (expired/invalidated JWT) clears the persisted session and routes back to sign-in. Unauthorized-handler registry on `session.ts` (`setUnauthorizedHandler`/`notifyUnauthorized`) keeps the HTTP client React-free; gated on `auth === true` so an unauthenticated 401 (bad login credentials, `auth: false`) never logs out; no-op in demo mode.
+- Codex (1, P2): stale-401 race — `0aac70a` only purges when the token that produced the 401 is still current (`attachedToken === authSession.getAccessToken()`), so an in-flight request from before a logout/re-login can't drop the fresh session. Copilot: reviewed 6/6 files, no comments.
+- Auth chain verified live against `brasse-bouillon-api.fly.dev` (register → login → `/auth/me` with Bearer → `DELETE /auth/me`, 201/200/200/200), throwaway test account deleted (no prod residue).
+
 ## 2026-06-01
 
 ### PR #1158 — feat(website): feedback widget → staging-only + new staging environment

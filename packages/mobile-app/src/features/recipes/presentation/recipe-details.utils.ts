@@ -9,7 +9,6 @@ import {
 } from "@/features/recipes/presentation/recipe-details.constants";
 
 import type { WaterProfile } from "@/core/brewing-calculations";
-import type { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
 import type { LocalCartItem } from "@/features/shop/domain/cart.types";
 import type { ShopCategory } from "@/features/shop/domain/shop.types";
 
@@ -67,20 +66,6 @@ export function formatQuantity(amount: number, unit: string): string {
   return `${roundedAmount} ${unit}`;
 }
 
-function toIngredientGroupKey(
-  category: IngredientCategory | null | undefined,
-): RecipeIngredientGroupKey {
-  if (!category) {
-    return "other";
-  }
-
-  if (category === "malt" || category === "hop" || category === "yeast") {
-    return category;
-  }
-
-  return "other";
-}
-
 export function groupIngredientsByType(
   ingredients: RecipeDetailsIngredientItem[],
 ): Record<RecipeIngredientGroupKey, RecipeDetailsIngredientItem[]> {
@@ -95,7 +80,12 @@ export function groupIngredientsByType(
   };
 
   ingredients.forEach((item) => {
-    const key = toIngredientGroupKey(item.ingredient?.category);
+    const key: RecipeIngredientGroupKey =
+      item.category === "malt" ||
+      item.category === "hop" ||
+      item.category === "yeast"
+        ? item.category
+        : "other";
     grouped[key].push(item);
   });
 
@@ -103,7 +93,7 @@ export function groupIngredientsByType(
 }
 
 export function mapIngredientCategoryToShopCategory(
-  category: IngredientCategory | null | undefined,
+  category: RecipeIngredientGroupKey | null | undefined,
 ): ShopCategory {
   if (category === "malt") {
     return "malts";
@@ -125,10 +115,9 @@ export function toIngredientCartItem(
   scalingFactor: number,
 ): LocalCartItem {
   const scaledAmount = scaleQuantity(ingredient.amount, scalingFactor);
-  const ingredientName =
-    ingredient.ingredient?.name ?? `Ingredient ${ingredient.ingredientId}`;
+  const ingredientName = ingredient.name;
   const ingredientCategory = mapIngredientCategoryToShopCategory(
-    ingredient.ingredient?.category,
+    ingredient.category,
   );
 
   return {

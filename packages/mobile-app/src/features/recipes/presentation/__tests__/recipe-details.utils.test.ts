@@ -21,6 +21,8 @@ describe("recipe-details.utils", () => {
   const baseIngredients: RecipeDetailsIngredientItem[] = [
     {
       ingredientId: "malt-1",
+      name: "Pale Malt",
+      category: "malt",
       amount: 5,
       unit: "kg",
       timing: null,
@@ -37,6 +39,8 @@ describe("recipe-details.utils", () => {
     },
     {
       ingredientId: "hop-1",
+      name: "Citra",
+      category: "hop",
       amount: 25,
       unit: "g",
       timing: "boil - 10 min",
@@ -53,6 +57,8 @@ describe("recipe-details.utils", () => {
     },
     {
       ingredientId: "yeast-1",
+      name: "US-05",
+      category: "yeast",
       amount: 1,
       unit: "pack",
       timing: null,
@@ -71,6 +77,8 @@ describe("recipe-details.utils", () => {
     },
     {
       ingredientId: "other-1",
+      name: "Whirlfloc",
+      category: "other",
       amount: 2,
       unit: "g",
       timing: null,

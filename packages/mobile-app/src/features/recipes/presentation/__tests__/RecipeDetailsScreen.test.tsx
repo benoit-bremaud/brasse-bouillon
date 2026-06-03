@@ -336,14 +336,80 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByTestId("recipe-brewing-tab")).toBeTruthy();
     expect(screen.getByText("Aperçu du process")).toBeTruthy();
 
+    // Process modes are labelled in French (#1172).
+    expect(screen.getByText("Phases de brassage")).toBeTruthy();
+    expect(screen.getByText("Étapes de la recette")).toBeTruthy();
+    expect(screen.getByText("Condensé")).toBeTruthy();
+    // The default "phases" view shows French brewing-phase titles.
+    expect(screen.getByText("🪣 EMPÂTAGE")).toBeTruthy();
+
+    // The active mode chip exposes its selected state to screen readers
+    // (#1172, Copilot review).
+    expect(
+      screen.getByTestId("recipe-process-filter-phases").props
+        .accessibilityState.selected,
+    ).toBe(true);
+    expect(
+      screen.getByTestId("recipe-process-filter-recipe").props
+        .accessibilityState.selected,
+    ).toBe(false);
+
     fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
     expect(screen.getByText("1. Mash")).toBeTruthy();
     expect(screen.getByText("Hold at 67°C")).toBeTruthy();
+    // The step-type chip renders the French label, not the raw enum.
+    expect(screen.getByText("Empâtage")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId("recipe-process-filter-compact"));
     expect(screen.getByText("Étapes recette : 1")).toBeTruthy();
     expect(screen.getByText("Ingrédients : 1")).toBeTruthy();
     expect(screen.getByText("Matériel : 1")).toBeTruthy();
+    // Selection state follows the active mode.
+    expect(
+      screen.getByTestId("recipe-process-filter-compact").props
+        .accessibilityState.selected,
+    ).toBe(true);
+  });
+
+  it("shows the empty-state hint on the Brewing recipe view when the recipe has no steps", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue({
+      ...baseViewModel,
+      steps: [],
+    });
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("brewing");
+    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+
+    expect(
+      screen.getByText("Pas d'étapes renseignées pour cette recette."),
+    ).toBeTruthy();
+  });
+
+  it("renders a step without a description on the Brewing recipe view", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue({
+      ...baseViewModel,
+      steps: [
+        {
+          recipeId: "r1",
+          stepOrder: 0,
+          label: "Empâtage maison",
+          type: "mash",
+          description: null,
+        },
+      ],
+    });
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("brewing");
+    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+
+    expect(screen.getByText("1. Empâtage maison")).toBeTruthy();
+    expect(screen.getByText("Empâtage")).toBeTruthy();
+    // No description row for a step that has none.
+    expect(screen.queryByText("Hold at 67°C")).toBeNull();
   });
 
   it("hides the sticky CTA on the Notes & Reviews tab", async () => {

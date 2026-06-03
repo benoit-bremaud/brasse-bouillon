@@ -1,4 +1,5 @@
 import type { WaterStylePresetId } from "@/features/tools/domain/water-profiles";
+import type { RecipeStepType } from "@/features/recipes/domain/recipe.types";
 
 export type RecipeVolumeInputMode = "manual" | "equipment";
 
@@ -25,10 +26,24 @@ export const RECIPE_PROCESS_DISPLAY_OPTIONS: {
   id: RecipeProcessDisplayMode;
   label: string;
 }[] = [
-  { id: "phases", label: "Brew phases" },
-  { id: "recipe", label: "Recipe steps" },
-  { id: "compact", label: "Compact" },
+  { id: "phases", label: "Phases de brassage" },
+  { id: "recipe", label: "Étapes de la recette" },
+  { id: "compact", label: "Condensé" },
 ];
+
+/**
+ * French display labels for the recipe step type enum. The API serves
+ * the raw enum value (`mash`, `boil`, …); the Brewing tab renders this
+ * map so the step-type chip reads in French (#1172). The per-step
+ * `label`/`description` text still comes from the recipe data itself.
+ */
+export const RECIPE_STEP_TYPE_LABELS: Record<RecipeStepType, string> = {
+  mash: "Empâtage",
+  boil: "Ébullition",
+  whirlpool: "Whirlpool",
+  fermentation: "Fermentation",
+  packaging: "Conditionnement",
+};
 
 export type BrewingPhase = {
   id: string;
@@ -39,68 +54,71 @@ export type BrewingPhase = {
 export const BREWING_PHASES: BrewingPhase[] = [
   {
     id: "malting",
-    title: "🌾 MALTING",
-    details: "Preparation and activation of grain enzymes.",
+    title: "🌾 MALTAGE",
+    details: "Préparation et activation des enzymes du grain.",
   },
   {
     id: "milling",
-    title: "🔨 MILLING",
-    details: "Crush grains to expose starch while preserving husks.",
+    title: "🔨 CONCASSAGE",
+    details:
+      "Concasser le grain pour exposer l'amidon en préservant les enveloppes.",
   },
   {
     id: "mashing",
-    title: "🪣 MASHING",
-    details: "Maische with temperature rests for sugar conversion.",
+    title: "🪣 EMPÂTAGE",
+    details:
+      "Maische avec paliers de température pour la conversion des sucres.",
   },
   {
     id: "lautering",
-    title: "🔽 LAUTERING",
-    details: "Separate sweet wort from spent grains.",
+    title: "🔽 FILTRATION",
+    details: "Séparer le moût sucré des drêches.",
   },
   {
     id: "sparging",
-    title: "💧 SPARGING",
-    details: "Rinse grains to recover remaining sugars.",
+    title: "💧 RINÇAGE",
+    details: "Rincer les drêches pour récupérer les sucres restants.",
   },
   {
     id: "boiling",
-    title: "🔥 BOIL",
-    details: "60 to 90 minutes for sterilization and concentration.",
+    title: "🔥 ÉBULLITION",
+    details: "60 à 90 minutes pour la stérilisation et la concentration.",
   },
   {
     id: "hopping",
-    title: "🌿 HOPPING",
-    details: "Build bitterness, flavor, and aroma profile.",
+    title: "🌿 HOUBLONNAGE",
+    details: "Construire l'amertume, la saveur et le profil aromatique.",
   },
   {
     id: "cooling",
-    title: "❄️ COOLING",
-    details: "Rapidly cool wort from boiling to yeast pitch range.",
+    title: "❄️ REFROIDISSEMENT",
+    details:
+      "Refroidir rapidement le moût jusqu'à la température d'ensemencement.",
   },
   {
     id: "pitching",
-    title: "🧫 YEAST PITCHING",
-    details: "Inoculate wort with selected yeast strain.",
+    title: "🧫 ENSEMENCEMENT",
+    details: "Inoculer le moût avec la souche de levure choisie.",
   },
   {
     id: "primary-fermentation",
-    title: "🍺 PRIMARY FERMENTATION",
-    details: "Main fermentation phase for 1 to 2 weeks.",
+    title: "🍺 FERMENTATION PRIMAIRE",
+    details: "Phase de fermentation principale, 1 à 2 semaines.",
   },
   {
     id: "secondary-fermentation",
-    title: "🔄 SECONDARY FERMENTATION",
-    details: "Conditioning and flavor refinement.",
+    title: "🔄 FERMENTATION SECONDAIRE",
+    details: "Garde et affinage des arômes.",
   },
   {
     id: "packaging",
-    title: "🍶 PACKAGING",
-    details: "Bottle or keg preparation.",
+    title: "🍶 CONDITIONNEMENT",
+    details: "Mise en bouteille ou en fût.",
   },
   {
     id: "maturation",
     title: "✅ MATURATION",
-    details: "Carbonation and final flavor integration.",
+    details: "Carbonatation et intégration finale des saveurs.",
   },
 ];
 

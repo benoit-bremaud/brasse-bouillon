@@ -6,6 +6,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   BREWING_PHASES,
   RECIPE_PROCESS_DISPLAY_OPTIONS,
+  RECIPE_STEP_TYPE_LABELS,
   RecipeProcessDisplayMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import type { RecipeStep } from "@/features/recipes/domain/recipe.types";
@@ -17,6 +18,37 @@ type BrewingTabProps = Readonly<{
   processDisplayMode: RecipeProcessDisplayMode;
   onChangeProcessDisplayMode: (mode: RecipeProcessDisplayMode) => void;
 }>;
+
+/**
+ * Renders the recipe-authored steps for the "recipe" process mode, or
+ * an empty-state hint when the recipe carries none. Extracted to keep
+ * the tab's JSX free of nested ternaries (Sonar S3358).
+ */
+function renderRecipeSteps(steps: RecipeStep[]) {
+  if (steps.length === 0) {
+    return (
+      <Text style={styles.emptyText}>
+        Pas d'étapes renseignées pour cette recette.
+      </Text>
+    );
+  }
+
+  return steps.map((item) => (
+    <View key={`${item.recipeId}-${item.stepOrder}`} style={styles.stepRow}>
+      <View style={styles.stepHeader}>
+        <Text style={styles.stepTitle}>
+          {item.stepOrder + 1}. {item.label}
+        </Text>
+        <Text style={styles.stepType}>
+          {RECIPE_STEP_TYPE_LABELS[item.type]}
+        </Text>
+      </View>
+      {item.description ? (
+        <Text style={styles.stepDescription}>{item.description}</Text>
+      ) : null}
+    </View>
+  ));
+}
 
 /**
  * Brewing tab of the redesigned recipe detail screen
@@ -53,7 +85,8 @@ export function BrewingTab({
             key={option.id}
             testID={`recipe-process-filter-${option.id}`}
             accessibilityRole="button"
-            accessibilityLabel={`Use ${option.label.toLowerCase()} process display mode`}
+            accessibilityLabel={`Afficher le process en mode ${option.label.toLowerCase()}`}
+            accessibilityState={{ selected: processDisplayMode === option.id }}
             style={[
               styles.toggleChip,
               processDisplayMode === option.id && styles.toggleChipActive,
@@ -82,30 +115,7 @@ export function BrewingTab({
             ))
           : null}
 
-        {processDisplayMode === "recipe" ? (
-          steps.length > 0 ? (
-            steps.map((item) => (
-              <View
-                key={`${item.recipeId}-${item.stepOrder}`}
-                style={styles.stepRow}
-              >
-                <View style={styles.stepHeader}>
-                  <Text style={styles.stepTitle}>
-                    {item.stepOrder + 1}. {item.label}
-                  </Text>
-                  <Text style={styles.stepType}>{item.type}</Text>
-                </View>
-                {item.description ? (
-                  <Text style={styles.stepDescription}>{item.description}</Text>
-                ) : null}
-              </View>
-            ))
-          ) : (
-            <Text style={styles.emptyText}>
-              Pas d'étapes renseignées pour cette recette.
-            </Text>
-          )
-        ) : null}
+        {processDisplayMode === "recipe" ? renderRecipeSteps(steps) : null}
 
         {processDisplayMode === "compact" ? (
           <>

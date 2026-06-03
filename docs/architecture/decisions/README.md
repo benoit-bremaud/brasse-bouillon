@@ -51,6 +51,7 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0011](0011-creator-role-above-admin.md) | Single-holder `CREATOR` role above `ADMIN` | Proposed | 2026-05-25 |
 | [0012](0012-rgpd-anonymize-authored-public-content.md) | RGPD: anonymize authored public content on deletion | Proposed | 2026-05-25 |
 | [0014](0014-website-hosting-cloudflare-pages-dns.md) | Website hosting on Cloudflare Pages, DNS authority on Cloudflare | Accepted | 2026-05-29 |
+| [0015](0015-beer-ingestion-enrichment-strategy.md) | Beer ingestion & enrichment strategy (multi-source → staging → human-gated promotion) | Proposed | 2026-06-04 |
 
 > **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
 > referenced by open epics: 0006 — private journal vs. social product (#833),

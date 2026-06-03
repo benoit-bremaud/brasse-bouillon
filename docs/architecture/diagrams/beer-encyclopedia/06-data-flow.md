@@ -83,9 +83,12 @@ end note
 
 - **Aucune PII vers OFF** : la seule donnée envoyée à Open Food Facts est le **code EAN**.
   Ni `user_id`, ni données d'appareil, ni jeton d'auth ne franchissent la frontière.
-- **`contributed_by`** est un UUID utilisateur lâche (pas de FK vers la table users de
-  NestJS). Il reste dans la DB de l'encyclopédie et n'est jamais inclus dans une requête
-  sortante — dessiné comme l'arête PII pointillée.
+- **`contributed_by` — divergence ouverte (#1163)** : ce UUID utilisateur lâche n'est
+  jamais envoyé dehors (arête PII pointillée), **mais** le **stocker côté Python contredit
+  ADR-0005 / ADR-0009** (« the encyclopedia carries no user data » — c'est une question de
+  **possession**, pas seulement de transmission). Divergence code↔ADR pré-existante (le
+  champ existe déjà dans `db/models/beer.py`). Décision différée : router l'identité via
+  NestJS, ou exception encadrée — voir #1163. Ce diagramme la **signale**, ne la tranche pas.
 - **Rétention `raw_data`** : le payload OFF complet est stocké dans
   `entity_sources.raw_data` pour re-transformer sans re-fetch et pour l'audit. Il contient
   des faits produit, pas de données personnelles.

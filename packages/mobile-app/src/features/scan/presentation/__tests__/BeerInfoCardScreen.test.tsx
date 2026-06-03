@@ -7,6 +7,7 @@ import {
   waitFor,
 } from "@testing-library/react-native";
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { BeerInfoCardScreen } from "@/features/scan/presentation/BeerInfoCardScreen";
 import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.use-cases";
@@ -64,6 +65,22 @@ const mockedImport = importRecipeFromCommunity as jest.MockedFunction<
 const mockedMatching = getMatchingRecipes as jest.MockedFunction<
   typeof getMatchingRecipes
 >;
+
+// The screen now fetches via TanStack Query, so it must render inside a
+// QueryClientProvider. A fresh client per render keeps the cache from
+// leaking between tests; retry is off so rejected mocks surface their
+// error state immediately (no retry/backoff delays).
+function renderScreen(ui: React.ReactElement) {
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  return render(
+    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+  );
+}
 
 // Default matching response — Punk IPA scan returns a curated trio
 // of equivalent IPA-family recipes. Tests can override per case.
@@ -157,7 +174,7 @@ describe("BeerInfoCardScreen", () => {
     it("renders hero, at-a-glance words, and recipes for a known beer", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       expect(await screen.findByText("Punk IPA")).toBeTruthy();
       expect(screen.getByText("BrewDog")).toBeTruthy();
@@ -178,7 +195,7 @@ describe("BeerInfoCardScreen", () => {
     it("calls the use-case with the barcode from the route param", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Punk IPA");
       expect(mockedLookup).toHaveBeenCalledWith("5060277380019");
@@ -187,7 +204,7 @@ describe("BeerInfoCardScreen", () => {
     it("handles barcodeParam passed as an array (Expo Router edge case)", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(
+      renderScreen(
         <BeerInfoCardScreen
           barcodeParam={["5060277380019", "extra"] as string[]}
         />,
@@ -211,7 +228,7 @@ describe("BeerInfoCardScreen", () => {
         }),
       );
 
-      render(<BeerInfoCardScreen barcodeParam="0000000000000" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="0000000000000" />);
 
       expect(await screen.findByText("Mystery Beer")).toBeTruthy();
       const inconnuLabels = screen.getAllByText("Inconnu");
@@ -223,7 +240,7 @@ describe("BeerInfoCardScreen", () => {
         buildResult({ abv: null, ibu: null, colorEbc: null }),
       );
 
-      render(<BeerInfoCardScreen barcodeParam="0000000000000" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="0000000000000" />);
 
       await screen.findByText("Punk IPA");
       expect(screen.getByText("—")).toBeTruthy();
@@ -234,7 +251,7 @@ describe("BeerInfoCardScreen", () => {
     it("does not render technical details before the fold is opened", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Punk IPA");
       // "Notes aromatiques" is inside Technical Details fold
@@ -244,7 +261,7 @@ describe("BeerInfoCardScreen", () => {
     it("renders technical details after the fold is opened", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
@@ -258,7 +275,7 @@ describe("BeerInfoCardScreen", () => {
     it("renders the curated brewery story when the fold is opened (BrewDog)", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
@@ -273,7 +290,7 @@ describe("BeerInfoCardScreen", () => {
         buildResult({ brewery: "Unknown Brewery" }),
       );
 
-      render(<BeerInfoCardScreen barcodeParam="0000000000000" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="0000000000000" />);
 
       await screen.findByText("Punk IPA");
       fireEvent.press(
@@ -290,7 +307,7 @@ describe("BeerInfoCardScreen", () => {
         new ScanLookupBeerNotFoundError("0000000000000"),
       );
 
-      render(<BeerInfoCardScreen barcodeParam="0000000000000" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="0000000000000" />);
 
       expect(
         await screen.findByText(/n'est pas dans notre catalogue/),
@@ -302,11 +319,42 @@ describe("BeerInfoCardScreen", () => {
         new ScanLookupServiceUnavailableError("5060277380019"),
       );
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       expect(
         await screen.findByText(/temporairement indisponible/),
       ).toBeTruthy();
+    });
+
+    it("shows the loading state (hides the error) while a retry is in flight", async () => {
+      mockedLookup.mockRejectedValueOnce(
+        new ScanLookupServiceUnavailableError("5060277380019"),
+      );
+      // Second lookup: a controllable pending promise so we can observe
+      // the in-flight state after pressing Réessayer.
+      let resolveRetry: (result: ScanLookupResult) => void = () => {};
+      mockedLookup.mockImplementationOnce(
+        () =>
+          new Promise<ScanLookupResult>((resolve) => {
+            resolveRetry = resolve;
+          }),
+      );
+
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      await screen.findByText(/temporairement indisponible/);
+      fireEvent.press(screen.getByText("Réessayer"));
+
+      // The refetch is in flight: isError stays true, but the screen must
+      // transition to loading, so the error message must disappear.
+      await waitFor(() =>
+        expect(screen.queryByText(/temporairement indisponible/)).toBeNull(),
+      );
+
+      await act(async () => {
+        resolveRetry(buildResult());
+      });
+      expect(await screen.findByText("Punk IPA")).toBeTruthy();
     });
 
     describe("unknown beer graceful UX (Issue #796)", () => {
@@ -327,7 +375,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupBeerNotFoundError("3760215750042"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="3760215750042" />);
 
         await screen.findByText(/n'est pas dans notre catalogue/);
         expect(screen.getByText("3760215750042")).toBeTruthy();
@@ -339,7 +387,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupBeerNotFoundError("3760215750042"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="3760215750042" />);
 
         const cta = await screen.findByLabelText(
           /Suggérer une correction par email/i,
@@ -358,7 +406,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupBeerNotFoundError("3760215750042"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="3760215750042" />);
 
         const cta = await screen.findByLabelText(
           /Ajouter cette bière au catalogue par email/i,
@@ -377,7 +425,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupServiceUnavailableError("5060277380019"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
         await screen.findByText(/temporairement indisponible/);
         expect(screen.queryByText(/Code-barres scanné/i)).toBeNull();
@@ -393,7 +441,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupNotABeerError("5449000000996", "Coca-Cola Original"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5449000000996" />);
 
         expect(await screen.findByText(/Coca-Cola Original/i)).toBeTruthy();
         expect(screen.getByText(/ce n'est pas une bière/i)).toBeTruthy();
@@ -409,7 +457,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupNotABeerError("5449000000996", null),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5449000000996" />);
 
         expect(
           await screen.findByText(/Ce produit n'est pas une bière/i),
@@ -421,7 +469,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupNotABeerError("5449000000996", "Coca-Cola Original"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="5449000000996" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5449000000996" />);
 
         const cta = await screen.findByLabelText(
           /Retourner au scan pour tenter une autre bouteille/i,
@@ -435,7 +483,7 @@ describe("BeerInfoCardScreen", () => {
     describe("photo fallback CTA on invalid barcode (Issue #797)", () => {
       it("renders 'Photographier l'étiquette' CTA when the screen lands without a barcode param", async () => {
         // No barcodeParam → sets ERROR_INVALID directly without hitting the lookup.
-        render(<BeerInfoCardScreen barcodeParam={undefined} />);
+        renderScreen(<BeerInfoCardScreen barcodeParam={undefined} />);
 
         expect(
           await screen.findByLabelText(/Photographier l'étiquette/i),
@@ -444,7 +492,7 @@ describe("BeerInfoCardScreen", () => {
       });
 
       it("opens an informational alert referencing v0.2 / epic #751 when the CTA is pressed", async () => {
-        render(<BeerInfoCardScreen barcodeParam={undefined} />);
+        renderScreen(<BeerInfoCardScreen barcodeParam={undefined} />);
 
         const cta = await screen.findByLabelText(/Photographier l'étiquette/i);
         fireEvent.press(cta);
@@ -461,7 +509,7 @@ describe("BeerInfoCardScreen", () => {
           new ScanLookupBeerNotFoundError("3760215750042"),
         );
 
-        render(<BeerInfoCardScreen barcodeParam="3760215750042" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="3760215750042" />);
 
         await screen.findByText(/n'est pas dans notre catalogue/);
         expect(
@@ -505,7 +553,7 @@ describe("BeerInfoCardScreen", () => {
         name: "Session IPA Citra",
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const row = await screen.findByLabelText(/Importer Session IPA Citra/);
       await act(async () => {
@@ -545,7 +593,7 @@ describe("BeerInfoCardScreen", () => {
         name: "Session IPA Citra",
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const row = await screen.findByLabelText(/Importer Session IPA Citra/);
       await act(async () => {
@@ -579,7 +627,7 @@ describe("BeerInfoCardScreen", () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedImport.mockRejectedValueOnce(new Error("boom"));
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const row = await screen.findByLabelText(/Importer Session IPA Citra/);
       await act(async () => {
@@ -599,7 +647,7 @@ describe("BeerInfoCardScreen", () => {
     describe("pre-flight confirmation modal (Issue #766)", () => {
       it("opens a confirmation Alert with the recipe name on tap", async () => {
         mockedLookup.mockResolvedValueOnce(buildResult());
-        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
         const row = await screen.findByLabelText(/Importer Session IPA Citra/);
         await act(async () => {
@@ -618,7 +666,7 @@ describe("BeerInfoCardScreen", () => {
 
       it("does not call the import API when the user taps Annuler", async () => {
         mockedLookup.mockResolvedValueOnce(buildResult());
-        render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+        renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
         const row = await screen.findByLabelText(/Importer Session IPA Citra/);
         await act(async () => {
@@ -649,7 +697,7 @@ describe("BeerInfoCardScreen", () => {
         lowConfidence: true,
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const warning = await screen.findByText(
         /Aucune recette très similaire dans la base/,
@@ -661,7 +709,7 @@ describe("BeerInfoCardScreen", () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       // default beforeEach already sets lowConfidence: false
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       // Wait for the rankings to be rendered (find the first equivalent).
       await screen.findByText("Session IPA Citra");
@@ -688,7 +736,7 @@ describe("BeerInfoCardScreen", () => {
         lowConfidence: false,
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       // Official section title appears.
       const officialTitle = await screen.findByText(/🏆 Recette officielle/);
@@ -703,7 +751,7 @@ describe("BeerInfoCardScreen", () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       // default mock: PUNK_IPA_MATCHES — no isOfficial=true
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Session IPA Citra");
       expect(screen.queryByText(/🏆 Recette officielle/)).toBeNull();
@@ -728,7 +776,7 @@ describe("BeerInfoCardScreen", () => {
         lowConfidence: false,
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       await screen.findByText("Session IPA Citra");
       expect(screen.getByText("NEIPA Tropical")).toBeTruthy();
@@ -744,7 +792,7 @@ describe("BeerInfoCardScreen", () => {
         lowConfidence: false,
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const empty = await screen.findByText(
         /Aucune recette équivalente n'a encore été partagée/,
@@ -771,7 +819,7 @@ describe("BeerInfoCardScreen", () => {
         lowConfidence: true,
       });
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       // Official section appears.
       expect(await screen.findByText(/🏆 Recette officielle/)).toBeTruthy();
@@ -785,7 +833,7 @@ describe("BeerInfoCardScreen", () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedMatching.mockRejectedValueOnce(new Error("network"));
 
-      render(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const errorMsg = await screen.findByText(
         /Impossible de charger les recettes équivalentes/,

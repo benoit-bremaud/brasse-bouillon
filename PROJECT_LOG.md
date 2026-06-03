@@ -5,6 +5,44 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-03
+
+### PR #1160 merged (`f440d27`) — refactor(scan): move BeerInfoCardScreen data-fetching to TanStack Query
+
+- Branch `refactor/scan-beercard-usequery`, 3 commits (`8da5d36`, `2a0be9a`, `e8f69c5`).
+- Closes #1133. Part of #1128.
+- Beer lookup + equivalent recipes → `useQuery`, community import → `useMutation` (last `useState + useEffect` remote-fetch removed from the screen; `mapErrorToStatus` unchanged; per-row import spinner re-keyed by `recipeId`, fixing a latent live-mode mismatch where `getImportSourceId` could return `publicRecipeId`).
+- Reviews — Codex (1) + Copilot (4), all resolved: `staleTime: 0` on both scan queries (re-fetch per scan, not the inherited 30s cache); reordered lookup status so "Réessayer" shows the loader during refetch (+ test); concurrent-import guard on the Alert confirm.
+
+### PR #1145 merged (`2169793`) — feat(auth): purge session on mid-session 401 (token expiry)
+
+- Branch `feat/live-auth-session-expiry`, 2 commits (`6a46629`, `0aac70a`).
+- Closes #1130. Part of #1128 (connect mobile app to the live Fly.io API).
+- Global mid-session 401 handling: an authenticated request returning 401 (expired/invalidated JWT) clears the persisted session and routes back to sign-in. Unauthorized-handler registry on `session.ts` (`setUnauthorizedHandler`/`notifyUnauthorized`) keeps the HTTP client React-free; gated on `auth === true` so an unauthenticated 401 (bad login credentials, `auth: false`) never logs out; no-op in demo mode.
+- Codex (1, P2): stale-401 race — `0aac70a` only purges when the token that produced the 401 is still current (`attachedToken === authSession.getAccessToken()`), so an in-flight request from before a logout/re-login can't drop the fresh session. Copilot: reviewed 6/6 files, no comments.
+- Auth chain verified live against `brasse-bouillon-api.fly.dev` (register → login → `/auth/me` with Bearer → `DELETE /auth/me`, 201/200/200/200), throwaway test account deleted (no prod residue).
+
+## 2026-06-01
+
+### PR #1158 — feat(website): feedback widget → staging-only + new staging environment
+
+- Branch `feat/website-widget-staging-only`. The feedback widget is reframed as a dev-only tool: its host gate is flipped from production (`brasse-bouillon.com`) to `staging.brasse-bouillon-website.pages.dev` + `localhost`/`127.0.0.1`, so it no longer loads on prod. Cache-bust `feedback-widget.js?v=20260601` on all 10 pages.
+- New **staging** environment: the deploy workflow now also triggers on a long-lived `staging` branch (Cloudflare Pages branch alias → stable URL `staging.brasse-bouillon-website.pages.dev`); `concurrency` scoped per branch so staging/prod deploys don't block each other.
+- Cross-repo follow-up: `feedback-pipeline-worker` CORS allow-list must add `https://staging.brasse-bouillon-website.pages.dev` for the submit flow to work on staging.
+
+### Website production domain `brasse-bouillon.com` cut over to Cloudflare
+
+- DNS authority delegated Namecheap → Cloudflare (NS `craig.ns.cloudflare.com` + `noor.ns.cloudflare.com`); Namecheap now registrar-only, no DNSSEC. Zone reduced to `TXT google-site-verification` + proxied `CNAME @` / `www → brasse-bouillon-website.pages.dev` (CNAME flattening on the apex).
+- Removed the 4 GitHub Pages apex `A` records (`185.199.108-111.153`), the old `www → benoit-bremaud.github.io` CNAME, and the legacy `A backend → 109.18.26.95` (Ydays/Klouders vestige, unused — real API is `brasse-bouillon-api.fly.dev`).
+- Verified live: apex 200, www 200, `http`→`https` 301, Google Trust Services cert (Universal SSL). Decision recorded in ADR-0014, vestigial repo `CNAME` removed → PR #1157.
+
+## 2026-05-29
+
+### PR #1144 merged (`f56ef9f`) — ci(website): deploy to Cloudflare Pages instead of GitHub Pages
+
+- Branch `chore/website-cloudflare-pages`, 2 commits (`524ffc6`, `9496f32`). Replaced the GitHub Pages publish chain (`configure-pages` / `upload-pages-artifact` / `deploy-pages`) with a Cloudflare Pages Direct Upload (`npx wrangler@3 pages deploy`) to the new `brasse-bouillon-website` project; reuses repo secrets `CLOUDFLARE_API_TOKEN` (Pages:Edit) + `CLOUDFLARE_ACCOUNT_ID`. Live at `brasse-bouillon-website.pages.dev`. Reason: repo went private on a GitHub Free plan → Pages stopped serving (apex 404).
+- Copilot (2): derive the deploy branch from `github.ref_name` (production on `main`, preview elsewhere); replaced the blanket `continue-on-error` project-create with a targeted bootstrap tolerating only the "already exists" case.
+
 ## 2026-05-28
 
 ### PR #1124 merged (`80b0588`) — feat(scan): recognize six physical demo bottles in the offline catalogue

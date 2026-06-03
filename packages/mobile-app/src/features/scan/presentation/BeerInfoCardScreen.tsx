@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Alert,
   Linking,
@@ -35,13 +35,13 @@ import {
 import type {
   ScanCatalogItem,
   ScanLookupResult,
-  ScanMatchingResult,
   ScanRecipeMatch,
 } from "@/features/scan/domain/scan.types";
 import { BeerHero } from "@/features/scan/presentation/components/BeerHero";
 import { Collapsible } from "@/features/scan/presentation/components/Collapsible";
 import { getDemoBreweryStory } from "@/mocks/demo-data";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 type BeerInfoCardScreenProps = {
@@ -196,30 +196,52 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
   const router = useRouter();
   const barcode = resolveBarcodeParam(barcodeParam);
 
-  const [status, setStatus] = useState<ScreenStatus>({ kind: "loading" });
+  const lookupQuery = useQuery({
+    queryKey: ["scan", "lookup", barcode],
+    queryFn: () => lookupBeerByBarcode(barcode as string),
+    enabled: Boolean(barcode),
+    // Lookup errors are typed business outcomes (not-found, not-a-beer,
+    // invalid) mapped to dedicated UI states — auto-retrying them is
+    // pointless. Recoverable variants expose a manual "Réessayer" button
+    // (canRetry) wired to refetch(), matching the previous behaviour.
+    retry: false,
+    // Always fetch on mount/scan instead of serving the provider's
+    // inherited 30s-stale cache: a freshly catalogued beer (or a fixed
+    // not-found) must surface immediately on re-scan, as it did before
+    // the migration (the useEffect re-ran on every mount).
+    staleTime: 0,
+  });
 
-  const fetch = useCallback(async () => {
+  const status = useMemo<ScreenStatus>(() => {
     if (!barcode) {
-      setStatus({
+      return {
         kind: "error",
         variant: "invalid",
         message: ERROR_INVALID,
         canRetry: false,
-      });
-      return;
+      };
     }
-    setStatus({ kind: "loading" });
-    try {
-      const result = await lookupBeerByBarcode(barcode);
-      setStatus({ kind: "ready", result });
-    } catch (error) {
-      setStatus(mapErrorToStatus(error));
+    if (lookupQuery.data) {
+      return { kind: "ready", result: lookupQuery.data };
     }
-  }, [barcode]);
+    // `isError` stays true while a manual refetch() is in flight, so only
+    // surface the error UI when no fetch is running — otherwise pressing
+    // "Réessayer" would keep the error visible instead of showing loading.
+    if (lookupQuery.isError && !lookupQuery.isFetching) {
+      return mapErrorToStatus(lookupQuery.error);
+    }
+    return { kind: "loading" };
+  }, [
+    barcode,
+    lookupQuery.data,
+    lookupQuery.isError,
+    lookupQuery.isFetching,
+    lookupQuery.error,
+  ]);
 
-  useEffect(() => {
-    void fetch();
-  }, [fetch]);
+  const handleRetry = useCallback(() => {
+    void lookupQuery.refetch();
+  }, [lookupQuery]);
 
   const handleBack = useCallback(() => {
     router.replace("/(app)/dashboard/scan" as never);
@@ -233,7 +255,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
     return (
       <Screen
         error={status.message}
-        onRetry={status.canRetry ? fetch : undefined}
+        onRetry={status.canRetry ? handleRetry : undefined}
       >
         <ListHeader
           title="Résultat du scan"
@@ -381,24 +403,38 @@ function MatchingRecipesSection({
   beer: Pick<ScanCatalogItem, "id" | "barcode">;
   onImported: (recipeId: string) => void;
 }>) {
-  const [matching, setMatching] = useState<ScanMatchingResult | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [importingId, setImportingId] = useState<string | null>(null);
+  const matchingQuery = useQuery({
+    queryKey: ["scan", "matching", beer.id ?? beer.barcode],
+    queryFn: () => getMatchingRecipes(beer),
+    // Single attempt then surface the load-error card, as before.
+    retry: false,
+    // Re-fetch matches on each scan rather than serving the inherited
+    // 30s-stale cache (consistent with the lookup query above).
+    staleTime: 0,
+  });
+  const matching = matchingQuery.data ?? null;
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoadError(null);
-    void getMatchingRecipes(beer)
-      .then((result) => {
-        if (!cancelled) setMatching(result);
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError(MATCHING_LOAD_ERROR);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [beer]);
+  const importMutation = useMutation({
+    mutationFn: (recipe: ScanRecipeMatch) =>
+      importRecipeFromCommunity(getImportSourceId(recipe)),
+    onSuccess: (result) => {
+      Alert.alert(
+        "Recette importée",
+        `« ${result.name} » a été ajoutée à Mes Recettes.`,
+        [
+          { text: "Plus tard", style: "cancel" },
+          {
+            text: "Voir la recette",
+            onPress: () => onImported(result.recipeId),
+          },
+        ],
+        { cancelable: true },
+      );
+    },
+    onError: () => {
+      Alert.alert("Import impossible", IMPORT_ERROR_MESSAGE);
+    },
+  });
 
   const officialRecipe = useMemo<ScanRecipeMatch | null>(() => {
     if (!matching) return null;
@@ -412,33 +448,6 @@ function MatchingRecipesSection({
       .slice(0, EQUIVALENTS_LIMIT);
   }, [matching]);
 
-  const performImport = useCallback(
-    async (sourceId: string) => {
-      if (importingId) return;
-      setImportingId(sourceId);
-      try {
-        const result = await importRecipeFromCommunity(sourceId);
-        Alert.alert(
-          "Recette importée",
-          `« ${result.name} » a été ajoutée à Mes Recettes.`,
-          [
-            { text: "Plus tard", style: "cancel" },
-            {
-              text: "Voir la recette",
-              onPress: () => onImported(result.recipeId),
-            },
-          ],
-          { cancelable: true },
-        );
-      } catch {
-        Alert.alert("Import impossible", IMPORT_ERROR_MESSAGE);
-      } finally {
-        setImportingId(null);
-      }
-    },
-    [importingId, onImported],
-  );
-
   /**
    * Issue #766 — pre-flight confirmation before the import call.
    * Without this, a stray tap on a community recipe row imports it
@@ -447,7 +456,7 @@ function MatchingRecipesSection({
    */
   const handleImport = useCallback(
     (recipe: ScanRecipeMatch) => {
-      if (importingId) return;
+      if (importMutation.isPending) return;
       Alert.alert(
         "Importer cette recette ?",
         `La recette « ${recipe.name} » sera ajoutée à ton carnet.`,
@@ -455,21 +464,26 @@ function MatchingRecipesSection({
           { text: "Annuler", style: "cancel" },
           {
             text: "Importer",
+            // Re-check before firing: a second confirmation (e.g. another
+            // row's Alert opened before this one was answered) must not
+            // launch a concurrent import. Restores the guard the previous
+            // performImport had at call time.
             onPress: () => {
-              void performImport(getImportSourceId(recipe));
+              if (importMutation.isPending) return;
+              importMutation.mutate(recipe);
             },
           },
         ],
         { cancelable: true },
       );
     },
-    [importingId, performImport],
+    [importMutation],
   );
 
-  if (loadError) {
+  if (matchingQuery.isError) {
     return (
       <Card style={styles.recipesCard}>
-        <Text style={styles.recipesEmpty}>{loadError}</Text>
+        <Text style={styles.recipesEmpty}>{MATCHING_LOAD_ERROR}</Text>
       </Card>
     );
   }
@@ -501,8 +515,11 @@ function MatchingRecipesSection({
           </Text>
           <RecipeRow
             recipe={officialRecipe}
-            isImporting={importingId === officialRecipe.recipeId}
-            isDisabled={importingId !== null}
+            isImporting={
+              importMutation.isPending &&
+              importMutation.variables?.recipeId === officialRecipe.recipeId
+            }
+            isDisabled={importMutation.isPending}
             onPress={() => handleImport(officialRecipe)}
             highlightOfficial
           />
@@ -525,8 +542,11 @@ function MatchingRecipesSection({
             <RecipeRow
               key={recipe.recipeId}
               recipe={recipe}
-              isImporting={importingId === recipe.recipeId}
-              isDisabled={importingId !== null}
+              isImporting={
+                importMutation.isPending &&
+                importMutation.variables?.recipeId === recipe.recipeId
+              }
+              isDisabled={importMutation.isPending}
               onPress={() => handleImport(recipe)}
             />
           ))}

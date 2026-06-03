@@ -33,12 +33,11 @@
 |-----------|------|--------|-------|
 | `01-use-case.md` | ✅ revu & validé (UC1→UC9) | FR | Mermaid + PlantUML + 9 fiches Cockburn |
 | `02-sequence-import-by-ean.md` | ✅ revu | FR | UC4 — **réalisation backend** (option A) |
-| `02-sequence-scan.md` | ⬜ à revoir | EN | décrit la reco recettes (à recadrer : UC5 = identification → le code s'adapte) |
+| `02-sequence-scan.md` (UC5) | ✅ revu & validé | FR | identification (Mermaid + PlantUML) ; délègue le pipeline à `scan/02b` ; divergence `/scan`→recettes tracée #1156 |
 | `03-component.md` | ⬜ à revoir | EN | |
-| `04-class.md` | ⬜ à revoir | EN | + divergence `scan/04-class` (#1148) |
+| `04-class.md` | ⬜ à revoir | EN | + divergence `scan/04-class` (#1148) ; ajouter `source=scan` (#1156) |
 | `05-state.md` | ⬜ à revoir | EN | cycle de vie correction (UC6→UC9) ; provenance Beer |
 | `06-data-flow.md` | ⬜ à revoir | EN | PII / import OFF |
-| séquence UC5 (scan d'étiquette) | ⬜ à créer | FR | identification ; renvoie au détail de l'étude `scan/` |
 
 ## Fait le 2026-05-29
 

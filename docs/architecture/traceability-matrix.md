@@ -16,7 +16,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 |-----------|---------|------|
 | Cas d'usage | [`01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md) | ✅ |
 | Séquence — UC4 (backend) | [`02-sequence-import-by-ean.md`](diagrams/beer-encyclopedia/02-sequence-import-by-ean.md) | ✅ |
-| Séquence — UC5 (scan/identification) | `02-sequence-scan.md` | ⬜ à recadrer (identification) |
+| Séquence — UC5 (scan/identification) | [`02-sequence-scan.md`](diagrams/beer-encyclopedia/02-sequence-scan.md) | ✅ (délègue à `scan/02b`) |
 | Composant | `03-component.md` | ⬜ à revoir + FR |
 | Classes | `04-class.md` | ⬜ à revoir + FR |
 | États | `05-state.md` | ⬜ à revoir + FR |
@@ -33,7 +33,7 @@ Légende : ✅ fait · ⬜ à venir · — non applicable.
 | UC2 Rechercher | Consulter | — | 03 ⬜ | Beer, Brewery | — | — | livré | — |
 | UC3 Consulter une fiche | Consulter | — | 03 ⬜ | Beer, Brewery, Style, TastingProfile, Media | — | — | livré | — |
 | UC4 Identifier par code-barres | Acquérir | **backend** ✅ `02-sequence-import-by-ean` **+** mobile ⬜ | 03 ⬜ (api, importers, db) | Beer, Brewery, Source, EntitySource | provenance Beer (05 ⬜) | import OFF / PII (06 ⬜) | livré (backend) | #878 (rate-limit) |
-| UC5 Identifier par scan d'étiquette | Acquérir | ⬜ `02-sequence-scan` (+ étude `scan/`) | 03 ⬜ | Beer, BeerDataSuggestion (étude `scan/`) | — | 06 ⬜ | planifié | #1149, étude `scan/` |
+| UC5 Identifier par scan d'étiquette | Acquérir | ✅ `02-sequence-scan` (délègue à `scan/02b`) | 03 ⬜ | Beer (source=scan), BeerDataSuggestion (étude `scan/`) | — | 06 ⬜ | planifié | #1156 (divergence /scan), #1149, étude `scan/` |
 | UC6 Proposer une correction | Contribuer | — (texte) | 03 ⬜ | CommunityCorrection | pending→… (05 ⬜) | — | planifié | #1149 |
 | UC7 Gérer le catalogue (C/U/D) | Curer | — | 03 ⬜ | Beer, Brewery | — | — | livré | #1151 (auth), #1152 (admin web) |
 | UC8 Alimenter les référentiels | Curer | — | 03 ⬜ | Style, LegalDenomination, Source | — | — | livré | #1152 |

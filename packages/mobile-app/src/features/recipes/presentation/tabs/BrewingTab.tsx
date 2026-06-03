@@ -6,6 +6,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   BREWING_PHASES,
   RECIPE_PROCESS_DISPLAY_OPTIONS,
+  RECIPE_STEP_TYPE_LABELS,
   RecipeProcessDisplayMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import type { RecipeStep } from "@/features/recipes/domain/recipe.types";
@@ -53,7 +54,7 @@ export function BrewingTab({
             key={option.id}
             testID={`recipe-process-filter-${option.id}`}
             accessibilityRole="button"
-            accessibilityLabel={`Use ${option.label.toLowerCase()} process display mode`}
+            accessibilityLabel={`Afficher le process en mode ${option.label.toLowerCase()}`}
             style={[
               styles.toggleChip,
               processDisplayMode === option.id && styles.toggleChipActive,
@@ -93,7 +94,9 @@ export function BrewingTab({
                   <Text style={styles.stepTitle}>
                     {item.stepOrder + 1}. {item.label}
                   </Text>
-                  <Text style={styles.stepType}>{item.type}</Text>
+                  <Text style={styles.stepType}>
+                    {RECIPE_STEP_TYPE_LABELS[item.type]}
+                  </Text>
                 </View>
                 {item.description ? (
                   <Text style={styles.stepDescription}>{item.description}</Text>

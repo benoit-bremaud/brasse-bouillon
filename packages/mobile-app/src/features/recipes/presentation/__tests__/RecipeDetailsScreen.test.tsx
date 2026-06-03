@@ -336,9 +336,18 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByTestId("recipe-brewing-tab")).toBeTruthy();
     expect(screen.getByText("Aperçu du process")).toBeTruthy();
 
+    // Process modes are labelled in French (#1172).
+    expect(screen.getByText("Phases de brassage")).toBeTruthy();
+    expect(screen.getByText("Étapes de la recette")).toBeTruthy();
+    expect(screen.getByText("Condensé")).toBeTruthy();
+    // The default "phases" view shows French brewing-phase titles.
+    expect(screen.getByText("🪣 EMPÂTAGE")).toBeTruthy();
+
     fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
     expect(screen.getByText("1. Mash")).toBeTruthy();
     expect(screen.getByText("Hold at 67°C")).toBeTruthy();
+    // The step-type chip renders the French label, not the raw enum.
+    expect(screen.getByText("Empâtage")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId("recipe-process-filter-compact"));
     expect(screen.getByText("Étapes recette : 1")).toBeTruthy();

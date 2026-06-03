@@ -123,3 +123,4 @@ Path-filtered in `.github/workflows/ci.yml`:
 
 See [docs/AGENT.md](docs/AGENT.md) for development agent governance rules (v1.1.0).
 See [docs/adr/](docs/adr/) for architecture decision records.
+See [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/) for the UML conception study (use-case, sequence, component, class, state, data-flow) — kept centrally with all features per repo ADR-0013.

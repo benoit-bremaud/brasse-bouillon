@@ -343,6 +343,17 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     // The default "phases" view shows French brewing-phase titles.
     expect(screen.getByText("🪣 EMPÂTAGE")).toBeTruthy();
 
+    // The active mode chip exposes its selected state to screen readers
+    // (#1172, Copilot review).
+    expect(
+      screen.getByTestId("recipe-process-filter-phases").props
+        .accessibilityState.selected,
+    ).toBe(true);
+    expect(
+      screen.getByTestId("recipe-process-filter-recipe").props
+        .accessibilityState.selected,
+    ).toBe(false);
+
     fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
     expect(screen.getByText("1. Mash")).toBeTruthy();
     expect(screen.getByText("Hold at 67°C")).toBeTruthy();
@@ -353,6 +364,11 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByText("Étapes recette : 1")).toBeTruthy();
     expect(screen.getByText("Ingrédients : 1")).toBeTruthy();
     expect(screen.getByText("Matériel : 1")).toBeTruthy();
+    // Selection state follows the active mode.
+    expect(
+      screen.getByTestId("recipe-process-filter-compact").props
+        .accessibilityState.selected,
+    ).toBe(true);
   });
 
   it("hides the sticky CTA on the Notes & Reviews tab", async () => {

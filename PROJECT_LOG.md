@@ -7,6 +7,20 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-03
 
+### PR #1146 merged (`a5a0296`) — docs(beer-encyclopedia): UML conception study + backfill ADRs
+
+- Branch `docs/beer-encyclopedia-conception`, squash of 18 commits. Documentation-only (no application code, config, or migration).
+- Refs #1147 (epic). Retro-documents the as-built backend, which had shipped without a conforming UML-first conception study.
+- 7 diagram files (6 UML types; the sequence type covers both UC4 and UC5) under `docs/architecture/diagrams/beer-encyclopedia/` (use-case + 9 Cockburn specs, sequence import-by-ean / scan, component, class, state, data-flow) — French, dual Mermaid + PlantUML, render-validated. System-level traceability matrix added.
+- ADRs: repo [ADR-0013](docs/architecture/decisions/0013-beer-canonical-model-and-conception-order.md) + package ADR-0004 (auxiliary entities) / ADR-0005 (recommender scoring weights).
+- **Decisions**:
+  - `conception-is-source-of-truth` — the UML study is canonical; code conforms, divergences are tracked. Recorded on ADR-0013 clause 6.
+  - `beer-normalized-canonical` — normalized `Beer`/`Brewery`/`Style` is the truth; `scan_catalog_items` is a transitional cache. ADR-0013 clauses 1-2.
+  - `diagrams-central-by-feature` — all conception lives under `docs/architecture/diagrams/<feature>/`, no in-package exception; monorepo split deferred (no trigger). ADR-0013 clause 4.
+  - `conception-study-in-french` — documented exception to the English-only docs rule. ADR-0013 clause 7.
+- Reviews — Codex (10), all addressed + replied inline: post-centralization in-package leftovers, broken diagram links, Media CHECK name (`ck_media_parent_required`), 05-state ADR reference; P2 on `contributed_by` triaged as a pre-existing code-vs-ADR divergence.
+- Divergences captured as issues: #1148 #1149 #1150 #1151 #1152 #1153 #1154 #1155 #1156 #1161 #1163.
+
 ### PR #1160 merged (`f440d27`) — refactor(scan): move BeerInfoCardScreen data-fetching to TanStack Query
 
 - Branch `refactor/scan-beercard-usequery`, 3 commits (`8da5d36`, `2a0be9a`, `e8f69c5`).

@@ -57,6 +57,17 @@ repo ADR-0005.
    beer-encyclopedia work (notably the mobile to encyclopedia-API wiring, and the
    advanced panoramic/AI scan pipeline) is modelled before it is coded.
 
+6. **Conception is the source of truth; code conforms.** The UML study is canonical.
+   When code and conception diverge, the **conception wins** and the code is brought
+   into line (or, if the conception is wrong, both are updated in the same change).
+   Every known divergence is captured as a tracked issue rather than silently tolerated.
+
+7. **Conception study authored in French (documented exception).** The
+   beer-encyclopedia conception study (diagrams, Cockburn specs, traceability matrix) is
+   written in **French** — a deliberate exception to the repo's English-only documentation
+   rule, justified by its role as a learning/reference artifact on a now-personal project.
+   Code, commits, PR bodies, issues, and ADR prose stay in English.
+
 ## Consequences
 
 ### Positive

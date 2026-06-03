@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-03
 
+### PR #1160 merged (`f440d27`) — refactor(scan): move BeerInfoCardScreen data-fetching to TanStack Query
+
+- Branch `refactor/scan-beercard-usequery`, 3 commits (`8da5d36`, `2a0be9a`, `e8f69c5`).
+- Closes #1133. Part of #1128.
+- Beer lookup + equivalent recipes → `useQuery`, community import → `useMutation` (last `useState + useEffect` remote-fetch removed from the screen; `mapErrorToStatus` unchanged; per-row import spinner re-keyed by `recipeId`, fixing a latent live-mode mismatch where `getImportSourceId` could return `publicRecipeId`).
+- Reviews — Codex (1) + Copilot (4), all resolved: `staleTime: 0` on both scan queries (re-fetch per scan, not the inherited 30s cache); reordered lookup status so "Réessayer" shows the loader during refetch (+ test); concurrent-import guard on the Alert confirm.
+
 ### PR #1145 merged (`2169793`) — feat(auth): purge session on mid-session 401 (token expiry)
 
 - Branch `feat/live-auth-session-expiry`, 2 commits (`6a46629`, `0aac70a`).

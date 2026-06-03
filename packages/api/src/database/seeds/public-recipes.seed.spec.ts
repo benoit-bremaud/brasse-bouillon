@@ -1,13 +1,42 @@
 import { Repository } from 'typeorm';
 
+import { RecipeFermentableType } from '../../recipe/domain/enums/recipe-fermentable-type.enum';
+import { RecipeHopAdditionStage } from '../../recipe/domain/enums/recipe-hop-addition-stage.enum';
+import { RecipeHopType } from '../../recipe/domain/enums/recipe-hop-type.enum';
 import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
 import { RecipeVisibility } from '../../recipe/domain/enums/recipe-visibility.enum';
+import { RecipeWorkflowService } from '../../recipe/domain/services/recipe-workflow.service';
+import { RecipeYeastType } from '../../recipe/domain/enums/recipe-yeast-type.enum';
 import {
+  DEFAULT_WORKFLOW_STEPS,
   PUBLIC_RECIPES_SEED,
   PUBLIC_RECIPES_SYSTEM_OWNER_ID,
+  PublicRecipeSubResourceRepos,
   seedPublicRecipes,
 } from './public-recipes.seed';
-import { buildRepoMock } from './seed-test-utils';
+import { buildRepoMock, RepoMock } from './seed-test-utils';
+
+/** UUIDs of the three scan-reachable recipes garnished with full
+ * content (Punk IPA official + its two IPA-family equivalents). */
+const SESSION_IPA_ID = '00000000-0000-4000-8000-000000000001';
+const NEIPA_ID = '00000000-0000-4000-8000-000000000002';
+const WHITE_IPA_ID = '00000000-0000-4000-8000-000000000003';
+const PUNK_IPA_ID = '00000000-0000-4000-8000-00000000000b';
+const GARNISHED_IDS = [SESSION_IPA_ID, WHITE_IPA_ID, PUNK_IPA_ID];
+
+function buildSubRepos(): {
+  fermentableRepo: RepoMock;
+  hopRepo: RepoMock;
+  yeastRepo: RepoMock;
+  stepRepo: RepoMock;
+} {
+  return {
+    fermentableRepo: buildRepoMock(),
+    hopRepo: buildRepoMock(),
+    yeastRepo: buildRepoMock(),
+    stepRepo: buildRepoMock(),
+  };
+}
 
 describe('seedPublicRecipes (Issue #701)', () => {
   describe('happy path', () => {
@@ -175,6 +204,153 @@ describe('seedPublicRecipes (Issue #701)', () => {
       }
       // No duplicates.
       expect(new Set(ids).size).toBe(ids.length);
+    });
+  });
+});
+
+describe('public recipe content (ingredients + steps, #1134)', () => {
+  describe('seed data integrity', () => {
+    it('garnishes exactly the three scan-reachable recipes with full content', () => {
+      const withContent = PUBLIC_RECIPES_SEED.filter((r) => r.fermentables);
+      expect(withContent.map((r) => r.id).sort()).toEqual(
+        [...GARNISHED_IDS].sort(),
+      );
+    });
+
+    it('gives every garnished recipe fermentables, hops, yeasts and the 5-step workflow', () => {
+      for (const id of GARNISHED_IDS) {
+        const recipe = PUBLIC_RECIPES_SEED.find((r) => r.id === id);
+        expect(recipe).toBeDefined();
+        expect(recipe?.fermentables?.length).toBeGreaterThan(0);
+        expect(recipe?.hops?.length).toBeGreaterThan(0);
+        expect(recipe?.yeasts?.length).toBeGreaterThan(0);
+        // Every garnished recipe references the shared default workflow.
+        expect(recipe?.steps).toBe(DEFAULT_WORKFLOW_STEPS);
+        expect(recipe?.steps).toHaveLength(5);
+      }
+    });
+
+    it('leaves the metadata-only recipes (e.g. NEIPA Tropical) without content arrays', () => {
+      const neipa = PUBLIC_RECIPES_SEED.find((r) => r.id === NEIPA_ID);
+      expect(neipa?.fermentables).toBeUndefined();
+      expect(neipa?.hops).toBeUndefined();
+      expect(neipa?.yeasts).toBeUndefined();
+      expect(neipa?.steps).toBeUndefined();
+    });
+
+    it('uses valid enum values and positive quantities across all content', () => {
+      for (const recipe of PUBLIC_RECIPES_SEED) {
+        for (const fermentable of recipe.fermentables ?? []) {
+          expect(Object.values(RecipeFermentableType)).toContain(
+            fermentable.type,
+          );
+          expect(fermentable.weight_g).toBeGreaterThan(0);
+        }
+        for (const hop of recipe.hops ?? []) {
+          expect(Object.values(RecipeHopType)).toContain(hop.type);
+          expect(Object.values(RecipeHopAdditionStage)).toContain(
+            hop.addition_stage,
+          );
+          expect(hop.weight_g).toBeGreaterThan(0);
+        }
+        for (const yeast of recipe.yeasts ?? []) {
+          expect(Object.values(RecipeYeastType)).toContain(yeast.type);
+          expect(yeast.amount_g).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it('keeps DEFAULT_WORKFLOW_STEPS structurally identical to RecipeWorkflowService.getDefaultWorkflow()', () => {
+      // Non-owner viewers of a public recipe never trigger the lazy
+      // `ensureDefaultSteps` write (Issue #779) — so the seeded steps
+      // must match the workflow an owner would get materialised, or
+      // the two code paths would drift.
+      const workflow = new RecipeWorkflowService().getDefaultWorkflow();
+      expect(DEFAULT_WORKFLOW_STEPS).toHaveLength(workflow.length);
+      workflow.forEach((step, index) => {
+        expect(DEFAULT_WORKFLOW_STEPS[index].step_order).toBe(step.order);
+        expect(DEFAULT_WORKFLOW_STEPS[index].type).toBe(step.type);
+        expect(DEFAULT_WORKFLOW_STEPS[index].label).toBe(step.label);
+        expect(DEFAULT_WORKFLOW_STEPS[index].description).toBe(
+          step.description,
+        );
+      });
+    });
+  });
+
+  describe('sub-resource seeding (happy path)', () => {
+    it('wipes and refills every sub-table for a garnished recipe with recipe_id stamped', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+      const sub = buildSubRepos();
+      const punk = PUBLIC_RECIPES_SEED.find((r) => r.id === PUNK_IPA_ID);
+      expect(punk).toBeDefined();
+
+      await seedPublicRecipes(
+        repo as unknown as Repository<RecipeOrmEntity>,
+        [punk!],
+        sub as unknown as PublicRecipeSubResourceRepos,
+      );
+
+      expect(sub.fermentableRepo.delete).toHaveBeenCalledWith({
+        recipe_id: PUNK_IPA_ID,
+      });
+      expect(sub.hopRepo.delete).toHaveBeenCalledWith({
+        recipe_id: PUNK_IPA_ID,
+      });
+      expect(sub.yeastRepo.delete).toHaveBeenCalledWith({
+        recipe_id: PUNK_IPA_ID,
+      });
+      expect(sub.stepRepo.delete).toHaveBeenCalledWith({
+        recipe_id: PUNK_IPA_ID,
+      });
+
+      expect(sub.fermentableRepo.create).toHaveBeenCalledTimes(
+        punk!.fermentables!.length,
+      );
+      expect(sub.hopRepo.create).toHaveBeenCalledTimes(punk!.hops!.length);
+      expect(sub.yeastRepo.create).toHaveBeenCalledTimes(punk!.yeasts!.length);
+      expect(sub.stepRepo.create).toHaveBeenCalledTimes(5);
+
+      const firstHop = (sub.hopRepo.create.mock.calls[0] as unknown[])[0] as {
+        recipe_id: string;
+      };
+      expect(firstHop.recipe_id).toBe(PUNK_IPA_ID);
+    });
+  });
+
+  describe('sub-resource seeding (sad / edge)', () => {
+    it('leaves sub-tables untouched for a metadata-only recipe even when subRepos is supplied', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+      const sub = buildSubRepos();
+      const neipa = PUBLIC_RECIPES_SEED.find((r) => r.id === NEIPA_ID);
+
+      await seedPublicRecipes(
+        repo as unknown as Repository<RecipeOrmEntity>,
+        [neipa!],
+        sub as unknown as PublicRecipeSubResourceRepos,
+      );
+
+      expect(sub.fermentableRepo.delete).not.toHaveBeenCalled();
+      expect(sub.fermentableRepo.create).not.toHaveBeenCalled();
+      expect(sub.hopRepo.create).not.toHaveBeenCalled();
+      expect(sub.yeastRepo.create).not.toHaveBeenCalled();
+      expect(sub.stepRepo.create).not.toHaveBeenCalled();
+    });
+
+    it('returns the same {inserted,updated,total} shape whether or not subRepos is passed', async () => {
+      const repo = buildRepoMock();
+      repo.findOne.mockResolvedValue(null);
+      const sub = buildSubRepos();
+
+      const result = await seedPublicRecipes(
+        repo as unknown as Repository<RecipeOrmEntity>,
+        PUBLIC_RECIPES_SEED,
+        sub as unknown as PublicRecipeSubResourceRepos,
+      );
+
+      expect(result).toEqual({ inserted: 11, updated: 0, total: 11 });
     });
   });
 });

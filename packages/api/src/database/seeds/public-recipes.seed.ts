@@ -1,7 +1,16 @@
 import { Repository } from 'typeorm';
 
+import { RecipeFermentableOrmEntity } from '../../recipe/entities/recipe-fermentable.orm.entity';
+import { RecipeFermentableType } from '../../recipe/domain/enums/recipe-fermentable-type.enum';
+import { RecipeHopAdditionStage } from '../../recipe/domain/enums/recipe-hop-addition-stage.enum';
+import { RecipeHopOrmEntity } from '../../recipe/entities/recipe-hop.orm.entity';
+import { RecipeHopType } from '../../recipe/domain/enums/recipe-hop-type.enum';
 import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
+import { RecipeStepOrmEntity } from '../../recipe/entities/recipe-step.orm.entity';
+import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { RecipeVisibility } from '../../recipe/domain/enums/recipe-visibility.enum';
+import { RecipeYeastOrmEntity } from '../../recipe/entities/recipe-yeast.orm.entity';
+import { RecipeYeastType } from '../../recipe/domain/enums/recipe-yeast-type.enum';
 import { SYSTEM_USER_ID } from './system-user.seed';
 
 /**
@@ -36,9 +45,111 @@ import { SYSTEM_USER_ID } from './system-user.seed';
 export const PUBLIC_RECIPES_SYSTEM_OWNER_ID = SYSTEM_USER_ID;
 
 /**
+ * Fermentable entry in the seed data. Mirrors the mutable columns of
+ * `RecipeFermentableOrmEntity` (minus the autogen id / recipe_id /
+ * timestamps). Same shape contract as the BrewDog DIY Dog seed.
+ */
+export interface PublicRecipeFermentableSeed {
+  name: string;
+  type: RecipeFermentableType;
+  weight_g: number;
+  potential_gravity?: number;
+  color_ebc?: number;
+}
+
+/**
+ * Hop addition in the seed data. `addition_time_min` is
+ * minutes-from-knockout for BOIL additions, days-of-contact for
+ * DRY_HOP additions, and may be omitted for WHIRLPOOL additions whose
+ * timing the source recipe leaves unspecified.
+ */
+export interface PublicRecipeHopSeed {
+  variety: string;
+  type: RecipeHopType;
+  weight_g: number;
+  alpha_acid_percent?: number;
+  addition_stage: RecipeHopAdditionStage;
+  addition_time_min?: number;
+}
+
+/**
+ * Yeast addition in the seed data. `amount_g` defaults to one
+ * dry-yeast sachet (~11.5 g) when the source recipe documents no
+ * pitch rate.
+ */
+export interface PublicRecipeYeastSeed {
+  name: string;
+  type: RecipeYeastType;
+  amount_g: number;
+  attenuation_percent?: number;
+  temperature_min_c?: number;
+  temperature_max_c?: number;
+}
+
+/**
+ * Brewing step in the seed data. Mirrors `RecipeStepOrmEntity`'s
+ * mutable columns (`step_order` is part of the composite PK).
+ */
+export interface PublicRecipeStepSeed {
+  step_order: number;
+  type: RecipeStepType;
+  label: string;
+  description?: string | null;
+}
+
+/**
+ * Canonical five-stage brewing workflow shared by every seeded
+ * recipe that carries steps. Kept structurally identical to
+ * `RecipeWorkflowService.getDefaultWorkflow()` (asserted by a parity
+ * test) so a non-owner reading a public recipe's `/steps` sees the
+ * same default workflow an owner gets lazily materialised — the
+ * `ensureDefaultSteps` write only fires for owners (Issue #779), so
+ * public recipes must ship their steps explicitly.
+ */
+export const DEFAULT_WORKFLOW_STEPS: readonly PublicRecipeStepSeed[] = [
+  {
+    step_order: 0,
+    type: RecipeStepType.MASH,
+    label: 'Mash',
+    description: 'Mash grains to extract fermentable sugars.',
+  },
+  {
+    step_order: 1,
+    type: RecipeStepType.BOIL,
+    label: 'Boil',
+    description: 'Boil wort and add hops according to schedule.',
+  },
+  {
+    step_order: 2,
+    type: RecipeStepType.WHIRLPOOL,
+    label: 'Whirlpool',
+    description: 'Whirlpool and cool the wort before fermentation.',
+  },
+  {
+    step_order: 3,
+    type: RecipeStepType.FERMENTATION,
+    label: 'Fermentation',
+    description: 'Ferment wort with yeast until final gravity is reached.',
+  },
+  {
+    step_order: 4,
+    type: RecipeStepType.PACKAGING,
+    label: 'Packaging',
+    description: 'Package beer (bottling/kegging) and carbonate.',
+  },
+];
+
+/**
  * Shape of one seeded public recipe. Brewing metrics are
  * approximations from public datasheets and BJCP style guidelines,
  * adapted for a 20L homebrew batch.
+ *
+ * The optional `fermentables` / `hops` / `yeasts` / `steps` arrays
+ * carry the full recipe content. They are populated only for the
+ * scan-reachable recipes (the Punk IPA "official" row and its
+ * equivalents) so the live mobile recipe-detail screen shows real
+ * ingredients and a brewing workflow rather than an empty shell.
+ * Metadata-only recipes leave them undefined.
  */
 export interface PublicRecipeSeed {
   id: string;
@@ -66,6 +177,18 @@ export interface PublicRecipeSeed {
    * Codex caught on PR #773.
    */
   is_official?: boolean;
+  /**
+   * Full grain bill for the recipe (recipe_fermentables rows). Only
+   * set on scan-reachable recipes; metadata-only rows leave it
+   * undefined and seed no fermentables.
+   */
+  fermentables?: readonly PublicRecipeFermentableSeed[];
+  /** Full hop schedule (recipe_hops rows). Same optionality contract. */
+  hops?: readonly PublicRecipeHopSeed[];
+  /** Yeast strains (recipe_yeasts rows). Same optionality contract. */
+  yeasts?: readonly PublicRecipeYeastSeed[];
+  /** Brewing workflow (recipe_steps rows). Same optionality contract. */
+  steps?: readonly PublicRecipeStepSeed[];
 }
 
 /**
@@ -92,6 +215,73 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     efficiency_target: 72,
     avg_rating: 4.7,
     brew_count: 23,
+    // Light, mono-Citra session IPA. Modest bittering charge, big
+    // late + dry-hop load for the "nez explosif d'agrumes" without
+    // pushing IBU past the session range.
+    fermentables: [
+      {
+        name: 'Pale Ale Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 3700,
+        color_ebc: 7,
+      },
+      {
+        name: 'CaraPils',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 250,
+        color_ebc: 4,
+      },
+      {
+        name: 'Wheat Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 200,
+        color_ebc: 4,
+      },
+    ],
+    hops: [
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 10,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 20,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 10,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 25,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 40,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+    ],
+    yeasts: [
+      {
+        name: 'Fermentis SafAle US-05',
+        type: RecipeYeastType.ALE,
+        amount_g: 11.5,
+        attenuation_percent: 81,
+        temperature_min_c: 15,
+        temperature_max_c: 22,
+      },
+    ],
+    steps: DEFAULT_WORKFLOW_STEPS,
   },
   {
     id: '00000000-0000-4000-8000-000000000002',
@@ -126,6 +316,74 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     efficiency_target: 72,
     avg_rating: 4.3,
     brew_count: 12,
+    // Witbier + IPA hybrid: ~45% wheat base, Belgian witbier yeast for
+    // the phenolic/spicy bridge, American hops for the IPA backbone.
+    // Coriander + orange peel (in the description) are spice additives,
+    // out of scope for the ingredient sub-tables modelled here.
+    fermentables: [
+      {
+        name: 'Pilsner Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 2200,
+        color_ebc: 3,
+      },
+      {
+        name: 'Wheat Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 2000,
+        color_ebc: 4,
+      },
+      {
+        name: 'CaraPils',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 200,
+        color_ebc: 4,
+      },
+    ],
+    hops: [
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 18,
+        alpha_acid_percent: 6,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Amarillo',
+        type: RecipeHopType.PELLET,
+        weight_g: 20,
+        alpha_acid_percent: 9,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 10,
+      },
+      {
+        variety: 'Citra',
+        type: RecipeHopType.PELLET,
+        weight_g: 20,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 25,
+        alpha_acid_percent: 6,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+    ],
+    yeasts: [
+      {
+        name: 'Wyeast 3944 Belgian Witbier',
+        type: RecipeYeastType.ALE,
+        amount_g: 11.5,
+        attenuation_percent: 74,
+        temperature_min_c: 18,
+        temperature_max_c: 24,
+      },
+    ],
+    steps: DEFAULT_WORKFLOW_STEPS,
   },
   // --- Belgian / Saison family (matches La Chouffe + La Goudale) ---
   {
@@ -282,6 +540,132 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     efficiency_target: 75,
     avg_rating: 4.9,
     brew_count: 312,
+    // Post-2010 canonical Punk IPA, 23L batch. Matches the row's own
+    // description: Maris Otter + Caramalt base, five American hops
+    // (Ahtanum, Chinook, Nelson Sauvin, Cascade, Simcoe) split across
+    // boil / whirlpool / dry-hop, US-05 yeast. This is the scan-flow's
+    // "official" recipe — it MUST carry content so the live detail
+    // screen is not an empty shell when tapped.
+    fermentables: [
+      {
+        name: 'Maris Otter Extra Pale',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 5300,
+        color_ebc: 6,
+      },
+      {
+        name: 'Caramalt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 250,
+        color_ebc: 50,
+      },
+    ],
+    hops: [
+      {
+        variety: 'Ahtanum',
+        type: RecipeHopType.PELLET,
+        weight_g: 17.5,
+        alpha_acid_percent: 5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Chinook',
+        type: RecipeHopType.PELLET,
+        weight_g: 15,
+        alpha_acid_percent: 13,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Ahtanum',
+        type: RecipeHopType.PELLET,
+        weight_g: 12.5,
+        alpha_acid_percent: 5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 15,
+      },
+      {
+        variety: 'Chinook',
+        type: RecipeHopType.PELLET,
+        weight_g: 12.5,
+        alpha_acid_percent: 13,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 15,
+      },
+      {
+        variety: 'Nelson Sauvin',
+        type: RecipeHopType.PELLET,
+        weight_g: 12.5,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 12.5,
+        alpha_acid_percent: 6,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Simcoe',
+        type: RecipeHopType.PELLET,
+        weight_g: 12.5,
+        alpha_acid_percent: 13,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+      {
+        variety: 'Ahtanum',
+        type: RecipeHopType.PELLET,
+        weight_g: 18.8,
+        alpha_acid_percent: 5,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+      {
+        variety: 'Chinook',
+        type: RecipeHopType.PELLET,
+        weight_g: 18.8,
+        alpha_acid_percent: 13,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+      {
+        variety: 'Nelson Sauvin',
+        type: RecipeHopType.PELLET,
+        weight_g: 18.8,
+        alpha_acid_percent: 12,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 18.8,
+        alpha_acid_percent: 6,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+      {
+        variety: 'Simcoe',
+        type: RecipeHopType.PELLET,
+        weight_g: 18.8,
+        alpha_acid_percent: 13,
+        addition_stage: RecipeHopAdditionStage.DRY_HOP,
+        addition_time_min: 4,
+      },
+    ],
+    yeasts: [
+      {
+        name: 'Fermentis SafAle US-05',
+        type: RecipeYeastType.ALE,
+        amount_g: 11.5,
+        attenuation_percent: 81,
+        temperature_min_c: 15,
+        temperature_max_c: 22,
+      },
+    ],
+    steps: DEFAULT_WORKFLOW_STEPS,
   },
 ];
 
@@ -294,6 +678,68 @@ export interface SeedPublicRecipesResult {
   inserted: number;
   updated: number;
   total: number;
+}
+
+/**
+ * The four sub-resource repositories needed to persist a recipe's
+ * full content (grain bill / hop schedule / yeast / steps). Optional
+ * on `seedPublicRecipes` — when omitted the loader seeds recipe
+ * metadata only (its historical behaviour). When provided, every seed
+ * recipe that declares the matching array gets its sub-tables
+ * wiped-and-refilled idempotently.
+ */
+export interface PublicRecipeSubResourceRepos {
+  fermentableRepo: Repository<RecipeFermentableOrmEntity>;
+  hopRepo: Repository<RecipeHopOrmEntity>;
+  yeastRepo: Repository<RecipeYeastOrmEntity>;
+  stepRepo: Repository<RecipeStepOrmEntity>;
+}
+
+/**
+ * Wipe-and-refill the sub-tables for one recipe. Mirrors the BrewDog
+ * DIY Dog seed: for each declared ingredient/step array, delete the
+ * recipe's existing rows then bulk-insert the seed's — so re-running
+ * converges on exactly what the seed declares, regardless of drift.
+ * An undeclared array is left untouched (no delete), so metadata-only
+ * recipes never lose data they never owned.
+ */
+async function seedRecipeSubResources(
+  repos: PublicRecipeSubResourceRepos,
+  recipe: PublicRecipeSeed,
+): Promise<void> {
+  const { fermentableRepo, hopRepo, yeastRepo, stepRepo } = repos;
+
+  if (recipe.fermentables) {
+    await fermentableRepo.delete({ recipe_id: recipe.id });
+    for (const fermentable of recipe.fermentables) {
+      await fermentableRepo.save(
+        fermentableRepo.create({ recipe_id: recipe.id, ...fermentable }),
+      );
+    }
+  }
+
+  if (recipe.hops) {
+    await hopRepo.delete({ recipe_id: recipe.id });
+    for (const hop of recipe.hops) {
+      await hopRepo.save(hopRepo.create({ recipe_id: recipe.id, ...hop }));
+    }
+  }
+
+  if (recipe.yeasts) {
+    await yeastRepo.delete({ recipe_id: recipe.id });
+    for (const yeast of recipe.yeasts) {
+      await yeastRepo.save(
+        yeastRepo.create({ recipe_id: recipe.id, ...yeast }),
+      );
+    }
+  }
+
+  if (recipe.steps) {
+    await stepRepo.delete({ recipe_id: recipe.id });
+    for (const step of recipe.steps) {
+      await stepRepo.save(stepRepo.create({ recipe_id: recipe.id, ...step }));
+    }
+  }
 }
 
 /**
@@ -311,10 +757,18 @@ export interface SeedPublicRecipesResult {
  * reserved for brewer-endorsed clones tied to a specific demo bottle
  * (currently only the BrewDog DIY Dog clone for Punk IPA — Issue
  * #911 unblocks the demo Beat 4 "🏆 Recette officielle" section).
+ *
+ * When `subRepos` is supplied, each recipe that declares
+ * `fermentables` / `hops` / `yeasts` / `steps` also gets those
+ * sub-tables wiped-and-refilled (see `seedRecipeSubResources`). This
+ * is what makes the scan-reachable recipes show real content on the
+ * live mobile detail screen. Omitting `subRepos` preserves the
+ * original metadata-only behaviour for callers that don't need it.
  */
 export async function seedPublicRecipes(
   repository: Repository<RecipeOrmEntity>,
   recipes: readonly PublicRecipeSeed[] = PUBLIC_RECIPES_SEED,
+  subRepos?: PublicRecipeSubResourceRepos,
 ): Promise<SeedPublicRecipesResult> {
   let inserted = 0;
   let updated = 0;
@@ -358,6 +812,10 @@ export async function seedPublicRecipes(
       const created = repository.create({ id: recipe.id, ...payload });
       await repository.save(created);
       inserted += 1;
+    }
+
+    if (subRepos) {
+      await seedRecipeSubResources(subRepos, recipe);
     }
   }
 

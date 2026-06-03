@@ -371,6 +371,47 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     ).toBe(true);
   });
 
+  it("shows the empty-state hint on the Brewing recipe view when the recipe has no steps", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue({
+      ...baseViewModel,
+      steps: [],
+    });
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("brewing");
+    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+
+    expect(
+      screen.getByText("Pas d'étapes renseignées pour cette recette."),
+    ).toBeTruthy();
+  });
+
+  it("renders a step without a description on the Brewing recipe view", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue({
+      ...baseViewModel,
+      steps: [
+        {
+          recipeId: "r1",
+          stepOrder: 0,
+          label: "Empâtage maison",
+          type: "mash",
+          description: null,
+        },
+      ],
+    });
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("brewing");
+    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+
+    expect(screen.getByText("1. Empâtage maison")).toBeTruthy();
+    expect(screen.getByText("Empâtage")).toBeTruthy();
+    // No description row for a step that has none.
+    expect(screen.queryByText("Hold at 67°C")).toBeNull();
+  });
+
   it("hides the sticky CTA on the Notes & Reviews tab", async () => {
     renderRecipeDetails();
 

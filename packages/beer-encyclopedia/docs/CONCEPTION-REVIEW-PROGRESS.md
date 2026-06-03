@@ -35,7 +35,7 @@
 | `02-sequence-import-by-ean.md` | ✅ revu | FR | UC4 — **réalisation backend** (option A) |
 | `02-sequence-scan.md` (UC5) | ✅ revu & validé | FR | identification (Mermaid + PlantUML) ; délègue le pipeline à `scan/02b` ; divergence `/scan`→recettes tracée #1156 |
 | `03-component.md` | ✅ revu & validé (simple) | FR | Mermaid + PlantUML ; OFF = seule source dessinée (active) ; pipeline OCR/IA + importers Untappd/RateBeer = cible, renvoi `scan/03-component` (**à peaufiner** plus tard) ; divergences #1156 / #1161 |
-| `04-class.md` | ⬜ à revoir | EN | + divergence `scan/04-class` (#1148) ; ajouter `source=scan` (#1156) |
+| `04-class.md` | ✅ revu & validé | FR | Mermaid + PlantUML ; conforme `db/models/*` ; `source=scan` en vue cible (#1156) ; CHECK `ck_media_parent_required` ; divergence inter-études `scan/04-class` #1148 |
 | `05-state.md` | ⬜ à revoir | EN | cycle de vie correction (UC6→UC9) ; provenance Beer |
 | `06-data-flow.md` | ⬜ à revoir | EN | PII / import OFF |
 

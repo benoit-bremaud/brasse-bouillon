@@ -18,7 +18,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 | Séquence — UC4 (backend) | [`02-sequence-import-by-ean.md`](diagrams/beer-encyclopedia/02-sequence-import-by-ean.md) | ✅ |
 | Séquence — UC5 (scan/identification) | [`02-sequence-scan.md`](diagrams/beer-encyclopedia/02-sequence-scan.md) | ✅ (délègue à `scan/02b`) |
 | Composant | [`03-component.md`](diagrams/beer-encyclopedia/03-component.md) | ✅ (simple ; sources cibles → `scan/`) |
-| Classes | `04-class.md` | ⬜ à revoir + FR |
+| Classes | [`04-class.md`](diagrams/beer-encyclopedia/04-class.md) | ✅ (conforme code ; `source=scan` cible) |
 | États | `05-state.md` | ⬜ à revoir + FR |
 | Data-flow | `06-data-flow.md` | ⬜ à revoir + FR |
 | Séquence mobile — UC4 (scan + affichage) | _(package mobile, futur chantier mobile↔API)_ | ⬜ à créer |

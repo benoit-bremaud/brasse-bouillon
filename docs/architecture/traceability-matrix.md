@@ -20,6 +20,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 | Séquence — UC5 (scan/identification) | [`02-sequence-scan.md`](diagrams/beer-encyclopedia/02-sequence-scan.md) | ✅ (délègue à `scan/02b`) |
 | Composant | [`03-component.md`](diagrams/beer-encyclopedia/03-component.md) | ✅ (simple ; sources cibles → `scan/`) |
 | Classes | [`04-class.md`](diagrams/beer-encyclopedia/04-class.md) | ✅ (conforme code ; `source=scan` cible) |
+| Classes — contrat API (DTO) | [`07-class-api-contract.md`](diagrams/beer-encyclopedia/07-class-api-contract.md) | 🎯 cible (`BeerRead` + `brewery_name`/`style_name` dénormalisés ; code à conformer) |
 | États | [`05-state.md`](diagrams/beer-encyclopedia/05-state.md) | ✅ (modération + provenance) |
 | Data-flow | [`06-data-flow.md`](diagrams/beer-encyclopedia/06-data-flow.md) | ✅ (import EAN + PII) |
 | Séquence mobile — UC4 (scan + affichage) | _(package mobile, futur chantier mobile↔API)_ | ⬜ à créer |

@@ -1,0 +1,25 @@
+# Keep the build context lean WITHOUT dropping anything imported at runtime.
+#
+# IMPORTANT: do NOT exclude `ml/`, `db/`, `api/`, `importers/`, `migrations/`,
+# `scripts/`, `data/`, `configs/`, `pyproject.toml` or `alembic.ini`:
+# - `pip install .` reads the source to install the `api`/`ml`/`db`/`importers`
+#   packages (pyproject `include`);
+# - `api/schemas/scan.py` imports `ml.schemas` at module load, so the `ml/`
+#   source must be present even though the heavy `ml` *extra* is not installed;
+# - `alembic upgrade head` needs `alembic.ini` + `migrations/` at runtime;
+# - the seed scripts under `scripts/` are run on the deployed machine.
+.venv
+**/__pycache__
+**/*.pyc
+*.egg-info
+.pytest_cache
+.ruff_cache
+.git
+.gitignore
+tests
+scan-photos
+docs
+*.db
+*.sqlite
+.env
+.env.*

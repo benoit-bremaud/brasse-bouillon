@@ -14,12 +14,10 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
-# gcc is a safety net for any source-only dependency wheel (e.g. asyncpg on
-# uncommon platforms). Removed from the final layer to keep the image lean.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc \
-    && rm -rf /var/lib/apt/lists/*
-
+# No build toolchain: every runtime dependency (fastapi, uvicorn, sqlalchemy,
+# alembic, asyncpg, aiosqlite, pydantic) ships a manylinux wheel for
+# cp312-slim, so the image needs no compiler — keeping it lean and reducing
+# the attack surface.
 COPY . .
 
 # Install the app + the SQLite async driver explicitly (aiosqlite ships in the
@@ -30,6 +28,14 @@ RUN pip install . "aiosqlite>=0.20"
 
 EXPOSE 8080
 
-# Apply migrations (idempotent) then serve. Shell form so `&&` is honoured;
-# a failed migration exits the container and Fly restarts it.
-CMD alembic upgrade head && uvicorn api.main:app --host 0.0.0.0 --port 8080
+# Boot sequence (all idempotent): apply migrations, ensure the
+# `openfoodfacts` Source row exists (a FK requirement for
+# /beers/import-by-ean — without it the endpoint 503s on a fresh volume),
+# then `exec` uvicorn so it replaces the shell and runs as PID 1 — giving
+# Fly's SIGTERM proper graceful-shutdown handling. A failed migration or seed
+# exits the container and Fly restarts it. (Reference data — styles, legal
+# denominations — stays a manual one-off seed; only the source is required to
+# serve imports.)
+CMD alembic upgrade head \
+    && python scripts/seed_sources.py \
+    && exec uvicorn api.main:app --host 0.0.0.0 --port 8080

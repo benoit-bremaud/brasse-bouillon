@@ -89,12 +89,35 @@
      immediately, enrich in the background) and is **cost-bounded + tiered**
      (#878).
 
+7. **Per-field veracity coefficient (D5).** A field's trust is not binary.
+   Each `Source` carries a **reliability weight** (open-data such as
+   OpenFoodFacts > a curated directory > raw web scraping > an LLM alone), and
+   each field accumulates values from the sources that provided it (one
+   `EntitySource` row per source). A per-field **veracity coefficient** is
+   derived from **cross-source corroboration weighted by source reliability**:
+   several reliable sources agreeing on the same value → high veracity; a lone
+   low-trust source, or sources that disagree → low veracity.
+   - **It does not bypass the human gate (D4).** The coefficient **prioritises
+     and pre-sorts the moderation queue** (ties into #1153
+     *priority-by-aggregation*): highly-corroborated fields can be batch-cleared
+     with minimal scrutiny; low-veracity or conflicting fields surface at the
+     top of the queue with their competing values shown side by side.
+   - The exact aggregation formula, the per-source-type reliability weights,
+     and the disagreement-resolution rule are **deferred to implementation**
+     (a refinement of this ADR / a dedicated issue under #1175); this decision
+     fixes the *principle* (corroboration × source reliability → a per-field
+     confidence that drives queue priority, never auto-promotion).
+
 ## Consequences
 
 - **The canonical catalogue stays trustworthy.** Nothing becomes official
   without a human decision (D4) — the deliberate cost is moderation throughput.
 - **Crowd-sourcing works without pollution.** A scanned bottle is immediately
   useful (staged) and only graduates to shared truth once verified.
+- **The veracity coefficient (D5) keeps the human gate affordable.** It does
+  not remove moderation, but it sorts the queue so corroborated data costs
+  little attention and doubtful/conflicting data gets it — making D4 scale
+  without lowering the trust bar.
 - **Sources are pluggable.** OFF, OCR, web, and AI all feed one pipeline via
   `Source`/`EntitySource`; new sources cost an importer, not a migration.
 - **AI/web sources carry obligations**: provenance capture, async + tiering,

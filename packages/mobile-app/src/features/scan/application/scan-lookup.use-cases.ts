@@ -131,26 +131,25 @@ export async function lookupBeerByBarcode(
   }
 
   try {
-    return await fetchLookupFromApi(barcode);
+    // Cutover (#1186, finishing ADR-0005): resolve against the
+    // beer-encyclopedia FIRST. It owns the rich beer knowledge
+    // (brewery, style, ABV, ingredients) and persists every resolved
+    // scan (`is_verified=false`), so a barcode scan both shows a full
+    // fiche and feeds the catalogue. See
+    // docs/architecture/diagrams/beer-encyclopedia/08-sequence-mobile-scan.md.
+    return await fetchImportFromEncyclopedia(barcode);
   } catch (error) {
     if (error instanceof HttpError) {
-      if (error.status === 404 || error.status === 503) {
-        // ADR-0005 fallback: when NestJS does not know this barcode
-        // (404) OR cannot reach OFF (503 — typically OFF rate-limit
-        // or transport failure with no NestJS cache row), try the
-        // Python beer-encyclopedia. It has its own DB and OFF
-        // importer (PR #847) and may surface a beer NestJS cannot
-        // serve right now. The fallback's own 404 / 503 are
-        // translated to the same typed errors the caller already
-        // handles, so the UI stays identical to the single-backend
-        // path.
-        return await fallbackToEncyclopediaImport(barcode);
+      if (error.status === 404) {
+        // Neither the encyclopedia DB nor OFF knows this barcode.
+        throw new ScanLookupBeerNotFoundError(barcode);
       }
-      if (error.status === 422 && isNotABeerDetails(error.details)) {
-        throw new ScanLookupNotABeerError(
-          barcode,
-          error.details.productName ?? null,
-        );
+      if (error.status === 503) {
+        // Transitional only (removed at the target state, #1186): the
+        // encyclopedia is unavailable (down, OFF transport failure, or
+        // its URL not configured) — fall back to the legacy NestJS
+        // lookup so a scan still resolves while the cutover settles.
+        return await fallbackToNestJsLookup(barcode);
       }
     }
     throw error;
@@ -158,19 +157,18 @@ export async function lookupBeerByBarcode(
 }
 
 /**
- * Try to resolve `barcode` against the Python beer-encyclopedia.
- *
- * Translates Python's HTTP responses into the same typed errors the
- * primary NestJS path emits, so callers (presentation, tests) do not
- * need to know which backend ultimately served the data. The Python
- * backend itself already does DB-first + OFF fallback (PR #847 +
- * #848) so a 404 here truly means "neither cache nor OFF knows".
+ * Transitional fallback to the legacy NestJS `/scan/lookup` path, used
+ * only when the encyclopedia is unavailable (503). NestJS does its own
+ * DB-first + OpenFoodFacts lookup (#696) and may still serve a (thin)
+ * fiche, surface the NOT_A_BEER guard (#798), or report not-found /
+ * unavailable. Removed once the encyclopedia is the sole scan backend
+ * (#1186, target state).
  */
-async function fallbackToEncyclopediaImport(
+async function fallbackToNestJsLookup(
   barcode: string,
 ): Promise<ScanLookupResult> {
   try {
-    return await fetchImportFromEncyclopedia(barcode);
+    return await fetchLookupFromApi(barcode);
   } catch (error) {
     if (error instanceof HttpError) {
       if (error.status === 404) {
@@ -178,6 +176,12 @@ async function fallbackToEncyclopediaImport(
       }
       if (error.status === 503) {
         throw new ScanLookupServiceUnavailableError(barcode);
+      }
+      if (error.status === 422 && isNotABeerDetails(error.details)) {
+        throw new ScanLookupNotABeerError(
+          barcode,
+          error.details.productName ?? null,
+        );
       }
     }
     throw error;

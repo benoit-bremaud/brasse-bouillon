@@ -1,0 +1,41 @@
+# Fly.io deployment for the beer-encyclopedia (FastAPI).
+#
+# WIP / DRAFT — not deployable until the lazy-ML refactor lands (see epic
+# #1175): the scan router imports `ml.pipeline` at module load, so the app
+# cannot boot without the heavy `ml` extra. Once the OCR import is lazy, this
+# config deploys a lean EAN/OpenFoodFacts image (UC4) on SQLite-on-volume.
+app = "brasse-bouillon-encyclopedia"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PYTHONUNBUFFERED = "1"
+  # SQLite on the mounted volume (4 slashes = absolute path). Change to a
+  # Postgres DATABASE_URL secret if/when full-text search is needed.
+  DATABASE_URL = "sqlite+aiosqlite:////app/data/encyclopedia.db"
+
+[[mounts]]
+  source = "enc_data"
+  destination = "/app/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1

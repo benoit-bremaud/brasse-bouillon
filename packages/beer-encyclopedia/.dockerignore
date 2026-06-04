@@ -1,0 +1,20 @@
+# Keep the build context lean — only ship the app + migrations.
+.venv
+**/__pycache__
+**/*.pyc
+*.egg-info
+.pytest_cache
+.ruff_cache
+.git
+.gitignore
+tests
+scan-photos
+data
+docs
+ml
+configs
+*.db
+*.sqlite
+.env
+.env.*
+docker-compose.yml

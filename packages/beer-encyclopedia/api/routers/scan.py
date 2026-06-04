@@ -17,7 +17,6 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
 from api.schemas.scan import ScanResponse
-from ml.pipeline import scan_image
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +44,25 @@ async def scan_endpoint(
             status_code=400,
             detail="Uploaded file must be an image.",
         )
+
+    # Import the ML pipeline lazily, here, rather than at module load.
+    # `ml.pipeline` pulls in the heavy CV/OCR stack (cv2, numpy, and
+    # optionally ultralytics/easyocr), which is intentionally NOT installed
+    # on the lean EAN/OpenFoodFacts deployment (ADR-0015: UC4 first, UC5/OCR
+    # later). Keeping the import out of module scope lets the app boot
+    # without those deps; a request to this endpoint then degrades to a
+    # clean 503 instead of crashing the whole service at startup.
+    #
+    # It is done BEFORE the threadpool block on purpose: the broad
+    # `except Exception -> 500` around `_run_scan` would otherwise swallow
+    # this HTTPException and mislabel a missing-dependency as a server error.
+    try:
+        from ml.pipeline import scan_image
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Image analysis (ML pipeline) is not available on this deployment.",
+        ) from exc
 
     # Read the upload once (async, quick) then hand the CPU/IO-heavy work
     # off to a worker thread so the event loop stays free for other

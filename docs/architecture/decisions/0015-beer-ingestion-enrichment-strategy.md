@@ -25,12 +25,14 @@
   `BeerDataSuggestion(pending)`), **UC6/UC9** (community corrections +
   moderation), the provenance/verification lifecycle
   (`05-state.md`: `Imported`/`Scanned` → `Verified`), and a **polymorphic,
-  multi-source** `Source`/`EntitySource` model (`entity_type` + `external_id`,
-  no FK; unique `(source_id, entity_type, external_id)` for idempotency).
+  multi-source** `Source`/`EntitySource` model: the target is referenced
+  polymorphically by `(entity_type, entity_id)` **with no FK**
+  (`entity_type ∈ {beer, brewery}`), and re-imports are idempotent on
+  `(source_id, entity_type, external_id)` (the source's own id).
 - What was **not** yet decided: the ingestion + enrichment **strategy** — how
   many sources feed the catalogue, the trust boundary between a scan and the
   canonical truth, the promotion criterion, and sync vs async. A discovery
-  session (2026-06-04) settled decisions **D1–D4** (below).
+  session (2026-06-04) settled decisions **D1–D5** (below).
 - Goal: grow the catalogue from **real usage** (crowd-sourcing) — every
   scanned bottle, after enrichment, should be capturable — **without**
   polluting the canonical truth with noisy/unverified data.

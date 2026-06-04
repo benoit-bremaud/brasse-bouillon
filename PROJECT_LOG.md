@@ -5,6 +5,35 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-04
+
+### PR #1178 merged (`0498adb`) — chore(encyclopedia): Fly.io deployment (Dockerfile + fly.toml, SQLite-on-volume)
+
+- Branch `chore/deploy-encyclopedia`, 2 commits (`5ad2995`, `3ac73e4`).
+- Part of #1175. Deploys the beer-encyclopedia (FastAPI) to Fly.io as a lean EAN/OpenFoodFacts image (UC4) — `brasse-bouillon-encyclopedia.fly.dev`, SQLite on the `enc_data` volume (cdg), `pip install . "aiosqlite"` (no `ml` extra), `CMD alembic upgrade head && python scripts/seed_sources.py && exec uvicorn`. `.dockerignore` keeps everything imported at runtime (`ml/`, `db/`, `importers/`, `migrations/`, `scripts/`, `data/`).
+- Reviews — Copilot (3) + Codex (1, P2), all resolved: dropped gcc (deps ship cp312 wheels), `exec uvicorn` → PID 1 graceful shutdown, seed `openfoodfacts` Source at boot (import-by-ean FK). Non-root USER → hardening follow-up #1180.
+- Verified live: `/health` 200; `POST /beers/import-by-ean {5056025440494}` → 201, `BREWDOG IPA` persisted (`source=openfoodfacts`, `is_verified=false`, brewery + `EntitySource` provenance). Prod seeded: 1 source, 15 styles, 10 FR legal denominations.
+
+### PR #1179 merged (`85ec44d`) — chore(mobile): point the scan fallback at the deployed beer-encyclopedia
+
+- Branch `chore/mobile-encyclopedia-url`, 1 commit (`1336f28`).
+- Part of #1175. Sets `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL = https://brasse-bouillon-encyclopedia.fly.dev` in both `preview` + `preview-demo` EAS profiles. Env-only — the NestJS-404/503 → encyclopedia `import-by-ean` fallback was already coded (PR #847) but had no deployed target. Live APK rebuilt (`543d4bd2`).
+
+### PR #1177 merged (`a12e6b7`) — fix(encyclopedia): import the ML pipeline lazily so the app boots without the ml extra
+
+- Branch `fix/encyclopedia-lazy-ml`, 2 commits (`1bc2dfb`, `320cf49`).
+- Part of #1175. `api/routers/scan.py` imported `ml.pipeline` (cv2/numpy) at module load, blocking a lean deploy. Moved the import inside the `/scan` endpoint (before the threadpool so the broad `except → 500` doesn't swallow it) → the app boots without the `ml` extra; OCR degrades to 503. `api/schemas/scan.py` re-exports `ml.schemas` (pydantic-only) — no decoupling needed.
+- Reviews — Copilot (1): strengthened the lazy-import guard via module reload (a `hasattr` check missed a bare `import ml.pipeline`). 7 tests; CI `beer-encyclopedia` green.
+
+### PR #1176 merged (`4ff5f8c`) — docs(adr): ADR-0015 — beer ingestion & enrichment strategy
+
+- Branch `docs/adr-0015-ingestion-enrichment`, squash of review commits (`7314ca1` … `4960173`). Status **Proposed**.
+- Part of #1175. Crystallizes the scan → enrich → staging → human-gated-promotion strategy; realizes existing conception (UC4/UC5/UC9), no redesign.
+- Reviews — Codex (2, P2) + Copilot (4), all resolved: corrected the `Beer.source` whitelist "no schema change" claim, the `EntitySource`-vs-`Beer` provenance, the `security-policy` → `SECURITY.md` reference; added the ADR-0013 index row + removed the stale note.
+- **Decisions**:
+  - `staging-then-human-promotion` — every ingested beer is `is_verified=false`; promotion is always via the UC9 moderation queue, no auto-promotion (D1/D3/D4). Recorded on ADR-0015 / #1175.
+  - `multi-source-veracity` — corroboration × per-source reliability → a per-field veracity coefficient driving moderation-queue priority (D5). Recorded on ADR-0015 / #1175.
+
 ## 2026-06-03
 
 ### PR #1170 merged (`a3f4d8b`) — feat(api/seeds): seed ingredients + steps for scan-reachable public recipes

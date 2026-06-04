@@ -195,8 +195,79 @@ def _map_product_to_snapshot(
         country_of_origin=_pick_country_iso2(product),
         allergens=_pick_allergens(product),
         image_url=_pick_image_url(product),
+        style_slug=_pick_style_slug(product),
+        description=_pick_description(product),
         raw_payload=product,
     )
+
+
+# Maps an OFF category-tag keyword to one of the seeded `Style.slug`
+# values (see scripts/seed_styles.py). Ordered most-specific first so a
+# Punk IPA (`en:punk-ipa`, `en:pale-ales`) resolves to `ipa`, not a
+# broader style. Only confident, unambiguous keywords are listed —
+# anything unmatched stays `None` (no style guessed) rather than risking
+# a wrong classification the moderation queue would have to undo.
+_OFF_CATEGORY_STYLE_RULES: tuple[tuple[str, str], ...] = (
+    ("ipa", "ipa"),
+    ("stout", "stout"),
+    ("porter", "porter"),
+    ("pilsner", "pilsner"),
+    ("pils", "pilsner"),
+    ("hefeweizen", "hefeweizen"),
+    ("weizen", "hefeweizen"),
+    ("weiss", "hefeweizen"),
+    ("witbier", "wheat"),
+    ("wheat", "wheat"),
+    ("blanche", "wheat"),
+    ("quadrupel", "quadrupel"),
+    ("dubbel", "dubbel"),
+    ("tripel", "tripel"),
+    ("barley-wine", "barleywine"),
+    ("barleywine", "barleywine"),
+    ("saison", "saison"),
+    ("lambic", "sour"),
+    ("gose", "sour"),
+    ("sour", "sour"),
+    ("amber", "amber_ale"),
+    ("blonde", "blonde_ale"),
+    ("blond", "blonde_ale"),
+    ("lager", "lager"),
+)
+
+
+def _pick_style_slug(product: dict[str, object]) -> str | None:
+    """Resolve a canonical style slug from OFF's category taxonomy.
+
+    Scans ``categories_tags`` (e.g. ``["en:beers", "en:ales",
+    "en:pale-ales", "en:punk-ipa"]``) against `_OFF_CATEGORY_STYLE_RULES`
+    and returns the first confident match. Returns ``None`` when no rule
+    matches, so beers without a recognisable style stay unclassified
+    rather than mislabelled.
+    """
+
+    tags = product.get("categories_tags")
+    if not isinstance(tags, list):
+        return None
+    haystack = " ".join(t.lower() for t in tags if isinstance(t, str))
+    for keyword, slug in _OFF_CATEGORY_STYLE_RULES:
+        if keyword in haystack:
+            return slug
+    return None
+
+
+def _pick_description(product: dict[str, object]) -> str | None:
+    """Return a short free-text description from OFF.
+
+    Uses the localised then canonical ``ingredients_text`` (OFF rarely
+    carries a real beer description, but the ingredients list is useful
+    content for the fiche). ``None`` when absent/empty.
+    """
+
+    for key in ("ingredients_text_fr", "ingredients_text", "ingredients_text_en"):
+        value = product.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
 
 
 def _pick_name(product: dict[str, object]) -> str:

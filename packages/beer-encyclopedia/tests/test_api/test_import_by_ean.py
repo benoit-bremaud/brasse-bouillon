@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.main import app
 from api.routers.beers import get_openfoodfacts_client
-from db.models import Beer, Brewery, EntitySource, Source
+from db.models import Beer, Brewery, EntitySource, Source, Style
 from importers.base import ExternalBeerSnapshot
 from importers.openfoodfacts import OpenFoodFactsError
 from scripts.seed_sources import seed_sources
@@ -156,6 +156,68 @@ async def test_first_import_creates_beer_and_returns_201(
     assert audit.entity_id == beer.id
     assert audit.raw_data == snapshot.raw_payload
     assert audit.last_synced_at is not None
+
+
+async def test_import_links_resolved_style_and_description(
+    client: TestClient,
+    db_session: AsyncSession,
+    stub_off_factory,  # type: ignore[no-untyped-def]
+    seeded_source: Source,
+) -> None:
+    """A snapshot whose OFF categories resolved to a seeded style + an
+    ingredients description persists `Beer.style_id` and `Beer.description`."""
+    ipa = Style(name="India Pale Ale", slug="ipa", category="Ale")
+    db_session.add(ipa)
+    await db_session.flush()
+
+    snapshot = ExternalBeerSnapshot(
+        external_id=EAN_PELFORTH,
+        name="Hazy IPA",
+        brand="Some Brewery",
+        style_slug="ipa",
+        description="Eau, malt d'orge, houblon, levure.",
+        raw_payload={"code": EAN_PELFORTH},
+    )
+    stub_off_factory(lambda _: snapshot)
+
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
+    assert response.status_code == 201
+
+    beer = (
+        await db_session.execute(
+            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
+        )
+    ).scalar_one()
+    assert beer.style_id == ipa.id
+    assert beer.description == "Eau, malt d'orge, houblon, levure."
+
+
+async def test_import_leaves_style_none_when_slug_not_seeded(
+    client: TestClient,
+    db_session: AsyncSession,
+    stub_off_factory,  # type: ignore[no-untyped-def]
+    seeded_source: Source,
+) -> None:
+    """An unrecognised style slug (no matching seeded Style) leaves the beer
+    unclassified — the importer links to existing styles, never creates them."""
+    snapshot = ExternalBeerSnapshot(
+        external_id=EAN_PELFORTH,
+        name="Mystery Brew",
+        brand=None,
+        style_slug="not-a-seeded-style",
+        raw_payload={"code": EAN_PELFORTH},
+    )
+    stub_off_factory(lambda _: snapshot)
+
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
+    assert response.status_code == 201
+
+    beer = (
+        await db_session.execute(
+            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
+        )
+    ).scalar_one()
+    assert beer.style_id is None
 
 
 async def test_import_creates_brewery_with_unique_slug(

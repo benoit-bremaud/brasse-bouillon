@@ -23,7 +23,7 @@ Couvre le domaine **beer-encyclopedia** (backend). S'étendra aux autres package
 | Classes — contrat API (DTO) | [`07-class-api-contract.md`](diagrams/beer-encyclopedia/07-class-api-contract.md) | 🎯 cible (`BeerRead` + `brewery_name`/`style_name` dénormalisés ; code à conformer) |
 | États | [`05-state.md`](diagrams/beer-encyclopedia/05-state.md) | ✅ (modération + provenance) |
 | Data-flow | [`06-data-flow.md`](diagrams/beer-encyclopedia/06-data-flow.md) | ✅ (import EAN + PII) |
-| Séquence mobile — UC4 (scan + affichage) | _(package mobile, futur chantier mobile↔API)_ | ⬜ à créer |
+| Séquence mobile — UC4 (scan + affichage) | [`08-sequence-mobile-scan.md`](diagrams/beer-encyclopedia/08-sequence-mobile-scan.md) | 🎯 cible (encyclopedia-first ; cutover #1186 ; code à conformer) |
 
 ## Matrice — cas d'usage → réalisations
 

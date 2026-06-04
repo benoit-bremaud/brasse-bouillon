@@ -10,6 +10,7 @@ and /scan's failure paths short-circuit before reaching the pipeline.
 from __future__ import annotations
 
 import io
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -69,3 +70,37 @@ def test_app_exposes_scan_router_routes() -> None:
     paths = {route.path for route in app.routes if hasattr(route, "methods")}
     assert "/health" in paths
     assert "/scan" in paths
+
+
+def test_scan_module_does_not_import_ml_at_load() -> None:
+    """The ML pipeline must be imported lazily (inside the endpoint), so the
+    service boots on a lean EAN/OpenFoodFacts deployment without the heavy
+    CV/OCR stack (ADR-0015). If `scan_image` is a module-level global, the
+    import moved back to module scope and the blocker has regressed."""
+
+    import api.routers.scan as scan_module
+
+    assert not hasattr(scan_module, "scan_image"), (
+        "scan_image must be imported lazily inside the endpoint, not at module load"
+    )
+
+
+def test_scan_returns_503_when_ml_pipeline_unavailable(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """On a deployment without the ML extra installed, the lazy
+    `from ml.pipeline import scan_image` raises ImportError; the endpoint must
+    degrade to a clean 503, not crash with a 500. Setting the module to None in
+    sys.modules makes the import fail with ImportError (the standard
+    simulation)."""
+
+    monkeypatch.setitem(sys.modules, "ml.pipeline", None)
+
+    response = client.post(
+        "/scan",
+        files={"file": ("label.jpg", io.BytesIO(b"\xff\xd8\xff"), "image/jpeg")},
+    )
+
+    assert response.status_code == 503
+    assert "available" in response.json()["detail"].lower()

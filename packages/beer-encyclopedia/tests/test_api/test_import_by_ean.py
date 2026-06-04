@@ -183,6 +183,12 @@ async def test_import_links_resolved_style_and_description(
     response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert response.status_code == 201
 
+    # The response carries the denormalised names (07-class-api-contract) so
+    # the mobile fiche shows them without a second round-trip.
+    body = response.json()
+    assert body["style_name"] == "India Pale Ale"
+    assert body["brewery_name"] == "Some Brewery"
+
     beer = (
         await db_session.execute(
             select(Beer).where(Beer.ean_code == EAN_PELFORTH)
@@ -211,6 +217,11 @@ async def test_import_leaves_style_none_when_slug_not_seeded(
 
     response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert response.status_code == 201
+
+    # No brewery (brand None) and no resolvable style → both names null.
+    body = response.json()
+    assert body["style_name"] is None
+    assert body["brewery_name"] is None
 
     beer = (
         await db_session.execute(

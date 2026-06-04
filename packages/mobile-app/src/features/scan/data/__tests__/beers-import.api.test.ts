@@ -30,6 +30,8 @@ type PythonBeerReadDto = {
   slug: string;
   brewery_id: string | null;
   style_id: string | null;
+  brewery_name: string | null;
+  style_name: string | null;
   abv: string | null;
   ibu: number | null;
   srm: number | null;
@@ -55,6 +57,8 @@ function buildDto(
     slug: "pelforth-brune",
     brewery_id: "b1d2c3e4-1111-2222-3333-444455556666",
     style_id: "5d6e7f80-aaaa-bbbb-cccc-ddddeeee0001",
+    brewery_name: "Pelforth",
+    style_name: "Brune",
     abv: "6.5",
     ibu: 22,
     srm: 30,
@@ -205,8 +209,21 @@ describe("beers-import.api / importBeerByEan", () => {
       expect(item.fetchedAt).toBeNull();
     });
 
-    it("substitutes 'Brasserie inconnue' / 'Style inconnu' placeholders (FK UUIDs not yet enriched)", async () => {
-      mockRequest.mockResolvedValueOnce(buildDto());
+    it("uses the server-resolved brewery_name / style_name when present", async () => {
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ brewery_name: "BrewDog", style_name: "India Pale Ale" }),
+      );
+
+      const { item } = await importBeerByEan("3760231860119");
+
+      expect(item.brewery).toBe("BrewDog");
+      expect(item.style).toBe("India Pale Ale");
+    });
+
+    it("falls back to placeholders when brewery_name / style_name are null", async () => {
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ brewery_name: null, style_name: null }),
+      );
 
       const { item } = await importBeerByEan("3760231860119");
 

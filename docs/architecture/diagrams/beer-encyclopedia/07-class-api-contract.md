@@ -11,7 +11,8 @@
 contrat** : les DTO Pydantic que l'API sérialise en entrée/sortie HTTP — distincts des
 entités. Il existe parce que des **clients externes** en dépendent : le mobile lit
 `BeerRead` via le fallback scan (`mapPythonBeerToCatalogItem` dans
-`features/scan/data/beers-import.api.ts`), et la séquence `import-by-ean` (UC4) répond
+`packages/mobile-app/src/features/scan/data/beers-import.api.ts`), et la séquence
+`import-by-ean` (UC4) répond
 `200/201 (BeerRead)`.
 
 **Décision modélisée ici (target) :** `BeerRead` expose **`brewery_name` et `style_name`
@@ -54,7 +55,7 @@ classDiagram
     +bool is_verified?
   }
   class BeerRead {
-    <<from_attributes=true>>
+    <<from_attributes>>
     +UUID id
     +str slug
     +str brewery_name?

@@ -140,15 +140,15 @@ export async function lookupBeerByBarcode(
     return await fetchImportFromEncyclopedia(barcode);
   } catch (error) {
     if (error instanceof HttpError) {
-      if (error.status === 404) {
-        // Neither the encyclopedia DB nor OFF knows this barcode.
-        throw new ScanLookupBeerNotFoundError(barcode);
-      }
-      if (error.status === 503) {
-        // Transitional only (removed at the target state, #1186): the
-        // encyclopedia is unavailable (down, OFF transport failure, or
-        // its URL not configured) — fall back to the legacy NestJS
-        // lookup so a scan still resolves while the cutover settles.
+      if (error.status === 404 || error.status === 503) {
+        // Transitional (#1186 / #1150): the encyclopedia does not know the
+        // barcode (404) or is unavailable (503). Fall back to the legacy
+        // NestJS lookup, which may still hold a seed/manual `scan_catalog`
+        // row not yet migrated into `beers` — without this, an encyclopedia
+        // 404 would regress a previously-working scan to not-found. At the
+        // target state (after the scan_catalog → beers migration #1150) a
+        // 404 becomes "not recognised" directly and this fallback is
+        // removed. See 08-sequence-mobile-scan.
         return await fallbackToNestJsLookup(barcode);
       }
     }

@@ -161,17 +161,6 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       expect(mockFetchLookup).not.toHaveBeenCalled();
     });
 
-    it("maps an encyclopedia 404 to ScanLookupBeerNotFoundError without falling back to NestJS", async () => {
-      mockFetchImport.mockRejectedValueOnce(
-        new HttpError(404, "EAN unknown to DB and OFF"),
-      );
-
-      await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
-        ScanLookupBeerNotFoundError,
-      );
-      expect(mockFetchLookup).not.toHaveBeenCalled();
-    });
-
     it("re-throws an encyclopedia 422 (other validation, not NOT_A_BEER) untouched", async () => {
       const validationError = new HttpError(422, "Some other 422", {
         statusCode: 422,
@@ -206,7 +195,34 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
     });
   });
 
-  describe("NestJS fallback (transitional — only on encyclopedia 503)", () => {
+  describe("NestJS fallback (transitional — on encyclopedia 404 or 503)", () => {
+    it("falls back to NestJS when the encyclopedia 404s (a seed/manual row not yet migrated) and returns its result", async () => {
+      const seedResult = {
+        item: { barcode: "1234567890123", name: "Seed-only beer" } as never,
+        source: "cache_hit_fresh" as const,
+        rawPayloadAvailable: false,
+      };
+      mockFetchImport.mockRejectedValueOnce(
+        new HttpError(404, "EAN unknown to DB and OFF"),
+      );
+      mockFetchLookup.mockResolvedValueOnce(seedResult);
+
+      const result = await lookupBeerByBarcode("1234567890123");
+
+      expect(result).toBe(seedResult);
+      expect(mockFetchImport).toHaveBeenCalledWith("1234567890123");
+      expect(mockFetchLookup).toHaveBeenCalledWith("1234567890123");
+    });
+
+    it("maps to ScanLookupBeerNotFoundError when both the encyclopedia and NestJS 404", async () => {
+      mockFetchImport.mockRejectedValueOnce(new HttpError(404, "unknown"));
+      mockFetchLookup.mockRejectedValueOnce(new HttpError(404, "unknown"));
+
+      await expect(lookupBeerByBarcode("1234567890123")).rejects.toBeInstanceOf(
+        ScanLookupBeerNotFoundError,
+      );
+    });
+
     it("falls back to NestJS when the encyclopedia is unavailable (503) and returns its result", async () => {
       const fallbackResult = {
         item: { barcode: "3770012913076", name: "Biere A la fut IPA" } as never,

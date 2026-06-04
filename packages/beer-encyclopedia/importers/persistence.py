@@ -213,9 +213,14 @@ def _refresh_beer_fields(
 
     - **Fill ``style_id`` / ``description`` only when empty.** These can
       now be derived from the source (style from OFF categories,
-      description from the ingredients list), so a re-import backfills
-      them when the row has none yet — but a non-null value (a
-      moderator's correction or an earlier source) is kept untouched.
+      description from the ingredients list), so this path fills them
+      when the row has none yet, while a non-null value (a moderator's
+      correction or an earlier source) is kept untouched. Note this only
+      runs when a fetch actually reaches the upsert: the current
+      ``POST /beers/import-by-ean`` route is DB-first and returns a known
+      EAN from the cache **without** re-fetching, so existing rows are
+      not backfilled by a plain duplicate import — that needs a real
+      re-fetch (a future refresh flag, or delete + re-import).
 
     - **Never clear on refresh.** A re-import only writes a value when
       the snapshot carries one (``brewery is not None``,

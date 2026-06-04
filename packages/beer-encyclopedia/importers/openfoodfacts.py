@@ -29,6 +29,7 @@ contact channel.
 from __future__ import annotations
 
 import os
+import re
 from decimal import Decimal, InvalidOperation
 
 import httpx
@@ -243,14 +244,34 @@ def _pick_style_slug(product: dict[str, object]) -> str | None:
     and returns the first confident match. Returns ``None`` when no rule
     matches, so beers without a recognisable style stay unclassified
     rather than mislabelled.
+
+    Matching is **segment-based**, not a raw substring search: each tag
+    has its ``xx:`` language prefix stripped and is split on ``-``/``_``
+    into segments, and a single-word keyword matches only a whole segment
+    (tolerating a simple ``s``/``es`` plural). This avoids false positives
+    like ``en:camembert`` → ``amber`` that a substring search would
+    produce. Hyphenated keywords (e.g. ``barley-wine``) fall back to a
+    per-tag substring match since they span segments.
     """
 
     tags = product.get("categories_tags")
     if not isinstance(tags, list):
         return None
-    haystack = " ".join(t.lower() for t in tags if isinstance(t, str))
+
+    segments: set[str] = set()
+    leaf_tags: list[str] = []
+    for tag in tags:
+        if not isinstance(tag, str):
+            continue
+        leaf = tag.lower().rpartition(":")[2] or tag.lower()
+        leaf_tags.append(leaf)
+        segments.update(seg for seg in re.split(r"[-_]", leaf) if seg)
+
     for keyword, slug in _OFF_CATEGORY_STYLE_RULES:
-        if keyword in haystack:
+        if "-" in keyword:
+            if any(keyword in leaf for leaf in leaf_tags):
+                return slug
+        elif segments & {keyword, f"{keyword}s", f"{keyword}es"}:
             return slug
     return None
 

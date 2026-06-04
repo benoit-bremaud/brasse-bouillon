@@ -339,6 +339,25 @@ def test_pick_style_slug_returns_none_without_a_category_list() -> None:
     assert _pick_style_slug({"categories_tags": "en:beers"}) is None
 
 
+def test_pick_style_slug_ignores_substring_false_positives() -> None:
+    # `en:camembert` contains the substring "amber" but is not a beer
+    # style — segment matching must not map it to `amber_ale` (a raw
+    # substring search would). Likewise "sourdough" must not match "sour".
+    assert (
+        _pick_style_slug({"categories_tags": ["en:cheeses", "en:camembert"]})
+        is None
+    )
+    assert (
+        _pick_style_slug({"categories_tags": ["en:breads", "en:sourdough-bread"]})
+        is None
+    )
+
+
+def test_pick_style_slug_tolerates_plural_segment() -> None:
+    # OFF pluralises leaf categories (`en:stouts`, `en:porters`).
+    assert _pick_style_slug({"categories_tags": ["en:porters"]}) == "porter"
+
+
 # --- Description mapping (OFF ingredients text) --------------------------
 
 

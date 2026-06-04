@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.slug import build_unique_slug
-from db.models import Beer, Brewery, EntitySource, Source
+from db.models import Beer, Brewery, EntitySource, Source, Style
 from importers.base import ExternalBeerSnapshot
 
 
@@ -61,6 +61,7 @@ async def upsert_beer_from_snapshot(
 
     source = await _fetch_source_or_raise(session, source_name=source_name)
     brewery = await _upsert_brewery(session, name=snapshot.brand)
+    style = await _resolve_style(session, slug=snapshot.style_slug)
 
     existing_beer = (
         await session.execute(
@@ -73,11 +74,14 @@ async def upsert_beer_from_snapshot(
             session,
             snapshot=snapshot,
             brewery=brewery,
+            style=style,
             source_name=source_name,
         )
         created = True
     else:
-        _refresh_beer_fields(existing_beer, snapshot=snapshot, brewery=brewery)
+        _refresh_beer_fields(
+            existing_beer, snapshot=snapshot, brewery=brewery, style=style
+        )
         beer = existing_beer
         created = False
 
@@ -140,11 +144,28 @@ async def _upsert_brewery(
     return brewery
 
 
+async def _resolve_style(
+    session: AsyncSession, *, slug: str | None
+) -> Style | None:
+    """Look up a seeded ``Style`` by slug. Returns ``None`` when the
+    snapshot carries no style hint or the slug is not in the catalogue —
+    the importer only links to styles that already exist (it never
+    creates them), so an unrecognised slug leaves the beer unclassified.
+    """
+
+    if slug is None:
+        return None
+    return (
+        await session.execute(select(Style).where(Style.slug == slug))
+    ).scalar_one_or_none()
+
+
 async def _create_beer(
     session: AsyncSession,
     *,
     snapshot: ExternalBeerSnapshot,
     brewery: Brewery | None,
+    style: Style | None,
     source_name: str,
 ) -> Beer:
     """Insert a new beer row carrying the snapshot's payload.
@@ -161,7 +182,9 @@ async def _create_beer(
         name=snapshot.name,
         slug=slug,
         brewery_id=brewery.id if brewery is not None else None,
+        style_id=style.id if style is not None else None,
         abv=snapshot.abv,
+        description=snapshot.description,
         country_of_origin=snapshot.country_of_origin,
         allergens=list(snapshot.allergens) or None,
         ean_code=snapshot.external_id,
@@ -178,17 +201,26 @@ def _refresh_beer_fields(
     *,
     snapshot: ExternalBeerSnapshot,
     brewery: Brewery | None,
+    style: Style | None,
 ) -> None:
     """Update mutable fields on an existing beer row.
 
-    Two layered policies:
+    Three layered policies:
 
-    - **Never overwrite hand-edited fields.** ``name``, ``slug``,
-      ``description``, ``style_id`` and ``legal_denomination`` are
-      preserved unconditionally — they may have been corrected by a
-      moderator or refined by another source, and we do not have
-      enough context to know whether the snapshot value is more
-      accurate.
+    - **Never overwrite hand-edited fields.** ``name``, ``slug`` and
+      ``legal_denomination`` are preserved unconditionally — they may
+      have been corrected by a moderator or refined by another source.
+
+    - **Fill ``style_id`` / ``description`` only when empty.** These can
+      now be derived from the source (style from OFF categories,
+      description from the ingredients list), so this path fills them
+      when the row has none yet, while a non-null value (a moderator's
+      correction or an earlier source) is kept untouched. Note this only
+      runs when a fetch actually reaches the upsert: the current
+      ``POST /beers/import-by-ean`` route is DB-first and returns a known
+      EAN from the cache **without** re-fetching, so existing rows are
+      not backfilled by a plain duplicate import — that needs a real
+      re-fetch (a future refresh flag, or delete + re-import).
 
     - **Never clear on refresh.** A re-import only writes a value when
       the snapshot carries one (``brewery is not None``,
@@ -203,6 +235,10 @@ def _refresh_beer_fields(
 
     if brewery is not None:
         beer.brewery_id = brewery.id
+    if style is not None and beer.style_id is None:
+        beer.style_id = style.id
+    if snapshot.description and not beer.description:
+        beer.description = snapshot.description
     if snapshot.abv is not None:
         beer.abv = snapshot.abv
     if snapshot.country_of_origin is not None:

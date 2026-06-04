@@ -23,6 +23,8 @@ from importers.openfoodfacts import (
     DEFAULT_BASE_URL,
     OpenFoodFactsClient,
     OpenFoodFactsError,
+    _pick_description,
+    _pick_style_slug,
 )
 
 # Type alias for the mock-transport handler signature so every test
@@ -54,6 +56,8 @@ async def test_fetch_by_ean_returns_full_snapshot_for_known_product() -> None:
             "allergens_tags": ["en:gluten"],
             "image_front_url": "https://example.org/pelforth.jpg",
             "nutriments": {"alcohol_value": 6.5, "alcohol_unit": "% vol"},
+            "categories_tags": ["en:beers", "en:ales", "en:brown-ales"],
+            "ingredients_text": "Eau, malt d'orge, houblon, levure.",
         },
     }
 
@@ -72,6 +76,10 @@ async def test_fetch_by_ean_returns_full_snapshot_for_known_product() -> None:
     assert snapshot.country_of_origin == "FR"
     assert snapshot.allergens == ["gluten"]
     assert snapshot.image_url == "https://example.org/pelforth.jpg"
+    assert snapshot.description == "Eau, malt d'orge, houblon, levure."
+    # `en:brown-ales` maps to no seeded style → stays None (no
+    # over-classification), unlike the IPA case covered below.
+    assert snapshot.style_slug is None
     # Audit trail keeps the full source payload.
     assert snapshot.raw_payload == payload["product"]
 
@@ -301,3 +309,73 @@ async def test_image_url_falls_back_to_image_url_when_front_missing() -> None:
 
     assert snapshot is not None
     assert snapshot.image_url == "https://example.org/fallback.jpg"
+
+
+# --- Style mapping (OFF categories → seeded Style slug) ------------------
+
+
+def test_pick_style_slug_resolves_ipa_from_punk_ipa_categories() -> None:
+    product: dict[str, object] = {
+        "categories_tags": ["en:beers", "en:ales", "en:pale-ales", "en:punk-ipa"]
+    }
+    assert _pick_style_slug(product) == "ipa"
+
+
+def test_pick_style_slug_resolves_stout() -> None:
+    assert _pick_style_slug({"categories_tags": ["en:beers", "en:stouts"]}) == "stout"
+
+
+def test_pick_style_slug_returns_none_when_no_rule_matches() -> None:
+    # A bare beers/ales pair maps to no specific seeded style — better
+    # unclassified than mislabelled.
+    product: dict[str, object] = {
+        "categories_tags": ["en:beverages", "en:beers", "en:ales"]
+    }
+    assert _pick_style_slug(product) is None
+
+
+def test_pick_style_slug_returns_none_without_a_category_list() -> None:
+    assert _pick_style_slug({}) is None
+    assert _pick_style_slug({"categories_tags": "en:beers"}) is None
+
+
+def test_pick_style_slug_ignores_substring_false_positives() -> None:
+    # `en:camembert` contains the substring "amber" but is not a beer
+    # style — segment matching must not map it to `amber_ale` (a raw
+    # substring search would). Likewise "sourdough" must not match "sour".
+    assert (
+        _pick_style_slug({"categories_tags": ["en:cheeses", "en:camembert"]})
+        is None
+    )
+    assert (
+        _pick_style_slug({"categories_tags": ["en:breads", "en:sourdough-bread"]})
+        is None
+    )
+
+
+def test_pick_style_slug_tolerates_plural_segment() -> None:
+    # OFF pluralises leaf categories (`en:stouts`, `en:porters`).
+    assert _pick_style_slug({"categories_tags": ["en:porters"]}) == "porter"
+
+
+# --- Description mapping (OFF ingredients text) --------------------------
+
+
+def test_pick_description_uses_ingredients_text() -> None:
+    assert (
+        _pick_description({"ingredients_text": "Eau, malt, houblon."})
+        == "Eau, malt, houblon."
+    )
+
+
+def test_pick_description_prefers_french_then_english_fallback() -> None:
+    assert (
+        _pick_description({"ingredients_text_fr": "FR", "ingredients_text": "EN"})
+        == "FR"
+    )
+    assert _pick_description({"ingredients_text_en": "EN only"}) == "EN only"
+
+
+def test_pick_description_returns_none_when_absent_or_blank() -> None:
+    assert _pick_description({}) is None
+    assert _pick_description({"ingredients_text": "   "}) is None

@@ -28,14 +28,16 @@ RUN pip install . "aiosqlite>=0.20"
 
 EXPOSE 8080
 
-# Boot sequence (all idempotent): apply migrations, ensure the
-# `openfoodfacts` Source row exists (a FK requirement for
-# /beers/import-by-ean — without it the endpoint 503s on a fresh volume),
-# then `exec` uvicorn so it replaces the shell and runs as PID 1 — giving
-# Fly's SIGTERM proper graceful-shutdown handling. A failed migration or seed
-# exits the container and Fly restarts it. (Reference data — styles, legal
-# denominations — stays a manual one-off seed; only the source is required to
-# serve imports.)
+# Boot sequence (all idempotent): apply migrations, then seed the catalogue
+# the import path depends on — the `openfoodfacts` Source (a FK requirement
+# for /beers/import-by-ean; without it the endpoint 503s on a fresh volume)
+# and the Style rows (so OFF category → Style resolution actually links a
+# `style_id` instead of silently staying null on a fresh volume). Finally
+# `exec` uvicorn so it replaces the shell and runs as PID 1 — giving Fly's
+# SIGTERM proper graceful-shutdown handling. A failed migration or seed exits
+# the container and Fly restarts it. (Legal denominations stay a manual
+# one-off seed; they are not on the scan/import hot path.)
 CMD alembic upgrade head \
     && python scripts/seed_sources.py \
+    && python scripts/seed_styles.py \
     && exec uvicorn api.main:app --host 0.0.0.0 --port 8080

@@ -46,6 +46,15 @@ class ExternalBeerSnapshot:
     image_url: str | None = None
     """URL of the front-label image, when the source publishes one."""
 
+    style_slug: str | None = None
+    """Resolved canonical style slug (e.g. ``"ipa"``) when the source's
+    category taxonomy maps to one of the seeded ``Style`` rows; ``None``
+    when no confident match. Persistence looks it up against ``Style.slug``."""
+
+    description: str | None = None
+    """Free-text description (e.g. the source's ingredients list) when
+    available. ``None`` when the source omits it."""
+
     raw_payload: dict[str, object] = field(default_factory=dict)
     """Original payload kept for the ``EntitySource.raw_data`` audit trail.
 

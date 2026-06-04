@@ -19,11 +19,14 @@ fiche **pauvre** (juste le nom) ; l'encyclopedia riche n'était atteinte qu'en *
 l'enrichissement (#1182/#1185) était donc court-circuité. Le cutover inverse la priorité.
 
 **Migration en deux temps :**
-1. **Transitoire** (petit, OTA) — encyclopedia **d'abord**, NestJS en **secours** sur `503`
-   (réversible, NestJS reste un filet le temps de valider).
-2. **Cible** — encyclopedia **seule** ; NestJS sort du chemin scan (`GET /scan/lookup` +
-   `scan_catalog_items` + son client OFF retirés). NestJS garde son domaine : auth, recettes,
-   brassins, academy, feedback.
+1. **Transitoire** (petit, OTA) — encyclopedia **d'abord**, NestJS en **secours** sur `404`
+   **ou** `503`. Le secours sur `404` est requis tant que la migration
+   `scan_catalog_items → beers` (#1150) n'est pas faite : une bière présente **uniquement**
+   dans une ligne seed/manual côté NestJS régresserait sinon en « non reconnue ». Réversible,
+   NestJS reste un filet le temps de valider.
+2. **Cible** — encyclopedia **seule** ; un `404` devient « non reconnue » directement et NestJS
+   sort du chemin scan (`GET /scan/lookup` + `scan_catalog_items` + son client OFF retirés).
+   NestJS garde son domaine : auth, recettes, brassins, academy, feedback.
 
 **Note auth.** L'encyclopedia est **publique/sans auth** (cohérent avec sa vocation de
 référence publique, ADR-0005) → les **lectures** deviennent publiques ; l'**écriture** d'un
@@ -55,16 +58,19 @@ sequenceDiagram
       E-->>M: 200/201 BeerRead (nom, brewery_name, style_name, abv, description, …)
       M->>M: mappe → ScanCatalogItem
       M-->>U: fiche enrichie
-    else 404 (ni DB ni OFF ne connaissent)
-      E-->>M: 404
-      M-->>U: "bière non reconnue" (futur : capture étiquette UC5)
-    else 503 (encyclopedia indisponible)
-      E-->>M: 503
-      Note over M,N: TRANSITOIRE uniquement — retiré à la cible
-      M->>N: GET /scan/lookup/:ean (secours)
-      N-->>M: fiche (pauvre) ou 404/503
-      M-->>U: fiche de secours ou "indisponible"
+    else 404 (inconnue) ou 503 (indisponible) — secours TRANSITOIRE
+      E-->>M: 404 ou 503
+      Note over M,N: TRANSITOIRE (jusqu'à la migration scan_catalog→beers #1150) — retiré à la cible
+      M->>N: GET /scan/lookup/:ean (peut détenir une ligne seed/manual)
+      alt NestJS sert
+        N-->>M: fiche (pauvre)
+        M-->>U: fiche de secours
+      else NestJS 404 / 503
+        N-->>M: 404 / 503
+        M-->>U: "non reconnue" (futur UC5) / "indisponible"
+      end
     end
+    Note over M: Cible (post-#1150) : un 404 encyclopedia → "non reconnue" directement, sans NestJS
   end
 ```
 
@@ -92,15 +98,17 @@ else live — encyclopedia d'abord
     E -> E : upsert Beer(is_verified=false) + EntitySource
     E --> M : 200/201 BeerRead (riche)
     M --> U : fiche enrichie
-  else 404
-    E --> M : 404
-    M --> U : non reconnue (futur UC5)
-  else 503
-    E --> M : 503
-    note over M, N : TRANSITOIRE — retiré à la cible
-    M -> N : GET /scan/lookup/:ean
-    N --> M : fiche pauvre / 404 / 503
-    M --> U : secours / indisponible
+  else 404 (inconnue) ou 503 (indisponible) — secours TRANSITOIRE
+    E --> M : 404 ou 503
+    note over M, N : TRANSITOIRE (jusqu'à migration #1150) — retiré à la cible
+    M -> N : GET /scan/lookup/:ean (peut détenir une ligne seed/manual)
+    alt NestJS sert
+      N --> M : fiche pauvre
+      M --> U : fiche de secours
+    else NestJS 404 / 503
+      N --> M : 404 / 503
+      M --> U : non reconnue (futur UC5) / indisponible
+    end
   end
 end
 @enduml
@@ -108,9 +116,12 @@ end
 
 ## Notes
 
-- **Cible vs transitoire.** Le bloc `503 → NestJS` est **transitoire** : un filet le temps de
-  valider l'encyclopedia-first par OTA. À la cible, ce bloc disparaît (un `503` devient
-  directement « service indisponible ») et le chemin scan de NestJS est retiré (issue #1186).
+- **Cible vs transitoire.** Le secours NestJS sur `404`/`503` est **transitoire** : un filet le
+  temps de valider l'encyclopedia-first par OTA, et **surtout** tant que `scan_catalog_items`
+  n'est pas migré vers `beers` (#1150) — sans le secours sur `404`, une bière présente seulement
+  en seed/manual côté NestJS régresserait en « non reconnue ». À la cible (post-#1150), ce bloc
+  disparaît : un `404` devient « non reconnue » et un `503` « service indisponible »
+  directement, et le chemin scan de NestJS est retiré (issue #1186).
 - **Écriture sur lecture.** `import-by-ean` **persiste** (upsert) à chaque résolution réussie :
   le cutover fait donc que **chaque scan mainstream nourrit l'encyclopedia** (objectif
   d'enrichissement de la base), au lieu de remplir `scan_catalog_items` côté NestJS.

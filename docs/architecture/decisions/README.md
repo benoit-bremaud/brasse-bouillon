@@ -50,6 +50,7 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0010](0010-recipe-step-type-nine-phase.md) | Extend `RecipeStepType` to the 9-phase brewing set | Proposed | 2026-05-25 |
 | [0011](0011-creator-role-above-admin.md) | Single-holder `CREATOR` role above `ADMIN` | Proposed | 2026-05-25 |
 | [0012](0012-rgpd-anonymize-authored-public-content.md) | RGPD: anonymize authored public content on deletion | Proposed | 2026-05-25 |
+| [0013](0013-beer-canonical-model-and-conception-order.md) | Canonical beer model, scan-catalog reconciliation, and conception order | Accepted | 2026-05-29 |
 | [0014](0014-website-hosting-cloudflare-pages-dns.md) | Website hosting on Cloudflare Pages, DNS authority on Cloudflare | Accepted | 2026-05-29 |
 | [0015](0015-beer-ingestion-enrichment-strategy.md) | Beer ingestion & enrichment strategy (multi-source → staging → human-gated promotion) | Proposed | 2026-06-04 |
 
@@ -57,10 +58,6 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 > referenced by open epics: 0006 — private journal vs. social product (#833),
 > 0007 — monetization model (#834, #879, #883), 0008 — AI-generated content
 > policy (#834). They will be added here when drafted.
->
-> **0013** (beer canonical model & conception order) is being drafted on a
-> separate branch and is not yet merged to `main`; it will be added to this
-> index when it lands. That is why the index jumps from 0012 to 0014.
 
 ---
 

@@ -56,8 +56,11 @@
    primary source — the machine is built and proven on the barcode path
    (already delivered backend). Craft **label/OCR (UC5)** and
    **web/directory/AI research** sources are plugged into the **same** machine
-   afterward. Adding a source = a new `Source` row + an importer + a value in
-   the `source` enum — **no schema change**.
+   afterward. Adding a source = a new `Source` row + an importer + extending the
+   `Beer.source` whitelist (`BEER_SOURCE_VALUES` in `db/models/beer.py`, today
+   `{openfoodfacts, internal, community}`, enforced by an ORM validator and the
+   `ck_beers_source_valid` CHECK) — i.e. **a code change + a small constraint
+   migration, but no new tables/columns** (#1156 covers the `scan` value).
 
 4. **Insufficient data is staged, never rejected outright.**
    - Confident identification with **partial** fields → an **unverified
@@ -69,9 +72,15 @@
      `Beer` until approved.
 
 5. **Multi-source provenance.** Each source contribution is an `EntitySource`
-   row, polymorphic over `Beer` **and** `Brewery`. One entity accumulates
-   `EntitySource` rows across sources; provenance (`contributed_by/at`,
-   `approved_at`) is recorded so every field is auditable.
+   row, polymorphic over `Beer` **and** `Brewery`; it records the linkage
+   (`source_id`, `entity_type`, `entity_id`, `external_id`, `last_synced_at`,
+   `raw_data`), so one entity accumulates `EntitySource` rows across sources.
+   **Approval provenance** (`contributed_by` / `contributed_at` / `approved_at`)
+   currently lives on the **`Beer` row only** (anticipating the v0.2
+   contribution flow) — **not** on `EntitySource`, not on `Brewery`, not
+   per-field. Per-source or `Brewery`-level approval provenance (needed once
+   web/AI sources and brewery moderation land) is **new schema work**, flagged
+   for the UC6/UC9 slices.
 
 6. **Research sources (web / AI) are importers, not exceptions.** Deeper
    enrichment — searching the web for more about the beer **and its brewery** —
@@ -84,9 +93,11 @@
      directly to canonical;
    - the **cited URLs** are captured into `EntitySource` (provenance is
      "these sources", not "an AI said so");
-   - fetched web content is **untrusted input** — agentic-AI security applies
-     (prompt-injection from a malicious page; see the global `security-policy`).
-     Tool output is never trusted to mutate canonical data;
+   - fetched web content is **untrusted input** — treat agent/tool output as
+     hostile (prompt-injection from a malicious brewery page); it is never
+     trusted to mutate canonical data, only to propose staged rows. (The repo's
+     `SECURITY.md` has no agentic-AI/LLM section yet — adding one is a tracked
+     follow-up for the UC5/web/AI slices.)
    - enrichment runs **asynchronously** (return the partial/cache result
      immediately, enrich in the background) and is **cost-bounded + tiered**
      (#878).
@@ -121,7 +132,8 @@
   little attention and doubtful/conflicting data gets it — making D4 scale
   without lowering the trust bar.
 - **Sources are pluggable.** OFF, OCR, web, and AI all feed one pipeline via
-  `Source`/`EntitySource`; new sources cost an importer, not a migration.
+  `Source`/`EntitySource`; a new source costs an importer + a one-line
+  `BEER_SOURCE_VALUES` / CHECK migration, not new tables.
 - **AI/web sources carry obligations**: provenance capture, async + tiering,
   and a security review (prompt injection, cost). The human gate is the safety
   net that makes a low-trust source acceptable.
@@ -152,5 +164,7 @@ abuse/tiering (#878).
 - **Extends ADR-0013** — canonical `Beer` model + scan-catalogue reconciliation.
 - **Respects ADR-0004** (data locality) and **ADR-0005** (encyclopedia/product
   backend split): ingestion + enrichment live in the encyclopedia service.
-- **Security** per the global `security-policy` (agentic-AI/LLM section) for the
-  research/AI sources.
+- **Security** — the agentic-AI / untrusted-web-content constraints in
+  decision 6 are part of this decision. The repo's vulnerability policy is
+  `SECURITY.md`; it does not yet carry an agentic-AI/LLM section — adding one is
+  a tracked follow-up for the web/AI source slices.

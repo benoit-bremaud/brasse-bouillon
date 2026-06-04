@@ -38,6 +38,10 @@ interface PythonBeerReadDto {
   slug: string;
   brewery_id: string | null;
   style_id: string | null;
+  // Denormalised names resolved server-side from the FKs
+  // (07-class-api-contract); null when the FK/relation is unresolved.
+  brewery_name: string | null;
+  style_name: string | null;
   abv: string | null; // Pydantic Decimal serialises as string
   ibu: number | null;
   srm: number | null;
@@ -118,10 +122,11 @@ function mapPythonBeerToCatalogItem(
     id: dto.id,
     barcode: ean,
     name: dto.name,
-    // Brewery / style names live in separate Python tables. Until
-    // BeerRead is enriched server-side we surface a placeholder.
-    brewery: "Brasserie inconnue",
-    style: "Style inconnu",
+    // Brewery / style names are resolved server-side from the FKs
+    // (07-class-api-contract). Fall back to a placeholder only when the
+    // server could not resolve one (FK null or relation missing).
+    brewery: dto.brewery_name ?? "Brasserie inconnue",
+    style: dto.style_name ?? "Style inconnu",
     abv: dto.abv === null ? null : Number(dto.abv),
     ibu: dto.ibu,
     colorEbc: srmToEbc(dto.srm),
@@ -146,11 +151,11 @@ function mapPythonBeerToCatalogItem(
 /**
  * Call the Python beer-encyclopedia to resolve a barcode, importing
  * from Open Food Facts on first occurrence. Returns a
- * `ScanLookupResult` whose `item` carries placeholders for the fields
- * Python does not yet expose (brewery name, style name,
- * fermentation type, aromatic tags). The presentation layer should
- * render the fiche in a degraded-but-functional state until the
- * server-side enrichment ships.
+ * `ScanLookupResult`. Brewery and style names are resolved server-side
+ * (07-class-api-contract); the `item` still carries placeholders for the
+ * fields Python does not yet expose (fermentation type, aromatic tags).
+ * The presentation layer should render the fiche in a
+ * degraded-but-functional state until the remaining enrichment ships.
  *
  * Throws (for the use-case to translate):
  * - HttpError 503 — `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` is not

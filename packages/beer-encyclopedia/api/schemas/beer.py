@@ -51,6 +51,13 @@ class BeerRead(BeerBase):
 
     id: uuid.UUID
     slug: str
+    # Denormalised names resolved from the brewery_id / style_id FKs so
+    # clients (the mobile scan fiche) can display "BrewDog" / "IPA" without a
+    # second round-trip. Read-only projections of the Beer→Brewery / Beer→Style
+    # relations (07-class-api-contract); null when the FK or the relation is
+    # unresolved. Only endpoints that resolve them populate these.
+    brewery_name: str | None = None
+    style_name: str | None = None
     is_verified: bool
     source: str
     ean_code: str | None = None

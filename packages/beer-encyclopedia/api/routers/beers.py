@@ -81,6 +81,32 @@ async def _validate_fks(
         raise HTTPException(status_code=422, detail="style_id does not exist.")
 
 
+async def _beer_read_with_names(session: AsyncSession, beer: Beer) -> BeerRead:
+    """Serialise a ``Beer`` to ``BeerRead`` with the denormalised
+    ``brewery_name`` / ``style_name`` resolved from the FKs
+    (see ``07-class-api-contract``).
+
+    Resolves via ``session.get`` (identity-map first, no extra query when the
+    row is already loaded) rather than touching ``beer.brewery`` /
+    ``beer.style`` relationship attributes — the engine is async, where a
+    lazy-load on an unloaded relationship raises. Names are ``None`` when the
+    FK is null or points to a missing row.
+    """
+
+    dto = BeerRead.model_validate(beer)
+    brewery_name: str | None = None
+    style_name: str | None = None
+    if beer.brewery_id is not None:
+        brewery = await session.get(Brewery, beer.brewery_id)
+        brewery_name = brewery.name if brewery is not None else None
+    if beer.style_id is not None:
+        style = await session.get(Style, beer.style_id)
+        style_name = style.name if style is not None else None
+    return dto.model_copy(
+        update={"brewery_name": brewery_name, "style_name": style_name}
+    )
+
+
 @router.post(
     "/import-by-ean",
     response_model=BeerRead,
@@ -151,7 +177,7 @@ async def import_beer_by_ean(
     ).scalar_one_or_none()
     if existing is not None:
         response.status_code = status.HTTP_200_OK
-        return BeerRead.model_validate(existing)
+        return await _beer_read_with_names(session, existing)
 
     try:
         snapshot = await off_client.fetch_by_ean(payload.ean)
@@ -182,7 +208,7 @@ async def import_beer_by_ean(
     response.status_code = (
         status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
     )
-    return BeerRead.model_validate(result.beer)
+    return await _beer_read_with_names(session, result.beer)
 
 
 @router.get("", response_model=BeerList)

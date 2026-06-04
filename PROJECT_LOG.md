@@ -7,6 +7,25 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-04
 
+### PR #1185 merged (`1a312eb`) — feat(scan): surface brewery + style names on the scanned beer fiche
+- Branch `feat/encyclopedia-beerread-names`, 1 commit. Conforms to the DTO contract #1184.
+- Part of #1175. `BeerRead` gains read-only `brewery_name`/`style_name`, resolved in `import-by-ean` via `_beer_read_with_names` (`session.get`, no async lazy-load); mobile `beers-import.api` maps them with placeholder fallback. 152 encyclopedia + 44 scan tests.
+- Merged via API bypassing the local merge-gate (**user-authorized**): `SonarCloud Scan` failed on an external infra error (`api.sonarcloud.io/analysis/jres` HTTP 403, scanner v7.2.0 JRE provisioning) — no quality signal produced, not a required check; all real gates green + Copilot no-comments.
+- Post-merge ops: encyclopedia redeployed (names verified live on EAN `5056025440494` → `Brewdog` / `India Pale Ale`); OTA published to the `preview` branch (runtimeVersion `0.1.13-alpha1`, matches APK `543d4bd2`) — no rebuild.
+
+### PR #1184 merged (`e381861`) — docs(conception): model the beer API DTO contract (BeerRead denormalized names)
+- Branch `docs/encyclopedia-api-dto-contract`, conception-only. Part of #1175.
+- New class diagram `07-class-api-contract` (Mermaid + PlantUML) for the `beers` router DTOs; captures the target `BeerRead.brewery_name`/`style_name` (domain-preserving). Traceability matrix updated. Copilot (2) resolved: full mobile path, synced `BeerRead` stereotype.
+
+### PR #1182 merged (`1d8d7bb`) — feat(encyclopedia): extract style + description from the OpenFoodFacts response
+- Branch `feat/encyclopedia-off-mapping`, 2 commits. Part of #1175.
+- `_pick_style_slug` (segment-matched `categories_tags` → seeded `Style.slug`) + `_pick_description` (`ingredients_text`); persistence resolves slug→`style_id`, sets `description`, fills-when-empty on refresh. `seed_styles.py` added to the boot path. 150 tests.
+- Reviews — Codex (1, P2) + Copilot (2) resolved: seed styles at boot, segment-match (fixes `en:camembert`→`amber_ale` false positive), DB-first backfill caveat.
+
+### Scan routing diagnosis + decision (issue #1186)
+- Device test (Leffe Blonde, EAN `5410228142218`): "recognised, no details". Root cause = **routing**, not data — the mobile scan is NestJS-first; NestJS re-fetches OFF itself and answers thin (`scan.controller.ts` lookup: "otherwise hits OpenFoodFacts… returns the new row"), so the rich encyclopedia (#1182/#1185) is reached only on a NestJS 404. The encyclopedia returns full data for that EAN (`Leffe` / `Blonde Ale` / 6.6% / ingredients).
+- **Decision** `scan-cutover-to-encyclopedia` — finish ADR-0005's migration: route the scan to the encyclopedia, retire NestJS `scan_catalog_items` + its OFF lookup. Captured as #1186 (conception-first, deferred). Also opened: QA/testing epic #1183 (Maestro e2e + staging + pre-deploy smoke), non-root hardening #1180.
+
 ### PR #1178 merged (`0498adb`) — chore(encyclopedia): Fly.io deployment (Dockerfile + fly.toml, SQLite-on-volume)
 
 - Branch `chore/deploy-encyclopedia`, 2 commits (`5ad2995`, `3ac73e4`).

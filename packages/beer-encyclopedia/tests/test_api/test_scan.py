@@ -72,17 +72,32 @@ def test_app_exposes_scan_router_routes() -> None:
     assert "/scan" in paths
 
 
-def test_scan_module_does_not_import_ml_at_load() -> None:
-    """The ML pipeline must be imported lazily (inside the endpoint), so the
-    service boots on a lean EAN/OpenFoodFacts deployment without the heavy
-    CV/OCR stack (ADR-0015). If `scan_image` is a module-level global, the
-    import moved back to module scope and the blocker has regressed."""
+def test_scan_router_imports_without_ml_pipeline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reloading the scan router with ``ml.pipeline`` made unimportable must
+    succeed — proving nothing at module scope imports the heavy CV/OCR stack,
+    so the service boots on a lean EAN/OpenFoodFacts deployment (ADR-0015).
+
+    A `hasattr(module, "scan_image")` check is too weak: a regression to a
+    bare `import ml.pipeline` would still pass it while reintroducing the
+    module-load import. Forcing ``ml.pipeline`` to be unimportable and
+    reloading the module catches any module-scope import (Copilot review on
+    #1177)."""
+
+    import importlib
 
     import api.routers.scan as scan_module
 
-    assert not hasattr(scan_module, "scan_image"), (
-        "scan_image must be imported lazily inside the endpoint, not at module load"
-    )
+    monkeypatch.setitem(sys.modules, "ml.pipeline", None)
+    try:
+        # Must NOT raise: the import is lazy (inside the endpoint). A
+        # module-scope `import ml.pipeline` would raise ImportError here.
+        importlib.reload(scan_module)
+    finally:
+        # Restore the genuine module so later tests see the real endpoint.
+        monkeypatch.undo()
+        importlib.reload(scan_module)
 
 
 def test_scan_returns_503_when_ml_pipeline_unavailable(

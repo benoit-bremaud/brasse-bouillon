@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit — automatic post-push reviewer for brasse-bouillon.
+# Free tier, private repo. CodeRabbit is the always-on GitHub-side reviewer;
+# Copilot is manual (needs-copilot label), Codex auto-reviews in parallel.
+# See CONTRIBUTING.md § AI reviewers.
+
+language: en-US
+
+reviews:
+  # Thorough by default. If the volume of comments becomes a tax for a solo
+  # dev, switch to `chill` for a lower-noise review. No poem/emoji output
+  # (matches the repo's sober-text rule).
+  profile: assertive
+  poem: false
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  # Surface findings; do not auto-convert them into blocking change-requests.
+  request_changes_workflow: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  # Keep noise out of the review.
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/.expo/**"
+    - "!**/coverage/**"
+    - "!_archive/**"
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+
+  # Repo-specific review bar — kept in sync with .claude/agents/pr-pre-reviewer.md
+  # and the accepted ADRs under docs/architecture/decisions/.
+  path_instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: >-
+        Flag any `any` type, any default export of a screen/use-case/controller/
+        service/module/DTO, and any hardcoded secret. Prefer `interface` for
+        object shapes and `type` for unions/utility types. Comments and review
+        text must be in English with no AI-attribution mentions.
+    - path: "packages/mobile-app/**"
+      instructions: >-
+        Clean Architecture (domain -> application -> data -> presentation):
+        presentation must not call data directly. No `fetch()` outside
+        src/core/http/http-client.ts. No inline style objects (use
+        StyleSheet.create()). No hardcoded colors/spacing/fonts (use tokens from
+        src/core/theme/). New features must persist via the API from day one.
+    - path: "packages/api/**"
+      instructions: >-
+        No raw SQL strings outside repository/query-builder methods. Every
+        controller response must flow through the global response envelope
+        ({ success, statusCode, message, data }). A TypeORM entity that adds,
+        removes, or renames a column requires a matching migration. New endpoints
+        need Swagger/OpenAPI decorators. Third-party HTTP calls go through a
+        dedicated service module, never from controllers (ADR-0002).
+    - path: "**/*.spec.ts"
+      instructions: >-
+        Tests must cover Happy path, Sad path, and Edge cases (H/S/E).
+
+chat:
+  auto_reply: true

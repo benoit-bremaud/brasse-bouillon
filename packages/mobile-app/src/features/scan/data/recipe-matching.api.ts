@@ -62,20 +62,45 @@ function mapRankedRecipe(dto: RankedRecipeWireDto): ScanRecipeMatch {
 }
 
 /**
- * Fetch the top-N recipes that best match the given beer catalog
- * item id, plus the `low_confidence` flag the API computes when the
- * best match is genuinely below the threshold (per brainstorm
+ * The recognised beer's characteristics the matcher scores against.
+ * Source-agnostic: the values come from the scanned beer (encyclopedia
+ * or NestJS), not a `scan_catalog_items` id — so matching keeps working
+ * after the scan cutover (#1186). See
+ * docs/architecture/diagrams/recipes/06-sequence-recipe-matching.md.
+ */
+export interface BeerMatchCharacteristics {
+  style: string | null;
+  abv: number | null;
+  ibu: number | null;
+  colorEbc: number | null;
+}
+
+/**
+ * Fetch the top-N recipes that best match the given beer
+ * characteristics, plus the `low_confidence` flag the API computes when
+ * the best match is genuinely below the threshold (per brainstorm
  * scan-2026-04-24 §3.4 + Codex P1 fix on PR #792).
+ *
+ * POSTs the characteristics to `/recipes/match` instead of keying off a
+ * `scan_catalog_items` id — required once the scan resolves beers from
+ * the encyclopedia (#1186). Missing values are omitted; the API
+ * renormalises the weights.
  *
  * Throws on transport or HTTP errors — the use-case layer is
  * responsible for translating those into UI-facing error messages.
  */
 export async function fetchMatchingRecipes(
-  beerCatalogItemId: string,
+  characteristics: BeerMatchCharacteristics,
 ): Promise<ScanMatchingResult> {
-  const data = await request<MatchingResponseWireDto>(
-    `/recipes/match/${beerCatalogItemId}`,
-  );
+  const data = await request<MatchingResponseWireDto>("/recipes/match", {
+    method: "POST",
+    body: {
+      style: characteristics.style ?? undefined,
+      abv: characteristics.abv ?? undefined,
+      ibu: characteristics.ibu ?? undefined,
+      colorEbc: characteristics.colorEbc ?? undefined,
+    },
+  });
   return {
     rankings: data.rankings.map(mapRankedRecipe),
     lowConfidence: data.low_confidence,

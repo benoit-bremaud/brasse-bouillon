@@ -24,6 +24,25 @@ const mockDemoEquivalents = getDemoEquivalentRecipes as jest.MockedFunction<
   typeof getDemoEquivalentRecipes
 >;
 
+function makeBeer(
+  overrides: Partial<{
+    barcode: string;
+    style: string;
+    abv: number | null;
+    ibu: number | null;
+    colorEbc: number | null;
+  }> = {},
+) {
+  return {
+    barcode: "5060277380019",
+    style: "American IPA",
+    abv: 5.4,
+    ibu: 45,
+    colorEbc: 14,
+    ...overrides,
+  };
+}
+
 describe("getMatchingRecipes (Issue #700)", () => {
   beforeEach(() => {
     mockApiFetch.mockReset();
@@ -46,10 +65,7 @@ describe("getMatchingRecipes (Issue #700)", () => {
       ];
       mockDemoEquivalents.mockReturnValue(demoRecipes);
 
-      const result = await getMatchingRecipes({
-        id: "uuid-beer",
-        barcode: "5060277380019",
-      });
+      const result = await getMatchingRecipes(makeBeer());
 
       expect(mockDemoEquivalents).toHaveBeenCalledWith("5060277380019");
       expect(mockApiFetch).not.toHaveBeenCalled();
@@ -62,10 +78,9 @@ describe("getMatchingRecipes (Issue #700)", () => {
     it("sad: when the demo set has no match for the barcode, returns empty rankings + low_confidence=true", async () => {
       mockDemoEquivalents.mockReturnValue([]);
 
-      const result = await getMatchingRecipes({
-        id: "uuid-beer",
-        barcode: "9999999999999",
-      });
+      const result = await getMatchingRecipes(
+        makeBeer({ barcode: "9999999999999" }),
+      );
 
       expect(result).toEqual({ rankings: [], lowConfidence: true });
     });
@@ -76,7 +91,7 @@ describe("getMatchingRecipes (Issue #700)", () => {
       dataSourceMock.useDemoData = false;
     });
 
-    it("happy: forwards the call to the API with the catalog item id and passes through the envelope", async () => {
+    it("happy: forwards the beer characteristics to the API and passes through the envelope", async () => {
       const apiResponse = {
         rankings: [
           {
@@ -93,14 +108,44 @@ describe("getMatchingRecipes (Issue #700)", () => {
       };
       mockApiFetch.mockResolvedValue(apiResponse);
 
-      const result = await getMatchingRecipes({
-        id: "uuid-beer",
-        barcode: "5060277380019",
-      });
+      const result = await getMatchingRecipes(makeBeer());
 
-      expect(mockApiFetch).toHaveBeenCalledWith("uuid-beer");
+      expect(mockApiFetch).toHaveBeenCalledWith({
+        style: "American IPA",
+        abv: 5.4,
+        ibu: 45,
+        colorEbc: 14,
+      });
       expect(mockDemoEquivalents).not.toHaveBeenCalled();
       expect(result).toBe(apiResponse);
+    });
+
+    it("edge: forwards null numeric characteristics unchanged (the API renormalises)", async () => {
+      mockApiFetch.mockResolvedValue({ rankings: [], lowConfidence: true });
+
+      await getMatchingRecipes(
+        makeBeer({ style: "Stout", abv: null, ibu: null, colorEbc: null }),
+      );
+
+      expect(mockApiFetch).toHaveBeenCalledWith({
+        style: "Stout",
+        abv: null,
+        ibu: null,
+        colorEbc: null,
+      });
+    });
+
+    it("edge: a placeholder style ('Style inconnu') is sent as null so the matcher renormalises", async () => {
+      mockApiFetch.mockResolvedValue({ rankings: [], lowConfidence: true });
+
+      await getMatchingRecipes(makeBeer({ style: "Style inconnu" }));
+
+      expect(mockApiFetch).toHaveBeenCalledWith({
+        style: null,
+        abv: 5.4,
+        ibu: 45,
+        colorEbc: 14,
+      });
     });
 
     it("sad: low_confidence=true from the API surfaces unchanged in the envelope", async () => {
@@ -109,10 +154,7 @@ describe("getMatchingRecipes (Issue #700)", () => {
         lowConfidence: true,
       });
 
-      const result = await getMatchingRecipes({
-        id: "uuid-beer",
-        barcode: "5060277380019",
-      });
+      const result = await getMatchingRecipes(makeBeer());
 
       expect(result.lowConfidence).toBe(true);
     });

@@ -114,6 +114,7 @@ describe('RecipeController', () => {
           provide: RecipeMatchingService,
           useValue: {
             rankForBeer: jest.fn(),
+            rankByCharacteristics: jest.fn(),
           },
         },
       ],
@@ -475,6 +476,47 @@ describe('RecipeController', () => {
       await expect(controller.matchForBeer(beerId)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('matchByCharacteristics() - POST /recipes/match', () => {
+    it('happy: maps the body characteristics to the matcher and returns the envelope', async () => {
+      const envelope = {
+        rankings: [{ recipe: mockRecipeOrm, score: 80 }],
+        low_confidence: false,
+      };
+      const spy = jest
+        .spyOn(matching, 'rankByCharacteristics')
+        .mockResolvedValue(envelope);
+
+      const result = await controller.matchByCharacteristics({
+        style: 'Blonde Ale',
+        abv: 6.6,
+        colorEbc: 12,
+      });
+
+      expect(spy).toHaveBeenCalledWith({
+        style: 'Blonde Ale',
+        abv: 6.6,
+        ibu: null,
+        color_ebc: 12,
+      });
+      expect(result).toBe(envelope);
+    });
+
+    it('edge: omitted characteristics map to null (renormalised matching)', async () => {
+      const spy = jest
+        .spyOn(matching, 'rankByCharacteristics')
+        .mockResolvedValue({ rankings: [], low_confidence: true });
+
+      await controller.matchByCharacteristics({ style: 'Stout' });
+
+      expect(spy).toHaveBeenCalledWith({
+        style: 'Stout',
+        abv: null,
+        ibu: null,
+        color_ebc: null,
+      });
     });
   });
 });

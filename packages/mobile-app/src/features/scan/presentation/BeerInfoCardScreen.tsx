@@ -400,7 +400,10 @@ function MatchingRecipesSection({
   beer,
   onImported,
 }: Readonly<{
-  beer: Pick<ScanCatalogItem, "id" | "barcode">;
+  beer: Pick<
+    ScanCatalogItem,
+    "id" | "barcode" | "style" | "abv" | "ibu" | "colorEbc"
+  >;
   onImported: (recipeId: string) => void;
 }>) {
   const matchingQuery = useQuery({

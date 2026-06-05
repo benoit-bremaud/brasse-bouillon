@@ -114,6 +114,15 @@ function inferLookupSource(dto: PythonBeerReadDto): ScanLookupSource {
   return "cache_hit_fresh";
 }
 
+/**
+ * Display placeholders used when the server could not resolve a brewery
+ * or style name. Exported so consumers (e.g. recipe matching) can treat
+ * them as "absent" instead of feeding the literal placeholder text into
+ * an algorithm that would mistake it for a real value.
+ */
+export const SCAN_BREWERY_PLACEHOLDER = "Brasserie inconnue";
+export const SCAN_STYLE_PLACEHOLDER = "Style inconnu";
+
 function mapPythonBeerToCatalogItem(
   dto: PythonBeerReadDto,
   ean: string,
@@ -125,8 +134,8 @@ function mapPythonBeerToCatalogItem(
     // Brewery / style names are resolved server-side from the FKs
     // (07-class-api-contract). Fall back to a placeholder only when the
     // server could not resolve one (FK null or relation missing).
-    brewery: dto.brewery_name ?? "Brasserie inconnue",
-    style: dto.style_name ?? "Style inconnu",
+    brewery: dto.brewery_name ?? SCAN_BREWERY_PLACEHOLDER,
+    style: dto.style_name ?? SCAN_STYLE_PLACEHOLDER,
     abv: dto.abv === null ? null : Number(dto.abv),
     ibu: dto.ibu,
     colorEbc: srmToEbc(dto.srm),

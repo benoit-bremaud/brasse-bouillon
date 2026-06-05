@@ -28,6 +28,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../user/entities/user.entity';
 
 import { CreateRecipeDto } from '../dtos/create-recipe.dto';
+import { MatchByCharacteristicsDto } from '../dtos/match-by-characteristics.dto';
 import { RankedRecipeResponseDto } from '../dtos/ranked-recipe.dto';
 import { RecipeIbuEstimateDto } from '../dtos/recipe-ibu-estimate.dto';
 import { PublicRecipeDto } from '../dtos/public-recipe.dto';
@@ -112,6 +113,29 @@ export class RecipeController {
     @Param('beerId', new ParseUUIDPipe()) beerId: string,
   ): Promise<RankedRecipeResponseDto> {
     return this.matching.rankForBeer(beerId);
+  }
+
+  @Post('match')
+  @ApiOperation({
+    summary:
+      "Rank PUBLIC recipes by a beer's characteristics (style/ABV/IBU/colour) — source-agnostic (scan cutover #1186)",
+    description:
+      'Same ranking as `GET /recipes/match/:beerId` but driven by the beer characteristics in the body instead of a `scan_catalog_items` id, so the mobile scan fiche can match a beer resolved from the beer-encyclopedia (whose UUID is not a scan-catalog row). Every field is optional; missing criteria are dropped and the remaining weights renormalised. Returns the same `{ rankings, low_confidence }` envelope.',
+  })
+  @ApiOkResponse({
+    description:
+      'Response envelope `{ rankings: [{recipe, score}], low_confidence: boolean }`',
+  })
+  async matchByCharacteristics(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: MatchByCharacteristicsDto,
+  ): Promise<RankedRecipeResponseDto> {
+    return this.matching.rankByCharacteristics({
+      style: dto.style ?? null,
+      abv: dto.abv ?? null,
+      ibu: dto.ibu ?? null,
+      color_ebc: dto.colorEbc ?? null,
+    });
   }
 
   @Get('public')

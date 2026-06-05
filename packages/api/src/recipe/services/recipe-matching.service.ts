@@ -11,6 +11,21 @@ import {
 } from '../dtos/ranked-recipe.dto';
 
 /**
+ * The beer characteristics the matcher scores against — style, ABV,
+ * bitterness (IBU) and colour (EBC). This is the *only* input the
+ * ranking needs; it is deliberately decoupled from how the beer was
+ * identified (a `scan_catalog_items` row, a beer-encyclopedia
+ * `BeerRead`, …) so matching works for any source (scan cutover #1186).
+ * See docs/architecture/diagrams/recipes/06-sequence-recipe-matching.md.
+ */
+export interface BeerCharacteristics {
+  style: string | null;
+  abv?: number | null;
+  ibu?: number | null;
+  color_ebc?: number | null;
+}
+
+/**
  * Score-based recipe matching — full brainstorm scan-2026-04-24 §3
  * formula. Extends the minimal-viable scope shipped in PR #773 with
  * the four remaining components, weight renormalization when a
@@ -70,7 +85,22 @@ export class RecipeMatchingService {
         `Beer catalog item ${beerCatalogItemId} not found`,
       );
     }
+    return this.rankByCharacteristics(beer, limit);
+  }
 
+  /**
+   * Rank PUBLIC recipes against a beer's characteristics (style, ABV,
+   * IBU, colour) — the source-agnostic core of the matcher. `rankForBeer`
+   * is a thin wrapper that loads a `scan_catalog_items` row and delegates
+   * here; the mobile scan fiche calls this directly with the recognised
+   * beer's characteristics (from the encyclopedia or NestJS), so matching
+   * no longer depends on a scan-catalog id (#1186). Scoring, ordering and
+   * the `low_confidence` rule are unchanged.
+   */
+  async rankByCharacteristics(
+    beer: BeerCharacteristics,
+    limit = 3,
+  ): Promise<RankedRecipeResponseDto> {
     const candidates = await this.recipeRepo.find({
       where: { visibility: RecipeVisibility.PUBLIC },
     });
@@ -137,7 +167,7 @@ export class RecipeMatchingService {
    * ranked relative to each other by their rating/brew_count/recency.
    */
   computeFinalScore(
-    beer: ScanCatalogItemOrmEntity,
+    beer: BeerCharacteristics,
     recipe: RecipeOrmEntity,
   ): number {
     const similarity = recipe.is_official
@@ -157,7 +187,7 @@ export class RecipeMatchingService {
    * Returns 0 if all four criteria are missing.
    */
   computeSimilarity(
-    beer: ScanCatalogItemOrmEntity,
+    beer: BeerCharacteristics,
     recipe: RecipeOrmEntity,
   ): number {
     const components: { weight: number; score: number | null }[] = [
@@ -405,7 +435,10 @@ export class RecipeMatchingService {
     beerStyle: string | null | undefined,
     recipeStyle: string | null | undefined,
   ): number | null {
-    if (!beerStyle || !recipeStyle) return null;
+    // Treat a blank/whitespace style as *absent* (→ null → dropped by
+    // renormalisation) rather than a present criterion scoring 0, which
+    // would unfairly penalise similarity (Copilot review on #1190).
+    if (!beerStyle?.trim() || !recipeStyle?.trim()) return null;
     return this.scoreStyle(beerStyle, recipeStyle);
   }
 

@@ -256,7 +256,9 @@ describe("scan-lookup.use-cases / lookupBeerByBarcode", () => {
       mockFetchImport.mockRejectedValueOnce(
         new HttpError(503, "encyclopedia unavailable"),
       );
-      mockFetchLookup.mockRejectedValueOnce(new HttpError(503, "NestJS down too"));
+      mockFetchLookup.mockRejectedValueOnce(
+        new HttpError(503, "NestJS down too"),
+      );
 
       await expect(lookupBeerByBarcode("5060277380019")).rejects.toBeInstanceOf(
         ScanLookupServiceUnavailableError,

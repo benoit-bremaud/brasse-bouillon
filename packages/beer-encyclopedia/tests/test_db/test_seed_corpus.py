@@ -153,3 +153,24 @@ async def test_seed_ingredients_missing_beer_raises(db_session: AsyncSession) ->
     # Catalog can be created, but links cannot resolve without seeded beers.
     with pytest.raises(ValueError, match="Beer slug"):
         await seed_ingredients(db_session)
+
+
+async def test_seed_ingredients_refreshes_drifted_category(
+    db_session: AsyncSession,
+) -> None:
+    # The catalog upsert must restore a drifted category on re-run. (Copilot)
+    await _seed_prerequisites(db_session)
+    await seed_ingredients(db_session)
+
+    saaz = (
+        await db_session.execute(select(Ingredient).where(Ingredient.name == "Saaz"))
+    ).scalar_one()
+    assert saaz.category == "hop"
+    saaz.category = "wrong"
+    await db_session.commit()
+
+    await seed_ingredients(db_session)
+    refreshed = (
+        await db_session.execute(select(Ingredient).where(Ingredient.name == "Saaz"))
+    ).scalar_one()
+    assert refreshed.category == "hop"

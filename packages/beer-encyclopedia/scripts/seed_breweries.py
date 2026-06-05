@@ -7,8 +7,9 @@ where a brand's abbey predates its brewery, the *brewery* date is used
 NULL for now (geocoded from city later).
 
 This script is idempotent: running it multiple times updates existing rows
-in place (matched by ``slug``) and inserts only what is missing. All rows are
-seeded with ``is_verified=False`` (maintainer validation pending, ADR-0015).
+in place (matched by ``slug``) and inserts only what is missing. Newly created
+rows get ``is_verified=False`` (maintainer validation pending, ADR-0015);
+re-seeding preserves the verification state of existing rows.
 """
 
 from __future__ import annotations

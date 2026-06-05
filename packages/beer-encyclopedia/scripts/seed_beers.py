@@ -7,7 +7,8 @@
 SRM canonical — EBC estimates converted with SRM = round(EBC / 1.97) and
 rounded outward), and a 1–5 ``TastingProfile``.
 
-All rows are ``is_verified=False`` (maintainer validation pending, ADR-0015).
+Newly inserted rows get ``is_verified=False`` (maintainer validation pending,
+ADR-0015); re-seeding preserves the verification state of existing rows.
 ``source='openfoodfacts'`` for the three EAN-confirmed beers, ``'internal'``
 otherwise. OpenFoodFacts category errors are NOT propagated: every abbey/blonde
 mis-tagged "lager" by OFF is seeded with its true ale style (scan spec §8.5).
@@ -725,6 +726,90 @@ async def _slug_to_id(
     return dict(rows)
 
 
+def _resolve_fks(
+    b: BeerSeed,
+    breweries: dict[str, uuid.UUID],
+    styles: dict[str, uuid.UUID],
+) -> tuple[uuid.UUID, uuid.UUID | None]:
+    """Resolve the brewery/style foreign keys for a beer, or raise."""
+
+    brewery_id = breweries.get(b.brewery_slug)
+    if brewery_id is None:
+        raise ValueError(
+            f"Brewery slug '{b.brewery_slug}' not found — run seed_breweries.py first"
+        )
+    style_id = styles.get(b.style_slug) if b.style_slug else None
+    if b.style_slug and style_id is None:
+        raise ValueError(f"Style slug '{b.style_slug}' not found — run seed_styles.py first")
+    return brewery_id, style_id
+
+
+async def _find_existing_beer(session: AsyncSession, b: BeerSeed) -> Beer | None:
+    """Match an existing row by EAN first (when present), then by slug.
+
+    An OpenFoodFacts import (/beers/import-by-ean) may already hold this
+    product under a different slug; matching the unique ``ean_code`` first
+    avoids a constraint violation on a blind slug-keyed insert.
+    """
+
+    if b.ean is not None:
+        by_ean = (
+            await session.execute(select(Beer).where(Beer.ean_code == b.ean))
+        ).scalar_one_or_none()
+        if by_ean is not None:
+            return by_ean
+    return (
+        await session.execute(select(Beer).where(Beer.slug == b.slug))
+    ).scalar_one_or_none()
+
+
+def _apply_beer_fields(
+    beer: Beer, b: BeerSeed, brewery_id: uuid.UUID, style_id: uuid.UUID | None
+) -> None:
+    """Copy the seed values onto a (new or existing) Beer instance."""
+
+    beer.name = b.name
+    beer.slug = b.slug
+    beer.brewery_id = brewery_id
+    beer.style_id = style_id
+    beer.abv = b.abv
+    beer.ibu_min, beer.ibu_max = b.ibu
+    beer.srm_min, beer.srm_max = b.srm
+    beer.country_of_origin = b.country
+    beer.ean_code = b.ean
+    beer.source = b.source
+
+
+async def _upsert_tasting_profile(
+    session: AsyncSession, beer_id: uuid.UUID, b: BeerSeed
+) -> None:
+    """Create or refresh the one-to-one tasting profile of a beer."""
+
+    bitterness, sweetness, body, carbonation = b.taste
+    profile = (
+        await session.execute(select(TastingProfile).where(TastingProfile.beer_id == beer_id))
+    ).scalar_one_or_none()
+    if profile is None:
+        session.add(
+            TastingProfile(
+                beer_id=beer_id,
+                aroma=b.aroma,
+                flavor=b.flavor,
+                bitterness=bitterness,
+                sweetness=sweetness,
+                body=body,
+                carbonation=carbonation,
+            )
+        )
+        return
+    profile.aroma = b.aroma
+    profile.flavor = b.flavor
+    profile.bitterness = bitterness
+    profile.sweetness = sweetness
+    profile.body = body
+    profile.carbonation = carbonation
+
+
 async def seed_beers(session: AsyncSession) -> tuple[int, int]:
     """Upsert the beer corpus + tasting profiles. Returns (created, updated)."""
 
@@ -733,92 +818,18 @@ async def seed_beers(session: AsyncSession) -> tuple[int, int]:
 
     created = 0
     updated = 0
-
     for b in BEERS:
-        brewery_id = breweries.get(b.brewery_slug)
-        if brewery_id is None:
-            raise ValueError(
-                f"Brewery slug '{b.brewery_slug}' not found — run seed_breweries.py first"
-            )
-        style_id = styles.get(b.style_slug) if b.style_slug else None
-        if b.style_slug and style_id is None:
-            raise ValueError(f"Style slug '{b.style_slug}' not found — run seed_styles.py first")
-
-        # Match by EAN first when present: an OpenFoodFacts import
-        # (/beers/import-by-ean) may already hold this product under a
-        # different slug, and the unique ean_code constraint would abort a
-        # blind slug-keyed insert. Fall back to slug for EAN-less beers.
-        existing = None
-        if b.ean is not None:
-            existing = (
-                await session.execute(select(Beer).where(Beer.ean_code == b.ean))
-            ).scalar_one_or_none()
-        if existing is None:
-            existing = (
-                await session.execute(select(Beer).where(Beer.slug == b.slug))
-            ).scalar_one_or_none()
-
-        ibu_min, ibu_max = b.ibu
-        srm_min, srm_max = b.srm
-
-        if existing is None:
-            beer = Beer(
-                name=b.name,
-                slug=b.slug,
-                brewery_id=brewery_id,
-                style_id=style_id,
-                abv=b.abv,
-                ibu_min=ibu_min,
-                ibu_max=ibu_max,
-                srm_min=srm_min,
-                srm_max=srm_max,
-                country_of_origin=b.country,
-                ean_code=b.ean,
-                source=b.source,
-            )
+        brewery_id, style_id = _resolve_fks(b, breweries, styles)
+        beer = await _find_existing_beer(session, b)
+        if beer is None:
+            beer = Beer(slug=b.slug)
             session.add(beer)
-            await session.flush()
-            beer_id = beer.id
             created += 1
         else:
-            existing.name = b.name
-            existing.slug = b.slug
-            existing.brewery_id = brewery_id
-            existing.style_id = style_id
-            existing.abv = b.abv
-            existing.ibu_min = ibu_min
-            existing.ibu_max = ibu_max
-            existing.srm_min = srm_min
-            existing.srm_max = srm_max
-            existing.country_of_origin = b.country
-            existing.ean_code = b.ean
-            existing.source = b.source
-            beer_id = existing.id
             updated += 1
-
-        bitterness, sweetness, body, carbonation = b.taste
-        profile = (
-            await session.execute(select(TastingProfile).where(TastingProfile.beer_id == beer_id))
-        ).scalar_one_or_none()
-        if profile is None:
-            session.add(
-                TastingProfile(
-                    beer_id=beer_id,
-                    aroma=b.aroma,
-                    flavor=b.flavor,
-                    bitterness=bitterness,
-                    sweetness=sweetness,
-                    body=body,
-                    carbonation=carbonation,
-                )
-            )
-        else:
-            profile.aroma = b.aroma
-            profile.flavor = b.flavor
-            profile.bitterness = bitterness
-            profile.sweetness = sweetness
-            profile.body = body
-            profile.carbonation = carbonation
+        _apply_beer_fields(beer, b, brewery_id, style_id)
+        await session.flush()
+        await _upsert_tasting_profile(session, beer.id, b)
 
     await session.commit()
     return created, updated

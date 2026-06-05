@@ -15,6 +15,7 @@ ingredients matched by unique ``name``, links by ``(beer_id, ingredient_id)``.
 from __future__ import annotations
 
 import asyncio
+import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -320,33 +321,40 @@ LINKS: dict[str, list[Link]] = {
 }
 
 
-async def _ensure_ingredients(session: AsyncSession) -> dict[str, object]:
-    """Upsert the ingredient catalog; return a name -> id map. (created count via len diff)."""
+async def _ensure_ingredients(
+    session: AsyncSession,
+) -> tuple[dict[str, uuid.UUID], int]:
+    """Upsert the ingredient catalog; return (name -> id map, created count).
 
-    existing = {
-        name: ident
-        for name, ident in (await session.execute(select(Ingredient.name, Ingredient.id))).all()
+    Mirrors the other seeders: existing rows have their ``category`` refreshed
+    so a drifted catalog is restored on re-run.
+    """
+
+    by_name = {
+        ing.name: ing
+        for ing in (await session.execute(select(Ingredient))).scalars().all()
     }
+    created = 0
     for name, category in INGREDIENTS.items():
-        if name not in existing:
+        existing = by_name.get(name)
+        if existing is None:
             session.add(Ingredient(name=name, category=category))
+            created += 1
+        else:
+            existing.category = category
     await session.flush()
-    return {
-        name: ident
-        for name, ident in (await session.execute(select(Ingredient.name, Ingredient.id))).all()
-    }
+    name_to_id = dict(
+        (await session.execute(select(Ingredient.name, Ingredient.id))).all()
+    )
+    return name_to_id, created
 
 
 async def seed_ingredients(session: AsyncSession) -> tuple[int, int]:
     """Upsert ingredients + beer links. Returns (ingredients_created, links_created)."""
 
-    before = (await session.execute(select(Ingredient.id))).scalars().all()
-    name_to_id = await _ensure_ingredients(session)
-    ingredients_created = len(name_to_id) - len(before)
+    name_to_id, ingredients_created = await _ensure_ingredients(session)
 
-    beers = {
-        slug: ident for slug, ident in (await session.execute(select(Beer.slug, Beer.id))).all()
-    }
+    beers = dict((await session.execute(select(Beer.slug, Beer.id))).all())
 
     links_created = 0
     for beer_slug, items in LINKS.items():

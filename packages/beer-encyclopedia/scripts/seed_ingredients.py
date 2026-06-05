@@ -4,8 +4,9 @@ Builds a normalized ingredient catalog (hops, malts, adjuncts, yeasts, spices,
 fruit) and links each curated beer to its defining ingredients. Sourced from
 the same research as ``seed_beers.py`` (official pages, OFF, BJCP); only
 documented / strongly-characteristic ingredients are linked — this is not an
-exhaustive grain bill. ``usage_phase`` is set where meaningful (boil for
-spices, dry hop, maturation for fruit/Brett), otherwise left NULL.
+exhaustive grain bill. ``usage_phase`` uses canonical values — ``boil``
+(spices), ``whirlpool`` (aroma hops), ``dry-hop``, ``maturation``
+(fruit/Brett), ``fermentation`` (souring cultures) — otherwise left NULL.
 
 Run after ``seed_beers.py`` (links resolve beers by slug). Idempotent:
 ingredients matched by unique ``name``, links by ``(beer_id, ingredient_id)``.
@@ -131,19 +132,19 @@ LINKS: dict[str, list[Link]] = {
         "Pale ale malt",
         "Caramel malt",
         "Hops",
-        ("Cascade", "aroma"),
+        ("Cascade", "whirlpool"),
         "Ale yeast",
     ],
     "pliny-the-elder": [
         "Water",
         "Pale ale malt",
         "Centennial",
-        ("Simcoe", "dry hop"),
-        ("Amarillo", "dry hop"),
+        ("Simcoe", "dry-hop"),
+        ("Amarillo", "dry-hop"),
         "Chinook",
         "Ale yeast",
     ],
-    "heady-topper": ["Water", "Pale ale malt", "Oats", ("Hops", "dry hop"), "Ale yeast"],
+    "heady-topper": ["Water", "Pale ale malt", "Oats", ("Hops", "dry-hop"), "Ale yeast"],
     "leffe-blonde": ["Water", "Barley malt", "Maize", "Glucose syrup", "Hops", "Ale yeast"],
     "grimbergen-blonde": [
         "Water",
@@ -175,7 +176,7 @@ LINKS: dict[str, list[Link]] = {
         "Barley malt",
         "Light candi sugar",
         "Hallertau",
-        ("Styrian Golding", "dry hop"),
+        ("Styrian Golding", "dry-hop"),
         "Ale yeast",
         ("Brettanomyces", "maturation"),
     ],

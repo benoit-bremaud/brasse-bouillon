@@ -1,13 +1,16 @@
 """Seed the ``styles`` table with the core beer style catalog.
 
-The 15 styles seeded here cover:
+The styles seeded here cover:
 - The 8 slugs already recognized by the ML field extractor (ml/extract.py)
   so the scan pipeline can resolve its output to a persisted row.
 - 7 additional mainstream styles frequently encountered on real labels
   (porter, pilsner, hefeweizen, dubbel, quadrupel, barleywine, blonde_ale).
+- 25 BJCP 2021 styles backing the curated beer corpus (see seed_beers.py),
+  from Munich Helles and Doppelbock to Gueuze, Gose and NEIPA.
 
-This script is idempotent: running it multiple times updates existing rows
-in place (matched by ``slug``) and inserts only what is missing.
+Each row carries its canonical BJCP ``family`` (ADR-0016 D2) and abv/ibu/srm
+ranges. This script is idempotent: running it multiple times updates existing
+rows in place (matched by ``slug``) and inserts only what is missing.
 """
 
 from __future__ import annotations
@@ -50,6 +53,33 @@ STYLES: list[StyleSeed] = [
     ("Belgian Quadrupel", "quadrupel", "Ale", "Strong Belgian Ale", Decimal("9.0"), Decimal("12.0"), 20, 35, 12, 22),
     ("Barleywine", "barleywine", "Ale", "Strong Ale", Decimal("8.0"), Decimal("12.0"), 40, 100, 10, 19),
     ("Blonde Ale", "blonde_ale", "Ale", "Pale Ale", Decimal("4.0"), Decimal("5.5"), 15, 28, 3, 6),
+
+    # -- corpus styles (BJCP 2021) added for the curated beer corpus ---------
+    ("International Pale Lager", "international_pale_lager", "Lager", "Pale Lager", Decimal("4.6"), Decimal("6.0"), 18, 25, 2, 6),
+    ("Munich Helles", "munich_helles", "Lager", "Pale Lager", Decimal("4.7"), Decimal("5.4"), 16, 22, 3, 5),
+    ("Munich Dunkel", "munich_dunkel", "Lager", "Dark Lager", Decimal("4.5"), Decimal("5.6"), 18, 28, 14, 28),
+    ("Rauchbier", "rauchbier", "Lager", "Amber Lager", Decimal("5.8"), Decimal("6.3"), 18, 24, 8, 17),
+    ("Doppelbock", "doppelbock", "Lager", "Bock", Decimal("7.0"), Decimal("10.0"), 16, 26, 6, 25),
+    ("Eisbock", "eisbock", "Ale", "Bock", Decimal("9.0"), Decimal("14.0"), 25, 35, 18, 30),
+    ("Kölsch", "kolsch", "Ale", "Pale Ale", Decimal("4.4"), Decimal("5.2"), 18, 30, 3, 5),
+    ("Altbier", "altbier", "Ale", "Amber Ale", Decimal("4.3"), Decimal("5.5"), 25, 50, 11, 17),
+    ("Witbier", "witbier", "Ale", "Wheat Beer", Decimal("4.5"), Decimal("5.5"), 8, 20, 2, 4),
+    ("Weizenbock", "weizenbock", "Ale", "Wheat Beer", Decimal("6.5"), Decimal("9.0"), 15, 30, 6, 25),
+    ("American Pale Ale", "american_pale_ale", "Ale", "Pale Ale", Decimal("4.5"), Decimal("6.2"), 30, 50, 5, 10),
+    ("Double IPA", "double_ipa", "Ale", "IPA", Decimal("7.5"), Decimal("10.0"), 60, 120, 6, 14),
+    ("New England IPA", "neipa", "Ale", "IPA", Decimal("6.0"), Decimal("9.0"), 25, 60, 3, 7),
+    ("Belgian Golden Strong Ale", "belgian_golden_strong", "Ale", "Strong Belgian Ale", Decimal("7.5"), Decimal("10.5"), 22, 35, 3, 6),
+    ("Belgian Pale Ale", "belgian_pale_ale", "Ale", "Belgian Ale", Decimal("4.8"), Decimal("5.5"), 20, 30, 8, 14),
+    ("Best Bitter", "best_bitter", "Ale", "British Bitter", Decimal("3.8"), Decimal("4.6"), 25, 40, 8, 16),
+    ("British Brown Ale", "british_brown_ale", "Ale", "Brown Ale", Decimal("4.2"), Decimal("5.4"), 20, 30, 12, 22),
+    ("Wee Heavy", "wee_heavy", "Ale", "Strong Ale", Decimal("6.5"), Decimal("10.0"), 17, 35, 14, 25),
+    ("Irish Stout", "irish_stout", "Ale", "Stout", Decimal("4.0"), Decimal("4.5"), 25, 45, 25, 40),
+    ("Imperial Stout", "imperial_stout", "Ale", "Stout", Decimal("8.0"), Decimal("12.0"), 50, 90, 30, 40),
+    ("Berliner Weisse", "berliner_weisse", "Ale", "Sour Ale", Decimal("2.8"), Decimal("3.8"), 3, 8, 2, 3),
+    ("Gose", "gose", "Ale", "Sour Ale", Decimal("4.2"), Decimal("4.8"), 5, 12, 3, 4),
+    ("Flanders Red Ale", "flanders_red", "Ale", "Sour Ale", Decimal("4.6"), Decimal("6.5"), 10, 25, 10, 16),
+    ("Gueuze", "gueuze", "Ale", "Sour Ale", Decimal("5.0"), Decimal("8.0"), 0, 10, 3, 7),
+    ("Fruit Lambic", "fruit_lambic", "Ale", "Sour Ale", Decimal("5.0"), Decimal("7.0"), 0, 10, 3, 7),
 ]
 
 

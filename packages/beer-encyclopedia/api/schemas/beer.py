@@ -22,8 +22,12 @@ class BeerBase(BaseModel):
     brewery_id: uuid.UUID | None = None
     style_id: uuid.UUID | None = None
     abv: Decimal | None = Field(default=None, ge=0, le=100)
-    ibu: int | None = Field(default=None, ge=0, le=1000)
-    srm: int | None = Field(default=None, ge=0, le=100)
+    # IBU / SRM as min/max intervals (ADR-0017): min == max is a known value,
+    # min < max a genuine range, both None unknown.
+    ibu_min: int | None = Field(default=None, ge=0, le=1000)
+    ibu_max: int | None = Field(default=None, ge=0, le=1000)
+    srm_min: int | None = Field(default=None, ge=0, le=100)
+    srm_max: int | None = Field(default=None, ge=0, le=100)
     description: str | None = None
     is_active: bool = True
 
@@ -39,8 +43,10 @@ class BeerUpdate(BaseModel):
     brewery_id: uuid.UUID | None = None
     style_id: uuid.UUID | None = None
     abv: Decimal | None = Field(default=None, ge=0, le=100)
-    ibu: int | None = Field(default=None, ge=0, le=1000)
-    srm: int | None = Field(default=None, ge=0, le=100)
+    ibu_min: int | None = Field(default=None, ge=0, le=1000)
+    ibu_max: int | None = Field(default=None, ge=0, le=1000)
+    srm_min: int | None = Field(default=None, ge=0, le=100)
+    srm_max: int | None = Field(default=None, ge=0, le=100)
     description: str | None = None
     is_active: bool | None = None
     is_verified: bool | None = None

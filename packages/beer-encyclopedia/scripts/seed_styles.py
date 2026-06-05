@@ -21,9 +21,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.engine import create_engine, create_session_factory, get_database_url
 from db.models import Style
 
-# name, slug, category, abv_min, abv_max, ibu_min, ibu_max, srm_min, srm_max
+# name, slug, category, family, abv_min, abv_max, ibu_min, ibu_max, srm_min, srm_max
+# ``family`` is the canonical BJCP style family (ADR-0016 D2 / Appendix),
+# distinct from ``category`` (Ale/Lager fermentation class).
 StyleSeed = tuple[
-    str, str, str,
+    str, str, str, str,
     Decimal | None, Decimal | None,
     int | None, int | None,
     int | None, int | None,
@@ -31,23 +33,23 @@ StyleSeed = tuple[
 
 STYLES: list[StyleSeed] = [
     # -- already recognized by ml/extract.py ---------------------------------
-    ("India Pale Ale", "ipa", "Ale", Decimal("5.5"), Decimal("7.5"), 40, 70, 6, 14),
-    ("Lager", "lager", "Lager", Decimal("4.0"), Decimal("5.5"), 8, 25, 2, 6),
-    ("Wheat Beer", "wheat", "Ale", Decimal("4.0"), Decimal("5.6"), 8, 20, 3, 9),
-    ("Stout", "stout", "Ale", Decimal("4.0"), Decimal("7.0"), 25, 60, 30, 40),
-    ("Amber Ale", "amber_ale", "Ale", Decimal("4.5"), Decimal("6.2"), 25, 45, 10, 17),
-    ("Sour Ale", "sour", "Ale", Decimal("3.5"), Decimal("6.5"), 5, 25, 3, 20),
-    ("Saison", "saison", "Ale", Decimal("5.0"), Decimal("7.0"), 20, 35, 5, 14),
-    ("Belgian Tripel", "tripel", "Ale", Decimal("7.5"), Decimal("9.5"), 20, 40, 4, 7),
+    ("India Pale Ale", "ipa", "Ale", "IPA", Decimal("5.5"), Decimal("7.5"), 40, 70, 6, 14),
+    ("Lager", "lager", "Lager", "Pale Lager", Decimal("4.0"), Decimal("5.5"), 8, 25, 2, 6),
+    ("Wheat Beer", "wheat", "Ale", "Wheat Beer", Decimal("4.0"), Decimal("5.6"), 8, 20, 3, 9),
+    ("Stout", "stout", "Ale", "Stout", Decimal("4.0"), Decimal("7.0"), 25, 60, 30, 40),
+    ("Amber Ale", "amber_ale", "Ale", "Amber Ale", Decimal("4.5"), Decimal("6.2"), 25, 45, 10, 17),
+    ("Sour Ale", "sour", "Ale", "Sour Ale", Decimal("3.5"), Decimal("6.5"), 5, 25, 3, 20),
+    ("Saison", "saison", "Ale", "Pale Ale", Decimal("5.0"), Decimal("7.0"), 20, 35, 5, 14),
+    ("Belgian Tripel", "tripel", "Ale", "Strong Belgian Ale", Decimal("7.5"), Decimal("9.5"), 20, 40, 4, 7),
 
     # -- additional mainstream styles ----------------------------------------
-    ("Porter", "porter", "Ale", Decimal("4.0"), Decimal("6.5"), 25, 50, 20, 35),
-    ("Pilsner", "pilsner", "Lager", Decimal("4.2"), Decimal("5.5"), 25, 45, 2, 6),
-    ("Hefeweizen", "hefeweizen", "Ale", Decimal("4.5"), Decimal("5.6"), 8, 15, 2, 6),
-    ("Belgian Dubbel", "dubbel", "Ale", Decimal("6.0"), Decimal("7.6"), 15, 25, 10, 17),
-    ("Belgian Quadrupel", "quadrupel", "Ale", Decimal("9.0"), Decimal("12.0"), 20, 35, 12, 22),
-    ("Barleywine", "barleywine", "Ale", Decimal("8.0"), Decimal("12.0"), 40, 100, 10, 19),
-    ("Blonde Ale", "blonde_ale", "Ale", Decimal("4.0"), Decimal("5.5"), 15, 28, 3, 6),
+    ("Porter", "porter", "Ale", "Porter", Decimal("4.0"), Decimal("6.5"), 25, 50, 20, 35),
+    ("Pilsner", "pilsner", "Lager", "Pale Lager", Decimal("4.2"), Decimal("5.5"), 25, 45, 2, 6),
+    ("Hefeweizen", "hefeweizen", "Ale", "Wheat Beer", Decimal("4.5"), Decimal("5.6"), 8, 15, 2, 6),
+    ("Belgian Dubbel", "dubbel", "Ale", "Belgian Ale", Decimal("6.0"), Decimal("7.6"), 15, 25, 10, 17),
+    ("Belgian Quadrupel", "quadrupel", "Ale", "Strong Belgian Ale", Decimal("9.0"), Decimal("12.0"), 20, 35, 12, 22),
+    ("Barleywine", "barleywine", "Ale", "Strong Ale", Decimal("8.0"), Decimal("12.0"), 40, 100, 10, 19),
+    ("Blonde Ale", "blonde_ale", "Ale", "Pale Ale", Decimal("4.0"), Decimal("5.5"), 15, 28, 3, 6),
 ]
 
 
@@ -57,7 +59,10 @@ async def seed_styles(session: AsyncSession) -> tuple[int, int]:
     created = 0
     updated = 0
 
-    for name, slug, category, abv_min, abv_max, ibu_min, ibu_max, srm_min, srm_max in STYLES:
+    for (
+        name, slug, category, family,
+        abv_min, abv_max, ibu_min, ibu_max, srm_min, srm_max,
+    ) in STYLES:
         existing = (
             await session.execute(select(Style).where(Style.slug == slug))
         ).scalar_one_or_none()
@@ -68,6 +73,7 @@ async def seed_styles(session: AsyncSession) -> tuple[int, int]:
                     name=name,
                     slug=slug,
                     category=category,
+                    family=family,
                     abv_min=abv_min,
                     abv_max=abv_max,
                     ibu_min=ibu_min,
@@ -80,6 +86,7 @@ async def seed_styles(session: AsyncSession) -> tuple[int, int]:
         else:
             existing.name = name
             existing.category = category
+            existing.family = family
             existing.abv_min = abv_min
             existing.abv_max = abv_max
             existing.ibu_min = ibu_min

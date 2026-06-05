@@ -35,7 +35,8 @@ async def test_create_beer_returns_201(
             "brewery_id": str(brewery.id),
             "style_id": str(ipa.id),
             "abv": "6.5",
-            "ibu": 55,
+            "ibu_min": 50,
+            "ibu_max": 55,
         },
     )
 
@@ -44,6 +45,8 @@ async def test_create_beer_returns_201(
     assert body["name"] == "Citra Bomb"
     assert body["slug"] == "citra-bomb"
     assert body["brewery_id"] == str(brewery.id)
+    assert body["ibu_min"] == 50
+    assert body["ibu_max"] == 55
 
 
 def test_create_beer_rejects_unknown_brewery_fk(client: TestClient) -> None:

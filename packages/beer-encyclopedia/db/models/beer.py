@@ -101,6 +101,20 @@ class Beer(Base, UUIDMixin, TimestampMixin):
             "ean_code IS NULL OR length(ean_code) IN (8, 12, 13, 14)",
             name="ck_beers_ean_code_length",
         ),
+        # IBU / SRM min-max interval validation (ADR-0017 D5), following the
+        # ABV CHECK pattern on ``styles``: each bound non-negative, min <= max.
+        CheckConstraint("ibu_min IS NULL OR ibu_min >= 0", name="ck_beers_ibu_min_positive"),
+        CheckConstraint("ibu_max IS NULL OR ibu_max >= 0", name="ck_beers_ibu_max_positive"),
+        CheckConstraint(
+            "ibu_min IS NULL OR ibu_max IS NULL OR ibu_min <= ibu_max",
+            name="ck_beers_ibu_range",
+        ),
+        CheckConstraint("srm_min IS NULL OR srm_min >= 0", name="ck_beers_srm_min_positive"),
+        CheckConstraint("srm_max IS NULL OR srm_max >= 0", name="ck_beers_srm_max_positive"),
+        CheckConstraint(
+            "srm_min IS NULL OR srm_max IS NULL OR srm_min <= srm_max",
+            name="ck_beers_srm_range",
+        ),
         # Unique constraint allows multiple NULLs on both PostgreSQL and
         # SQLite — a beer without a barcode (community draft, internal
         # seed) does not collide with another. The constraint enforces
@@ -119,8 +133,17 @@ class Beer(Base, UUIDMixin, TimestampMixin):
         nullable=True,
     )
     abv: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)
-    ibu: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
-    srm: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    # Bitterness (IBU) and colour (SRM) are stored as min/max intervals
+    # rather than single points (ADR-0017): these numerics are rarely
+    # published and disagree across sources, so a single integer would be
+    # false precision. ``min == max`` is a known value, ``min < max`` a
+    # genuine range, both NULL unknown. SRM is canonical; EBC is a display
+    # conversion. Decimal sources are rounded outward (floor/ceil) by the
+    # writer to keep the interval conservative (ADR-0017 D1).
+    ibu_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    ibu_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    srm_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    srm_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

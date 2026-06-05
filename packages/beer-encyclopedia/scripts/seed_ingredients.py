@@ -357,34 +357,40 @@ async def seed_ingredients(session: AsyncSession) -> tuple[int, int]:
     beers = dict((await session.execute(select(Beer.slug, Beer.id))).all())
 
     links_created = 0
-    for beer_slug, items in LINKS.items():
-        beer_id = beers.get(beer_slug)
-        if beer_id is None:
-            raise ValueError(f"Beer slug '{beer_slug}' not found — run seed_beers.py first")
-        for item in items:
-            name, phase = item if isinstance(item, tuple) else (item, None)
-            ingredient_id = name_to_id[name]
-            existing_link = (
-                await session.execute(
-                    select(BeerIngredient).where(
-                        BeerIngredient.beer_id == beer_id,
-                        BeerIngredient.ingredient_id == ingredient_id,
+    # All-or-nothing: the catalog upsert and links share one transaction, so
+    # roll the whole batch back if a link cannot resolve its beer, rather than
+    # leaving a caller able to commit a partially-seeded catalog.
+    try:
+        for beer_slug, items in LINKS.items():
+            beer_id = beers.get(beer_slug)
+            if beer_id is None:
+                raise ValueError(f"Beer slug '{beer_slug}' not found — run seed_beers.py first")
+            for item in items:
+                name, phase = item if isinstance(item, tuple) else (item, None)
+                ingredient_id = name_to_id[name]
+                existing_link = (
+                    await session.execute(
+                        select(BeerIngredient).where(
+                            BeerIngredient.beer_id == beer_id,
+                            BeerIngredient.ingredient_id == ingredient_id,
+                        )
                     )
-                )
-            ).scalar_one_or_none()
-            if existing_link is None:
-                session.add(
-                    BeerIngredient(
-                        beer_id=beer_id,
-                        ingredient_id=ingredient_id,
-                        usage_phase=phase,
+                ).scalar_one_or_none()
+                if existing_link is None:
+                    session.add(
+                        BeerIngredient(
+                            beer_id=beer_id,
+                            ingredient_id=ingredient_id,
+                            usage_phase=phase,
+                        )
                     )
-                )
-                links_created += 1
-            else:
-                existing_link.usage_phase = phase
-
-    await session.commit()
+                    links_created += 1
+                else:
+                    existing_link.usage_phase = phase
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
     return ingredients_created, links_created
 
 

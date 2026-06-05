@@ -171,6 +171,11 @@ async def test_seed_beers_conflicting_ean_and_slug_raises(
     with pytest.raises(ValueError, match="Conflicting beer matches"):
         await seed_beers(db_session)
 
+    # Atomic: the partial batch flushed before the conflict is rolled back,
+    # leaving only the two pre-seeded rows.
+    count = (await db_session.execute(select(func.count()).select_from(Beer))).scalar_one()
+    assert count == 2
+
 
 async def test_seed_ingredients_missing_beer_raises(db_session: AsyncSession) -> None:
     # Catalog can be created, but links cannot resolve without seeded beers.

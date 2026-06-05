@@ -822,20 +822,26 @@ async def seed_beers(session: AsyncSession) -> tuple[int, int]:
 
     created = 0
     updated = 0
-    for b in BEERS:
-        brewery_id, style_id = _resolve_fks(b, breweries, styles)
-        beer = await _find_existing_beer(session, b)
-        if beer is None:
-            beer = Beer(slug=b.slug)
-            session.add(beer)
-            created += 1
-        else:
-            updated += 1
-        _apply_beer_fields(beer, b, brewery_id, style_id)
-        await session.flush()
-        await _upsert_tasting_profile(session, beer.id, b)
-
-    await session.commit()
+    # All-or-nothing: per-beer flushes share one transaction, so roll back the
+    # whole batch if any beer raises (FK missing, split-key conflict) — a caller
+    # that catches the error must not be able to commit a partial corpus.
+    try:
+        for b in BEERS:
+            brewery_id, style_id = _resolve_fks(b, breweries, styles)
+            beer = await _find_existing_beer(session, b)
+            if beer is None:
+                beer = Beer(slug=b.slug)
+                session.add(beer)
+                created += 1
+            else:
+                updated += 1
+            _apply_beer_fields(beer, b, brewery_id, style_id)
+            await session.flush()
+            await _upsert_tasting_profile(session, beer.id, b)
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
     return created, updated
 
 

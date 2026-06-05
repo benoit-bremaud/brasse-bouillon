@@ -744,9 +744,19 @@ async def seed_beers(session: AsyncSession) -> tuple[int, int]:
         if b.style_slug and style_id is None:
             raise ValueError(f"Style slug '{b.style_slug}' not found — run seed_styles.py first")
 
-        existing = (
-            await session.execute(select(Beer).where(Beer.slug == b.slug))
-        ).scalar_one_or_none()
+        # Match by EAN first when present: an OpenFoodFacts import
+        # (/beers/import-by-ean) may already hold this product under a
+        # different slug, and the unique ean_code constraint would abort a
+        # blind slug-keyed insert. Fall back to slug for EAN-less beers.
+        existing = None
+        if b.ean is not None:
+            existing = (
+                await session.execute(select(Beer).where(Beer.ean_code == b.ean))
+            ).scalar_one_or_none()
+        if existing is None:
+            existing = (
+                await session.execute(select(Beer).where(Beer.slug == b.slug))
+            ).scalar_one_or_none()
 
         ibu_min, ibu_max = b.ibu
         srm_min, srm_max = b.srm
@@ -772,6 +782,7 @@ async def seed_beers(session: AsyncSession) -> tuple[int, int]:
             created += 1
         else:
             existing.name = b.name
+            existing.slug = b.slug
             existing.brewery_id = brewery_id
             existing.style_id = style_id
             existing.abv = b.abv

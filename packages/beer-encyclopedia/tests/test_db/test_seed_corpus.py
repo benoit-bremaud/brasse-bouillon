@@ -78,9 +78,7 @@ async def test_seed_beers_is_idempotent(db_session: AsyncSession) -> None:
 async def test_seed_beers_intervals_and_fk_resolved(db_session: AsyncSession) -> None:
     await _seed_prerequisites(db_session)
 
-    chouffe = (
-        await db_session.execute(select(Beer).where(Beer.slug == "la-chouffe"))
-    ).scalar_one()
+    chouffe = (await db_session.execute(select(Beer).where(Beer.slug == "la-chouffe"))).scalar_one()
     assert chouffe.ibu_min == 20
     assert chouffe.ibu_max == 28
     assert chouffe.brewery_id is not None
@@ -92,6 +90,36 @@ async def test_seed_beers_missing_brewery_raises(db_session: AsyncSession) -> No
     # No breweries seeded → the first beer's brewery slug cannot resolve.
     with pytest.raises(ValueError, match="Brewery slug"):
         await seed_beers(db_session)
+
+
+async def test_seed_beers_matches_existing_by_ean(db_session: AsyncSession) -> None:
+    # Simulate a prior OpenFoodFacts import: a beer holding La Chouffe's EAN
+    # under a *different* slug. The seeder must match it by EAN (not blindly
+    # insert and trip uq_beers_ean_code) and normalize its slug. (Codex P2)
+    await seed_breweries(db_session)
+    await seed_styles(db_session)
+    db_session.add(
+        Beer(
+            name="Imported draft",
+            slug="off-import-chouffe",
+            ean_code="5410769100081",
+            source="openfoodfacts",
+        )
+    )
+    await db_session.commit()
+
+    created, updated = await seed_beers(db_session)
+
+    assert created == len(BEERS) - 1  # La Chouffe matched the pre-existing row
+    assert updated == 1
+    matches = (
+        (await db_session.execute(select(Beer).where(Beer.ean_code == "5410769100081")))
+        .scalars()
+        .all()
+    )
+    assert len(matches) == 1  # no duplicate, no constraint violation
+    assert matches[0].slug == "la-chouffe"  # slug normalized to the curated one
+    assert matches[0].name == "La Chouffe"
 
 
 # -- ingredients (+ links) --------------------------------------------------

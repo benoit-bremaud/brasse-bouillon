@@ -1,8 +1,16 @@
 name: Copilot Review
 
+# Copilot code review is MANUAL (on-demand), not automatic.
+# Rationale: each Copilot review consumes a GitHub Copilot premium request
+# (13 per review since 2026-06-01 under the AI-credits model), so we reserve it
+# for deliberate, complementary reviews. The default review path is the local
+# pre-push ritual (Claude + Codex) plus CodeRabbit post-push.
+# See CONTRIBUTING.md § AI reviewers.
+#
+# To trigger Copilot on a PR: add the `needs-copilot` label.
 on:
   pull_request:
-    types: [opened, ready_for_review, reopened]
+    types: [labeled]
 
 permissions:
   contents: read
@@ -10,8 +18,8 @@ permissions:
 
 jobs:
   request_copilot_review:
-    # Wait until the PR is ready for review.
-    if: ${{ github.event.pull_request.draft == false }}
+    # Only when the `needs-copilot` label is applied, and only on non-draft PRs.
+    if: ${{ github.event.label.name == 'needs-copilot' && github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     steps:
       - name: Ask Copilot to review

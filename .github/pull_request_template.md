@@ -50,6 +50,8 @@ Closes #
   the relevant team members based on the scope/area labels of the linked
   issue. See CONTRIBUTING.md § 6 "PR notification comment" for the rules.
 
-  AI reviewers (Codex + Copilot) auto-review on push — do NOT call
+  CodeRabbit + Codex auto-review on push — do NOT call
   `requested_reviewers`, the API returns 422 for bot accounts.
+  Copilot is MANUAL: add the `needs-copilot` label to request it
+  (it bills premium requests). See CONTRIBUTING.md § AI reviewers.
 -->

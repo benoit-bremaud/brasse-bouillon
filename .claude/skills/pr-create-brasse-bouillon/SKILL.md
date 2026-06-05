@@ -57,16 +57,21 @@ gh api graphql -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{pro
   -f p="PVT_kwHOB8rwIc4AuVew" -f c="$PR_ID"
 ```
 
-## Step 4 — Copilot reviewer (best-effort)
+## Step 4 — Reviewers
+
+CodeRabbit and Codex review **every PR automatically** on push — do **not**
+call `requested_reviewers` for them (the API returns 422 for GitHub-App bots).
+
+Copilot is **manual** (it bills premium requests; ×13 per review since
+2026-06-01). Do **not** request it by default. Only when a deliberate Copilot
+review is wanted, add the `needs-copilot` label:
 
 ```bash
-gh api repos/benoit-bremaud/brasse-bouillon/pulls/$PR/requested_reviewers \
-  -X POST --input - <<'EOF'
-{"reviewers": ["copilot-pull-request-reviewer"]}
-EOF
+gh pr edit "$PR" --add-label "needs-copilot"
 ```
 
-A `422 not a collaborator` response is expected and ignored — Copilot is invited per PR, not as a permanent collaborator. Re-request later if Copilot is added.
+The `Copilot Review` workflow then posts `@copilot please review`. See
+CONTRIBUTING.md § AI reviewers.
 
 ## Step 5 — Milestone
 
@@ -117,8 +122,8 @@ gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/comments \
 
 1. Confirm the user wants the PR opened (per global "Ask before creating a PR" rule).
 2. Open the PR (step 1).
-3. Apply labels + assignee + project + Copilot + milestone (steps 2–5) — these can run in parallel.
+3. Apply labels + assignee + project + milestone (steps 2–5) — these can run in parallel.
 4. Post the French FYI comment (step 6).
-5. Wait for Copilot review per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge.
+5. Wait for the automatic reviews (CodeRabbit + Codex) to be **posted** per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge. Add the `needs-copilot` label only if a deliberate Copilot review is also wanted (step 4).
 
 Never auto-merge. Never use `--auto` or `--admin`. Per the global merge gate, present a readiness summary in English and wait for explicit textual approval.

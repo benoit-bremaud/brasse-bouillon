@@ -18,6 +18,9 @@ class StyleRead(BaseModel):
     name: str
     slug: str
     category: str | None
+    # Canonical BJCP style family (ADR-0016 D2), surfaced so API clients can
+    # consume the family used by recipe-matching v2.
+    family: str | None
     description: str | None
     abv_min: Decimal | None
     abv_max: Decimal | None

@@ -38,6 +38,7 @@ def upgrade() -> None:
     with op.batch_alter_table("styles") as batch_op:
         batch_op.add_column(sa.Column("family", sa.String(length=50), nullable=True))
 
+    # 1) Add the interval columns + CHECKs alongside the existing scalars.
     with op.batch_alter_table("beers") as batch_op:
         batch_op.add_column(sa.Column("ibu_min", sa.SmallInteger(), nullable=True))
         batch_op.add_column(sa.Column("ibu_max", sa.SmallInteger(), nullable=True))
@@ -63,6 +64,18 @@ def upgrade() -> None:
             "ck_beers_srm_range",
             "srm_min IS NULL OR srm_max IS NULL OR srm_min <= srm_max",
         )
+
+    # 2) Backfill: a previously-known single value becomes a degenerate
+    #    interval (min == max) so no data is lost when the scalars are dropped.
+    op.execute(
+        "UPDATE beers SET ibu_min = ibu, ibu_max = ibu WHERE ibu IS NOT NULL"
+    )
+    op.execute(
+        "UPDATE beers SET srm_min = srm, srm_max = srm WHERE srm IS NOT NULL"
+    )
+
+    # 3) Drop the now-migrated scalar columns.
+    with op.batch_alter_table("beers") as batch_op:
         batch_op.drop_column("ibu")
         batch_op.drop_column("srm")
 
@@ -73,6 +86,14 @@ def downgrade() -> None:
     with op.batch_alter_table("beers") as batch_op:
         batch_op.add_column(sa.Column("ibu", sa.SmallInteger(), nullable=True))
         batch_op.add_column(sa.Column("srm", sa.SmallInteger(), nullable=True))
+
+    # Collapse the interval back to a single value (its lower bound) — exact
+    # for known values (min == max), lossy for genuine ranges (acceptable on a
+    # downgrade).
+    op.execute("UPDATE beers SET ibu = ibu_min WHERE ibu_min IS NOT NULL")
+    op.execute("UPDATE beers SET srm = srm_min WHERE srm_min IS NOT NULL")
+
+    with op.batch_alter_table("beers") as batch_op:
         batch_op.drop_constraint("ck_beers_ibu_min_positive", type_="check")
         batch_op.drop_constraint("ck_beers_ibu_max_positive", type_="check")
         batch_op.drop_constraint("ck_beers_ibu_range", type_="check")

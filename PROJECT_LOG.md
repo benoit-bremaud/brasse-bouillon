@@ -5,6 +5,24 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-05
+
+### Cutover deploy — NestJS API redeploy + mobile OTA
+- Redeployed the NestJS API (`brasse-bouillon-api`, manual flyctl from the repo root, `--config packages/api/fly.toml`) for `POST /recipes/match` (#1190) — verified live (401 = endpoint present). Endpoint-only, no migration, SQLite volume preserved. **User-authorized prod deploy.**
+- Published the mobile OTA to the `preview` branch (runtimeVersion `0.1.13-alpha1`, matches APK `543d4bd2`): encyclopedia-first scan + recipe-match-by-characteristics. No rebuild.
+
+### PR #1189 merged (`767e8e1`) — feat(scan): resolve barcodes against the encyclopedia first (cutover step 1)
+- Branch `feat/scan-encyclopedia-first`. Part of #1186 / #1175. The mobile scan resolves a barcode against the beer-encyclopedia first; NestJS `/scan/lookup` becomes a transitional fallback on `404` **or** `503` (until the `scan_catalog_items → beers` migration #1150). Conforms to #1188.
+- Reviews — Codex P2 (fall back on 404 too) addressed; the P1 (recipe matching for encyclopedia beers) resolved on main by #1190.
+
+### PR #1188 merged (`1750df1`) — docs(conception): mobile scan sequence — encyclopedia-first cutover
+- Branch `docs/sequence-mobile-scan-cutover`. Part of #1186. New `08-sequence-mobile-scan` (Mermaid + PlantUML); traceability matrix updated.
+
+### PR #1190 merged (`e1d1764`) — feat(recipes): match recipes by characteristics, not a scan-catalog id
+- Branch `feat/recipe-match-by-characteristics`. Part of #1186 / #699. Extracts `rankByCharacteristics({style, abv, ibu, color_ebc})`; new `POST /recipes/match` (`MatchByCharacteristicsDto`); the mobile posts the scanned beer's characteristics. **Unblocks the cutover** — the legacy `GET /recipes/match/:beerId` 404'd for encyclopedia-sourced beers (Codex P1 on #1189). Scorer unchanged; legacy id route kept until #1186 step 2. Conception `06-sequence-recipe-matching`.
+- Reviews — Codex P2 (drop placeholder styles) + Copilot (blank-style renorm, cross-link) addressed. 73 API + 207 scan tests.
+- **Decision** `scan-cutover-to-encyclopedia` (completes ADR-0005) — the barcode scan is encyclopedia-first; recipe matching is source-agnostic. Remaining: retire the NestJS scan path + `scan_catalog_items` (#1186 step 2). Also opened this session: torch toggle #1191, recipe-matching design item on #1186.
+
 ## 2026-06-04
 
 ### PR #1185 merged (`1a312eb`) — feat(scan): surface brewery + style names on the scanned beer fiche

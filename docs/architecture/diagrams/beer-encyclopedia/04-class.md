@@ -54,6 +54,7 @@ classDiagram
     +str name
     +str slug
     +str category?
+    +str family?
     +Decimal abv_min?
     +Decimal abv_max?
     +int ibu_min?
@@ -176,6 +177,7 @@ class Style {
   +str name
   +str slug
   +str category?
+  +str family?
   +Decimal abv_min?
   +Decimal abv_max?
   +int ibu_min?
@@ -183,6 +185,10 @@ class Style {
   +int srm_min?
   +int srm_max?
 }
+note bottom of Style
+  family : BJCP style family (* cible ADR-0016)
+  not yet in code — graded match D2
+end note
 class Ingredient {
   +str name
   +str category
@@ -267,6 +273,11 @@ Source "1" o-- "0..*" EntitySource : cascade
 - **Provenance `Beer.source`** : dans le **code** = `{openfoodfacts, internal, community}` ;
   la **vue cible** ajoute `scan` (identification par étiquette, UC5) — **pas encore dans le
   code** : divergence tracée #1156.
+- **`Style.family` (cible ADR-0016)** : famille BJCP du style (ex. _Blonde Ale_, _Kölsch_ →
+  `Pale Ale`), support de la similarité de style **graduée par famille** du matcher v2
+  (ADR-0016 D2). **Pas encore dans le code** ; les paliers couleur/force se dérivent des bandes
+  `srm_*`/`abv_*` existantes. À implémenter (colonne ou table d'alias) avant le codage du
+  matcher v2 — voir `../recipes/06-sequence-recipe-matching.md`.
 
 ### Contraintes de colonnes (hors diagramme, depuis `db/models/*`)
 

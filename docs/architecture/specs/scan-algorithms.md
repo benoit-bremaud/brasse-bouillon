@@ -442,6 +442,16 @@ These are deliberately deferred to the implementation issues. They do not block 
 | Cloud Vision OCR + Claude vision per scan costs ≥ €0.05 | Med | Low | Cap enrichment frequency per user (#942), cache results, surface per-day cost in #942. |
 | User stops mid-rotation and the partial panorama is unusable | Low | Med | Detect short captures (< 12 frames) and either retry or fall back to "show what we have, no enrichment". |
 | Loop-closure false-positives on label patterns that legitimately repeat (e.g. La Trappe with 4 identical motifs) | Low | Med | Combine perceptual hash with feature matching, not just one signal; minimum frame threshold reduces risk. |
+| OpenFoodFacts category/style is crowd-sourced and often wrong, e.g. a beer mis-tagged as a lager | Med | High | Never trust the OFF category as ground truth — see §8.5. |
+
+### 8.5 OpenFoodFacts categories are a hypothesis, not ground truth
+
+OpenFoodFacts `category` / `style` data is crowd-sourced and frequently generic or wrong. Concrete case: the barcode lookup for **Leffe Blonde (EAN `5410228142218`)** returns OFF categories that list both "Lagers" and "Ales" — but Leffe Blonde is a top-fermented Belgian abbey **ale**, not a lager. Treat any OFF-derived `style` / `fermentation_type` as a starting hypothesis, never as ground truth:
+
+- An OFF-derived `style` / `fermentation_type` is **always estimated until verified**, independent of the completeness ratio. Completeness measures how *many* criteria are present, not whether the OFF style is *correct* — a fully-populated beer can still carry a wrong crowd-sourced category. Always flag it (`isStyleEstimated: true`) so the UI never presents an OFF category as a confirmed fact.
+- Phase 8 web verification reconciles the style against an authoritative source and is the only mechanism that clears the estimated flag (it does not copy the OFF category).
+- For mainstream beers, seed canonical values directly in the curated `scan_catalog_items` so the OFF category never reaches the user (e.g. a Leffe Blonde seed entry with `fermentation_type = ALE`).
+- The long-term mechanism is [ADR-0015](../decisions/0015-beer-ingestion-enrichment-strategy.md)'s per-source veracity coefficient: OFF categories rank below brewery datasheets and curated directories.
 
 ---
 

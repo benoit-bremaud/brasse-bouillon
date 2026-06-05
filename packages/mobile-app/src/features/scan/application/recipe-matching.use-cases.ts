@@ -28,12 +28,14 @@ import { getDemoEquivalentRecipes } from "@/mocks/demo-data";
 /**
  * Resolve the top-N matching recipes for a given recognised beer.
  *
- * Accepts the full `ScanCatalogItem` so the use-case has both the
- * `barcode` (demo lookup key) and the `id` (backend lookup key)
- * without forcing the caller to pick the right one upstream.
+ * Accepts the `barcode` (demo lookup key) plus the matching
+ * characteristics (`style`/`abv`/`ibu`/`colorEbc`) the backend scores
+ * against. The match no longer keys off the `scan_catalog_items` id, so
+ * it works for beers resolved from the encyclopedia (scan cutover
+ * #1186).
  */
 export async function getMatchingRecipes(
-  beer: Pick<ScanCatalogItem, "id" | "barcode">,
+  beer: Pick<ScanCatalogItem, "barcode" | "style" | "abv" | "ibu" | "colorEbc">,
 ): Promise<ScanMatchingResult> {
   if (dataSource.useDemoData) {
     const rankings = getDemoEquivalentRecipes(beer.barcode);
@@ -46,5 +48,10 @@ export async function getMatchingRecipes(
     };
   }
 
-  return fetchMatchingRecipes(beer.id);
+  return fetchMatchingRecipes({
+    style: beer.style,
+    abv: beer.abv,
+    ibu: beer.ibu,
+    colorEbc: beer.colorEbc,
+  });
 }

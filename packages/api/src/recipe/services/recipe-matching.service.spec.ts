@@ -589,6 +589,98 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(service.computeQuality(recipe)).toBe(0);
     });
   });
+
+  // ---------------------------------------------------------------
+  // rankByCharacteristics — the source-agnostic core (scan cutover #1186)
+  // ---------------------------------------------------------------
+  describe('rankByCharacteristics (integration — no scan_catalog row)', () => {
+    it('happy: ranks the closest recipe from characteristics alone (no beer id)', async () => {
+      await Promise.all([
+        seedRecipe(recipeRepo, {
+          name: 'Session IPA Citra',
+          style: 'Session IPA',
+          abv_estimated: 4.6,
+          avg_rating: 4.7,
+        }),
+        seedRecipe(recipeRepo, {
+          name: 'Belgian Tripel',
+          style: 'Belgian Tripel',
+          abv_estimated: 8.5,
+          avg_rating: 4.8,
+        }),
+      ]);
+
+      const { rankings, low_confidence } = await service.rankByCharacteristics(
+        { style: 'Session IPA', abv: 4.5 },
+        3,
+      );
+
+      expect(rankings[0].recipe.name).toBe('Session IPA Citra');
+      expect(low_confidence).toBe(false);
+    });
+
+    it('edge: still ranks (renormalised) when only a style is provided', async () => {
+      await seedRecipe(recipeRepo, {
+        name: 'IPA',
+        style: 'IPA',
+        abv_estimated: 6,
+        avg_rating: 4.5,
+      });
+
+      const { rankings } = await service.rankByCharacteristics(
+        { style: 'IPA' },
+        3,
+      );
+
+      expect(rankings).toHaveLength(1);
+      expect(rankings[0].recipe.name).toBe('IPA');
+    });
+
+    it('edge: empty characteristics still returns the candidates, flagged low confidence', async () => {
+      await seedRecipe(recipeRepo, {
+        name: 'Whatever',
+        style: 'IPA',
+        abv_estimated: 6,
+        avg_rating: 4,
+      });
+
+      const { rankings, low_confidence } = await service.rankByCharacteristics(
+        { style: null },
+        3,
+      );
+
+      expect(rankings).toHaveLength(1);
+      expect(low_confidence).toBe(true);
+    });
+
+    it('parity: rankForBeer delegates here — same ranking for the same characteristics', async () => {
+      const beerId = await seedBeer(catalogRepo, { style: 'Stout', abv: 5 });
+      await Promise.all([
+        seedRecipe(recipeRepo, {
+          name: 'Dry Stout',
+          style: 'Stout',
+          abv_estimated: 4.8,
+          avg_rating: 4.6,
+        }),
+        seedRecipe(recipeRepo, {
+          name: 'Hazy IPA',
+          style: 'NEIPA',
+          abv_estimated: 6.5,
+          avg_rating: 4.5,
+        }),
+      ]);
+
+      const viaBeer = await service.rankForBeer(beerId, 3);
+      const viaCharacteristics = await service.rankByCharacteristics(
+        { style: 'Stout', abv: 5 },
+        3,
+      );
+
+      expect(viaCharacteristics.rankings.map((r) => r.recipe.name)).toEqual(
+        viaBeer.rankings.map((r) => r.recipe.name),
+      );
+    });
+  });
 });
 
 // -----------------------------------------------------------------

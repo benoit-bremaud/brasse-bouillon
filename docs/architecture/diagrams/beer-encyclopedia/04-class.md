@@ -309,7 +309,8 @@ Source "1" o-- "0..*" EntitySource : cascade
   ean_code (len 8/12/13/14)}` ; `TastingProfile` échelles 1–5 ; `Media`
   parent unique (`ck_media_parent_required`) ; `LegalDenomination` gardes de positivité.
   Cible ADR-0017 : `Beer.{ibu_min ≤ ibu_max, srm_min ≤ srm_max, chaque borne ≥ 0}`
-  (comme les CHECKs `Style` existants).
+  — **nouveaux** CHECKs, sur le patron des CHECKs `abv` déjà présents sur `Style`
+  (`Style` ne contraint aujourd'hui que `abv`, pas `ibu`/`srm`).
 - **Défauts** : `Beer.source = 'internal'`, `Beer.is_active = true`,
   `*.is_verified = false`, `Media.is_primary = false`,
   `CommunityCorrection.status = 'pending'`.

@@ -27,7 +27,11 @@ Replace the single columns with:
 - `ibu_min` / `ibu_max` (`SmallInteger`, nullable)
 - `srm_min` / `srm_max` (`SmallInteger`, nullable)
 
-`abv` stays a single `Numeric(4,2)` — it is almost always printed exactly on the label, so an interval would add complexity for no honesty gain (scope decision, 2026-06-05). This mirrors `Style`'s existing shape (which keeps `abv_min/max` because *styles* genuinely span a strength band — a different rationale).
+This mirrors `Style`'s existing column **types** (`Style.ibu_min/max` + `srm_min/max` are already `SmallInteger`).
+
+**Rounding rule (integer columns).** Values are stored as integers. When a source quotes a decimal (e.g. Leffe `21.5`), round **outward** to the bracketing integers — `min = floor(value)`, `max = ceil(value)` — so `21.5` becomes `21–22`, keeping the interval honestly conservative rather than inventing a precise point. An integer single-source value stays `min == max` (D2); only decimals widen to a 1-unit interval.
+
+`abv` stays a single `Numeric(4,2)` — it is almost always printed exactly on the label, so an interval would add complexity for no honesty gain (scope decision, 2026-06-05). `Style` keeps `abv_min/max` because *styles* genuinely span a strength band — a different rationale.
 
 ### D2 — The interval is self-describing; no per-field "estimated" flag
 
@@ -47,9 +51,11 @@ The stored columns stay in **SRM** (consistent with the prior `Beer.srm` and wit
 
 A `Beer` with no IBU does **not** inherit its `Style.ibu_min/max` into its own columns. The style range may be shown as a **read-time display fallback** ("typical for this style"), computed on read and **never persisted** onto the beer. This keeps ADR-0016's deferral intact: beer-level data stays beer-level; style ranges stay style-level.
 
-### D5 — Validation mirrors `Style`
+### D5 — Validation follows the ABV CHECK pattern on `Style`
 
-CHECK constraints as already used on `Style`: `ibu_min ≤ ibu_max`, `srm_min ≤ srm_max`, each `≥ 0` when non-NULL.
+New CHECK constraints on `Beer`, following the **ABV CHECK pattern already on `Style`** (`ck_styles_abv_min_positive` / `ck_styles_abv_max_positive` / `abv_min ≤ abv_max`): `ibu_min ≤ ibu_max`, `srm_min ≤ srm_max`, each `≥ 0` when non-NULL.
+
+> Note: `Style` today constrains only `abv`; its `ibu_min/max` + `srm_min/max` columns carry **no** CHECKs yet. These IBU/SRM CHECKs are therefore **new work** on `Beer` (not a copy of an existing `Style` constraint). Adding the matching CHECKs to `Style.ibu/srm` for symmetry is a consistent, optional follow-up.
 
 ## Out of scope (deferred, captured)
 

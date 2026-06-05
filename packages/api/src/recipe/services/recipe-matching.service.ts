@@ -396,9 +396,11 @@ export class RecipeMatchingService {
       { count: 100, score: 95 },
       { count: 500, score: 100 },
     ];
-    if (brewCount <= anchors[0].count) return anchors[0].score * brewCount;
-    if (brewCount >= anchors[anchors.length - 1].count) {
-      return anchors[anchors.length - 1].score;
+    const first = anchors[0];
+    const last = anchors.at(-1) ?? first; // `anchors` is a non-empty literal
+    if (brewCount <= first.count) return first.score * brewCount;
+    if (brewCount >= last.count) {
+      return last.score;
     }
     for (let i = 0; i < anchors.length - 1; i += 1) {
       const lo = anchors[i];

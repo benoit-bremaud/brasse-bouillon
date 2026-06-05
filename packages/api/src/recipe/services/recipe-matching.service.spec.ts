@@ -162,17 +162,36 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(service.computeFinalScore(beer, recipe)).toBe(100);
     });
 
-    it('happy: official-recipe shortcut sets similarity=100; quality still varies', () => {
-      // Style mismatch + null rating: similarity=100 (shortcut),
-      // quality=0 (no rating, no brew_count, no recency).
-      // Final = 100*0.7 + 0*0.3 = 70.
+    it('happy: a style-compatible official gets the shortcut (similarity=100)', () => {
+      // Same style → style-compatible → shortcut. Null quality → 70.
       const official = makeRecipe({
-        style: 'Pilsner',
+        style: 'IPA',
         abv_estimated: null,
         avg_rating: null,
         is_official: true,
       });
       expect(service.computeFinalScore(beer, official)).toBeCloseTo(70, 5);
+    });
+
+    it('#1193: an off-style official does NOT get the shortcut and cannot outrank a genuine style match', () => {
+      // Pilsner official for an IPA beer → style score 0 → not
+      // style-compatible → no shortcut → ranked on its honest (low)
+      // similarity, so a same-style non-official scores higher.
+      const offStyleOfficial = makeRecipe({
+        style: 'Pilsner',
+        abv_estimated: null,
+        avg_rating: null,
+        is_official: true,
+      });
+      const sameStyleNonOfficial = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5.5,
+        avg_rating: 4,
+      });
+
+      expect(service.computeFinalScore(beer, offStyleOfficial)).toBeLessThan(
+        service.computeFinalScore(beer, sameStyleNonOfficial),
+      );
     });
 
     it('edge: a recipe with no style nor ABV nor rating still scores deterministically (0)', () => {
@@ -231,28 +250,28 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(low_confidence).toBe(false);
     });
 
-    it('happy: an official-flagged recipe beats every non-official peer', async () => {
+    it('happy: a style-compatible official beats non-official peers (#1193)', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'Pilsner',
         abv: 5,
       });
       await seedRecipe(recipeRepo, {
         name: 'Random NEIPA',
-        style: 'NEIPA',
+        style: 'NEIPA', // off the beer style
         abv_estimated: 6.5,
         avg_rating: 5,
       });
       await seedRecipe(recipeRepo, {
-        name: 'Brewer-Endorsed Clone',
-        style: 'Belgian Tripel', // wildly off the beer style
-        abv_estimated: 9, // wildly off the beer ABV
+        name: 'Brewer-Endorsed Pilsner',
+        style: 'Pilsner', // same style → shortcut applies
+        abv_estimated: 9, // ABV off, but the style gate is satisfied
         avg_rating: null, // no rating
         is_official: true,
       });
 
       const { rankings } = await service.rankForBeer(beerId, 3);
-      expect(rankings[0].recipe.name).toBe('Brewer-Endorsed Clone');
-      // Similarity = 100 (official shortcut), quality = 0 (no
+      expect(rankings[0].recipe.name).toBe('Brewer-Endorsed Pilsner');
+      // Style-compatible → similarity = 100 (shortcut), quality = 0 (no
       // avg_rating, no brew_count, no recency). Final = 100*0.7 = 70.
       expect(rankings[0].score).toBeCloseTo(70, 5);
     });
@@ -379,12 +398,11 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(low_confidence).toBe(true);
     });
 
-    it('low_confidence: still true when an irrelevant official-tagged recipe tops the ranking (Codex P1 #792)', async () => {
-      // `is_official` is global, not per-beer. A single official
-      // recipe with a style/ABV/everything mismatch should NOT
-      // suppress the low_confidence warning just because the
-      // shortcut sets its similarity to 100. The honest score
-      // (computed similarity + quality) decides.
+    it('low_confidence: an off-style official is not inflated by the shortcut and the warning fires (#1193 supersedes #792)', async () => {
+      // Since #1193 the official shortcut applies only to a
+      // style-compatible official. An off-style official no longer
+      // inflates its headline to 70 — it is ranked on its honest (low)
+      // similarity — and the low_confidence warning still fires.
       const beerId = await seedBeer(catalogRepo, {
         style: 'Pilsner',
         abv: 4.5,
@@ -398,11 +416,8 @@ describe('RecipeMatchingService (Issue #699)', () => {
       });
 
       const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
-      // The headline score still reflects the shortcut (≥ 70 because
-      // similarity=100 × 0.7 + quality=0 × 0.3), so the recipe stays
-      // visually prominent.
-      expect(rankings[0].score).toBeGreaterThanOrEqual(70);
-      // But the warning still fires — the actual similarity is 0.
+      // No shortcut for an off-style official → honest (low) headline.
+      expect(rankings[0].score).toBeLessThan(40);
       expect(low_confidence).toBe(true);
     });
 
@@ -698,6 +713,31 @@ describe('RecipeMatchingService (Issue #699)', () => {
       );
 
       expect(whitespace).toBe(absent);
+    });
+
+    it('#1193: a blonde beer ranks a same-style recipe above an off-style official (the Leffe case)', async () => {
+      await Promise.all([
+        seedRecipe(recipeRepo, {
+          name: 'Punk IPA (official)',
+          style: 'American IPA',
+          abv_estimated: 5.4,
+          avg_rating: 4.9,
+          is_official: true,
+        }),
+        seedRecipe(recipeRepo, {
+          name: 'Belgian Blonde',
+          style: 'Blonde Ale',
+          abv_estimated: 6.5,
+          avg_rating: 4.2,
+        }),
+      ]);
+
+      const { rankings } = await service.rankByCharacteristics(
+        { style: 'Blonde Ale', abv: 6.6 },
+        3,
+      );
+
+      expect(rankings[0].recipe.name).toBe('Belgian Blonde');
     });
   });
 });

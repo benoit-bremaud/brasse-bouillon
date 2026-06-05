@@ -162,17 +162,25 @@ export class RecipeMatchingService {
    * Combines similarity (70%) and quality (30%), each computed with
    * weight renormalization if a sub-criterion is missing.
    *
-   * The official-recipe shortcut wins outright on the similarity
-   * axis only — quality still varies, so two officials can be
-   * ranked relative to each other by their rating/brew_count/recency.
+   * The official-recipe shortcut (similarity = 100) applies **only when
+   * the official is style-compatible** with the scanned beer — i.e. the
+   * style sub-score is positive (exact or same-family). An off-style
+   * official (e.g. an IPA for a Leffe Blonde) no longer floats above a
+   * genuine style match; it is ranked on its honest similarity instead,
+   * so a same-style non-official can outrank it (#1193). Quality still
+   * varies, so two style-compatible officials are ordered by their
+   * rating/brew_count/recency.
    */
   computeFinalScore(
     beer: BeerCharacteristics,
     recipe: RecipeOrmEntity,
   ): number {
-    const similarity = recipe.is_official
-      ? 100
-      : this.computeSimilarity(beer, recipe);
+    const styleScore = this.maybeStyleScore(beer.style, recipe.style);
+    const styleCompatible = styleScore !== null && styleScore > 0;
+    const similarity =
+      recipe.is_official && styleCompatible
+        ? 100
+        : this.computeSimilarity(beer, recipe);
     const quality = this.computeQuality(recipe);
     return similarity * 0.7 + quality * 0.3;
   }

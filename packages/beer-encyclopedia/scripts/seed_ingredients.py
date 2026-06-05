@@ -330,10 +330,7 @@ async def _ensure_ingredients(
     so a drifted catalog is restored on re-run.
     """
 
-    by_name = {
-        ing.name: ing
-        for ing in (await session.execute(select(Ingredient))).scalars().all()
-    }
+    by_name = {ing.name: ing for ing in (await session.execute(select(Ingredient))).scalars().all()}
     created = 0
     for name, category in INGREDIENTS.items():
         existing = by_name.get(name)
@@ -343,9 +340,7 @@ async def _ensure_ingredients(
         else:
             existing.category = category
     await session.flush()
-    name_to_id = dict(
-        (await session.execute(select(Ingredient.name, Ingredient.id))).all()
-    )
+    name_to_id = dict((await session.execute(select(Ingredient.name, Ingredient.id))).all())
     return name_to_id, created
 
 
@@ -367,7 +362,9 @@ async def seed_ingredients(session: AsyncSession) -> tuple[int, int]:
                 raise ValueError(f"Beer slug '{beer_slug}' not found — run seed_beers.py first")
             for item in items:
                 name, phase = item if isinstance(item, tuple) else (item, None)
-                ingredient_id = name_to_id[name]
+                ingredient_id = name_to_id.get(name)
+                if ingredient_id is None:
+                    raise ValueError(f"Ingredient '{name}' not in INGREDIENTS catalog")
                 existing_link = (
                     await session.execute(
                         select(BeerIngredient).where(

@@ -13,7 +13,8 @@ ADR-0015); re-seeding preserves the verification state of existing rows.
 otherwise. OpenFoodFacts category errors are NOT propagated: every abbey/blonde
 mis-tagged "lager" by OFF is seeded with its true ale style (scan spec §8.5).
 
-Idempotent: matched by beer ``slug``; tasting profiles matched by ``beer_id``.
+Idempotent: matched by ``ean_code`` first when present, then by beer ``slug``;
+tasting profiles matched by ``beer_id``.
 """
 
 from __future__ import annotations
@@ -735,9 +736,7 @@ def _resolve_fks(
 
     brewery_id = breweries.get(b.brewery_slug)
     if brewery_id is None:
-        raise ValueError(
-            f"Brewery slug '{b.brewery_slug}' not found — run seed_breweries.py first"
-        )
+        raise ValueError(f"Brewery slug '{b.brewery_slug}' not found — run seed_breweries.py first")
     style_id = styles.get(b.style_slug) if b.style_slug else None
     if b.style_slug and style_id is None:
         raise ValueError(f"Style slug '{b.style_slug}' not found — run seed_styles.py first")
@@ -749,18 +748,25 @@ async def _find_existing_beer(session: AsyncSession, b: BeerSeed) -> Beer | None
 
     An OpenFoodFacts import (/beers/import-by-ean) may already hold this
     product under a different slug; matching the unique ``ean_code`` first
-    avoids a constraint violation on a blind slug-keyed insert.
+    avoids a constraint violation on a blind slug-keyed insert. When the EAN
+    and the slug resolve to two *different* rows, fail fast rather than
+    silently overwrite a slug into a uniqueness violation.
     """
 
+    by_ean = None
     if b.ean is not None:
         by_ean = (
             await session.execute(select(Beer).where(Beer.ean_code == b.ean))
         ).scalar_one_or_none()
-        if by_ean is not None:
-            return by_ean
-    return (
-        await session.execute(select(Beer).where(Beer.slug == b.slug))
-    ).scalar_one_or_none()
+
+    by_slug = (await session.execute(select(Beer).where(Beer.slug == b.slug))).scalar_one_or_none()
+
+    if by_ean is not None and by_slug is not None and by_ean.id != by_slug.id:
+        raise ValueError(
+            f"Conflicting beer matches: EAN '{b.ean}' and slug '{b.slug}' resolve to different rows"
+        )
+
+    return by_ean or by_slug
 
 
 def _apply_beer_fields(
@@ -780,9 +786,7 @@ def _apply_beer_fields(
     beer.source = b.source
 
 
-async def _upsert_tasting_profile(
-    session: AsyncSession, beer_id: uuid.UUID, b: BeerSeed
-) -> None:
+async def _upsert_tasting_profile(session: AsyncSession, beer_id: uuid.UUID, b: BeerSeed) -> None:
     """Create or refresh the one-to-one tasting profile of a beer."""
 
     bitterness, sweetness, body, carbonation = b.taste

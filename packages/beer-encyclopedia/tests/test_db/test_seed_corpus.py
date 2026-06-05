@@ -149,6 +149,29 @@ async def test_seed_ingredients_is_idempotent(db_session: AsyncSession) -> None:
     assert await _count(db_session, BeerIngredient) == _EXPECTED_LINKS
 
 
+async def test_seed_beers_conflicting_ean_and_slug_raises(
+    db_session: AsyncSession,
+) -> None:
+    # Split-key drift: La Chouffe's EAN on one row, its curated slug on another.
+    # The seeder must fail fast rather than overwrite a slug into a uniqueness
+    # violation. (CodeRabbit)
+    await seed_breweries(db_session)
+    await seed_styles(db_session)
+    db_session.add(
+        Beer(
+            name="EAN holder",
+            slug="off-import-chouffe",
+            ean_code="5410769100081",
+            source="openfoodfacts",
+        )
+    )
+    db_session.add(Beer(name="Slug holder", slug="la-chouffe", source="internal"))
+    await db_session.commit()
+
+    with pytest.raises(ValueError, match="Conflicting beer matches"):
+        await seed_beers(db_session)
+
+
 async def test_seed_ingredients_missing_beer_raises(db_session: AsyncSession) -> None:
     # Catalog can be created, but links cannot resolve without seeded beers.
     with pytest.raises(ValueError, match="Beer slug"):

@@ -9,6 +9,11 @@ import {
   RankedRecipeDto,
   RankedRecipeResponseDto,
 } from '../dtos/ranked-recipe.dto';
+import { styleSimilarity } from './bjcp-style-family';
+import {
+  SCAN_MATCH_C_MIN,
+  SCAN_MATCH_S_MIN,
+} from './recipe-matching.constants';
 
 /**
  * The beer characteristics the matcher scores against — style, ABV,
@@ -26,45 +31,45 @@ export interface BeerCharacteristics {
 }
 
 /**
- * Score-based recipe matching — full brainstorm scan-2026-04-24 §3
- * formula. Extends the minimal-viable scope shipped in PR #773 with
- * the four remaining components, weight renormalization when a
- * criterion is missing, and the `low_confidence` flag on the
- * response.
+ * Score-based recipe matching — **v2** per ADR-0016
+ * (docs/architecture/diagrams/recipes/06-sequence-recipe-matching.md).
  *
- *   SIMILARITY (70%) = official ? 100 :
- *                      style × 50 + ABV × 25 + bitterness × 15 + color × 10
- *                      (weights renormalized if a criterion is missing)
+ * The headline score is the **match strength**: a weighted, completeness-aware
+ * SIMILARITY only. Community quality (rating) is no longer blended into the
+ * score — `avg_rating` is now purely a tie-break (ADR-0016 ranks on similarity,
+ * rating departages equal matches).
  *
- *   QUALITY    (30%) = avg_rating × 60 + brew_count_confidence × 30 + recency × 10
- *                      (weights renormalized if a criterion is missing)
+ *   matchStrength = official&style-compatible ? 100 :
+ *                   Σ[weight × localSim] / Σ[weight] over present criteria
+ *                   (Gower renormalisation — a missing criterion drops from
+ *                    BOTH numerator and denominator, never a 0 penalty)
  *
- *   FINAL            = similarity × 0.7 + quality × 0.3
+ *   Full-data weights (ADR-0016 D1):
+ *     style 40, colour 22, bitterness 18, ABV 14   (ingredients 6 deferred)
  *
- *   low_confidence   = true when the best match scores below 40
- *                      (response envelope flag, lets the UI display
- *                      a discreet "no very similar recipe" warning).
+ *   completeness  = Σ[present weight] / 100         (ADR-0016 D4)
+ *                   a separate confidence signal — how much of the full picture
+ *                   the comparison used. Caps at 0.94 until ingredients (6) are
+ *                   compared.
  *
- * The official-recipe shortcut applies **only to a style-compatible
- * official** (`is_official=true` AND a positive style sub-score) →
- * similarity 100; an off-style official is ranked on its honest
- * similarity instead (#1193). Quality still varies.
+ *   Acceptance (ADR-0016 D5): a candidate is shown only when
+ *     matchStrength ≥ SCAN_MATCH_S_MIN AND completeness ≥ SCAN_MATCH_C_MIN.
+ *   The filter runs over ALL scored candidates BEFORE the top-N truncation, so
+ *   a reliable match ranked just below an unreliable one is never hidden.
+ *   `low_confidence` is `true` when nothing passes (empty rankings → the mobile
+ *   shows an honest "no reliable equivalent" state).
  *
- * Sub-score scales (0..100):
- * - style — exact match 100, family containment 70, else 0
+ * The official-recipe shortcut stays style-gated (#1193 / D6): `is_official`
+ * AND a positive style local-similarity → matchStrength 100; an off-style
+ * official is ranked on its honest similarity instead and does not bypass D5.
+ *
+ * Local-similarity scales (0..100):
+ * - style — graded by BJCP family (`./bjcp-style-family`): same style 100,
+ *   same family 70, same colour+strength tier 40, else 0 (null when either side
+ *   is unclassifiable → dropped).
  * - ABV — linear `max(0, 100 - 25 × |gap|)` so 0% gap → 100, 4%+ → 0
- * - bitterness — categorical match on soft / marked / very marked
- *   bands derived from the docs/product/vocab-mapping.md table
- * - color — categorical match on pale / amber / brown / black bands
- *   from the same vocab mapping (EBC scale)
- * - avg_rating — linear `((rating - 1) / 4) × 80 + 20` so 1.0 → 20,
- *   5.0 → 100 ; null → 0 (do not crowd out rated peers)
- * - brew_count_confidence — logarithmic: 0 → 0, 1 → 30, 5 → 60,
- *   20 → 80, 100 → 95, 500+ → 100. Prevents a recent excellent
- *   recipe from being unfairly downgraded versus old recipes with
- *   many brews.
- * - recency — decay from `last_brewed_at`: <30d → 100, <90d → 80,
- *   <1yr → 60, <2yr → 40, 2yr+ → 20, null → 0.
+ * - bitterness — categorical match on the IBU bands from vocab-mapping
+ * - colour — categorical match on the EBC bands from vocab-mapping
  */
 @Injectable()
 export class RecipeMatchingService {
@@ -74,6 +79,13 @@ export class RecipeMatchingService {
     @InjectRepository(ScanCatalogItemOrmEntity)
     private readonly catalogRepo: Repository<ScanCatalogItemOrmEntity>,
   ) {}
+
+  /**
+   * Full weight of all five ADR-0016 criteria (style 40 + colour 22 + IBU 18 +
+   * ABV 14 + ingredients 6). The completeness denominator; ingredients are not
+   * compared yet, so completeness currently caps at 94/100.
+   */
+  private static readonly TOTAL_CRITERIA_WEIGHT = 100;
 
   async rankForBeer(
     beerCatalogItemId: string,
@@ -111,16 +123,24 @@ export class RecipeMatchingService {
       (recipe): RankedRecipeDto => ({
         recipe,
         score: this.computeFinalScore(beer, recipe),
+        completeness: this.computeCompleteness(beer, recipe),
       }),
     );
 
-    // Deterministic ordering: primary on score desc, secondary on
-    // avg_rating desc (a higher-rated peer wins ties), tertiary on
-    // recipe id ascending (lexicographic, stable across DBs and
-    // restarts). Without these tie-breakers the ranking falls back
-    // on the DB return order which is not guaranteed — Codex P2 on
-    // PR #773.
-    scored.sort((a, b) => {
+    // ADR-0016 D5: filter the FULL scored set BEFORE truncating to top-N, so a
+    // reliable match ranked just below a high-strength-but-low-completeness
+    // candidate is never hidden by the cut. A candidate is shown only when its
+    // match strength AND its completeness both clear the thresholds.
+    const accepted = scored.filter(
+      (s) => s.score >= SCAN_MATCH_S_MIN && s.completeness >= SCAN_MATCH_C_MIN,
+    );
+
+    // Deterministic ordering: match strength desc, then avg_rating desc (a
+    // higher-rated peer wins ties — rating is a tie-break only since v2,
+    // ADR-0016), then recipe id ascending (lexicographic, stable across DBs and
+    // restarts; without it the ranking falls back on the DB return order which
+    // is not guaranteed — Codex P2 on PR #773).
+    accepted.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       const ratingDelta =
         (b.recipe.avg_rating ?? 0) - (a.recipe.avg_rating ?? 0);
@@ -128,26 +148,12 @@ export class RecipeMatchingService {
       return a.recipe.id.localeCompare(b.recipe.id);
     });
 
-    const top = scored.slice(0, Math.max(1, Math.min(limit, 10)));
+    const top = accepted.slice(0, Math.max(1, Math.min(limit, 10)));
 
-    // `low_confidence` reflects whether the best match is genuinely
-    // similar to the scanned beer — NOT the headline score after the
-    // official shortcut. Since #1193 the shortcut is style-gated, so an
-    // off-style official is no longer inflated to the top; but a
-    // style-compatible official still scores 100 on similarity, which on
-    // its own (style match, ABV/quality unknown) can sit above the 40
-    // threshold while not being a strong overall match. So we still
-    // compute the "honest" score (similarity WITHOUT the shortcut +
-    // quality) on the top recipe and use THAT for the threshold check
-    // (the original Codex P1 on PR #792), keeping the warning truthful.
-    let honestTopScore = 0;
-    if (top.length > 0) {
-      const best = top[0].recipe;
-      const honestSimilarity = this.computeSimilarity(beer, best);
-      const honestQuality = this.computeQuality(best);
-      honestTopScore = honestSimilarity * 0.7 + honestQuality * 0.3;
-    }
-    const lowConfidence = top.length === 0 || honestTopScore < 40;
+    // `low_confidence` is true when nothing cleared the acceptance thresholds —
+    // the mobile renders an honest "no reliable equivalent" empty state rather
+    // than a misleading closest match (ADR-0016 D5).
+    const lowConfidence = top.length === 0;
 
     return {
       rankings: top,
@@ -156,18 +162,13 @@ export class RecipeMatchingService {
   }
 
   /**
-   * Final score for a single recipe against a beer. Range 0..100.
-   * Combines similarity (70%) and quality (30%), each computed with
-   * weight renormalization if a sub-criterion is missing.
-   *
-   * The official-recipe shortcut (similarity = 100) applies **only when
-   * the official is style-compatible** with the scanned beer — i.e. the
-   * style sub-score is positive (exact or same-family). An off-style
-   * official (e.g. an IPA for a Leffe Blonde) no longer floats above a
-   * genuine style match; it is ranked on its honest similarity instead,
-   * so a same-style non-official can outrank it (#1193). Quality still
-   * varies, so two style-compatible officials are ordered by their
-   * rating/brew_count/recency.
+   * Match strength for a single recipe against a beer (0..100) = SIMILARITY
+   * only (ADR-0016). The style-gated official shortcut (#1193 / D6) returns 100
+   * for a style-compatible official (`is_official` AND a positive style
+   * sub-score); an off-style official is ranked on its honest similarity
+   * instead, so a same-style non-official can outrank it. Community quality is
+   * NOT blended in — `avg_rating` is a tie-break in `rankByCharacteristics`,
+   * not part of the score.
    */
   computeFinalScore(
     beer: BeerCharacteristics,
@@ -175,64 +176,67 @@ export class RecipeMatchingService {
   ): number {
     const styleScore = this.maybeStyleScore(beer.style, recipe.style);
     const styleCompatible = styleScore !== null && styleScore > 0;
-    const similarity =
-      recipe.is_official && styleCompatible
-        ? 100
-        : this.computeSimilarity(beer, recipe);
-    const quality = this.computeQuality(recipe);
-    return similarity * 0.7 + quality * 0.3;
+    if (recipe.is_official && styleCompatible) {
+      return 100;
+    }
+    return this.computeSimilarity(beer, recipe);
   }
 
   /**
-   * Similarity score (0..100). Combines style (50%), ABV (25%),
-   * bitterness (15%) and color (10%). When a criterion is missing
-   * (null on either side), its weight is redistributed pro-rata to
-   * the criteria that ARE present — so a recipe with no IBU still
-   * gets a fair chance instead of an automatic -15 penalty.
-   *
-   * Returns 0 if all four criteria are missing.
+   * The comparable similarity criteria with their ADR-0016 full-data weights
+   * (style 40, colour 22, bitterness 18, ABV 14). Each `score` is the local
+   * similarity (0..100) or `null` when the criterion is absent on either side
+   * (→ dropped by Gower renormalisation). Shared by `computeSimilarity` (the
+   * weighted average) and `computeCompleteness` (the present-weight ratio) so
+   * the two can never drift.
+   */
+  private similarityComponents(
+    beer: BeerCharacteristics,
+    recipe: RecipeOrmEntity,
+  ): { weight: number; score: number | null }[] {
+    return [
+      { weight: 40, score: this.maybeStyleScore(beer.style, recipe.style) },
+      {
+        weight: 22,
+        score: this.maybeColorScore(beer.color_ebc, recipe.ebc_target),
+      },
+      {
+        weight: 18,
+        score: this.maybeBitternessScore(beer.ibu, recipe.ibu_target),
+      },
+      { weight: 14, score: this.maybeAbvScore(beer.abv, recipe.abv_estimated) },
+    ];
+  }
+
+  /**
+   * Similarity (0..100): the renormalised weighted average over the present
+   * criteria (ADR-0016 D3, Gower — a missing criterion drops from both
+   * numerator and denominator). Returns 0 when no criterion is comparable.
    */
   computeSimilarity(
     beer: BeerCharacteristics,
     recipe: RecipeOrmEntity,
   ): number {
-    const components: { weight: number; score: number | null }[] = [
-      { weight: 50, score: this.maybeStyleScore(beer.style, recipe.style) },
-      { weight: 25, score: this.maybeAbvScore(beer.abv, recipe.abv_estimated) },
-      {
-        weight: 15,
-        score: this.maybeBitternessScore(beer.ibu, recipe.ibu_target),
-      },
-      {
-        weight: 10,
-        score: this.maybeColorScore(beer.color_ebc, recipe.ebc_target),
-      },
-    ];
-    return this.weightedAverageWithRenorm(components);
+    return this.weightedAverageWithRenorm(
+      this.similarityComponents(beer, recipe),
+    );
   }
 
   /**
-   * Quality score (0..100). Combines avg_rating (60%),
-   * brew_count_confidence (30%) and recency (10%). Same
-   * renormalization principle as similarity — a recipe without
-   * brew history still gets credit for its rating instead of an
-   * automatic -40 penalty.
-   *
-   * Returns 0 if all three criteria are missing.
+   * Completeness (0..1): how much of the full ADR-0016 picture the comparison
+   * actually used = Σ present weight / 100. The denominator is the full
+   * five-criterion total; the ingredients criterion (weight 6) is not compared
+   * yet, so completeness caps at 0.94 for now — an honest reflection that we
+   * never have the whole picture (ADR-0016 D4).
    */
-  computeQuality(recipe: RecipeOrmEntity): number {
-    const components: { weight: number; score: number | null }[] = [
-      { weight: 60, score: this.maybeRatingScore(recipe.avg_rating) },
-      {
-        weight: 30,
-        score: this.maybeBrewCountScore(recipe.brew_count),
-      },
-      {
-        weight: 10,
-        score: this.maybeRecencyScore(recipe.last_brewed_at),
-      },
-    ];
-    return this.weightedAverageWithRenorm(components);
+  computeCompleteness(
+    beer: BeerCharacteristics,
+    recipe: RecipeOrmEntity,
+  ): number {
+    const presentWeight = this.similarityComponents(beer, recipe)
+      .filter((c) => c.score !== null)
+      .reduce((sum, c) => sum + c.weight, 0);
+    return presentWeight / RecipeMatchingService.TOTAL_CRITERIA_WEIGHT;
   }
 
   /**
@@ -264,19 +268,6 @@ export class RecipeMatchingService {
   // counting it as 0).
   // ------------------------------------------------------------------
 
-  scoreStyle(
-    beerStyle: string | null | undefined,
-    recipeStyle: string | null | undefined,
-  ): number {
-    if (!beerStyle || !recipeStyle) return 0;
-    const a = beerStyle.trim().toLowerCase();
-    const b = recipeStyle.trim().toLowerCase();
-    if (!a || !b) return 0;
-    if (a === b) return 100;
-    if (a.includes(b) || b.includes(a)) return 70;
-    return 0;
-  }
-
   scoreAbv(
     beerAbv: number | null | undefined,
     recipeAbv: number | null | undefined,
@@ -291,13 +282,6 @@ export class RecipeMatchingService {
     }
     const gap = Math.abs(beerAbv - recipeAbv);
     return Math.max(0, 100 - 25 * gap);
-  }
-
-  scoreQuality(avgRating: number | null | undefined): number {
-    if (avgRating === null || avgRating === undefined) return 0;
-    if (avgRating <= 0) return 0;
-    const clamped = Math.max(1, Math.min(5, avgRating));
-    return ((clamped - 1) / 4) * 80 + 20;
   }
 
   /**
@@ -376,61 +360,6 @@ export class RecipeMatchingService {
     return 4;
   }
 
-  /**
-   * Brew count confidence (0..100). Logarithmic so that a recent
-   * excellent recipe with one brew is not unfairly downgraded
-   * versus an old recipe with many brews:
-   *   0 → 0, 1 → 30, 5 → 60, 20 → 80, 100 → 95, 500+ → 100.
-   *
-   * Linear interpolation between the documented anchors. Null /
-   * negative inputs return 0.
-   */
-  scoreBrewCount(brewCount: number | null | undefined): number {
-    if (brewCount === null || brewCount === undefined) return 0;
-    if (brewCount <= 0) return 0;
-    // Anchor table — strictly monotonic.
-    const anchors: { count: number; score: number }[] = [
-      { count: 1, score: 30 },
-      { count: 5, score: 60 },
-      { count: 20, score: 80 },
-      { count: 100, score: 95 },
-      { count: 500, score: 100 },
-    ];
-    const first = anchors[0];
-    const last = anchors.at(-1) ?? first; // `anchors` is a non-empty literal
-    if (brewCount <= first.count) return first.score * brewCount;
-    if (brewCount >= last.count) {
-      return last.score;
-    }
-    for (let i = 0; i < anchors.length - 1; i += 1) {
-      const lo = anchors[i];
-      const hi = anchors[i + 1];
-      if (brewCount >= lo.count && brewCount <= hi.count) {
-        const t = (brewCount - lo.count) / (hi.count - lo.count);
-        return lo.score + t * (hi.score - lo.score);
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Recency decay (0..100). Penalizes stale recipes:
-   *   <30 days → 100, <90 → 80, <365 → 60, <730 → 40, 2y+ → 20.
-   *   null → 0 (never brewed).
-   */
-  scoreRecency(lastBrewedAt: Date | string | null | undefined): number {
-    if (lastBrewedAt === null || lastBrewedAt === undefined) return 0;
-    const date =
-      lastBrewedAt instanceof Date ? lastBrewedAt : new Date(lastBrewedAt);
-    if (Number.isNaN(date.getTime())) return 0;
-    const ageDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
-    if (ageDays < 30) return 100;
-    if (ageDays < 90) return 80;
-    if (ageDays < 365) return 60;
-    if (ageDays < 730) return 40;
-    return 20;
-  }
-
   // ------------------------------------------------------------------
   // Renormalization-friendly wrappers — return null when the input is
   // missing so `weightedAverageWithRenorm` drops the weight rather
@@ -443,11 +372,12 @@ export class RecipeMatchingService {
     beerStyle: string | null | undefined,
     recipeStyle: string | null | undefined,
   ): number | null {
-    // Treat a blank/whitespace style as *absent* (→ null → dropped by
-    // renormalisation) rather than a present criterion scoring 0, which
-    // would unfairly penalise similarity (Copilot review on #1190).
-    if (!beerStyle?.trim() || !recipeStyle?.trim()) return null;
-    return this.scoreStyle(beerStyle, recipeStyle);
+    // Graded by BJCP family (ADR-0016 D2). `styleSimilarity` returns 0..1 — or
+    // `null` when either side is blank/unclassifiable, so the criterion drops
+    // out of the renormalisation rather than scoring a 0 penalty (Copilot
+    // review on #1190). Scale to the 0..100 local-similarity range.
+    const sim = styleSimilarity(beerStyle ?? null, recipeStyle ?? null);
+    return sim === null ? null : sim * 100;
   }
 
   private maybeAbvScore(
@@ -493,28 +423,5 @@ export class RecipeMatchingService {
       return null;
     }
     return this.scoreColor(beerEbc, recipeEbc);
-  }
-
-  private maybeRatingScore(
-    avgRating: number | null | undefined,
-  ): number | null {
-    if (avgRating === null || avgRating === undefined) return null;
-    return this.scoreQuality(avgRating);
-  }
-
-  private maybeBrewCountScore(
-    brewCount: number | null | undefined,
-  ): number | null {
-    if (brewCount === null || brewCount === undefined || brewCount <= 0) {
-      return null;
-    }
-    return this.scoreBrewCount(brewCount);
-  }
-
-  private maybeRecencyScore(
-    lastBrewedAt: Date | string | null | undefined,
-  ): number | null {
-    if (lastBrewedAt === null || lastBrewedAt === undefined) return null;
-    return this.scoreRecency(lastBrewedAt);
   }
 }

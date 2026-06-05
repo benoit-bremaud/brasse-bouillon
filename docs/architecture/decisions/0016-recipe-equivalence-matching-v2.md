@@ -5,7 +5,7 @@
 **Owners**  @benoit-bremaud
 **Relates** #699 (matcher), #1190 (match by characteristics), #1193 (official style-gate), #1198 (style family), epic #1175. Conception: [`../diagrams/recipes/06-sequence-recipe-matching.md`](../diagrams/recipes/06-sequence-recipe-matching.md).
 
-> Supersedes the **scoring** behaviour of the matcher described implicitly in #699/#1190/#1193 (the API contract — `POST /recipes/match` by characteristics — is unchanged). This ADR fixes *how* the similarity is computed.
+> Supersedes the **scoring** behaviour of the matcher described implicitly in #699/#1190/#1193. This ADR fixes *how* the similarity is computed. The `POST /recipes/match` **request** contract is unchanged; the **response** gains an additive, backward-compatible per-ranking `completeness` field (D4) — a contract *extension*, not a break.
 
 ## Context
 
@@ -39,11 +39,11 @@ Weights are the **full-data** weights. They are **not** re-tuned per beer — D3
 `styleSimilarity(beerStyle, recipeStyle) ∈ {1.0, 0.7, 0.4, 0}`:
 
 - **1.0** — same canonical style.
-- **0.7** — same **BJCP family** (Appendix A). e.g. *Blonde Ale ≈ Kölsch* (both **Pale Ale** family); *Munich Helles ≈ International Pale Lager* (both **Pale Lager**).
+- **0.7** — same **BJCP family** (mapped in the [Appendix](#appendix--bjcp-family--tier-map-for-the-seeded-styles) below; families per BJCP 2021 Appendix A). e.g. *Blonde Ale ≈ Kölsch* (both **Pale Ale** family); *Munich Helles ≈ International Pale Lager* (both **Pale Lager**).
 - **0.4** — different family but same **colour tier + strength tier** (e.g. a pale-standard ale vs a pale-standard lager).
 - **0** — otherwise.
 
-Both the beer's style and the (free-text) recipe style are normalised to a BJCP family + colour/strength tier (see Appendix). This replaces `scoreStyle`'s exact/substring logic; the old behaviour is the degenerate 1.0/0 case.
+Both the beer's style and the (free-text) recipe style are normalised to a BJCP family + colour/strength tier (see Appendix). This replaces `scoreStyle`'s **name-based heuristic** (exact match → 100, else substring containment → 70, else 0); that heuristic becomes the degenerate end of the graded scale (exact → 1.0, no relation → 0), with the family/tier tiers (0.7/0.4) added in between.
 
 ### D3 — Match strength = renormalised (Gower-style) weighted similarity
 

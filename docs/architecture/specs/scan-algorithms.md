@@ -448,8 +448,8 @@ These are deliberately deferred to the implementation issues. They do not block 
 
 OpenFoodFacts `category` / `style` data is crowd-sourced and frequently generic or wrong. Concrete case: the barcode lookup for **Leffe Blonde (EAN `5410228142218`)** returns OFF categories that list both "Lagers" and "Ales" — but Leffe Blonde is a top-fermented Belgian abbey **ale**, not a lager. Treat any OFF-derived `style` / `fermentation_type` as a starting hypothesis, never as ground truth:
 
-- When the completeness ratio is below threshold, Phase 8 web verification must reconcile the style against an authoritative source rather than copy the OFF category.
-- When a value is shown without verification, flag it (`isStyleEstimated: true`) so the UI never presents a crowd-sourced category as a confirmed fact.
+- An OFF-derived `style` / `fermentation_type` is **always estimated until verified**, independent of the completeness ratio. Completeness measures how *many* criteria are present, not whether the OFF style is *correct* — a fully-populated beer can still carry a wrong crowd-sourced category. Always flag it (`isStyleEstimated: true`) so the UI never presents an OFF category as a confirmed fact.
+- Phase 8 web verification reconciles the style against an authoritative source and is the only mechanism that clears the estimated flag (it does not copy the OFF category).
 - For mainstream beers, seed canonical values directly in the curated `scan_catalog_items` so the OFF category never reaches the user (e.g. a Leffe Blonde seed entry with `fermentation_type = ALE`).
 - The long-term mechanism is [ADR-0015](../decisions/0015-beer-ingestion-enrichment-strategy.md)'s per-source veracity coefficient: OFF categories rank below brewery datasheets and curated directories.
 

@@ -49,13 +49,13 @@ sequenceDiagram
   API->>DB: load PUBLIC candidate recipes
   DB-->>API: recipes[]
   loop each candidate
-    API->>API: localSim per criterion<br/>style → BJCP family {1.0/0.7/0.4/0} ; abv·ibu·colour → numeric proximity
+    API->>API: localSim per criterion<br/>style → BJCP family {1.0/0.7/0.4/0} ; abv·ibu·colour → numeric proximity ; ingredients → overlap
     API->>API: matchStrength = Σ[w×localSim] / Σ[w] over present-and-comparable criteria<br/>(weights: style 40, colour 22, ibu 18, abv 14, ingredients 6 — Gower renorm)
     API->>API: completeness = Σ[comparable w] / 100
     API->>API: official + style-compatible ⇒ matchStrength = 1.0 (#1193 gate)
   end
+  API->>API: keep ALL candidates with matchStrength ≥ S_min AND completeness ≥ C_min<br/>(filter the full set BEFORE truncating)
   API->>API: sort desc (matchStrength, then rating, then id) ; take top-N (≤10)
-  API->>API: keep only candidates with matchStrength ≥ S_min AND completeness ≥ C_min
   API-->>M: 200 { rankings[ { …, completeness } ], low_confidence }
   M-->>M: render "recettes équivalentes" + completeness<br/>OR honest empty state if none pass the threshold
 ```
@@ -75,13 +75,13 @@ API -> API : rankByCharacteristics(carac)
 API -> DB : load PUBLIC candidates
 DB --> API : recipes[]
 loop each candidate
-  API -> API : localSim (style→BJCP family {1.0/0.7/0.4/0} ; abv·ibu·colour→proximity)
+  API -> API : localSim (style→BJCP family {1.0/0.7/0.4/0} ; abv·ibu·colour→proximity ; ingredients→overlap)
   API -> API : matchStrength = sum(w*localSim)/sum(w) over present-and-comparable\n(weights: style 40, colour 22, ibu 18, abv 14, ingredients 6 — Gower renorm)
   API -> API : completeness = sum(comparable w)/100
   API -> API : official + style-compatible => matchStrength = 1.0 (#1193 gate)
 end
+API -> API : keep ALL matchStrength >= S_min AND completeness >= C_min (filter before truncating)
 API -> API : sort (matchStrength, rating, id) ; top-N (<=10)
-API -> API : keep only matchStrength >= S_min AND completeness >= C_min
 API --> M : 200 { rankings[ {..., completeness} ], low_confidence }
 M --> M : render "recettes équivalentes" + completeness / honest empty state
 @enduml
@@ -107,7 +107,9 @@ M --> M : render "recettes équivalentes" + completeness / honest empty state
     signal returned alongside each ranking, distinct from match strength.
 - **Acceptance threshold (ADR-0016 D5).** A candidate is shown only when
   `matchStrength ≥ S_min` **AND** `completeness ≥ C_min` (env-tunable; calibrate on real
-  OpenFoodFacts coverage). Below it, the section renders an honest empty state
+  OpenFoodFacts coverage). **The threshold filters the full scored set *before* the top-N
+  truncation** — so a reliable match ranked just below a high-strength-but-low-completeness
+  candidate is never hidden by the cut. Below the threshold, the section renders an honest empty state
   (*"Pas encore de recette équivalente fiable pour cette bière"* + invite to contribute),
   not a misleading closest match. `low_confidence` is retained in the envelope for
   backward-compatibility but the empty-state replaces the old "show closest + banner".

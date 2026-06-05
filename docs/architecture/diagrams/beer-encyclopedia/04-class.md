@@ -28,8 +28,10 @@ classDiagram
     +UUID brewery_id?
     +UUID style_id?
     +Decimal abv?
-    +int ibu?
-    +int srm?
+    +int ibu_min?
+    +int ibu_max?
+    +int srm_min?
+    +int srm_max?
     +bool is_active
     +bool is_verified
     +str source
@@ -145,8 +147,10 @@ class Beer {
   +UUID brewery_id?
   +UUID style_id?
   +Decimal abv?
-  +int ibu?
-  +int srm?
+  +int ibu_min?
+  +int ibu_max?
+  +int srm_min?
+  +int srm_max?
   +bool is_active
   +bool is_verified
   +str source
@@ -160,6 +164,8 @@ note right of Beer
   source in {openfoodfacts, internal,
   community, scan*}  (* cible #1156)
   provenance : contributed_by/at, approved_at
+  ibu/srm = min/max intervals (ADR-0017),
+  exact value when min==max ; abv stays scalar
 end note
 
 class Brewery {
@@ -273,6 +279,12 @@ Source "1" o-- "0..*" EntitySource : cascade
 - **Provenance `Beer.source`** : dans le **code** = `{openfoodfacts, internal, community}` ;
   la **vue cible** ajoute `scan` (identification par étiquette, UC5) — **pas encore dans le
   code** : divergence tracée #1156.
+- **`Beer.ibu`/`Beer.srm` → intervalles `min/max`** : la **vue cible** stocke
+  `ibu_min/ibu_max` + `srm_min/srm_max` (valeur exacte quand `min==max`), comme `Style`
+  le fait déjà — **pas encore dans le code** (modèle actuel = `ibu`/`srm` scalaires) :
+  cible ADR-0017. `abv` reste scalaire ; couleur canonique en SRM, EBC = conversion
+  d'affichage ; pas d'imputation depuis le style (la fourchette de style reste un repli
+  d'affichage, jamais persisté sur la bière).
 - **`Style.family` (cible ADR-0016)** : famille BJCP du style (ex. _Blonde Ale_, _Kölsch_ →
   `Pale Ale`), support de la similarité de style **graduée par famille** du matcher v2
   (ADR-0016 D2). **Pas encore dans le code** ; les paliers couleur/force se dérivent des bandes
@@ -296,6 +308,9 @@ Source "1" o-- "0..*" EntitySource : cascade
 - **CHECKs** : `Beer.{source, legal_denomination, alcohol_group, country_of_origin (len 2),
   ean_code (len 8/12/13/14)}` ; `TastingProfile` échelles 1–5 ; `Media`
   parent unique (`ck_media_parent_required`) ; `LegalDenomination` gardes de positivité.
+  Cible ADR-0017 : `Beer.{ibu_min ≤ ibu_max, srm_min ≤ srm_max, chaque borne ≥ 0}`
+  — **nouveaux** CHECKs, sur le patron des CHECKs `abv` déjà présents sur `Style`
+  (`Style` ne contraint aujourd'hui que `abv`, pas `ibu`/`srm`).
 - **Défauts** : `Beer.source = 'internal'`, `Beer.is_active = true`,
   `*.is_verified = false`, `Media.is_primary = false`,
   `CommunityCorrection.status = 'pending'`.

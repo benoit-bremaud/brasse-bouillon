@@ -120,23 +120,31 @@ describe("getMatchingRecipes (Issue #700)", () => {
       expect(result).toBe(apiResponse);
     });
 
-    it("edge: forwards null characteristics unchanged (the API renormalises)", async () => {
+    it("edge: forwards null numeric characteristics unchanged (the API renormalises)", async () => {
       mockApiFetch.mockResolvedValue({ rankings: [], lowConfidence: true });
 
       await getMatchingRecipes(
-        makeBeer({
-          style: "Style inconnu",
-          abv: null,
-          ibu: null,
-          colorEbc: null,
-        }),
+        makeBeer({ style: "Stout", abv: null, ibu: null, colorEbc: null }),
       );
 
       expect(mockApiFetch).toHaveBeenCalledWith({
-        style: "Style inconnu",
+        style: "Stout",
         abv: null,
         ibu: null,
         colorEbc: null,
+      });
+    });
+
+    it("edge: a placeholder style ('Style inconnu') is sent as null so the matcher renormalises", async () => {
+      mockApiFetch.mockResolvedValue({ rankings: [], lowConfidence: true });
+
+      await getMatchingRecipes(makeBeer({ style: "Style inconnu" }));
+
+      expect(mockApiFetch).toHaveBeenCalledWith({
+        style: null,
+        abv: 5.4,
+        ibu: 45,
+        colorEbc: 14,
       });
     });
 

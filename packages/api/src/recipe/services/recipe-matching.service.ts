@@ -435,7 +435,10 @@ export class RecipeMatchingService {
     beerStyle: string | null | undefined,
     recipeStyle: string | null | undefined,
   ): number | null {
-    if (!beerStyle || !recipeStyle) return null;
+    // Treat a blank/whitespace style as *absent* (→ null → dropped by
+    // renormalisation) rather than a present criterion scoring 0, which
+    // would unfairly penalise similarity (Copilot review on #1190).
+    if (!beerStyle?.trim() || !recipeStyle?.trim()) return null;
     return this.scoreStyle(beerStyle, recipeStyle);
   }
 

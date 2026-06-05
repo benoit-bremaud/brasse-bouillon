@@ -18,6 +18,7 @@
  */
 import { dataSource } from "@/core/data/data-source";
 
+import { SCAN_STYLE_PLACEHOLDER } from "@/features/scan/data/beers-import.api";
 import { fetchMatchingRecipes } from "@/features/scan/data/recipe-matching.api";
 import type {
   ScanCatalogItem,
@@ -49,7 +50,10 @@ export async function getMatchingRecipes(
   }
 
   return fetchMatchingRecipes({
-    style: beer.style,
+    // "Style inconnu" is a display placeholder, not a real style — send
+    // null so the matcher renormalises rather than scoring it as a
+    // present-but-mismatched style (Codex P2 on #1190).
+    style: beer.style === SCAN_STYLE_PLACEHOLDER ? null : beer.style,
     abv: beer.abv,
     ibu: beer.ibu,
     colorEbc: beer.colorEbc,

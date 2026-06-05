@@ -680,6 +680,25 @@ describe('RecipeMatchingService (Issue #699)', () => {
         viaBeer.rankings.map((r) => r.recipe.name),
       );
     });
+
+    it('treats a whitespace-only style as absent (renormalised, not a 0 penalty)', () => {
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5.5,
+        avg_rating: 4,
+      });
+
+      const whitespace = service.computeSimilarity(
+        { style: '  ', abv: 5.5 },
+        recipe,
+      );
+      const absent = service.computeSimilarity(
+        { style: null, abv: 5.5 },
+        recipe,
+      );
+
+      expect(whitespace).toBe(absent);
+    });
   });
 });
 

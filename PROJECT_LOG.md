@@ -7,6 +7,24 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-05
 
+### PR #1197 merged (`30026aa`) — chore(main): release app libraries (api + mobile-app 0.1.13-alpha1)
+- release-please *app-group* release. `.release-please-manifest.json` → `packages/api` + `packages/mobile-app` `0.1.13-alpha1`.
+- Root `package-lock.json` synced to `0.1.13-alpha1` (`a71845f`) — release-please bumps `package.json` without regenerating the lockfile (Codex + Copilot P2 addressed). Branch rebased by release-please onto the post-#1196 `main` (no manifest conflict).
+- **Tag pending** — `autorelease: pending` still set; no `api-v0.1.13-alpha1` / `mobile-app-v0.1.13-alpha1` tag emitted (group-release tagging lag; manifest was already ahead at `0.1.12-alpha1` with no matching tag). Flagged for follow-up.
+
+### PR #1196 merged (`2cc2025`) — chore(main): release encyclopedia 0.2.4
+- release-please component release. Tag **`encyclopedia-v0.2.4`** shipped.
+- Root lockfile synced to `0.2.4` (`16f570c`); `.release-please-manifest.json` conflict with the merged #1195 resolved (website `0.1.2` + encyclopedia `0.2.4`, `e98b9ed`). Codex P2 (lockfile) addressed.
+
+### PR #1199 merged (`14881a3`) — docs(architecture): ADR-0016 — recipe-matching v2 (weighted criteria + completeness + BJCP families)
+- Branch `docs/adr-0016-matching-v2`. Matcher v2 conception (*Proposed*): D1 full-data weights (style 40, colour 22, ibu 18, abv 14, ingredients 6), D2 BJCP-family-graded style similarity (1.0/0.7/0.4/0), D3 Gower-renormalised match strength over present-and-comparable criteria, D4 completeness ratio (separate confidence signal), D5 acceptance threshold + honest empty state, D6 official style-gate (#1193). Updates `06-sequence-recipe-matching` + `04-class` (`Style.family` target) + `scan-algorithms` §8.5. `POST /recipes/match` request contract unchanged; response gains additive `completeness`.
+- Reviews — Codex P2 + 7 Copilot (filter-before-top-N, ingredients in localSim, OFF-style estimated unconditionally, contract-extension/Appendix/scoreStyle wording) addressed (`b831104`). Relates #1198, epic #1175.
+- **Decision** `matcher-v2-bjcp-weighted` — recipe equivalence ranks on weighted, completeness-aware similarity with BJCP-family-graded style; replaces name-only `scoreStyle`. Recorded on #1198. Implementation deferred until acceptance + `Style.family` modelled in the encyclopedia.
+
+### PR #1195 merged (`545d034`) — chore(main): release website 0.1.2
+- release-please component release. Tag **`website-v0.1.2`** shipped.
+- Root lockfile synced to `0.1.2` (`43430d0`); duplicate changelog bullet removed (`605b156`). Codex P2 (lockfile) + 2 Copilot (changelog scope-noise / duplicate) addressed.
+
 ### PR #1194 merged (`1844815`) — fix(recipes): style-gate the official-recipe shortcut (#1193)
 - Branch `fix/recipe-match-official-style-gate`. Closes #1193. A Leffe Blonde scan proposed an official BrewDog Punk IPA as the top "recette équivalente". `computeFinalScore`: the official similarity shortcut (100) now applies **only when the official is style-compatible**; an off-style official is ranked on its honest similarity, so a same-style non-official outranks it. Conception note in `06-sequence-recipe-matching`; the two prior official tests updated. 75 recipe tests.
 - Reviews — Copilot (2 doc-consistency) addressed; SonarCloud quality gate (Maintainability B→A on new code) fixed via `Array.at(-1)` (S7755).

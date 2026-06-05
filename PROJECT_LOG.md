@@ -7,6 +7,26 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-05
 
+### PR #1205 merged (`076bb67`) — chore(claude-tooling): add local pre-push review ritual (Claude + Codex)
+- Branch `chore/pre-push-review`. Adds `.claude/skills/pre-push-review/SKILL.md` + `scripts/codex-review.sh` — local defence-in-depth review (Claude `pr-pre-reviewer` + Codex) before push. Third of the review-service trilogy (#1202/#1203/#1205).
+- Reviews — 2 Codex P2 (`codex-review.sh` `--out` flag order; review against `origin/$BASE`) deferred per Must-Have-only scope; both functional, worth a follow-up.
+
+### PR #1204 merged (`00f5d0e`) — feat(encyclopedia): Beer IBU/SRM as min-max intervals + Style.family (BJCP)
+- Branch `feat/encyclopedia-beer-intervals-style-family`. Realises ADR-0017 + ADR-0016 D2: `Beer.ibu/srm` → `ibu_min/max` + `srm_min/max` + CHECKs; `Style.family` (BJCP) column seeded for the 15 styles; migration `005` (batch mode, backfill scalars before drop); `BeerBase`/`BeerUpdate` interval schemas + `StyleRead.family`; conception `04-class` + `07-class-api-contract` updated as-built. 160 tests, migration up/down round-trip verified.
+- Reviews — Codex P1 (migration data-loss → backfill, proven on SQLite) + Codex/Copilot P2 (interval edge-validation → 422; `StyleRead.family`; +tests) addressed (`f49f84e`). Relates ADR-0016/0017, epic #1175.
+- **Deploy pending** — run migration `005` + reseed styles on the Fly encyclopedia DB for the change to take effect.
+
+### PR #1203 merged (`8bd8227`) — chore(ci): add CodeRabbit config as automatic post-push reviewer
+- Branch `chore/coderabbit`. Adds `.coderabbit.yaml` (CodeRabbit as the always-on auto post-push reviewer, free tier, path-filtered, per-package instructions). Second of the review trilogy. **Web action required**: install the CodeRabbit GitHub App (config inert until then).
+
+### PR #1202 merged (`dc31425`) — chore(ci): make Copilot review manual, drop Discord notifications
+- Branch `chore/review-cost-fix`. Copilot review → manual via the `needs-copilot` label (Copilot now bills 13 premium requests/review); removes the deprecated `discord-notifications.yml`; CONTRIBUTING + PR template + `pr-create-brasse-bouillon` skill aligned. First of the review trilogy.
+- Reviews — Codex/Copilot P1 (the workflow lived under `packages/api/.github/workflows/` where Actions never runs it → **moved to repo root** `.github/workflows/copilot-review.yml`, `8664a74`); 4 non-Must-Have comments dropped per scope. **Web action required**: disable the "Copilot review for default branch" ruleset.
+
+### PR #1201 merged (`b7e3fc1`) — docs(architecture): ADR-0017 — Beer IBU/colour as min/max intervals
+- Branch `docs/adr-0017-beer-intervals` (from user commit `0cb6397`). ADR-0017 (*Proposed*): `Beer.ibu`/`srm` as min/max intervals, `abv` stays scalar; D1 outward integer rounding, D2 self-describing interval (no estimated flag), D3 SRM canonical, D4 no style imputation, D5 CHECKs on the ABV pattern. Reconciles `04-class.md` with the merged `Style.family` (ADR-0016).
+- Reviews — Codex P2 + 3 Copilot (Style has only ABV CHECKs, not ibu/srm; SmallInteger decimal rounding rule) addressed (`6f08411`). Relates ADR-0016, epic #1175.
+
 ### PR #1197 merged (`30026aa`) — chore(main): release app libraries (api + mobile-app 0.1.13-alpha1)
 - release-please *app-group* release. `.release-please-manifest.json` → `packages/api` + `packages/mobile-app` `0.1.13-alpha1`.
 - Root `package-lock.json` synced to `0.1.13-alpha1` (`a71845f`) — release-please bumps `package.json` without regenerating the lockfile (Codex + Copilot P2 addressed). Branch rebased by release-please onto the post-#1196 `main` (no manifest conflict).

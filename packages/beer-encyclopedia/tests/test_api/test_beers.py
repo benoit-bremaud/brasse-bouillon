@@ -35,7 +35,8 @@ async def test_create_beer_returns_201(
             "brewery_id": str(brewery.id),
             "style_id": str(ipa.id),
             "abv": "6.5",
-            "ibu": 55,
+            "ibu_min": 50,
+            "ibu_max": 55,
         },
     )
 
@@ -44,6 +45,30 @@ async def test_create_beer_returns_201(
     assert body["name"] == "Citra Bomb"
     assert body["slug"] == "citra-bomb"
     assert body["brewery_id"] == str(brewery.id)
+    assert body["ibu_min"] == 50
+    assert body["ibu_max"] == 55
+
+
+def test_create_beer_rejects_inverted_ibu_interval(client: TestClient) -> None:
+    """Sad path: ibu_min > ibu_max is a 422 at the edge, not a DB 500."""
+
+    response = client.post(
+        "/beers",
+        json={"name": "Inverted IBU", "ibu_min": 60, "ibu_max": 20},
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_beer_rejects_inverted_srm_interval(client: TestClient) -> None:
+    """Sad path: srm_min > srm_max is a 422 at the edge, not a DB 500."""
+
+    response = client.post(
+        "/beers",
+        json={"name": "Inverted SRM", "srm_min": 30, "srm_max": 5},
+    )
+
+    assert response.status_code == 422
 
 
 def test_create_beer_rejects_unknown_brewery_fk(client: TestClient) -> None:

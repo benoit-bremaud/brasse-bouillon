@@ -22,6 +22,22 @@ async def _seed(session: AsyncSession, *names: str) -> list[Style]:
     return styles
 
 
+async def test_get_style_exposes_family(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """StyleRead surfaces the BJCP family (ADR-0016 D2) to API clients."""
+
+    style = Style(name="Blonde Ale", slug="blonde_ale", family="Pale Ale")
+    db_session.add(style)
+    await db_session.commit()
+    await db_session.refresh(style)
+
+    response = client.get(f"/styles/{style.id}")
+
+    assert response.status_code == 200
+    assert response.json()["family"] == "Pale Ale"
+
+
 def test_list_styles_empty_returns_empty_items(client: TestClient) -> None:
     response = client.get("/styles")
     assert response.status_code == 200

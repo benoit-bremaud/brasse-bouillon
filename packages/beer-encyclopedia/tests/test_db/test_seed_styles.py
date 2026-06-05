@@ -57,8 +57,10 @@ async def test_seed_updates_changed_fields_on_rerun(db_session: AsyncSession) ->
         await db_session.execute(select(Style).where(Style.slug == "ipa"))
     ).scalar_one()
     assert ipa.category == "Ale"  # sanity check before mutation
+    assert ipa.family == "IPA"
     ipa.category = "Wrong Category"
     ipa.name = "Wrong Name"
+    ipa.family = "Wrong Family"
     await db_session.commit()
 
     # Re-seeding must restore the canonical metadata.
@@ -68,4 +70,5 @@ async def test_seed_updates_changed_fields_on_rerun(db_session: AsyncSession) ->
     ).scalar_one()
     assert refreshed.category == "Ale"
     assert refreshed.name == "India Pale Ale"
+    assert refreshed.family == "IPA"
     assert refreshed.abv_max == Decimal("7.5")

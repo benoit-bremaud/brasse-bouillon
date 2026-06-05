@@ -6,9 +6,29 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from api.schemas.common import PaginationMeta
+
+
+def _validate_intervals(
+    ibu_min: int | None,
+    ibu_max: int | None,
+    srm_min: int | None,
+    srm_max: int | None,
+) -> None:
+    """Reject inverted IBU/SRM intervals at the API edge (422, not a DB 500).
+
+    Mirrors the ``ck_beers_{ibu,srm}_range`` CHECK constraints so an inverted
+    payload surfaces as a 422 before reaching the database (where it would
+    raise IntegrityError and trigger a needless slug retry). Only ordering is
+    checked here; per-bound bounds stay on the Field validators.
+    """
+
+    if ibu_min is not None and ibu_max is not None and ibu_min > ibu_max:
+        raise ValueError("ibu_min must be less than or equal to ibu_max")
+    if srm_min is not None and srm_max is not None and srm_min > srm_max:
+        raise ValueError("srm_min must be less than or equal to srm_max")
 
 # EAN-8, UPC-A (12), EAN-13, EAN-14 — the four formats commonly found
 # on beverage packaging. The pattern matches what the ORM validator
@@ -22,10 +42,19 @@ class BeerBase(BaseModel):
     brewery_id: uuid.UUID | None = None
     style_id: uuid.UUID | None = None
     abv: Decimal | None = Field(default=None, ge=0, le=100)
-    ibu: int | None = Field(default=None, ge=0, le=1000)
-    srm: int | None = Field(default=None, ge=0, le=100)
+    # IBU / SRM as min/max intervals (ADR-0017): min == max is a known value,
+    # min < max a genuine range, both None unknown.
+    ibu_min: int | None = Field(default=None, ge=0, le=1000)
+    ibu_max: int | None = Field(default=None, ge=0, le=1000)
+    srm_min: int | None = Field(default=None, ge=0, le=100)
+    srm_max: int | None = Field(default=None, ge=0, le=100)
     description: str | None = None
     is_active: bool = True
+
+    @model_validator(mode="after")
+    def _check_intervals(self) -> BeerBase:
+        _validate_intervals(self.ibu_min, self.ibu_max, self.srm_min, self.srm_max)
+        return self
 
 
 class BeerCreate(BeerBase):
@@ -39,11 +68,20 @@ class BeerUpdate(BaseModel):
     brewery_id: uuid.UUID | None = None
     style_id: uuid.UUID | None = None
     abv: Decimal | None = Field(default=None, ge=0, le=100)
-    ibu: int | None = Field(default=None, ge=0, le=1000)
-    srm: int | None = Field(default=None, ge=0, le=100)
+    ibu_min: int | None = Field(default=None, ge=0, le=1000)
+    ibu_max: int | None = Field(default=None, ge=0, le=1000)
+    srm_min: int | None = Field(default=None, ge=0, le=100)
+    srm_max: int | None = Field(default=None, ge=0, le=100)
     description: str | None = None
     is_active: bool | None = None
     is_verified: bool | None = None
+
+    @model_validator(mode="after")
+    def _check_intervals(self) -> BeerUpdate:
+        # Validates ordering within the payload. A partial PATCH that supplies
+        # only one bound is checked against the stored value by the DB CHECK.
+        _validate_intervals(self.ibu_min, self.ibu_max, self.srm_min, self.srm_max)
+        return self
 
 
 class BeerRead(BeerBase):

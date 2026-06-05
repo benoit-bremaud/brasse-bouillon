@@ -192,8 +192,8 @@ class Style {
   +int srm_max?
 }
 note bottom of Style
-  family : BJCP style family (* cible ADR-0016)
-  not yet in code — graded match D2
+  family : BJCP style family (ADR-0016 D2)
+  as-built (migration 005) — graded match
 end note
 class Ingredient {
   +str name
@@ -279,17 +279,17 @@ Source "1" o-- "0..*" EntitySource : cascade
 - **Provenance `Beer.source`** : dans le **code** = `{openfoodfacts, internal, community}` ;
   la **vue cible** ajoute `scan` (identification par étiquette, UC5) — **pas encore dans le
   code** : divergence tracée #1156.
-- **`Beer.ibu`/`Beer.srm` → intervalles `min/max`** : la **vue cible** stocke
-  `ibu_min/ibu_max` + `srm_min/srm_max` (valeur exacte quand `min==max`), comme `Style`
-  le fait déjà — **pas encore dans le code** (modèle actuel = `ibu`/`srm` scalaires) :
-  cible ADR-0017. `abv` reste scalaire ; couleur canonique en SRM, EBC = conversion
-  d'affichage ; pas d'imputation depuis le style (la fourchette de style reste un repli
-  d'affichage, jamais persisté sur la bière).
-- **`Style.family` (cible ADR-0016)** : famille BJCP du style (ex. _Blonde Ale_, _Kölsch_ →
-  `Pale Ale`), support de la similarité de style **graduée par famille** du matcher v2
-  (ADR-0016 D2). **Pas encore dans le code** ; les paliers couleur/force se dérivent des bandes
-  `srm_*`/`abv_*` existantes. À implémenter (colonne ou table d'alias) avant le codage du
-  matcher v2 — voir `../recipes/06-sequence-recipe-matching.md`.
+- **`Beer.ibu`/`Beer.srm` = intervalles `min/max`** (ADR-0017, **as-built** — migration `005`) :
+  `ibu_min/ibu_max` + `srm_min/srm_max` (valeur exacte quand `min==max`), comme `Style`.
+  `abv` reste scalaire ; couleur canonique en SRM, EBC = conversion d'affichage ; pas
+  d'imputation depuis le style (la fourchette de style reste un repli d'affichage, jamais
+  persisté sur la bière). Sources décimales arrondies vers l'extérieur (`min=floor`, `max=ceil`).
+- **`Style.family`** (ADR-0016 D2, **as-built** — migration `005`) : famille BJCP du style
+  (ex. _Blonde Ale_, _Kölsch_ → `Pale Ale`), seedée pour les 15 styles, support de la
+  similarité de style **graduée par famille** du matcher v2. Les paliers couleur/force se
+  dérivent des bandes `srm_*`/`abv_*`. La normalisation des styles recette en texte libre vers
+  une famille reste un alias **en code** côté matcher (NestJS) — voir
+  `../recipes/06-sequence-recipe-matching.md`.
 
 ### Contraintes de colonnes (hors diagramme, depuis `db/models/*`)
 
@@ -308,9 +308,9 @@ Source "1" o-- "0..*" EntitySource : cascade
 - **CHECKs** : `Beer.{source, legal_denomination, alcohol_group, country_of_origin (len 2),
   ean_code (len 8/12/13/14)}` ; `TastingProfile` échelles 1–5 ; `Media`
   parent unique (`ck_media_parent_required`) ; `LegalDenomination` gardes de positivité.
-  Cible ADR-0017 : `Beer.{ibu_min ≤ ibu_max, srm_min ≤ srm_max, chaque borne ≥ 0}`
-  — **nouveaux** CHECKs, sur le patron des CHECKs `abv` déjà présents sur `Style`
-  (`Style` ne contraint aujourd'hui que `abv`, pas `ibu`/`srm`).
+  `Beer.{ibu_min ≤ ibu_max, srm_min ≤ srm_max, chaque borne ≥ 0}` (ADR-0017, **as-built** —
+  `ck_beers_{ibu,srm}_{min,max}_positive` + `ck_beers_{ibu,srm}_range`), sur le patron des
+  CHECKs `abv` de `Style` (`Style` ne contraint toujours que `abv`, pas ses `ibu`/`srm`).
 - **Défauts** : `Beer.source = 'internal'`, `Beer.is_active = true`,
   `*.is_verified = false`, `Media.is_primary = false`,
   `CommunityCorrection.status = 'pending'`.

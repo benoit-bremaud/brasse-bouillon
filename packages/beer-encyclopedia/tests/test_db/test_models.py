@@ -74,7 +74,8 @@ async def test_beer_links_brewery_and_style(db_session: AsyncSession) -> None:
         brewery_id=brewery.id,
         style_id=style.id,
         abv=Decimal("6.5"),
-        ibu=55,
+        ibu_min=55,
+        ibu_max=55,
     )
     db_session.add(beer)
     await db_session.commit()
@@ -318,3 +319,69 @@ async def test_deleting_brewery_cascades_to_media(db_session: AsyncSession) -> N
 
     remaining = (await db_session.execute(select(Media))).scalars().all()
     assert remaining == []
+
+
+# -- ADR-0017 Beer IBU/SRM intervals + ADR-0016 Style.family ------------------
+
+
+async def test_beer_ibu_srm_intervals_persist(db_session: AsyncSession) -> None:
+    """Happy path: a genuine range (min < max) and a known value (min == max)."""
+
+    beer = Beer(
+        name="Leffe Blonde",
+        slug="leffe-blonde",
+        ibu_min=20,
+        ibu_max=28,
+        srm_min=5,
+        srm_max=5,
+    )
+    db_session.add(beer)
+    await db_session.commit()
+
+    fetched = (
+        await db_session.execute(select(Beer).where(Beer.slug == "leffe-blonde"))
+    ).scalar_one()
+    assert (fetched.ibu_min, fetched.ibu_max) == (20, 28)
+    assert (fetched.srm_min, fetched.srm_max) == (5, 5)
+
+
+async def test_beer_ibu_interval_rejects_min_above_max(db_session: AsyncSession) -> None:
+    """Sad path: ibu_min > ibu_max violates ck_beers_ibu_range."""
+
+    db_session.add(Beer(name="Bad IBU", slug="bad-ibu", ibu_min=40, ibu_max=20))
+    with pytest.raises(IntegrityError):
+        await db_session.commit()
+
+
+async def test_beer_srm_interval_rejects_negative_bound(db_session: AsyncSession) -> None:
+    """Sad path: a negative bound violates ck_beers_srm_min_positive."""
+
+    db_session.add(Beer(name="Bad SRM", slug="bad-srm", srm_min=-1, srm_max=5))
+    with pytest.raises(IntegrityError):
+        await db_session.commit()
+
+
+async def test_beer_intervals_allow_all_null(db_session: AsyncSession) -> None:
+    """Edge: a beer with no bitterness/colour data at all is valid (unknown)."""
+
+    beer = Beer(name="Unknown Numerics", slug="unknown-numerics")
+    db_session.add(beer)
+    await db_session.commit()
+
+    fetched = (
+        await db_session.execute(select(Beer).where(Beer.slug == "unknown-numerics"))
+    ).scalar_one()
+    assert fetched.ibu_min is None and fetched.ibu_max is None
+    assert fetched.srm_min is None and fetched.srm_max is None
+
+
+async def test_style_family_persists(db_session: AsyncSession) -> None:
+    """Style.family (BJCP family, ADR-0016 D2) is stored and read back."""
+
+    db_session.add(Style(name="Blonde Ale", slug="blonde_ale", family="Pale Ale"))
+    await db_session.commit()
+
+    fetched = (
+        await db_session.execute(select(Style).where(Style.slug == "blonde_ale"))
+    ).scalar_one()
+    assert fetched.family == "Pale Ale"

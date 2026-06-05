@@ -34,8 +34,10 @@ classDiagram
     +UUID brewery_id?
     +UUID style_id?
     +Decimal abv?
-    +int ibu?
-    +int srm?
+    +int ibu_min?
+    +int ibu_max?
+    +int srm_min?
+    +int srm_max?
     +str description?
     +bool is_active
   }
@@ -48,8 +50,10 @@ classDiagram
     +UUID brewery_id?
     +UUID style_id?
     +Decimal abv?
-    +int ibu?
-    +int srm?
+    +int ibu_min?
+    +int ibu_max?
+    +int srm_min?
+    +int srm_max?
     +str description?
     +bool is_active?
     +bool is_verified?
@@ -101,8 +105,10 @@ class BeerBase {
   +brewery_id : UUID?
   +style_id : UUID?
   +abv : Decimal?
-  +ibu : int?
-  +srm : int?
+  +ibu_min : int?
+  +ibu_max : int?
+  +srm_min : int?
+  +srm_max : int?
   +description : str?
   +is_active : bool
 }
@@ -112,8 +118,10 @@ class BeerUpdate <<PATCH body, all optional>> {
   +brewery_id : UUID?
   +style_id : UUID?
   +abv : Decimal?
-  +ibu : int?
-  +srm : int?
+  +ibu_min : int?
+  +ibu_max : int?
+  +srm_min : int?
+  +srm_max : int?
   +description : str?
   +is_active : bool?
   +is_verified : bool?
@@ -170,9 +178,15 @@ BeerRead ..> Style : style_name (dénormalisé)
 - **Héritage.** `BeerCreate` et `BeerRead` héritent de `BeerBase` ; `BeerUpdate` est autonome
   (tous champs optionnels, sémantique PATCH). `BeerImportByEanRequest` est autonome (l'import
   ne prend que l'EAN ; le reste dérive de la source externe — voir `02-sequence-import-by-ean`).
+- **IBU / SRM en intervalles `min/max` (ADR-0017).** `BeerBase`/`BeerUpdate` exposent
+  `ibu_min`/`ibu_max` + `srm_min`/`srm_max` (et non un `ibu`/`srm` scalaire) : ces numériques
+  sont rarement publiés et divergent selon les sources, donc on stocke une fourchette honnête
+  (`min == max` = valeur connue, `min < max` = plage, deux `None` = inconnu). SRM canonique,
+  EBC = conversion d'affichage. Les sources décimales sont arrondies vers l'extérieur côté
+  écriture (`min = floor`, `max = ceil`). Cf. `04-class.md` + CHECKs `ck_beers_{ibu,srm}_*`.
 - **Validation (edge).** `ean` : `min 8 / max 14`, `pattern` EAN-8/UPC-A/EAN-13/EAN-14 ;
-  `abv ∈ [0,100]`, `ibu ∈ [0,1000]`, `srm ∈ [0,100]`, `name` non vide. Mêmes règles que le
-  validateur ORM, pour un 422 cohérent au bord de l'API.
+  `abv ∈ [0,100]`, chaque borne `ibu ∈ [0,1000]`, `srm ∈ [0,100]`, `name` non vide. Mêmes
+  règles que le validateur ORM, pour un 422 cohérent au bord de l'API.
 - **Conformité.** Ce contrat est la cible que le code (`api/schemas/beer.py` + la résolution
   des noms dans `api/routers/beers.py`) doit satisfaire. Implémentation après validation de ce
   diagramme.

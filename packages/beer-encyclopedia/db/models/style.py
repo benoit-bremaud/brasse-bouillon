@@ -34,6 +34,12 @@ class Style(Base, UUIDMixin, TimestampMixin):
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     slug: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     category: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    # Canonical BJCP style family (e.g. "Pale Ale", "Pale Lager", "IPA"),
+    # supporting the family-graded style similarity of recipe-matching v2
+    # (ADR-0016 D2). ``category`` is the fermentation class (Ale/Lager);
+    # ``family`` is the finer BJCP grouping used to score "same family"
+    # equivalence. Nullable: free-text / unseeded styles may have none.
+    family: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     abv_min: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)
     abv_max: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)

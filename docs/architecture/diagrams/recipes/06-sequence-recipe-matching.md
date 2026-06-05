@@ -76,12 +76,18 @@ M --> M : render "recettes équivalentes" / low-confidence note
   `colorEbc: number`. The mobile maps EBC ↔ the API's colour unit consistently with the scan
   fiche (`ScanCatalogItem.colorEbc`). A missing criterion is dropped and the remaining weights
   are renormalised — so a beer with only style + abv still ranks.
-- **Scoring unchanged.** `rankByCharacteristics` is the exact existing scorer extracted out of
-  `rankForBeer`; sub-scores, weights, ordering, and the `low_confidence` (< 40) rule are
-  identical. Only the **source** of the characteristics changes.
-- **Backward compatibility.** `GET /recipes/match/:beerId` stays: it loads the
-  `scan_catalog_items` row, then calls `rankByCharacteristics(row)`. Removed when the NestJS
-  scan path is retired (#1186 step 2). No behaviour change for existing callers.
+- **Scoring (mostly) unchanged.** `rankByCharacteristics` is the existing scorer extracted out
+  of `rankForBeer`; sub-scores, weights, and the `low_confidence` (< 40) rule are identical.
+  Only the **source** of the characteristics changes.
+- **Style-gated official promotion (#1193).** The official-recipe shortcut (similarity = 100)
+  applies **only when the official is style-compatible** (the style sub-score is positive). An
+  off-style official (e.g. an IPA for a Leffe Blonde) is ranked on its honest similarity
+  instead, so it no longer floats above a genuine same-style match. Style-compatible officials
+  stay promoted.
+- **Backward compatibility.** `GET /recipes/match/:beerId` stays (same request/response
+  contract): it loads the `scan_catalog_items` row, then calls `rankByCharacteristics(row)`.
+  Removed when the NestJS scan path is retired (#1186 step 2). The **interface** is unchanged;
+  the **ranking** reflects the style-gated official promotion (#1193) for both routes.
 - **Why not key off the beer id.** Identity is not a matching input; coupling to
   `scan_catalog_items` is exactly what blocks the encyclopedia cutover. Characteristics are
   source-agnostic.

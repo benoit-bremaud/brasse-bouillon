@@ -45,8 +45,10 @@ export interface BeerCharacteristics {
  *                      (response envelope flag, lets the UI display
  *                      a discreet "no very similar recipe" warning).
  *
- * The official-recipe shortcut still applies — `is_official=true`
- * sets similarity to 100 by definition; quality still varies.
+ * The official-recipe shortcut applies **only to a style-compatible
+ * official** (`is_official=true` AND a positive style sub-score) →
+ * similarity 100; an off-style official is ranked on its honest
+ * similarity instead (#1193). Quality still varies.
  *
  * Sub-score scales (0..100):
  * - style — exact match 100, family containment 70, else 0
@@ -130,18 +132,14 @@ export class RecipeMatchingService {
 
     // `low_confidence` reflects whether the best match is genuinely
     // similar to the scanned beer — NOT the headline score after the
-    // official-shortcut. `is_official` is a GLOBAL flag (per recipe,
-    // not per beer): without a per-beer relationship, a single
-    // officially-tagged recipe irrelevant to the scanned beer would
-    // always inflate the headline score to 70 and silently suppress
-    // the warning. Codex P1 on PR #792 caught exactly this.
-    //
-    // Fix: compute the "honest" score (similarity WITHOUT the
-    // shortcut + quality) on the top recipe, and use THAT for the
-    // threshold check. The ranking itself still uses the shortcut
-    // so officials remain prominent on screen — but if they happen
-    // to be irrelevant to the beer (style/ABV mismatch), the UI
-    // honestly tells the user via the low_confidence flag.
+    // official shortcut. Since #1193 the shortcut is style-gated, so an
+    // off-style official is no longer inflated to the top; but a
+    // style-compatible official still scores 100 on similarity, which on
+    // its own (style match, ABV/quality unknown) can sit above the 40
+    // threshold while not being a strong overall match. So we still
+    // compute the "honest" score (similarity WITHOUT the shortcut +
+    // quality) on the top recipe and use THAT for the threshold check
+    // (the original Codex P1 on PR #792), keeping the warning truthful.
     let honestTopScore = 0;
     if (top.length > 0) {
       const best = top[0].recipe;
@@ -162,17 +160,25 @@ export class RecipeMatchingService {
    * Combines similarity (70%) and quality (30%), each computed with
    * weight renormalization if a sub-criterion is missing.
    *
-   * The official-recipe shortcut wins outright on the similarity
-   * axis only — quality still varies, so two officials can be
-   * ranked relative to each other by their rating/brew_count/recency.
+   * The official-recipe shortcut (similarity = 100) applies **only when
+   * the official is style-compatible** with the scanned beer — i.e. the
+   * style sub-score is positive (exact or same-family). An off-style
+   * official (e.g. an IPA for a Leffe Blonde) no longer floats above a
+   * genuine style match; it is ranked on its honest similarity instead,
+   * so a same-style non-official can outrank it (#1193). Quality still
+   * varies, so two style-compatible officials are ordered by their
+   * rating/brew_count/recency.
    */
   computeFinalScore(
     beer: BeerCharacteristics,
     recipe: RecipeOrmEntity,
   ): number {
-    const similarity = recipe.is_official
-      ? 100
-      : this.computeSimilarity(beer, recipe);
+    const styleScore = this.maybeStyleScore(beer.style, recipe.style);
+    const styleCompatible = styleScore !== null && styleScore > 0;
+    const similarity =
+      recipe.is_official && styleCompatible
+        ? 100
+        : this.computeSimilarity(beer, recipe);
     const quality = this.computeQuality(recipe);
     return similarity * 0.7 + quality * 0.3;
   }
@@ -390,9 +396,11 @@ export class RecipeMatchingService {
       { count: 100, score: 95 },
       { count: 500, score: 100 },
     ];
-    if (brewCount <= anchors[0].count) return anchors[0].score * brewCount;
-    if (brewCount >= anchors[anchors.length - 1].count) {
-      return anchors[anchors.length - 1].score;
+    const first = anchors[0];
+    const last = anchors.at(-1) ?? first; // `anchors` is a non-empty literal
+    if (brewCount <= first.count) return first.score * brewCount;
+    if (brewCount >= last.count) {
+      return last.score;
     }
     for (let i = 0; i < anchors.length - 1; i += 1) {
       const lo = anchors[i];

@@ -312,6 +312,24 @@ describe("beers-import.api / importBeerByEan", () => {
       expect(item.isIbuEstimated).toBe(true);
     });
 
+    it("does not flag a single-bound IBU as estimated, whichever bound is set", async () => {
+      // A lone bound is not a range — and a valid ADR-0017 interval carries
+      // both bounds. Symmetric: neither (20, null) nor (null, 20) is estimated.
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ ibu_min: 20, ibu_max: null }),
+      );
+      const onlyMin = (await importBeerByEan("3760231860119")).item;
+      expect(onlyMin.ibu).toBe(20);
+      expect(onlyMin.isIbuEstimated).toBe(false);
+
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ ibu_min: null, ibu_max: 20 }),
+      );
+      const onlyMax = (await importBeerByEan("3760231860119")).item;
+      expect(onlyMax.ibu).toBe(20);
+      expect(onlyMax.isIbuEstimated).toBe(false);
+    });
+
     it("maps an SRM interval to EBC bounds plus a midpoint-derived scalar", async () => {
       mockRequest.mockResolvedValueOnce(buildDto({ srm_min: 4, srm_max: 8 }));
 

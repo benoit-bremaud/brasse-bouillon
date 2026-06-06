@@ -172,11 +172,16 @@ function mapPythonBeerToCatalogItem(
     aromaticTags: null,
     notesSource: dto.description,
     isAbvEstimated: false,
-    // IBU is the raw value: a true range (min !== max) is an estimate, an
-    // exact single value is not. EBC differs on purpose — it is always an
-    // estimate when present, being an approximate SRM→EBC conversion
-    // (×1.97, rounded), regardless of whether the SRM bounds coincide.
-    isIbuEstimated: dto.ibu_min !== null && dto.ibu_min !== dto.ibu_max,
+    // IBU is the raw value: a true range (both bounds present and
+    // differing) is an estimate; an exact single value (min === max) is
+    // not. Requiring both bounds keeps the flag symmetric and matches
+    // ADR-0017, where a valid interval always carries both. EBC differs
+    // on purpose — always an estimate when present, being an approximate
+    // SRM→EBC conversion (×1.97, rounded).
+    isIbuEstimated:
+      dto.ibu_min !== null &&
+      dto.ibu_max !== null &&
+      dto.ibu_min !== dto.ibu_max,
     isColorEbcEstimated: dto.srm_min !== null || dto.srm_max !== null,
     isStyleEstimated: true,
     origin: mapPythonSourceToOrigin(dto.source),

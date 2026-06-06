@@ -44,6 +44,7 @@ export const foldStyleKey = (style: string): string =>
   style
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '') // strip combining diacritics (accent folding)
+    .replace(/['’`]/g, ' ') // apostrophe variants → space ("l'Ancienne" == "l Ancienne")
     .toLowerCase()
     .trim()
     .replace(/\s+/g, ' ');

@@ -13,9 +13,9 @@ describe('bjcp-style-family (ADR-0016 D2)', () => {
       expect(foldStyleKey('  India   Pale  Ale ')).toBe('india pale ale');
     });
 
-    it('edge: strips accents (NFD diacritic folding)', () => {
+    it('edge: strips accents and folds apostrophes to a space', () => {
       expect(foldStyleKey("Bière Blonde à l'Ancienne")).toBe(
-        "biere blonde a l'ancienne",
+        'biere blonde a l ancienne',
       );
     });
   });
@@ -35,6 +35,14 @@ describe('bjcp-style-family (ADR-0016 D2)', () => {
 
     it('happy: resolves an FR/accented synonym to the same style', () => {
       expect(normalizeStyle("Bière Blonde à l'Ancienne")?.canonical).toBe(
+        'blonde_ale',
+      );
+    });
+
+    it('happy: apostrophe-less seed form resolves too ("à l Ancienne" == "à l\'Ancienne")', () => {
+      // The scan-catalog seed stores "Bière Blonde à l Ancienne" (no apostrophe);
+      // apostrophe folding makes it resolve to the same Blonde Ale family.
+      expect(normalizeStyle('Bière Blonde à l Ancienne')?.canonical).toBe(
         'blonde_ale',
       );
     });

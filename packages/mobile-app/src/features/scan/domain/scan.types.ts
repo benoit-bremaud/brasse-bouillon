@@ -218,6 +218,15 @@ export interface ScanRecipeMatch {
   brewedCount: number;
   score: number;
   /**
+   * Match completeness in `[0..1]` (ADR-0016 D4) — how much of the full
+   * picture (style / colour / IBU / ABV) the comparison actually used, a
+   * confidence signal distinct from `score`. Wired through the backend path
+   * for future use; not surfaced in the UI yet (every shown recipe already
+   * cleared the server-side completeness threshold). Optional: demo-mode
+   * matches omit it.
+   */
+  completeness?: number;
+  /**
    * `true` if the recipe is the brewer-endorsed official clone of
    * a beer (Issue #699). Drives the pharmacy metaphor split on the
    * scan result screen: officials surface in the "🏆 Brewery
@@ -238,12 +247,12 @@ export interface ScanRecipeMatch {
  * Mirrors the API's `RankedRecipeResponseDto` so the data layer can
  * pass-through without remapping in shape.
  *
- * - `rankings` — top-N matched recipes ordered by descending score.
- * - `lowConfidence` — `true` when the best match is below 40 (the
- *   API threshold). The UI displays a discreet warning above the
- *   "Recettes équivalentes" section so the user knows the proposed
- *   recipes are merely the closest, not genuinely similar (per
- *   brainstorm scan-2026-04-24 §3.4).
+ * - `rankings` — the recipes that cleared the acceptance thresholds
+ *   (ADR-0016 D5: match strength + completeness), ordered by descending
+ *   match strength.
+ * - `lowConfidence` — `true` when **nothing** cleared the thresholds (empty
+ *   `rankings`). The UI then renders an honest "no reliable equivalent" empty
+ *   state rather than a misleading closest match (matcher v2, ADR-0016).
  *
  * Shape kept consumer-driven: today the data comes from
  * `getDemoEquivalentRecipes(barcode)` in demo mode; tomorrow the

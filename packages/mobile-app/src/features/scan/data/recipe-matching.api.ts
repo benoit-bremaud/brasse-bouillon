@@ -30,6 +30,9 @@ type RankedRecipeWireDto = {
     // the contract narrow.
   };
   score: number;
+  // Match completeness in [0..1] (ADR-0016 D4) — wired through for future
+  // use; not surfaced in the UI yet.
+  completeness: number;
 };
 
 type MatchingResponseWireDto = {
@@ -56,6 +59,7 @@ function mapRankedRecipe(dto: RankedRecipeWireDto): ScanRecipeMatch {
     rating: dto.recipe.avg_rating ?? 0,
     brewedCount: dto.recipe.brew_count,
     score: dto.score,
+    completeness: dto.completeness,
     isOfficial: dto.recipe.is_official,
     style: dto.recipe.style ?? undefined,
   };

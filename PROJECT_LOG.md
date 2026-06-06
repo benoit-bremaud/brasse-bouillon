@@ -5,6 +5,26 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-06
+
+### PR #1210 merged (`7032066`) — feat(recipe): recipe-matching v2 — BJCP-family-graded scorer + completeness + threshold (ADR-0016)
+- Implements the ADR-0016 matcher v2 (weighted criteria, completeness signal, BJCP-family-graded style similarity, acceptance threshold). Separate workstream. Relates ADR-0016, epic #1175.
+
+### PR #1209 merged (`f46b149`) — fix(scan): show ADR-0017 IBU/colour intervals on the beer card
+- Branch `fix/scan-ibu-color-intervals`. After ADR-0017 shipped intervals, the mobile DTO still read the removed scalar `ibu`/`srm`, so IBU/EBC rendered blank after a scan. Now reads `ibu_min/max` + `srm_min/max`; keeps a representative midpoint scalar for the bucket formatters + recipe-matching scorer; new `formatInterval` renders a range ("20–28") on `BeerInfoCardScreen`; interval bounds added to `ScanCatalogItem`. 215 scan tests.
+- Reviews — CodeRabbit (IBU-vs-EBC estimate comment clarity; `isIbuEstimated` single-bound asymmetry → require both bounds) + Copilot ×2 (`formatInterval` no longer fabricates a range from one bound; `isColorEbcEstimated` gates on either SRM bound) addressed (`794b16f`, `9196427`, `dd0f1a9`). Codex skipped (quota). Relates ADR-0017, epic #1175.
+- Integration gap found via the end-to-end phone test; rebuilt EAS `preview` APK to verify — IBU + colour now display.
+
+### PR #1208 merged (`ccbb951`) — chore(encyclopedia): seed full corpus on boot
+- Branch `chore/encyclopedia-boot-seed-corpus`. Adds `seed_breweries → seed_beers → seed_ingredients` to the Dockerfile boot `CMD` (after `seed_styles`, FK order, idempotent) so every deploy populates the curated corpus and `/beers/import-by-ean` resolves known EANs from a direct DB hit.
+
+### PR #1207 merged (`2066740`) — feat(encyclopedia): seed curated beer corpus (39 breweries, 44 beers, styles, ingredients)
+- Branch `feat/encyclopedia-seed-corpus`. Idempotent seed scripts: 39 breweries, +25 BJCP styles, 44 beers (IBU/colour as ADR-0017 intervals, SRM canonical) + tasting profiles, 45-ingredient catalog + 259 links. `is_verified=false` staging (ADR-0015); OFF category errors not propagated (scan spec §8.5). 9 seed tests.
+- Reviews — Codex P2 (match seeded beers by EAN before slug) + Copilot ×4 (ingredient upsert refresh, count-delta, `is_verified` docstrings) + CodeRabbit ×5 (EAN-first docstring, split-key conflict guard, atomic rollback, clearer missing-ingredient error; batch-fetch nitpick declined) addressed (`491b5f8`, `78377e3`, `189daae`, `65568fe`, `350cea8`, `c8a2696`). Relates ADR-0013/0015/0016/0017, epic #1175.
+
+### Deploy — encyclopedia (Fly `brasse-bouillon-encyclopedia`)
+- `fly deploy` from `packages/beer-encyclopedia` ran migration `005` (ADR-0017) + reseeded the full corpus on the prod **SQLite** volume at boot. Verified `/beers/import-by-ean` resolves Leffe `5410228142218`, Grimbergen `3080216049632`, La Chouffe `5410769100081` from a direct DB hit. Closes the "Deploy pending" note on #1204.
+
 ## 2026-06-05
 
 ### PR #1205 merged (`076bb67`) — chore(claude-tooling): add local pre-push review ritual (Claude + Codex)

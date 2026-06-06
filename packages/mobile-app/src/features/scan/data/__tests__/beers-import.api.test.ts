@@ -322,6 +322,19 @@ describe("beers-import.api / importBeerByEan", () => {
       expect(item.colorEbc).toBe(12); // srmToEbc(midpoint 6) = round(11.82)
       expect(item.isColorEbcEstimated).toBe(true);
     });
+
+    it("still derives EBC and flags it estimated when only one SRM bound is present", async () => {
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ srm_min: null, srm_max: 8 }),
+      );
+
+      const { item } = await importBeerByEan("3760231860119");
+
+      expect(item.colorEbc).toBe(16); // srmToEbc(midpoint(null, 8) = 8)
+      expect(item.colorEbcMin).toBeNull();
+      expect(item.colorEbcMax).toBe(16);
+      expect(item.isColorEbcEstimated).toBe(true);
+    });
   });
 
   describe("source → origin mapping", () => {

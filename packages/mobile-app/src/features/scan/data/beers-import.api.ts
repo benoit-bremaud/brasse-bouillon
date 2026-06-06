@@ -177,7 +177,7 @@ function mapPythonBeerToCatalogItem(
     // estimate when present, being an approximate SRM→EBC conversion
     // (×1.97, rounded), regardless of whether the SRM bounds coincide.
     isIbuEstimated: dto.ibu_min !== null && dto.ibu_min !== dto.ibu_max,
-    isColorEbcEstimated: dto.srm_min !== null,
+    isColorEbcEstimated: dto.srm_min !== null || dto.srm_max !== null,
     isStyleEstimated: true,
     origin: mapPythonSourceToOrigin(dto.source),
     // BeerRead does not expose the OFF fetch timestamp; `updated_at`

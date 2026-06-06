@@ -97,19 +97,21 @@ export function abvToStrengthWord(abv: number | null): string {
 /**
  * Render an ADR-0017 [min, max] interval for display: a single value
  * when the bounds coincide ("20"), a dash-joined range otherwise
- * ("20–28"). Falls back to the representative scalar when the bounds
- * are absent (mock/demo items that carry only a single value), and to
- * null when nothing is known.
+ * ("20–28"). A single known bound renders on its own. The scalar
+ * `fallback` stands in only when neither bound is known (mock/demo
+ * items that carry just a scalar) — never paired with a real bound,
+ * which would fabricate a misleading range. Returns null when nothing
+ * is known.
  */
 export function formatInterval(
   min: number | null | undefined,
   max: number | null | undefined,
   fallback: number | null,
 ): string | null {
-  const lo = min ?? fallback;
-  const hi = max ?? fallback;
-  if (lo == null && hi == null) return null;
-  if (lo == null) return String(hi);
-  if (hi == null) return String(lo);
+  if (min == null && max == null) {
+    return fallback == null ? null : String(fallback);
+  }
+  const lo = min ?? max;
+  const hi = max ?? min;
   return lo === hi ? String(lo) : `${lo}–${hi}`;
 }

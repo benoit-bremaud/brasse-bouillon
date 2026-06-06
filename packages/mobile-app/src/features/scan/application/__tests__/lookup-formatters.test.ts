@@ -129,5 +129,12 @@ describe("lookup-formatters", () => {
       expect(formatInterval(20, null, null)).toBe("20");
       expect(formatInterval(null, 28, null)).toBe("28");
     });
+
+    it("renders the known bound alone, never paired with the fallback", () => {
+      // A present bound must not be combined with the scalar fallback into
+      // a fabricated range like "20–24".
+      expect(formatInterval(20, undefined, 24)).toBe("20");
+      expect(formatInterval(undefined, 28, 24)).toBe("28");
+    });
   });
 });

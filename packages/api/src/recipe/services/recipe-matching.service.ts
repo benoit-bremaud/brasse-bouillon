@@ -60,8 +60,10 @@ export interface BeerCharacteristics {
  *   shows an honest "no reliable equivalent" state).
  *
  * The official-recipe shortcut stays style-gated (#1193 / D6): `is_official`
- * AND a positive style local-similarity → matchStrength 100; an off-style
- * official is ranked on its honest similarity instead and does not bypass D5.
+ * AND a **same-family-or-better** style local-similarity (≥ 70 = 0.7) →
+ * matchStrength 100. A mere same-tier (0.4) or off-style official is ranked on
+ * its honest similarity instead and does not bypass D5 — so an IPA never
+ * floats to the top for a Blonde Ale.
  *
  * Local-similarity scales (0..100):
  * - style — graded by BJCP family (`./bjcp-style-family`): same style 100,
@@ -175,7 +177,13 @@ export class RecipeMatchingService {
     recipe: RecipeOrmEntity,
   ): number {
     const styleScore = this.maybeStyleScore(beer.style, recipe.style);
-    const styleCompatible = styleScore !== null && styleScore > 0;
+    // "Style-compatible" for the official shortcut means **same BJCP family or
+    // better** (local similarity ≥ 70 = 0.7), NOT merely the same colour/strength
+    // tier (0.4). With v2's graded families a 0.4 tier match (e.g. an IPA for a
+    // Blonde — both pale/standard) would otherwise re-promote an off-family
+    // official to the top, reintroducing the exact Leffe-Blonde → Punk-IPA bug
+    // #1193 fixed. So the gate is ≥ same family (ADR-0016 D6, refined).
+    const styleCompatible = styleScore !== null && styleScore >= 70;
     if (recipe.is_official && styleCompatible) {
       return 100;
     }

@@ -441,8 +441,12 @@ describe('RecipeController', () => {
     it('happy: returns the ranked envelope straight from the matching service', async () => {
       const envelope = {
         rankings: [
-          { recipe: mockRecipeOrm, score: 87.5 },
-          { recipe: { ...mockRecipeOrm, name: 'Other' }, score: 60 },
+          { recipe: mockRecipeOrm, score: 87.5, completeness: 0.54 },
+          {
+            recipe: { ...mockRecipeOrm, name: 'Other' },
+            score: 60,
+            completeness: 0.54,
+          },
         ],
         low_confidence: false,
       };
@@ -458,7 +462,7 @@ describe('RecipeController', () => {
 
     it('happy: surfaces low_confidence=true when the best match is weak', async () => {
       const envelope = {
-        rankings: [{ recipe: mockRecipeOrm, score: 28 }],
+        rankings: [{ recipe: mockRecipeOrm, score: 28, completeness: 0.4 }],
         low_confidence: true,
       };
       jest.spyOn(matching, 'rankForBeer').mockResolvedValue(envelope);
@@ -482,7 +486,7 @@ describe('RecipeController', () => {
   describe('matchByCharacteristics() - POST /recipes/match', () => {
     it('happy: maps the body characteristics to the matcher and returns the envelope', async () => {
       const envelope = {
-        rankings: [{ recipe: mockRecipeOrm, score: 80 }],
+        rankings: [{ recipe: mockRecipeOrm, score: 80, completeness: 0.54 }],
         low_confidence: false,
       };
       const spy = jest

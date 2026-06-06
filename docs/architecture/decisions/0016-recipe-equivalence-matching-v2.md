@@ -69,7 +69,7 @@ A candidate is shown only when **both** `matchStrength ≥ S_min` **and** `compl
 
 ### D6 — Official-recipe promotion stays style-gated (from #1193)
 
-Unchanged: the official shortcut applies only to a **style-compatible** official (style similarity > 0). It does not bypass D5.
+The official shortcut applies only to a **style-compatible** official, and it does not bypass D5. With D2's graded scale, "style-compatible" is refined to **same BJCP family or better** (style similarity ≥ 0.7) — *not* merely the same colour/strength tier (0.4). Otherwise a 0.4 tier match (e.g. an IPA for a Blonde Ale — both pale/standard) would re-promote an off-family official to the top, reintroducing the exact #1193 bug this gate exists to prevent. (Implementation note, 2026-06-06: the original ">0" wording predated the graded scale; ≥ 0.7 is the faithful intent.)
 
 ## Out of scope (deferred, captured)
 

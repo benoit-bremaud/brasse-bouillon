@@ -156,7 +156,13 @@ const STYLE_DEFINITIONS: readonly StyleDefinition[] = [
     family: 'Amber Ale',
     colourTier: 'amber',
     strengthTier: 'standard',
-    aliases: ['amber ale', 'ambree', 'biere ambree', 'red ale', 'irish red ale'],
+    aliases: [
+      'amber ale',
+      'ambree',
+      'biere ambree',
+      'red ale',
+      'irish red ale',
+    ],
   },
   {
     canonical: 'dubbel',

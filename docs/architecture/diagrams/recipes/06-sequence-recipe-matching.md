@@ -114,10 +114,11 @@ M --> M : render "recettes équivalentes" + completeness / honest empty state
   not a misleading closest match. `low_confidence` is retained in the envelope for
   backward-compatibility but the empty-state replaces the old "show closest + banner".
 - **Style-gated official promotion (#1193, ADR-0016 D6).** The official-recipe shortcut
-  (matchStrength = 1.0) applies **only when the official is style-compatible** (style local
-  similarity > 0). An off-style official (e.g. an IPA for a Leffe Blonde) is ranked on its
-  honest similarity instead, and does not bypass the D5 threshold. Style-compatible officials
-  stay promoted.
+  (matchStrength = 1.0) applies **only when the official is style-compatible** — refined to
+  **same BJCP family or better** (style local similarity ≥ 0.7), not merely the same
+  colour/strength tier (0.4). An off-family official (e.g. an IPA for a Leffe Blonde — same
+  pale/standard tier, 0.4) is ranked on its honest similarity instead and does not bypass the
+  D5 threshold. Same-family officials stay promoted.
 - **Backward compatibility.** `GET /recipes/match/:beerId` stays (same request/response
   contract): it loads the `scan_catalog_items` row, then calls `rankByCharacteristics(row)`.
   Removed when the NestJS scan path is retired (#1186 step 2). The **interface** is unchanged;

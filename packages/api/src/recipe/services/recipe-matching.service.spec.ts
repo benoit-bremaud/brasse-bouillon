@@ -18,7 +18,15 @@ import { ScanCatalogItemOrmEntity } from '../../scan/entities/scan-catalog-item.
 import { ScanCatalogSource } from '../../scan/domain/enums/scan-catalog-source.enum';
 import { ScanFermentationType } from '../../scan/domain/enums/scan-fermentation-type.enum';
 
-describe('RecipeMatchingService (Issue #699)', () => {
+/**
+ * Recipe matching **v2** (ADR-0016). Match strength = weighted, completeness-
+ * aware similarity only (style 40 BJCP-graded, colour 22, IBU 18, ABV 14;
+ * Gower renorm). A candidate is shown only when matchStrength ≥ SCAN_MATCH_S_MIN
+ * (default 45) AND completeness ≥ SCAN_MATCH_C_MIN (default 0.5) — D5. The test
+ * fixtures never set IBU/colour, so completeness is 0.54 (style + ABV) or 0.40
+ * (style only, which is filtered out by C_min).
+ */
+describe('RecipeMatchingService (matcher v2, ADR-0016)', () => {
   let module: TestingModule;
   let service: RecipeMatchingService;
   let recipeRepo: Repository<RecipeOrmEntity>;
@@ -63,37 +71,7 @@ describe('RecipeMatchingService (Issue #699)', () => {
   });
 
   // ---------------------------------------------------------------
-  // scoreStyle
-  // ---------------------------------------------------------------
-  describe('scoreStyle', () => {
-    it('happy: exact case-insensitive match scores 100', () => {
-      expect(service.scoreStyle('IPA', 'IPA')).toBe(100);
-      expect(service.scoreStyle('ipa', 'IPA')).toBe(100);
-      expect(service.scoreStyle('  Belgian Tripel ', 'belgian tripel')).toBe(
-        100,
-      );
-    });
-
-    it('happy: same-family substring containment scores 70', () => {
-      expect(service.scoreStyle('IPA', 'Session IPA')).toBe(70);
-      expect(service.scoreStyle('Imperial Stout', 'Stout')).toBe(70);
-    });
-
-    it('sad: unrelated styles score 0', () => {
-      expect(service.scoreStyle('IPA', 'Belgian Tripel')).toBe(0);
-      expect(service.scoreStyle('Pilsner', 'Imperial Stout')).toBe(0);
-    });
-
-    it('edge: null / undefined / empty either side scores 0', () => {
-      expect(service.scoreStyle(null, 'IPA')).toBe(0);
-      expect(service.scoreStyle('IPA', undefined)).toBe(0);
-      expect(service.scoreStyle('', 'IPA')).toBe(0);
-      expect(service.scoreStyle('   ', 'IPA')).toBe(0);
-    });
-  });
-
-  // ---------------------------------------------------------------
-  // scoreAbv
+  // scoreAbv (local similarity, unchanged)
   // ---------------------------------------------------------------
   describe('scoreAbv', () => {
     it('happy: zero gap scores 100', () => {
@@ -118,42 +96,60 @@ describe('RecipeMatchingService (Issue #699)', () => {
   });
 
   // ---------------------------------------------------------------
-  // scoreQuality
+  // scoreBitterness (local similarity, unchanged)
   // ---------------------------------------------------------------
-  describe('scoreQuality', () => {
-    it('happy: 5.0 maps to 100, 1.0 to 20, 3.0 to 60', () => {
-      expect(service.scoreQuality(5)).toBe(100);
-      expect(service.scoreQuality(1)).toBe(20);
-      expect(service.scoreQuality(3)).toBe(60);
+  describe('scoreBitterness', () => {
+    it('happy: same band scores 100', () => {
+      expect(service.scoreBitterness(30, 35)).toBe(100);
     });
 
-    it('sad: null avg_rating scores 0 (do not crowd out rated peers)', () => {
-      expect(service.scoreQuality(null)).toBe(0);
-      expect(service.scoreQuality(undefined)).toBe(0);
+    it('happy: neighbouring band scores 60', () => {
+      expect(service.scoreBitterness(15, 25)).toBe(60);
     });
 
-    it('edge: out-of-range ratings clamp safely', () => {
-      // Ratings outside 1..5 are not expected from the schema
-      // (numeric(3,2) avg) but the helper must not crash.
-      expect(service.scoreQuality(0.5)).toBe(20);
-      expect(service.scoreQuality(7)).toBe(100);
+    it('sad: two-or-more bands apart scores 0', () => {
+      expect(service.scoreBitterness(10, 70)).toBe(0);
+    });
+
+    it('edge: missing values score 0', () => {
+      expect(service.scoreBitterness(null, 30)).toBe(0);
+      expect(service.scoreBitterness(30, undefined)).toBe(0);
     });
   });
 
   // ---------------------------------------------------------------
-  // computeFinalScore
+  // scoreColor (local similarity, unchanged)
   // ---------------------------------------------------------------
-  describe('computeFinalScore', () => {
+  describe('scoreColor', () => {
+    it('happy: same EBC band scores 100', () => {
+      expect(service.scoreColor(18, 25)).toBe(100);
+    });
+
+    it('happy: neighbouring band scores 60', () => {
+      expect(service.scoreColor(6, 12)).toBe(60);
+    });
+
+    it('sad: pale vs noir is two-bands-apart-or-more, scores 0', () => {
+      expect(service.scoreColor(4, 80)).toBe(0);
+    });
+
+    it('edge: missing values score 0', () => {
+      expect(service.scoreColor(null, 18)).toBe(0);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // computeFinalScore — match strength = similarity only (no quality blend)
+  // ---------------------------------------------------------------
+  describe('computeFinalScore (match strength)', () => {
     let beer: ScanCatalogItemOrmEntity;
     beforeEach(() => {
       beer = makeBeer({ style: 'IPA', abv: 5.5 });
     });
 
-    it('happy: blended score = similarity*0.7 + quality*0.3 with renormalization', () => {
-      // Style 100 + ABV 100, bitterness/color null → similarity renorm
-      // = (100*50 + 100*25)/75 = 100. avg_rating 5 → quality 100,
-      // brew_count/recency null → quality renorm = 100. Final =
-      // 100*0.7 + 100*0.3 = 100.
+    it('happy: weighted similarity with renorm — exact style + exact ABV = 100', () => {
+      // style 1.0 → 100 (weight 40), ABV 100 (weight 14), IBU/colour absent.
+      // matchStrength = (40·100 + 14·100) / 54 = 100. No quality term.
       const recipe = makeRecipe({
         style: 'IPA',
         abv_estimated: 5.5,
@@ -162,39 +158,51 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(service.computeFinalScore(beer, recipe)).toBe(100);
     });
 
-    it('happy: a style-compatible official gets the shortcut (similarity=100)', () => {
-      // Same style → style-compatible → shortcut. Null quality → 70.
+    it('happy: a same-style official gets the shortcut (matchStrength = 100, no quality)', () => {
       const official = makeRecipe({
         style: 'IPA',
         abv_estimated: null,
         avg_rating: null,
         is_official: true,
       });
-      expect(service.computeFinalScore(beer, official)).toBeCloseTo(70, 5);
+      expect(service.computeFinalScore(beer, official)).toBe(100);
     });
 
-    it('#1193: an off-style official does NOT get the shortcut and cannot outrank a genuine style match', () => {
-      // Pilsner official for an IPA beer → style score 0 → not
-      // style-compatible → no shortcut → ranked on its honest (low)
-      // similarity, so a same-style non-official scores higher.
-      const offStyleOfficial = makeRecipe({
-        style: 'Pilsner',
+    it('happy: a same-FAMILY official also gets the shortcut (≥ 0.7)', () => {
+      const pilsnerBeer = makeBeer({ style: 'Pilsner', abv: 5 });
+      // Lager is a different canonical but the same Pale Lager family → 0.7.
+      const lagerOfficial = makeRecipe({
+        style: 'Lager',
         abv_estimated: null,
         avg_rating: null,
         is_official: true,
       });
-      const sameStyleNonOfficial = makeRecipe({
-        style: 'IPA',
-        abv_estimated: 5.5,
-        avg_rating: 4,
-      });
+      expect(service.computeFinalScore(pilsnerBeer, lagerOfficial)).toBe(100);
+    });
 
-      expect(service.computeFinalScore(beer, offStyleOfficial)).toBeLessThan(
-        service.computeFinalScore(beer, sameStyleNonOfficial),
+    it('#1193: a same-tier-only official (IPA for a Blonde) does NOT get the shortcut', () => {
+      const blondeBeer = makeBeer({ style: 'Blonde Ale', abv: 5 });
+      // IPA vs Blonde Ale: different family, both pale+standard → 0.4 (< 0.7).
+      const offFamilyOfficial = makeRecipe({
+        style: 'American IPA',
+        abv_estimated: 5.5,
+        avg_rating: null,
+        is_official: true,
+      });
+      // Same-family non-official (Saison ≈ Blonde, both Pale Ale → 0.7).
+      const sameFamilyNonOfficial = makeRecipe({
+        style: 'Saison',
+        abv_estimated: 5,
+        avg_rating: null,
+      });
+      expect(
+        service.computeFinalScore(blondeBeer, offFamilyOfficial),
+      ).toBeLessThan(
+        service.computeFinalScore(blondeBeer, sameFamilyNonOfficial),
       );
     });
 
-    it('edge: a recipe with no style nor ABV nor rating still scores deterministically (0)', () => {
+    it('edge: a recipe with no comparable criterion scores 0', () => {
       const empty = makeRecipe({
         style: null,
         abv_estimated: null,
@@ -205,10 +213,102 @@ describe('RecipeMatchingService (Issue #699)', () => {
   });
 
   // ---------------------------------------------------------------
+  // computeSimilarity (Gower renormalization)
+  // ---------------------------------------------------------------
+  describe('computeSimilarity (renormalization)', () => {
+    it('renormalizes when IBU and colour are missing — style + ABV split the present weight', () => {
+      const beer = makeBeer({ style: 'IPA', abv: 5.5 });
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5.5,
+        avg_rating: null,
+      });
+      // style 100 (w40) + ABV 100 (w14), IBU/colour null → (4000 + 1400)/54 = 100.
+      expect(service.computeSimilarity(beer, recipe)).toBe(100);
+    });
+
+    it('returns 0 when every similarity component is missing', () => {
+      const beer = makeBeer({ style: '', abv: null });
+      const recipe = makeRecipe({
+        style: null,
+        abv_estimated: null,
+        avg_rating: null,
+      });
+      expect(service.computeSimilarity(beer, recipe)).toBe(0);
+    });
+
+    it('treats a whitespace-only style as absent (renormalised, not a 0 penalty)', () => {
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5.5,
+        avg_rating: 4,
+      });
+      const whitespace = service.computeSimilarity(
+        { style: '  ', abv: 5.5 },
+        recipe,
+      );
+      const absent = service.computeSimilarity(
+        { style: null, abv: 5.5 },
+        recipe,
+      );
+      expect(whitespace).toBe(absent);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // computeCompleteness (ADR-0016 D4)
+  // ---------------------------------------------------------------
+  describe('computeCompleteness', () => {
+    it('happy: style + ABV present → 0.54 (of the full 100)', () => {
+      const beer = makeBeer({ style: 'IPA', abv: 5.5 });
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5.5,
+        avg_rating: null,
+      });
+      expect(service.computeCompleteness(beer, recipe)).toBeCloseTo(0.54, 5);
+    });
+
+    it('edge: style only → 0.40 (below C_min, so such a match is filtered)', () => {
+      const beer = makeBeer({ style: 'IPA', abv: null });
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: null,
+        avg_rating: null,
+      });
+      expect(service.computeCompleteness(beer, recipe)).toBeCloseTo(0.4, 5);
+    });
+
+    it('edge: all four criteria present → caps at 0.94 (ingredients weight 6 not compared)', () => {
+      const beer = makeBeer({ style: 'IPA', abv: 5 });
+      beer.ibu = 30;
+      beer.color_ebc = 10;
+      const recipe = makeRecipe({
+        style: 'IPA',
+        abv_estimated: 5,
+        avg_rating: null,
+      });
+      recipe.ibu_target = 30;
+      recipe.ebc_target = 10;
+      expect(service.computeCompleteness(beer, recipe)).toBeCloseTo(0.94, 5);
+    });
+
+    it('edge: no comparable criterion → 0', () => {
+      const beer = makeBeer({ style: '', abv: null });
+      const recipe = makeRecipe({
+        style: null,
+        abv_estimated: null,
+        avg_rating: null,
+      });
+      expect(service.computeCompleteness(beer, recipe)).toBe(0);
+    });
+  });
+
+  // ---------------------------------------------------------------
   // rankForBeer (integration with the in-memory DB)
   // ---------------------------------------------------------------
   describe('rankForBeer (integration)', () => {
-    it('happy: top-3 ordering for an IPA-shaped beer puts the closest IPA on top', async () => {
+    it('happy: keeps the same-style IPAs and orders them, drops the off-family styles (D5)', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'Session IPA',
         abv: 4.5,
@@ -242,38 +342,39 @@ describe('RecipeMatchingService (Issue #699)', () => {
 
       const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
 
-      expect(rankings).toHaveLength(3);
-      expect(rankings[0].recipe.name).toBe('Session IPA Citra');
-      // Scores must be strictly decreasing.
+      // Only the two IPAs (same canonical → style 100) clear S_min; the Tripel
+      // and Stout score 0 on style and ABV → filtered.
+      expect(rankings.map((r) => r.recipe.name)).toEqual([
+        'Session IPA Citra',
+        'NEIPA',
+      ]);
       expect(rankings[0].score).toBeGreaterThan(rankings[1].score);
-      expect(rankings[1].score).toBeGreaterThanOrEqual(rankings[2].score);
+      expect(rankings[0].completeness).toBeCloseTo(0.54, 5);
       expect(low_confidence).toBe(false);
     });
 
-    it('happy: a style-compatible official beats non-official peers (#1193)', async () => {
+    it('happy: a style-compatible official beats non-official peers and scores 100 (#1193 / D6)', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'Pilsner',
         abv: 5,
       });
       await seedRecipe(recipeRepo, {
         name: 'Random NEIPA',
-        style: 'NEIPA', // off the beer style
+        style: 'NEIPA', // different family, same pale+standard tier → 0.4
         abv_estimated: 6.5,
         avg_rating: 5,
       });
       await seedRecipe(recipeRepo, {
         name: 'Brewer-Endorsed Pilsner',
-        style: 'Pilsner', // same style → shortcut applies
-        abv_estimated: 9, // ABV off, but the style gate is satisfied
-        avg_rating: null, // no rating
+        style: 'Pilsner', // same canonical → shortcut applies
+        abv_estimated: 9,
+        avg_rating: null,
         is_official: true,
       });
 
       const { rankings } = await service.rankForBeer(beerId, 3);
       expect(rankings[0].recipe.name).toBe('Brewer-Endorsed Pilsner');
-      // Style-compatible → similarity = 100 (shortcut), quality = 0 (no
-      // avg_rating, no brew_count, no recency). Final = 100*0.7 = 70.
-      expect(rankings[0].score).toBeCloseTo(70, 5);
+      expect(rankings[0].score).toBe(100);
     });
 
     it('sad: unknown beerId throws NotFoundException', async () => {
@@ -306,16 +407,7 @@ describe('RecipeMatchingService (Issue #699)', () => {
     });
 
     it('edge: equal scores resolve deterministically by avg_rating desc then id asc', async () => {
-      // Codex P2 on PR #773 — without explicit tie-breakers the
-      // ranking falls back to the DB return order, which is not
-      // guaranteed. The contract: same scores → higher avg_rating
-      // wins ; same rating → lexicographically smaller id wins.
-      const beerId = await seedBeer(catalogRepo, {
-        style: 'IPA',
-        abv: 5,
-      });
-      // Three recipes that score identically on similarity (style
-      // exact, ABV exact). Differentiate only via avg_rating + id.
+      const beerId = await seedBeer(catalogRepo, { style: 'IPA', abv: 5 });
       await seedRecipeWithId(
         recipeRepo,
         '00000000-0000-4000-8000-aaaaaaaaaaaa',
@@ -349,18 +441,14 @@ describe('RecipeMatchingService (Issue #699)', () => {
 
       const { rankings } = await service.rankForBeer(beerId, 3);
       expect(rankings.map((r) => r.recipe.name)).toEqual([
-        'A-high-rating', // 5★ rating, smaller id (bbbb…)
-        'A-high-rating-tie', // 5★ rating, larger id (cccc…)
-        'Z-low-rating', // 3★ rating
+        'A-high-rating', // 5★, smaller id (bbbb…)
+        'A-high-rating-tie', // 5★, larger id (cccc…)
+        'Z-low-rating', // 3★
       ]);
     });
 
     it('edge: caps the limit at 10 even if a larger value is requested', async () => {
-      const beerId = await seedBeer(catalogRepo, {
-        style: 'IPA',
-        abv: 5,
-      });
-      // Seed 12 distinct PUBLIC recipes.
+      const beerId = await seedBeer(catalogRepo, { style: 'IPA', abv: 5 });
       for (let i = 0; i < 12; i += 1) {
         await seedRecipe(recipeRepo, {
           name: `Recipe ${i}`,
@@ -369,22 +457,20 @@ describe('RecipeMatchingService (Issue #699)', () => {
           avg_rating: 4,
         });
       }
-
       const { rankings } = await service.rankForBeer(beerId, 100);
       expect(rankings.length).toBe(10);
     });
 
     // ----------------------------------------------------------------
-    // low_confidence flag (Issue #699 brainstorm §3.4 — full algo)
+    // Acceptance threshold (ADR-0016 D5) → honest empty state
     // ----------------------------------------------------------------
 
-    it('low_confidence: true when the best match scores below 40', async () => {
-      // Beer style + ABV totally off the recipes' style + ABV.
+    it('D5: nothing passes → empty rankings + low_confidence true (no misleading closest match)', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'Pilsner',
         abv: 4.5,
       });
-      // Single recipe far from the beer on every criterion.
+      // Off family AND off ABV → style 0, ABV 0 → matchStrength 0 < S_min.
       await seedRecipe(recipeRepo, {
         name: 'Imperial Stout',
         style: 'Imperial Stout',
@@ -393,16 +479,11 @@ describe('RecipeMatchingService (Issue #699)', () => {
       });
 
       const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
-      expect(rankings).toHaveLength(1);
-      expect(rankings[0].score).toBeLessThan(40);
+      expect(rankings).toHaveLength(0);
       expect(low_confidence).toBe(true);
     });
 
-    it('low_confidence: an off-style official is not inflated by the shortcut and the warning fires (#1193 supersedes #792)', async () => {
-      // Since #1193 the official shortcut applies only to a
-      // style-compatible official. An off-style official no longer
-      // inflates its headline to 70 — it is ranked on its honest (low)
-      // similarity — and the low_confidence warning still fires.
+    it('D5: an off-style official is not promoted and is filtered out too', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'Pilsner',
         abv: 4.5,
@@ -416,18 +497,15 @@ describe('RecipeMatchingService (Issue #699)', () => {
       });
 
       const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
-      // No shortcut for an off-style official → honest (low) headline.
-      expect(rankings[0].score).toBeLessThan(40);
+      expect(rankings).toHaveLength(0);
       expect(low_confidence).toBe(true);
     });
 
-    it('low_confidence: false when the best match scores 40 or above', async () => {
+    it('D5: a strong same-style match passes → low_confidence false', async () => {
       const beerId = await seedBeer(catalogRepo, {
         style: 'IPA',
         abv: 5.5,
       });
-      // Style exact match → similarity ≥ 50 component-wise → final ≥
-      // 35 just from style alone, plus ABV boost → final clearly > 40.
       await seedRecipe(recipeRepo, {
         name: 'Spot-on IPA',
         style: 'IPA',
@@ -436,172 +514,26 @@ describe('RecipeMatchingService (Issue #699)', () => {
       });
 
       const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
-      expect(rankings[0].score).toBeGreaterThanOrEqual(40);
+      expect(rankings).toHaveLength(1);
+      expect(rankings[0].score).toBeGreaterThanOrEqual(45);
       expect(low_confidence).toBe(false);
     });
-  });
 
-  // ------------------------------------------------------------------
-  // Bitterness (full algo extension)
-  // ------------------------------------------------------------------
-  describe('scoreBitterness', () => {
-    it('happy: same band scores 100', () => {
-      // 30 IBU and 35 IBU both fall in the marked band (20-40).
-      expect(service.scoreBitterness(30, 35)).toBe(100);
-    });
-
-    it('happy: neighbouring band scores 60', () => {
-      // 15 IBU = soft (band 0), 25 IBU = marked (band 1) → distance 1.
-      expect(service.scoreBitterness(15, 25)).toBe(60);
-    });
-
-    it('sad: two-or-more bands apart scores 0', () => {
-      // 10 IBU = soft (band 0), 70 IBU = intense (band 3) → distance 3.
-      expect(service.scoreBitterness(10, 70)).toBe(0);
-    });
-
-    it('edge: missing values score 0', () => {
-      expect(service.scoreBitterness(null, 30)).toBe(0);
-      expect(service.scoreBitterness(30, undefined)).toBe(0);
-    });
-  });
-
-  // ------------------------------------------------------------------
-  // Color (full algo extension)
-  // ------------------------------------------------------------------
-  describe('scoreColor', () => {
-    it('happy: same EBC band scores 100', () => {
-      // 18 EBC and 25 EBC both ambré (16-30).
-      expect(service.scoreColor(18, 25)).toBe(100);
-    });
-
-    it('happy: neighbouring band scores 60', () => {
-      // 6 EBC = pale (0), 12 EBC = doré (1) → distance 1.
-      expect(service.scoreColor(6, 12)).toBe(60);
-    });
-
-    it('sad: pale vs noir is two-bands-apart-or-more, scores 0', () => {
-      // 4 EBC = pale (0), 80 EBC = noir (4) → distance 4.
-      expect(service.scoreColor(4, 80)).toBe(0);
-    });
-
-    it('edge: missing values score 0', () => {
-      expect(service.scoreColor(null, 18)).toBe(0);
-    });
-  });
-
-  // ------------------------------------------------------------------
-  // Brew count confidence (full algo extension)
-  // ------------------------------------------------------------------
-  describe('scoreBrewCount', () => {
-    it('happy: monotonic anchors — 0→0, 1→30, 5→60, 20→80, 100→95, 500+→100', () => {
-      expect(service.scoreBrewCount(0)).toBe(0);
-      expect(service.scoreBrewCount(1)).toBe(30);
-      expect(service.scoreBrewCount(5)).toBe(60);
-      expect(service.scoreBrewCount(20)).toBe(80);
-      expect(service.scoreBrewCount(100)).toBe(95);
-      expect(service.scoreBrewCount(500)).toBe(100);
-      expect(service.scoreBrewCount(10000)).toBe(100);
-    });
-
-    it('happy: linear interpolation between anchors', () => {
-      // 3 brews → between 1 (30) and 5 (60), at 50% → 45.
-      expect(service.scoreBrewCount(3)).toBe(45);
-    });
-
-    it('edge: null / negative returns 0', () => {
-      expect(service.scoreBrewCount(null)).toBe(0);
-      expect(service.scoreBrewCount(-3)).toBe(0);
-    });
-  });
-
-  // ------------------------------------------------------------------
-  // Recency decay (full algo extension)
-  // ------------------------------------------------------------------
-  describe('scoreRecency', () => {
-    const daysAgo = (n: number): Date => {
-      const d = new Date();
-      d.setDate(d.getDate() - n);
-      return d;
-    };
-
-    it('happy: <30 days → 100', () => {
-      expect(service.scoreRecency(daysAgo(10))).toBe(100);
-    });
-
-    it('happy: 30-90 days → 80', () => {
-      expect(service.scoreRecency(daysAgo(60))).toBe(80);
-    });
-
-    it('happy: 90-365 days → 60', () => {
-      expect(service.scoreRecency(daysAgo(200))).toBe(60);
-    });
-
-    it('happy: 1-2 years → 40', () => {
-      expect(service.scoreRecency(daysAgo(500))).toBe(40);
-    });
-
-    it('happy: 2+ years → 20', () => {
-      expect(service.scoreRecency(daysAgo(1000))).toBe(20);
-    });
-
-    it('edge: null returns 0', () => {
-      expect(service.scoreRecency(null)).toBe(0);
-    });
-
-    it('edge: invalid date string returns 0', () => {
-      expect(service.scoreRecency('not-a-date')).toBe(0);
-    });
-  });
-
-  // ------------------------------------------------------------------
-  // Similarity / Quality renormalization (full algo extension)
-  // ------------------------------------------------------------------
-  describe('computeSimilarity (renormalization)', () => {
-    it('renormalizes when bitterness and color are missing — style + ABV split the full 100', () => {
-      const beer = makeBeer({ style: 'IPA', abv: 5.5 });
-      // Recipe with only style + ABV present (no IBU, no EBC).
-      const recipe = makeRecipe({
+    it('D5: a style-only beer (completeness 0.40 < C_min) is filtered even on an exact style', async () => {
+      const beerId = await seedBeer(catalogRepo, {
         style: 'IPA',
-        abv_estimated: 5.5,
-        avg_rating: null,
+        abv: null,
       });
-      // Style 100 weighted 50, ABV 100 weighted 25, others null.
-      // Renorm: (100*50 + 100*25) / (50+25) = 100.
-      expect(service.computeSimilarity(beer, recipe)).toBe(100);
-    });
-
-    it('returns 0 when every similarity component is missing', () => {
-      const beer = makeBeer({ style: '', abv: null });
-      const recipe = makeRecipe({
-        style: null,
+      await seedRecipe(recipeRepo, {
+        name: 'Exact-style but ABV unknown',
+        style: 'IPA',
         abv_estimated: null,
-        avg_rating: null,
+        avg_rating: 4,
       });
-      expect(service.computeSimilarity(beer, recipe)).toBe(0);
-    });
-  });
 
-  describe('computeQuality (renormalization)', () => {
-    it('renormalizes when brew_count and recency are missing — avg_rating gets full weight', () => {
-      const recipe = makeRecipe({
-        style: 'IPA',
-        abv_estimated: 5.5,
-        avg_rating: 5,
-      });
-      // brew_count = 0 (default in helper), last_brewed_at = null → both
-      // dropped via maybe* → only avg_rating remains, renorm to 100%.
-      // avg_rating 5 → score 100.
-      expect(service.computeQuality(recipe)).toBe(100);
-    });
-
-    it('returns 0 when every quality component is missing', () => {
-      const recipe = makeRecipe({
-        style: 'IPA',
-        abv_estimated: 5.5,
-        avg_rating: null,
-      });
-      expect(service.computeQuality(recipe)).toBe(0);
+      const { rankings, low_confidence } = await service.rankForBeer(beerId, 3);
+      expect(rankings).toHaveLength(0);
+      expect(low_confidence).toBe(true);
     });
   });
 
@@ -634,7 +566,7 @@ describe('RecipeMatchingService (Issue #699)', () => {
       expect(low_confidence).toBe(false);
     });
 
-    it('edge: still ranks (renormalised) when only a style is provided', async () => {
+    it('D5: a style-only query is filtered (completeness 0.40 < C_min) → empty + low confidence', async () => {
       await seedRecipe(recipeRepo, {
         name: 'IPA',
         style: 'IPA',
@@ -642,16 +574,16 @@ describe('RecipeMatchingService (Issue #699)', () => {
         avg_rating: 4.5,
       });
 
-      const { rankings } = await service.rankByCharacteristics(
+      const { rankings, low_confidence } = await service.rankByCharacteristics(
         { style: 'IPA' },
         3,
       );
 
-      expect(rankings).toHaveLength(1);
-      expect(rankings[0].recipe.name).toBe('IPA');
+      expect(rankings).toHaveLength(0);
+      expect(low_confidence).toBe(true);
     });
 
-    it('edge: empty characteristics still returns the candidates, flagged low confidence', async () => {
+    it('edge: empty characteristics → nothing comparable → empty + low confidence', async () => {
       await seedRecipe(recipeRepo, {
         name: 'Whatever',
         style: 'IPA',
@@ -664,7 +596,7 @@ describe('RecipeMatchingService (Issue #699)', () => {
         3,
       );
 
-      expect(rankings).toHaveLength(1);
+      expect(rankings).toHaveLength(0);
       expect(low_confidence).toBe(true);
     });
 
@@ -696,37 +628,18 @@ describe('RecipeMatchingService (Issue #699)', () => {
       );
     });
 
-    it('treats a whitespace-only style as absent (renormalised, not a 0 penalty)', () => {
-      const recipe = makeRecipe({
-        style: 'IPA',
-        abv_estimated: 5.5,
-        avg_rating: 4,
-      });
-
-      const whitespace = service.computeSimilarity(
-        { style: '  ', abv: 5.5 },
-        recipe,
-      );
-      const absent = service.computeSimilarity(
-        { style: null, abv: 5.5 },
-        recipe,
-      );
-
-      expect(whitespace).toBe(absent);
-    });
-
-    it('#1193: a blonde beer ranks a same-style recipe above an off-style official (the Leffe case)', async () => {
+    it('#1193 (the Leffe case): a blonde beer ranks the genuine blonde above an off-family IPA official', async () => {
       await Promise.all([
         seedRecipe(recipeRepo, {
           name: 'Punk IPA (official)',
-          style: 'American IPA',
+          style: 'American IPA', // IPA family — same tier as Blonde, not promoted
           abv_estimated: 5.4,
           avg_rating: 4.9,
           is_official: true,
         }),
         seedRecipe(recipeRepo, {
           name: 'Belgian Blonde',
-          style: 'Blonde Ale',
+          style: 'Blonde Ale', // exact family → genuine match
           abv_estimated: 6.5,
           avg_rating: 4.2,
         }),

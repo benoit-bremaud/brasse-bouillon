@@ -1,31 +1,31 @@
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 
 /**
- * Single ranked-recipe item — recipe row plus its computed match
- * score (0..100). Score breakdown is intentionally NOT exposed; the
- * client only needs the ordering and the headline number.
+ * Single ranked-recipe item — recipe row plus its computed **match strength**
+ * (`score`, 0..100, ADR-0016) and its **completeness** (0..1, ADR-0016 D4: how
+ * much of the full picture the comparison used — a separate confidence signal,
+ * distinct from the match strength). The per-criterion breakdown is
+ * intentionally NOT exposed; the client needs the ordering, the headline number
+ * and the completeness.
  */
 export interface RankedRecipeDto {
   recipe: RecipeOrmEntity;
   score: number;
+  completeness: number;
 }
 
 /**
- * Response envelope for `GET /recipes/match/:beerId` (Issue #699 +
- * brainstorm scan-2026-04-24 §3 "low_confidence" annotation).
+ * Response envelope for `POST /recipes/match` and the legacy
+ * `GET /recipes/match/:beerId` (Issue #699, matcher v2 ADR-0016).
  *
- * - `rankings` — top-N matched recipes ordered by descending score
- *   (with deterministic tie-breakers on `avg_rating` then `id`).
- * - `low_confidence` — `true` when the best match scores below the
- *   40-point threshold. The mobile UI uses this flag to display a
- *   discreet warning *"Aucune recette très similaire dans la base.
- *   Voici les plus proches."* above the equivalent recipes section.
- *
- * The threshold (40) is the inflection point below which the
- * editorial value of the suggestion drops sharply — recipes with
- * neither matching style nor similar ABV nor a strong rating land
- * here, and the user is better served by being told the truth than
- * by being shown a confident-looking but irrelevant top-3.
+ * - `rankings` — the candidates that cleared the acceptance thresholds
+ *   (ADR-0016 D5: match strength ≥ `SCAN_MATCH_S_MIN` AND completeness ≥
+ *   `SCAN_MATCH_C_MIN`), ordered by descending match strength with
+ *   deterministic tie-breakers on `avg_rating` then `id`. Each carries its
+ *   `completeness`.
+ * - `low_confidence` — `true` when **nothing** cleared the thresholds (empty
+ *   `rankings`). The mobile renders an honest *"no reliable equivalent"* empty
+ *   state rather than a misleading closest match.
  */
 export interface RankedRecipeResponseDto {
   rankings: RankedRecipeDto[];

@@ -32,12 +32,17 @@ EXPOSE 8080
 # the import path depends on — the `openfoodfacts` Source (a FK requirement
 # for /beers/import-by-ean; without it the endpoint 503s on a fresh volume)
 # and the Style rows (so OFF category → Style resolution actually links a
-# `style_id` instead of silently staying null on a fresh volume). Finally
-# `exec` uvicorn so it replaces the shell and runs as PID 1 — giving Fly's
-# SIGTERM proper graceful-shutdown handling. A failed migration or seed exits
-# the container and Fly restarts it. (Legal denominations stay a manual
-# one-off seed; they are not on the scan/import hot path.)
+# `style_id` instead of silently staying null on a fresh volume). Then the
+# curated corpus in FK order — breweries → beers (+ tasting profiles) →
+# ingredients — so /beers/import-by-ean resolves known EANs from a direct DB
+# hit. Finally `exec` uvicorn so it replaces the shell and runs as PID 1 —
+# giving Fly's SIGTERM proper graceful-shutdown handling. A failed migration
+# or seed exits the container and Fly restarts it. (Legal denominations stay a
+# manual one-off seed; they are not on the scan/import hot path.)
 CMD alembic upgrade head \
     && python scripts/seed_sources.py \
     && python scripts/seed_styles.py \
+    && python scripts/seed_breweries.py \
+    && python scripts/seed_beers.py \
+    && python scripts/seed_ingredients.py \
     && exec uvicorn api.main:app --host 0.0.0.0 --port 8080

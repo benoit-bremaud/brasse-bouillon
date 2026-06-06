@@ -43,8 +43,12 @@ interface PythonBeerReadDto {
   brewery_name: string | null;
   style_name: string | null;
   abv: string | null; // Pydantic Decimal serialises as string
-  ibu: number | null;
-  srm: number | null;
+  // ADR-0017: IBU and colour are stored as min/max intervals
+  // (min === max when the value is exactly known).
+  ibu_min: number | null;
+  ibu_max: number | null;
+  srm_min: number | null;
+  srm_max: number | null;
   description: string | null;
   is_active: boolean;
   is_verified: boolean;
@@ -80,6 +84,25 @@ function srmToEbc(srm: number | null): number | null {
     return null;
   }
   return Math.round(srm * 1.97);
+}
+
+/**
+ * Representative single value for an ADR-0017 [min, max] interval. The
+ * bucket formatters (bitterness/colour words) and the recipe-matching
+ * scorer work on a scalar, so we collapse the interval to its rounded
+ * midpoint; the bounds themselves are preserved separately for display.
+ */
+function intervalMidpoint(
+  min: number | null,
+  max: number | null,
+): number | null {
+  if (min === null || min === undefined) {
+    return max ?? null;
+  }
+  if (max === null || max === undefined) {
+    return min;
+  }
+  return Math.round((min + max) / 2);
 }
 
 function mapPythonSourceToOrigin(
@@ -137,14 +160,29 @@ function mapPythonBeerToCatalogItem(
     brewery: dto.brewery_name ?? SCAN_BREWERY_PLACEHOLDER,
     style: dto.style_name ?? SCAN_STYLE_PLACEHOLDER,
     abv: dto.abv === null ? null : Number(dto.abv),
-    ibu: dto.ibu,
-    colorEbc: srmToEbc(dto.srm),
+    // Scalar = representative midpoint (formatters/scoring); bounds kept
+    // for range display (ADR-0017).
+    ibu: intervalMidpoint(dto.ibu_min, dto.ibu_max),
+    ibuMin: dto.ibu_min,
+    ibuMax: dto.ibu_max,
+    colorEbc: srmToEbc(intervalMidpoint(dto.srm_min, dto.srm_max)),
+    colorEbcMin: srmToEbc(dto.srm_min),
+    colorEbcMax: srmToEbc(dto.srm_max),
     fermentationType: "",
     aromaticTags: null,
     notesSource: dto.description,
     isAbvEstimated: false,
-    isIbuEstimated: false,
-    isColorEbcEstimated: dto.srm !== null,
+    // IBU is the raw value: a true range (both bounds present and
+    // differing) is an estimate; an exact single value (min === max) is
+    // not. Requiring both bounds keeps the flag symmetric and matches
+    // ADR-0017, where a valid interval always carries both. EBC differs
+    // on purpose — always an estimate when present, being an approximate
+    // SRM→EBC conversion (×1.97, rounded).
+    isIbuEstimated:
+      dto.ibu_min !== null &&
+      dto.ibu_max !== null &&
+      dto.ibu_min !== dto.ibu_max,
+    isColorEbcEstimated: dto.srm_min !== null || dto.srm_max !== null,
     isStyleEstimated: true,
     origin: mapPythonSourceToOrigin(dto.source),
     // BeerRead does not expose the OFF fetch timestamp; `updated_at`

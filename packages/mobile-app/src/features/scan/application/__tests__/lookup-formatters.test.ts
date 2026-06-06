@@ -1,6 +1,7 @@
 import {
   abvToStrengthWord,
   ebcToColorWord,
+  formatInterval,
   ibuToBitternessWord,
 } from "@/features/scan/application/lookup-formatters";
 
@@ -102,6 +103,31 @@ describe("lookup-formatters", () => {
 
     it("returns Inconnu for negative input (defensive)", () => {
       expect(abvToStrengthWord(-1)).toBe("Inconnu");
+    });
+  });
+
+  describe("formatInterval", () => {
+    it("joins distinct bounds with an en dash", () => {
+      expect(formatInterval(20, 28, 24)).toBe("20–28");
+    });
+
+    it("renders a single value when the bounds coincide", () => {
+      expect(formatInterval(20, 20, 20)).toBe("20");
+    });
+
+    it("falls back to the scalar when both bounds are absent", () => {
+      expect(formatInterval(undefined, undefined, 35)).toBe("35");
+      expect(formatInterval(null, null, 35)).toBe("35");
+    });
+
+    it("returns null when nothing is known", () => {
+      expect(formatInterval(null, null, null)).toBeNull();
+      expect(formatInterval(undefined, undefined, null)).toBeNull();
+    });
+
+    it("tolerates a single known bound", () => {
+      expect(formatInterval(20, null, null)).toBe("20");
+      expect(formatInterval(null, 28, null)).toBe("28");
     });
   });
 });

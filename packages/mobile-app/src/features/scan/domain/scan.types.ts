@@ -149,7 +149,17 @@ export interface ScanCatalogItem {
   style: string;
   abv: number | null;
   ibu: number | null;
+  /**
+   * ADR-0017 interval bounds, for display ("20–28"). The scalar `ibu`
+   * above stays the representative midpoint consumed by the bucket
+   * formatters and the recipe-matching scorer. Optional: mock/demo
+   * items carry only the scalar.
+   */
+  ibuMin?: number | null;
+  ibuMax?: number | null;
   colorEbc: number | null;
+  colorEbcMin?: number | null;
+  colorEbcMax?: number | null;
   fermentationType: string;
   aromaticTags: string | null;
   notesSource: string | null;

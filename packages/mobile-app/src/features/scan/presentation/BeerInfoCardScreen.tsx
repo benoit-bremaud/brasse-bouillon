@@ -30,6 +30,7 @@ import {
 import {
   abvToStrengthWord,
   ebcToColorWord,
+  formatInterval,
   ibuToBitternessWord,
 } from "@/features/scan/application/lookup-formatters";
 import type {
@@ -743,17 +744,23 @@ function TechnicalDetails({ result }: { result: ScanLookupResult }) {
       estimated: item.isAbvEstimated,
     });
   }
-  if (item.ibu != null) {
+  const ibuValue = formatInterval(item.ibuMin, item.ibuMax, item.ibu);
+  if (ibuValue != null) {
     rows.push({
       label: "Amertume (IBU)",
-      value: String(item.ibu),
+      value: ibuValue,
       estimated: item.isIbuEstimated,
     });
   }
-  if (item.colorEbc != null) {
+  const ebcValue = formatInterval(
+    item.colorEbcMin,
+    item.colorEbcMax,
+    item.colorEbc,
+  );
+  if (ebcValue != null) {
     rows.push({
       label: "Couleur (EBC)",
-      value: String(item.colorEbc),
+      value: ebcValue,
       estimated: item.isColorEbcEstimated,
     });
   }

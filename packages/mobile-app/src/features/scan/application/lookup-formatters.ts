@@ -93,3 +93,23 @@ export function abvToStrengthWord(abv: number | null): string {
   if (abv <= 10) return "Forte";
   return "Très forte";
 }
+
+/**
+ * Render an ADR-0017 [min, max] interval for display: a single value
+ * when the bounds coincide ("20"), a dash-joined range otherwise
+ * ("20–28"). Falls back to the representative scalar when the bounds
+ * are absent (mock/demo items that carry only a single value), and to
+ * null when nothing is known.
+ */
+export function formatInterval(
+  min: number | null | undefined,
+  max: number | null | undefined,
+  fallback: number | null,
+): string | null {
+  const lo = min ?? fallback;
+  const hi = max ?? fallback;
+  if (lo == null && hi == null) return null;
+  if (lo == null) return String(hi);
+  if (hi == null) return String(lo);
+  return lo === hi ? String(lo) : `${lo}–${hi}`;
+}

@@ -33,8 +33,10 @@ type PythonBeerReadDto = {
   brewery_name: string | null;
   style_name: string | null;
   abv: string | null;
-  ibu: number | null;
-  srm: number | null;
+  ibu_min: number | null;
+  ibu_max: number | null;
+  srm_min: number | null;
+  srm_max: number | null;
   description: string | null;
   is_active: boolean;
   is_verified: boolean;
@@ -60,8 +62,10 @@ function buildDto(
     brewery_name: "Pelforth",
     style_name: "Brune",
     abv: "6.5",
-    ibu: 22,
-    srm: 30,
+    ibu_min: 22,
+    ibu_max: 22,
+    srm_min: 30,
+    srm_max: 30,
     description: "Brune intense",
     is_active: true,
     is_verified: false,
@@ -252,7 +256,7 @@ describe("beers-import.api / importBeerByEan", () => {
     });
 
     it("converts SRM to EBC (factor 1.97, rounded) and flags color as estimated", async () => {
-      mockRequest.mockResolvedValueOnce(buildDto({ srm: 10 }));
+      mockRequest.mockResolvedValueOnce(buildDto({ srm_min: 10, srm_max: 10 }));
 
       const { item } = await importBeerByEan("3760231860119");
 
@@ -261,21 +265,62 @@ describe("beers-import.api / importBeerByEan", () => {
     });
 
     it("returns null colorEbc and unflagged estimation when srm is null", async () => {
-      mockRequest.mockResolvedValueOnce(buildDto({ srm: null }));
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ srm_min: null, srm_max: null }),
+      );
 
       const { item } = await importBeerByEan("3760231860119");
 
       expect(item.colorEbc).toBeNull();
+      expect(item.colorEbcMin).toBeNull();
+      expect(item.colorEbcMax).toBeNull();
       expect(item.isColorEbcEstimated).toBe(false);
     });
 
     it("propagates ibu null without estimation", async () => {
-      mockRequest.mockResolvedValueOnce(buildDto({ ibu: null }));
+      mockRequest.mockResolvedValueOnce(
+        buildDto({ ibu_min: null, ibu_max: null }),
+      );
 
       const { item } = await importBeerByEan("3760231860119");
 
       expect(item.ibu).toBeNull();
+      expect(item.ibuMin).toBeNull();
+      expect(item.ibuMax).toBeNull();
       expect(item.isIbuEstimated).toBe(false);
+    });
+
+    it("collapses an exact IBU interval (min === max) to the value, not estimated", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ ibu_min: 20, ibu_max: 20 }));
+
+      const { item } = await importBeerByEan("3760231860119");
+
+      expect(item.ibu).toBe(20);
+      expect(item.ibuMin).toBe(20);
+      expect(item.ibuMax).toBe(20);
+      expect(item.isIbuEstimated).toBe(false);
+    });
+
+    it("keeps IBU bounds and uses the rounded midpoint when min !== max (flagged estimated)", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ ibu_min: 20, ibu_max: 28 }));
+
+      const { item } = await importBeerByEan("3760231860119");
+
+      expect(item.ibuMin).toBe(20);
+      expect(item.ibuMax).toBe(28);
+      expect(item.ibu).toBe(24); // round((20 + 28) / 2)
+      expect(item.isIbuEstimated).toBe(true);
+    });
+
+    it("maps an SRM interval to EBC bounds plus a midpoint-derived scalar", async () => {
+      mockRequest.mockResolvedValueOnce(buildDto({ srm_min: 4, srm_max: 8 }));
+
+      const { item } = await importBeerByEan("3760231860119");
+
+      expect(item.colorEbcMin).toBe(8); // round(4 * 1.97)
+      expect(item.colorEbcMax).toBe(16); // round(8 * 1.97)
+      expect(item.colorEbc).toBe(12); // srmToEbc(midpoint 6) = round(11.82)
+      expect(item.isColorEbcEstimated).toBe(true);
     });
   });
 

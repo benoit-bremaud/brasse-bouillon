@@ -1,0 +1,19 @@
+# gitleaks allowlist — pre-public-release triage (2026-06-06).
+# Every entry below was reviewed and confirmed a FALSE POSITIVE before the
+# repo went public: example JWTs in Swagger/docs, test-spec fixtures,
+# placeholder .env values, and the NestJS template README CircleCI badge.
+# No live credential is present in the history (real tokens live in GitHub
+# Actions secrets / the Fly env, never in the repo).
+
+3c4b07fb8cb6163279a25dec4eb3198981776575:packages/api/src/auth/services/auth.service.spec.ts:generic-api-key:349
+4d69be702a784484dd3f7fd502f8d5239c68f6ff:docs/api/api_endpoints.md:generic-api-key:114
+4d69be702a784484dd3f7fd502f8d5239c68f6ff:docs/api/swagger.json:generic-api-key:40
+4e3e791cf268a9c07b53cbd2abbabf6fdf9200b2:src/scan/services/scan.service.spec.ts:generic-api-key:43
+5bb94452f2d79d6ce4135076f93b93d983d8ab71:packages/api/src/auth/services/auth.service.spec.ts:generic-api-key:314
+8992f2d50c1a6dd68ea423641f8bc550b4df78bf:docs/architecture/api_interactions.md:generic-api-key:159
+a0b35cec0f4b9148b8c1935ceb64f1964b6d62b2:docs/architecture/backend/api_interactions.md:generic-api-key:85
+c2f06e97c4fb6bfafdcee16af836fc0b98c375e1:README.md:generic-api-key:5
+f4d029ba1a742d95be1b68c1b4174769fcef7e77:src/auth/controllers/auth.controller.ts:generic-api-key:115
+f4d029ba1a742d95be1b68c1b4174769fcef7e77:src/auth/controllers/auth.controller.ts:generic-api-key:183
+f4d029ba1a742d95be1b68c1b4174769fcef7e77:src/auth/controllers/auth.controller.ts:generic-api-key:83
+f4d029ba1a742d95be1b68c1b4174769fcef7e77:src/auth/dtos/auth-response.dto.ts:generic-api-key:13

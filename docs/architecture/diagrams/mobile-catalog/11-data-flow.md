@@ -19,12 +19,12 @@ sont **réutilisées du scan** (pas de duplication d'algorithme).
 flowchart LR
   E["beer-encyclopedia (FastAPI)"] -->|"BeerRead / BeerList (snake_case) — aucune PII en réponse"| Api["beer-catalog.api.ts"]
   Api -->|"BeerRead snake_case"| Mapper["beer-catalog.mapper.ts"]
-  Mapper -->|"abv string→number ; ibu=milieu(min,max) ; bornes conservées"| Domain["CatalogBeer / CatalogBeerDetail (domaine)"]
-  Domain -->|"formateur (application)"| VM["BeerListItemVM / BeerDetailVM"]
+  Mapper -->|"abv string→number ; bornes IBU/SRM conservées"| Domain["CatalogBeer / CatalogBeerDetail (domaine)"]
+  Domain -->|"formateur (application) : milieu, SRM→EBC, libellés"| VM["BeerListItemVM / BeerDetailVM"]
   VM -->|"props"| Screen["Écran (FlatList / fiche)"]
 
-  Mapper -.->|"réutilisé du scan : srmToEbc (×1.97), intervalMidpoint"| ScanUtil["features/scan (helpers)"]
-  VM -.->|"réutilisé du scan : ebcToHex, foregroundOnEbc, formatInterval"| ScanColor["features/scan (couleur/format)"]
+  VM -.->|"importable (exportés) : ebcToHex, foregroundOnEbc, formatInterval"| ScanColor["features/scan (couleur/format)"]
+  VM -.->|"à extraire/réimplémenter (privés au scan) : srmToEbc ×1.97, intervalMidpoint"| ScanUtil["features/scan (helpers privés)"]
 
   Api -.->|"requête sortante : aucune PII (auth:false, pas de jeton)"| E
 ```
@@ -59,11 +59,11 @@ rectangle "features/scan (helpers)" as ScanUtil
 
 E --> Api : "BeerRead / BeerList (snake_case) — aucune PII"
 Api --> Mapper : "BeerRead snake_case"
-Mapper --> Domain : "abv string->number ; ibu=milieu ; bornes conservées"
-Domain --> VM : "formateur (application)"
+Mapper --> Domain : "abv string->number ; bornes IBU/SRM conservées"
+Domain --> VM : "formateur (application) : milieu, SRM->EBC, libellés"
 VM --> Screen : "props"
-Mapper ..> ScanUtil : "réutilisé : srmToEbc, intervalMidpoint"
-VM ..> ScanUtil : "réutilisé : ebcToHex, foregroundOnEbc, formatInterval"
+VM ..> ScanUtil : "importable (exportés) : ebcToHex, foregroundOnEbc, formatInterval"
+VM ..> ScanUtil : "à extraire (privés) : srmToEbc, intervalMidpoint"
 Api ..> E : "requête sortante : AUCUNE PII (auth:false, pas de jeton)"
 
 rectangle "request() (core/http)" as Req
@@ -87,11 +87,14 @@ Cache ..> Offline : "hors-ligne : périmé si présent, sinon erreur"
   bière publics. Aucune arête `PII:` — contrairement aux flux authentifiés (recettes, brassins)
   qui restent hors de cette feature. Point de **revue de confidentialité** : vérifier qu'aucun
   en-tête d'auth ne fuit (la garde `auth:false` de `request()` l'assure).
-- **Réutilisation du scan (pas de duplication d'algorithme).** `srmToEbc` (×1.97) et
-  `intervalMidpoint` (`features/scan/data/beers-import.api.ts`) ; `ebcToHex` / `foregroundOnEbc`
-  (`features/scan/application/lookup-color.ts`) ; `formatInterval` (#1209). Seuls les **types**
-  diffèrent (mappers dupliqués vers `CatalogBeer`, pas `ScanCatalogItem`) — les **helpers** de
-  calcul/format sont partagés.
+- **Réutilisation des helpers du scan — deux cas (vérifié).** **Importables tels quels**
+  (exportés) : `ebcToHex` / `foregroundOnEbc` (`features/scan/application/lookup-color.ts`) et
+  `formatInterval` (`features/scan/application/lookup-formatters.ts`). **À extraire ou
+  réimplémenter** (actuellement **privés**, non exportés, dans
+  `features/scan/data/beers-import.api.ts`) : `srmToEbc` (×1.97) et `intervalMidpoint`.
+  Réutilisation **algorithmique** (même formule), pas un import d'un symbole privé. Ces
+  dérivations (milieu, SRM→EBC, libellés) vivent au **view-model** (`10`), pas au mapper ;
+  les mappers restent dupliqués vers `CatalogBeer` (pas `ScanCatalogItem`).
 - **Cache en mémoire.** `staleTime 30s`, `gcTime 5min`, `retry 1` (`core/query`). Pas
   d'`AsyncStorage` : « hors-ligne avec contenu » n'existe que dans la session. Persistance
   hors-ligne = **fast-follow** (déclencherait un court ADR si elle devient une garantie produit).

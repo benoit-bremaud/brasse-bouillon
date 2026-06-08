@@ -212,8 +212,14 @@ BeerDetailVM ..> TapTargetVM : breweryTap / styleTap
   (`09`). Sortie : VM non-null prêt à rendre. Exemples : `abvLabel = "5,5 %"` (ou `"—"` si
   null) ; `ibuLabel = formatInterval(ibuMin, ibuMax)` → `"20–28"` / `"22"` / `"—"` ;
   `heroColorHex = ebcToHex(srmToEbc(milieu(srm)))`, `foregroundHex = foregroundOnEbc(...)`
-  (réutilisés du **scan**, cf. `11-data-flow.md`) ; `subtitle = "<brasserie> · <style>"` avec
-  libellés de repli si `breweryName`/`styleName` null.
+  (helpers du **scan** : `ebcToHex`/`foregroundOnEbc`/`formatInterval` **exportés**, `srmToEbc`/
+  `intervalMidpoint` **à extraire** car privés — cf. `11-data-flow.md`) ;
+  `subtitle = "<brasserie> · <style>"`.
+- **Repli des noms (divergence connue).** `breweryName`/`styleName` sont **`null` aujourd'hui**
+  sur `GET /beers`, `/beers/search`, `/beers/{id}` (l'API ne les résout que sur
+  `POST /beers/import-by-ean`, cf. `09-class-domain.md` +
+  `../beer-encyclopedia/07-class-api-contract.md`). Le VM affiche donc un **libellé de repli**
+  (« Brasserie inconnue » / « Style inconnu ») tant que l'API ne les résout pas sur list/search/detail.
 - **Drapeaux ≙ machines à états.** `CatalogListVM.{isLoading,isLoadingMore,isEmpty,isError,
   isOffline,hasNextPage}` reflètent les états de `07-state-list-screen.md` ;
   `SearchVM.status` reflète `08-state-search-input.md`. Les drapeaux sont **dérivés** des

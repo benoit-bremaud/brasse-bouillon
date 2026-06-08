@@ -51,17 +51,13 @@ sequenceDiagram
 
   opt tap brasserie
     U->>FS: tape la brasserie
-    FS->>API: getBrewery(breweryId)
-    API->>E: GET /breweries/{id}
-    E-->>API: 200 BreweryRead
-    API-->>FS: fiche brasserie (navigation)
+    FS->>FS: router.push(/beer-catalog/brewery/[id]) — navigation
+    Note over FS: BreweryDetailScreen charge via useBrewery → getBrewery → API (même couche que useBeer)
   end
   opt tap style
     U->>FS: tape le style
-    FS->>API: getStyle(styleId)
-    API->>E: GET /styles/{id}
-    E-->>API: 200 StyleRead
-    API-->>FS: fiche style (navigation)
+    FS->>FS: router.push(/beer-catalog/style/[id]) — navigation
+    Note over FS: StyleDetailScreen charge via useStyle → getStyle → API
   end
 ```
 
@@ -104,17 +100,13 @@ end
 
 opt tap brasserie
   U -> FS : tape la brasserie
-  FS -> API : getBrewery(breweryId)
-  API -> E : GET /breweries/{id}
-  E --> API : 200 BreweryRead
-  API --> FS : fiche brasserie (navigation)
+  FS -> FS : router.push(/beer-catalog/brewery/[id]) — navigation
+  note over FS : BreweryDetailScreen charge via useBrewery -> getBrewery -> API
 end
 opt tap style
   U -> FS : tape le style
-  FS -> API : getStyle(styleId)
-  API -> E : GET /styles/{id}
-  E --> API : 200 StyleRead
-  API --> FS : fiche style (navigation)
+  FS -> FS : router.push(/beer-catalog/style/[id]) — navigation
+  note over FS : StyleDetailScreen charge via useStyle -> getStyle -> API
 end
 @enduml
 ```
@@ -128,9 +120,14 @@ end
 - **404.** `HttpError(404)` (de `core/http`) → `CatalogNotFoundError` → message « bière
   introuvable ». Les autres erreurs (timeout / hors-ligne) : `05-sequence-errors.md`. Le
   catalogue est **encyclopédie-seule** (pas de secours NestJS, contrairement au scan UC4).
-- **Navigation brasserie/style.** Tap → `getBrewery`/`getStyle` (clés `["brewery", id]` /
-  `["style", id]`). C'est de la **navigation** (UC3 pour une autre entité), pas un «include».
-  Les routes sont portées par `TapTargetVM` (`10-class-view-model.md`).
+- **Navigation brasserie/style.** Le tap **navigue** (router.push) vers `BreweryDetailScreen` /
+  `StyleDetailScreen`, qui chargent via leur propre hook (`useBrewery`/`useStyle`) → use-case →
+  `request()` — **jamais** un appel direct écran→data (règle de couches, `06-component.md`).
+  C'est de la navigation (UC3 pour une autre entité), pas un «include» ; routes portées par
+  `TapTargetVM` (`10`).
+- **Noms brasserie/style (divergence connue).** `GET /beers/{id}` renvoie `brewery_name`/
+  `style_name` **null** aujourd'hui (résolus seulement sur `import-by-ean`, cf. `09` + `07`) → la
+  fiche affiche un libellé de repli ; la résolution sur le détail est **cible** (à suivre).
 - **Affichage couleur.** SRM (bornes) → EBC d'affichage via `srmToEbc`/`ebcToHex` réutilisés du
   **scan** ; calcul au **view-model** (`10`), pas au domaine. Cf. `11-data-flow.md`.
 - **Conformité.** `useBeer` = `useQuery` (pas `useInfiniteQuery`) ; `getBeer`/`getBrewery`/

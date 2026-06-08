@@ -53,9 +53,9 @@ Légende : ✅ fait · ⬜ à venir · — non applicable.
 
 | UC | Domaine | Séquence | Composant | Classes | États | Data-flow | Statut | Suivi |
 |----|---------|----------|-----------|---------|-------|-----------|--------|-------|
-| UC1 Parcourir le catalogue | Consulter | backend — · **mobile** ✅ `mobile-catalog/02` | 03 ⬜ · `mobile-catalog/06` | Beer, Brewery, Style · `mobile-catalog/09,10` | `mobile-catalog/07` | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
-| UC2 Rechercher | Consulter | backend — · **mobile** ✅ `mobile-catalog/03` | 03 ⬜ · `mobile-catalog/06` | Beer, Brewery · `mobile-catalog/09,10` | `mobile-catalog/08` | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
-| UC3 Consulter une fiche | Consulter | backend — · **mobile** ✅ `mobile-catalog/04` (+`05`) | 03 ⬜ · `mobile-catalog/06` | Beer, Brewery, Style, TastingProfile, Media · `mobile-catalog/09,10` | — | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
+| UC1 Parcourir le catalogue | Consulter | backend — · **mobile** ✅ `mobile-catalog/02` | `beer-encyclopedia/03` ⬜ · `mobile-catalog/06` | Beer, Brewery, Style · `mobile-catalog/09,10` | `mobile-catalog/07` | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
+| UC2 Rechercher | Consulter | backend — · **mobile** ✅ `mobile-catalog/03` | `beer-encyclopedia/03` ⬜ · `mobile-catalog/06` | Beer, Brewery · `mobile-catalog/09,10` | `mobile-catalog/08` | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
+| UC3 Consulter une fiche | Consulter | backend — · **mobile** ✅ `mobile-catalog/04` (+`05`) | `beer-encyclopedia/03` ⬜ · `mobile-catalog/06` | Beer, Brewery, Style, TastingProfile, Media · `mobile-catalog/09,10` | — | `mobile-catalog/11` | livré backend · mobile 🎯 conçu | — |
 | UC4 Identifier par code-barres | Acquérir | **backend** ✅ `02-sequence-import-by-ean` **+** mobile ⬜ | 03 ⬜ (api, importers, db) | Beer, Brewery, Source, EntitySource | provenance Beer (05 ⬜) | import OFF / PII (06 ⬜) | livré (backend) | #878 (rate-limit) |
 | UC5 Identifier par scan d'étiquette | Acquérir | ✅ `02-sequence-scan` (délègue à `scan/02b`) | 03 ⬜ | Beer (source=scan), BeerDataSuggestion (étude `scan/`) | — | 06 ⬜ | planifié | #1156 (divergence /scan), #1149, étude `scan/` |
 | UC6 Proposer une correction | Contribuer | — (texte) | 03 ⬜ | CommunityCorrection | pending→… (05 ⬜) | — | planifié | #1149 |

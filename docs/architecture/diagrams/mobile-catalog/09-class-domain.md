@@ -47,7 +47,6 @@ classDiagram
     +string breweryName?
     +string styleName?
     +number abv?
-    +number ibu?
     +number ibuMin?
     +number ibuMax?
     +number srmMin?
@@ -131,7 +130,6 @@ class CatalogBeer {
   +breweryName : string?
   +styleName : string?
   +abv : number?
-  +ibu : number?
   +ibuMin : number?
   +ibuMax : number?
   +srmMin : number?
@@ -199,10 +197,18 @@ CatalogBeerDetail ..> CatalogStyle : tap (navigation)
   (mentions légales, provenance, horodatage). Permet l'**amorçage du cache** liste → détail
   (`04-sequence-fiche.md`).
 - **Transformations (mapper).** `abv: string → number` (Pydantic Decimal sérialise en chaîne) ;
-  `ibu = milieu(ibuMin, ibuMax)` pour l'affichage scalaire, **bornes conservées** (ADR-0017) ;
-  SRM conservé en bornes (`srmMin`/`srmMax`) — la conversion **SRM → EBC** d'affichage vit au
-  **view-model** (`10`), pas au domaine. Noms `breweryName`/`styleName` **dénormalisés** par
-  l'API (peuvent être `null` → libellé de repli côté VM).
+  **bornes IBU/SRM conservées telles quelles** (`ibuMin/ibuMax`, `srmMin/srmMax`, ADR-0017).
+  **Aucun scalaire dérivé au domaine** : le milieu d'intervalle et la conversion **SRM → EBC**
+  d'affichage vivent au **view-model** (`10`), pas au domaine.
+- **Noms dénormalisés (divergence code↔conception, ADR-0013 clause 6).** `breweryName`/
+  `styleName` ne sont résolus par l'API **que sur `POST /beers/import-by-ean`** ; `GET /beers`,
+  `/beers/search` et `/beers/{id}` les renvoient **`null` aujourd'hui** (`BeerRead.model_validate`
+  sans `_beer_read_with_names`, cf. `../beer-encyclopedia/07-class-api-contract.md`). **Cible** :
+  les résoudre aussi sur list/search/detail (à câbler côté API — **divergence à suivre, issue à
+  ouvrir**). En attendant, le **view-model** (`10`) affiche un libellé de repli (« Brasserie
+  inconnue » / « Style inconnu », motif du scan).
+- **`website` ≡ `BreweryRead.website_url`.** Le mapper **renomme** `website_url → website` (pas
+  seulement un changement de casse).
 - **Distinct de l'ORM.** `../beer-encyclopedia/04-class.md` = entités persistées (snake_case,
   FK, contraintes). Ici, vue **client en lecture seule** : pas de FK exécutable, juste
   `breweryId`/`styleId` pour la **navigation** (tap → fiche).

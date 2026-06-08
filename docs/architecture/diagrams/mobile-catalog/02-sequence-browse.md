@@ -118,6 +118,9 @@ end
 - **Cache.** `queryKey ["beer-catalog","browse"]`, `staleTime 30s`, `gcTime 5min`, `retry 1`
   (`core/query`). Au remontage avant péremption, la liste s'affiche **sans réseau** (branche
   haute). Erreurs/hors-ligne : voir `05-sequence-errors.md`. Cycle de vie d'écran : `07`.
+- **Noms dénormalisés.** `GET /beers` renvoie `brewery_name`/`style_name` **null** aujourd'hui
+  (résolus seulement sur `import-by-ean`, cf. `09` + `../beer-encyclopedia/07-class-api-contract.md`) ;
+  la carte affiche un libellé de repli en attendant leur résolution côté API (divergence à suivre).
 - **Conformité.** Le code (`useBeerCatalogPagination` + `beer-catalog.api`) doit se conformer à
   cette séquence : `useInfiniteQuery`, `initialPageParam = 1`, `getNextPageParam =
   computeNextPageParam`. Implémentation après validation.

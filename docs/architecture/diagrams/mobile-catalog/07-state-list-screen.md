@@ -40,7 +40,7 @@ stateDiagram-v2
 
   LoadedEmpty --> Loading: pull-to-refresh
 
-  Idle --> LoadingMore: onEndReached (si hasNextPage redevient vrai)
+  Idle --> LoadingMore: onEndReached (si page suivante)
   Loaded --> [*]
   Idle --> [*]
 ```
@@ -73,7 +73,7 @@ OfflineNoCache --> Loading : « Réessayer »
 
 LoadedEmpty --> Loading : pull-to-refresh
 
-Idle --> LoadingMore : onEndReached (si hasNextPage)
+Idle --> LoadingMore : onEndReached (si page suivante)
 Loaded --> [*]
 Idle --> [*]
 @enduml

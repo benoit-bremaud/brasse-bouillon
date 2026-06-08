@@ -45,7 +45,7 @@ classDiagram
     <<POST /beers body>>
   }
   class BeerUpdate {
-    <<PATCH /beers/{id} body — tous optionnels>>
+    <<PATCH body — tous optionnels>>
     +str name?
     +UUID brewery_id?
     +UUID style_id?
@@ -78,6 +78,12 @@ classDiagram
     +list~BeerRead~ items
     +PaginationMeta meta
   }
+  class PaginationMeta {
+    <<api/schemas/common.py>>
+    +int total
+    +int page
+    +int per_page
+  }
   class BeerImportByEanRequest {
     <<POST /beers/import-by-ean body>>
     +str ean
@@ -86,6 +92,7 @@ classDiagram
   BeerBase <|-- BeerCreate
   BeerBase <|-- BeerRead
   BeerList "1" o-- "0..*" BeerRead : items
+  BeerList "1" o-- "1" PaginationMeta : meta
   BeerRead ..> Beer : projette (from_attributes)
   BeerRead ..> Brewery : brewery_name (dénormalisé, lecture)
   BeerRead ..> Style : style_name (dénormalisé, lecture)
@@ -145,6 +152,11 @@ class BeerList {
   +items : list<BeerRead>
   +meta : PaginationMeta
 }
+class PaginationMeta <<api/schemas/common.py>> {
+  +total : int
+  +page : int
+  +per_page : int
+}
 class BeerImportByEanRequest <<POST /beers/import-by-ean>> {
   +ean : str
 }
@@ -152,6 +164,7 @@ class BeerImportByEanRequest <<POST /beers/import-by-ean>> {
 BeerBase <|-- BeerCreate
 BeerBase <|-- BeerRead
 BeerList "1" o-- "0..*" BeerRead : items
+BeerList "1" o-- "1" PaginationMeta : meta
 BeerRead ..> Beer : projette (from_attributes)
 BeerRead ..> Brewery : brewery_name (dénormalisé)
 BeerRead ..> Style : style_name (dénormalisé)
@@ -187,6 +200,11 @@ BeerRead ..> Style : style_name (dénormalisé)
 - **Validation (edge).** `ean` : `min 8 / max 14`, `pattern` EAN-8/UPC-A/EAN-13/EAN-14 ;
   `abv ∈ [0,100]`, chaque borne `ibu ∈ [0,1000]`, `srm ∈ [0,100]`, `name` non vide. Mêmes
   règles que le validateur ORM, pour un 422 cohérent au bord de l'API.
+- **`PaginationMeta` (enveloppe de liste).** Défini dans `api/schemas/common.py` :
+  `total ≥ 0`, `page ≥ 1` (1-based), `per_page ∈ [1,100]` (défaut 20). `BeerList.meta` le
+  référençait sans le dessiner — la boîte est désormais explicite. Le client mobile le
+  consomme pour la pagination infinie (cf. `../mobile-catalog/09-class-domain.md`, où il
+  apparaît en camelCase `perPage`).
 - **Conformité.** Ce contrat est la cible que le code (`api/schemas/beer.py` + la résolution
   des noms dans `api/routers/beers.py`) doit satisfaire. Implémentation après validation de ce
   diagramme.

@@ -34,7 +34,7 @@ sequenceDiagram
     D-->>SB: pas d'appel — invite à préciser
   else terme valide
     D->>H: q stabilisé → queryKey ["beer-catalog","search",q]
-    Note over H,Q: nouvelle clé ⇒ requête "q" précédente ANNULÉE (in-flight)
+    Note over H,Q: nouvelle clé ⇒ résultat "q" précédent ignoré (abort réseau seulement si request() propage le signal)
     H->>API: searchBeersPage(q, page=1)
     API->>E: GET /beers/search?q=<q>&page=1&per_page=20
     E-->>API: 200 BeerList { items, meta }
@@ -69,7 +69,7 @@ alt terme trop court (< 2 caractères)
   D --> SB : pas d'appel — invite à préciser
 else terme valide
   D -> H : q stabilisé -> queryKey ["beer-catalog","search",q]
-  note over H, Q : nouvelle clé => requête "q" précédente ANNULÉE
+  note over H, Q : nouvelle clé => résultat "q" précédent ignoré (abort réseau si request() propage le signal)
   H -> API : searchBeersPage(q, page=1)
   API -> E : GET /beers/search?q=<q>&page=1&per_page=20
   E --> API : 200 BeerList { items, meta }
@@ -89,11 +89,13 @@ end
 - **Debounce.** Le terme n'est propagé au hook qu'après stabilisation (`useDebouncedValue`,
   ≈300 ms) → une frappe rapide « ip…pa » ne lance pas 4 requêtes. Le debounce vit au
   **composant/hook**, pas dans la requête.
-- **Annulation in-flight.** Le changement de `queryKey` (`q` → `q'`) fait que TanStack
-  **abandonne** la requête en vol pour `q` ; seule la dernière `q` se résout. Pas d'annulation
-  manuelle (`AbortController`) à écrire — c'est la clé qui pilote. `placeholderData:
-  keepPreviousData` garde les résultats précédents affichés pendant la nouvelle requête (pas de
-  flash vide).
+- **Annulation in-flight (nuance vérifiée).** Le changement de `queryKey` (`q` → `q'`) rend la
+  requête `q` **inactive** : son **résultat est ignoré** par l'UI et `placeholderData:
+  keepPreviousData` garde les résultats précédents (pas de flash vide). **Mais la requête réseau
+  n'est pas abortée** tant que le `AbortSignal` de TanStack n'est pas propagé jusqu'à
+  `core/http/request()` (qui appelle `fetch` **sans** `signal` aujourd'hui). **Cible** pour une
+  vraie annulation réseau : ajouter le support de `signal` à `request()` et le passer à
+  `searchBeersPage` (petite évolution `core/http`).
 - **Garde API.** `q` est requis côté API (`min 1, max 100`) → un `q` vide renverrait 422 ; la
   garde « < 2 caractères » côté mobile évite l'appel inutile (et le 422).
 - **Même pagination.** Les résultats se paginent comme UC1 (`onEndReached` → page suivante de

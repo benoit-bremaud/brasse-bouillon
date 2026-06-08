@@ -28,10 +28,10 @@ sequenceDiagram
 
   U->>L: tape une bière (id)
   L->>FS: navigue /(app)/beer-catalog/beer/[id]
-  FS->>H: useQuery(["beer", id]) + placeholderData (CatalogBeer de la liste)
+  FS->>H: useQuery(["beer-catalog","beer", id]) + placeholderData (CatalogBeer de la liste)
   H-->>FS: rendu partiel immédiat (depuis la liste)
   alt fiche complète en cache et fraîche
-    H->>Q: lit ["beer", id]
+    H->>Q: lit ["beer-catalog","beer", id]
     Q-->>H: CatalogBeerDetail
     H-->>FS: fiche complète (sans réseau)
   else cache absent / périmé
@@ -77,10 +77,10 @@ participant "beer-encyclopedia" as E
 
 U -> L : tape une bière (id)
 L -> FS : navigue /(app)/beer-catalog/beer/[id]
-FS -> H : useQuery(["beer", id]) + placeholderData (de la liste)
+FS -> H : useQuery(["beer-catalog","beer", id]) + placeholderData (de la liste)
 H --> FS : rendu partiel immédiat
 alt fiche complète en cache et fraîche
-  H -> Q : lit ["beer", id]
+  H -> Q : lit ["beer-catalog","beer", id]
   Q --> H : CatalogBeerDetail
   H --> FS : fiche complète (sans réseau)
 else cache absent / périmé
@@ -114,7 +114,7 @@ end
 ## Notes
 
 - **Amorçage du cache (liste → détail).** La ligne de liste porte déjà un `CatalogBeer` ;
-  `useQuery(["beer", id])` reçoit ce `CatalogBeer` en `placeholderData` (ou `initialData`) →
+  `useQuery(["beer-catalog","beer", id])` reçoit ce `CatalogBeer` en `placeholderData` (ou `initialData`) →
   la fiche s'affiche **immédiatement** (titre, brasserie, style, ABV) pendant que `GET
   /beers/{id}` complète les champs lourds (`CatalogBeerDetail` : mentions légales, provenance).
 - **404.** `HttpError(404)` (de `core/http`) → `CatalogNotFoundError` → message « bière

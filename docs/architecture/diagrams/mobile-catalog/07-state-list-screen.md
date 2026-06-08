@@ -40,7 +40,6 @@ stateDiagram-v2
 
   LoadedEmpty --> Loading: pull-to-refresh
 
-  Idle --> LoadingMore: onEndReached (si page suivante)
   Loaded --> [*]
   Idle --> [*]
 ```
@@ -73,7 +72,6 @@ OfflineNoCache --> Loading : « Réessayer »
 
 LoadedEmpty --> Loading : pull-to-refresh
 
-Idle --> LoadingMore : onEndReached (si page suivante)
 Loaded --> [*]
 Idle --> [*]
 @enduml
@@ -86,7 +84,8 @@ Idle --> [*]
   - `Loaded` = `data` présent, items > 0, pas de fetch de page en cours ;
   - `LoadingMore` = `isFetchingNextPage` ;
   - `Error` = `isError && !data` (échec initial) ;
-  - `NextPageError` = `isError && data` (échec de page suivante, liste conservée) ;
+  - `NextPageError` = `isFetchNextPageError` (TanStack v5 — échec **spécifique** de
+    `fetchNextPage`, distinct d'une erreur de refetch/pull-to-refresh ; liste conservée) ;
   - `LoadedEmpty` = `!isLoading && flatItems.length === 0` ;
   - `Idle` = chargé sans page suivante (`hasNextPage === false`).
   - `hasNextPage` **garde** la transition `onEndReached`.

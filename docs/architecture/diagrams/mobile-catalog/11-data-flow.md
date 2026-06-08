@@ -34,7 +34,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   Req["request() (core/http)"] -->|"réponse"| Cache["QueryClient — cache mémoire"]
-  Cache -->|"queryKey [beer-catalog,browse] / [...,search,q] / [beer,id]"| Pages["pages[] accumulées (useInfiniteQuery)"]
+  Cache -->|"queryKey [beer-catalog,browse] / [beer-catalog,search,q] / [beer-catalog,beer,id]"| Pages["pages[] accumulées (useInfiniteQuery)"]
   Cache -->|"staleTime 30s / gcTime 5min / retry 1"| Policy["politique de fraîcheur"]
   Policy -->|"frais → sans réseau"| Screen2["Écran"]
   Policy -->|"périmé → refetch (focus / pull-to-refresh)"| Req
@@ -55,14 +55,15 @@ rectangle "beer-catalog.mapper.ts" as Mapper
 rectangle "CatalogBeer / CatalogBeerDetail\n(domaine)" as Domain
 rectangle "BeerListItemVM / BeerDetailVM" as VM
 rectangle "Écran (FlatList / fiche)" as Screen
-rectangle "features/scan (helpers)" as ScanUtil
+rectangle "features/scan (couleur/format)" as ScanColor
+rectangle "features/scan (helpers privés)" as ScanUtil
 
 E --> Api : "BeerRead / BeerList (snake_case) — aucune PII"
 Api --> Mapper : "BeerRead snake_case"
 Mapper --> Domain : "abv string->number ; bornes IBU/SRM conservées"
 Domain --> VM : "formateur (application) : milieu, SRM->EBC, libellés"
 VM --> Screen : "props"
-VM ..> ScanUtil : "importable (exportés) : ebcToHex, foregroundOnEbc, formatInterval"
+VM ..> ScanColor : "importable (exportés) : ebcToHex, foregroundOnEbc, formatInterval"
 VM ..> ScanUtil : "à extraire (privés) : srmToEbc, intervalMidpoint"
 Api ..> E : "requête sortante : AUCUNE PII (auth:false, pas de jeton)"
 
@@ -71,12 +72,14 @@ rectangle "QueryClient — cache mémoire" as Cache
 rectangle "pages[] (useInfiniteQuery)" as Pages
 rectangle "politique fraîcheur\nstaleTime 30s / gcTime 5min / retry 1" as Policy
 rectangle "état hors-ligne (07)" as Offline
+rectangle "computeNextPageParam" as NextParam
 
 Req --> Cache : "réponse"
-Cache --> Pages : "queryKey [browse] / [search,q] / [beer,id]"
+Cache --> Pages : "queryKey [beer-catalog,browse] / [beer-catalog,search,q] / [beer-catalog,beer,id]"
 Cache --> Policy
 Policy --> Req : "périmé -> refetch"
 Cache ..> Offline : "hors-ligne : périmé si présent, sinon erreur"
+Pages --> NextParam : "getNextPageParam lit meta.total/page/per_page"
 @enduml
 ```
 

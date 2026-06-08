@@ -162,7 +162,7 @@ endlegend
 
 ### UC3 — Consulter la fiche d'une bière (réalisation mobile) — *cible MVP*
 
-- **Acteur principal :** Visiteur · **Précondition :** la bière existe · **Garantie de succès :** fiche détaillée affichée
+- **Acteur principal :** Visiteur · **Précondition :** un identifiant de bière est fourni (éventuellement **obsolète/invalide** — voir extension 1a) · **Garantie de succès :** fiche détaillée affichée
 - **Scénario nominal**
     1. Le Visiteur ouvre une fiche (depuis UC1, UC2, ou l'identification UC4).
     2. Le système affiche `GET /beers/{id}` : nom, brasserie, style, ABV, intervalles IBU/SRM (→ EBC d'affichage), description, mentions légales, provenance.

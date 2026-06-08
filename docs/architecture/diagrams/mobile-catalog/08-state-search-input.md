@@ -26,7 +26,7 @@ stateDiagram-v2
 
   Searching --> Results: items > 0
   Searching --> Empty: items = 0
-  Searching --> Searching: nouvelle q debouncée (annule la requête en vol)
+  Searching --> Searching: nouvelle q debouncée (résultat précédent ignoré)
 
   Results --> Typing: édition du terme
   Empty --> Typing: édition du terme
@@ -53,7 +53,7 @@ Debouncing --> Searching : timer écoulé (q >= 2 car.)
 
 Searching --> Results : items > 0
 Searching --> Empty : items = 0
-Searching --> Searching : nouvelle q debouncée (annule la requête en vol)
+Searching --> Searching : nouvelle q debouncée (résultat précédent ignoré)
 
 Results --> Typing : édition du terme
 Empty --> Typing : édition du terme
@@ -73,10 +73,11 @@ Idle --> [*]
   Typing`), évitant une requête par caractère.
 - **Garde « ≥ 2 caractères ».** `Debouncing → Idle` si le terme est trop court → pas d'appel
   (évite aussi le `422` d'un `q` vide côté API).
-- **Annulation in-flight.** `Searching → Searching` sur une nouvelle `q` debouncée : le
-  changement de `queryKey` (`["beer-catalog","search",q]`) fait abandonner la requête
-  précédente par TanStack (cf. `03-sequence-search.md`). `keepPreviousData` maintient les
-  anciens résultats affichés pendant la transition.
+- **Résultat précédent ignoré (pas un abort réseau).** `Searching → Searching` sur une nouvelle
+  `q` debouncée : le changement de `queryKey` (`["beer-catalog","search",q]`) rend la requête
+  précédente **inactive** (son résultat est ignoré) ; `keepPreviousData` garde les anciens
+  résultats affichés. L'**abort réseau** n'a lieu que si `request()` propage le `AbortSignal` de
+  TanStack (à câbler, cf. `03-sequence-search.md`).
 - **Vers la liste.** `Searching` lance le hook paginé ; l'affichage des résultats (chargement /
   page suivante / erreur) suit `07-state-list-screen.md`. `Results`/`Empty` ici ≙
   `Loaded`/`LoadedEmpty` là-bas.

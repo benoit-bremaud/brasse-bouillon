@@ -2,10 +2,12 @@
 # Brasse-Bouillon — Monorepo Makefile
 # ==============================================================================
 
-SONAR_CONTAINER := vsea-sonarqube
-SONAR_IMAGE     := sonarqube:lts-community
-SONAR_PORT      := 9000
-SONAR_URL       := http://localhost:$(SONAR_PORT)
+# Shared self-hosted SonarQube (Community Build + PostgreSQL) — managed in
+# its own repo; this Makefile only delegates. See ~/Documents/02_personal/sonarqube-stack.
+SONARQUBE_STACK_DIR := $(HOME)/Documents/02_personal/sonarqube-stack
+SONAR_PORT          := 9000
+SONAR_URL           := http://localhost:$(SONAR_PORT)
+SONAR_TOKEN_FILE    := $(HOME)/.config/sonar-tokens/brasse-bouillon
 
 BEER_ENC_PORT := 8000
 BEER_ENC_DIR  := packages/beer-encyclopedia
@@ -66,10 +68,10 @@ help: ## Show this help
 	@printf 'Quality gates:\n'
 	@printf '  \033[36mmake test-all\033[0m                 Run all test suites (mobile + API + beer encyclopedia)\n'
 	@printf '  \033[36mmake lint-all\033[0m                 Run all linters\n'
-	@printf '  \033[36mmake sonar-start\033[0m              Start a local SonarQube server (Docker, port 9000)\n'
-	@printf '  \033[36mmake sonar-scan\033[0m               Run a SonarQube scan (needs SONAR_TOKEN=sqp_xxx)\n'
-	@printf '  \033[36mmake sonar-stop\033[0m               Stop the local SonarQube server\n'
-	@printf '  \033[36mmake sonar-status\033[0m             Show SonarQube container status\n\n'
+	@printf '  \033[36mmake sonar-start\033[0m              Start the shared self-hosted SonarQube (sonarqube-stack)\n'
+	@printf '  \033[36mmake sonar-scan\033[0m               Run a SonarQube scan (token auto-read, or SONAR_TOKEN=sqp_xxx)\n'
+	@printf '  \033[36mmake sonar-stop\033[0m               Stop the shared SonarQube (affects all local projects)\n'
+	@printf '  \033[36mmake sonar-status\033[0m             Show shared SonarQube server status\n\n'
 	@printf 'Docker — API (production container):\n'
 	@printf '  \033[36mmake docker-build\033[0m             Build the API Docker image locally\n'
 	@printf '  \033[36mmake docker-up\033[0m                Start the API container (detached, restart: unless-stopped)\n'
@@ -244,18 +246,13 @@ migrate-beer-enc-revert: ## Roll back the last Alembic migration on the beer-enc
 ## @SonarQube
 ## ============================================================================
 
-sonar-start: ## Start local SonarQube server (Docker, port 9000) — creates container on first run
-	@if docker ps -a --format '{{.Names}}' | grep -q '^$(SONAR_CONTAINER)$$'; then \
-		echo "[sonar] Starting existing container..."; \
-		docker start $(SONAR_CONTAINER); \
-	else \
-		echo "[sonar] Creating and starting SonarQube container..."; \
-		docker run -d --name $(SONAR_CONTAINER) -p $(SONAR_PORT):9000 \
-			-v ci_sonarqube_data:/opt/sonarqube/data \
-			-v ci_sonarqube_extensions:/opt/sonarqube/extensions \
-			-v ci_sonarqube_logs:/opt/sonarqube/logs \
-			$(SONAR_IMAGE); \
+sonar-start: ## Start the SHARED self-hosted SonarQube (delegates to the sonarqube-stack repo)
+	@if [ ! -d $(SONARQUBE_STACK_DIR) ]; then \
+		echo "[sonar] sonarqube-stack repo not found at $(SONARQUBE_STACK_DIR)"; \
+		echo "[sonar] Clone it: git clone git@github.com:benoit-bremaud/sonarqube-stack.git"; \
+		exit 1; \
 	fi
+	$(MAKE) -C $(SONARQUBE_STACK_DIR) up
 	@echo "[sonar] Waiting for SonarQube to be ready at $(SONAR_URL) ..."
 	@until curl -sf $(SONAR_URL)/api/system/status | grep -q '"status":"UP"'; do \
 		printf '.'; sleep 3; \
@@ -263,27 +260,26 @@ sonar-start: ## Start local SonarQube server (Docker, port 9000) — creates con
 	@echo ""
 	@echo "[sonar] SonarQube is UP → $(SONAR_URL)"
 
-sonar-stop: ## Stop local SonarQube server (container is kept, data preserved)
-	docker stop $(SONAR_CONTAINER)
-	@echo "[sonar] SonarQube stopped."
+sonar-stop: ## Stop the SHARED SonarQube instance (affects every project on this machine)
+	@echo "[sonar] Note: this instance is SHARED by all local projects."
+	$(MAKE) -C $(SONARQUBE_STACK_DIR) down
 
-sonar-status: ## Show local SonarQube server status
-	@if docker ps --format '{{.Names}}' | grep -q '^$(SONAR_CONTAINER)$$'; then \
-		echo "[sonar] Container: running"; \
-		curl -sf $(SONAR_URL)/api/system/status && echo || echo "[sonar] HTTP not yet ready"; \
-	elif docker ps -a --format '{{.Names}}' | grep -q '^$(SONAR_CONTAINER)$$'; then \
-		echo "[sonar] Container: stopped (run 'make sonar-start' to resume)"; \
-	else \
-		echo "[sonar] Container: not found (run 'make sonar-start' to create)"; \
-	fi
+sonar-status: ## Show the shared SonarQube server status
+	@curl -sf $(SONAR_URL)/api/system/status && echo \
+		|| echo "[sonar] Not reachable at $(SONAR_URL) (run 'make sonar-start')"
 
-sonar-scan: ## Run SonarQube analysis against local server (requires SONAR_TOKEN env var)
-	@if [ -z "$(SONAR_TOKEN)" ]; then \
+sonar-scan: ## Run a SonarQube analysis (token auto-read from ~/.config/sonar-tokens/brasse-bouillon)
+	@TOKEN="$(SONAR_TOKEN)"; \
+	if [ -z "$$TOKEN" ] && [ -f $(SONAR_TOKEN_FILE) ]; then \
+		TOKEN=$$(cat $(SONAR_TOKEN_FILE)); \
+	fi; \
+	if [ -z "$$TOKEN" ]; then \
 		echo "Error: SONAR_TOKEN is required."; \
-		echo "Usage: make sonar-scan SONAR_TOKEN=sqp_xxxx"; \
+		echo "Either: make sonar-scan SONAR_TOKEN=sqp_xxxx"; \
+		echo "Or store the project analysis token in $(SONAR_TOKEN_FILE) (chmod 600)."; \
 		exit 1; \
-	fi
-	SONAR_TOKEN=$(SONAR_TOKEN) bash tools/ci/sonar-scan.sh
+	fi; \
+	SONAR_TOKEN=$$TOKEN bash tools/ci/sonar-scan.sh
 
 ## ============================================================================
 ## @Docker (API)

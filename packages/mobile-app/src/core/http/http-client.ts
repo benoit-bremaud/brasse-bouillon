@@ -14,6 +14,12 @@ type RequestOptions = {
    * knowledge base instead. See ADR-0005 for the split.
    */
   baseUrl?: string;
+  /**
+   * Forwarded to `fetch` so the caller (e.g. a TanStack `queryFn`) can
+   * abort the network request when the query is superseded. Without it,
+   * a queryKey change only discards the stale result client-side.
+   */
+  signal?: AbortSignal;
 };
 
 async function parseBody(response: Response) {
@@ -41,6 +47,7 @@ export async function request<T>(
     auth = true,
     headers = {},
     baseUrl,
+    signal,
   }: RequestOptions = {},
 ): Promise<T> {
   const resolvedBase = baseUrl ?? env.apiUrl;
@@ -65,6 +72,7 @@ export async function request<T>(
     method,
     headers: mergedHeaders,
     body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
 
   const payload = await parseBody(response);

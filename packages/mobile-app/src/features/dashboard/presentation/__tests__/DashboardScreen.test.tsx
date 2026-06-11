@@ -149,6 +149,7 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("Compte")).toBeTruthy();
     expect(screen.getByText("Scanner")).toBeTruthy();
     expect(screen.getByText("Mes étiquettes")).toBeTruthy();
+    expect(screen.getByText("Catalogue bières")).toBeTruthy();
 
     // Issue #644 — the "Paramètres globaux" entry was a dead duplicate
     // of "Profil" (both navigated to /(app)/profile). The single account
@@ -169,6 +170,11 @@ describe("DashboardScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Ouvrir Scanner"));
     expect(mockPush).toHaveBeenCalledWith("/(app)/dashboard/scan");
+
+    fireEvent.press(screen.getByLabelText("Voir plus de sections"));
+
+    fireEvent.press(screen.getByLabelText("Ouvrir Catalogue bières"));
+    expect(mockPush).toHaveBeenCalledWith("/(app)/beer-catalog");
 
     // Issue #644 — header action label aligned with the More-sheet
     // and screen header ("Mon compte"). Previously labelled "Profil".

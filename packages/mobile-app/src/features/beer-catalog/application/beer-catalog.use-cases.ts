@@ -45,28 +45,31 @@ export async function getBeer(
   id: string,
   signal?: AbortSignal,
 ): Promise<CatalogBeerDetail | null> {
-  if (!id.trim()) {
+  const trimmed = id.trim();
+  if (!trimmed) {
     return null;
   }
-  return fetchBeerById(id, signal);
+  return fetchBeerById(trimmed, signal);
 }
 
 export async function getBrewery(
   id: string,
   signal?: AbortSignal,
 ): Promise<CatalogBrewery | null> {
-  if (!id.trim()) {
+  const trimmed = id.trim();
+  if (!trimmed) {
     return null;
   }
-  return fetchBreweryById(id, signal);
+  return fetchBreweryById(trimmed, signal);
 }
 
 export async function getStyle(
   id: string,
   signal?: AbortSignal,
 ): Promise<CatalogStyle | null> {
-  if (!id.trim()) {
+  const trimmed = id.trim();
+  if (!trimmed) {
     return null;
   }
-  return fetchStyleById(id, signal);
+  return fetchStyleById(trimmed, signal);
 }

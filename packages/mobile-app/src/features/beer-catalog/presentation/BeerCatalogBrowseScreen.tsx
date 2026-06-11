@@ -56,7 +56,11 @@ export function BeerCatalogBrowseScreen() {
     error && !isFetching && !isFetchNextPageError
       ? getErrorMessage(error, BROWSE_ERROR)
       : null;
-  const showEmptyState = isFetched && !isLoading && rows.length === 0;
+  // A failed initial load also marks the query as fetched — without the
+  // !settledError guard the "empty catalogue" card would render under the
+  // error card, telling the user the catalogue is empty when the network failed.
+  const showEmptyState =
+    isFetched && !isLoading && rows.length === 0 && !settledError;
 
   const handleRefetch = () => {
     void refetch();

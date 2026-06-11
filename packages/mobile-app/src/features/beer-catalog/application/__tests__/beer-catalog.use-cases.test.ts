@@ -93,6 +93,15 @@ describe("beer-catalog.use-cases", () => {
       expect(result).toBe(detail);
     });
 
+    it("getBeer trims the id before delegating (no padded ids in URLs)", async () => {
+      const detail = {} as Awaited<ReturnType<typeof fetchBeerById>>;
+      mockFetchBeerById.mockResolvedValueOnce(detail);
+
+      await getBeer("  beer-1  ");
+
+      expect(mockFetchBeerById).toHaveBeenCalledWith("beer-1", undefined);
+    });
+
     it("getBrewery delegates to fetchBreweryById", async () => {
       const brewery = {} as Awaited<ReturnType<typeof fetchBreweryById>>;
       mockFetchBreweryById.mockResolvedValueOnce(brewery);

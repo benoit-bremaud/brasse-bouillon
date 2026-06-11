@@ -23,6 +23,11 @@ export const MIN_SEARCH_LENGTH = 2;
  */
 export function computeNextPageParam<T>(lastPage: Page<T>): number | undefined {
   const { total, page, perPage } = lastPage.meta;
+  // Defensive: the API guarantees page ≥ 1 and per_page ≥ 1, but malformed
+  // meta (perPage 0) would otherwise paginate forever (0 < total is always true).
+  if (page <= 0 || perPage <= 0) {
+    return undefined;
+  }
   return page * perPage < total ? page + 1 : undefined;
 }
 

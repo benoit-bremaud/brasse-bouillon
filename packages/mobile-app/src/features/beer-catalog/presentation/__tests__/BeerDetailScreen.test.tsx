@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import { useBeer } from "@/features/beer-catalog/application/use-beer-catalog-details";
-import { CatalogNotFoundError } from "@/features/beer-catalog/data/beer-catalog.errors";
+import { CatalogNotFoundError } from "@/features/beer-catalog/application/beer-catalog.use-cases";
 import type { CatalogBeerDetail } from "@/features/beer-catalog/domain/beer-catalog.types";
 import { BeerDetailScreen } from "@/features/beer-catalog/presentation/BeerDetailScreen";
 

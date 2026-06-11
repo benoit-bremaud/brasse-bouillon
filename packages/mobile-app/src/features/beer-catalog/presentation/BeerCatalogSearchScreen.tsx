@@ -70,7 +70,10 @@ export function BeerCatalogSearchScreen() {
 
   const showPrompt = !isTermReady;
   const isInitialLoading = isLoading && rows.length === 0;
-  const showEmptyState = isFetched && !isLoading && rows.length === 0;
+  // Mutually exclusive with a settled error (same guard as the browse
+  // screen): a failed search must not also claim "no results".
+  const showEmptyState =
+    isFetched && !isLoading && rows.length === 0 && !settledError;
 
   const handleRefetch = () => {
     void refetch();

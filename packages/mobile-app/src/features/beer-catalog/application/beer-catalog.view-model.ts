@@ -175,7 +175,7 @@ export function toBeerDetailVM(beer: CatalogBeerDetail): BeerDetailVM {
         : {
             id: beer.breweryId,
             label: beer.breweryName ?? BREWERY_FALLBACK_LABEL,
-            route: `/(app)/beer-catalog/brewery/${beer.breweryId}`,
+            route: `/(app)/beer-catalog/brewery/${encodeURIComponent(beer.breweryId)}`,
           },
     styleTap:
       beer.styleId === null
@@ -183,14 +183,15 @@ export function toBeerDetailVM(beer: CatalogBeerDetail): BeerDetailVM {
         : {
             id: beer.styleId,
             label: beer.styleName ?? STYLE_FALLBACK_LABEL,
-            route: `/(app)/beer-catalog/style/${beer.styleId}`,
+            route: `/(app)/beer-catalog/style/${encodeURIComponent(beer.styleId)}`,
           },
   };
 }
 
 export function toBreweryFicheVM(brewery: CatalogBrewery): BreweryFicheVM {
   const location = [brewery.city, brewery.country]
-    .filter((part): part is string => part !== null)
+    .map((part) => part?.trim() ?? "")
+    .filter((part) => part !== "")
     .join(", ");
   return {
     title: brewery.name,
@@ -215,7 +216,7 @@ export function toStyleFicheVM(style: CatalogStyle): StyleFicheVM {
     categoryLabel: style.category,
     familyLabel: style.family,
     abvRangeLabel:
-      abvRange === null ? null : `${abvRange.replace(/\./g, ",")} %`,
+      abvRange === null ? null : `${abvRange.replaceAll(".", ",")} %`,
     ibuRangeLabel: formatInterval(style.ibuMin, style.ibuMax, null),
     colorRangeLabel: ebcRange === null ? null : `EBC ${ebcRange}`,
   };

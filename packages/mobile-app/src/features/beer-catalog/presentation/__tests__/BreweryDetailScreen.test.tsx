@@ -4,7 +4,7 @@ import React from "react";
 import { Linking } from "react-native";
 
 import { useBrewery } from "@/features/beer-catalog/application/use-beer-catalog-details";
-import { CatalogNotFoundError } from "@/features/beer-catalog/data/beer-catalog.errors";
+import { CatalogNotFoundError } from "@/features/beer-catalog/application/beer-catalog.use-cases";
 import type { CatalogBrewery } from "@/features/beer-catalog/domain/beer-catalog.types";
 import { BreweryDetailScreen } from "@/features/beer-catalog/presentation/BreweryDetailScreen";
 

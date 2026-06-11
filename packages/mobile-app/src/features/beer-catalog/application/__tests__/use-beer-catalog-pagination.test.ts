@@ -66,6 +66,23 @@ describe("use-beer-catalog-pagination / computeNextPageParam", () => {
     });
   });
 
+  describe("edge: malformed pagination meta never paginates forever", () => {
+    it("returns undefined when perPage is 0 (0 × anything stays below total)", () => {
+      expect(
+        computeNextPageParam(buildPage({ total: 45, page: 1, perPage: 0 })),
+      ).toBeUndefined();
+    });
+
+    it("returns undefined when page is 0 or negative", () => {
+      expect(
+        computeNextPageParam(buildPage({ total: 45, page: 0, perPage: 20 })),
+      ).toBeUndefined();
+      expect(
+        computeNextPageParam(buildPage({ total: 45, page: -1, perPage: 20 })),
+      ).toBeUndefined();
+    });
+  });
+
   describe("exported constants (UC2 extension 1a)", () => {
     it("pagination starts at page 1 and search requires at least 2 characters", () => {
       expect(FIRST_PAGE).toBe(1);

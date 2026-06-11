@@ -330,11 +330,14 @@ Each package documents its own variables (with descriptions, defaults, and requi
 
 Tests are mandatory for every new feature. Run everything with `make test-all`.
 
-SonarQube local analysis is available:
+SonarQube local analysis runs against the shared self-hosted instance
+(`sonarqube-stack` repo, `http://localhost:9000`):
 
 ```bash
-make sonar-start                          # start Sonar in Docker
-make sonar-scan SONAR_TOKEN=sqp_xxx       # scan the monorepo
+make sonar-start    # start the shared instance (delegates to sonarqube-stack)
+make sonar-scan     # scan the monorepo — the project analysis token is
+                    # auto-read from ~/.config/sonar-tokens/brasse-bouillon
+                    # (or pass SONAR_TOKEN=sqp_xxx explicitly)
 ```
 
 ---

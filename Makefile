@@ -3,11 +3,12 @@
 # ==============================================================================
 
 # Shared self-hosted SonarQube (Community Build + PostgreSQL) — managed in
-# its own repo; this Makefile only delegates. See ~/Documents/02_personal/sonarqube-stack.
-SONARQUBE_STACK_DIR := $(HOME)/Documents/02_personal/sonarqube-stack
-SONAR_PORT          := 9000
-SONAR_URL           := http://localhost:$(SONAR_PORT)
-SONAR_TOKEN_FILE    := $(HOME)/.config/sonar-tokens/brasse-bouillon
+# its own repo; this Makefile only delegates. All four are overridable from
+# the environment (`?=`) so another machine layout needs no repo edit.
+SONARQUBE_STACK_DIR ?= $(HOME)/Documents/02_personal/sonarqube-stack
+SONAR_PORT          ?= 9000
+SONAR_URL           ?= http://localhost:$(SONAR_PORT)
+SONAR_TOKEN_FILE    ?= $(HOME)/.config/sonar-tokens/brasse-bouillon
 
 BEER_ENC_PORT := 8000
 BEER_ENC_DIR  := packages/beer-encyclopedia
@@ -247,22 +248,33 @@ migrate-beer-enc-revert: ## Roll back the last Alembic migration on the beer-enc
 ## ============================================================================
 
 sonar-start: ## Start the SHARED self-hosted SonarQube (delegates to the sonarqube-stack repo)
-	@if [ ! -d $(SONARQUBE_STACK_DIR) ]; then \
+	@if [ ! -d "$(SONARQUBE_STACK_DIR)" ]; then \
 		echo "[sonar] sonarqube-stack repo not found at $(SONARQUBE_STACK_DIR)"; \
 		echo "[sonar] Clone it: git clone git@github.com:benoit-bremaud/sonarqube-stack.git"; \
 		exit 1; \
 	fi
-	$(MAKE) -C $(SONARQUBE_STACK_DIR) up
-	@echo "[sonar] Waiting for SonarQube to be ready at $(SONAR_URL) ..."
-	@until curl -sf $(SONAR_URL)/api/system/status | grep -q '"status":"UP"'; do \
+	$(MAKE) -C "$(SONARQUBE_STACK_DIR)" up
+	@echo "[sonar] Waiting for SonarQube to be ready at $(SONAR_URL) (max 2 min) ..."
+	@attempts=0; \
+	until curl -sf $(SONAR_URL)/api/system/status | grep -q '"status":"UP"'; do \
+		attempts=$$((attempts + 1)); \
+		if [ $$attempts -ge 40 ]; then \
+			echo ""; \
+			echo "[sonar] Gave up after 2 min — check the stack: make -C \"$(SONARQUBE_STACK_DIR)\" status"; \
+			exit 1; \
+		fi; \
 		printf '.'; sleep 3; \
 	done
 	@echo ""
 	@echo "[sonar] SonarQube is UP → $(SONAR_URL)"
 
 sonar-stop: ## Stop the SHARED SonarQube instance (affects every project on this machine)
+	@if [ ! -d "$(SONARQUBE_STACK_DIR)" ]; then \
+		echo "[sonar] sonarqube-stack repo not found at $(SONARQUBE_STACK_DIR) — nothing to stop from here."; \
+		exit 1; \
+	fi
 	@echo "[sonar] Note: this instance is SHARED by all local projects."
-	$(MAKE) -C $(SONARQUBE_STACK_DIR) down
+	$(MAKE) -C "$(SONARQUBE_STACK_DIR)" down
 
 sonar-status: ## Show the shared SonarQube server status
 	@curl -sf $(SONAR_URL)/api/system/status && echo \
@@ -270,8 +282,8 @@ sonar-status: ## Show the shared SonarQube server status
 
 sonar-scan: ## Run a SonarQube analysis (token auto-read from ~/.config/sonar-tokens/brasse-bouillon)
 	@TOKEN="$(SONAR_TOKEN)"; \
-	if [ -z "$$TOKEN" ] && [ -f $(SONAR_TOKEN_FILE) ]; then \
-		TOKEN=$$(cat $(SONAR_TOKEN_FILE)); \
+	if [ -z "$$TOKEN" ] && [ -f "$(SONAR_TOKEN_FILE)" ]; then \
+		TOKEN=$$(cat "$(SONAR_TOKEN_FILE)"); \
 	fi; \
 	if [ -z "$$TOKEN" ]; then \
 		echo "Error: SONAR_TOKEN is required."; \

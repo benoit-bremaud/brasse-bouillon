@@ -330,11 +330,14 @@ Each package documents its own variables (with descriptions, defaults, and requi
 
 Tests are mandatory for every new feature. Run everything with `make test-all`.
 
-SonarQube local analysis is available:
+SonarQube local analysis runs against the shared self-hosted instance
+(`sonarqube-stack` repo, `http://localhost:9000`):
 
 ```bash
-make sonar-start                          # start Sonar in Docker
-make sonar-scan SONAR_TOKEN=sqp_xxx       # scan the monorepo
+make sonar-start    # start the shared instance (delegates to sonarqube-stack)
+make sonar-scan     # scan the monorepo — the project analysis token is
+                    # auto-read from ~/.config/sonar-tokens/brasse-bouillon
+                    # (or pass SONAR_TOKEN=sqp_xxx explicitly)
 ```
 
 ---
@@ -348,7 +351,7 @@ GitHub Actions runs automatically on every PR to `main` and every push to `main`
   - **api** — lint + build + tests (70% coverage target — CI warning)
   - **website** — Python quality gate
   - **beer-encyclopedia** — ruff lint + compile check + pytest (70% coverage target — CI warning)
-- [`.github/workflows/sonarcloud.yml`](.github/workflows/sonarcloud.yml) — runs SonarCloud analysis on every PR and on pushes to `main`. Installs mobile-app + api, runs both Jest suites with coverage, then feeds the `lcov.info` reports into SonarCloud. Quality Gate is enforced server-side on the `benoit-bremaud_brasse-bouillon` project.
+- **SonarQube (local, manual)** — code-quality analysis runs against the shared self-hosted SonarQube instance (`http://localhost:9000`, sonarqube-stack repo): `make sonar-scan` (project key `brasse-bouillon`). No Sonar CI job — the Community Build analyses the `main` branch only, so analysis is a local on-demand step (the former SonarCloud workflow was removed when the project migrated).
 - [`.github/workflows/discord-notifications.yml`](.github/workflows/discord-notifications.yml) — routes issue and pull-request lifecycle events (`issues:opened`, `pull_request:opened|closed`) to Discord channels based on `scope:*` labels.
 
 `ci.yml` also uploads each `lcov.info` as a GitHub Actions artifact (7-day retention). Local SonarQube Community Edition analysis remains available via `make sonar-scan` — see the [Testing & Quality](#testing--quality) section.

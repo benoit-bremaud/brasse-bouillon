@@ -19,7 +19,7 @@ import {
   type TapTargetVM,
 } from "@/features/beer-catalog/application/beer-catalog.view-model";
 import { useBeer } from "@/features/beer-catalog/application/use-beer-catalog-details";
-import { CatalogNotFoundError } from "@/features/beer-catalog/data/beer-catalog.errors";
+import { CatalogNotFoundError } from "@/features/beer-catalog/application/beer-catalog.use-cases";
 import {
   ABV_LABEL,
   BACK_ACCESSIBILITY_LABEL,

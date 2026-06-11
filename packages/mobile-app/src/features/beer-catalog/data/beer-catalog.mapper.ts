@@ -72,9 +72,9 @@ export interface PageDto<TItem> {
   meta: { total: number; page: number; per_page: number };
 }
 
-/** Decimal-as-string → number; null and unparsable input stay null. */
+/** Decimal-as-string → number; null, empty and unparsable input stay null. */
 export function toNumber(value: string | null): number | null {
-  if (value === null) {
+  if (value === null || value.trim() === "") {
     return null;
   }
   const parsed = Number(value);

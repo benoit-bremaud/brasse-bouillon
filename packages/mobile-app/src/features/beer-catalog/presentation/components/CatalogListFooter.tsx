@@ -1,6 +1,5 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-
 import React from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { colors, spacing, typography } from "@/core/theme";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";

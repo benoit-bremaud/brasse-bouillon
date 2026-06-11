@@ -277,6 +277,11 @@ describe("beer-catalog.mapper", () => {
       expect(toNumber("abc")).toBeNull();
     });
 
+    it("toNumber turns an empty or blank string into null (not 0)", () => {
+      expect(toNumber("")).toBeNull();
+      expect(toNumber("  ")).toBeNull();
+    });
+
     it('toNumber parses "0" as the number 0 (falsy but valid)', () => {
       expect(toNumber("0")).toBe(0);
     });

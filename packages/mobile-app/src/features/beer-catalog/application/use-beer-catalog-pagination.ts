@@ -9,10 +9,7 @@ import {
   listBeers,
   searchBeers,
 } from "@/features/beer-catalog/application/beer-catalog.use-cases";
-import type {
-  CatalogBeer,
-  Page,
-} from "@/features/beer-catalog/domain/beer-catalog.types";
+import type { Page } from "@/features/beer-catalog/domain/beer-catalog.types";
 
 export const FIRST_PAGE = 1;
 /** UC2 extension 1a: below this length no request is made (also avoids the API 422 on empty q). */
@@ -24,9 +21,7 @@ export const MIN_SEARCH_LENGTH = 2;
  * (⇒ `hasNextPage === false`, the infinite scroll stops). `meta.total`
  * is what bounds the pagination — the API has no next/prev links.
  */
-export function computeNextPageParam(
-  lastPage: Page<CatalogBeer>,
-): number | undefined {
+export function computeNextPageParam<T>(lastPage: Page<T>): number | undefined {
   const { total, page, perPage } = lastPage.meta;
   return page * perPage < total ? page + 1 : undefined;
 }
@@ -56,7 +51,6 @@ export function useBeerCatalogPagination(args: UseBeerCatalogPaginationArgs) {
     enabled: !isSearch || searchReady,
     select: (data) => ({
       beers: data.pages.flatMap((page) => page.items),
-      total: data.pages[0]?.meta.total ?? 0,
     }),
   });
 }

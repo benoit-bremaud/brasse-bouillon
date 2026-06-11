@@ -52,7 +52,6 @@ type PaginationResult = ReturnType<typeof useBeerCatalogPagination>;
 
 interface PaginationOverrides {
   beers?: CatalogBeer[];
-  total?: number;
   isLoading?: boolean;
   isFetching?: boolean;
   isFetched?: boolean;
@@ -70,7 +69,6 @@ function buildPaginationResult(
 ): PaginationResult {
   const {
     beers = [],
-    total = beers.length,
     isLoading = false,
     isFetching = false,
     isFetched = true,
@@ -81,7 +79,7 @@ function buildPaginationResult(
   } = overrides;
 
   return {
-    data: isLoading ? undefined : { beers, total },
+    data: isLoading ? undefined : { beers },
     isLoading,
     isFetching,
     isFetched,

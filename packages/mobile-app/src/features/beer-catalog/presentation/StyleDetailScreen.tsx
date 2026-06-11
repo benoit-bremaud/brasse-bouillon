@@ -17,7 +17,7 @@ import {
   type StyleFicheVM,
 } from "@/features/beer-catalog/application/beer-catalog.view-model";
 import { useStyle } from "@/features/beer-catalog/application/use-beer-catalog-details";
-import { CatalogNotFoundError } from "@/features/beer-catalog/data/beer-catalog.errors";
+import { CatalogNotFoundError } from "@/features/beer-catalog/application/beer-catalog.use-cases";
 import {
   BACK_ACCESSIBILITY_LABEL,
   BACK_LABEL,

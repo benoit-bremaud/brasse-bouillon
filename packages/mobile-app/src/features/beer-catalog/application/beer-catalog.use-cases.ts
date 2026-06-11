@@ -19,6 +19,13 @@ import type {
   Page,
 } from "@/features/beer-catalog/domain/beer-catalog.types";
 
+// Re-exported so the presentation layer can discriminate catalogue errors
+// without importing from data/ (dependency rule: presentation → application).
+export {
+  CatalogNotFoundError,
+  CatalogUnavailableError,
+} from "@/features/beer-catalog/data/beer-catalog.errors";
+
 export async function listBeers(
   page: number,
   signal?: AbortSignal,

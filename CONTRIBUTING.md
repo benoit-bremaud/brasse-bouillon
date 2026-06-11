@@ -147,8 +147,7 @@ deliberately refuses to trigger `pull_request` workflows on events created
 by its own internal `GITHUB_TOKEN` (to prevent infinite loops). Without a
 user PAT, every release-please PR would get stuck `BLOCKED` by branch
 protection because the required CI checks (`changes`, `mobile-app`, `api`,
-`security-audit`, `SonarCloud Scan`, `SonarCloud Code Analysis`) never
-start.
+`security-audit`) never start.
 
 Because the workflow uses `RELEASE_PLEASE_TOKEN`, the resulting PRs,
 tags, and releases are attributed to the **PAT owner** (not to

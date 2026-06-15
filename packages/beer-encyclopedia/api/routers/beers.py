@@ -18,6 +18,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from api.db_utils import is_postgres
 from api.dependencies import get_db
@@ -102,9 +103,7 @@ async def _beer_read_with_names(session: AsyncSession, beer: Beer) -> BeerRead:
     if beer.style_id is not None:
         style = await session.get(Style, beer.style_id)
         style_name = style.name if style is not None else None
-    return dto.model_copy(
-        update={"brewery_name": brewery_name, "style_name": style_name}
-    )
+    return dto.model_copy(update={"brewery_name": brewery_name, "style_name": style_name})
 
 
 @router.post(
@@ -125,12 +124,7 @@ async def _beer_read_with_names(session: AsyncSession, beer: Beer) -> BeerRead:
                 "created from the Open Food Facts payload."
             )
         },
-        404: {
-            "description": (
-                "EAN is unknown both to the local database and to "
-                "Open Food Facts."
-            )
-        },
+        404: {"description": ("EAN is unknown both to the local database and to Open Food Facts.")},
         503: {
             "description": (
                 "Open Food Facts is unavailable or returned an unexpected "
@@ -205,9 +199,7 @@ async def import_beer_by_ean(
         # the seed script, not to debug the import code.
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    response.status_code = (
-        status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
-    )
+    response.status_code = status.HTTP_201_CREATED if result.created else status.HTTP_200_OK
     return await _beer_read_with_names(session, result.beer)
 
 
@@ -231,21 +223,19 @@ async def list_beers(
     if abv_max is not None:
         filters.append(Beer.abv <= abv_max)
 
-    base_stmt = select(Beer)
+    # Eager-load brewery + style so `_beer_read_with_names` resolves the
+    # denormalised names from the identity map (no per-row query / N+1).
+    base_stmt = select(Beer).options(selectinload(Beer.brewery), selectinload(Beer.style))
     count_stmt = select(func.count()).select_from(Beer)
     for flt in filters:
         base_stmt = base_stmt.where(flt)
         count_stmt = count_stmt.where(flt)
 
     total = (await session.execute(count_stmt)).scalar_one()
-    stmt = (
-        base_stmt.order_by(Beer.name)
-        .offset((page - 1) * per_page)
-        .limit(per_page)
-    )
+    stmt = base_stmt.order_by(Beer.name).offset((page - 1) * per_page).limit(per_page)
     items = (await session.execute(stmt)).scalars().all()
     return BeerList(
-        items=[BeerRead.model_validate(b) for b in items],
+        items=[await _beer_read_with_names(session, b) for b in items],
         meta=PaginationMeta(total=total, page=page, per_page=per_page),
     )
 
@@ -271,6 +261,7 @@ async def search_beers(
 
     stmt = (
         select(Beer)
+        .options(selectinload(Beer.brewery), selectinload(Beer.style))
         .where(where_clause)
         .order_by(order_clause)
         .offset((page - 1) * per_page)
@@ -278,7 +269,7 @@ async def search_beers(
     )
     items = (await session.execute(stmt)).scalars().all()
     return BeerList(
-        items=[BeerRead.model_validate(b) for b in items],
+        items=[await _beer_read_with_names(session, b) for b in items],
         meta=PaginationMeta(total=total, page=page, per_page=per_page),
     )
 
@@ -291,7 +282,7 @@ async def get_beer(
     beer = await session.get(Beer, beer_id)
     if beer is None:
         raise HTTPException(status_code=404, detail="Beer not found.")
-    return BeerRead.model_validate(beer)
+    return await _beer_read_with_names(session, beer)
 
 
 @router.post("", response_model=BeerRead, status_code=status.HTTP_201_CREATED)

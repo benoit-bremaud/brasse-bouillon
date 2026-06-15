@@ -23,9 +23,7 @@ async def _seed_reference_data(
     return brewery, ipa, stout
 
 
-async def test_create_beer_returns_201(
-    client: TestClient, db_session: AsyncSession
-) -> None:
+async def test_create_beer_returns_201(client: TestClient, db_session: AsyncSession) -> None:
     brewery, ipa, _ = await _seed_reference_data(db_session)
 
     response = client.post(
@@ -96,9 +94,7 @@ def test_get_beer_returns_404_for_unknown(client: TestClient) -> None:
     assert response.status_code == 404
 
 
-async def test_list_beers_filters_by_style(
-    client: TestClient, db_session: AsyncSession
-) -> None:
+async def test_list_beers_filters_by_style(client: TestClient, db_session: AsyncSession) -> None:
     brewery, ipa, stout = await _seed_reference_data(db_session)
     db_session.add_all(
         [
@@ -174,9 +170,7 @@ async def test_delete_beer_returns_204_then_404(
     assert client.get(f"/beers/{created['id']}").status_code == 404
 
 
-async def test_search_beers_matches_substring(
-    client: TestClient, db_session: AsyncSession
-) -> None:
+async def test_search_beers_matches_substring(client: TestClient, db_session: AsyncSession) -> None:
     brewery, _, _ = await _seed_reference_data(db_session)
     db_session.add_all(
         [
@@ -192,3 +186,83 @@ async def test_search_beers_matches_substring(
     data = response.json()
     assert data["meta"]["total"] == 2
     assert {item["name"] for item in data["items"]} == {"Citra Bomb", "Citra Sun"}
+
+
+async def test_list_resolves_brewery_and_style_names(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Happy: list rows carry the denormalised brewery/style names (#1220)."""
+
+    brewery, ipa, _ = await _seed_reference_data(db_session)
+    db_session.add(
+        Beer(
+            name="Named IPA",
+            slug="named-ipa",
+            brewery_id=brewery.id,
+            style_id=ipa.id,
+        )
+    )
+    await db_session.commit()
+
+    item = client.get("/beers").json()["items"][0]
+
+    assert item["brewery_name"] == "Reference Brewery"
+    assert item["style_name"] == "India Pale Ale"
+
+
+async def test_list_leaves_names_null_when_fks_are_null(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: a beer with no brewery/style keeps both names null."""
+
+    db_session.add(Beer(name="Orphan", slug="orphan"))
+    await db_session.commit()
+
+    item = client.get("/beers").json()["items"][0]
+
+    assert item["brewery_name"] is None
+    assert item["style_name"] is None
+
+
+async def test_search_resolves_brewery_and_style_names(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Happy: search rows also carry the resolved names (#1220)."""
+
+    brewery, ipa, _ = await _seed_reference_data(db_session)
+    db_session.add(
+        Beer(
+            name="Searchable IPA",
+            slug="searchable-ipa",
+            brewery_id=brewery.id,
+            style_id=ipa.id,
+        )
+    )
+    await db_session.commit()
+
+    item = client.get("/beers/search", params={"q": "searchable"}).json()["items"][0]
+
+    assert item["brewery_name"] == "Reference Brewery"
+    assert item["style_name"] == "India Pale Ale"
+
+
+async def test_get_beer_resolves_brewery_and_style_names(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Happy: the detail endpoint resolves the names too (#1220)."""
+
+    brewery, ipa, _ = await _seed_reference_data(db_session)
+    beer = Beer(
+        name="Detail IPA",
+        slug="detail-ipa",
+        brewery_id=brewery.id,
+        style_id=ipa.id,
+    )
+    db_session.add(beer)
+    await db_session.commit()
+    await db_session.refresh(beer)
+
+    body = client.get(f"/beers/{beer.id}").json()
+
+    assert body["brewery_name"] == "Reference Brewery"
+    assert body["style_name"] == "India Pale Ale"

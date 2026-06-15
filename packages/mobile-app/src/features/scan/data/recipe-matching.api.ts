@@ -31,8 +31,10 @@ type RankedRecipeWireDto = {
   };
   score: number;
   // Match completeness in [0..1] (ADR-0016 D4) — wired through for future
-  // use; not surfaced in the UI yet.
-  completeness: number;
+  // use; not surfaced in the UI yet. Optional: demo-mode rows and any
+  // backend that omits it leave it undefined (matches the optional domain
+  // field `ScanRecipeMatch.completeness`).
+  completeness?: number;
 };
 
 type MatchingResponseWireDto = {

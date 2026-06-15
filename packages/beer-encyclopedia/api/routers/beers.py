@@ -298,7 +298,7 @@ async def create_beer(
         name=payload.name,
         attributes=payload.model_dump(),
     )
-    return BeerRead.model_validate(beer)
+    return await _beer_read_with_names(session, beer)
 
 
 @router.patch("/{beer_id}", response_model=BeerRead)
@@ -321,7 +321,7 @@ async def update_beer(
         setattr(beer, field, value)
     await session.commit()
     await session.refresh(beer)
-    return BeerRead.model_validate(beer)
+    return await _beer_read_with_names(session, beer)
 
 
 @router.delete("/{beer_id}", status_code=status.HTTP_204_NO_CONTENT)

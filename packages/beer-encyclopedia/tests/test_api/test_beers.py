@@ -45,6 +45,9 @@ async def test_create_beer_returns_201(client: TestClient, db_session: AsyncSess
     assert body["brewery_id"] == str(brewery.id)
     assert body["ibu_min"] == 50
     assert body["ibu_max"] == 55
+    # The write path resolves the denormalised names too (#1220).
+    assert body["brewery_name"] == "Reference Brewery"
+    assert body["style_name"] == "India Pale Ale"
 
 
 def test_create_beer_rejects_inverted_ibu_interval(client: TestClient) -> None:
@@ -148,6 +151,7 @@ async def test_patch_beer_updates_fields_and_validates_fk(
     )
     assert update.status_code == 200
     assert update.json()["style_id"] == str(stout.id)
+    assert update.json()["style_name"] == "Stout"
 
     # Invalid FK rejected
     bad_update = client.patch(
@@ -204,7 +208,9 @@ async def test_list_resolves_brewery_and_style_names(
     )
     await db_session.commit()
 
-    item = client.get("/beers").json()["items"][0]
+    data = client.get("/beers").json()
+    assert data["meta"]["total"] == 1
+    item = data["items"][0]
 
     assert item["brewery_name"] == "Reference Brewery"
     assert item["style_name"] == "India Pale Ale"
@@ -218,7 +224,9 @@ async def test_list_leaves_names_null_when_fks_are_null(
     db_session.add(Beer(name="Orphan", slug="orphan"))
     await db_session.commit()
 
-    item = client.get("/beers").json()["items"][0]
+    data = client.get("/beers").json()
+    assert data["meta"]["total"] == 1
+    item = data["items"][0]
 
     assert item["brewery_name"] is None
     assert item["style_name"] is None
@@ -266,3 +274,19 @@ async def test_get_beer_resolves_brewery_and_style_names(
 
     assert body["brewery_name"] == "Reference Brewery"
     assert body["style_name"] == "India Pale Ale"
+
+
+async def test_brewery_name_becomes_null_after_brewery_deleted(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: deleting a brewery (ON DELETE SET NULL) nulls the resolved name."""
+
+    brewery, _, _ = await _seed_reference_data(db_session)
+    db_session.add(Beer(name="Widow", slug="widow", brewery_id=brewery.id))
+    await db_session.commit()
+
+    assert client.delete(f"/breweries/{brewery.id}").status_code == 204
+
+    data = client.get("/beers").json()
+    assert data["meta"]["total"] == 1
+    assert data["items"][0]["brewery_name"] is None

@@ -67,7 +67,13 @@ def test_app_exposes_scan_router_routes() -> None:
     """The scan router must be mounted at the root, not under a prefix —
     backward compatibility with consumers of /health and /scan."""
 
-    paths = {route.path for route in app.routes if hasattr(route, "methods")}
+    # Assert against the OpenAPI schema (the public path contract) rather
+    # than `app.routes`: FastAPI 0.137 stores included routers as opaque
+    # `_IncludedRouter` wrappers in `app.routes` (lazy resolution), so
+    # introspecting that internal structure is brittle and broke this test
+    # on the FastAPI upgrade. `openapi()["paths"]` reflects the
+    # actually-exposed routes regardless of the internal representation.
+    paths = app.openapi()["paths"]
     assert "/health" in paths
     assert "/scan" in paths
 

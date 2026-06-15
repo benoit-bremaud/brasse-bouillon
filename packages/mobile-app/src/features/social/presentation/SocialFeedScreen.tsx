@@ -90,7 +90,10 @@ export function SocialFeedScreen() {
   const router = useRouter();
 
   const handleGoBack = () => {
-    router.back();
+    // "Communauté" is a top-level dock tab (no parent stack to pop), so
+    // router.back() would fall through to the previously focused tab. The
+    // back button reads "Retour à l'accueil" — send the user there explicitly.
+    router.replace("/dashboard");
   };
 
   return (

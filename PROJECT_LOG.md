@@ -5,6 +5,22 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-15
+
+### PR #1218 merged (`1042000`) — fix(mobile-app): catalogue & batches back button goes to the wrong tab (missing nav stack)
+- Branch `fix/navigation-back-stack`. Expo Router tabs with nested routes lacked a Stack `_layout.tsx`, so `router.back()` fell through to the Tabs navigator and landed on the academy (the only other group with a stack). Added `<Stack screenOptions={{ headerShown: false }} />` to `app/(app)/beer-catalog/` + `batches/` (mirrors `academy/`); `social` (top-level dock tab) back → `router.replace("/dashboard")`. Targeted fix — broader migration of the `router.replace`/return-context flows (scan/labels/ingredients/recipes/shop/tools) = epic **#1217**. Reviews — `pr-pre-reviewer` 0 Must Have (Codex helper down); Copilot ×1 (code-comment apostrophe) addressed (`a759509`). 173 tests across beer-catalog/batches/social. Device-confirmed (catalogue back → list). Refs #1217.
+
+### PR #1212 merged (`e513f9b`) — feat(scan): consume matcher v2 — honest empty state + wire completeness (ADR-0016)
+- Branch `feat/scan-matcher-v2-mobile` (opened 2026-06-06, refreshed). Mobile consumption of matcher v2 (#1210): honest empty state ("no recipe cleared the reliability threshold" ≠ "none shared") + `completeness` wired through `ScanRecipeMatch`. Merged `main` up (`adac603`) — drops the obsolete `SonarCloud Code Analysis` check after #1216. Reviews — CodeRabbit ×1 Critical (`RankedRecipeWireDto.completeness` → optional, matches the domain field) addressed (`338208f`). Relates ADR-0016, epic #1175.
+
+## 2026-06-11
+
+### PR #1216 merged (`b585ea5`) — chore(sonar): migrate analysis from SonarCloud to the local self-hosted instance
+- Branch `chore/sonarqube-local`. Removed `.github/workflows/sonarcloud.yml` (no Sonar CI job — the Community Build analyses `main` only); `sonar.projectKey` `benoit-bremaud_brasse-bouillon` → `brasse-bouillon`; Makefile now delegates to the shared `sonarqube-stack` repo + auto-reads the analysis token from `~/.config/sonar-tokens/brasse-bouillon`. Provisioned the project + a PROJECT_ANALYSIS_TOKEN on the local instance; validation scan EXECUTION SUCCESS, quality gate OK; deleted the repo `SONAR_TOKEN` Actions secret (cloud project left dormant). Reviews — Copilot ×5 + CodeRabbit ×3 addressed (`4b6aab7`). Trade-off accepted: no PR-time Sonar (AI reviewers + path-filtered CI cover PRs).
+
+### PR #1215 merged (`cc18b20`) — feat(beer-catalog): mobile beer catalogue screens (UC1/2/3)
+- Branch `feat/beer-catalog`. Part B of the catalogue chantier: browse (infinite scroll, `useInfiniteQuery` + pure `getNextPageParam`), search (debounce + in-flight cancellation), beer fiche (cache-primed `placeholderData`, tappable brewery/style rows), brewery/style fiches — conforms to the mobile-catalog conception (#1213, ADR-0013). `core/http` gained an additive `signal?: AbortSignal`. ~130 tests (H/S/E). Reviews — local pre-push (1 Must Have: presentation→data layering) + Codex/Copilot/CodeRabbit addressed (`d9308fc`, `96968dd`). Tracked divergence: `brewery_name`/`style_name` null on list/search/detail (VM fallback labels until the API resolves them). Relates epic #1128.
+
 ## 2026-06-08
 
 ### PR #1213 merged (`79138b0`) — docs(mobile-catalog): UML conception study for the mobile beer catalogue (UC1/2/3)

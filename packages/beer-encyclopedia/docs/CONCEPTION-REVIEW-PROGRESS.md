@@ -71,6 +71,22 @@ _(Ordre : les **séquences** d'abord — juste après les cas d'usage — puis c
 
 _Rappel : UC1/2/3/7/8 n'ont **pas** de séquence (texte suffit) ; séquences = UC4 ✅, UC5, UC9 (plus tard)._
 
+## Fait le 2026-06-08
+
+- **Réalisation mobile UC1/UC2/UC3** : nouvelle étude `docs/architecture/diagrams/mobile-catalog/`
+  (11 diagrammes : use-case mobile, 4 séquences [browse, search, fiche, variantes d'erreur],
+  composant, 2 machines à états [écran liste + saisie recherche], 2 diagrammes de classes
+  [domaine + view-model], data-flow). Pagination = scroll infini (`useInfiniteQuery`), un seul
+  hook réutilisé browse + search. Périmètre MVP = bières ; rubriques brasseries/styles + filtres
+  = fast-follow. Étude conçue **avant code** (ADR-0013).
+- **Correction `07-class-api-contract`** : la boîte `PaginationMeta` (référencée par `BeerList.meta`
+  sans être dessinée) est désormais explicite (Mermaid + PlantUML) ; accolades `{id}` retirées
+  d'une annotation `BeerUpdate` pour que le bloc Mermaid rende sous mmdc 11.
+- **Règle « séquence si non-trivial » affinée** (`traceability-matrix.md`) : la trivialité se juge
+  **par réalisation** (backend trivial vs mobile paginé/debouncé/orchestré), d'où des séquences
+  mobiles dédiées (`mobile-catalog/02..05`) — cf. lignes UC1/2/3 + nouveau bloc d'état mobile-catalog.
+- Rendu Mermaid des 11 nouveaux fichiers validé via `mmdc` 11.12.
+
 ## Issues ouvertes (suivi)
 
 - **#1146** — PR : étude UML + ADR (en cours).

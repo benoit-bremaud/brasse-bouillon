@@ -119,6 +119,14 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     "/(app)/dashboard/labels",
   ),
   businessRoute(
+    "beer-catalog",
+    "Catalogue bières",
+    "beer-outline",
+    // Href cast: the `app/(app)/beer-catalog/*` route files land with
+    // the routing slice; typed routes do not know them yet.
+    "/(app)/beer-catalog" as Href,
+  ),
+  businessRoute(
     "equipment",
     "Équipements",
     "construct-outline",

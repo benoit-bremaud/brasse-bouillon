@@ -81,7 +81,7 @@ Conventional scopes for this monorepo:
 
 | Scope                                                                                                                | Typical path touched            | Effect                                                                                                      |
 | -------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard` | `packages/mobile-app/**`        | Bumps `mobile-app` (and `api` via lockstep group "app" if the commit also touches `packages/api/**`)        |
+| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard`, `beer-catalog` | `packages/mobile-app/**`        | Bumps `mobile-app` (and `api` via lockstep group "app" if the commit also touches `packages/api/**`)        |
 | `api`                                                                                                                | `packages/api/**`               | Bumps `api` (and `mobile-app` via lockstep group "app" if the commit also touches `packages/mobile-app/**`) |
 | `website`                                                                                                            | `packages/website/**`           | Bumps `website` independently                                                                               |
 | `encyclopedia`                                                                                                       | `packages/beer-encyclopedia/**` | Bumps `encyclopedia` independently                                                                          |
@@ -147,8 +147,7 @@ deliberately refuses to trigger `pull_request` workflows on events created
 by its own internal `GITHUB_TOKEN` (to prevent infinite loops). Without a
 user PAT, every release-please PR would get stuck `BLOCKED` by branch
 protection because the required CI checks (`changes`, `mobile-app`, `api`,
-`security-audit`, `SonarCloud Scan`, `SonarCloud Code Analysis`) never
-start.
+`security-audit`) never start.
 
 Because the workflow uses `RELEASE_PLEASE_TOKEN`, the resulting PRs,
 tags, and releases are attributed to the **PAT owner** (not to

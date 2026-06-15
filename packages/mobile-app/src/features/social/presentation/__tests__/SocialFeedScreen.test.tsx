@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { SocialFeedScreen } from "@/features/social/presentation/SocialFeedScreen";
 
-const mockBack = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -14,15 +14,15 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: jest.fn(),
-      replace: jest.fn(),
-      back: mockBack,
+      replace: mockReplace,
+      back: jest.fn(),
     }),
   };
 });
 
 describe("SocialFeedScreen", () => {
   beforeEach(() => {
-    mockBack.mockClear();
+    mockReplace.mockClear();
   });
 
   it("renders the weekly banner and the four demo posts (happy path)", () => {
@@ -46,11 +46,13 @@ describe("SocialFeedScreen", () => {
     expect(screen.getByText("💬 6")).toBeOnTheScreen();
   });
 
-  it("navigates back when the header back button is pressed (sad path)", () => {
+  it("returns to the home tab when the header back button is pressed (sad path)", () => {
+    // "Communauté" is a top-level dock tab: back goes home explicitly, not
+    // router.back() (which would fall through to the previous tab).
     render(<SocialFeedScreen />);
 
     fireEvent.press(screen.getByLabelText("Retour à l’accueil"));
 
-    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockReplace).toHaveBeenCalledWith("/dashboard");
   });
 });

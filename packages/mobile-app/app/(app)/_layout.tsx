@@ -105,6 +105,12 @@ export default function AppLayout() {
             }}
           />
           <Tabs.Screen
+            name="beer-catalog"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
             name="profile"
             options={{
               href: null,

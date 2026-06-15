@@ -113,6 +113,11 @@ M --> M : render "recettes équivalentes" + completeness / honest empty state
   (*"Pas encore de recette équivalente fiable pour cette bière"* + invite to contribute),
   not a misleading closest match. `low_confidence` is retained in the envelope for
   backward-compatibility but the empty-state replaces the old "show closest + banner".
+- **Mobile rendering (as-built).** The scan fiche renders the equivalents and the honest empty
+  state above. The per-ranking `completeness` is **wired through** the mobile data layer
+  (`recipe-matching.api.ts` → `ScanRecipeMatch.completeness`) but **not displayed yet** — every
+  shown recipe already cleared the server-side `C_min`, so a per-recipe badge adds little; its
+  display is deferred (the diagram's "render … + completeness" is the target, not yet built).
 - **Style-gated official promotion (#1193, ADR-0016 D6).** The official-recipe shortcut
   (matchStrength = 1.0) applies **only when the official is style-compatible** — refined to
   **same BJCP family or better** (style local similarity ≥ 0.7), not merely the same

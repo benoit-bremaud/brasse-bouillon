@@ -690,22 +690,23 @@ describe("BeerInfoCardScreen", () => {
   });
 
   describe("matching view envelope (Issue #700)", () => {
-    it("displays the low_confidence warning when the API flags it", async () => {
+    it("renders the honest empty state when nothing clears the thresholds (low confidence)", async () => {
+      // Matcher v2: low_confidence ⇔ empty rankings → the honest empty state,
+      // not a separate "closest match" warning (which was removed).
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedMatching.mockResolvedValueOnce({
-        rankings: PUNK_IPA_MATCHES.slice(0, 1),
+        rankings: [],
         lowConfidence: true,
       });
 
       renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
-      const warning = await screen.findByText(
-        /Aucune recette très similaire dans la base/,
-      );
-      expect(warning).toBeTruthy();
+      expect(
+        await screen.findByText(/Pas encore de recette équivalente fiable/),
+      ).toBeTruthy();
     });
 
-    it("does NOT display the low_confidence warning when lowConfidence is false", async () => {
+    it("never shows the old low-confidence warning when equivalents are present", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       // default beforeEach already sets lowConfidence: false
 
@@ -795,12 +796,12 @@ describe("BeerInfoCardScreen", () => {
       renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       const empty = await screen.findByText(
-        /Aucune recette équivalente n'a encore été partagée/,
+        /Pas encore de recette équivalente fiable/,
       );
       expect(empty).toBeTruthy();
     });
 
-    it("shows low_confidence warning even when only an official recipe is returned (no equivalents)", async () => {
+    it("shows only the official card (no equivalents, no stale warning) when just an official is returned", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedMatching.mockResolvedValueOnce({
         rankings: [
@@ -816,17 +817,17 @@ describe("BeerInfoCardScreen", () => {
             style: "American IPA",
           },
         ],
-        lowConfidence: true,
+        lowConfidence: false,
       });
 
       renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
       // Official section appears.
       expect(await screen.findByText(/🏆 Recette officielle/)).toBeTruthy();
-      // Warning must also appear even though there are no community equivalents.
+      // No stale low-confidence warning (removed in matcher v2).
       expect(
-        screen.getByText(/Aucune recette très similaire dans la base/),
-      ).toBeTruthy();
+        screen.queryByText(/Aucune recette très similaire dans la base/),
+      ).toBeNull();
     });
 
     it("renders an error message when the matching API throws", async () => {

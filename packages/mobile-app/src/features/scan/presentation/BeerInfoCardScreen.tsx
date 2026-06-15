@@ -380,8 +380,11 @@ const IMPORT_ERROR_MESSAGE =
   "Impossible d'importer cette recette pour le moment. Réessaie dans quelques instants.";
 const MATCHING_LOAD_ERROR =
   "Impossible de charger les recettes équivalentes. Réessaie plus tard.";
-const LOW_CONFIDENCE_MESSAGE =
-  "Aucune recette très similaire dans la base. Voici les plus proches.";
+// Matcher v2 (ADR-0016 D5): an empty result means no recipe cleared the
+// reliability threshold — NOT that none was ever shared. Be honest about it
+// and invite a contribution rather than imply the catalogue is empty.
+const NO_RELIABLE_MATCH_MESSAGE =
+  "Pas encore de recette équivalente fiable pour cette bière. Sois le premier à en partager une !";
 const EQUIVALENTS_LIMIT = 3;
 
 /**
@@ -501,10 +504,7 @@ function MatchingRecipesSection({
     return (
       <Card style={styles.recipesCard}>
         <Text style={styles.recipesTitle}>🧪 Recettes équivalentes</Text>
-        <Text style={styles.recipesEmpty}>
-          Aucune recette équivalente n&apos;a encore été partagée pour cette
-          bière.
-        </Text>
+        <Text style={styles.recipesEmpty}>{NO_RELIABLE_MATCH_MESSAGE}</Text>
       </Card>
     );
   }
@@ -528,12 +528,6 @@ function MatchingRecipesSection({
             highlightOfficial
           />
         </Card>
-      ) : null}
-
-      {matching.lowConfidence ? (
-        <Text style={styles.lowConfidenceWarning}>
-          {LOW_CONFIDENCE_MESSAGE}
-        </Text>
       ) : null}
 
       {equivalentRecipes.length > 0 ? (
@@ -877,16 +871,6 @@ const styles = StyleSheet.create({
   },
   recipeRowOfficial: {
     borderBottomWidth: 0,
-  },
-  lowConfidenceWarning: {
-    fontSize: typography.size.caption,
-    color: colors.semantic.warning,
-    backgroundColor: colors.state.warningBackground,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    marginBottom: spacing.sm,
-    fontStyle: "italic",
   },
   recipesEmpty: {
     fontSize: typography.size.caption,

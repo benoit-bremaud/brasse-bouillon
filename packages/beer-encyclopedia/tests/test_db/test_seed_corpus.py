@@ -86,6 +86,36 @@ async def test_seed_beers_intervals_and_fk_resolved(db_session: AsyncSession) ->
     assert chouffe.ean_code == "5410769100081"
 
 
+async def test_seed_beers_publishes_corpus_as_verified(db_session: AsyncSession) -> None:
+    # The curated seed is the founder-vouched baseline → published
+    # (is_verified=True, ADR-0015 D1), so it surfaces in the public catalogue.
+    # No seeded row stays in staging.
+    await _seed_prerequisites(db_session)
+
+    unverified = (
+        await db_session.execute(
+            select(func.count()).select_from(Beer).where(Beer.is_verified.is_(False))
+        )
+    ).scalar_one()
+    assert unverified == 0
+
+
+async def test_reseed_preserves_depublication(db_session: AsyncSession) -> None:
+    # Depublication (moderation) toggles is_active, not is_verified. A re-seed
+    # re-publishes is_verified but must NOT resurrect a depublished beer:
+    # is_active stays False across re-runs (ADR-0018 reversible depublish).
+    await _seed_prerequisites(db_session)
+    orval = (await db_session.execute(select(Beer).where(Beer.slug == "orval"))).scalar_one()
+    orval.is_active = False
+    await db_session.commit()
+
+    await seed_beers(db_session)
+
+    orval = (await db_session.execute(select(Beer).where(Beer.slug == "orval"))).scalar_one()
+    assert orval.is_active is False  # depublication survives the re-seed
+    assert orval.is_verified is True  # corpus stays published
+
+
 async def test_seed_beers_missing_brewery_raises(db_session: AsyncSession) -> None:
     # No breweries seeded → the first beer's brewery slug cannot resolve.
     with pytest.raises(ValueError, match="Brewery slug"):
@@ -120,6 +150,7 @@ async def test_seed_beers_matches_existing_by_ean(db_session: AsyncSession) -> N
     assert len(matches) == 1  # no duplicate, no constraint violation
     assert matches[0].slug == "la-chouffe"  # slug normalized to the curated one
     assert matches[0].name == "La Chouffe"
+    assert matches[0].is_verified is True  # a matched staged import is published by the seed
 
 
 # -- ingredients (+ links) --------------------------------------------------

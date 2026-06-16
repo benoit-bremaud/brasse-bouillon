@@ -8,11 +8,13 @@
 
 ## Périmètre actuel
 
-Couvre le domaine **beer-encyclopedia** (backend) et la **réalisation mobile du catalogue**
-(`mobile-catalog` — consommation de l'API encyclopédie). S'étendra aux autres packages au fil
-des revues. Études de cas d'usage :
+Couvre le domaine **beer-encyclopedia** (backend), la **réalisation mobile du catalogue**
+(`mobile-catalog` — consommation de l'API encyclopédie) et la **modération du catalogue**
+(`catalog-moderation` — surface mode créateur in-app, ADR-0018). S'étendra aux autres packages
+au fil des revues. Études de cas d'usage :
 [`beer-encyclopedia/01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md) (backend) ·
-[`mobile-catalog/01-use-case.md`](diagrams/mobile-catalog/01-use-case.md) (mobile).
+[`mobile-catalog/01-use-case.md`](diagrams/mobile-catalog/01-use-case.md) (mobile) ·
+[`catalog-moderation/01-use-case.md`](diagrams/catalog-moderation/01-use-case.md) (modération).
 
 ## État des diagrammes — beer-encyclopedia
 
@@ -47,6 +49,19 @@ Réalisation **mobile** de UC1/UC2/UC3 (catalogue de bières) consommant l'API e
 | Classes — view-model | [`10-class-view-model.md`](diagrams/mobile-catalog/10-class-view-model.md) | 🎯 cible (`BeerListItemVM`, `CatalogListVM`, `SearchVM`) |
 | Data-flow | [`11-data-flow.md`](diagrams/mobile-catalog/11-data-flow.md) | 🎯 cible (DTO→mapper→VM + cache ; aucune PII) |
 
+## État des diagrammes — catalog-moderation
+
+Réalisation **mode créateur in-app** de la modération du catalogue (domaine Curer), décidée par
+ADR-0018. Étude **conçue avant code** : tous les diagrammes sont 🎯 cible. Réalise la **promotion**
+(M2 → UC9 / ADR-0015 D4) et la **dépublication réversible** (M3 → UC7 suppression logique).
+
+| Diagramme | Fichier | État |
+|-----------|---------|------|
+| Cas d'usage (modération) | [`01-use-case.md`](diagrams/catalog-moderation/01-use-case.md) | 🎯 cible (M1 trier · M2 promouvoir · M3 dépublier · M4 republier) |
+| Séquence — promouvoir / dépublier | [`02-sequence-promote-depublish.md`](diagrams/catalog-moderation/02-sequence-promote-depublish.md) | 🎯 cible (Mobile → NestJS admin → encyclopédie ; ferme #1151) |
+| Composant — frontière d'auth | [`03-component.md`](diagrams/catalog-moderation/03-component.md) | 🎯 cible (`JwtAuthGuard` + `RolesGuard CREATOR` ; ADR-0002) |
+| États — cycle de publication | [`04-state-entry-lifecycle.md`](diagrams/catalog-moderation/04-state-entry-lifecycle.md) | 🎯 cible (staged → published → depublished ; correctif conformité ADR-0015 D1) |
+
 ## Matrice — cas d'usage → réalisations
 
 Légende : ✅ fait · 🎯 conçu (cible, code à venir) · ⬜ à venir · — non applicable.
@@ -59,9 +74,9 @@ Légende : ✅ fait · 🎯 conçu (cible, code à venir) · ⬜ à venir · —
 | UC4 Identifier par code-barres | Acquérir | **backend** ✅ `02-sequence-import-by-ean` **+** mobile ⬜ | 03 ⬜ (api, importers, db) | Beer, Brewery, Source, EntitySource | provenance Beer (05 ⬜) | import OFF / PII (06 ⬜) | livré (backend) | #878 (rate-limit) |
 | UC5 Identifier par scan d'étiquette | Acquérir | ✅ `02-sequence-scan` (délègue à `scan/02b`) | 03 ⬜ | Beer (source=scan), BeerDataSuggestion (étude `scan/`) | — | 06 ⬜ | planifié | #1156 (divergence /scan), #1149, étude `scan/` |
 | UC6 Proposer une correction | Contribuer | — (texte) | 03 ⬜ | CommunityCorrection | pending→… (05 ⬜) | — | planifié | #1149 |
-| UC7 Gérer le catalogue (C/U/D) | Curer | — | 03 ⬜ | Beer, Brewery | — | — | livré | #1151 (auth), #1152 (admin web) |
+| UC7 Gérer le catalogue (C/U/D) | Curer | 🎯 `catalog-moderation/02` (M3 dépublier = suppression logique) | `catalog-moderation/03` 🎯 | Beer, Brewery | `catalog-moderation/04` 🎯 | — | livré (CRUD) · modération in-app 🎯 | #1151 (auth), #1152 (re-cadré ADR-0018), #1175 |
 | UC8 Alimenter les référentiels | Curer | — | 03 ⬜ | Style, LegalDenomination, Source | — | — | livré | #1152 |
-| UC9 Modérer les corrections | Curer | ⬜ (plus tard) | 03 ⬜ | CommunityCorrection (+ audit) | pending→approved/rejected (05 ⬜) | — | planifié | #1153, #1154, #1155 |
+| UC9 Modérer les corrections / promouvoir | Curer | 🎯 `catalog-moderation/02` (M2 promouvoir) · corrections ⬜ | `catalog-moderation/03` 🎯 | CommunityCorrection, Beer (is_verified) | `catalog-moderation/04` 🎯 · corrections (05 ⬜) | — | planifié · promotion in-app 🎯 | #1153, #1154, #1155, ADR-0015 D4 |
 
 ## Règles de traçabilité
 

@@ -1,7 +1,7 @@
 # ADR-0015 — Beer ingestion & enrichment strategy (multi-source → staging → human-gated promotion)
 
-**Status**  Proposed
-**Date**    2026-06-04
+**Status**  Accepted
+**Date**    2026-06-04 (accepted 2026-06-15)
 **Owners**  @benoit-bremaud
 
 > Crystallizes the ingestion + enrichment strategy for the beer-encyclopedia:

@@ -164,8 +164,11 @@ endlegend
   **source externe** en frontière (cible de UC4 sur absence locale), pas un acteur.
 - **Sécurité / maintenance** : les écritures (UC7/UC8) et la modération (UC9) supposent un
   acteur authentifié/autorisé. Le code Python n'impose aucune auth aujourd'hui (divergence
-  - faille → #1151). La maintenance passera par une **interface web admin dédiée**, jamais
-  par le mobile (#1152).
+  - faille → #1151). **ADR-0018** tranche la surface : la **modération ciblée** (promouvoir
+  / dépublier une entrée, UC9) est exposée **en mobile** au CREATOR, autorisée **au niveau de
+  l'API NestJS** (ferme #1151) ; la **curation lourde** (création/édition de masse UC7,
+  référentiels UC8) reste sur une **console web** différée (#1152 re-cadré, #738). Étude
+  dédiée : `catalog-moderation/`.
 
 ## Spécifications des cas d'usage (Cockburn)
 
@@ -244,7 +247,7 @@ endlegend
   - 3a. Identification incertaine/partielle → création d'une **proposition de fiche** à valider par un Mainteneur ; le Visiteur est informé.
   - 2a. Étiquette illisible / analyse en échec → message d'erreur ; proposer une nouvelle capture.
 - **Postcondition :** si succès, bière identifiée (fiche) ou proposition en attente ; sinon aucun changement.
-- **Relations :** **«extend» UC4**. La validation des suggestions de scan est une modération distincte de UC9 (à réconcilier via l'étude `scan/` + l'interface admin #1152).
+- **Relations :** **«extend» UC4**. La validation des suggestions de scan est une modération distincte de UC9 (à réconcilier via l'étude `scan/` + la surface de modération ADR-0018, étude `catalog-moderation/`).
 
 ### UC6 — Proposer une correction — *planifié*
 
@@ -266,7 +269,7 @@ endlegend
 ### UC7 — Gérer le catalogue : créer / modifier / supprimer (bières & brasseries) — *livré*
 
 - **Acteur principal :** Mainteneur
-- **Précondition :** Mainteneur authentifié et autorisé, **via l'interface web d'administration** (jamais via le mobile)
+- **Précondition :** Mainteneur authentifié et autorisé. Création / édition de masse **via la console web** (différée, #1152/#738) ; la **dépublication ciblée** d'une entrée est exposée en mobile au CREATOR (ADR-0018, étude `catalog-moderation/`)
 - **Garantie minimale :** intégrité préservée (validations, contraintes) ; pas de doublon slug/EAN
 - **Garantie de succès :** l'entité est créée / modifiée / supprimée comme demandé
 - **Scénario nominal (création)**
@@ -285,7 +288,7 @@ endlegend
 ### UC8 — Alimenter les données de référence (styles, dénominations légales, sources) — *livré*
 
 - **Acteur principal :** Mainteneur
-- **Précondition :** Mainteneur autorisé, **via l'interface web d'administration** (jamais via le mobile) ; jeux de référence d'autorité disponibles
+- **Précondition :** Mainteneur autorisé, **via la console web d'administration** (curation lourde, reste hors mobile — ADR-0018 §4, #1152) ; jeux de référence d'autorité disponibles
 - **Garantie minimale :** opérations **idempotentes** ; vocabulaires contrôlés respectés (CHECK)
 - **Garantie de succès :** les tables de référence contiennent les entrées canoniques
 - **Scénario nominal**
@@ -301,7 +304,7 @@ endlegend
 ### UC9 — Modérer les corrections communautaires — *planifié*
 
 - **Acteur principal :** Mainteneur (rôle existant ; **lui seul** modère ; il a tous les droits)
-- **Précondition :** Mainteneur authentifié **via l'interface web d'administration** ; au moins une correction « pending » (issue de UC6)
+- **Précondition :** Mainteneur authentifié (surface mobile CREATOR ou console web — ADR-0018) ; au moins une correction « pending » (issue de UC6)
 - **Garantie minimale :** aucune donnée publiée modifiée sans décision explicite ; **traçabilité + historique conservés**
 - **Garantie de succès :** la correction (ou le **groupe** de signalements identiques) est traitée → « approved » (valeur appliquée, éventuellement amendée) ou « rejected », et **le(s) contributeur(s) est/sont notifié(s)**
 - **Scénario nominal**
@@ -318,4 +321,4 @@ endlegend
   - **Notifications** (#1154) : le résultat est notifié au contributeur — dépendance inter-service (utilisateurs côté NestJS, ADR-0005).
   - **Historique / audit** (#1155) : journal des changements (qui, quand, ancienne → nouvelle valeur).
 - **Postcondition :** correction(s) « approved »/« rejected », horodatée(s) et attribuée(s) ; décision dans l'historique ; contributeur(s) notifié(s) ; donnée publiée à jour si approuvée.
-- **Relations :** association Mainteneur seule. Cycle de vie UC6 → UC9 (`05-state`). Validation des suggestions de scan = modération distincte (#1152).
+- **Relations :** association Mainteneur seule. Cycle de vie UC6 → UC9 (`05-state`). Surface décidée par ADR-0018 (modération in-app CREATOR ; étude `catalog-moderation/`). Validation des suggestions de scan = modération distincte (étude `scan/`).

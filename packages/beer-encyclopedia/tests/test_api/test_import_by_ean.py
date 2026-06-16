@@ -37,9 +37,7 @@ EAN_PELFORTH: str = "3760231860119"
 # return: a snapshot (success), ``None`` (unknown product), or an
 # Exception instance to raise (transport failure). Typing this once
 # keeps the fixture and the stub class honest without ``# type: ignore``.
-SnapshotBehaviour = Callable[
-    [str], "ExternalBeerSnapshot | None | OpenFoodFactsError"
-]
+SnapshotBehaviour = Callable[[str], "ExternalBeerSnapshot | None | OpenFoodFactsError"]
 
 
 def _build_pelforth_snapshot(ean: str = EAN_PELFORTH) -> ExternalBeerSnapshot:
@@ -107,9 +105,7 @@ async def seeded_source(db_session: AsyncSession) -> Source:
 
     await seed_sources(db_session)
     return (
-        await db_session.execute(
-            select(Source).where(Source.name == "openfoodfacts")
-        )
+        await db_session.execute(select(Source).where(Source.name == "openfoodfacts"))
     ).scalar_one()
 
 
@@ -125,9 +121,7 @@ async def test_first_import_creates_beer_and_returns_201(
     snapshot = _build_pelforth_snapshot()
     stub = stub_off_factory(lambda _: snapshot)
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
 
     assert response.status_code == 201
     body = response.json()
@@ -139,23 +133,39 @@ async def test_first_import_creates_beer_and_returns_201(
     assert stub.calls == [EAN_PELFORTH]
 
     beer = (
-        await db_session.execute(
-            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
-        )
+        await db_session.execute(select(Beer).where(Beer.ean_code == EAN_PELFORTH))
     ).scalar_one()
     assert beer.name == "Pelforth Brune"
 
     audit = (
         await db_session.execute(
-            select(EntitySource).where(
-                EntitySource.external_id == EAN_PELFORTH
-            )
+            select(EntitySource).where(EntitySource.external_id == EAN_PELFORTH)
         )
     ).scalar_one()
     assert audit.entity_type == "beer"
     assert audit.entity_id == beer.id
     assert audit.raw_data == snapshot.raw_payload
     assert audit.last_synced_at is not None
+
+
+async def test_imported_beer_is_staged_unverified(
+    client: TestClient,
+    db_session: AsyncSession,
+    stub_off_factory,  # type: ignore[no-untyped-def]
+    seeded_source: Source,
+) -> None:
+    """An OFF import lands in staging (is_verified=False, ADR-0015 D1): it is
+    NOT part of the shared catalogue until a human promotes it (browse/search
+    filter it out; only its fiche-by-id is reachable)."""
+
+    stub_off_factory(lambda _: _build_pelforth_snapshot())
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
+    assert response.status_code == 201
+
+    beer = (
+        await db_session.execute(select(Beer).where(Beer.ean_code == EAN_PELFORTH))
+    ).scalar_one()
+    assert beer.is_verified is False
 
 
 async def test_import_links_resolved_style_and_description(
@@ -190,9 +200,7 @@ async def test_import_links_resolved_style_and_description(
     assert body["brewery_name"] == "Some Brewery"
 
     beer = (
-        await db_session.execute(
-            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
-        )
+        await db_session.execute(select(Beer).where(Beer.ean_code == EAN_PELFORTH))
     ).scalar_one()
     assert beer.style_id == ipa.id
     assert beer.description == "Eau, malt d'orge, houblon, levure."
@@ -224,9 +232,7 @@ async def test_import_leaves_style_none_when_slug_not_seeded(
     assert body["brewery_name"] is None
 
     beer = (
-        await db_session.execute(
-            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
-        )
+        await db_session.execute(select(Beer).where(Beer.ean_code == EAN_PELFORTH))
     ).scalar_one()
     assert beer.style_id is None
 
@@ -255,9 +261,7 @@ async def test_invalid_ean_format_is_rejected_by_pydantic(
     seeded_source: Source,
 ) -> None:
     # 7-digit string is too short for any standard barcode.
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": "1234567"}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": "1234567"})
     assert response.status_code == 422
 
 
@@ -265,9 +269,7 @@ async def test_non_digit_ean_is_rejected_by_pydantic(
     client: TestClient,
     seeded_source: Source,
 ) -> None:
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": "12345abc"}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": "12345abc"})
     assert response.status_code == 422
 
 
@@ -278,9 +280,7 @@ async def test_unknown_product_returns_404(
 ) -> None:
     stub_off_factory(lambda _: None)
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": "0000000000017"}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": "0000000000017"})
     assert response.status_code == 404
     assert "0000000000017" in response.json()["detail"]
 
@@ -292,9 +292,7 @@ async def test_off_transport_failure_returns_503(
 ) -> None:
     stub_off_factory(lambda _: OpenFoodFactsError("HTTP 502"))
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert response.status_code == 503
     assert "Open Food Facts unavailable" in response.json()["detail"]
 
@@ -307,9 +305,7 @@ async def test_missing_source_seed_returns_503_with_actionable_message(
     # `openfoodfacts` row is absent.
     stub_off_factory(lambda _: _build_pelforth_snapshot())
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert response.status_code == 503
     assert "seed_sources.py" in response.json()["detail"]
 
@@ -341,19 +337,21 @@ async def test_second_import_is_idempotent_and_returns_200(
     # Still exactly one beer + one audit row (the first import created
     # both; the second short-circuit added neither).
     beers = (
-        await db_session.execute(
-            select(Beer).where(Beer.ean_code == EAN_PELFORTH)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(Beer).where(Beer.ean_code == EAN_PELFORTH)))
+        .scalars()
+        .all()
+    )
     assert len(beers) == 1
 
     audits = (
-        await db_session.execute(
-            select(EntitySource).where(
-                EntitySource.external_id == EAN_PELFORTH
+        (
+            await db_session.execute(
+                select(EntitySource).where(EntitySource.external_id == EAN_PELFORTH)
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert len(audits) == 1
 
 
@@ -385,9 +383,7 @@ async def test_db_hit_returns_existing_beer_without_calling_off(
         lambda _: pytest.fail("OFF must not be called on a DB hit")  # type: ignore[arg-type,return-value]
     )
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
 
     assert response.status_code == 200
     assert response.json()["ean_code"] == EAN_PELFORTH
@@ -405,9 +401,7 @@ async def test_db_miss_still_falls_back_to_off(
 
     stub = stub_off_factory(lambda _: _build_pelforth_snapshot())
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
 
     assert response.status_code == 201
     assert stub.calls == [EAN_PELFORTH]
@@ -427,14 +421,10 @@ async def test_import_with_snapshot_missing_brand_skips_brewery(
     )
     stub_off_factory(lambda _: snapshot)
 
-    response = client.post(
-        "/beers/import-by-ean", json={"ean": EAN_PELFORTH}
-    )
+    response = client.post("/beers/import-by-ean", json={"ean": EAN_PELFORTH})
     assert response.status_code == 201
     assert response.json()["brewery_id"] is None
 
     # No brewery row should have been created.
-    breweries = (
-        await db_session.execute(select(Brewery))
-    ).scalars().all()
+    breweries = (await db_session.execute(select(Brewery))).scalars().all()
     assert breweries == []

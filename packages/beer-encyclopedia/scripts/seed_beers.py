@@ -7,8 +7,12 @@
 SRM canonical — EBC estimates converted with SRM = round(EBC / 1.97) and
 rounded outward), and a 1–5 ``TastingProfile``.
 
-Newly inserted rows get ``is_verified=False`` (maintainer validation pending,
-ADR-0015); re-seeding preserves the verification state of existing rows.
+Seeded rows are the curated, founder-vouched baseline → ``is_verified=True``
+(published per ADR-0015 D1 / the catalog-moderation state machine), so they
+surface in the public catalogue. Runtime imports (``/beers/import-by-ean``)
+stay ``is_verified=False`` (staging) and surface only once promoted — either by
+human moderation, or by this seed when an import matches the curated corpus by
+EAN/slug (it is then published as part of the corpus, see ``_find_existing_beer``).
 ``source='openfoodfacts'`` for the three EAN-confirmed beers, ``'internal'``
 otherwise. OpenFoodFacts category errors are NOT propagated: every abbey/blonde
 mis-tagged "lager" by OFF is seeded with its true ale style (scan spec §8.5).
@@ -784,6 +788,12 @@ def _apply_beer_fields(
     beer.country_of_origin = b.country
     beer.ean_code = b.ean
     beer.source = b.source
+    # The curated seed is the founder-vouched baseline → published
+    # (is_verified=True, ADR-0015 D1), so it surfaces in the public catalogue.
+    # Idempotent: re-seeding re-publishes the corpus. Depublication (moderation)
+    # toggles is_active, not is_verified, so a depublished seed beer survives a
+    # re-seed; runtime imports (not in this corpus) stay staged until promoted.
+    beer.is_verified = True
 
 
 async def _upsert_tasting_profile(session: AsyncSession, beer_id: uuid.UUID, b: BeerSeed) -> None:

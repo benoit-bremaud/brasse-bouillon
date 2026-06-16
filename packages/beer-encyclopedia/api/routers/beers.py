@@ -213,7 +213,11 @@ async def list_beers(
     abv_min: Decimal | None = Query(None, ge=0, le=100),
     abv_max: Decimal | None = Query(None, ge=0, le=100),
 ) -> BeerList:
-    filters = []
+    # Public catalogue = the published baseline only: verified (ADR-0015 D1 —
+    # promoted out of staging) AND active (not depublished). Unverified imports
+    # and depublished entries are excluded from browse/search; an unverified row
+    # stays reachable by direct id (`get_beer`) and via moderation.
+    filters = [Beer.is_verified.is_(True), Beer.is_active.is_(True)]
     if style_id is not None:
         filters.append(Beer.style_id == style_id)
     if brewery_id is not None:
@@ -256,13 +260,17 @@ async def search_beers(
         where_clause = func.lower(Beer.name).contains(q.lower())
         order_clause = Beer.name
 
-    count_stmt = select(func.count()).select_from(Beer).where(where_clause)
+    # Same published gate as list_beers: only verified + active rows surface in
+    # public search (ADR-0015 D1). Staged / depublished rows are excluded.
+    published = (Beer.is_verified.is_(True), Beer.is_active.is_(True))
+    count_stmt = select(func.count()).select_from(Beer).where(where_clause).where(*published)
     total = (await session.execute(count_stmt)).scalar_one()
 
     stmt = (
         select(Beer)
         .options(selectinload(Beer.brewery), selectinload(Beer.style))
         .where(where_clause)
+        .where(*published)
         .order_by(order_clause)
         .offset((page - 1) * per_page)
         .limit(per_page)
@@ -279,6 +287,10 @@ async def get_beer(
     beer_id: uuid.UUID,
     session: AsyncSession = Depends(get_db),
 ) -> BeerRead:
+    # Deliberately NOT gated on is_verified / is_active: a staged (unverified)
+    # or depublished beer must stay reachable by direct id — the fiche of a
+    # bottle the user just scanned (ADR-0015 D1: usable to the contributing
+    # user) and the moderation surface. Only browse/search hide them.
     beer = await session.get(Beer, beer_id)
     if beer is None:
         raise HTTPException(status_code=404, detail="Beer not found.")
@@ -317,6 +329,11 @@ async def update_beer(
         brewery_id=updates.get("brewery_id"),
         style_id=updates.get("style_id"),
     )
+    # TODO(#1151): this generic PATCH can set is_verified / is_active with no
+    # auth — an unauthenticated caller could self-promote a staged beer or
+    # depublish a live one, bypassing the read gate above. Closing #1151 (auth
+    # on writes) gates it; promotion / depublication then move to dedicated
+    # moderation endpoints (catalog-moderation slice 3) and leave this surface.
     for field, value in updates.items():
         setattr(beer, field, value)
     await session.commit()

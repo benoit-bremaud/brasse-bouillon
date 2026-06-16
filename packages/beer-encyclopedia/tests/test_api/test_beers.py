@@ -101,9 +101,19 @@ async def test_list_beers_filters_by_style(client: TestClient, db_session: Async
     brewery, ipa, stout = await _seed_reference_data(db_session)
     db_session.add_all(
         [
-            Beer(name="A IPA", slug="a-ipa", brewery_id=brewery.id, style_id=ipa.id),
-            Beer(name="B IPA", slug="b-ipa", brewery_id=brewery.id, style_id=ipa.id),
-            Beer(name="C Stout", slug="c-stout", brewery_id=brewery.id, style_id=stout.id),
+            Beer(
+                name="A IPA", slug="a-ipa", brewery_id=brewery.id, style_id=ipa.id, is_verified=True
+            ),
+            Beer(
+                name="B IPA", slug="b-ipa", brewery_id=brewery.id, style_id=ipa.id, is_verified=True
+            ),
+            Beer(
+                name="C Stout",
+                slug="c-stout",
+                brewery_id=brewery.id,
+                style_id=stout.id,
+                is_verified=True,
+            ),
         ]
     )
     await db_session.commit()
@@ -121,9 +131,9 @@ async def test_list_beers_filters_by_abv_range(
     brewery, _, _ = await _seed_reference_data(db_session)
     db_session.add_all(
         [
-            Beer(name="Low", slug="low", brewery_id=brewery.id, abv=3.5),
-            Beer(name="Mid", slug="mid", brewery_id=brewery.id, abv=5.5),
-            Beer(name="Strong", slug="strong", brewery_id=brewery.id, abv=9.0),
+            Beer(name="Low", slug="low", brewery_id=brewery.id, abv=3.5, is_verified=True),
+            Beer(name="Mid", slug="mid", brewery_id=brewery.id, abv=5.5, is_verified=True),
+            Beer(name="Strong", slug="strong", brewery_id=brewery.id, abv=9.0, is_verified=True),
         ]
     )
     await db_session.commit()
@@ -178,9 +188,9 @@ async def test_search_beers_matches_substring(client: TestClient, db_session: As
     brewery, _, _ = await _seed_reference_data(db_session)
     db_session.add_all(
         [
-            Beer(name="Citra Bomb", slug="citra-bomb", brewery_id=brewery.id),
-            Beer(name="Citra Sun", slug="citra-sun", brewery_id=brewery.id),
-            Beer(name="Amber Amber", slug="amber-amber", brewery_id=brewery.id),
+            Beer(name="Citra Bomb", slug="citra-bomb", brewery_id=brewery.id, is_verified=True),
+            Beer(name="Citra Sun", slug="citra-sun", brewery_id=brewery.id, is_verified=True),
+            Beer(name="Amber Amber", slug="amber-amber", brewery_id=brewery.id, is_verified=True),
         ]
     )
     await db_session.commit()
@@ -204,6 +214,7 @@ async def test_list_resolves_brewery_and_style_names(
             slug="named-ipa",
             brewery_id=brewery.id,
             style_id=ipa.id,
+            is_verified=True,
         )
     )
     await db_session.commit()
@@ -221,7 +232,7 @@ async def test_list_leaves_names_null_when_fks_are_null(
 ) -> None:
     """Edge: a beer with no brewery/style keeps both names null."""
 
-    db_session.add(Beer(name="Orphan", slug="orphan"))
+    db_session.add(Beer(name="Orphan", slug="orphan", is_verified=True))
     await db_session.commit()
 
     data = client.get("/beers").json()
@@ -244,6 +255,7 @@ async def test_search_resolves_brewery_and_style_names(
             slug="searchable-ipa",
             brewery_id=brewery.id,
             style_id=ipa.id,
+            is_verified=True,
         )
     )
     await db_session.commit()
@@ -282,7 +294,7 @@ async def test_brewery_name_becomes_null_after_brewery_deleted(
     """Edge: deleting a brewery (ON DELETE SET NULL) nulls the resolved name."""
 
     brewery, _, _ = await _seed_reference_data(db_session)
-    db_session.add(Beer(name="Widow", slug="widow", brewery_id=brewery.id))
+    db_session.add(Beer(name="Widow", slug="widow", brewery_id=brewery.id, is_verified=True))
     await db_session.commit()
 
     assert client.delete(f"/breweries/{brewery.id}").status_code == 204
@@ -290,3 +302,165 @@ async def test_brewery_name_becomes_null_after_brewery_deleted(
     data = client.get("/beers").json()
     assert data["meta"]["total"] == 1
     assert data["items"][0]["brewery_name"] is None
+
+
+async def test_list_excludes_unverified_beers(client: TestClient, db_session: AsyncSession) -> None:
+    """Sad/edge: staged (is_verified=False) imports stay out of the public
+    catalogue (ADR-0015 D1) — only the published row is browsable."""
+
+    brewery, _, _ = await _seed_reference_data(db_session)
+    db_session.add_all(
+        [
+            Beer(name="Published", slug="published", brewery_id=brewery.id, is_verified=True),
+            Beer(name="Staged", slug="staged", brewery_id=brewery.id, is_verified=False),
+        ]
+    )
+    await db_session.commit()
+
+    data = client.get("/beers").json()
+    assert data["meta"]["total"] == 1
+    assert {item["name"] for item in data["items"]} == {"Published"}
+
+
+async def test_search_excludes_unverified_beers(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Sad: search also hides staged rows."""
+
+    brewery, _, _ = await _seed_reference_data(db_session)
+    db_session.add_all(
+        [
+            Beer(
+                name="Verified Saison",
+                slug="verified-saison",
+                brewery_id=brewery.id,
+                is_verified=True,
+            ),
+            Beer(
+                name="Staged Saison",
+                slug="staged-saison",
+                brewery_id=brewery.id,
+                is_verified=False,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    data = client.get("/beers/search", params={"q": "saison"}).json()
+    assert data["meta"]["total"] == 1
+    assert data["items"][0]["name"] == "Verified Saison"
+
+
+async def test_list_excludes_depublished_beers(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: a depublished entry (is_active=False) is hidden even when verified —
+    the read contract is verified AND not depublished (ADR-0018)."""
+
+    brewery, _, _ = await _seed_reference_data(db_session)
+    db_session.add_all(
+        [
+            Beer(
+                name="Active",
+                slug="active",
+                brewery_id=brewery.id,
+                is_verified=True,
+                is_active=True,
+            ),
+            Beer(
+                name="Depublished",
+                slug="depublished",
+                brewery_id=brewery.id,
+                is_verified=True,
+                is_active=False,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    data = client.get("/beers").json()
+    assert data["meta"]["total"] == 1
+    assert {item["name"] for item in data["items"]} == {"Active"}
+
+
+async def test_get_beer_returns_unverified_staged_detail(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: a staged beer is hidden from browse/search but its fiche stays
+    reachable by id — the just-scanned bottle the contributor needs to see
+    (ADR-0015 D1)."""
+
+    beer = Beer(name="Just Scanned", slug="just-scanned", is_verified=False)
+    db_session.add(beer)
+    await db_session.commit()
+    await db_session.refresh(beer)
+
+    response = client.get(f"/beers/{beer.id}")
+    assert response.status_code == 200
+    assert response.json()["name"] == "Just Scanned"
+    assert response.json()["is_verified"] is False
+
+
+async def test_search_excludes_depublished_beers(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: search hides a depublished (is_active=False) row too — same
+    published gate as list (verified AND not depublished)."""
+
+    brewery, _, _ = await _seed_reference_data(db_session)
+    db_session.add_all(
+        [
+            Beer(
+                name="Active Porter",
+                slug="active-porter",
+                brewery_id=brewery.id,
+                is_verified=True,
+                is_active=True,
+            ),
+            Beer(
+                name="Depublished Porter",
+                slug="depublished-porter",
+                brewery_id=brewery.id,
+                is_verified=True,
+                is_active=False,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    data = client.get("/beers/search", params={"q": "porter"}).json()
+    assert data["meta"]["total"] == 1
+    assert data["items"][0]["name"] == "Active Porter"
+
+
+async def test_list_filter_intersects_with_published_gate(
+    client: TestClient, db_session: AsyncSession
+) -> None:
+    """Edge: stacking a column filter (style_id) on the published gate applies
+    BOTH to the count and the items — a staged IPA is excluded from a
+    style-filtered browse (proves count vs items stay consistent)."""
+
+    brewery, ipa, _ = await _seed_reference_data(db_session)
+    db_session.add_all(
+        [
+            Beer(
+                name="Published IPA",
+                slug="published-ipa",
+                brewery_id=brewery.id,
+                style_id=ipa.id,
+                is_verified=True,
+            ),
+            Beer(
+                name="Staged IPA",
+                slug="staged-ipa",
+                brewery_id=brewery.id,
+                style_id=ipa.id,
+                is_verified=False,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    data = client.get("/beers", params={"style_id": str(ipa.id)}).json()
+    assert data["meta"]["total"] == 1
+    assert {item["name"] for item in data["items"]} == {"Published IPA"}

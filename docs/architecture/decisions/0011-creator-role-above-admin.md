@@ -1,7 +1,7 @@
 # ADR-0011 — Introduce a single-holder `CREATOR` role above `ADMIN`
 
-**Status**  Proposed
-**Date**    2026-05-25
+**Status**  Accepted
+**Date**    2026-05-25 (accepted 2026-06-15)
 **Owners**  @benoit-bremaud
 
 > Records the RBAC decision surfaced by the account/profile conception

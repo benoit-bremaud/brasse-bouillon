@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-16
+
+### PR #1224 merged (`9285340`) — docs(catalog-moderation): UML moderation study + ADR-0018 (in-app CREATOR, secured at API)
+- Branch `docs/catalog-moderation`. Conception-first study for the **in-app CREATOR moderation** of the beer catalogue. Root cause of the catalogue pollution (a scanned water bottle / "Monster Energy" / "Vin rouge" surfacing in the public list) = a **conformance bug vs ADR-0015 D1** (staged `is_verified=false` must stay out of the shared catalogue) **+ a seed bug** (the 41 curated `internal` beers were never promoted). New `docs/architecture/diagrams/catalog-moderation/` (4 diagrams, Mermaid + PlantUML twins, FR): use-case (Curate domain + CREATOR; M1 triage / M2 promote / M3 depublish / M4 republish), sequence (promote/depublish: Mobile → NestJS admin → encyclopedia), component (auth boundary, ADR-0002), state (`staged → published → depublished → deleted`). **ADR-0018 (Accepted)** — moderation surfaced in-app for the CREATOR, authority enforced at the NestJS API boundary (towards #1151), reversible depublish + audit; revises the "never via mobile" clause of #1152; defers the web console (#738). Promoted **ADR-0011** & **ADR-0015** `Proposed → Accepted` + indexed in `CLAUDE.md`; reconciled `beer-encyclopedia/01-use-case` UC7/UC8/UC9 with ADR-0018; traceability-matrix updated.
+- Reviews — `pr-pre-reviewer` pre-push (6 fixes + PlantUML twins on user request); then Copilot ×5 (Mermaid accents, `l'UrI`→`l'UI`) + Codex ×1 (read contract = verified AND not depublished) + CodeRabbit ×5 (RolesGuard exact-match → `hasAtLeast` gap, encyclopedia auth gap made explicit, mobile depublish out of UC7, drop `ferme #1151`, add `Deleted` state) addressed (`2abbe79`); 11/11 threads resolved.
+- Conception-first (ADR-0013) — **implementation (build slices) follows**: ADR-0015 D1 read filter + promote the 41 `internal` seed; close #1151 (auth on encyclopedia writes); NestJS moderation endpoints + in-app creator mode; UC9 queue (#1153/#1154/#1155). Refs #1175.
+
 ## 2026-06-15
 
 ### PR #1218 merged (`1042000`) — fix(mobile-app): catalogue & batches back button goes to the wrong tab (missing nav stack)

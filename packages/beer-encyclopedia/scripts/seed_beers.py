@@ -10,7 +10,9 @@ rounded outward), and a 1–5 ``TastingProfile``.
 Seeded rows are the curated, founder-vouched baseline → ``is_verified=True``
 (published per ADR-0015 D1 / the catalog-moderation state machine), so they
 surface in the public catalogue. Runtime imports (``/beers/import-by-ean``)
-stay ``is_verified=False`` (staging) until promoted via moderation.
+stay ``is_verified=False`` (staging) and surface only once promoted — either by
+human moderation, or by this seed when an import matches the curated corpus by
+EAN/slug (it is then published as part of the corpus, see ``_find_existing_beer``).
 ``source='openfoodfacts'`` for the three EAN-confirmed beers, ``'internal'``
 otherwise. OpenFoodFacts category errors are NOT propagated: every abbey/blonde
 mis-tagged "lager" by OFF is seeded with its true ale style (scan spec §8.5).

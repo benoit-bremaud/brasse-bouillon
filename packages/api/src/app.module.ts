@@ -13,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { HealthModule } from './health/health.module';
 import { LabelModule } from './label/label.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
@@ -66,6 +67,11 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
         limit: 10,
       },
     ]),
+
+    // Liveness probe - public GET /health, no database dependency.
+    // Registered before DatabaseModule to reflect that it never touches
+    // persistence (the Docker HEALTHCHECK targets it instead of root `/`).
+    HealthModule,
 
     // Database module - TypeORM configuration and connection
     DatabaseModule,

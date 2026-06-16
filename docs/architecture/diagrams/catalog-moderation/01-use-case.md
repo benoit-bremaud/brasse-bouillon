@@ -96,7 +96,7 @@ endlegend
 > **Acteur principal commun :** CREATOR (détenteur unique, ADR-0011). La surface
 > est visible **uniquement** s'il a le rang requis (`hasAtLeast`), et toute
 > écriture est **autorisée côté API NestJS** (ADR-0018 §2), jamais par le seul
-> masquage de l'UrI. Les actions M2/M3/M4 sont **atteintes depuis la file M1**
+> masquage de l'UI. Les actions M2/M3/M4 sont **atteintes depuis la file M1**
 > (navigation), ce n'est pas une relation «include».
 
 ### M1 — Trier la file de validation — *planifié*

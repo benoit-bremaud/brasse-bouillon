@@ -49,16 +49,23 @@ enforced at the NestJS API boundary; moderation actions are reversible
 
 1. **In-app creator surface.** A "creator mode" is visible **only** to a
    `CREATOR` (ADR-0011, via `hasAtLeast(user.role, …)`, never a raw
-   `role === 'creator'`). It exposes **targeted** moderation actions on a single
+   `role === 'creator'`). **Build note:** the current `RolesGuard` does
+   *exact-match* (`requiredRoles.includes(user.role)`), so it must migrate to the
+   rank-based `hasAtLeast` (ADR-0011) — otherwise a `CREATOR` is wrongly rejected
+   by an `@Roles(ADMIN)` route. It exposes **targeted** moderation actions on a single
    catalogue entry: **promote** (`is_verified false → true`, realizes UC9 /
    ADR-0015 D4), **depublish** (hide a non-conforming or erroneous entry), and
    **triage the staging queue**.
 2. **Trust boundary at the API (ADR-0002).** The mobile app calls **NestJS admin
    endpoints only** — it never writes to the encyclopedia directly. NestJS
    authenticates (JWT) and authorizes (`RolesGuard`, `CREATOR` rank), then
-   proxies the write to the encyclopedia service. This closes **#1151** at the
-   correct layer and keeps the mobile→backend contract uniform (ADR-0002,
-   ADR-0005).
+   proxies the write to the encyclopedia service. This is the design that
+   **closes #1151** at the correct layer and keeps the mobile→backend contract
+   uniform (ADR-0002, ADR-0005). **Current state (not yet built):** the
+   encyclopedia `POST`/`PATCH`/`DELETE` are **unauthenticated today** (#1151
+   open) and the NestJS proxy layer does **not** exist yet (the
+   `beer-contribution` approve path is a `501` stub) — readers must not assume
+   the protection is in place; it ships with the build slice that closes #1151.
 3. **Reversible + audited.** A moderation action toggles a **status**
    (publication / verification flag); it is **not** a hard `DELETE`. Each action
    records who / when / old → new in the catalog change history (**#1155**),

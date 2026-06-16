@@ -27,7 +27,7 @@ stateDiagram-v2
 
   Staged --> Published: M2 Promouvoir
 
-  Published --> Depublished: M3 Depublier
+  Published --> Depublished: M3 Dépublier
   Depublished --> Published: M4 Republier
 
   Published --> Deleted: suppression dure
@@ -36,19 +36,19 @@ stateDiagram-v2
 
   Deleted --> [*]
 
-  Staged: En attente, hors catalogue partage
-  Published: Publiee, visible dans le catalogue partage
-  Depublished: Depubliee, masquee mais conservee et reversible
-  Deleted: Supprimee, destruction exceptionnelle
+  Staged: En attente, hors catalogue partagé
+  Published: Publiée, visible dans le catalogue partagé
+  Depublished: Dépubliée, masquée mais conservée et réversible
+  Deleted: Supprimée, destruction exceptionnelle
 
   note right of Published
-    Seul cet etat est dans le catalogue partage.
-    Lecture publique filtree sur is_verified true (ADR-0015 D1).
+    Seul cet état est dans le catalogue partagé.
+    Publié = vérifié ET non dépublié ; lecture publique filtrée sur ce statut (ADR-0015 D1).
   end note
 
   note left of Staged
-    Toute entree importee nait ici (is_verified false).
-    Le seed curate internal, lui, nait deja Publiee.
+    Toute entrée importée naît ici (is_verified false).
+    Le seed curaté internal, lui, naît déjà Publiée.
   end note
 ```
 
@@ -94,8 +94,8 @@ end note
 - **Mapping états ↔ champs (cible).**
   - *Staged* = `is_verified = false`. Utilisable par l'utilisateur
     contributeur, **hors** catalogue partagé (ADR-0015 D1).
-  - *Published* = `is_verified = true` **et** visible. Le **seul** état renvoyé
-    par les lectures publiques (`GET /beers`, `/beers/search`).
+  - *Published* = `is_verified = true` **et non dépubliée**. Le **seul** statut
+    renvoyé par les lectures publiques (`GET /beers`, `/beers/search`).
   - *Depublished* = entrée promue puis **masquée** délibérément (M3). Distincte
     de *Staged* : ce n'est pas « à valider », c'est « retirée volontairement ».
     Le drapeau de publication exact (réutiliser `is_active` vs un champ dédié)
@@ -106,8 +106,9 @@ end note
 - **Le bug que ce diagramme rend visible.** La lecture publique ne filtre pas
   sur *Published* → des entrées *Staged* (la bouteille d'eau, « Monster
   Energy », « Vin rouge ») fuitent dans le catalogue partagé. **Conformer le
-  code** = filtrer `is_verified=true` sur les lectures publiques + exposer le
-  staging uniquement à la file de modération (M1).
+  code** = ne renvoyer sur les lectures publiques que le statut **publié**
+  (`is_verified=true` **et** non dépubliée) + exposer le staging uniquement à la
+  file de modération (M1).
 - **Le bug de seed que ce diagramme rend visible.** Les 41 bières curatées
   `internal` sont nées *Staged* au lieu de *Published* → un filtre naïf viderait
   le catalogue. **Conformer la donnée** = seeder/migrer le corpus `internal`

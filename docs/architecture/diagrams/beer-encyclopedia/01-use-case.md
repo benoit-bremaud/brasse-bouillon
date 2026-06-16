@@ -269,7 +269,7 @@ endlegend
 ### UC7 — Gérer le catalogue : créer / modifier / supprimer (bières & brasseries) — *livré*
 
 - **Acteur principal :** Mainteneur
-- **Précondition :** Mainteneur authentifié et autorisé. Création / édition de masse **via la console web** (différée, #1152/#738) ; la **dépublication ciblée** d'une entrée est exposée en mobile au CREATOR (ADR-0018, étude `catalog-moderation/`)
+- **Précondition :** Mainteneur authentifié et autorisé, **via la console web** (curation lourde : création / édition / suppression de masse — différée, ADR-0018 §4, #1152/#738). La **modération ciblée** (dépublier une entrée depuis le mobile) est un geste **distinct**, traité par UC9 / l'étude `catalog-moderation/`, pas par UC7
 - **Garantie minimale :** intégrité préservée (validations, contraintes) ; pas de doublon slug/EAN
 - **Garantie de succès :** l'entité est créée / modifiée / supprimée comme demandé
 - **Scénario nominal (création)**

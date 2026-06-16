@@ -58,9 +58,9 @@ ADR-0018. Étude **conçue avant code** : tous les diagrammes sont 🎯 cible. R
 | Diagramme | Fichier | État |
 |-----------|---------|------|
 | Cas d'usage (modération) | [`01-use-case.md`](diagrams/catalog-moderation/01-use-case.md) | 🎯 cible (M1 trier · M2 promouvoir · M3 dépublier · M4 republier) |
-| Séquence — promouvoir / dépublier | [`02-sequence-promote-depublish.md`](diagrams/catalog-moderation/02-sequence-promote-depublish.md) | 🎯 cible (Mobile → NestJS admin → encyclopédie ; ferme #1151) |
+| Séquence — promouvoir / dépublier | [`02-sequence-promote-depublish.md`](diagrams/catalog-moderation/02-sequence-promote-depublish.md) | 🎯 cible (Mobile → NestJS admin → encyclopédie ; fermera #1151 — cible, non livré) |
 | Composant — frontière d'auth | [`03-component.md`](diagrams/catalog-moderation/03-component.md) | 🎯 cible (`JwtAuthGuard` + `RolesGuard CREATOR` ; ADR-0002) |
-| États — cycle de publication | [`04-state-entry-lifecycle.md`](diagrams/catalog-moderation/04-state-entry-lifecycle.md) | 🎯 cible (staged → published → depublished ; correctif conformité ADR-0015 D1) |
+| États — cycle de publication | [`04-state-entry-lifecycle.md`](diagrams/catalog-moderation/04-state-entry-lifecycle.md) | 🎯 cible (staged → published → depublished → deleted ; correctif conformité ADR-0015 D1) |
 
 ## Matrice — cas d'usage → réalisations
 

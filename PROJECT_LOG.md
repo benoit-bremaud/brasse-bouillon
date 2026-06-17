@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-17
+
+### PR #1231 merged (`c9b637e`) — feat(api): single-holder CREATOR role above ADMIN, rank-based RolesGuard (ADR-0011)
+
+- Branch `feat/creator-role`. RBAC foundation for the in-app moderation surface (epic #1175 / #821, conception #1224). `UserRole.CREATOR` + `ROLE_RANK` + `hasAtLeast`; `RolesGuard` migrated from exact-match to **rank-based** (`requiredRoles.some(hasAtLeast)`) so a higher role satisfies a lower `@Roles` (a CREATOR passes `@Roles(ADMIN)`) — fixing the gap slice 1 flagged; the 8 existing `@Roles(ADMIN)` usages unchanged. `UserService.assignCreatorRole(email)` = the only path that grants CREATOR (seed-once, idempotent, single-holder; a concurrent DB-index violation → `ConflictException`); `updateUserRole` refuses to grant **or** revoke CREATOR; `UpdateUserDto` exposes no role. Migration rebuilds `users` to extend `CHK_users_role` with `'creator'` + partial unique index `UQ_users_single_creator` (single-holder DB backstop).
+- Reviews — `pr-pre-reviewer` pre-push (2 Must Have: block CREATOR demotion + test; 3 Should Have) addressed; then **Codex P1 + Copilot + CodeRabbit Critical caught two real bugs the unit tests missed** — the `CHK_users_role` CHECK rejected `'creator'`, and the unique-violation detection matched the index name (which SQLite never reports; now matches the `driverError` code + the `users.role` message) — fixed (`0af690a`) + an **e2e test on the real migrated DB** proving a `'creator'` row persists and a second is rejected. 768 unit + 19 e2e green; all threads resolved.
+- Foundation only — no user-visible effect. Next: NestJS moderation endpoints (`promote`/`depublish`) gated `@Roles(CREATOR)` (close #1151) + mobile creator mode; ops follow-up = deploy API (runs the migration) + promote the founder account via `assignCreatorRole`. Refs #821, #1175.
+
 ## 2026-06-16
 
 ### PR #1226 merged (`d542637`) — feat(encyclopedia): gate the public catalogue on the published status (ADR-0015 D1)

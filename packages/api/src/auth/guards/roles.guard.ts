@@ -8,20 +8,22 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { User } from '../../user/entities/user.entity';
-import { UserRole } from '../../common/enums/role.enum';
+import { UserRole, hasAtLeast } from '../../common/enums/role.enum';
 
 /**
  * Roles Guard
  *
- * Checks if the authenticated user has the required role(s)
- * to access a protected route.
+ * Authorizes by privilege RANK (ADR-0011), not by exact-string match: the user
+ * passes when their rank is at least the least-privileged required role, so a
+ * higher role automatically satisfies a lower requirement (a CREATOR passes an
+ * @Roles(ADMIN) route).
  *
  * How it works:
  * 1. Extracts role requirements from route metadata (set by @Roles decorator)
  * 2. Gets the authenticated user from request (set by JwtAuthGuard)
- * 3. Compares user's role with required roles
- * 4. If match → allows access (returns true)
- * 5. If no match → throws 403 Forbidden
+ * 3. Computes the least-privileged required role (its minimum rank)
+ * 4. If the user's rank is at least that minimum (hasAtLeast) → allows access
+ * 5. Otherwise → throws 403 Forbidden
  * 6. If no @Roles decorator → allows access (not role-protected)
  *
  * Must be used AFTER JwtAuthGuard (which sets req.user)
@@ -43,7 +45,7 @@ import { UserRole } from '../../common/enums/role.enum';
  * }
  *
  * @example
- * // Allow multiple roles
+ * // Allow MODERATOR or higher (the least-privileged listed role is the floor)
  * @Get('reports')
  * @UseGuards(JwtAuthGuard, RolesGuard)
  * @Roles(UserRole.ADMIN, UserRole.MODERATOR)
@@ -94,14 +96,22 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User not found in request context');
     }
 
-    // Check if user's role matches any of the required roles
-    if (requiredRoles.includes(user.role)) {
-      return true; // User has required role → allow access
+    // Hierarchy (ADR-0011): the user passes when they hold at least one of the
+    // required roles OR a higher one — a higher rank satisfies a lower @Roles
+    // requirement (a CREATOR passes an @Roles(ADMIN) check). Never an exact
+    // string match.
+    const authorized = requiredRoles.some((role) =>
+      hasAtLeast(user.role, role),
+    );
+    if (authorized) {
+      return true;
     }
 
-    // User doesn't have required role → deny access
+    // User's rank is below every required role → deny access
     throw new ForbiddenException(
-      `You do not have permission to access this resource. Required roles: ${requiredRoles.join(', ')}`,
+      `You do not have permission to access this resource. Required roles: ${requiredRoles.join(
+        ', ',
+      )} (or higher).`,
     );
   }
 }

@@ -4,10 +4,14 @@ import {
   UsernameAlreadyExistsException,
 } from '../../common/exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 import { PasswordService } from '../../auth/services/password.service';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from './user.service';
@@ -578,6 +582,118 @@ describe('UserService', () => {
       );
       expect(result.role).toBe(UserRole.MODERATOR);
       expect(result.password_hash).toBeUndefined();
+    });
+
+    it('should reject assigning the CREATOR role (ADR-0011)', async () => {
+      const findOneSpy = jest.spyOn(userRepository, 'findOne');
+
+      await expect(
+        userService.updateUserRole(mockUser.id, UserRole.CREATOR),
+      ).rejects.toThrow(ForbiddenException);
+
+      // The guard fires before any DB lookup.
+      expect(findOneSpy).not.toHaveBeenCalled();
+    });
+
+    it('should reject demoting the CREATOR to another role (ADR-0011)', async () => {
+      const creator = { ...mockUser, role: UserRole.CREATOR } as User;
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(creator);
+      const saveSpy = jest.spyOn(userRepository, 'save');
+
+      await expect(
+        userService.updateUserRole(creator.id, UserRole.ADMIN),
+      ).rejects.toThrow(ForbiddenException);
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Test suite for UserService.assignCreatorRole() method (ADR-0011).
+   */
+  describe('assignCreatorRole()', () => {
+    it('should promote a user to CREATOR when none exists', async () => {
+      const target = { ...mockUser, role: UserRole.ADMIN } as User;
+      const promoted = { ...target, role: UserRole.CREATOR } as User;
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(target) // lookup by email
+        .mockResolvedValueOnce(null); // no existing CREATOR
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(promoted);
+
+      const result = await userService.assignCreatorRole(target.email);
+
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ role: UserRole.CREATOR }),
+      );
+      expect(result.role).toBe(UserRole.CREATOR);
+      expect(result.password_hash).toBeUndefined();
+    });
+
+    it('should be idempotent when the user is already CREATOR', async () => {
+      const creator = { ...mockUser, role: UserRole.CREATOR } as User;
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(creator);
+      const saveSpy = jest.spyOn(userRepository, 'save');
+
+      const result = await userService.assignCreatorRole(creator.email);
+
+      expect(result.role).toBe(UserRole.CREATOR);
+      expect(saveSpy).not.toHaveBeenCalled(); // no write on a no-op
+    });
+
+    it('should throw when the email is unknown', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        userService.assignCreatorRole('ghost@example.com'),
+      ).rejects.toThrow(UserNotFoundException);
+    });
+
+    it('should refuse a second CREATOR (single-holder, ADR-0011)', async () => {
+      const target = {
+        ...mockUser,
+        id: 'id-target',
+        role: UserRole.ADMIN,
+      } as User;
+      const otherCreator = {
+        ...mockUser,
+        id: 'id-other',
+        email: 'other@example.com',
+        role: UserRole.CREATOR,
+      } as User;
+
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(target) // lookup by email
+        .mockResolvedValueOnce(otherCreator); // an existing CREATOR
+      const saveSpy = jest.spyOn(userRepository, 'save');
+
+      await expect(userService.assignCreatorRole(target.email)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('translates a concurrent unique-index violation into ConflictException', async () => {
+      // Race: the app-level check passed (no creator yet) but the DB index
+      // rejects the save. SQLite reports "UNIQUE constraint failed: users.role".
+      const target = { ...mockUser, role: UserRole.ADMIN } as User;
+      jest
+        .spyOn(userRepository, 'findOne')
+        .mockResolvedValueOnce(target) // lookup by email
+        .mockResolvedValueOnce(null); // no existing CREATOR (lost the race)
+      const dbError = new QueryFailedError(
+        'UPDATE users',
+        [],
+        new Error('UNIQUE constraint failed: users.role'),
+      );
+      jest.spyOn(userRepository, 'save').mockRejectedValue(dbError);
+
+      await expect(userService.assignCreatorRole(target.email)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 

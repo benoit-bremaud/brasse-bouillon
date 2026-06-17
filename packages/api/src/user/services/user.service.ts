@@ -2,13 +2,14 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { MoreThan, QueryFailedError, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
@@ -702,6 +703,15 @@ export class UserService {
    * // Returns: { ..., role: 'moderator', updated_at: '...' }
    */
   async updateUserRole(userId: string, role: UserRole): Promise<User> {
+    // CREATOR is the single-holder supreme owner (ADR-0011): seeded once via
+    // assignCreatorRole and immutable through the normal role path — neither
+    // grantable (incoming target, here) nor revocable (current holder, below).
+    if (role === UserRole.CREATOR) {
+      throw new ForbiddenException(
+        'The CREATOR role cannot be assigned through updateUserRole (ADR-0011).',
+      );
+    }
+
     // ✅ EXISTENCE CHECK
     const user = await this.userRepository.findOne({
       where: { id: userId },
@@ -709,6 +719,14 @@ export class UserService {
 
     if (!user) {
       throw new UserNotFoundException();
+    }
+
+    // The current CREATOR cannot be demoted through this path either — the role
+    // is sticky once seeded (ADR-0011), or the single-holder invariant breaks.
+    if (user.role === UserRole.CREATOR) {
+      throw new ForbiddenException(
+        'The CREATOR role cannot be revoked through updateUserRole (ADR-0011).',
+      );
     }
 
     // ✅ ROLE UPDATE
@@ -722,6 +740,92 @@ export class UserService {
 
     // ✅ SECURITY: Remove password hash before returning
     return this.formatUserResponse(updatedUser);
+  }
+
+  /**
+   * Promote a user to the single-holder CREATOR role (ADR-0011).
+   *
+   * The ONLY path that grants CREATOR — a deliberate, seed-once provisioning
+   * step (like {@link createAdmin}), never exposed via the public API and
+   * explicitly rejected by {@link updateUserRole}. Idempotent: re-running on the
+   * account that is already CREATOR is a no-op. Enforces the single-holder
+   * invariant at the app layer; the `UQ_users_single_creator` partial unique
+   * index is the DB backstop.
+   *
+   * @param {string} email - Email of the account to promote.
+   * @returns {Promise<User>} The promoted user (password excluded).
+   * @throws {UserNotFoundException} No user with that email.
+   * @throws {ConflictException} Another user already holds CREATOR.
+   */
+  async assignCreatorRole(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    // Idempotent: already the CREATOR → nothing to do.
+    if (user.role === UserRole.CREATOR) {
+      return this.formatUserResponse(user);
+    }
+
+    // Single-holder (ADR-0011): refuse if someone else already holds CREATOR.
+    const existingCreator = await this.userRepository.findOne({
+      where: { role: UserRole.CREATOR },
+    });
+    if (existingCreator && existingCreator.id !== user.id) {
+      throw new ConflictException(
+        'A CREATOR already exists — the role is single-holder (ADR-0011).',
+      );
+    }
+
+    const previousRole = user.role;
+    user.role = UserRole.CREATOR;
+
+    // Seed-once, not a hot path: the check-then-save above is not transactional.
+    // UQ_users_single_creator is the backstop — a truly concurrent call has its
+    // save rejected by the DB index; translate that into the documented
+    // ConflictException so the caller still gets a deterministic 409.
+    let saved: User;
+    try {
+      saved = await this.userRepository.save(user);
+    } catch (error) {
+      if (this.isSingleCreatorViolation(error)) {
+        throw new ConflictException(
+          'A CREATOR already exists — the role is single-holder (ADR-0011).',
+        );
+      }
+      throw error;
+    }
+
+    this.logger.log(
+      `CREATOR role assigned: ${saved.id} (${previousRole} -> creator)`,
+    );
+
+    return this.formatUserResponse(saved);
+  }
+
+  /**
+   * True when the error is the single-holder UNIQUE violation from
+   * `UQ_users_single_creator`. SQLite surfaces it as
+   * `"UNIQUE constraint failed: users.role"` (table.column, not the index
+   * name), so match on the driver code and the column-qualified message rather
+   * than the index name.
+   */
+  private isSingleCreatorViolation(error: unknown): boolean {
+    if (!(error instanceof QueryFailedError)) {
+      return false;
+    }
+    const driver = error.driverError as {
+      code?: string | number;
+      message?: string;
+    };
+    const code = typeof driver.code === 'string' ? driver.code : '';
+    const message = (driver.message ?? error.message).toLowerCase();
+    return (
+      code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+      message.includes('unique constraint failed: users.role') ||
+      message.includes('uq_users_single_creator')
+    );
   }
 
   /**

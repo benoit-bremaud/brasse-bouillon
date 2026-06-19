@@ -81,7 +81,7 @@ files; beer-encyclopedia 18 pytest files; website 9 structural checks.
 - **Unit** — `src/features/<feature>/application/__tests__/` (use-cases) and
   `.../data/__tests__/` (API clients/mappers). Mock `@/core/http/http-client` with
   `jest.fn()`; never hit real HTTP. Reuse fixtures
-  (`features/labels/test-utils/label-test-fixtures.ts`, `src/mocks/demo-data.ts`).
+  (`src/features/labels/test-utils/label-test-fixtures.ts`, `src/mocks/demo-data.ts`).
 - **Integration** — `src/features/<feature>/presentation/__tests__/` with React
   Native Testing Library; mock the use-case layer, render the screen, assert
   interactions. Wrap in `QueryClientProvider` (`retry: false`).
@@ -106,9 +106,10 @@ files; beer-encyclopedia 18 pytest files; website 9 structural checks.
   (Python `unittest`, 9 checks): required files, HTML structure, feedback-widget
   presence, schema.org rules, sitemap/robots policy, conflict markers.
 - **e2e (Playwright, new)** — flows under `packages/website/e2e/`. Smoke only:
-  the home renders, the feedback widget appears (prod-gated, so test against a
-  built/served bundle, not `localhost` where it is intentionally hidden), and the
-  questionnaire form submits.
+  the home renders, the feedback widget appears, and the questionnaire form
+  submits. Note the widget's host gating (`packages/website/feedback-widget.js`):
+  it loads **only on staging + `localhost`/`127.0.0.1`, never on public prod** —
+  so run the widget smoke against a local/staging serve, not the production URL.
 
 ---
 

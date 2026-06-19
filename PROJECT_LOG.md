@@ -7,6 +7,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-19
 
+### PR #1243 merged (`c0d9743`) — test(api): e2e for POST /recipes/match — matcher v2 graded-style ranking
+
+- Branch `test/api-recipes-match-e2e`. First quick-win of epic #1230 (#1232): an HTTP-level regression net for matcher v2 (ADR-0016). New `packages/api/test/recipes-match.e2e-spec.ts` (Supertest, in-memory SQLite + migrations) seeds 3 PUBLIC recipes (Blonde Ale / Saison / NEIPA) with identical ABV/IBU/colour so the BJCP style grade is the sole driver, asserting the graded order blonde (1.0) > saison (0.7) > neipa (0.4), the sparse-beer completeness, and the honest empty state; `avg_rating` is inverted across candidates to prove it is only a tie-break. Candidates seeded via the booted app's TypeORM repo (the recipe `style` column isn't settable through `CreateRecipeDto`). Also aligned `POST /recipes/match` to `@HttpCode(200)` — it returned the POST-default 201, contradicting its own `@ApiOkResponse` + the `06-sequence-recipe-matching` conception and the legacy `GET /recipes/match/:beerId`.
+- Reviews — CodeRabbit ×3 (named `MatchResponse`/`RegisterResult` interfaces + a threshold-determinism note applied; import-order declined — ESLint is the enforced contract and passes); all threads resolved. #1232 unit gaps (label module, recipe/scan/password services) + e2e CI wiring (#1236) are fast-follows.
+
+### PR #1242 merged (`5feb3ff`) — ci(security): gitleaks + CodeQL + dependency-review (ADR-0019 D4)
+
+- Branch `ci/security-scans`. Realizes the security part of #1236 (epic #1230): the public-repo CI baseline (`security-ci-baseline`) — `gitleaks.yml` (secret scan on push + PR + weekly cron, honours `.gitleaksignore`, fails on any leak), `codeql.yml` (SAST matrix `javascript-typescript` + `python`), `dependency-review.yml` (CVE on PR dependency changes, fail-on-severity high). One workflow per tool; actions pinned by commit SHA.
+- Reviews — Copilot (dropped the inaccurate gitleaks "SARIF to the Security tab" claim + the unused `security-events` permission; CodeQL feeds the Security tab) + CodeRabbit Major (`persist-credentials: false` on all security-job checkouts; fixed CodeQL `init` input to `languages` so the matrix is honoured); all threads resolved. The coverage ratchet + the e2e CI jobs (the rest of #1236) follow separately.
+
 ### PR #1240 merged (`ececb67`) — docs(testing): fix fixture path + feedback-widget host gating (review of #1238)
 
 - Branch `docs/fix-testing-strategy-doc`. Follow-up to #1238 (merged before its review was addressed). `docs/testing/testing-strategy.md`: §3.2 fixture path gains the missing `src/` prefix; §3.4 corrects the **inverted** feedback-widget host gating — the widget loads on staging + `localhost` only, never public prod (per `packages/website/feedback-widget.js`), so the Playwright smoke runs against a local/staging serve. Docs only. Addressed Copilot + Codex P2.

@@ -104,6 +104,14 @@
       "text",
       "text-summary"
     ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "branches": 72,
+        "functions": 85,
+        "lines": 90
+      }
+    },
     "testEnvironment": "node"
   },
   "overrides": {

@@ -49,6 +49,13 @@ exclude = ["tests*", "scripts*", "configs*", "data*", "docs*", "migrations*"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 
+# Coverage ratchet (ADR-0019 D3, #1236): a `pytest --cov` run fails when total
+# line coverage drops below this floor (current baseline ~75%). Raise
+# deliberately over time; never lower. Only applies when coverage is collected,
+# so partial `pytest <path>` runs without --cov are unaffected.
+[tool.coverage.report]
+fail_under = 70
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100

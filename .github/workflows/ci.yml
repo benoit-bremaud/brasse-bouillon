@@ -3,12 +3,16 @@
 # Runs path-filtered jobs for mobile-app, api, website, and beer-encyclopedia
 # on every PR to main.
 #
-# Quality gates:
-#   - Mobile App: lint + typecheck + format + tests (70% coverage minimum)
-#   - API: lint + build + tests (70% coverage minimum)
+# Quality gates (ADR-0019):
+#   - Mobile App: lint + typecheck + format + unit tests (blocking coverage ratchet)
+#   - API: lint + build + unit tests (blocking coverage ratchet) + e2e (Supertest)
 #   - Website: Python quality gate
-#   - Beer Encyclopedia: ruff lint + compile check + tests (70% coverage minimum)
-#   - Security: npm audit for Node packages
+#   - Beer Encyclopedia: ruff lint + compile check + tests (blocking coverage ratchet)
+#   - Security: npm audit (here) + gitleaks / CodeQL / dependency-review (dedicated workflows)
+#
+# The coverage floor is enforced by each package's own config (Jest
+# coverageThreshold / coverage.py fail_under), so it gates locally and in CI;
+# the floor sits a few points below the current baseline (raise, never lower).
 # ==============================================================================
 
 name: CI
@@ -78,16 +82,8 @@ jobs:
       - name: Lint + Typecheck + Format check
         run: npm run ci:check
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (blocking ratchet)
         run: npm run test:coverage
-
-      - name: Check coverage threshold (70%)
-        run: |
-          COVERAGE=$(npx lcov-summary coverage/lcov.info 2>/dev/null | grep -oP 'Lines:\s+\K[\d.]+' || echo "0")
-          echo "Coverage: ${COVERAGE}%"
-          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
-            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
-          fi
 
       - name: Upload coverage report
         if: always()
@@ -126,16 +122,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Run tests with coverage
+      - name: Run unit tests with coverage (blocking ratchet)
         run: npm run test:cov
 
-      - name: Check coverage threshold (70%)
-        run: |
-          COVERAGE=$(npx lcov-summary coverage/lcov.info 2>/dev/null | grep -oP 'Lines:\s+\K[\d.]+' || echo "0")
-          echo "Coverage: ${COVERAGE}%"
-          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
-            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
-          fi
+      - name: Run e2e tests (Supertest, in-memory SQLite + migrations)
+        run: npm run test:e2e
 
       - name: Upload coverage report
         if: always()
@@ -202,23 +193,9 @@ jobs:
             api/routers/*.py api/schemas/*.py \
             ml/*.py db/*.py db/models/*.py scripts/*.py
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (blocking ratchet via coverage.py fail_under)
         run: |
           pytest tests/ --cov=ml --cov=api --cov=db --cov-report=term --cov-report=lcov:coverage/lcov.info -q
-
-      - name: Check coverage threshold (70%)
-        run: |
-          COVERAGE=$(python -c "
-          import re
-          data = open('coverage/lcov.info').read()
-          covered = sum(1 for m in re.findall(r'^DA:\d+,(\d+)', data, re.M) if int(m) > 0)
-          total = len(re.findall(r'^DA:\d+,', data, re.M))
-          print(f'{100*covered/total:.1f}' if total else '0')
-          " 2>/dev/null || echo "0")
-          echo "Coverage: ${COVERAGE}%"
-          if [ "$(echo "$COVERAGE < 70" | bc -l 2>/dev/null || echo 1)" = "1" ]; then
-            echo "::warning::Coverage is ${COVERAGE}% — below 70% threshold"
-          fi
 
       - name: Upload coverage report
         if: always()

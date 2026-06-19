@@ -121,6 +121,4 @@ Path-filtered in `.github/workflows/ci.yml`:
 
 ## Governance
 
-See [docs/AGENT.md](docs/AGENT.md) for development agent governance rules (v1.1.0).
-See [docs/adr/](docs/adr/) for this package's local ADRs (encyclopedia-scoped), and [../../docs/architecture/decisions/](../../docs/architecture/decisions/) for the repo-wide architecture decisions (per ADR-0013).
-See [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/) for the UML conception study (use-case, sequence, component, class, state, data-flow) — kept centrally with all features per repo ADR-0013.
+Development agent governance rules (v1.1.0) are in [docs/AGENT.md](docs/AGENT.md). This package keeps **local, encyclopedia-scoped ADRs** at [docs/adr/](docs/adr/), while repo-wide architecture decisions live at [../../docs/architecture/decisions/](../../docs/architecture/decisions/) (per ADR-0013). The UML conception study (use-case, sequence, component, class, state, data-flow) is kept centrally at [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/), with all features per ADR-0013.

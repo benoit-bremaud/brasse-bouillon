@@ -5,6 +5,22 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-19
+
+### PR #1240 merged (`ececb67`) — docs(testing): fix fixture path + feedback-widget host gating (review of #1238)
+
+- Branch `docs/fix-testing-strategy-doc`. Follow-up to #1238 (merged before its review was addressed). `docs/testing/testing-strategy.md`: §3.2 fixture path gains the missing `src/` prefix; §3.4 corrects the **inverted** feedback-widget host gating — the widget loads on staging + `localhost` only, never public prod (per `packages/website/feedback-widget.js`), so the Playwright smoke runs against a local/staging serve. Docs only. Addressed Copilot + Codex P2.
+
+### PR #1239 merged (`ab51f4a`) — docs(config): align Claude config with reality (ADR list, encyclopedia stack, decisions index)
+
+- Branch `docs/claude-config-conformance`. Part of a Claude Code operational cleanup (memory + session housekeeping done locally). `CLAUDE.md`: added the missing **accepted ADR-0009** to the list. `packages/beer-encyclopedia/CLAUDE.md`: stack + data-flow now say SQLite (prod, on Fly) / PostgreSQL (local dev); restored the package-local `docs/adr/` pointer alongside the repo-wide decisions. `docs/architecture/decisions/README.md`: 0011 & 0015 → Accepted, added index rows for 0016/0017/0018.
+- Reviews — Codex P2 + Copilot (the package-local ADRs exist and are referenced by ADR-0013; the index Date column tracks each ADR's creation date) and a CodeRabbit style nit, all addressed (`b5a73f7`, `3fbca75`); all threads resolved.
+
+### PR #1238 merged (`4db7189`) — docs(testing): testing strategy + ADR-0019 (pyramid, e2e tooling, coverage ratchet, CI security)
+
+- Branch `docs/testing-strategy`. The project's first unified **testing strategy** as a conception-first contract. **ADR-0019** (Proposed): adopt the test pyramid (D1); one e2e tool per surface — Supertest (api) / Maestro (mobile) / Playwright (website) / pytest (encyclopedia) (D2); coverage becomes a blocking CI ratchet (D3); public-repo CI security scanning — gitleaks + CodeQL + dependency-review (D4). `docs/testing/testing-strategy.md` = the living detail (pyramid, per-package layer/target map, ratchet policy, target CI shape).
+- Realized by epic #1230, with one issue per surface: #1232 (api e2e `/recipes/match` + unit gaps), #1233 (mobile Maestro), #1234 (website Playwright), #1235 (encyclopedia ML pytest), #1236 (CI ratchet + e2e jobs + security scans). Review comments (Copilot/Codex/CodeRabbit) addressed in follow-up #1240.
+
 ## 2026-06-17
 
 ### PR #1231 merged (`c9b637e`) — feat(api): single-holder CREATOR role above ADMIN, rank-based RolesGuard (ADR-0011)

@@ -500,7 +500,11 @@ What this means in practice:
 
 ## Testing
 
-Tests are mandatory for every new feature.
+Tests are mandatory for every new feature. The full approach — the test pyramid,
+per-package layers and coverage targets, the e2e tooling per surface (Supertest /
+Maestro / Playwright / pytest), and the CI quality gates — is the
+[testing strategy](docs/testing/testing-strategy.md) (contract:
+[ADR-0019](docs/architecture/decisions/0019-testing-strategy-and-quality-gates.md)).
 
 | Package    | Test framework                       | Location                                         |
 | ---------- | ------------------------------------ | ------------------------------------------------ |

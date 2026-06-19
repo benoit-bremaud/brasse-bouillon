@@ -112,6 +112,7 @@ When a new ADR is accepted, add its file link here (no dates, no per-ADR summari
 | Definition of Done | [docs/project-management/definition-of-done.md](docs/project-management/definition-of-done.md) |
 | Definition of Ready | [docs/project-management/definition-of-ready.md](docs/project-management/definition-of-ready.md) |
 | Sprint structure | [docs/project-management/sprint-definition.md](docs/project-management/sprint-definition.md) |
+| Testing strategy | [docs/testing/testing-strategy.md](docs/testing/testing-strategy.md) |
 | API docs | [docs/api/](docs/api/) |
 | Architecture | [docs/architecture/](docs/architecture/) |
 | Architecture Decision Records | [docs/architecture/decisions/](docs/architecture/decisions/) |

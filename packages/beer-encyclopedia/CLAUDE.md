@@ -3,7 +3,7 @@
 ## Package Overview
 
 **Name:** @brasse-bouillon/beer-encyclopedia
-**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + PostgreSQL + async SQLAlchemy 2.0 + Alembic + Pydantic
+**Stack:** Python 3.12 + FastAPI + YOLOv8 (Ultralytics) + EasyOCR + SQLite (prod, on Fly volume) / PostgreSQL (local dev) + async SQLAlchemy 2.0 + Alembic + Pydantic
 **Purpose:** Beer encyclopedia with ML label scanning (detection + OCR + field extraction), persistent brewery/beer database, and recipe recommendation
 
 ---
@@ -37,7 +37,7 @@ docs/             Governance (AGENT.md), ADRs, dataset guides
 ```
 
 **Data flow (scan):** API → pipeline → infer → ocr → extract → recommender → response
-**Data flow (encyclopedia):** API → db session → ORM models → PostgreSQL
+**Data flow (encyclopedia):** API → db session → ORM models → SQLite (prod, on Fly) / PostgreSQL (local dev)
 
 ---
 
@@ -121,6 +121,4 @@ Path-filtered in `.github/workflows/ci.yml`:
 
 ## Governance
 
-See [docs/AGENT.md](docs/AGENT.md) for development agent governance rules (v1.1.0).
-See [docs/adr/](docs/adr/) for architecture decision records.
-See [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/) for the UML conception study (use-case, sequence, component, class, state, data-flow) — kept centrally with all features per repo ADR-0013.
+Development agent governance rules (v1.1.0) are in [docs/AGENT.md](docs/AGENT.md). This package keeps **local, encyclopedia-scoped ADRs** at [docs/adr/](docs/adr/), while repo-wide architecture decisions live at [../../docs/architecture/decisions/](../../docs/architecture/decisions/) (per ADR-0013). The UML conception study (use-case, sequence, component, class, state, data-flow) is kept centrally at [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/), with all features per ADR-0013.

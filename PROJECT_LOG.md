@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-19
 
+### PR #1245 merged (`b7cfa60`) — ci(coverage): blocking coverage ratchet + wire API e2e into CI (ADR-0019 D3)
+
+- Branch `ci/coverage-ratchet-and-e2e`. Realizes the core of #1236 (epic #1230): the testing-strategy contract becomes **enforced**, not advisory. The CI api job now runs an **e2e step** (`npm run test:e2e`) so the matcher v2 regression net (#1243) actually executes in CI (it ran unit only). Coverage becomes **blocking** via each package's own config — Jest `coverageThreshold` global (api 90/72/85/90, mobile 82/72/80/82 = statements/branches/functions/lines) and `coverage.py fail_under = 70` for the encyclopedia — so it gates locally and in CI. The three non-blocking "< 70% warning" steps are removed. Floors sit a few points below the current baseline (api ~94/77/89/94, mobile ~86/78/86/86, encyclopedia ~75%) — a ratchet: raise, never lower.
+- Verified natively in CI: api (unit threshold + e2e), mobile-app (threshold), beer-encyclopedia (fail_under) all green. Deferred (rest of #1236): Trivy + OSSF Scorecard, and the Maestro / Playwright e2e CI jobs (#1233 / #1234, frameworks not yet set up).
+
 ### PR #1243 merged (`c0d9743`) — test(api): e2e for POST /recipes/match — matcher v2 graded-style ranking
 
 - Branch `test/api-recipes-match-e2e`. First quick-win of epic #1230 (#1232): an HTTP-level regression net for matcher v2 (ADR-0016). New `packages/api/test/recipes-match.e2e-spec.ts` (Supertest, in-memory SQLite + migrations) seeds 3 PUBLIC recipes (Blonde Ale / Saison / NEIPA) with identical ABV/IBU/colour so the BJCP style grade is the sole driver, asserting the graded order blonde (1.0) > saison (0.7) > neipa (0.4), the sparse-beer completeness, and the honest empty state; `avg_rating` is inverted across candidates to prove it is only a tie-break. Candidates seeded via the booted app's TypeORM repo (the recipe `style` column isn't settable through `CreateRecipeDto`). Also aligned `POST /recipes/match` to `@HttpCode(200)` — it returned the POST-default 201, contradicting its own `@ApiOkResponse` + the `06-sequence-recipe-matching` conception and the legacy `GET /recipes/match/:beerId`.

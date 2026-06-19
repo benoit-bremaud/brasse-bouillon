@@ -42,6 +42,28 @@ const TEST_USER_PASSWORD = 'SecurePassword123!'; // NOSONAR
 // The queried beer: a Blonde Ale (BJCP Pale Ale family, pale/standard).
 const BLONDE_BEER = { style: 'Blonde Ale', abv: 5.2, ibu: 25, colorEbc: 8 };
 
+// This spec asserts against the DEFAULT acceptance thresholds (ADR-0016 D5:
+// SCAN_MATCH_S_MIN=45, SCAN_MATCH_C_MIN=0.5). The `test:e2e` harness does not
+// set SCAN_MATCH_* env vars, so the defaults are in force and the ordering /
+// completeness assertions below are deterministic. If a future run overrides
+// those env vars, recalibrate the seeded candidates accordingly.
+
+interface RankingItem {
+  recipe: { id: string };
+  score: number;
+  completeness: number;
+}
+
+interface MatchResponse {
+  rankings: RankingItem[];
+  low_confidence: boolean;
+}
+
+interface RegisterResult {
+  token: string;
+  userId: string;
+}
+
 describe('POST /recipes/match (e2e — matcher v2, ADR-0016, #1232)', () => {
   let app: INestApplication<App>;
   let recipeRepo: Repository<RecipeOrmEntity>;
@@ -104,7 +126,7 @@ describe('POST /recipes/match (e2e — matcher v2, ADR-0016, #1232)', () => {
     return id;
   }
 
-  async function register(): Promise<{ token: string; userId: string }> {
+  async function register(): Promise<RegisterResult> {
     const suffix = `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-9);
     const response = await request(app.getHttpServer())
       .post('/auth/register')
@@ -132,25 +154,16 @@ describe('POST /recipes/match (e2e — matcher v2, ADR-0016, #1232)', () => {
     return { token: body.access_token, userId: body.user.id };
   }
 
-  interface RankingItem {
-    recipe: { id: string };
-    score: number;
-    completeness: number;
-  }
-
   async function match(
     token: string,
     payload: Record<string, unknown>,
-  ): Promise<{ rankings: RankingItem[]; low_confidence: boolean }> {
+  ): Promise<MatchResponse> {
     const response = await request(app.getHttpServer())
       .post('/recipes/match')
       .set('Authorization', `Bearer ${token}`)
       .send(payload)
       .expect(200);
-    return response.body as {
-      rankings: RankingItem[];
-      low_confidence: boolean;
-    };
+    return response.body as MatchResponse;
   }
 
   const positionOf = (rankings: RankingItem[], id: string): number =>

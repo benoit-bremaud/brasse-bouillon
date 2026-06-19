@@ -122,5 +122,5 @@ Path-filtered in `.github/workflows/ci.yml`:
 ## Governance
 
 See [docs/AGENT.md](docs/AGENT.md) for development agent governance rules (v1.1.0).
-See [../../docs/architecture/decisions/](../../docs/architecture/decisions/) for architecture decision records (kept centrally at the monorepo root, per ADR-0013).
+See [docs/adr/](docs/adr/) for this package's local ADRs (encyclopedia-scoped), and [../../docs/architecture/decisions/](../../docs/architecture/decisions/) for the repo-wide architecture decisions (per ADR-0013).
 See [../../docs/architecture/diagrams/beer-encyclopedia/](../../docs/architecture/diagrams/beer-encyclopedia/) for the UML conception study (use-case, sequence, component, class, state, data-flow) — kept centrally with all features per repo ADR-0013.

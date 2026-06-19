@@ -116,6 +116,7 @@ export class RecipeController {
   }
 
   @Post('match')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
       "Rank PUBLIC recipes by a beer's characteristics (style/ABV/IBU/colour) — source-agnostic (scan cutover #1186)",

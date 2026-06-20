@@ -75,7 +75,7 @@ then dunk-sparge the bag in ~3 L at 75 °C and combine (adds one step). A pot
 
 - **Fermenter: 5 L demijohn (dame-jeanne)** — filled to ~4.3 L, leaving headspace
   for krausen (a blow-off tube is a safe optional extra)
-- **Pot ≥ 10–12 L** (holds ~7 L mash + grain + headspace; boils ~6 L)
+- **Pot ≥ 12 L** (must hold ~7 L mash + grain + headspace; boils ~6 L)
 - **BIAB bag** (large fine-mesh grain bag)
 - Thermometer · Hydrometer + test jar
 - Airlock + bung for the demijohn

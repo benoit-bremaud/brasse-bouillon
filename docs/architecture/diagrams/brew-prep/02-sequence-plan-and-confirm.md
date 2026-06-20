@@ -17,7 +17,7 @@ sequenceDiagram
   autonumber
   actor B as Novice brewer
   participant M as Mobile (Brew-prep screen)
-  participant API as "NestJS /recipes · /equipment · /brew-plan"
+  participant API as "NestJS API (recipes · equipment · volume-plan)"
   participant DB as DB
   B->>M: Open the imported blonde recipe
   M->>API: GET recipe targets + my equipment profile

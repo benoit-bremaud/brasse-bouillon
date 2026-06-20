@@ -66,7 +66,10 @@ classDiagram
   `intoFermenterL = fermenterCapacityL × (1 − fermenterHeadspaceRatio)`;
   `bottledL = intoFermenterL − fermenterLossL`; the cascade is back-calculated up
   to `strikeWaterL`;
-  `method = kettleCapacityL ≥ (preBoilL + grain) ? FULL_VOLUME : DUNK_SPARGE`.
+  `method = kettleCapacityL ≥ (strikeWaterL + grainVolumeL) ? FULL_VOLUME : DUNK_SPARGE`
+  — the kettle must hold the **mash-in volume** (strike water + grain, grain
+  displacing ~0.67 L/kg) *during the mash*, **not** the post-boil wort (the grain
+  is lifted out before the boil). Matches ADR-0020 D2.
 - `VolumePlan` is **computed and persisted by the backend** — not stored on the
   recipe; snapshotted onto the batch at launch (ADR-0020 D3).
 - `BrewReadiness.readyToLaunch = ingredientChecklist.isComplete() && equipmentChecklist.isComplete()` (UC6).

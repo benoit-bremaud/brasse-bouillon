@@ -23,7 +23,7 @@ flowchart LR
   subgraph API ["packages/api (NestJS)"]
     RecipeC["Recipe controller"]
     EquipC["Equipment controller"]
-    PlanC["Brew-plan controller"]
+    PlanC["Volume-plan controller (GET /recipes/:id/volume-plan)"]
     Planner["VolumePlanner (domain service)"]
     BatchC["Batch controller (start → snapshot plan)"]
     PlanC --> Planner

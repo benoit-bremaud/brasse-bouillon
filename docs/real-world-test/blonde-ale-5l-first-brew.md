@@ -9,8 +9,10 @@
 >
 > **The fermenter is the binding constraint.** The founder ferments in **5 L
 > demijohns (dames-jeannes)**. A 5 L demijohn must **not** be filled with 5 L of
-> wort — the krausen (fermentation foam) needs ~15–20 % headspace or it blows out
-> the airlock. So we target **~4.3 L into the demijohn → ~4.0 L bottled**
+> wort — the krausen (fermentation foam) needs headspace or it blows out the
+> airlock. So we target **~4.3 L into the demijohn → ~4.0 L bottled** (~0.7 L /
+> ~14 % headspace; that's tight for a small demijohn, so a **blow-off tube** is
+> recommended for the vigorous first 2–3 days)
 > (≈ 8 × 50 cl), starting from **~7 L of water**.
 
 ## 1. The recipe (BJCP 18A — Blonde Ale)

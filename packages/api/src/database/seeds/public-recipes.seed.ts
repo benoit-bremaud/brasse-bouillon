@@ -192,10 +192,14 @@ export interface PublicRecipeSeed {
 }
 
 /**
- * The 10 demo public recipes — 3 stylistic neighbours per demo
- * bottle. UUIDs are deterministic (sequential + RFC4122 v4 variant
- * bits) so the mobile `demoEquivalentRecipes` table can reference
- * them statically without a database round-trip.
+ * The curated public recipes. Entries 1–10 are the demo recipes (3
+ * stylistic neighbours per demo bottle); entry 11 (`…b`) is the
+ * brewer-endorsed BrewDog DIY Dog clone for Punk IPA; entry 12 (`…c`)
+ * is the first-real-brew beginner Blonde Ale — NOT a demo-bottle
+ * equivalent, it is the recipe the app guides the founder's first
+ * physical brew through. UUIDs are deterministic (sequential + RFC4122
+ * v4 variant bits) so the mobile `demoEquivalentRecipes` table can
+ * reference the demo ones statically without a database round-trip.
  */
 export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
   // --- IPA family (matches Punk IPA) ---
@@ -746,6 +750,93 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
         attenuation_percent: 81,
         temperature_min_c: 15,
         temperature_max_c: 22,
+      },
+    ],
+    steps: DEFAULT_WORKFLOW_STEPS,
+  },
+  // --- First real-world brew (no demo-bottle mock mapping) ---
+  // The beginner Blonde Ale scaled to the founder's 5 L demijohn that
+  // the app guides the first real brew through end-to-end. Source of
+  // truth: docs/real-world-test/blonde-ale-5l-first-brew.md. Carries
+  // full content so the imported recipe shows real ingredients + the
+  // default workflow; the detailed instruction/duration brew-day guide
+  // is the separate phase-B build. `batch_size_l` is the ~4.3 L INTO
+  // the fermenter (BeerXML batch-size semantics) — the volume the ~18
+  // IBU Tinseth target is computed against, kept consistent with the
+  // doc and RecipeIbuTinsethDomainService.
+  //
+  // Scope note (Codex P2 on PR #1251): being PUBLIC, this recipe DOES
+  // participate in backend scan matching — `/recipes/match` ranks every
+  // PUBLIC recipe, so a Blonde Ale scores well for a scanned blonde beer.
+  // That is accepted as correct matcher behaviour (a blonde IS a relevant
+  // equivalent for a blonde); the demo "official recipe" beats are driven
+  // by the mobile `demoEquivalentRecipes` mock — which this row is absent
+  // from — not by the backend ranking, so the demo experience is
+  // unaffected. This entry simply has no demo-bottle mapping. `is_official`
+  // stays false (per the global-flag regression note above) so it never
+  // gets the 100-pt shortcut.
+  {
+    id: '00000000-0000-4000-8000-00000000000c',
+    name: 'Blonde Facile (premier brassin)',
+    description:
+      "Blonde Ale de débutant (BJCP 18A), méthode tout-grain BIAB, calibrée pour un fermenteur de 5 L (dame-jeanne) : ~4,3 L au fermenteur pour ~4 L embouteillés. Simple mais bonne — base Pilsner avec une pointe de Vienna, houblon unique Cascade, levure sèche US-05. C'est la recette du premier brassin réel guidé par l'application.",
+    style: 'Blonde Ale',
+    batch_size_l: 4.3,
+    boil_time_min: 60,
+    og_target: 1.044,
+    fg_target: 1.01,
+    abv_estimated: 4.5,
+    ibu_target: 18,
+    ebc_target: 7,
+    efficiency_target: 70,
+    avg_rating: 0,
+    brew_count: 0,
+    // Grain bill ~1.0 kg: Pilsner base + a touch of Vienna for a golden
+    // hue and a little roundness. Scaled to the ~4.3 L batch.
+    fermentables: [
+      {
+        name: 'Pilsner Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 900,
+        color_ebc: 3,
+      },
+      {
+        name: 'Vienna Malt',
+        type: RecipeFermentableType.GRAIN,
+        weight_g: 100,
+        color_ebc: 8,
+      },
+    ],
+    // Single-variety Cascade: a small 5 g bittering charge (~18 IBU on
+    // this concentrated 4.3 L batch at 5.5% AA) + 4 g at flameout for a
+    // light aroma (negligible IBU).
+    hops: [
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 5,
+        alpha_acid_percent: 5.5,
+        addition_stage: RecipeHopAdditionStage.BOIL,
+        addition_time_min: 60,
+      },
+      {
+        variety: 'Cascade',
+        type: RecipeHopType.PELLET,
+        weight_g: 4,
+        alpha_acid_percent: 5.5,
+        addition_stage: RecipeHopAdditionStage.WHIRLPOOL,
+      },
+    ],
+    // Half a dry sachet is plenty for ~4 L (a whole 11.5 g sachet is
+    // also fine). Ferment 18-20 °C per the recipe doc.
+    yeasts: [
+      {
+        name: 'Fermentis SafAle US-05',
+        type: RecipeYeastType.ALE,
+        amount_g: 5.75,
+        attenuation_percent: 81,
+        temperature_min_c: 18,
+        temperature_max_c: 20,
       },
     ],
     steps: DEFAULT_WORKFLOW_STEPS,

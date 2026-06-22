@@ -31,6 +31,7 @@ classDiagram
     +number fermenterLossL
   }
   class VolumePlan {
+    <<value object>>
     +Method method
     +number strikeWaterL
     +number spargeWaterL
@@ -74,3 +75,10 @@ classDiagram
   recipe; snapshotted onto the batch at launch (ADR-0020 D3).
 - `BrewReadiness.readyToLaunch = ingredientChecklist.isComplete() && equipmentChecklist.isComplete()` (UC6).
 - Enums: `Method` = {FULL_VOLUME, DUNK_SPARGE}; `Kind` = {INGREDIENT, EQUIPMENT}.
+- **Design patterns (named, see ADR-0020 § Design patterns):** `VolumePlan` is a
+  **Value Object** (immutable, identity-less — the `«value object»` stereotype);
+  the derivation `Recipe + EquipmentProfile → VolumePlan` is owned by the
+  **Domain Service** `VolumePlanner` (component 03); the launch snapshot is a
+  **Memento** (state 05); and `Method` is a **Strategy seam** — a plain
+  conditional today, promoted to a `MashStrategy` only if a third method appears
+  (YAGNI).

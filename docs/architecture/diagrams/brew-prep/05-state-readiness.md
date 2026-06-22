@@ -31,3 +31,6 @@ stateDiagram-v2
   launch again (UC6).
 - `BatchStarted` is **irreversible**: the brew then runs against the snapshotted
   plan (ADR-0020 D3), and the brewing-session epic owns everything after.
+- The `Ready → BatchStarted (snapshot the plan)` transition is a **Memento**: the
+  `VolumePlan` Value Object is captured and frozen onto the batch, so a started
+  batch keeps the exact numbers it was brewed with (ADR-0020 § Design patterns).

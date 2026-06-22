@@ -46,6 +46,26 @@ pre-batch preview, and **persisted on the batch** at launch.
 **D4 — Boil-off and the loss constants are calibratable inputs**, defaulted and
 stored on the equipment profile; the plan recomputes when they change.
 
+## Design patterns
+
+The conception **names** the DDD/GoF patterns it already relies on — vocabulary
+to make the contract explicit, not new abstractions (no speculative code;
+ADR-0001 / KISS):
+
+- **Domain Service** — `VolumePlanner`. The cascade depends on *both* the recipe
+  and the equipment, so it belongs to no single entity; a stateless domain
+  service owns it. Realizes D3.
+- **Value Object** — `VolumePlan` is immutable and identity-less: defined
+  entirely by its values (strike → pre-boil → … → bottled + method), recomputed,
+  never mutated in place.
+- **Snapshot / Memento** — at launch the `VolumePlan` is captured and frozen onto
+  the batch (D3), so a batch keeps the exact numbers it was brewed with even if
+  the recipe or the equipment profile changes later.
+- **Strategy (seam, not yet coded)** — the `Method` choice (full-volume vs
+  dunk-sparge, D2) is the natural Strategy point. A single conditional is enough
+  for two methods today; promote to a `MashStrategy` interface only if a third
+  method or per-method divergence appears (YAGNI).
+
 ## Consequences
 
 - Single source of truth for the brewing math (tested once, reused by a future

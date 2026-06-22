@@ -13,7 +13,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - **Decisions**:
   - `equipment-drives-the-plan` — batch size is derived from the fermenter capacity, not a free target; the kettle picks full-volume vs dunk-sparge. Recorded on ADR-0020 D1/D2.
   - `volume-math-in-backend` — the cascade is computed by a NestJS domain service (single source of truth, reused by a future web client) and persisted on the batch at launch; frontend-only and hybrid rejected for now. Recorded on ADR-0020 D3, implements ADR-0002.
-- Reviews — Codex P2 + Copilot (method-fit formula corrected to the mash-in volume `kettleCapacityL >= strikeWaterL + grainVolumeL` per D2; endpoint unified to `GET /recipes/:id/volume-plan`; cross-doc links to `docs/real-world-test/` resolved by updating the branch from main after #1247), CodeRabbit (Critical formula match + a `Batch` stub added to the class diagram to anchor the snapshot/Memento target); all threads resolved.
+- Reviews — the method-fit formula was corrected to the mash-in volume `kettleCapacityL >= strikeWaterL + grainVolumeL` (per D2, not the pre-boil wort); the volume-plan endpoint was unified to `GET /recipes/:id/volume-plan`; the cross-doc links to `docs/real-world-test/` were resolved by updating the branch from main after #1247; and a `Batch` stub was added to the class diagram to anchor the snapshot/Memento target. All review threads resolved.
 
 ### PR #1247 merged (`f0b4f33`) — docs(brewing): beginner blonde ale recipe + volume cascade (first real-world brew)
 

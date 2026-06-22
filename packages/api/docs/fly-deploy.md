@@ -139,16 +139,22 @@ The flow is **deploy → migrate (automatic) → seed (on demand)**:
 > dependency pruned in production). `seed-cli.ts` lives in `src/`, compiles into
 > `dist/`, and runs on plain `node`.
 
-To verify the blonde (or any seed change) landed, query the volume DB directly on
-the app machine (the `/recipes/public` endpoint is JWT-guarded, so an
-unauthenticated `curl` would `401`):
+To verify the blonde (or any seed change) landed — both options run **on the app
+machine** (the `/recipes/public` endpoint is JWT-guarded, so an unauthenticated
+`curl` would `401`):
+
+**Option 1 — re-run the seed CLI and read the `updated` counts:**
 
 ```bash
 fly ssh console --app brasse-bouillon-api \
-  -C "node dist/database/seed-cli.js"   # re-run: 'updated' counts confirm the rows exist
-# or, with sqlite3 installed on the machine:
-sqlite3 /app/data/brasse-bouillon.db \
-  "SELECT name, batch_size_l FROM recipes WHERE name LIKE 'Blonde Facile%';"
+  -C "node dist/database/seed-cli.js"
+```
+
+**Option 2 — query the volume DB with sqlite3 (if installed on the machine):**
+
+```bash
+fly ssh console --app brasse-bouillon-api \
+  -C "sqlite3 /app/data/brasse-bouillon.db \"SELECT name, batch_size_l FROM recipes WHERE name LIKE 'Blonde Facile%';\""
 ```
 
 ## Rotating secrets

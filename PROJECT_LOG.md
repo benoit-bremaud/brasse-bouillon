@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-22
+
+### PR #1247 merged (`f0b4f33`) — docs(brewing): beginner blonde ale recipe + volume cascade (first real-world brew)
+
+- Branch `docs/blonde-first-brew`. Source-of-truth recipe doc `docs/real-world-test/blonde-ale-5l-first-brew.md` for the first real-world brew: a beginner BIAB Blonde Ale (BJCP 18A) scaled to the **fermenter constraint** (5 L demijohn → ferment ~4.3 L → ~4 L bottled, from ~7 L strike water), the full water cascade (strike → mash → pre-boil → boil-off → post-boil → kettle trub → fermenter → bottled), equipment + shopping lists, step-by-step brew day, and §8 the app requirements (fermenter caps the batch, explicit volume planning, equipment-driven process, readiness checklists, step guide, measurements, bottling). Feeds the seeded public recipe (build A1) and ADR-0020 (#1248).
+- Reviews — Codex P2 (hop charge: 10 g @ 60 min computes to ~34 IBU per the repo's `RecipeIbuTinsethDomainService` at Cascade 5.5 % AA / 4.3 L → reduced to **5 g** for the stated ~18 IBU, reconciled across the hops section, shopping list, and brew-day step 5), Copilot (pot `>= 12 L` not a range; "let it stand 24 h" wording; "(60 min)" hyphenation), CodeRabbit (demijohn headspace reconciled to ~0.7 L / ~14 % + blow-off tube recommended; footnote 1 splits the -1.2 L into ~1.0 L boil-off + ~0.2 L cooling shrink); all threads resolved.
+
 ## 2026-06-19
 
 ### PR #1245 merged (`b7cfa60`) — ci(coverage): blocking coverage ratchet + wire API e2e into CI (ADR-0019 D3)

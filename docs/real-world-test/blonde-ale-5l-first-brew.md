@@ -43,7 +43,7 @@ first brew. Scaled to the 5 L demijohn.
 **Yeast** — **SafAle US-05** (dry, clean, very tolerant). ~½ sachet is plenty for
 this volume (a whole 11 g sachet is also fine). Ferment **18–20 °C**.
 
-**Water** — dechlorinated tap water (Campden tablet, or rest 24 h). Optional
+**Water** — dechlorinated tap water (Campden tablet, or let it stand 24 h). Optional
 pinch of gypsum. Kept deliberately simple.
 
 ## 2. Volume planning (the water cascade)
@@ -63,9 +63,11 @@ Scenario A (large pot, full-volume BIAB, **no sparge**) is this brew.
 | − yeast/trub + bottling loss | → ~4.0 L | −0.3 L |
 | **🍺 Bottled** | **~4.0 L** (≈ 8 × 50 cl) | ✅ |
 
-> ¹ **Boil-off is equipment-dependent** (pot diameter, boil vigour); ~1 L/h is a
-> starting assumption — the app should let the user calibrate it and recompute
-> the cascade. Hot wort also shrinks ~4 % on cooling.
+> ¹ This **−1.2 L** line bundles two effects: ~1.0 L **boil-off** over the 60-min
+> boil (the ~1 L/h starting assumption) plus ~0.2 L **cooling shrink** (hot wort
+> contracts ~4 % as it cools from boiling to ~20 °C). Boil-off is
+> equipment-dependent (pot diameter, boil vigour); the app should let the user
+> calibrate the rate and recompute the cascade.
 
 **Scenario B — medium pot (~9–11 L): BIAB + dunk-sparge.** Same recipe, same
 ~6 L pre-boil, same ~4 L bottled — only the mash water is split: mash in ~4 L,
@@ -100,7 +102,7 @@ then dunk-sparge the bag in ~3 L at 75 °C and combine (adds one step). A pot
 3. **Mash** — put the BIAB bag in, stir in the grain, hold **66 °C for 60 min**.
 4. **Remove the bag** — lift, drain, gentle squeeze. *(Scenario B: dunk-sparge
    here.)*
-5. **Boil — 60 min.** At the start of the boil add **5 g Cascade** (60-min,
+5. **Boil — 60 min.** At the start of the boil add **5 g Cascade** (60 min,
    ~18 IBU); at flameout add **4 g Cascade**.
 6. **Whirlpool** — stir, rest ~10 min.
 7. **Chill** to ~20 °C (ice bath).

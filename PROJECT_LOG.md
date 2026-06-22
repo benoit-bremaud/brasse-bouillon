@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-22
 
+### PR #1248 merged (`2ce799a`) — docs(brew-prep/architecture): UML deliverables + ADR-0020 (equipment-driven volume planning)
+
+- Branch `docs/brew-prep-conception`. Conception for the first real-world brew's reversible **pre-batch** journey: `docs/architecture/decisions/0020-equipment-driven-volume-planning.md` + 5 diagrams under `docs/architecture/diagrams/brew-prep/` (use-case / sequence / component / class / state). ADR-0020 settles two coupled questions — **D1** the fermenter (minus headspace) caps the batch, **D2** the kettle selects the BIAB method, **D3** the volume plan is computed in a NestJS domain service and snapshotted onto the batch, **D4** boil-off/losses are calibratable. Joint diagram review with the founder: all 5 validated. **Design patterns named** (vocabulary, no speculative code): Domain Service (`VolumePlanner`), Value Object (`VolumePlan`, `«value object»`), Snapshot/Memento (launch-time plan freeze), Strategy seam (`Method`, a conditional today). ADR-0020 → **Accepted**; added to the CLAUDE.md ADR list + decisions index.
+- **Decisions**:
+  - `equipment-drives-the-plan` — batch size is derived from the fermenter capacity, not a free target; the kettle picks full-volume vs dunk-sparge. Recorded on ADR-0020 D1/D2.
+  - `volume-math-in-backend` — the cascade is computed by a NestJS domain service (single source of truth, reused by a future web client) and persisted on the batch at launch; frontend-only and hybrid rejected for now. Recorded on ADR-0020 D3, implements ADR-0002.
+- Reviews — Codex P2 + Copilot (method-fit formula corrected to the mash-in volume `kettleCapacityL >= strikeWaterL + grainVolumeL` per D2; endpoint unified to `GET /recipes/:id/volume-plan`; cross-doc links to `docs/real-world-test/` resolved by updating the branch from main after #1247), CodeRabbit (Critical formula match + a `Batch` stub added to the class diagram to anchor the snapshot/Memento target); all threads resolved.
+
 ### PR #1247 merged (`f0b4f33`) — docs(brewing): beginner blonde ale recipe + volume cascade (first real-world brew)
 
 - Branch `docs/blonde-first-brew`. Source-of-truth recipe doc `docs/real-world-test/blonde-ale-5l-first-brew.md` for the first real-world brew: a beginner BIAB Blonde Ale (BJCP 18A) scaled to the **fermenter constraint** (5 L demijohn → ferment ~4.3 L → ~4 L bottled, from ~7 L strike water), the full water cascade (strike → mash → pre-boil → boil-off → post-boil → kettle trub → fermenter → bottled), equipment + shopping lists, step-by-step brew day, and §8 the app requirements (fermenter caps the batch, explicit volume planning, equipment-driven process, readiness checklists, step guide, measurements, bottling). Feeds the seeded public recipe (build A1) and ADR-0020 (#1248).

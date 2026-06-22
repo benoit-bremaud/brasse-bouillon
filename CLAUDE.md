@@ -99,6 +99,7 @@ Currently accepted ADRs (see each file for the `Status` line and full rationale)
 - [ADR-0014 — Website hosting on Cloudflare Pages, DNS authority on Cloudflare](docs/architecture/decisions/0014-website-hosting-cloudflare-pages-dns.md)
 - [ADR-0015 — Beer ingestion & enrichment strategy (staging → human-gated promotion)](docs/architecture/decisions/0015-beer-ingestion-enrichment-strategy.md)
 - [ADR-0018 — Admin/moderation surface: in-app CREATOR moderation, secured at the NestJS API](docs/architecture/decisions/0018-admin-moderation-surface.md)
+- [ADR-0020 — Equipment-driven batch sizing & volume planning (computed in the backend)](docs/architecture/decisions/0020-equipment-driven-volume-planning.md)
 
 When a new ADR is accepted, add its file link here (no dates, no per-ADR summaries — open the file for the live status and content). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
 

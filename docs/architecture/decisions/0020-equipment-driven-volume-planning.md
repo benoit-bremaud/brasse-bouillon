@@ -1,6 +1,6 @@
 # ADR-0020 — Equipment-driven batch sizing & volume planning (computed in the backend)
 
-**Status**  Proposed
+**Status**  Accepted
 **Date**    2026-06-19
 **Owners**  @benoit-bremaud
 

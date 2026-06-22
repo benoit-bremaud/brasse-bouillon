@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-22
 
+### PR #1253 merged (`b565913`) — feat(api): deployable production seeding via a compiled seed CLI
+
+- Branch `feat/api-seed-cli`. Closes the prod-seeding gap: the `packages/api/scripts/` seed scripts never ship in the Fly image (not copied; run via `ts-node`, pruned in prod), so there was no way to seed the deployed DB. Adds `src/database/seed-cli.ts` — a `runProductionSeed(dataSource)` (system curator user then public recipes, idempotent) plus a `require.main` guard so it runs as `node dist/database/seed-cli.js`. It lives in `src/`, so it compiles into `dist/` (in the Docker build the inferred tsc rootDir is `src/`, matching the Dockerfile's `node dist/main`). Spec covers H/S/E (user before recipes for the FK; initialises the DataSource when needed; propagates errors). `docs/fly-deploy.md` gains a *Migrations & seeding in production* section.
+- **Decisions**:
+  - `prod-deploy-model` — deploy → migrate (automatic) → seed (on demand). Migrations run at app boot (`migrationsRun: true`) on the machine with the volume; seeding runs via `fly ssh console -C "node dist/database/seed-cli.js"`. Rejected a `fly.toml` `release_command` (its ephemeral machine has no volume mounted, so a SQLite-on-volume migrate/seed would hit a throwaway DB).
+- Reviews — a doc nit (split the seed verification into two explicit `fly ssh console -C` options so neither reads as a local command); all threads resolved. CI green (api unit + e2e, coverage above the gate).
+
 ### PR #1251 merged (`e4da874`) — feat(api): seed the beginner blonde as a PUBLIC recipe (first real-world brew, A1)
 
 - Branch `feat/seed-blonde-first-brew`. Build **A1** of the first-real-brew journey: adds the beginner **Blonde Ale** as a 12th curated PUBLIC recipe in `public-recipes.seed.ts`, conforming to the recipe doc (#1247) and ADR-0020 (#1248). `batch_size_l = 4.3` (volume into the 5 L demijohn, BeerXML semantics — the volume the ~18 IBU Tinseth target is computed against); ~1 kg grain (900 g Pilsner + 100 g Vienna), single-Cascade hops (5 g @ 60 min + 4 g flameout), SafAle US-05, the canonical 5-step workflow (the detailed instruction/duration brew-day guide is the phase-B build). Not a demo-bottle equivalent; `is_official` stays false; carries full content so the imported recipe is not an empty shell. Spec: curated count 11 → 12, content-bearing set generalised to include the (non-demo-mapped) blonde, blonde H/S/E added.

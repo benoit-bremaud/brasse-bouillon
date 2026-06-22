@@ -754,7 +754,7 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
     ],
     steps: DEFAULT_WORKFLOW_STEPS,
   },
-  // --- First real-world brew (NOT a demo-bottle equivalent) ---
+  // --- First real-world brew (no demo-bottle mock mapping) ---
   // The beginner Blonde Ale scaled to the founder's 5 L demijohn that
   // the app guides the first real brew through end-to-end. Source of
   // truth: docs/real-world-test/blonde-ale-5l-first-brew.md. Carries
@@ -763,8 +763,18 @@ export const PUBLIC_RECIPES_SEED: readonly PublicRecipeSeed[] = [
   // is the separate phase-B build. `batch_size_l` is the ~4.3 L INTO
   // the fermenter (BeerXML batch-size semantics) — the volume the ~18
   // IBU Tinseth target is computed against, kept consistent with the
-  // doc and RecipeIbuTinsethDomainService. `is_official` stays false
-  // (per the global-flag regression note above).
+  // doc and RecipeIbuTinsethDomainService.
+  //
+  // Scope note (Codex P2 on PR #1251): being PUBLIC, this recipe DOES
+  // participate in backend scan matching — `/recipes/match` ranks every
+  // PUBLIC recipe, so a Blonde Ale scores well for a scanned blonde beer.
+  // That is accepted as correct matcher behaviour (a blonde IS a relevant
+  // equivalent for a blonde); the demo "official recipe" beats are driven
+  // by the mobile `demoEquivalentRecipes` mock — which this row is absent
+  // from — not by the backend ranking, so the demo experience is
+  // unaffected. This entry simply has no demo-bottle mapping. `is_official`
+  // stays false (per the global-flag regression note above) so it never
+  // gets the 100-pt shortcut.
   {
     id: '00000000-0000-4000-8000-00000000000c',
     name: 'Blonde Facile (premier brassin)',

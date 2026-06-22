@@ -26,8 +26,9 @@ const WHITE_IPA_ID = '00000000-0000-4000-8000-000000000003';
 const PUNK_IPA_ID = '00000000-0000-4000-8000-00000000000b';
 const GARNISHED_IDS = [SESSION_IPA_ID, NEIPA_ID, WHITE_IPA_ID, PUNK_IPA_ID];
 /** The first-real-brew beginner Blonde Ale — content-bearing like the
- * garnished recipes, but NOT scan-reachable (it has no demo-bottle
- * mapping); it is the recipe the app guides the founder's first brew. */
+ * garnished recipes; it has no demo-bottle MOCK mapping, but being
+ * PUBLIC it still participates in backend scan matching (Codex P2 on
+ * PR #1251). It is the recipe the app guides the founder's first brew. */
 const BLONDE_ID = '00000000-0000-4000-8000-00000000000c';
 /** Every recipe that ships full content (ingredients + steps): the
  * four scan-reachable rows plus the first-real-brew blonde. */
@@ -422,7 +423,11 @@ describe('first-real-brew blonde (A1)', () => {
     expect(blonde?.is_official ?? false).toBe(false);
   });
 
-  it('edge: is content-bearing yet NOT scan-reachable (no demo-bottle mapping)', () => {
+  it('edge: is content-bearing with no demo-bottle mock mapping (still PUBLIC, so still ranked by matching)', () => {
+    // It carries full content but is absent from the scan-reachable
+    // (demo-bottle) set. Being PUBLIC, the backend matcher still ranks
+    // it for scanned beers — accepted as correct behaviour (Codex P2 on
+    // PR #1251); only the mobile demo mock list excludes it.
     expect(blonde?.fermentables?.length).toBeGreaterThan(0);
     expect(GARNISHED_IDS).not.toContain(BLONDE_ID);
     expect(CONTENT_BEARING_IDS).toContain(BLONDE_ID);

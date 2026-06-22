@@ -105,6 +105,58 @@ apt-get update && apt-get install -y sqlite3  # one-off
 sqlite3 /app/data/brasse-bouillon.db ".tables"
 ```
 
+## Migrations & seeding in production
+
+The flow is **deploy → migrate (automatic) → seed (on demand)**:
+
+1. **Schema / migrations — automatic on boot.** The runtime TypeORM config sets
+   `migrationsRun: true` (see `src/database/typeorm.config.ts`), so the app
+   applies any pending migrations against the volume DB **every time it starts**.
+   A plain `fly deploy` therefore brings both the code and the schema up to date —
+   nothing extra to run.
+
+2. **Seed data — run the seed CLI on the app machine.** The curated PUBLIC
+   recipes (and the system curator user that owns them) are seeded by a compiled
+   entrypoint shipped inside the image at `dist/database/seed-cli.js`. Run it on
+   the **running app machine** (which has the volume mounted at `/app/data`):
+
+   ```bash
+   fly ssh console --app brasse-bouillon-api \
+     -C "node dist/database/seed-cli.js"
+   # logs: Production seed complete: {"systemUser":{...},"publicRecipes":{...}}
+   ```
+
+   It is **idempotent** (rows upsert by id), so it is safe to re-run after every
+   deploy that changes the seed data.
+
+> **Why not a `fly.toml` `release_command`?** Release-command machines run the
+> new image **without the volume mounted**, so a SQLite-on-volume migrate/seed
+> there would write to a throwaway database. Migrations already run at app boot,
+> and the seed CLI runs on the app machine — both reach the real `/app/data` DB.
+>
+> **Why not `scripts/run-public-recipes-seed.ts`?** That script lives outside
+> `src/`, is never copied into the runtime image, and runs via `ts-node` (a dev
+> dependency pruned in production). `seed-cli.ts` lives in `src/`, compiles into
+> `dist/`, and runs on plain `node`.
+
+To verify the blonde (or any seed change) landed — both options run **on the app
+machine** (the `/recipes/public` endpoint is JWT-guarded, so an unauthenticated
+`curl` would `401`):
+
+**Option 1 — re-run the seed CLI and read the `updated` counts:**
+
+```bash
+fly ssh console --app brasse-bouillon-api \
+  -C "node dist/database/seed-cli.js"
+```
+
+**Option 2 — query the volume DB with sqlite3 (if installed on the machine):**
+
+```bash
+fly ssh console --app brasse-bouillon-api \
+  -C "sqlite3 /app/data/brasse-bouillon.db \"SELECT name, batch_size_l FROM recipes WHERE name LIKE 'Blonde Facile%';\""
+```
+
 ## Rotating secrets
 
 ```bash

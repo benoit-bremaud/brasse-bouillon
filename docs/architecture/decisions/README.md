@@ -56,6 +56,8 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0016](0016-recipe-equivalence-matching-v2.md) | Recipe-equivalence matching v2 (weighted criteria + completeness + BJCP families) | Proposed | 2026-06-05 |
 | [0017](0017-beer-ibu-colour-min-max-intervals.md) | Beer IBU & colour stored as min/max intervals | Proposed | 2026-06-05 |
 | [0018](0018-admin-moderation-surface.md) | Admin/moderation surface (in-app CREATOR, secured at the API) | Accepted | 2026-06-15 |
+| [0019](0019-testing-strategy-and-quality-gates.md) | Testing strategy: test pyramid, e2e tooling per surface, CI quality gates | Proposed | 2026-06-17 |
+| [0020](0020-equipment-driven-volume-planning.md) | Equipment-driven batch sizing & volume planning (computed in the backend) | Proposed | 2026-06-19 |
 
 > **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
 > referenced by open epics: 0006 — private journal vs. social product (#833),

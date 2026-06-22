@@ -36,8 +36,9 @@ first brew. Scaled to the 5 L demijohn.
 - 100 g **Vienna malt** (roundness + golden hue)
 
 **Hops — single variety, Cascade** (or Saaz for a more floral/noble character)
-- 10 g **Cascade** @ **60 min** (bitterness)
-- 6 g **Cascade** @ **flameout / whirlpool** (light aroma)
+- 5 g **Cascade** @ **60 min** (bitterness — ~18 IBU for this ~4.3 L batch; small
+  batches concentrate bitterness, so the bittering charge is deliberately small)
+- 4 g **Cascade** @ **flameout / whirlpool** (light aroma, negligible IBU)
 
 **Yeast** — **SafAle US-05** (dry, clean, very tolerant). ~½ sachet is plenty for
 this volume (a whole 11 g sachet is also fine). Ferment **18–20 °C**.
@@ -86,7 +87,7 @@ then dunk-sparge the bag in ~3 L at 75 °C and combine (adds one step). A pot
 ## 4. Shopping list (ingredients)
 
 - 900 g **Pilsner malt** + 100 g **Vienna malt** (≈ 1.0 kg)
-- 16 g **Cascade** hops (10 g + 6 g)
+- ~10 g **Cascade** hops (5 g bittering + 4 g flameout + a small margin)
 - 1 sachet **SafAle US-05**
 - ~22 g **priming sugar** (sucrose) for ~4 L
 - Campden / dechlorinated water
@@ -99,8 +100,8 @@ then dunk-sparge the bag in ~3 L at 75 °C and combine (adds one step). A pot
 3. **Mash** — put the BIAB bag in, stir in the grain, hold **66 °C for 60 min**.
 4. **Remove the bag** — lift, drain, gentle squeeze. *(Scenario B: dunk-sparge
    here.)*
-5. **Boil — 60 min.** At the start of the boil add **10 g Cascade** (60-min);
-   at flameout add **6 g Cascade**.
+5. **Boil — 60 min.** At the start of the boil add **5 g Cascade** (60-min,
+   ~18 IBU); at flameout add **4 g Cascade**.
 6. **Whirlpool** — stir, rest ~10 min.
 7. **Chill** to ~20 °C (ice bath).
 8. **Transfer ~4.3 L** into the sanitized 5 L demijohn (leave trub behind, keep

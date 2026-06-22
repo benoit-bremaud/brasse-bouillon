@@ -25,6 +25,13 @@ const NEIPA_ID = '00000000-0000-4000-8000-000000000002';
 const WHITE_IPA_ID = '00000000-0000-4000-8000-000000000003';
 const PUNK_IPA_ID = '00000000-0000-4000-8000-00000000000b';
 const GARNISHED_IDS = [SESSION_IPA_ID, NEIPA_ID, WHITE_IPA_ID, PUNK_IPA_ID];
+/** The first-real-brew beginner Blonde Ale — content-bearing like the
+ * garnished recipes, but NOT scan-reachable (it has no demo-bottle
+ * mapping); it is the recipe the app guides the founder's first brew. */
+const BLONDE_ID = '00000000-0000-4000-8000-00000000000c';
+/** Every recipe that ships full content (ingredients + steps): the
+ * four scan-reachable rows plus the first-real-brew blonde. */
+const CONTENT_BEARING_IDS = [...GARNISHED_IDS, BLONDE_ID];
 /** A recipe that intentionally stays metadata-only (Belgian Tripel). */
 const METADATA_ONLY_ID = '00000000-0000-4000-8000-000000000004';
 
@@ -44,7 +51,7 @@ function buildSubRepos(): {
 
 describe('seedPublicRecipes (Issue #701)', () => {
   describe('happy path', () => {
-    it('inserts all 11 curated recipes when the table is empty', async () => {
+    it('inserts all 12 curated recipes when the table is empty', async () => {
       const repo = buildRepoMock();
       repo.findOne.mockResolvedValue(null);
 
@@ -52,9 +59,9 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 11, updated: 0, total: 11 });
-      expect(repo.create).toHaveBeenCalledTimes(11);
-      expect(repo.save).toHaveBeenCalledTimes(11);
+      expect(result).toEqual({ inserted: 12, updated: 0, total: 12 });
+      expect(repo.create).toHaveBeenCalledTimes(12);
+      expect(repo.save).toHaveBeenCalledTimes(12);
     });
 
     it('tags every inserted row as PUBLIC + system owner with the seed-declared is_official flag', async () => {
@@ -99,7 +106,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
       const nonOfficials = createdRows.filter(
         (row) => row.is_official === false,
       );
-      expect(nonOfficials).toHaveLength(11);
+      expect(nonOfficials).toHaveLength(12);
     });
   });
 
@@ -118,9 +125,9 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 0, updated: 11, total: 11 });
+      expect(result).toEqual({ inserted: 0, updated: 12, total: 12 });
       expect(repo.create).not.toHaveBeenCalled();
-      expect(repo.save).toHaveBeenCalledTimes(11);
+      expect(repo.save).toHaveBeenCalledTimes(12);
     });
 
     it('forces visibility back to PUBLIC and is_official back to false when overwriting a drifted row', async () => {
@@ -148,7 +155,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
   describe('edge cases', () => {
     it('mixes inserts and updates when only some IDs already exist', async () => {
       const repo = buildRepoMock();
-      // First three IDs exist, last seven do not.
+      // First three IDs exist, last nine do not.
       let counter = 0;
       repo.findOne.mockImplementation(() => {
         counter += 1;
@@ -161,7 +168,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
         repo as unknown as Repository<RecipeOrmEntity>,
       );
 
-      expect(result).toEqual({ inserted: 8, updated: 3, total: 11 });
+      expect(result).toEqual({ inserted: 9, updated: 3, total: 12 });
     });
 
     it('respects an explicit override list (e.g. tests, alternate demo data)', async () => {
@@ -178,8 +185,8 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(result).toEqual({ inserted: 2, updated: 0, total: 2 });
     });
 
-    it('exposes 11 curated recipes covering IPA / Belgian / Strong / Lager families plus the official DIY Dog', () => {
-      expect(PUBLIC_RECIPES_SEED).toHaveLength(11);
+    it('exposes 12 curated recipes covering IPA / Belgian / Strong / Lager families plus the official DIY Dog and the first-real-brew blonde', () => {
+      expect(PUBLIC_RECIPES_SEED).toHaveLength(12);
       const names = PUBLIC_RECIPES_SEED.map((r) => r.name);
       expect(names).toContain('Session IPA Citra');
       expect(names).toContain('Belgian Tripel');
@@ -187,6 +194,7 @@ describe('seedPublicRecipes (Issue #701)', () => {
       expect(names).toContain('Imperial Stout');
       expect(names).toContain('Kölsch Tradition');
       expect(names).toContain('BrewDog DIY Dog Punk IPA');
+      expect(names).toContain('Blonde Facile (premier brassin)');
     });
 
     it('tags every seeded recipe with a non-empty style for the matching algorithm', () => {
@@ -214,21 +222,21 @@ describe('seedPublicRecipes (Issue #701)', () => {
 
 describe('public recipe content (ingredients + steps, #1134)', () => {
   describe('seed data integrity', () => {
-    it('garnishes exactly the four scan-reachable recipes with full content', () => {
+    it('gives full content to exactly the four scan-reachable recipes plus the first-real-brew blonde', () => {
       const withContent = PUBLIC_RECIPES_SEED.filter((r) => r.fermentables);
       expect(withContent.map((r) => r.id).sort()).toEqual(
-        [...GARNISHED_IDS].sort(),
+        [...CONTENT_BEARING_IDS].sort(),
       );
     });
 
-    it('gives every garnished recipe fermentables, hops, yeasts and the 5-step workflow', () => {
-      for (const id of GARNISHED_IDS) {
+    it('gives every content-bearing recipe fermentables, hops, yeasts and the 5-step workflow', () => {
+      for (const id of CONTENT_BEARING_IDS) {
         const recipe = PUBLIC_RECIPES_SEED.find((r) => r.id === id);
         expect(recipe).toBeDefined();
         expect(recipe?.fermentables?.length).toBeGreaterThan(0);
         expect(recipe?.hops?.length).toBeGreaterThan(0);
         expect(recipe?.yeasts?.length).toBeGreaterThan(0);
-        // Every garnished recipe references the shared default workflow.
+        // Every content-bearing recipe references the shared default workflow.
         expect(recipe?.steps).toBe(DEFAULT_WORKFLOW_STEPS);
         expect(recipe?.steps).toHaveLength(5);
       }
@@ -365,5 +373,67 @@ describe('public recipe content (ingredients + steps, #1134)', () => {
 
       expect(result).toEqual({ inserted: total, updated: 0, total });
     });
+  });
+});
+
+describe('first-real-brew blonde (A1)', () => {
+  const blonde = PUBLIC_RECIPES_SEED.find((r) => r.id === BLONDE_ID);
+
+  it('happy: ships the beginner Blonde Ale scaled to the 5 L demijohn', () => {
+    expect(blonde).toBeDefined();
+    expect(blonde?.name).toBe('Blonde Facile (premier brassin)');
+    expect(blonde?.style).toBe('Blonde Ale');
+    // batch_size_l is the ~4.3 L INTO the fermenter — the volume the
+    // ~18 IBU Tinseth target is computed against (ADR-0020 / the doc).
+    expect(blonde?.batch_size_l).toBe(4.3);
+    expect(blonde?.og_target).toBe(1.044);
+    expect(blonde?.ibu_target).toBe(18);
+    expect(blonde?.abv_estimated).toBe(4.5);
+  });
+
+  it('happy: carries the ~1 kg BIAB grain bill, single-Cascade hops and US-05', () => {
+    const grainG = (blonde?.fermentables ?? []).reduce(
+      (sum, f) => sum + f.weight_g,
+      0,
+    );
+    expect(grainG).toBe(1000);
+    // Single hop variety across both additions.
+    const varieties = new Set((blonde?.hops ?? []).map((h) => h.variety));
+    expect([...varieties]).toEqual(['Cascade']);
+    // 5 g bittering @ 60 min, 4 g flameout whirlpool — the ~18 IBU charge.
+    const bittering = blonde?.hops?.find(
+      (h) => h.addition_stage === RecipeHopAdditionStage.BOIL,
+    );
+    expect(bittering?.weight_g).toBe(5);
+    expect(bittering?.addition_time_min).toBe(60);
+    const flameout = blonde?.hops?.find(
+      (h) => h.addition_stage === RecipeHopAdditionStage.WHIRLPOOL,
+    );
+    expect(flameout?.weight_g).toBe(4);
+    const yeast = blonde?.yeasts?.[0];
+    expect(yeast?.name).toBe('Fermentis SafAle US-05');
+    expect(yeast?.type).toBe(RecipeYeastType.ALE);
+  });
+
+  it('sad: is never tagged official (no global-flag matching boost)', () => {
+    // Like every backend seed row, the blonde must stay non-official —
+    // is_official is a GLOBAL matching shortcut and tagging it would
+    // distort rankForBeer for unrelated beers.
+    expect(blonde?.is_official ?? false).toBe(false);
+  });
+
+  it('edge: is content-bearing yet NOT scan-reachable (no demo-bottle mapping)', () => {
+    expect(blonde?.fermentables?.length).toBeGreaterThan(0);
+    expect(GARNISHED_IDS).not.toContain(BLONDE_ID);
+    expect(CONTENT_BEARING_IDS).toContain(BLONDE_ID);
+  });
+
+  it('edge: is the smallest batch in the catalogue (4.3 L vs the 20 L demo recipes)', () => {
+    expect(blonde).toBeDefined();
+    const blondeBatch = blonde?.batch_size_l ?? 0;
+    const others = PUBLIC_RECIPES_SEED.filter((r) => r.id !== BLONDE_ID);
+    for (const recipe of others) {
+      expect(recipe.batch_size_l).toBeGreaterThan(blondeBatch);
+    }
   });
 });

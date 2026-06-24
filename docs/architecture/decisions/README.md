@@ -58,6 +58,7 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0018](0018-admin-moderation-surface.md) | Admin/moderation surface (in-app CREATOR, secured at the API) | Accepted | 2026-06-15 |
 | [0019](0019-testing-strategy-and-quality-gates.md) | Testing strategy: test pyramid, e2e tooling per surface, CI quality gates | Proposed | 2026-06-17 |
 | [0020](0020-equipment-driven-volume-planning.md) | Equipment-driven batch sizing & volume planning (computed in the backend) | Accepted | 2026-06-19 |
+| [0021](0021-equipment-readiness-cleaning-and-adaptive-pedagogy.md) | Equipment readiness = reusable profile + capacity fit-check + cleaning ritual; adaptive pedagogy | Proposed | 2026-06-24 |
 
 > **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
 > referenced by open epics: 0006 — private journal vs. social product (#833),

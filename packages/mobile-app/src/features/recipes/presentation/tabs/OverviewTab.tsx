@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import { BeerHero } from "@/features/scan/presentation/components/BeerHero";
 import { Card } from "@/core/ui/Card";
 import { colors, radius, spacing, typography } from "@/core/theme";
@@ -16,6 +17,11 @@ type OverviewTabProps = Readonly<{
   equipment: RecipeDetailsEquipmentItem[];
   targetVolumeLiters: number;
   provenanceLabel: string | null;
+  /**
+   * Opens the pre-brew ingredient readiness checklist (build slice A2).
+   * Optional so the tab renders unchanged where the entry point is not wired.
+   */
+  onOpenIngredientReadiness?: () => void;
 }>;
 
 /**
@@ -37,6 +43,7 @@ export function OverviewTab({
   equipment,
   targetVolumeLiters,
   provenanceLabel,
+  onOpenIngredientReadiness,
 }: OverviewTabProps) {
   const stats: RecipeStats | null | undefined = recipe.stats;
   const styleLabel = pickField(recipe, "style");
@@ -79,6 +86,33 @@ export function OverviewTab({
             d'origine.
           </Text>
         </Card>
+      ) : null}
+
+      {onOpenIngredientReadiness ? (
+        <Pressable
+          testID="recipe-open-ingredient-readiness"
+          accessibilityRole="button"
+          accessibilityLabel="Vérifier mes ingrédients"
+          style={({ pressed }) => [
+            styles.readinessButton,
+            pressed && styles.readinessButtonPressed,
+          ]}
+          onPress={onOpenIngredientReadiness}
+        >
+          <Ionicons
+            name="checkbox-outline"
+            size={20}
+            color={colors.brand.secondary}
+          />
+          <Text style={styles.readinessButtonText}>
+            Vérifier mes ingrédients
+          </Text>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={colors.brand.secondary}
+          />
+        </Pressable>
       ) : null}
 
       {recipe.description ? (
@@ -211,6 +245,28 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     color: colors.neutral.textSecondary,
+  },
+  readinessButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+    backgroundColor: colors.brand.background,
+  },
+  readinessButtonPressed: {
+    opacity: 0.85,
+  },
+  readinessButtonText: {
+    flex: 1,
+    color: colors.brand.secondary,
+    fontWeight: typography.weight.bold,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   introText: {
     color: colors.neutral.textSecondary,

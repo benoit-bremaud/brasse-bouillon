@@ -54,17 +54,10 @@ export function scaleQuantity(amount: number, factor: number): number {
   return Number.parseFloat(scaled.toFixed(3));
 }
 
-export function formatQuantity(amount: number, unit: string): string {
-  if (!Number.isFinite(amount)) {
-    return `0 ${unit}`;
-  }
-
-  const roundedAmount = Number.isInteger(amount)
-    ? amount
-    : Number.parseFloat(amount.toFixed(2));
-
-  return `${roundedAmount} ${unit}`;
-}
+// `formatQuantity` lives in the layer-neutral `core/utils/format` so the
+// application layer (brew-readiness use-cases) can reuse it without importing
+// from presentation. Re-exported here for the existing presentation callers.
+export { formatQuantity } from "@/core/utils/format";
 
 export function groupIngredientsByType(
   ingredients: RecipeDetailsIngredientItem[],

@@ -311,6 +311,13 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     });
   };
 
+  const handleOpenIngredientReadiness = () => {
+    router.push({
+      pathname: "/(app)/recipes/[id]/readiness",
+      params: { id: recipeId },
+    });
+  };
+
   const handleGoBack = () => {
     router.replace("/recipes");
   };
@@ -416,6 +423,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     equipment={equipment}
                     targetVolumeLiters={targetVolumeLiters}
                     provenanceLabel={provenanceLabel}
+                    onOpenIngredientReadiness={handleOpenIngredientReadiness}
                   />
                 ) : null}
 

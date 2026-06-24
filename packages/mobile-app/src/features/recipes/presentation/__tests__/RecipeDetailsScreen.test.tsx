@@ -186,6 +186,18 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByText("Braumeister 20L")).toBeTruthy();
   });
 
+  it("opens the ingredient readiness checklist from the Overview tab", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByTestId("recipe-open-ingredient-readiness"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/recipes/[id]/readiness",
+      params: { id: "r1" },
+    });
+  });
+
   it("switches to the Ingredients tab and shows the ingredient list", async () => {
     renderRecipeDetails();
 

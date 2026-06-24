@@ -136,6 +136,15 @@ describe("IngredientReadinessScreen (A2)", () => {
     expect(screen.queryByText("Ce qu'il te manque")).toBeNull();
   });
 
+  it("sad: shows a not-found state (not an empty checklist) when the recipe is missing", async () => {
+    mockGetViewModel.mockResolvedValue(null);
+
+    renderScreen();
+
+    expect(await screen.findByText("Recette introuvable")).toBeTruthy();
+    expect(screen.queryByText("Aucun ingrédient listé")).toBeNull();
+  });
+
   it("sad: shows an error with retry when the recipe fails to load", async () => {
     mockGetViewModel.mockRejectedValue(new Error("network down"));
 

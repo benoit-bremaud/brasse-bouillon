@@ -12,6 +12,7 @@ import { ChecklistRow } from "@/core/ui/ChecklistRow";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
 import {
   getRecipeDetailsViewModel,
@@ -38,11 +39,13 @@ type Props = Readonly<{ recipeId: string }>;
  */
 export function IngredientReadinessScreen({ recipeId }: Props) {
   const router = useRouter();
+  const footerOffset = useNavigationFooterOffset();
   const hasRecipeId = recipeId.trim().length > 0;
 
   const {
     data: viewModel = null,
     isLoading,
+    isFetched,
     error: queryError,
     refetch,
   } = useQuery<RecipeDetailsViewModel | null>({
@@ -84,6 +87,24 @@ export function IngredientReadinessScreen({ recipeId }: Props) {
     ? getErrorMessage(queryError, "Impossible de charger la recette")
     : null;
 
+  // A missing id, or a fetch that resolved to no recipe (stale / deleted id),
+  // is a not-found state — not an empty checklist (Codex review on PR #1255).
+  if (!hasRecipeId || (isFetched && !isLoading && !viewModel && !queryError)) {
+    return (
+      <Screen>
+        <HeaderBackButton
+          label="Recette"
+          accessibilityLabel="Revenir à la recette"
+          onPress={() => router.back()}
+        />
+        <EmptyStateCard
+          title="Recette introuvable"
+          description="Cette recette n'a pas pu être chargée."
+        />
+      </Screen>
+    );
+  }
+
   return (
     <Screen isLoading={isLoading} error={errorMessage} onRetry={refetch}>
       <HeaderBackButton
@@ -93,7 +114,10 @@ export function IngredientReadinessScreen({ recipeId }: Props) {
       />
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: footerOffset + spacing.xl },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <ListHeader
@@ -158,7 +182,6 @@ export function IngredientReadinessScreen({ recipeId }: Props) {
 const styles = StyleSheet.create({
   content: {
     paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
     gap: spacing.md,
   },
   listCard: {

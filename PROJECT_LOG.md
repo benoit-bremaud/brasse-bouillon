@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-24
 
+### PR #1256 merged (`5af5b99`) — chore(ci): add Dependabot config for weekly grouped npm updates
+
+- Branch `chore/deps-security-audit-fix`, 2 commits (`424902f`, `f8cfaca`). Response to the weekly Dependabot security digest. Adds `.github/dependabot.yml` (npm ecosystem, root workspace lockfile, weekly Monday, `open-pull-requests-limit: 10`), grouping minor/patch into one PR and ignoring `version-update:semver-major`. Config-only; no lockfile or dependency change. GitHub's `.github/dependabot.yml` validation check passes.
+- **Decisions**:
+  - `dependabot-defers-majors` — the weekly run ignores semver-major bumps so the ~42 deferred Expo/Jest/NestJS/sqlite3 majors are not auto-opened; major remediation belongs to the planned security audit, not Dependabot.
+  - `no-blanket-audit-fix` — `npm audit fix` (non-force) resolves only 6/76 advisories on the real tree, closes neither critical (both dev-only: `ts-jest`→`handlebars`, `react-devtools-core`→`shell-quote`), and needs `--legacy-peer-deps` (a reanimated fix pulls RN 0.86 vs the Expo-pinned 0.81.5); rejected as non-proportional.
+- Reviews — two findings applied in `f8cfaca`: an explicit group `patterns: ['*']` selector, and an `ignore` rule for `version-update:semver-major` to prevent a first-run flood of major-update PRs; all threads resolved. CI green (CodeQL, dependency-review, secret scan, security-audit, Dependabot config validation). Manual follow-up: enable Dependabot security updates in repo settings. The `docs/*` sub-lockfiles are not covered by the `/` directory entry — deferred.
+
 ### PR #1255 merged (`17ace5a`) — feat(mobile): pre-brew ingredient readiness checklist (A2)
 
 - Branch `feat/ingredient-readiness-checklist`. Build slice **A2** of the first-real-brew journey: a reversible pre-batch **ingredient readiness checklist** ("j'ai / il manque") with a missing-items recap, reached from the recipe's **Vue** tab via a new "Vérifier mes ingrédients" button. Realises **UC4** of the brew-prep conception (#1248): `domain/brew-readiness.types.ts` (`ChecklistItem` / `ReadinessChecklist` / `ChecklistKind`; `isComplete()` realised as the pure application fn `isChecklistComplete` — domain stays type-only), `application/brew-readiness.use-cases.ts`, `core/ui/ChecklistRow.tsx`, `presentation/IngredientReadinessScreen.tsx` (shares the recipe-detail TanStack Query cache; reversible `useState` overlay, no persistence). **Additive**: the irreversible "Lancer un brassin" CTA is untouched (its gating is **A4**; the equipment checklist is **A3**). Route `recipes/[id].tsx` → `recipes/[id]/index.tsx` + new `recipes/[id]/readiness.tsx` (same URL). `formatQuantity` moved to `core/utils/format.ts` so the application layer no longer imports presentation (Clean Architecture).

@@ -19,5 +19,15 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      # Framework-core deps whose minor/patch bumps still introduce breaking
+      # type/lint changes (rxjs dual-instance in the API build, react-native
+      # StyleSheet.absoluteFillObject removal, @tanstack/react-query Updater
+      # type change, stricter @typescript-eslint rules). They need deliberate
+      # code fixes, handled in the upgrade audit — not the weekly group.
+      - dependency-name: "react-native"
+      - dependency-name: "@types/react-native"
+      - dependency-name: "rxjs"
+      - dependency-name: "@tanstack/react-query"
+      - dependency-name: "@typescript-eslint/*"
     commit-message:
       prefix: "chore(deps)"

@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-06-24
 
+### PR #1266 merged (`6a83aa3`) — feat(mobile): gate batch launch behind a pre-brew preparation screen
+
+- Branch `feat/brew-prep-launch-gate`. Brings the launch gate (**UC6** of the brew-prep conception #1248) forward after terrain testing showed the standalone "Vérifier mes ingrédients" entry point (A2) dead-ended. The recipe sticky CTA is renamed **"Lancer un brassin" → "Préparer mon brassin"** and opens a pre-launch preparation screen `BrewPrepScreen` (route `recipes/[id]/prepare`, replacing `IngredientReadinessScreen` + the `readiness` route). The screen hosts the ingredient checklist and a gated **"Lancer le brassage"** CTA: the `startBatch` mutation moves there, the launch is disabled until the checklist is complete and guarded by a confirmation dialog. The Overview "Vérifier mes ingrédients" button is removed.
+- **Decisions**:
+  - `strict-launch-gate` — the gate blocks (not guidance-with-override) until every ingredient is ticked, deliberately anticipating the future stock/inventory feature where ticking "I have it" becomes a stock movement. Conforms to #1248 UC6 as written; no diagram change. Covers the ingredient checklist only this slice; equipment (A3) will fold into the same screen and extend it.
+- CI green (mobile-app lint/typecheck/tests; full suite 999). One Must-Have from the local pre-push review (a forbidden attribution string in a comment) fixed before push; all threads clear.
+
 ### PR #1256 merged (`5af5b99`) — chore(ci): add Dependabot config for weekly grouped npm updates
 
 - Branch `chore/deps-security-audit-fix`, 2 commits (`424902f`, `f8cfaca`). Response to the weekly Dependabot security digest. Adds `.github/dependabot.yml` (npm ecosystem, root workspace lockfile, weekly Monday, `open-pull-requests-limit: 10`), grouping minor/patch into one PR and ignoring `version-update:semver-major`. Config-only; no lockfile or dependency change. GitHub's `.github/dependabot.yml` validation check passes.

@@ -119,10 +119,16 @@ function confirmLaunchAlert() {
 }
 
 describe("BrewPrepScreen — pre-launch gate", () => {
+  let alertSpy: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     mockStartBatch.mockResolvedValue({ id: "b1" });
+  });
+
+  afterEach(() => {
+    alertSpy.mockRestore();
   });
 
   it("happy: lists ingredients as missing and keeps the launch gated", async () => {

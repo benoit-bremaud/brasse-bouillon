@@ -1,13 +1,24 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 
 import React from "react";
+import { Alert } from "react-native";
 
-import { IngredientReadinessScreen } from "@/features/recipes/presentation/IngredientReadinessScreen";
+import { BrewPrepScreen } from "@/features/recipes/presentation/BrewPrepScreen";
 import {
   getRecipeDetailsViewModel,
   type RecipeDetailsIngredientItem,
 } from "@/features/recipes/application/recipes.use-cases";
+import { startBatch } from "@/features/batches/application/batches.use-cases";
+
+const mockPush = jest.fn();
+const mockBack = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -17,7 +28,20 @@ jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   getRecipeDetailsViewModel: jest.fn(),
 }));
 
+jest.mock("@/features/batches/application/batches.use-cases", () => ({
+  startBatch: jest.fn(),
+}));
+
+jest.mock("expo-router", () => {
+  const actual = jest.requireActual("expo-router");
+  return {
+    ...actual,
+    useRouter: () => ({ push: mockPush, back: mockBack }),
+  };
+});
+
 const mockGetViewModel = getRecipeDetailsViewModel as jest.Mock;
+const mockStartBatch = startBatch as jest.Mock;
 
 const PILSNER_ROW = "ingredient-readiness-row-ferm-1-no-timing-0";
 const CASCADE_ROW = "ingredient-readiness-row-hop-1-no-timing-1";
@@ -69,71 +93,136 @@ function renderScreen(recipeId = "r1") {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: Number.POSITIVE_INFINITY },
+      mutations: { retry: false },
     },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <IngredientReadinessScreen recipeId={recipeId} />
+      <BrewPrepScreen recipeId={recipeId} />
     </QueryClientProvider>,
   );
 }
 
-describe("IngredientReadinessScreen (A2)", () => {
+function tickAll() {
+  screen.getAllByRole("checkbox").forEach((box) => fireEvent.press(box));
+}
+
+// The launch confirmation is a native Alert; grab the "Lancer" button from the
+// last Alert.alert call and invoke its onPress to simulate the user confirming.
+function confirmLaunchAlert() {
+  const calls = (Alert.alert as jest.Mock).mock.calls;
+  const buttons = calls[calls.length - 1][2] as Array<{
+    text: string;
+    onPress?: () => void;
+  }>;
+  buttons.find((button) => button.text === "Lancer")?.onPress?.();
+}
+
+describe("BrewPrepScreen — pre-launch gate", () => {
+  let alertSpy: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    mockStartBatch.mockResolvedValue({ id: "b1" });
   });
 
-  it("happy: lists each ingredient unchecked with every item missing", async () => {
+  afterEach(() => {
+    alertSpy.mockRestore();
+  });
+
+  it("happy: lists ingredients as missing and keeps the launch gated", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
 
     renderScreen();
 
     expect(await screen.findByText("Pilsner Malt")).toBeTruthy();
-    expect(screen.getByText("Cascade")).toBeTruthy();
-    // Both rows present, both still missing, not ready.
     expect(screen.getByTestId(PILSNER_ROW)).toBeTruthy();
     expect(screen.getByTestId(CASCADE_ROW)).toBeTruthy();
     expect(screen.getByTestId(PILSNER_MISSING)).toBeTruthy();
     expect(screen.getByTestId(CASCADE_MISSING)).toBeTruthy();
-    expect(screen.queryByText("PRÊT")).toBeNull();
+
+    // Gate closed: pressing the disabled CTA must not open the dialog.
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    expect(Alert.alert).not.toHaveBeenCalled();
+    expect(mockStartBatch).not.toHaveBeenCalled();
   });
 
-  it("interaction: ticking items clears the missing recap, untick is reversible", async () => {
+  it("interaction: ticking everything opens the gate (Prêt), unticking re-closes it", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
 
     renderScreen();
     await screen.findByText("Pilsner Malt");
 
-    const checkboxes = screen.getAllByRole("checkbox");
-    expect(checkboxes).toHaveLength(2);
-
-    // Tick the first ingredient → its missing entry disappears.
-    fireEvent.press(checkboxes[0]);
+    tickAll();
     expect(screen.queryByTestId(PILSNER_MISSING)).toBeNull();
-    expect(screen.getByTestId(CASCADE_MISSING)).toBeTruthy();
-    expect(screen.queryByText("PRÊT")).toBeNull();
-
-    // Tick the second → all complete, "Prêt" badge shows.
-    fireEvent.press(screen.getAllByRole("checkbox")[1]);
     expect(screen.queryByTestId(CASCADE_MISSING)).toBeNull();
     expect(screen.getByText("PRÊT")).toBeTruthy();
     expect(
       screen.getByText("Tu as tous les ingrédients de la recette."),
     ).toBeTruthy();
 
-    // Untick the first → reversible: it is missing again, no longer ready.
+    // Untick one → gate closes again, item is missing once more.
     fireEvent.press(screen.getAllByRole("checkbox")[0]);
     expect(screen.getByTestId(PILSNER_MISSING)).toBeTruthy();
     expect(screen.queryByText("PRÊT")).toBeNull();
   });
 
-  it("sad/edge: shows the empty state when the recipe has no ingredients", async () => {
+  it("launch: confirming the dialog starts the batch and navigates to it", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+
+    tickAll();
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    expect(Alert.alert).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      confirmLaunchAlert();
+    });
+
+    await waitFor(() => {
+      expect(mockStartBatch).toHaveBeenCalledWith("r1");
+      expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
+    });
+  });
+
+  it("sad: a failed launch surfaces the error banner and does not navigate", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+    mockStartBatch.mockRejectedValueOnce(new Error("Backend down"));
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+
+    tickAll();
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    await act(async () => {
+      confirmLaunchAlert();
+    });
+
+    expect(await screen.findByText(/Backend down/i)).toBeTruthy();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it("edge: an empty ingredient list shows the empty state but still allows launch", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel([]));
 
     renderScreen();
 
     expect(await screen.findByText("Aucun ingrédient listé")).toBeTruthy();
     expect(screen.queryByText("Ce qu'il te manque")).toBeNull();
+
+    // Nothing to check → the gate is vacuously open and the launch proceeds.
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    expect(Alert.alert).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      confirmLaunchAlert();
+    });
+    await waitFor(() => {
+      expect(mockStartBatch).toHaveBeenCalledWith("r1");
+      expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
+    });
   });
 
   it("sad: shows a not-found state (not an empty checklist) when the recipe is missing", async () => {

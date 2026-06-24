@@ -62,7 +62,7 @@ function renderRecipeSteps(steps: RecipeStep[]) {
  * the recipe-authored steps (mash / boil / fermentation / packaging),
  * and a compact summary mode for users who only want a glance.
  *
- * The "Lancer un brassin" entry point lives on the orchestrator's
+ * The "Préparer mon brassin" entry point lives on the orchestrator's
  * sticky CTA bar and stays accessible across every tab — see
  * `RecipeDetailsScreen` and `RecipeStickyCta`.
  */

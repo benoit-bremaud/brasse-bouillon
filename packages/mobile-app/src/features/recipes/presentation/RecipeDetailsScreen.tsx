@@ -9,7 +9,7 @@ import { Screen } from "@/core/ui/Screen";
 import { colors, spacing } from "@/core/theme";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 import {
@@ -49,7 +49,6 @@ import {
   getWaterLocationProfileByName,
   getWaterStylePresetById,
 } from "@/features/tools/data/water-profiles.data";
-import { startBatch } from "@/features/batches/application/batches.use-cases";
 import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 
 type Props = Readonly<{
@@ -80,17 +79,16 @@ const DEFAULT_TARGET_VOLUME_LITRES = 20;
  * Replaces the legacy 1.3 kLoC monolithic screen with a 5-tab
  * vertical-rail layout (Vue / Ingrédients / Eau / Brassage / Notes),
  * an EBC-driven hero shared with the scan flow's BeerInfoCardScreen,
- * and a sticky [Lancer un brassin] CTA pinned across every tab
+ * and a sticky [Préparer mon brassin] CTA pinned across every tab
  * except Notes & revues (where the action is semantically irrelevant).
  *
- * Data fetching uses TanStack Query (useQuery + useMutation) — the
- * mutation cache is reset on retry to clear stale start-batch errors,
- * and the batches cache is invalidated on success so the navigated-to
- * batch list refetches with the freshly created batch.
+ * The CTA opens the brew preparation screen (mise en place + launch
+ * gate, UC6 of the brew-prep conception); the irreversible batch start
+ * now lives there, not on this screen. Data fetching uses TanStack
+ * Query (useQuery).
  */
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const bottomPadding = useNavigationFooterOffset();
 
   const hasRecipeId = recipeId.trim().length > 0;
@@ -106,14 +104,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     queryKey: ["recipes", "detail", recipeId],
     queryFn: () => getRecipeDetailsViewModel(recipeId),
     enabled: hasRecipeId,
-  });
-
-  const startBatchMutation = useMutation({
-    mutationFn: () => startBatch(recipeId),
-    onSuccess: (batch) => {
-      void queryClient.invalidateQueries({ queryKey: ["batches"] });
-      router.push(`/(app)/batches/${batch.id}`);
-    },
   });
 
   const [activeTab, setActiveTab] = useState<RecipeDetailTabId>("overview");
@@ -252,12 +242,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     ? isFetching
       ? null
       : getErrorMessage(queryError, "Impossible de charger la recette")
-    : startBatchMutation.error
-      ? getErrorMessage(
-          startBatchMutation.error,
-          "Le démarrage du brassin a échoué",
-        )
-      : null;
+    : null;
 
   // Add-to-cart actions stay wired but no longer accumulate a local
   // list on the detail screen — the cart preview was retired with the
@@ -311,9 +296,9 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     });
   };
 
-  const handleOpenIngredientReadiness = () => {
+  const handlePrepare = () => {
     router.push({
-      pathname: "/(app)/recipes/[id]/readiness",
+      pathname: "/(app)/recipes/[id]/prepare",
       params: { id: recipeId },
     });
   };
@@ -322,21 +307,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     router.replace("/recipes");
   };
 
-  const handleStartBatch = () => {
-    if (!hasRecipeId || startBatchMutation.isPending) {
-      return;
-    }
-    startBatchMutation.mutate();
-  };
-
-  // Reset both the query error AND the mutation error when the user
-  // taps "Réessayer" — otherwise a previous failed batch start would
-  // keep the error banner up forever, even after a clean recipe
-  // refetch (Codex / Copilot review feedback on PR #916).
   const handleRetry = () => {
-    if (startBatchMutation.error) {
-      startBatchMutation.reset();
-    }
     void refetch();
   };
 
@@ -357,9 +328,8 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     return null;
   }, [recipe]);
 
-  const isStarting = startBatchMutation.isPending;
-  const ctaLabel = isStarting ? "Démarrage..." : "Lancer un brassin";
-  const ctaDisabled = isStarting || isLoading || !recipe;
+  const ctaLabel = "Préparer mon brassin";
+  const ctaDisabled = isLoading || !recipe;
   const showStickyCta = activeTab !== "reviews";
 
   if (!hasRecipeId) {
@@ -423,7 +393,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     equipment={equipment}
                     targetVolumeLiters={targetVolumeLiters}
                     provenanceLabel={provenanceLabel}
-                    onOpenIngredientReadiness={handleOpenIngredientReadiness}
                   />
                 ) : null}
 
@@ -487,7 +456,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       {showStickyCta ? (
         <RecipeStickyCta
           label={ctaLabel}
-          onPress={handleStartBatch}
+          onPress={handlePrepare}
           disabled={ctaDisabled}
           bottomOffset={bottomPadding}
         />

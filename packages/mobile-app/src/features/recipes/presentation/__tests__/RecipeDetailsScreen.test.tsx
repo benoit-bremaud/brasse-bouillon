@@ -1,15 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import React from "react";
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
 import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
-import { startBatch } from "@/features/batches/application/batches.use-cases";
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -124,10 +118,6 @@ jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   getRecipeDetailsViewModel: jest.fn(),
 }));
 
-jest.mock("@/features/batches/application/batches.use-cases", () => ({
-  startBatch: jest.fn(),
-}));
-
 function renderRecipeDetails(recipeId = "r1") {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -157,9 +147,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     mockPush.mockReset();
     mockReplace.mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockReset();
-    (startBatch as jest.Mock).mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(baseViewModel);
-    (startBatch as jest.Mock).mockResolvedValue({ id: "b1" });
   });
 
   it("renders the side rail and lands on Overview by default", async () => {
@@ -186,14 +174,14 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByText("Braumeister 20L")).toBeTruthy();
   });
 
-  it("opens the ingredient readiness checklist from the Overview tab", async () => {
+  it("opens the brew preparation screen from the sticky CTA", async () => {
     renderRecipeDetails();
 
     await screen.findByTestId("recipe-overview-tab");
-    fireEvent.press(screen.getByTestId("recipe-open-ingredient-readiness"));
+    fireEvent.press(screen.getByText("Préparer mon brassin"));
 
     expect(mockPush).toHaveBeenCalledWith({
-      pathname: "/(app)/recipes/[id]/readiness",
+      pathname: "/(app)/recipes/[id]/prepare",
       params: { id: "r1" },
     });
   });
@@ -434,39 +422,6 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
 
     expect(screen.queryByTestId("recipe-sticky-cta")).toBeNull();
     expect(screen.getByTestId("recipe-reviews-tab")).toBeTruthy();
-  });
-
-  it("starts a batch from the sticky CTA and navigates to the batch details", async () => {
-    renderRecipeDetails();
-
-    await screen.findByTestId("recipe-overview-tab");
-
-    fireEvent.press(screen.getByText("Lancer un brassin"));
-
-    await waitFor(() => {
-      expect(startBatch).toHaveBeenCalledWith("r1");
-      expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
-    });
-  });
-
-  // Issue #740 — Codex / Copilot review on PR #916: a failed
-  // startBatch must not leave the screen-level error banner on
-  // forever. Tapping "Réessayer" should reset the mutation state.
-  it("clears the startBatch error when the user taps Réessayer", async () => {
-    (startBatch as jest.Mock).mockRejectedValueOnce(new Error("Backend down"));
-
-    renderRecipeDetails();
-
-    await screen.findByTestId("recipe-overview-tab");
-    fireEvent.press(screen.getByText("Lancer un brassin"));
-
-    await screen.findByText(/Backend down/i);
-
-    fireEvent.press(screen.getByText("Réessayer"));
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Backend down/i)).toBeNull();
-    });
   });
 
   it("navigates back to My Recipes from the header action", async () => {

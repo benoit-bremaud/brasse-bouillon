@@ -1,0 +1,285 @@
+import React, { useMemo, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+
+import { useRouter } from "expo-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { colors, spacing, typography } from "@/core/theme";
+import { getErrorMessage } from "@/core/http/http-error";
+import { Badge } from "@/core/ui/Badge";
+import { Card } from "@/core/ui/Card";
+import { ChecklistRow } from "@/core/ui/ChecklistRow";
+import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
+import { ListHeader } from "@/core/ui/ListHeader";
+import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Screen } from "@/core/ui/Screen";
+import {
+  getRecipeDetailsViewModel,
+  type RecipeDetailsViewModel,
+} from "@/features/recipes/application/recipes.use-cases";
+import {
+  buildIngredientChecklist,
+  getMissingItems,
+  isChecklistComplete,
+} from "@/features/recipes/application/brew-readiness.use-cases";
+import type { ReadinessChecklist } from "@/features/recipes/domain/brew-readiness.types";
+import { RecipeStickyCta } from "@/features/recipes/presentation/components/RecipeStickyCta";
+import { startBatch } from "@/features/batches/application/batches.use-cases";
+
+type Props = Readonly<{ recipeId: string }>;
+
+/**
+ * Brew preparation ("mise en place") screen — the post-recipe, pre-batch phase
+ * reached from the recipe's "Préparer mon brassin" CTA. Realises the launch
+ * gate (UC6 of the brew-prep conception, #1248): the irreversible batch start
+ * is enabled only once the readiness checklist is complete.
+ *
+ * This slice gates on the INGREDIENT checklist only; the equipment checklist
+ * (A3) will be added to this same screen and extend the gate to
+ * `ingredient.isComplete() && equipment.isComplete()` (BrewReadiness).
+ *
+ * The tick state is reversible client state (a sparse `have` overlay kept in
+ * `useState`, reset when the screen unmounts) — matching the conception's
+ * "client state pre-batch, mirror deferred". Confirming the launch starts the
+ * batch and navigates to its tracking screen (phase B = point of no return).
+ */
+export function BrewPrepScreen({ recipeId }: Props) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const footerOffset = useNavigationFooterOffset();
+  const hasRecipeId = recipeId.trim().length > 0;
+
+  const {
+    data: viewModel = null,
+    isLoading,
+    isFetched,
+    error: queryError,
+    refetch,
+  } = useQuery<RecipeDetailsViewModel | null>({
+    queryKey: ["recipes", "detail", recipeId],
+    queryFn: () => getRecipeDetailsViewModel(recipeId),
+    enabled: hasRecipeId,
+  });
+
+  const startBatchMutation = useMutation({
+    mutationFn: () => startBatch(recipeId),
+    onSuccess: (batch) => {
+      void queryClient.invalidateQueries({ queryKey: ["batches"] });
+      router.push(`/(app)/batches/${batch.id}`);
+    },
+  });
+
+  // Base checklist derived from the recipe; never mutated by ticks (a refetch
+  // re-derives it, but the user's `have` overlay below is kept separately so
+  // a background refetch can't wipe the ticks).
+  const checklist = useMemo(
+    () => buildIngredientChecklist(viewModel?.ingredients ?? []),
+    [viewModel],
+  );
+
+  const [haveById, setHaveById] = useState<Record<string, boolean>>({});
+
+  const mergedChecklist = useMemo<ReadinessChecklist>(
+    () => ({
+      ...checklist,
+      items: checklist.items.map((item) => ({
+        ...item,
+        have: haveById[item.id] ?? false,
+      })),
+    }),
+    [checklist, haveById],
+  );
+
+  const missing = getMissingItems(mergedChecklist);
+  const complete = isChecklistComplete(mergedChecklist);
+  const hasItems = mergedChecklist.items.length > 0;
+
+  const toggle = (id: string) => {
+    setHaveById((current) => ({ ...current, [id]: !(current[id] ?? false) }));
+  };
+
+  const isStarting = startBatchMutation.isPending;
+
+  // The launch is irreversible (phase B = point of no return), so it is
+  // gated twice: the CTA is disabled until the checklist is complete, and a
+  // final confirmation dialog guards the actual batch creation.
+  const handleLaunch = () => {
+    if (!complete || isStarting) {
+      return;
+    }
+    Alert.alert(
+      "Lancer le brassage ?",
+      "Cette action démarre le suivi du brassin et n'est pas réversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Lancer",
+          style: "default",
+          onPress: () => startBatchMutation.mutate(),
+        },
+      ],
+    );
+  };
+
+  const handleRetry = () => {
+    if (startBatchMutation.error) {
+      startBatchMutation.reset();
+    }
+    void refetch();
+  };
+
+  const errorMessage = queryError
+    ? getErrorMessage(queryError, "Impossible de charger la recette")
+    : startBatchMutation.error
+      ? getErrorMessage(
+          startBatchMutation.error,
+          "Le démarrage du brassin a échoué",
+        )
+      : null;
+
+  // A missing id, or a fetch that resolved to no recipe (stale / deleted id),
+  // is a not-found state — not an empty checklist (see PR #1255 for context).
+  if (!hasRecipeId || (isFetched && !isLoading && !viewModel && !queryError)) {
+    return (
+      <Screen>
+        <HeaderBackButton
+          label="Recette"
+          accessibilityLabel="Revenir à la recette"
+          onPress={() => router.back()}
+        />
+        <EmptyStateCard
+          title="Recette introuvable"
+          description="Cette recette n'a pas pu être chargée."
+        />
+      </Screen>
+    );
+  }
+
+  const ctaLabel = isStarting ? "Démarrage..." : "Lancer le brassage";
+  const ctaHelper = complete
+    ? hasItems
+      ? "Tout est prêt."
+      : "Aucun ingrédient à vérifier."
+    : "Coche tous les ingrédients pour lancer le brassage.";
+
+  return (
+    <Screen isLoading={isLoading} error={errorMessage} onRetry={handleRetry}>
+      <HeaderBackButton
+        label="Recette"
+        accessibilityLabel="Revenir à la recette"
+        onPress={() => router.back()}
+      />
+
+      <View style={styles.body}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <ListHeader
+            title="Préparer mon brassin"
+            subtitle="Mise en place : coche ce que tu as. Le brassage se lance une fois la liste complète."
+          />
+
+          {hasItems ? (
+            <Card style={styles.listCard}>
+              {mergedChecklist.items.map((item) => (
+                <ChecklistRow
+                  key={item.id}
+                  testID={`ingredient-readiness-row-${item.id}`}
+                  label={item.name}
+                  meta={item.qty}
+                  checked={item.have}
+                  onToggle={() => toggle(item.id)}
+                />
+              ))}
+            </Card>
+          ) : (
+            <EmptyStateCard
+              title="Aucun ingrédient listé"
+              description="Cette recette ne déclare pas encore d'ingrédients à vérifier."
+            />
+          )}
+
+          {hasItems ? (
+            <Card style={styles.recapCard}>
+              <View style={styles.recapHeader}>
+                <Text style={styles.recapTitle}>Ce qu'il te manque</Text>
+                {complete ? <Badge variant="success" label="Prêt" /> : null}
+              </View>
+              {complete ? (
+                <Text style={styles.recapBody}>
+                  Tu as tous les ingrédients de la recette.
+                </Text>
+              ) : (
+                <>
+                  <Text style={styles.recapBody}>
+                    {missing.length} ingrédient{missing.length > 1 ? "s" : ""} à
+                    prévoir :
+                  </Text>
+                  {missing.map((item) => (
+                    <Text
+                      key={item.id}
+                      testID={`ingredient-readiness-missing-${item.id}`}
+                      style={styles.recapItem}
+                    >
+                      • {item.name} ({item.qty})
+                    </Text>
+                  ))}
+                </>
+              )}
+            </Card>
+          ) : null}
+        </ScrollView>
+      </View>
+
+      <RecipeStickyCta
+        label={ctaLabel}
+        helperText={ctaHelper}
+        onPress={handleLaunch}
+        disabled={!complete || isStarting || !viewModel}
+        bottomOffset={footerOffset}
+      />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  body: {
+    flex: 1,
+  },
+  content: {
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    gap: spacing.md,
+  },
+  listCard: {
+    padding: spacing.md,
+  },
+  recapCard: {
+    padding: spacing.md,
+  },
+  recapHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+  recapTitle: {
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  recapBody: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+  },
+  recapItem: {
+    marginTop: spacing.xxs,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+  },
+});

@@ -50,8 +50,8 @@ Closes #
   the relevant team members based on the scope/area labels of the linked
   issue. See CONTRIBUTING.md § 6 "PR notification comment" for the rules.
 
-  Review runs locally pre-push (Claude pr-pre-reviewer + /code-review +
-  Codex). On GitHub, Copilot is MANUAL: add the `needs-copilot` label to
-  request it (it bills premium requests) — do NOT call `requested_reviewers`,
-  the API returns 422 for bot accounts. See CONTRIBUTING.md § AI reviewers.
+  Review runs locally pre-push (Claude + Codex). On GitHub, Codex auto-reviews
+  and Copilot is MANUAL: add the `needs-copilot` label to request it (it bills
+  premium requests) — do NOT call `requested_reviewers`, the API returns 422
+  for GitHub App bot accounts. See CONTRIBUTING.md § AI reviewers.
 -->

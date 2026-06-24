@@ -6,9 +6,9 @@ description: Brasse-Bouillon pre-push review ritual — run a local defence-in-d
 # Brasse-Bouillon — pre-push review ritual
 
 The default review path on this repo is **local and free, before the push** —
-it is now the primary reviewer. On the GitHub side, Copilot is **manual**
-(`needs-copilot` label — it bills premium requests); CodeRabbit was removed on
-2026-06-24 (free-tier rate limit + billing nudges). See
+it is the primary reviewer. On the GitHub side, Codex auto-reviews and Copilot
+is **manual** (`needs-copilot` label — it bills premium requests); CodeRabbit
+was removed on 2026-06-24 (free-tier rate limit + billing nudges). See
 [CONTRIBUTING.md](../../../CONTRIBUTING.md) § AI reviewers.
 
 This skill runs **two independent reviewers locally**, makes them **confront**
@@ -89,7 +89,7 @@ Otherwise, loop back to Step 4. The human triggers the actual `git push`.
 
 ## After the push (for reference, not part of this skill)
 
-- On GitHub no reviewer runs automatically (CodeRabbit was removed 2026-06-24; Codex runs locally in this ritual, above).
+- On GitHub, **Codex** auto-reviews the PR; CodeRabbit was removed 2026-06-24.
 - Add the **`needs-copilot`** label only if a deliberate Copilot review is also
   wanted (premium-request cost; ×13 per review since 2026-06-01).
 - Handle posted comments per the global `pr-review-procedure` skill.

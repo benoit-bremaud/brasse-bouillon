@@ -59,9 +59,9 @@ gh api graphql -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{pro
 
 ## Step 4 — Reviewers
 
-No reviewer runs automatically on GitHub (CodeRabbit was removed 2026-06-24;
-Codex runs in the local pre-push ritual). Do **not** call `requested_reviewers`
-for bot accounts (the API returns 422 for GitHub-App bots).
+Codex reviews **every PR automatically** on GitHub; CodeRabbit was removed
+2026-06-24. Do **not** call `requested_reviewers` for `Codex` or `Copilot`
+(the API returns 422 for GitHub App bot accounts).
 
 Copilot is **manual** (it bills premium requests; ×13 per review since
 2026-06-01). Do **not** request it by default. Only when a deliberate Copilot
@@ -125,6 +125,6 @@ gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/comments \
 2. Open the PR (step 1).
 3. Apply labels + assignee + project + milestone (steps 2–5) — these can run in parallel.
 4. Post the French FYI comment (step 6).
-5. If a Copilot review was requested (the `needs-copilot` label, step 4), wait for it to be **posted** per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge. The substantive review is the local pre-push ritual (Claude + Codex), run before pushing.
+5. Wait for the automatic Codex review (and Copilot, if `needs-copilot` was added in step 4) to be **posted** per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge. The substantive review is the local pre-push ritual (Claude + Codex) run before pushing.
 
 Never auto-merge. Never use `--auto` or `--admin`. Per the global merge gate, present a readiness summary in English and wait for explicit textual approval.

@@ -421,12 +421,12 @@ The list of people to mention should be suggested based on the PR context (scope
 
 #### AI reviewers — defence-in-depth pipeline
 
-Review on this repository is layered: a **local pre-push ritual** catches
-most issues before anything reaches GitHub, an **automatic post-push
-reviewer** (CodeRabbit) reviews every PR for free, and Copilot is kept as a
-deliberate **on-demand** complement (it bills premium requests — 13 per
-review since 2026-06-01 under the AI-credits model — so it is not run on
-every PR).
+Review on this repository is layered: a **local pre-push ritual** is the
+primary path and catches most issues before anything reaches GitHub, and
+Copilot is kept as a deliberate **on-demand** complement (it bills premium
+requests — 13 per review since 2026-06-01 under the AI-credits model — so it
+is not run on every PR). CodeRabbit was removed on 2026-06-24: its free tier
+hit a PR-review rate limit and posted billing nudges on PRs.
 
 **1. Pre-push (local, free) — the primary path.** Before pushing a branch,
 run the local review ritual: the `pre-push-review` skill drives the
@@ -435,13 +435,14 @@ run the local review ritual: the `pre-push-review` skill drives the
 single Must Have / Should Have / Nice to Have / Disagree action list, and
 gates the push on all Must Have items resolved.
 
-**2. Post-push (GitHub) — automatic and on-demand reviewers:**
+**2. Post-push (GitHub) — on-demand reviewer:**
 
 | Reviewer | Bot account | Trigger | Status |
 |---|---|---|---|
-| CodeRabbit | `coderabbitai[bot]` | Automatic on every PR | Always active (free tier, private repos OK) |
-| Codex | `chatgpt-codex-connector[bot]` | Automatic on every PR | Always active |
 | Copilot | `copilot-pull-request-reviewer[bot]` | **Manual** — add the `needs-copilot` label | On-demand only (premium-request quota) |
+
+Codex runs in the **local pre-push** ritual (`scripts/codex-review.sh`), not as
+a GitHub-side auto-reviewer.
 
 What this means in practice:
 
@@ -449,10 +450,9 @@ What this means in practice:
   review on a PR, add the **`needs-copilot`** label — the `Copilot Review`
   workflow then posts `@copilot please review`. Use it sparingly (premium
   requests, ×13 per review).
-- **Do not** call `gh api ... requested_reviewers -X POST` for `Codex` or
-  `Copilot` — the call fails with 422 for GitHub-App bot accounts.
-  CodeRabbit and Codex review automatically; Copilot is triggered via the
-  label above.
+- **Do not** call `gh api ... requested_reviewers -X POST` for `Copilot` —
+  the call fails with 422 for GitHub-App bot accounts. Copilot is triggered
+  via the `needs-copilot` label above.
 - **Do** wait for each review to be **posted** (not just "requested")
   before considering the PR ready, per the PR review procedure in
   global `~/.claude/CLAUDE.md`. Verify with:

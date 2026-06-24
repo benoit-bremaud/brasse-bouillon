@@ -4,7 +4,10 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import React from "react";
 
 import { IngredientReadinessScreen } from "@/features/recipes/presentation/IngredientReadinessScreen";
-import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
+import {
+  getRecipeDetailsViewModel,
+  type RecipeDetailsIngredientItem,
+} from "@/features/recipes/application/recipes.use-cases";
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -21,7 +24,7 @@ const CASCADE_ROW = "ingredient-readiness-row-hop-1-no-timing-1";
 const PILSNER_MISSING = "ingredient-readiness-missing-ferm-1-no-timing-0";
 const CASCADE_MISSING = "ingredient-readiness-missing-hop-1-no-timing-1";
 
-function buildViewModel(ingredients: unknown[]) {
+function buildViewModel(ingredients: RecipeDetailsIngredientItem[]) {
   return {
     recipe: {
       id: "r1",
@@ -39,7 +42,7 @@ function buildViewModel(ingredients: unknown[]) {
   };
 }
 
-const TWO_INGREDIENTS = [
+const TWO_INGREDIENTS: RecipeDetailsIngredientItem[] = [
   {
     ingredientId: "ferm-1",
     name: "Pilsner Malt",

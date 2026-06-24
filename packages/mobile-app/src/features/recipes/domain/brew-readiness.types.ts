@@ -27,17 +27,17 @@ export type ChecklistKind = "ingredient" | "equipment";
  * added at 60 min and at flameout) — so the id is composited from the
  * ingredient + its timing + index.
  */
-export type ChecklistItem = {
+export interface ChecklistItem {
   id: string;
   name: string;
   /** Display string (e.g. "5 kg", "900 g") — matches the UML `qty: string`. */
   qty: string;
   required: boolean;
   have: boolean;
-};
+}
 
 /** A readiness checklist of a single kind — the UML `ReadinessChecklist`. */
-export type ReadinessChecklist = {
+export interface ReadinessChecklist {
   kind: ChecklistKind;
   items: readonly ChecklistItem[];
-};
+}

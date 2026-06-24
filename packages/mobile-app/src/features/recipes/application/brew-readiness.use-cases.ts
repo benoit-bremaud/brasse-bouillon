@@ -3,7 +3,7 @@ import type {
   ReadinessChecklist,
 } from "@/features/recipes/domain/brew-readiness.types";
 import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
-import { formatQuantity } from "@/features/recipes/presentation/recipe-details.utils";
+import { formatQuantity } from "@/core/utils/format";
 
 /**
  * Brew-preparation readiness use-cases (build slice A2 — ingredient checklist).

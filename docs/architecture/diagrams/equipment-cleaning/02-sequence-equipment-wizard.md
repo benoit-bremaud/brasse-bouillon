@@ -18,7 +18,7 @@ sequenceDiagram
   M->>API: GET /catalog/equipment-templates
   API-->>M: presets (kitchen starter, BIAB 20/30L, all-in-one, ...)
   B->>M: Q1 - choose a preset (system type)
-  M->>M: prefill losses / evaporation / efficiency from the preset
+  M->>M: seed name, mash tun, losses, evaporation, efficiency from the preset
   B->>M: Q2 - fermentation vessel + size (caps the batch)
   B->>M: Q3 - largest kettle / pot size (selects the method)
   M->>M: suggest a name, show a recap
@@ -33,4 +33,5 @@ sequenceDiagram
 - **Guided / progressive (ADR-0021):** one question at a time; the preset prefills everything else, so a beginner answers only **3** essentials (type, fermenter, kettle). Advanced fields (losses, efficiency) stay editable later, hidden by default (adaptive pedagogy).
 - **Reuse, not per-recipe:** a profile is created **once** and reused; it is **not** tied to a recipe (no recipe↔equipment relation — the gear is the brewer's). Multi-fermenter is out of v1 (enter the vessel you ferment in).
 - The **fermenter size** captured here caps the batch and the recipe target-volume slider (ADR-0020 D1, ADR-0021 D3). The **kettle size** selects full-volume vs dunk-sparge (ADR-0020 D2) — consumed by the fit-check (03).
+- **API payload (beyond the 3 answers):** the `POST /equipment-profiles` body is **snake_case**, and the create-DTO **requires more than the 3 essentials** — `name`, `mash_tun_volume_l`, `evaporation_rate_l_per_hour`, `efficiency_estimated_percent` — which the wizard **seeds from the preset** (hidden from the novice) and **still sends** so `ValidationPipe({ whitelist: true })` passes. The `equipment_templates` BeerXML fields (`evap_rate_percent`, `hop_utilization_percent`, …) don't map 1:1, so the wizard applies an explicit template → create-DTO mapping/defaults.
 - Inline help + a glossary explain each term ("fermenteur", "empâtage", "dunk-sparge") in beginner language, with academy links (ADR-0021 D5).

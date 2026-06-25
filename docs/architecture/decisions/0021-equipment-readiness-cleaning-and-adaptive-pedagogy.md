@@ -29,8 +29,11 @@
 **D1 — Equipment is a reusable profile, declared once via a guided wizard.** An
 `EquipmentProfile` (on the existing `equipment_profiles` API) is created in a
 **dedicated equipment space**, from a **preset** (`equipment_templates`),
-answering **3 essential questions** (system type, fermenter + size, kettle size);
-losses / evaporation / efficiency are inherited from the preset (editable later).
+answering **3 essential questions** (system type, fermenter + size, kettle size).
+The create-DTO requires more than those 3 answers (`name`, `mash_tun_volume_l`,
+`evaporation_rate_l_per_hour`, `efficiency_estimated_percent`, plus the losses):
+these are **preset-seeded and hidden from the novice, but still sent** in the
+snake_case `POST /equipment-profiles` body so validation passes (editable later).
 Multi-fermenter is out of v1.
 
 **D2 — Equipment readiness for a brew = a capacity fit-check + the cleaning

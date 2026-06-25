@@ -16,8 +16,9 @@ sequenceDiagram
   participant M as Mobile (BrewPrepScreen)
   participant API as Backend API
   B->>M: Open "Préparer mon brassin"
-  M->>API: GET /equipment-profiles (my default profile)
-  API-->>M: profile (fermenter, kettle, ...)
+  M->>API: GET /equipment-profiles (list mine)
+  API-->>M: my profiles (fermenter, kettle, ...)
+  M->>M: select a profile (auto if only one; else last-used)
   Note over M: Fit-check, v1 = compare fixed numbers
   alt fermenter >= batch + krausen AND kettle >= mash-in
     M-->>B: GREEN - fits
@@ -44,4 +45,5 @@ sequenceDiagram
 - **Graded fit-check + advice (ADR-0021 D2):** green / amber / red with an action, not a binary pass/fail — it educates the novice. v1 compares fixed recipe numbers vs the profile's capacities (no ADR-0020 recompute; deferred).
 - **Cleaning = guide + hybrid checklist (ADR-0021 D4):** a curated beginner set (fermenter, airlock + bung, spoon, funnel, hydrometer, thermometer, ...) + adjustable; clean (residues) vs sanitize (no-rinse, e.g. Star San); instructions adapt to the brewer's **declared products**.
 - **Refines brew-prep UC6:** `readyToLaunch = ingredientChecklist.isComplete() && fitCheck.ok() && preCleaning.isComplete()` — supersedes the placeholder "equipmentChecklist.isComplete()".
+- **No "default profile" on the backend:** the API exposes only `GET /equipment-profiles` (list mine); **profile selection is client-side** (auto-select if a single profile, else last-used). No default-profile endpoint is implied.
 - **Open (ADR-0021):** sanitizing the post-boil gear is ideally **just-in-time** (during cooling, just before transfer) — a brew-day (phase B) placement; the pre-launch gate may instead confirm "ready to sanitize at transfer". Flagged; settled when B1 is built.

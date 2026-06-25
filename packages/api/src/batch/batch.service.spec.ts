@@ -141,6 +141,30 @@ describe('BatchService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('enriches steps with guidance and preserves it across completion (B1-live)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+
+    const started = await batchService.startMine(ownerId, recipe.id);
+    // mash (step 0) carries a tip + a default duration
+    expect(started.steps[0].pedagogical_tip).toBeTruthy();
+    expect(started.steps[0].planned_duration_min).toBe(60);
+    // fermentation (step 3) carries a tip but no duration (runs over days)
+    expect(started.steps[3].pedagogical_tip).toBeTruthy();
+    expect(started.steps[3].planned_duration_min).toBeNull();
+
+    // completing a step must NOT wipe the guidance on the persisted steps
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    const reloaded = await batchStepRepo.find({
+      where: { batch_id: started.batch.id },
+      order: { step_order: 'ASC' },
+    });
+    expect(reloaded[0].pedagogical_tip).toBeTruthy();
+    expect(reloaded[0].planned_duration_min).toBe(60);
+    expect(reloaded[3].pedagogical_tip).toBeTruthy();
+    expect(reloaded[3].planned_duration_min).toBeNull();
+  });
+
   it('getMineById() should enforce ownership', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });

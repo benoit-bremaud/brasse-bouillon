@@ -30,6 +30,12 @@ export class BatchStepDto {
   @ApiPropertyOptional({ nullable: true })
   completed_at?: Date | null;
 
+  @ApiPropertyOptional({ nullable: true })
+  planned_duration_min?: number | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  pedagogical_tip?: string | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -46,6 +52,8 @@ export class BatchStepDto {
       status: e.status,
       started_at: e.started_at ?? null,
       completed_at: e.completed_at ?? null,
+      planned_duration_min: e.planned_duration_min ?? null,
+      pedagogical_tip: e.pedagogical_tip ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
     };

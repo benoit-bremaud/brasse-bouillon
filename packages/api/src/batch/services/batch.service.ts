@@ -278,6 +278,8 @@ export class BatchService {
           status: step.status,
           started_at: step.startedAt ?? null,
           completed_at: step.completedAt ?? null,
+          planned_duration_min: step.plannedDurationMin ?? null,
+          pedagogical_tip: step.pedagogicalTip ?? null,
         }),
       );
 
@@ -317,6 +319,8 @@ export class BatchService {
         status: step.status,
         started_at: step.startedAt ?? null,
         completed_at: step.completedAt ?? null,
+        planned_duration_min: step.plannedDurationMin ?? null,
+        pedagogical_tip: step.pedagogicalTip ?? null,
       }),
     );
 
@@ -352,6 +356,8 @@ export class BatchService {
       status: step.status,
       startedAt: step.started_at ?? undefined,
       completedAt: step.completed_at ?? undefined,
+      pedagogicalTip: step.pedagogical_tip ?? undefined,
+      plannedDurationMin: step.planned_duration_min ?? undefined,
     };
   }
 

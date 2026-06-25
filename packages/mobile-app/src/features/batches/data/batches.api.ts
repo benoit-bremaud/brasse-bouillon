@@ -25,6 +25,8 @@ type BatchStepDto = {
   status: BatchStep["status"];
   started_at?: string | null;
   completed_at?: string | null;
+  planned_duration_min?: number | null;
+  pedagogical_tip?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -61,6 +63,8 @@ function mapBatchStep(dto: BatchStepDto): BatchStep {
     status: dto.status,
     startedAt: dto.started_at ?? null,
     completedAt: dto.completed_at ?? null,
+    plannedDurationMin: dto.planned_duration_min ?? null,
+    pedagogicalTip: dto.pedagogical_tip ?? null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

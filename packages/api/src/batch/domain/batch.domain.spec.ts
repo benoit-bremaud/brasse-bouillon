@@ -44,6 +44,33 @@ describe('BatchDomainService', () => {
     expect(batch.steps[0].startedAt).toEqual(t0);
   });
 
+  it('enriches each step with type-level pedagogical guidance', () => {
+    const t0 = new Date('2026-02-05T09:00:00.000Z');
+    const service = new BatchDomainService(() => t0);
+
+    const batch = service.startBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+      steps: new RecipeWorkflowService().getDefaultWorkflow(),
+    });
+
+    const mash = batch.steps.find((s) => s.type === RecipeStepType.MASH);
+    expect(mash?.pedagogicalTip).toBeTruthy();
+    expect(mash?.plannedDurationMin).toBe(60);
+
+    const ferment = batch.steps.find(
+      (s) => s.type === RecipeStepType.FERMENTATION,
+    );
+    expect(ferment?.pedagogicalTip).toBeTruthy();
+    expect(ferment?.plannedDurationMin ?? null).toBeNull();
+
+    // the recipe-authored description is preserved, not overwritten
+    expect(mash?.description).toBe(
+      'Mash grains to extract fermentable sugars.',
+    );
+  });
+
   it('should complete steps and auto-advance until completion', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:10:00.000Z');

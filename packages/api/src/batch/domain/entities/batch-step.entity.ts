@@ -29,4 +29,10 @@ export interface BatchStep {
 
   /** Timestamp when this step was completed. */
   readonly completedAt?: Date;
+
+  /** Beginner "why" tip for this step (type-level guidance, B1-live). */
+  readonly pedagogicalTip?: string;
+
+  /** Default planned duration in minutes; null/undefined when not time-boxed. */
+  readonly plannedDurationMin?: number | null;
 }

@@ -47,6 +47,12 @@ export class BatchStepOrmEntity {
   @Column({ type: 'datetime', nullable: true })
   completed_at?: Date | null;
 
+  @Column({ type: 'integer', nullable: true })
+  planned_duration_min?: number | null;
+
+  @Column({ type: 'text', nullable: true })
+  pedagogical_tip?: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

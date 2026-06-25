@@ -4,6 +4,7 @@ import { BatchStatus } from '../enums/batch-status.enum';
 import { BatchStepStatus } from '../enums/batch-step-status.enum';
 import { BatchStep } from '../entities/batch-step.entity';
 import { Batch, BatchId, RecipeId, UserId } from '../entities/batch.entity';
+import { getStepGuidance } from './step-guidance';
 
 export interface StartBatchInput {
   id: BatchId;
@@ -34,6 +35,7 @@ export class BatchDomainService {
     const sortedSteps = [...input.steps].sort((a, b) => a.order - b.order);
     const steps: BatchStep[] = sortedSteps.map((step) => {
       const isFirst = step.order === 0;
+      const guidance = getStepGuidance(step.type);
       return {
         order: step.order,
         type: step.type,
@@ -42,6 +44,8 @@ export class BatchDomainService {
         status: isFirst ? BatchStepStatus.IN_PROGRESS : BatchStepStatus.PENDING,
         startedAt: isFirst ? createdAt : undefined,
         completedAt: undefined,
+        pedagogicalTip: guidance?.pedagogicalTip,
+        plannedDurationMin: guidance?.plannedDurationMin ?? undefined,
       };
     });
 

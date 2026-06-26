@@ -5,10 +5,12 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -33,7 +35,11 @@ import { CreateMeasurementDto } from '../dtos/create-measurement.dto';
 import { CreateObservationDto } from '../dtos/create-observation.dto';
 import { MeasurementDto } from '../dtos/measurement.dto';
 import { ObservationDto } from '../dtos/observation.dto';
+import { CreateTastingDto } from '../dtos/create-tasting.dto';
+import { GetPrimingQueryDto } from '../dtos/get-priming-query.dto';
+import { PrimingDto } from '../dtos/priming.dto';
 import { StartBatchDto } from '../dtos/start-batch.dto';
+import { TastingDto } from '../dtos/tasting.dto';
 import { UpdateBatchReminderDto } from '../dtos/update-batch-reminder.dto';
 import { BatchService } from '../services/batch.service';
 
@@ -246,5 +252,66 @@ export class BatchController {
       observedAt: dto.observedAt ? new Date(dto.observedAt) : undefined,
     });
     return ObservationDto.fromEntity(saved);
+  }
+
+  @Get(':id/priming')
+  @ApiOperation({
+    summary: 'Get the priming-sugar guidance for one of my batches',
+  })
+  @ApiOkResponse({ type: PrimingDto })
+  async getMinePriming(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: GetPrimingQueryDto,
+  ): Promise<PrimingDto> {
+    const result = await this.service.getMinePriming(user.id, id, {
+      targetCo2Vol: query.targetCo2Vol,
+      beerTempC: query.beerTempC,
+    });
+    return PrimingDto.fromResult(result);
+  }
+
+  @Post(':id/bottling/close')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bottle and close one of my batches' })
+  @ApiOkResponse({ type: BatchDto })
+  async closeMineBottling(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BatchDto> {
+    const { batch, steps } = await this.service.closeMineBottling(user.id, id);
+    return BatchDto.fromEntities(batch, steps);
+  }
+
+  @Get(':id/tasting')
+  @ApiOperation({ summary: 'Get the tasting of one of my batches' })
+  @ApiOkResponse({ type: TastingDto })
+  async getMineTasting(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<TastingDto> {
+    const tasting = await this.service.getMineTasting(user.id, id);
+    if (!tasting) {
+      throw new NotFoundException('Tasting not found');
+    }
+    return TastingDto.fromEntity(tasting);
+  }
+
+  @Post(':id/tasting')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Record the first tasting of one of my batches' })
+  @ApiCreatedResponse({ type: TastingDto })
+  async createMineTasting(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: CreateTastingDto,
+  ): Promise<TastingDto> {
+    const saved = await this.service.createMineTasting(user.id, id, {
+      rating: dto.rating,
+      note: dto.note,
+    });
+    return TastingDto.fromEntity(saved);
   }
 }

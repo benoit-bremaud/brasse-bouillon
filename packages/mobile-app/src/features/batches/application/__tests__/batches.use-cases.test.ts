@@ -228,5 +228,37 @@ describe("batches use-cases", () => {
       expect(result?.batch.id).toBe("b-demo-pdd-mash");
       expect(result?.recipeName).toBeNull();
     });
+
+    it("surfaces the recipe batch volume for the closure view (happy path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+        stats: { volumeLiters: 4.3 },
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeVolumeL).toBe(4.3);
+    });
+
+    it("returns a null volume when the recipe omits the volume stat (edge path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+        stats: {},
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeVolumeL).toBeNull();
+    });
+
+    it("returns a null volume when the recipe lookup throws (degraded path)", async () => {
+      mockedGetRecipeDetails.mockRejectedValue(new Error("recipe API 500"));
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeVolumeL).toBeNull();
+    });
   });
 });

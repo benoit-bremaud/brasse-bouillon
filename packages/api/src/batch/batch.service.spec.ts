@@ -1,6 +1,10 @@
 jest.setTimeout(20000);
 
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
@@ -14,6 +18,7 @@ import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
 import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
 import { MeasurementType } from './domain/enums/measurement-type.enum';
 import { ObservationOrmEntity } from './entities/observation.orm.entity';
+import { TastingOrmEntity } from './entities/tasting.orm.entity';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
@@ -33,6 +38,7 @@ describe('BatchService', () => {
   let recipeStepRepo: Repository<RecipeStepOrmEntity>;
   let measurementRepo: Repository<MeasurementOrmEntity>;
   let observationRepo: Repository<ObservationOrmEntity>;
+  let tastingRepo: Repository<TastingOrmEntity>;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -49,6 +55,7 @@ describe('BatchService', () => {
             BatchReminderOrmEntity,
             MeasurementOrmEntity,
             ObservationOrmEntity,
+            TastingOrmEntity,
           ],
           synchronize: true,
           logging: false,
@@ -62,6 +69,7 @@ describe('BatchService', () => {
           BatchReminderOrmEntity,
           MeasurementOrmEntity,
           ObservationOrmEntity,
+          TastingOrmEntity,
         ]),
       ],
       providers: [RecipeService, BatchService],
@@ -76,6 +84,7 @@ describe('BatchService', () => {
     recipeStepRepo = module.get(getRepositoryToken(RecipeStepOrmEntity));
     measurementRepo = module.get(getRepositoryToken(MeasurementOrmEntity));
     observationRepo = module.get(getRepositoryToken(ObservationOrmEntity));
+    tastingRepo = module.get(getRepositoryToken(TastingOrmEntity));
   });
 
   afterAll(async () => {
@@ -83,6 +92,7 @@ describe('BatchService', () => {
   });
 
   beforeEach(async () => {
+    await tastingRepo.clear();
     await observationRepo.clear();
     await measurementRepo.clear();
     await batchStepRepo.clear();
@@ -91,6 +101,20 @@ describe('BatchService', () => {
     await recipeStepRepo.clear();
     await recipeRepo.clear();
   });
+
+  // Drive a freshly started batch through its 5 steps to COMPLETED via the
+  // real bottling-close path (advance 4 steps onto PACKAGING, then close).
+  // Tasting is only allowed once the batch is bottled/completed.
+  async function completeBatch(
+    ownerId: string,
+    batchId: string,
+  ): Promise<void> {
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.closeMineBottling(ownerId, batchId);
+  }
 
   it('startMine() should create a batch and snapshot steps', async () => {
     const ownerId = 'user-1';
@@ -508,6 +532,260 @@ describe('BatchService', () => {
     ).rejects.toThrow(NotFoundException);
     await expect(
       batchService.listMineObservations(otherOwner, batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  // B3 — priming (happy path): uses the recipe volume (ADR-0020)
+  it('getMinePriming() returns the simple dose from the recipe volume', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'My Blonde',
+      batch_size_l: 20,
+    });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    const result = await batchService.getMinePriming(ownerId, batch.id);
+    expect(result.volumeL).toBe(20);
+    expect(result.sugarGrams).toBe(130); // 20 * 6.5
+    expect(result.targetCo2Vol).toBe(2.4);
+  });
+
+  // B3 — priming (sad path): missing recipe volume => 400
+  it('getMinePriming() rejects when the recipe has no batch volume', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'No volume' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.getMinePriming(ownerId, batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — priming (sad path): a zero batch volume => 400 (the <= 0 branch)
+  it('getMinePriming() rejects a recipe whose batch volume is 0', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'Zero volume',
+      batch_size_l: 0,
+    });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.getMinePriming(ownerId, batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — priming (edge): both advanced params => precise dose (differs from simple)
+  it('getMinePriming() returns the precise dose when both query params are supplied', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'My Blonde',
+      batch_size_l: 20,
+    });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    const simple = await batchService.getMinePriming(ownerId, batch.id);
+    const precise = await batchService.getMinePriming(ownerId, batch.id, {
+      targetCo2Vol: 2.4,
+      beerTempC: 20,
+    });
+
+    expect(precise.volumeL).toBe(20);
+    // The temperature-corrected dose differs from the flat simple default.
+    expect(precise.sugarGrams).not.toBe(simple.sugarGrams);
+  });
+
+  // B3 — priming (edge): ownership enforced
+  it('getMinePriming() rejects a batch the user does not own', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'My Blonde',
+      batch_size_l: 20,
+    });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.getMinePriming('user-2', batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  // B3 — bottling/close (happy path): sets bottled_at and completes the batch
+  it('closeMineBottling() sets bottled_at and auto-COMPLETES on the last step', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    // Advance to the final (PACKAGING) step, then close.
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+
+    const { batch, steps } = await batchService.closeMineBottling(
+      ownerId,
+      started.batch.id,
+    );
+
+    expect(batch.bottled_at).toBeTruthy();
+    expect(batch.status).toBe(BatchStatus.COMPLETED);
+    expect(batch.current_step_order).toBeNull();
+    expect(batch.completed_at).toBeTruthy();
+    expect(steps[steps.length - 1].status).toBe(BatchStepStatus.COMPLETED);
+  });
+
+  // B3 — bottling/close (sad path): closing off the PACKAGING step is rejected
+  it('closeMineBottling() rejects when the current step is not packaging', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    // Advance only as far as FERMENTATION (step 3), NOT packaging (step 4).
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+
+    await expect(
+      batchService.closeMineBottling(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    // Closure must NOT have leaked: no bottled_at, still in progress.
+    const reloaded = await batchRepo.findOneOrFail({
+      where: { id: started.batch.id },
+    });
+    expect(reloaded.bottled_at).toBeNull();
+    expect(reloaded.status).toBe(BatchStatus.IN_PROGRESS);
+  });
+
+  // B3 — bottling/close (sad path): a packaging step that is not in progress
+  it('closeMineBottling() rejects a packaging step that is not in progress', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    // Advance to the PACKAGING step (step 4, in_progress).
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+
+    // Force the packaging step out of IN_PROGRESS while it stays the current
+    // step — exercises the new status guard independently of the type guard.
+    await batchStepRepo.update(
+      { batch_id: started.batch.id, step_order: 4 },
+      { status: BatchStepStatus.PENDING },
+    );
+
+    await expect(
+      batchService.closeMineBottling(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    const reloaded = await batchRepo.findOneOrFail({
+      where: { id: started.batch.id },
+    });
+    expect(reloaded.bottled_at).toBeNull();
+    expect(reloaded.status).toBe(BatchStatus.IN_PROGRESS);
+  });
+
+  // B3 — bottling/close (sad path): an already-completed batch is rejected
+  it('closeMineBottling() rejects an already-completed batch', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.completeMineCurrentStep(ownerId, started.batch.id);
+    await batchService.closeMineBottling(ownerId, started.batch.id);
+
+    await expect(
+      batchService.closeMineBottling(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — bottling/close (edge): ownership enforced
+  it('closeMineBottling() rejects a batch the user does not own', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.closeMineBottling('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  // B3 — tasting (happy path): create then read back
+  it('createMineTasting() persists a rating + note and getMineTasting() returns it', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
+
+    const saved = await batchService.createMineTasting(ownerId, batch.id, {
+      rating: 4,
+      note: 'Belle mousse',
+    });
+
+    expect(saved.id).toBeDefined();
+    expect(saved.batch_id).toBe(batch.id);
+    expect(saved.rating).toBe(4);
+    expect(saved.note).toBe('Belle mousse');
+
+    const fetched = await batchService.getMineTasting(ownerId, batch.id);
+    expect(fetched?.id).toBe(saved.id);
+  });
+
+  // B3 — tasting (sad path): one tasting per batch (409)
+  it('createMineTasting() rejects a second tasting on the same batch', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
+
+    await batchService.createMineTasting(ownerId, batch.id, { rating: 5 });
+
+    await expect(
+      batchService.createMineTasting(ownerId, batch.id, { rating: 3 }),
+    ).rejects.toThrow(ConflictException);
+  });
+
+  // B3 — tasting (sad path): an out-of-range rating surfaces as 400
+  it('createMineTasting() rejects an out-of-range rating with BadRequest', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
+
+    await expect(
+      batchService.createMineTasting(ownerId, batch.id, { rating: 9 }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — tasting (sad path): an in-progress (non-completed) batch is rejected
+  it('createMineTasting() rejects a tasting on an in-progress batch with BadRequest', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineTasting(ownerId, batch.id, { rating: 4 }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — tasting (edge): ownership enforced, and absent tasting reads as null
+  it('tasting routes enforce ownership and return null when none', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    expect(await batchService.getMineTasting(ownerId, batch.id)).toBeNull();
+
+    await expect(
+      batchService.createMineTasting(otherOwner, batch.id, { rating: 3 }),
+    ).rejects.toThrow(NotFoundException);
+    await expect(
+      batchService.getMineTasting(otherOwner, batch.id),
     ).rejects.toThrow(NotFoundException);
   });
 });

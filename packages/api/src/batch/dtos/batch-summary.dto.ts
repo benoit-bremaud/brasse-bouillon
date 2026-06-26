@@ -29,6 +29,9 @@ export class BatchSummaryDto {
   fermentation_completed_at?: Date | null;
 
   @ApiPropertyOptional({ nullable: true })
+  bottled_at?: Date | null;
+
+  @ApiPropertyOptional({ nullable: true })
   completed_at?: Date | null;
 
   @ApiProperty()
@@ -47,6 +50,7 @@ export class BatchSummaryDto {
       started_at: e.started_at,
       fermentation_started_at: e.fermentation_started_at ?? null,
       fermentation_completed_at: e.fermentation_completed_at ?? null,
+      bottled_at: e.bottled_at ?? null,
       completed_at: e.completed_at ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,

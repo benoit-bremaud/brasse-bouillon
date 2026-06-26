@@ -70,6 +70,13 @@ export class BatchOrmEntity {
   @Column({ type: 'datetime', nullable: true })
   fermentation_completed_at?: Date | null;
 
+  // B3 — timestamp set when the batch is bottled/closed. Mirrors
+  // `fermentation_completed_at`; the batch status stays COMPLETED (no new
+  // BOTTLED state — see 05-state-batch-closure.md). Nullable so legacy rows
+  // and not-yet-bottled batches don't need backfill.
+  @Column({ type: 'datetime', nullable: true })
+  bottled_at?: Date | null;
+
   @Column({ type: 'datetime', nullable: true })
   completed_at?: Date | null;
 

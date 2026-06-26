@@ -1,13 +1,15 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, QueryFailedError, Repository } from 'typeorm';
 
 import { RecipeStep } from '../../recipe/domain/entities/recipe-step.entity';
+import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { RecipeService } from '../../recipe/services/recipe.service';
 
 import { BatchDomainService } from '../domain/services/batch-domain.service';
@@ -15,6 +17,7 @@ import { BatchStep } from '../domain/entities/batch-step.entity';
 import { Batch } from '../domain/entities/batch.entity';
 import { BatchReminderStatus } from '../domain/enums/batch-reminder-status.enum';
 import { BatchStatus } from '../domain/enums/batch-status.enum';
+import { BatchStepStatus } from '../domain/enums/batch-step-status.enum';
 import { BatchReminderOrmEntity } from '../entities/batch-reminder.orm.entity';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
@@ -31,6 +34,17 @@ import {
   Observation,
   ObservationValidationError,
 } from '../domain/observation.factory';
+import { TastingOrmEntity } from '../entities/tasting.orm.entity';
+import {
+  createTasting,
+  Tasting,
+  TastingValidationError,
+} from '../domain/tasting.factory';
+import {
+  computePrecisePriming,
+  computeSimplePriming,
+  PrimingResult,
+} from '../domain/services/priming-calculator';
 
 export interface BatchWithSteps {
   batch: BatchOrmEntity;
@@ -58,6 +72,16 @@ export interface CreateBatchReminderInput {
   dueAt: Date;
 }
 
+export interface CreateTastingInput {
+  rating: number;
+  note?: string | null;
+}
+
+export interface PrimingOptions {
+  targetCo2Vol?: number;
+  beerTempC?: number;
+}
+
 export interface UpdateBatchReminderInput {
   label?: string;
   dueAt?: Date;
@@ -79,6 +103,8 @@ export class BatchService {
     private readonly measurementRepo: Repository<MeasurementOrmEntity>,
     @InjectRepository(ObservationOrmEntity)
     private readonly observationRepo: Repository<ObservationOrmEntity>,
+    @InjectRepository(TastingOrmEntity)
+    private readonly tastingRepo: Repository<TastingOrmEntity>,
     private readonly recipeService: RecipeService,
   ) {}
 
@@ -343,6 +369,7 @@ export class BatchService {
       startedAt: batch.started_at,
       fermentationStartedAt: batch.fermentation_started_at ?? undefined,
       fermentationCompletedAt: batch.fermentation_completed_at ?? undefined,
+      bottledAt: batch.bottled_at ?? undefined,
       completedAt: batch.completed_at ?? undefined,
     };
   }
@@ -455,6 +482,232 @@ export class BatchService {
       observed_at: normalised.observedAt,
     });
     return this.observationRepo.save(observation);
+  }
+
+  /**
+   * Compute the priming-sugar dose for a batch (B3). Owner-guarded. The beer
+   * volume comes from the linked recipe's `batch_size_l` (ADR-0020) — never
+   * recomputed here.
+   *
+   * Mode follows the founder decision "simple par défaut, précise en option":
+   * with no options it returns the beginner-safe simple ~6.5 g/L dose; when
+   * BOTH `targetCo2Vol` and `beerTempC` are supplied it returns the precise,
+   * temperature-corrected dose. Partial options fall back to the simple default.
+   */
+  async getMinePriming(
+    ownerId: string,
+    batchId: string,
+    options: PrimingOptions = {},
+  ): Promise<PrimingResult> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+
+    const recipe = await this.recipeService.getReadableById(
+      ownerId,
+      batch.recipe_id,
+    );
+    const volumeL = recipe.batch_size_l;
+    if (volumeL == null || !Number.isFinite(volumeL) || volumeL <= 0) {
+      throw new BadRequestException(
+        'Cannot compute priming: the recipe has no batch volume (batch_size_l)',
+      );
+    }
+
+    const { targetCo2Vol, beerTempC } = options;
+    if (targetCo2Vol != null && beerTempC != null) {
+      return computePrecisePriming(volumeL, targetCo2Vol, beerTempC);
+    }
+
+    return computeSimplePriming(volumeL);
+  }
+
+  /**
+   * Close a batch at bottling (B3). Sets `bottled_at` AND drives the PACKAGING
+   * step to completion through the proven step engine
+   * (`BatchDomainService.completeCurrentStep`), which auto-COMPLETES the batch.
+   * Does not duplicate completion logic. Owner-guarded.
+   */
+  async closeMineBottling(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchWithSteps> {
+    return this.batchRepo.manager.transaction(async (manager) => {
+      const batchRepo = manager.getRepository(BatchOrmEntity);
+      const stepRepo = manager.getRepository(BatchStepOrmEntity);
+
+      const batch = await batchRepo.findOne({
+        where: { id: batchId, owner_id: ownerId },
+      });
+      if (!batch) {
+        throw new NotFoundException('Batch not found');
+      }
+      if (batch.status === BatchStatus.COMPLETED) {
+        throw new BadRequestException('Batch already completed');
+      }
+
+      const steps = await stepRepo.find({
+        where: { batch_id: batch.id },
+        order: { step_order: 'ASC' },
+      });
+
+      // Closing = bottling: only valid when the brewer is actually ON the
+      // PACKAGING step AND that step is in progress, otherwise
+      // completeCurrentStep would complete an earlier step (e.g. FERMENTATION)
+      // and set bottled_at prematurely.
+      const currentStep = steps.find(
+        (step) => step.step_order === batch.current_step_order,
+      );
+      if (
+        !currentStep ||
+        currentStep.type !== RecipeStepType.PACKAGING ||
+        currentStep.status !== BatchStepStatus.IN_PROGRESS
+      ) {
+        throw new BadRequestException(
+          'Batch is not at the bottling (packaging) step',
+        );
+      }
+
+      const domainBatch = this.toDomain(batch, steps);
+      // The step engine enforces its own preconditions; translate a domain
+      // precondition failure into a 400 (client error) rather than a 500.
+      let updated: Batch;
+      try {
+        updated = this.domain.completeCurrentStep(domainBatch);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new BadRequestException(error.message);
+        }
+        throw error;
+      }
+
+      batch.bottled_at = new Date();
+      batch.status = updated.status;
+      batch.current_step_order = updated.currentStepOrder ?? null;
+      batch.completed_at = updated.completedAt ?? null;
+
+      const savedBatch = await batchRepo.save(batch);
+
+      const stepPayloads = updated.steps.map((step) =>
+        stepRepo.create({
+          batch_id: savedBatch.id,
+          step_order: step.order,
+          type: step.type,
+          label: step.label,
+          description: step.description ?? null,
+          status: step.status,
+          started_at: step.startedAt ?? null,
+          completed_at: step.completedAt ?? null,
+          planned_duration_min: step.plannedDurationMin ?? null,
+          pedagogical_tip: step.pedagogicalTip ?? null,
+        }),
+      );
+
+      const savedSteps = await stepRepo.save(stepPayloads);
+      savedSteps.sort((a, b) => a.step_order - b.step_order);
+
+      return { batch: savedBatch, steps: savedSteps };
+    });
+  }
+
+  /**
+   * Get the (single) tasting of a batch, or null if none yet (B3).
+   * Owner-guarded.
+   */
+  async getMineTasting(
+    ownerId: string,
+    batchId: string,
+  ): Promise<TastingOrmEntity | null> {
+    await this.getMineBatch(ownerId, batchId);
+    return this.tastingRepo.findOne({ where: { batch_id: batchId } });
+  }
+
+  /**
+   * Record the first tasting of a batch (B3). One tasting per batch in v1:
+   * rejects with 409 if one already exists. Owner-guarded; the domain factory
+   * enforces the 1-5 rating invariant (surfaced as 400).
+   */
+  async createMineTasting(
+    ownerId: string,
+    batchId: string,
+    input: CreateTastingInput,
+  ): Promise<TastingOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+
+    // Conception places tasting AFTER closure (the UI only exposes it from the
+    // closure view): a batch can only be tasted once it is bottled (completed).
+    if (batch.status !== BatchStatus.COMPLETED) {
+      throw new BadRequestException(
+        'Tasting can only be recorded once the batch is bottled (completed)',
+      );
+    }
+
+    const existing = await this.tastingRepo.findOne({
+      where: { batch_id: batchId },
+    });
+    if (existing) {
+      throw new ConflictException('Batch already has a tasting');
+    }
+
+    let normalised: Tasting;
+    try {
+      normalised = createTasting({
+        batchId,
+        rating: input.rating,
+        note: input.note,
+      });
+    } catch (error) {
+      if (error instanceof TastingValidationError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+
+    const tasting = this.tastingRepo.create({
+      id: randomUUID(),
+      batch_id: batchId,
+      rating: normalised.rating,
+      note: normalised.note,
+    });
+    try {
+      return await this.tastingRepo.save(tasting);
+    } catch (error) {
+      // The findOne above is best-effort; the unique index on `batch_id` is the
+      // real backstop. A concurrent duplicate insert must surface as the same
+      // 409 as the read path, not a 500.
+      if (
+        error instanceof QueryFailedError &&
+        this.isUniqueConstraintViolation(error)
+      ) {
+        throw new ConflictException('Batch already has a tasting');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Detects a unique-constraint violation across the SQLite (tests) and
+   * Postgres (prod) drivers — mirrors the recipe service's detection so a
+   * concurrent duplicate maps to a 409 rather than a 500.
+   */
+  private isUniqueConstraintViolation(error: QueryFailedError): boolean {
+    const driverError = error.driverError as {
+      code?: string | number;
+      message?: string;
+    };
+    const code =
+      typeof driverError.code === 'string'
+        ? driverError.code
+        : typeof driverError.code === 'number'
+          ? String(driverError.code)
+          : '';
+    const message = (driverError.message ?? error.message).toLowerCase();
+
+    return (
+      code === '23505' ||
+      code === 'ER_DUP_ENTRY' ||
+      code === 'SQLITE_CONSTRAINT_PRIMARYKEY' ||
+      code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+      message.includes('unique constraint failed')
+    );
   }
 
   private async getMineBatch(

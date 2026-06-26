@@ -2,6 +2,12 @@ import { request } from "@/core/http/http-client";
 
 import { Batch, BatchStep, BatchSummary } from "../domain/batch.types";
 import {
+  PrimingInfo,
+  PrimingSugarType,
+  Tasting,
+  TastingInput,
+} from "../domain/bottling.types";
+import {
   Measurement,
   MeasurementInput,
   MeasurementType,
@@ -16,6 +22,7 @@ type BatchSummaryDto = {
   started_at: string;
   fermentation_started_at?: string | null;
   fermentation_completed_at?: string | null;
+  bottled_at?: string | null;
   completed_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -68,6 +75,7 @@ function mapBatchSummary(dto: BatchSummaryDto): BatchSummary {
     startedAt: dto.started_at,
     fermentationStartedAt: dto.fermentation_started_at ?? null,
     fermentationCompletedAt: dto.fermentation_completed_at ?? null,
+    bottledAt: dto.bottled_at ?? null,
     completedAt: dto.completed_at ?? null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
@@ -121,6 +129,122 @@ export async function startBatch(recipeId: string): Promise<Batch> {
     body: { recipeId },
   });
   return mapBatch(row);
+}
+
+/**
+ * Raw priming payload as returned by the backend (snake_case), mirroring the
+ * backend `PrimingDto`. Mapped to {@link PrimingInfo} by {@link mapPriming}.
+ */
+type PrimingDto = {
+  sugar_grams: number;
+  sugar_type: PrimingSugarType;
+  target_co2_vol: number;
+  volume_l: number;
+  safety_warning: string;
+};
+
+/**
+ * Raw tasting payload as returned by the backend (snake_case), mirroring the
+ * backend `TastingDto`. Mapped to {@link Tasting} by {@link mapTasting}.
+ */
+type TastingDto = {
+  id: string;
+  batch_id: string;
+  rating: number;
+  note?: string | null;
+  created_at: string;
+};
+
+/**
+ * Maps a raw {@link PrimingDto} to the {@link PrimingInfo} domain shape.
+ *
+ * @param dto - Raw priming payload from the backend.
+ * @returns The priming guidance in camelCase domain form.
+ */
+function mapPriming(dto: PrimingDto): PrimingInfo {
+  return {
+    sugarGrams: dto.sugar_grams,
+    sugarType: dto.sugar_type,
+    targetCo2Vol: dto.target_co2_vol,
+    volumeL: dto.volume_l,
+    safetyWarning: dto.safety_warning,
+  };
+}
+
+/**
+ * Maps a raw {@link TastingDto} to the {@link Tasting} domain shape,
+ * nullish-coalescing the optional note to `null` (same convention as
+ * {@link mapMeasurement}).
+ *
+ * @param dto - Raw tasting payload from the backend.
+ * @returns The tasting in camelCase domain form.
+ */
+function mapTasting(dto: TastingDto): Tasting {
+  return {
+    id: dto.id,
+    batchId: dto.batch_id,
+    rating: dto.rating,
+    note: dto.note ?? null,
+    createdAt: dto.created_at,
+  };
+}
+
+/**
+ * Reads the priming sugar guidance for a batch via
+ * `GET /batches/:id/priming`. Volume comes from the recipe (ADR-0020).
+ *
+ * @param batchId - Identifier of the batch to compute priming for.
+ * @returns The priming guidance in domain form.
+ */
+export async function getPriming(batchId: string): Promise<PrimingInfo> {
+  const row = await request<PrimingDto>(`/batches/${batchId}/priming`);
+  return mapPriming(row);
+}
+
+/**
+ * Closes the batch (bottling) via `POST /batches/:id/bottling/close`. Sets
+ * `bottled_at` and completes the current step through the workflow engine; the
+ * batch reaches `completed` when it was on its final (packaging) step.
+ *
+ * @param batchId - Identifier of the batch to close.
+ * @returns The updated batch (including `bottledAt`) in domain form.
+ */
+export async function closeBottling(batchId: string): Promise<Batch> {
+  const row = await request<BatchDto>(`/batches/${batchId}/bottling/close`, {
+    method: "POST",
+  });
+  return mapBatch(row);
+}
+
+/**
+ * Records a tasting against a batch via `POST /batches/:id/tasting`
+ * (one tasting per batch in v1).
+ *
+ * @param batchId - Identifier of the batch to attach the tasting to.
+ * @param input - Tasting creation payload (rating 1..5, optional note).
+ * @returns The persisted tasting in domain form.
+ */
+export async function createTasting(
+  batchId: string,
+  input: TastingInput,
+): Promise<Tasting> {
+  const row = await request<TastingDto>(`/batches/${batchId}/tasting`, {
+    method: "POST",
+    body: input,
+  });
+  return mapTasting(row);
+}
+
+/**
+ * Reads the tasting recorded for a batch via `GET /batches/:id/tasting`.
+ * The backend returns 404 ("Tasting not found") when none exists yet.
+ *
+ * @param batchId - Identifier of the batch to read the tasting for.
+ * @returns The recorded tasting in domain form.
+ */
+export async function getTasting(batchId: string): Promise<Tasting> {
+  const row = await request<TastingDto>(`/batches/${batchId}/tasting`);
+  return mapTasting(row);
 }
 
 /**

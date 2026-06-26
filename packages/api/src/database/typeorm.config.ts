@@ -34,6 +34,7 @@ import { ScanLabelImageOrmEntity } from '../scan/entities/scan-label-image.orm.e
 import { ScanRequestOrmEntity } from '../scan/entities/scan-request.orm.entity';
 import { ScanReviewQueueOrmEntity } from '../scan/entities/scan-review-queue.orm.entity';
 import { StyleOrmEntity } from '../catalog/style/entities/style.orm.entity';
+import { TastingOrmEntity } from '../batch/entities/tasting.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { WaterOrmEntity } from '../catalog/water/entities/water.orm.entity';
@@ -52,6 +53,7 @@ export const ormEntities = [
   MeasurementOrmEntity,
   ObservationOrmEntity,
   AlertOrmEntity,
+  TastingOrmEntity,
   RecipeOrmEntity,
   RecipeStepOrmEntity,
   RecipeFermentableOrmEntity,

@@ -630,7 +630,15 @@ export class BatchService {
     batchId: string,
     input: CreateTastingInput,
   ): Promise<TastingOrmEntity> {
-    await this.getMineBatch(ownerId, batchId);
+    const batch = await this.getMineBatch(ownerId, batchId);
+
+    // Conception places tasting AFTER closure (the UI only exposes it from the
+    // closure view): a batch can only be tasted once it is bottled (completed).
+    if (batch.status !== BatchStatus.COMPLETED) {
+      throw new BadRequestException(
+        'Tasting can only be recorded once the batch is bottled (completed)',
+      );
+    }
 
     const existing = await this.tastingRepo.findOne({
       where: { batch_id: batchId },

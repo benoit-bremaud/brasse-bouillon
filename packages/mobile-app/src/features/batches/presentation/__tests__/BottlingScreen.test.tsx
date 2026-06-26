@@ -184,4 +184,18 @@ describe("BottlingScreen", () => {
     // The safety warning still renders from its hardcoded fallback.
     expect(screen.getByTestId("bottling-safety-warning")).toBeTruthy();
   });
+
+  it("keeps the close gate disabled when the priming dose did not load, even if acknowledged (safety, sad path)", async () => {
+    // A brewer must never close without having received the sugar dose: when
+    // priming is null the close gate stays shut regardless of the checkbox.
+    mockedGetBottlingInfo.mockResolvedValue(null);
+    renderScreen();
+
+    await screen.findByTestId("priming-error");
+
+    fireEvent.press(screen.getByTestId("bottling-ack-checkbox"));
+    fireEvent.press(screen.getByText("Mettre en bouteille / clôturer"));
+
+    expect(mockedClose).not.toHaveBeenCalled();
+  });
 });

@@ -1,10 +1,12 @@
 /**
  * Domain types for the B3 bottling / priming / tasting flow (US-04xx).
  *
- * Type-only module: it carries the camelCase mirrors of the backend B3 DTOs
- * ({@link PrimingInfo}, {@link Tasting}, {@link TastingInput}) with no runtime
- * logic, so the domain layer never imports the data or presentation layers
- * (Clean Architecture dependency rule).
+ * Mostly a type module: it carries the camelCase mirrors of the backend B3 DTOs
+ * ({@link PrimingInfo}, {@link Tasting}, {@link TastingInput}), so the domain
+ * layer never imports the data or presentation layers (Clean Architecture
+ * dependency rule). It ALSO exports one runtime value — the {@link SAFETY_WARNING}
+ * constant (the fallback bottle-bomb warning) — so a refactor must not treat
+ * this file as types-only (it cannot be erased by `import type`).
  *
  * Brewing vocabulary: **priming** (réamorçage) is the controlled addition of
  * fermentable sugar at bottling time so the residual yeast re-carbonates the

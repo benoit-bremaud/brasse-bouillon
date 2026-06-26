@@ -102,6 +102,20 @@ describe('BatchService', () => {
     await recipeRepo.clear();
   });
 
+  // Drive a freshly started batch through its 5 steps to COMPLETED via the
+  // real bottling-close path (advance 4 steps onto PACKAGING, then close).
+  // Tasting is only allowed once the batch is bottled/completed.
+  async function completeBatch(
+    ownerId: string,
+    batchId: string,
+  ): Promise<void> {
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.completeMineCurrentStep(ownerId, batchId);
+    await batchService.closeMineBottling(ownerId, batchId);
+  }
+
   it('startMine() should create a batch and snapshot steps', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
@@ -705,6 +719,7 @@ describe('BatchService', () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
     const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
 
     const saved = await batchService.createMineTasting(ownerId, batch.id, {
       rating: 4,
@@ -725,6 +740,7 @@ describe('BatchService', () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
     const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
 
     await batchService.createMineTasting(ownerId, batch.id, { rating: 5 });
 
@@ -738,9 +754,21 @@ describe('BatchService', () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
     const { batch } = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, batch.id);
 
     await expect(
       batchService.createMineTasting(ownerId, batch.id, { rating: 9 }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  // B3 — tasting (sad path): an in-progress (non-completed) batch is rejected
+  it('createMineTasting() rejects a tasting on an in-progress batch with BadRequest', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.createMineTasting(ownerId, batch.id, { rating: 4 }),
     ).rejects.toThrow(BadRequestException);
   });
 

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 
 /**
  * Optional query params for `GET /batches/:id/priming` (B3).
@@ -18,6 +18,8 @@ export class GetPrimingQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
+  @Min(0)
+  @Max(8)
   targetCo2Vol?: number;
 
   @ApiPropertyOptional({
@@ -27,5 +29,7 @@ export class GetPrimingQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
+  @Min(-10)
+  @Max(120)
   beerTempC?: number;
 }

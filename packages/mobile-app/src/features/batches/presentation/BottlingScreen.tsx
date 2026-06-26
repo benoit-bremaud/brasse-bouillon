@@ -95,8 +95,13 @@ export function BottlingScreen({ batchId }: Props) {
     },
   });
 
+  // SAFETY: the brewer must never close without having received the sugar dose.
+  // The close gate therefore also requires the priming query to have loaded a
+  // dose (non-null data, no error) — over-priming is the bottle-bomb hazard.
+  const primingLoaded = priming != null && !primingError;
+
   const handleClose = () => {
-    if (missingBatchId || !acknowledged) {
+    if (missingBatchId || !acknowledged || !primingLoaded) {
       return;
     }
     mutateClose();
@@ -206,7 +211,9 @@ export function BottlingScreen({ batchId }: Props) {
             isPending ? "Clôture en cours…" : "Mettre en bouteille / clôturer"
           }
           onPress={handleClose}
-          disabled={isPending || !acknowledged || missingBatchId}
+          disabled={
+            isPending || !acknowledged || missingBatchId || !primingLoaded
+          }
         />
         {!acknowledged ? (
           <Text style={styles.gateHint}>

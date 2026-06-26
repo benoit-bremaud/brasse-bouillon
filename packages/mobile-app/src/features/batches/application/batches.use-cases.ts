@@ -32,6 +32,9 @@ export async function getBatchDetails(batchId: string): Promise<Batch | null> {
 export interface BatchDetailsViewModel {
   batch: Batch;
   recipeName: string | null;
+  // Recipe batch volume in litres, surfaced for the B3 closure view. Best-effort
+  // like `recipeName`: null when the recipe lookup fails or omits the stat.
+  recipeVolumeL?: number | null;
 }
 
 export async function getBatchDetailsViewModel(
@@ -46,13 +49,16 @@ export async function getBatchDetailsViewModel(
   // error in backend mode) must not break the batch details screen — fall
   // back to the "Brassin <id>" title instead of rejecting the whole query.
   let recipeName: string | null = null;
+  let recipeVolumeL: number | null = null;
   try {
     const recipe = await getRecipeDetails(batch.recipeId);
     recipeName = recipe?.name ?? null;
+    recipeVolumeL = recipe?.stats?.volumeLiters ?? null;
   } catch {
     recipeName = null;
+    recipeVolumeL = null;
   }
-  return { batch, recipeName };
+  return { batch, recipeName, recipeVolumeL };
 }
 
 export async function completeCurrentBatchStep(

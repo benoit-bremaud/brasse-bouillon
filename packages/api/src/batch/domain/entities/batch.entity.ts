@@ -53,6 +53,9 @@ export interface Batch {
   /** Timestamp when fermentation was completed. */
   readonly fermentationCompletedAt?: Date;
 
+  /** Timestamp when the batch was bottled/closed (B3). */
+  readonly bottledAt?: Date;
+
   /** Completion timestamp when the batch finishes. */
   readonly completedAt?: Date;
 }

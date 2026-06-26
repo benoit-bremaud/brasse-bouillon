@@ -14,12 +14,15 @@ import {
   completeCurrentBatchStep,
   getBatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
+import { getTasting } from "@/features/batches/application/bottling.use-cases";
 import { computeAbv } from "@/features/batches/application/measurement.calculations";
 import { listBatchMeasurements } from "@/features/batches/application/measurement.use-cases";
+import { Tasting } from "@/features/batches/domain/bottling.types";
 import { Measurement } from "@/features/batches/domain/measurement.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Batch } from "@/features/batches/domain/batch.types";
+import { BatchClosureView } from "@/features/batches/presentation/BatchClosureView";
 import { BATCH_STATUS_LABELS } from "@/features/batches/presentation/batch-display.constants";
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 import { StepCard } from "@/features/batches/presentation/StepCard";
@@ -157,6 +160,19 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const batch = viewModel?.batch ?? null;
   const recipeName = viewModel?.recipeName ?? null;
+  const recipeVolumeL = viewModel?.recipeVolumeL ?? null;
+  const isCompletedLive =
+    batch?.status === "completed" && !dataSource.useDemoData;
+
+  const {
+    data: tasting = null,
+    error: tastingError,
+    isError: isTastingError,
+  } = useQuery<Tasting | null>({
+    queryKey: ["batches", "tasting", batchId],
+    queryFn: () => getTasting(batchId),
+    enabled: !missingBatchId && isCompletedLive,
+  });
 
   const { data: measurements = [] } = useQuery<Measurement[]>({
     queryKey: ["batches", "measurements", batchId],
@@ -199,7 +215,12 @@ export function BatchDetailsScreen({ batchId }: Props) {
         ? isFetching
           ? null
           : getErrorMessage(queryError, "Impossible de charger le brassin")
-        : null));
+        : isTastingError
+          ? getErrorMessage(
+              tastingError,
+              "Impossible de charger la dégustation",
+            )
+          : null));
 
   const isRetryingWithError = isFetching && Boolean(queryError);
   const handleRetry = () => {
@@ -235,7 +256,37 @@ export function BatchDetailsScreen({ batchId }: Props) {
     });
   };
 
+  const handleGoToBottling = () => {
+    if (missingBatchId) {
+      return;
+    }
+    router.push({
+      pathname: "/batches/[id]/bottling",
+      params: { id: batchId },
+    });
+  };
+
+  const handleRateTasting = () => {
+    if (missingBatchId) {
+      return;
+    }
+    router.push({
+      pathname: "/batches/[id]/tasting",
+      params: { id: batchId },
+    });
+  };
+
   const isCompleted = batch?.status === "completed";
+  // In LIVE mode the current step being PACKAGING routes the brewer to the
+  // dedicated bottling/closure screen instead of the dead-end "Terminer
+  // l'étape" button. Demo mode keeps its original single-button behaviour.
+  const currentStep =
+    batch?.steps?.find((step) => step.stepOrder === batch.currentStepOrder) ??
+    null;
+  const showBottlingCta =
+    !dataSource.useDemoData &&
+    !isCompleted &&
+    currentStep?.type === "packaging";
   const fermentationInfo = useFermentationTrackerInfo(batch);
   const activeStep =
     batch?.steps?.find((step) => step.status === "in_progress") ?? null;
@@ -278,7 +329,17 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
-      {fermentationInfo ? (
+      {isCompletedLive && batch ? (
+        <BatchClosureView
+          batch={batch}
+          recipeName={recipeName}
+          volumeL={recipeVolumeL}
+          tasting={tasting}
+          onRateTasting={handleRateTasting}
+        />
+      ) : null}
+
+      {!isCompletedLive && fermentationInfo ? (
         <Card style={styles.fermentationCard}>
           <View style={styles.fermentationHeader}>
             <Ionicons name="flask" size={18} color={colors.brand.secondary} />
@@ -319,7 +380,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
-      {batch ? (
+      {!isCompletedLive && batch ? (
         <Card style={styles.measurementCard}>
           <View style={styles.fermentationHeader}>
             <Ionicons
@@ -359,25 +420,40 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
-      {activeStep ? (
+      {!isCompletedLive && activeStep ? (
         <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
       ) : null}
 
-      <PrimaryButton
-        label={completeButtonLabel}
-        onPress={handleComplete}
-        disabled={isCompleting || isCompleted || isLoading}
-      />
+      {showBottlingCta ? (
+        <PrimaryButton
+          label="Mettre en bouteille"
+          onPress={handleGoToBottling}
+          disabled={isLoading}
+        />
+      ) : !isCompletedLive ? (
+        <PrimaryButton
+          label={completeButtonLabel}
+          onPress={handleComplete}
+          disabled={isCompleting || isCompleted || isLoading}
+        />
+      ) : null}
 
-      <Text style={styles.sectionTitle}>Étapes</Text>
-      <FlatList
-        data={batch?.steps ?? []}
-        keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
-        renderItem={({ item }) => (
-          <StepCard step={item} onOpenTip={setOpenTip} />
-        )}
-      />
+      {!isCompletedLive ? (
+        <>
+          <Text style={styles.sectionTitle}>Étapes</Text>
+          <FlatList
+            data={batch?.steps ?? []}
+            keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
+            contentContainerStyle={[
+              styles.list,
+              { paddingBottom: bottomPadding },
+            ]}
+            renderItem={({ item }) => (
+              <StepCard step={item} onOpenTip={setOpenTip} />
+            )}
+          />
+        </>
+      ) : null}
 
       <Modal
         visible={openTip !== null}

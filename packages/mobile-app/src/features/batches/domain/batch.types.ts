@@ -18,6 +18,10 @@ export type BatchSummary = {
   startedAt: string;
   fermentationStartedAt?: string | null;
   fermentationCompletedAt?: string | null;
+  // ISO-8601 instant the batch was bottled (B3 closure), or null before
+  // bottling. The status stays "completed" — there is no BOTTLED status
+  // (ADR/state-05); bottledAt is the dedicated timestamp.
+  bottledAt?: string | null;
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;

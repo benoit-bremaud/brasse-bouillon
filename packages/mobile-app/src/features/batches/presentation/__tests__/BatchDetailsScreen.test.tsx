@@ -7,6 +7,7 @@ import {
   type BatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
 import { listBatchMeasurements } from "@/features/batches/application/measurement.use-cases";
+import { getTasting } from "@/features/batches/application/bottling.use-cases";
 import { Batch } from "@/features/batches/domain/batch.types";
 import { Measurement } from "@/features/batches/domain/measurement.types";
 import { dataSource } from "@/core/data/data-source";
@@ -86,6 +87,10 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
 jest.mock("@/features/batches/application/measurement.use-cases", () => ({
   listBatchMeasurements: jest.fn(() => Promise.resolve([])),
   recordBatchMeasurement: jest.fn(() => Promise.resolve(null)),
+}));
+
+jest.mock("@/features/batches/application/bottling.use-cases", () => ({
+  getTasting: jest.fn(() => Promise.resolve(null)),
 }));
 
 function renderBatchDetailsScreen(batchId = "b1") {
@@ -462,5 +467,172 @@ describe("BatchDetailsScreen — measurement card (B2)", () => {
       pathname: "/batches/[id]/measurement",
       params: { id: "b1" },
     });
+  });
+});
+
+describe("BatchDetailsScreen — B3 bottling routing + closure view", () => {
+  const packagingBatch: Batch = {
+    id: "b1",
+    ownerId: "u1",
+    recipeId: "r1",
+    status: "in_progress",
+    currentStepOrder: 1,
+    startedAt: TS,
+    createdAt: TS,
+    updatedAt: TS,
+    steps: [
+      {
+        batchId: "b1",
+        stepOrder: 0,
+        type: "fermentation",
+        label: "Fermentation",
+        status: "completed",
+        createdAt: TS,
+        updatedAt: TS,
+      },
+      {
+        batchId: "b1",
+        stepOrder: 1,
+        type: "packaging",
+        label: "Conditionnement",
+        status: "in_progress",
+        createdAt: TS,
+        updatedAt: TS,
+      },
+    ],
+  };
+
+  const completedBatch: Batch = {
+    ...packagingBatch,
+    status: "completed",
+    currentStepOrder: null,
+    bottledAt: "2026-06-20T09:00:00.000Z",
+    completedAt: "2026-06-20T09:00:00.000Z",
+    steps: packagingBatch.steps.map((step) => ({
+      ...step,
+      status: "completed",
+    })),
+  };
+
+  beforeEach(() => {
+    mockPush.mockReset();
+    mockReplace.mockReset();
+    dataSource.useDemoData = false;
+    (listBatchMeasurements as jest.Mock).mockResolvedValue([]);
+    (getTasting as jest.Mock).mockResolvedValue(null);
+  });
+
+  it("routes a live PACKAGING step to the bottling screen instead of the dead-end button (happy path)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: packagingBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Mettre en bouteille"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/batches/[id]/bottling",
+      params: { id: "b1" },
+    });
+    // The dead-end complete button must not be shown on the packaging step.
+    expect(screen.queryByText("Terminer l'étape en cours")).toBeNull();
+  });
+
+  it("keeps the complete button for non-packaging live steps (sad path)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: {
+        ...packagingBatch,
+        currentStepOrder: 0,
+        steps: packagingBatch.steps.map((step) =>
+          step.stepOrder === 0
+            ? { ...step, status: "in_progress" }
+            : { ...step, status: "pending" },
+        ),
+      },
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Terminer l'étape en cours")).toBeTruthy();
+    expect(screen.queryByText("Mettre en bouteille")).toBeNull();
+  });
+
+  it("renders the live closure view fed by the real batch when completed (happy path)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: completedBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByTestId("batch-closure-view")).toBeTruthy();
+    expect(screen.getByText("Volume : 4.3 L")).toBeTruthy();
+    expect(screen.getByText(/Mis en bouteille le/)).toBeTruthy();
+    // The completed live path replaces the steps list + measurement card.
+    expect(screen.queryByText("Étapes")).toBeNull();
+  });
+
+  it("navigates to the tasting route from the closure CTA (happy path)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: completedBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Noter ma dégustation"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/batches/[id]/tasting",
+      params: { id: "b1" },
+    });
+  });
+
+  it("shows the recorded tasting in the closure view when present (edge path)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: completedBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+    (getTasting as jest.Mock).mockResolvedValue({
+      id: "t1",
+      batchId: "b1",
+      rating: 5,
+      note: "À refaire",
+      createdAt: "2026-06-21T09:00:00.000Z",
+    });
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByTestId("closure-tasting-note")).toHaveTextContent(
+      /À refaire/,
+    );
+    // v1 = one tasting per batch (no update path): once recorded, the CTA is
+    // hidden rather than offering a "Modifier" that would 409 on the backend.
+    expect(screen.queryByText("Modifier ma dégustation")).toBeNull();
+    expect(screen.queryByText("Noter ma dégustation")).toBeNull();
+  });
+
+  it("does not show the closure view in demo mode even when completed (sad path)", async () => {
+    dataSource.useDemoData = true;
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: completedBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    await screen.findByText("Ma blonde");
+    // Demo keeps the original behaviour (steps list + disabled button).
+    expect(screen.queryByTestId("batch-closure-view")).toBeNull();
+    expect(screen.getByText("Étapes")).toBeTruthy();
   });
 });

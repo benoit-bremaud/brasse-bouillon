@@ -5,6 +5,24 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-25
+
+### PR #1270 merged (`d9d75c7`) — feat(batch): live brew-day step guidance (B1-live)
+
+- Branch `feat/b1-live-step-guidance`. First **P0** slice toward a live novice journey to bottling (roadmap TRACKER → ASSISTANT): batch steps now carry a per-step-type **pedagogical tip** + a **default planned duration**, so the live brew-day step card renders the info tip and a countdown timer — previously only the demo data had them. API: `STEP_TYPE_GUIDANCE` (pure domain reference, each `RecipeStepType` → tip + default duration) applied at batch start in `BatchDomainService`; two nullable `batch_steps` columns (`pedagogical_tip`, `planned_duration_min`) + migration `1800000000000-AddBatchStepGuidance`; DTO + `fromEntity`; persisted in **both** the create and the step-completion paths. Mobile: `mapBatchStep` stops dropping the two fields (the `StepCard` + `BrewStepTimer` rendering already existed). Conception folded in: `docs/architecture/diagrams/brew-day/01-sequence-step-enrichment.md`.
+- **Decisions**:
+  - `per-step-type-guidance-mvp` — guidance source is per-`RecipeStepType` defaults (no recipe↔guidance link yet; deferred). Recipe-authored `description` preserved; `FERMENTATION`/`PACKAGING` carry a tip but no duration; an unknown step type degrades gracefully. New columns nullable → legacy batches keep no enrichment (no backfill).
+- A local pre-push review caught a data-loss bug — `completeMineCurrentStep` re-created steps without the two new fields and `toDomainStep` did not map them back, nulling guidance on every step completion; fixed both sites + added a persistence-roundtrip test. CI green (api unit + e2e 785; mobile 1001); all threads resolved.
+
+### PR #1269 merged (`b5aaedc`) — docs(equipment-cleaning): conception (UML + ADR-0021) for the equipment + cleaning epic
+
+- Branch `docs/equipment-cleaning-conception`. Conception for the equipment-readiness + cleaning epic (re-scoped from the former "A3 equipment checklist"): 5 Mermaid diagrams under `docs/architecture/diagrams/equipment-cleaning/` (use-case, sequence equipment wizard, sequence prep fit-and-clean, class, state brew-readiness) + `docs/architecture/decisions/0021-equipment-readiness-cleaning-and-adaptive-pedagogy.md` (Proposed) + the decisions index row.
+- **Decisions** (ADR-0021, Proposed):
+  - `equipment-is-a-reusable-profile` — declared once via a guided 3-question wizard from a preset (`equipment_templates`); the create-DTO's other required fields are preset-seeded, hidden, still POSTed (snake_case wire format).
+  - `readiness-is-fitcheck-plus-cleaning` — per-brew equipment readiness = a graded capacity fit-check + the cleaning ritual, not a possession re-checklist; refines the brew-prep launch gate.
+  - `adaptive-pedagogy` — guide intrusiveness tunes to the declared brewer level; help always one tap away.
+- Reviews — 10 inline comments (conception accuracy) addressed: API field names documented as snake_case (the class is the camelCase domain model), required fields preset-seeded and still sent, headspace clarified as a fixed krausen constant (no API column), `CleaningProduct.id` added, `CleaningItem.productId` made optional with corrected multiplicity, and the profile GET reworded as a list + client-side selection. CI green; all threads resolved.
+
 ## 2026-06-24
 
 ### PR #1266 merged (`6a83aa3`) — feat(mobile): gate batch launch behind a pre-brew preparation screen

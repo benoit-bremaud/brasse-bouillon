@@ -1,6 +1,11 @@
 import { request } from "@/core/http/http-client";
 
 import { Batch, BatchStep, BatchSummary } from "../domain/batch.types";
+import {
+  Measurement,
+  MeasurementInput,
+  MeasurementType,
+} from "../domain/measurement.types";
 
 type BatchSummaryDto = {
   id: string;
@@ -36,6 +41,22 @@ type BatchDto = BatchSummaryDto & {
 };
 
 type StartBatchResponse = BatchDto;
+
+/**
+ * Raw measurement payload as returned by the backend (snake_case), mirroring
+ * the existing `MeasurementDto`. Mapped to the {@link Measurement} domain
+ * shape by {@link mapMeasurement}.
+ */
+type MeasurementDto = {
+  id: string;
+  batch_id: string;
+  step_order?: number | null;
+  type: MeasurementType;
+  value: number;
+  unit?: string | null;
+  taken_at: string;
+  created_at: string;
+};
 
 function mapBatchSummary(dto: BatchSummaryDto): BatchSummary {
   return {
@@ -100,4 +121,63 @@ export async function startBatch(recipeId: string): Promise<Batch> {
     body: { recipeId },
   });
   return mapBatch(row);
+}
+
+/**
+ * Maps a raw {@link MeasurementDto} to the {@link Measurement} domain shape,
+ * nullish-coalescing the optional fields to `null` (same convention as
+ * {@link mapBatchStep}).
+ *
+ * @param dto - Raw measurement payload from the backend.
+ * @returns The measurement in camelCase domain form.
+ */
+function mapMeasurement(dto: MeasurementDto): Measurement {
+  return {
+    id: dto.id,
+    batchId: dto.batch_id,
+    stepOrder: dto.step_order ?? null,
+    type: dto.type,
+    value: dto.value,
+    unit: dto.unit ?? null,
+    takenAt: dto.taken_at,
+    createdAt: dto.created_at,
+  };
+}
+
+/**
+ * Records a measurement against a batch via the existing
+ * `POST /batches/:id/measurements` endpoint.
+ *
+ * @param batchId - Identifier of the batch to attach the reading to.
+ * @param input - Measurement creation payload (type, value, optional takenAt).
+ * @returns The persisted measurement in domain form.
+ */
+export async function createMeasurement(
+  batchId: string,
+  input: MeasurementInput,
+): Promise<Measurement> {
+  const row = await request<MeasurementDto>(
+    `/batches/${batchId}/measurements`,
+    {
+      method: "POST",
+      body: input,
+    },
+  );
+  return mapMeasurement(row);
+}
+
+/**
+ * Lists the measurements recorded against a batch via the existing
+ * `GET /batches/:id/measurements` endpoint.
+ *
+ * @param batchId - Identifier of the batch to read measurements for.
+ * @returns The batch's measurements in domain form.
+ */
+export async function listMeasurements(
+  batchId: string,
+): Promise<Measurement[]> {
+  const rows = await request<MeasurementDto[]>(
+    `/batches/${batchId}/measurements`,
+  );
+  return rows.map(mapMeasurement);
 }

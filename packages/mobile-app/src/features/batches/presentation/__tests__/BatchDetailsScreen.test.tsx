@@ -6,13 +6,16 @@ import {
   getBatchDetailsViewModel,
   type BatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
+import { listBatchMeasurements } from "@/features/batches/application/measurement.use-cases";
 import { Batch } from "@/features/batches/domain/batch.types";
+import { Measurement } from "@/features/batches/domain/measurement.types";
 import { dataSource } from "@/core/data/data-source";
 
 // Shared timestamps so fixtures satisfy the full `Batch` shape without noise.
 const TS = "2026-05-01T08:00:00.000Z";
 
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -23,7 +26,7 @@ jest.mock("expo-router", () => {
   return {
     ...actual,
     useRouter: () => ({
-      push: jest.fn(),
+      push: mockPush,
       replace: mockReplace,
       back: jest.fn(),
     }),
@@ -78,6 +81,11 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
     currentStepOrder: 0,
     steps: [],
   }),
+}));
+
+jest.mock("@/features/batches/application/measurement.use-cases", () => ({
+  listBatchMeasurements: jest.fn(() => Promise.resolve([])),
+  recordBatchMeasurement: jest.fn(() => Promise.resolve(null)),
 }));
 
 function renderBatchDetailsScreen(batchId = "b1") {
@@ -363,5 +371,96 @@ describe("BatchDetailsScreen — brewing step timer + pedagogical tip (#781)", (
 
     fireEvent.press(screen.getByText("Compris"));
     expect(screen.queryByText(/alpha-amylase convertit l'amidon/)).toBeNull();
+  });
+});
+
+describe("BatchDetailsScreen — measurement card (B2)", () => {
+  const measurementFixture = (
+    type: "og" | "fg",
+    value: number,
+    takenAt: string,
+  ): Measurement => ({
+    id: `m-${type}-${value}`,
+    batchId: "b1",
+    stepOrder: null,
+    type,
+    value,
+    unit: null,
+    takenAt,
+    createdAt: takenAt,
+  });
+
+  beforeEach(() => {
+    mockPush.mockReset();
+    dataSource.useDemoData = false;
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(mashBatch, "Ma recette test"),
+    );
+    (listBatchMeasurements as jest.Mock).mockResolvedValue([]);
+  });
+
+  // Happy path: OG + FG recorded → the app computes and shows the ABV.
+  it("shows the computed ABV when both OG and FG are recorded", async () => {
+    (listBatchMeasurements as jest.Mock).mockResolvedValue([
+      measurementFixture("og", 1.06, "2026-05-01T08:00:00.000Z"),
+      measurementFixture("fg", 1.01, "2026-05-15T08:00:00.000Z"),
+    ]);
+
+    renderBatchDetailsScreen();
+
+    // (1.06 - 1.01) × 131.25 = 6.5625 → rounded to 1 decimal → 6.6.
+    expect(await screen.findByText("6.6 % vol")).toBeTruthy();
+    expect(screen.getByText(/131,25/)).toBeTruthy();
+  });
+
+  // Edge path: only OG recorded → teach that ABV needs the final gravity.
+  it("invites recording FG when only OG exists", async () => {
+    (listBatchMeasurements as jest.Mock).mockResolvedValue([
+      measurementFixture("og", 1.06, "2026-05-01T08:00:00.000Z"),
+    ]);
+
+    renderBatchDetailsScreen();
+
+    expect(
+      await screen.findByText(/ABV calculée à la fin de la fermentation/),
+    ).toBeTruthy();
+    // No alcohol figure is shown until FG is recorded.
+    expect(screen.queryByText(/% vol/)).toBeNull();
+  });
+
+  // Sad path: no reading yet → invite recording the original gravity.
+  it("invites recording OG when no measurement exists", async () => {
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText(/Aucune densité saisie/)).toBeTruthy();
+  });
+
+  // Edge: when several OG readings exist, the latest (by takenAt) is forwarded.
+  it("forwards the latest recorded OG to the measurement route", async () => {
+    (listBatchMeasurements as jest.Mock).mockResolvedValue([
+      measurementFixture("og", 1.04, "2026-05-01T08:00:00.000Z"),
+      measurementFixture("og", 1.05, "2026-05-03T08:00:00.000Z"),
+    ]);
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Saisir une densité"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/batches/[id]/measurement",
+      params: { id: "b1", og: "1.05" },
+    });
+  });
+
+  // Navigation without an OG param when no reading exists yet.
+  it("navigates without an OG param when no measurement exists", async () => {
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Saisir une densité"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/batches/[id]/measurement",
+      params: { id: "b1" },
+    });
   });
 });

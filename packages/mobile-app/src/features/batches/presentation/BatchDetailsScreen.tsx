@@ -14,6 +14,9 @@ import {
   completeCurrentBatchStep,
   getBatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
+import { computeAbv } from "@/features/batches/application/measurement.calculations";
+import { listBatchMeasurements } from "@/features/batches/application/measurement.use-cases";
+import { Measurement } from "@/features/batches/domain/measurement.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Batch } from "@/features/batches/domain/batch.types";
@@ -47,6 +50,27 @@ const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 // merge it with the static `styles.progressFill` baseline.
 function progressFillWidth(percent: number) {
   return { width: `${Math.max(0, Math.min(100, percent))}%` } as const;
+}
+
+/**
+ * Picks the most recent measurement of a given type from a batch's readings.
+ *
+ * @param measurements - All readings recorded for the batch.
+ * @param type - The measurement type to extract (`og` or `fg`).
+ * @returns The latest matching reading's value, or `null` when none exists.
+ */
+function latestMeasurementValue(
+  measurements: Measurement[],
+  type: "og" | "fg",
+): number | null {
+  const matching = measurements.filter((item) => item.type === type);
+  if (matching.length === 0) {
+    return null;
+  }
+  const latest = matching.reduce((acc, item) =>
+    item.takenAt > acc.takenAt ? item : acc,
+  );
+  return latest.value;
 }
 
 function getCompleteButtonLabel(
@@ -134,6 +158,19 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const batch = viewModel?.batch ?? null;
   const recipeName = viewModel?.recipeName ?? null;
 
+  const { data: measurements = [] } = useQuery<Measurement[]>({
+    queryKey: ["batches", "measurements", batchId],
+    queryFn: () => listBatchMeasurements(batchId),
+    enabled: !missingBatchId,
+  });
+
+  const recordedOg = latestMeasurementValue(measurements, "og");
+  const recordedFg = latestMeasurementValue(measurements, "fg");
+  const abv =
+    recordedOg != null && recordedFg != null && recordedFg < recordedOg
+      ? computeAbv(recordedOg, recordedFg)
+      : null;
+
   const {
     mutate: mutateCompleteCurrentStep,
     isPending: isCompleting,
@@ -183,6 +220,19 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const handleGoBack = () => {
     router.replace("/batches");
+  };
+
+  const handleRecordMeasurement = () => {
+    if (missingBatchId) {
+      return;
+    }
+    router.push({
+      pathname: "/batches/[id]/measurement",
+      params: {
+        id: batchId,
+        ...(recordedOg != null ? { og: String(recordedOg) } : {}),
+      },
+    });
   };
 
   const isCompleted = batch?.status === "completed";
@@ -269,6 +319,46 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
+      {batch ? (
+        <Card style={styles.measurementCard}>
+          <View style={styles.fermentationHeader}>
+            <Ionicons
+              name="speedometer"
+              size={18}
+              color={colors.brand.secondary}
+            />
+            <Text style={styles.fermentationTitle}>Densités & alcool</Text>
+          </View>
+
+          {abv != null ? (
+            <>
+              <Text style={styles.metricValue}>{abv.toFixed(1)} % vol</Text>
+              <Text style={styles.metricHint}>
+                Calcul : (OG − FG) × 131,25 = ({recordedOg?.toFixed(3)} −{" "}
+                {recordedFg?.toFixed(3)}) × 131,25. La levure a transformé le
+                sucre (chute de densité) en alcool.
+              </Text>
+            </>
+          ) : recordedOg != null ? (
+            <Text style={styles.metricHint}>
+              ABV calculée à la fin de la fermentation : saisis la densité
+              finale (FG) quand la fermentation sera terminée.
+            </Text>
+          ) : (
+            <Text style={styles.metricHint}>
+              Aucune densité saisie. Note la densité initiale (OG) au début de
+              la fermentation, la finale (FG) à la fin.
+            </Text>
+          )}
+
+          <PrimaryButton
+            label="Saisir une densité"
+            onPress={handleRecordMeasurement}
+            style={styles.measurementCta}
+          />
+        </Card>
+      ) : null}
+
       {activeStep ? (
         <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
       ) : null}
@@ -347,6 +437,13 @@ const styles = StyleSheet.create({
   fermentationCard: {
     padding: spacing.md,
     marginBottom: spacing.sm,
+  },
+  measurementCard: {
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  measurementCta: {
+    marginTop: spacing.md,
   },
   fermentationHeader: {
     flexDirection: "row",

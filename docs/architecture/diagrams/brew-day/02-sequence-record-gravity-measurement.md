@@ -15,10 +15,10 @@ sequenceDiagram
   participant M as Mobile (MeasurementEntryScreen)
   participant UC as Use-case (recordBatchMeasurement)
   participant API as Backend API (existing)
-  B->>M: Open my batch, tap "Saisir une densite"
+  B->>M: Open my batch, tap "Saisir une densité"
   M->>B: Form - pick OG or FG, enter SG (e.g. 1.050)
   alt No hydrometer (escape, never a dead-end)
-    B->>M: Tap "Je n'ai pas de densimetre"
+    B->>M: Tap "Je n'ai pas de densimètre"
     M-->>B: Buy-advice card; proceed without OG/FG; ABV marked unavailable (no estimate)
   else A reading is entered
     B->>M: Submit value
@@ -37,7 +37,7 @@ sequenceDiagram
     end
     UC-->>M: measurement saved
     M->>M: invalidate batch cache, recompute ABV = (OG - FG) x 131.25
-    M-->>B: Show ABV + plain explanation (or "ABV calculee a la fin" if only OG yet)
+    M-->>B: Show ABV + plain explanation (or "ABV calculée à la fin" if only OG yet)
   end
 ```
 
@@ -48,5 +48,5 @@ sequenceDiagram
 - **Fermentation end = taught, not auto-detected** (founder decision): with OG/FG only the app cannot compute gravity stability, so it **teaches the rule** ("stable 2-3 days = done") and the brewer judges and records FG. The app does **not** auto-write `fermentation_completed_at`; completion stays an explicit user action on the existing independent lifecycle.
 - **No hydrometer = never a dead-end** (founder decision, US-0404): advise buying one, let the brew proceed, show **"alcool indisponible"** — **no** fabricated estimate (pedagogy).
 - **Implausible value guard** (founder decision): `FG >= OG` is blocked **client-side** with a plain explanation — this is distinct from the API's range `400` (which guards `[0.99, 1.2]`).
-- **ABV computed client-side** (KISS): `(OG - FG) x 131.25`, rounded to 1 decimal, in a pure helper; the `abv_actual` server snapshot is **deferred**. Pedagogy is the maitre-mot: the screen explains what OG/FG/ABV are (BeerXML/BJCP vocab: OG = densite initiale, FG = densite finale).
+- **ABV computed client-side** (KISS): `(OG - FG) x 131.25`, rounded to 1 decimal, in a pure helper; the `abv_actual` server snapshot is **deferred**. Pedagogy is the maître-mot: the screen explains what OG/FG/ABV are (BeerXML/BJCP vocab: OG = densité initiale, FG = densité finale).
 - **Clean Architecture:** `presentation` (MeasurementEntryScreen) -> `application` (recordBatchMeasurement, demo/live branch) -> `data` (batches.api via the shared http-client); domain stays type-only. Mirrors the existing `completeCurrentBatchStep` flow.

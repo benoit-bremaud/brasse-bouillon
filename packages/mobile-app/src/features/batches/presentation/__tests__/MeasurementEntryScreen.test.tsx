@@ -180,4 +180,21 @@ describe("MeasurementEntryScreen", () => {
 
     invalidateSpy.mockRestore();
   });
+
+  it("normalizes a comma decimal so a FR-style reading records correctly (edge path)", async () => {
+    renderScreen();
+
+    fireEvent.changeText(
+      screen.getByTestId("measurement-value-input"),
+      "1,050",
+    );
+    fireEvent.press(screen.getByText("Enregistrer la densité"));
+
+    await waitFor(() => {
+      expect(mockedRecord).toHaveBeenCalledWith("b1", {
+        type: "og",
+        value: 1.05,
+      });
+    });
+  });
 });

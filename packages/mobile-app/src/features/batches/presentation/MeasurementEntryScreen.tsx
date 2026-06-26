@@ -104,7 +104,9 @@ export function MeasurementEntryScreen({ batchId, recordedOg = null }: Props) {
     },
   });
 
-  const parsedValue = parseFloat(valueText);
+  // Normalise a FR-style comma decimal ("1,050") to a dot before parsing,
+  // otherwise parseFloat stops at the comma and silently records "1".
+  const parsedValue = parseFloat(valueText.replace(",", "."));
   const hasValue = valueText.trim() !== "" && !Number.isNaN(parsedValue);
 
   // ABV preview: only when both OG and the freshly-entered FG are valid.
@@ -162,6 +164,7 @@ export function MeasurementEntryScreen({ batchId, recordedOg = null }: Props) {
         <View style={styles.kindRow}>
           <Pressable
             accessibilityRole="button"
+            accessibilityState={{ selected: kind === "og" }}
             style={[styles.kindTab, kind === "og" && styles.kindTabActive]}
             onPress={() => handleSelectKind("og")}
           >
@@ -176,6 +179,7 @@ export function MeasurementEntryScreen({ batchId, recordedOg = null }: Props) {
           </Pressable>
           <Pressable
             accessibilityRole="button"
+            accessibilityState={{ selected: kind === "fg" }}
             style={[styles.kindTab, kind === "fg" && styles.kindTabActive]}
             onPress={() => handleSelectKind("fg")}
           >
@@ -196,7 +200,7 @@ export function MeasurementEntryScreen({ batchId, recordedOg = null }: Props) {
           style={styles.textInput}
           value={valueText}
           onChangeText={setValueText}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           placeholder="1.050"
         />
       </Card>

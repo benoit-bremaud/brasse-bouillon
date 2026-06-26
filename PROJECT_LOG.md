@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-26
+
+### PR #1272 merged (`906b2de`) — feat(batch): record fermentation gravity measurements and compute ABV (B2)
+
+- Branch `feat/b2-measurements`. Second **P0** slice toward live bottling: a mobile measurement-entry flow on a live batch. The brewer records the original gravity (OG) at fermentation start and the final gravity (FG) at the end (specific-gravity format, e.g. `1.050`); the app computes and **explains** ABV = (OG − FG) × 131.25 client-side. Backend unchanged — the measurement API (`POST` / `GET /batches/:id/measurements`) already existed. Adds `MeasurementEntryScreen` + route `batches/[id]/measurement`, a `BatchDetailsScreen` "Densités & alcool" card, domain types, data-layer `createMeasurement` / `listMeasurements`, application use-cases with the demo/live branch, plus `computeAbv` + `validateFinalGravity`. Conception `docs/architecture/diagrams/brew-day/02-sequence-record-gravity-measurement.md`.
+- **Decisions** (locked with the founder): SG format only; **OG + FG only** (interim `sg_spot` deferred); fermentation end **taught, not auto-detected** (no `fermentation_completed_at` write); a **no-hydrometer escape** that never blocks (no fabricated ABV); `FG >= OG` blocked client-side; ABV computed client-side (server snapshot deferred).
+- Reviews — the local pre-push review caught a missing `["batches","measurements"]` cache invalidation (the card would not refresh after recording); automated PR review caught a FR comma-decimal bug (`1,050` parsed as `1`, corrupting the reading). Both fixed and regression-tested; plus `decimal-pad` input, `accessibilityState` selected on the OG/FG tabs, and restored diagram accents. CI green (mobile-app suite); all threads resolved.
+
 ## 2026-06-25
 
 ### PR #1270 merged (`d9d75c7`) — feat(batch): live brew-day step guidance (B1-live)

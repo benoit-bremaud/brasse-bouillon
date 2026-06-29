@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 
+import { EQUIPMENT_SYSTEM_DEFAULTS } from '../domain/equipment-system-defaults';
 import { EquipmentProfileDomainService } from '../domain/services/equipment-profile-domain.service';
 import { EquipmentProfileOrmEntity } from '../entities/equipment-profile.orm.entity';
 import { CreateEquipmentProfileDto } from '../dtos/create-equipment-profile.dto';
@@ -35,12 +36,18 @@ export class EquipmentProfileService {
   ): Promise<EquipmentProfileOrmEntity> {
     const id = randomUUID();
 
+    // The 3-question wizard omits the "hidden" brewing constants; seed them per
+    // system type so the novice never has to supply efficiency / boil-off rate.
+    const defaults = EQUIPMENT_SYSTEM_DEFAULTS[dto.system_type];
+
     const entity = this.repo.create({
       id,
       owner_id: ownerId,
       name: dto.name,
 
-      mash_tun_volume_l: dto.mash_tun_volume_l,
+      // Mash-tun volume defaults to the boil-kettle volume (single-vessel
+      // assumption) when the wizard does not ask for it separately.
+      mash_tun_volume_l: dto.mash_tun_volume_l ?? dto.boil_kettle_volume_l,
       boil_kettle_volume_l: dto.boil_kettle_volume_l,
       fermenter_volume_l: dto.fermenter_volume_l,
 
@@ -48,8 +55,10 @@ export class EquipmentProfileService {
       dead_space_loss_l: dto.dead_space_loss_l ?? 0,
       transfer_loss_l: dto.transfer_loss_l ?? 0,
 
-      evaporation_rate_l_per_hour: dto.evaporation_rate_l_per_hour,
-      efficiency_estimated_percent: dto.efficiency_estimated_percent,
+      evaporation_rate_l_per_hour:
+        dto.evaporation_rate_l_per_hour ?? defaults.evaporationRateLPerHour,
+      efficiency_estimated_percent:
+        dto.efficiency_estimated_percent ?? defaults.efficiencyEstimatedPercent,
       efficiency_measured_percent: dto.efficiency_measured_percent ?? null,
 
       cooling_time_minutes: dto.cooling_time_minutes ?? null,

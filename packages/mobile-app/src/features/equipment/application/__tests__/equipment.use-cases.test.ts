@@ -114,4 +114,23 @@ describe("equipment.use-cases", () => {
     expect(result).toHaveLength(demoEquipments.length);
     expect(result[0].id).toBe(demoEquipments[0].id);
   });
+
+  it("create: propagates an API error when demo is off (sad)", async () => {
+    mockedCreateApi.mockRejectedValue(new Error("network down"));
+
+    await expect(
+      createEquipmentProfile({
+        name: "S",
+        systemType: "all-grain",
+        fermenterVolumeL: 23,
+        boilKettleVolumeL: 30,
+      }),
+    ).rejects.toThrow("network down");
+  });
+
+  it("list: propagates an API error when demo is off (sad)", async () => {
+    mockedListApi.mockRejectedValue(new Error("timeout"));
+
+    await expect(listEquipmentProfiles()).rejects.toThrow("timeout");
+  });
 });

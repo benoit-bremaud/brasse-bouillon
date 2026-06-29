@@ -11,6 +11,7 @@ import {
   listMyEquipmentProfiles,
 } from "../data/equipment.api";
 
+// Fixed past date so demo profiles are deterministic across renders.
 const DEMO_TIMESTAMP = "2026-02-01T10:00:00.000Z";
 
 /**
@@ -18,6 +19,9 @@ const DEMO_TIMESTAMP = "2026-02-01T10:00:00.000Z";
  * shape so the screen consumes a single type in both data modes.
  */
 function fromDemoEquipment(equipment: Equipment): EquipmentProfile {
+  // Legacy demo records only carry "all-in-one" / "kettle" / "fermenter"; map
+  // the all-in-one rigs as such and treat the rest as all-grain (no demo
+  // "extract" rig exists today).
   const systemType: EquipmentSystemType =
     equipment.type === "all-in-one" ? "all-in-one" : "all-grain";
 

@@ -124,4 +124,17 @@ describe('Equipment profile create (e2e — E1)', () => {
       })
       .expect(400);
   });
+
+  // Sad — the endpoint is JWT-guarded; a request without a token is a 401.
+  it('rejects an unauthenticated create with 401', async () => {
+    await request(app.getHttpServer())
+      .post('/equipment-profiles')
+      .send({
+        name: 'No auth',
+        fermenter_volume_l: 23,
+        boil_kettle_volume_l: 30,
+        system_type: EquipmentSystemType.ALL_GRAIN,
+      })
+      .expect(401);
+  });
 });

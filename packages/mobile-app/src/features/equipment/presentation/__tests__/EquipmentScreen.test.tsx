@@ -101,4 +101,14 @@ describe("EquipmentScreen", () => {
     fireEvent.press(screen.getByTestId("equipment-add-cta"));
     expect(mockPush).toHaveBeenCalledWith("/equipment/wizard");
   });
+
+  it("shows an error card when the query fails (sad)", async () => {
+    // getErrorMessage surfaces the error's own message (falling back to the
+    // generic copy only when the error has none).
+    mockedList.mockRejectedValue(new Error("timeout"));
+
+    renderScreen();
+
+    expect(await screen.findByText("timeout")).toBeTruthy();
+  });
 });

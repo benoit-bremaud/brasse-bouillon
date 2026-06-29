@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-29
+
+### PR #1277 merged (`a3dc240`) — feat(equipment): equipment wizard — 3-question profile + server-side defaults (E1)
+
+- Branch `feat/e1-equipment-wizard`. First **P1** slice of the equipment+cleaning epic (ADR-0021): the missing **mobile capture** for a reusable equipment profile via a guided **3-question wizard** (system type, fermenter volume, largest kettle), persisted on the existing `/equipment-profiles` API. Backend: the create-DTO's hidden constants (`mash_tun_volume_l`, `evaporation_rate_l_per_hour`, `efficiency_estimated_percent`) become **optional** and are **seeded server-side** from a per-`system_type` defaults table (`equipment/domain/equipment-system-defaults.ts`; mash-tun defaults to the boil-kettle volume); explicit values are never overwritten — keeps the brewing constants backend-owned (ADR-0020). Mobile: new `features/equipment` Clean layers (domain/data/application/presentation) on the http-client, `EquipmentWizardScreen` (3 steps + recap with an auto-generated, editable name), and `EquipmentScreen` now lists real profiles (TanStack Query) with an add-CTA + empty state (was demo-only). Conception synced: ADR-0021 D1 amended + `docs/architecture/diagrams/equipment-cleaning/02-sequence-equipment-wizard.md`.
+- **Decisions** (locked with the founder): hidden constants **seeded server-side per `system_type`** (not client-sent from a preset); Q1 maps to the 3-value `EquipmentSystemType` enum; the `equipment_templates` (BeerXML) → profile mapping is **deferred to E2** (fields don't map 1:1 to the profile DTO); scope = **wizard + persistence only** (fit-check / launch-gate / cleaning out of scope → E2/C1).
+- Reviews — an architecture-guardian audit (Clean Architecture + SOLID) found 0 must-fix; the local pre-push reviewer added the missing sad-path coverage (use-cases create/list error propagation, EquipmentScreen error card, e2e 401). Codex CLI unavailable locally (noted, not skipped). CI green after a re-run (api unit + e2e; mobile suite) — the single red was a **pre-existing flaky scan timeout** (`ScanScreen.test.tsx`), unrelated to the diff.
+
 ## 2026-06-26
 
 ### PR #1274 merged (`38bb60c`) — feat(batch): bottling, live closure and first tasting (B3)

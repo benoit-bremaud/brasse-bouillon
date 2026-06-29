@@ -2,6 +2,7 @@
 
 **Status**  Proposed
 **Date**    2026-06-24
+**Amended** 2026-06-29 — D1 build (E1): hidden constants seeded server-side per `system_type`; `equipment_templates`→profile mapping deferred to E2.
 **Owners**  @benoit-bremaud
 
 > Settles how "equipment readiness" works in the novice brew-preparation journey,
@@ -28,13 +29,18 @@
 
 **D1 — Equipment is a reusable profile, declared once via a guided wizard.** An
 `EquipmentProfile` (on the existing `equipment_profiles` API) is created in a
-**dedicated equipment space**, from a **preset** (`equipment_templates`),
-answering **3 essential questions** (system type, fermenter + size, kettle size).
-The create-DTO requires more than those 3 answers (`name`, `mash_tun_volume_l`,
-`evaporation_rate_l_per_hour`, `efficiency_estimated_percent`, plus the losses):
-these are **preset-seeded and hidden from the novice, but still sent** in the
-snake_case `POST /equipment-profiles` body so validation passes (editable later).
-Multi-fermenter is out of v1.
+**dedicated equipment space**, answering **3 essential questions** (system type,
+fermenter + size, kettle size). In E1, the create-DTO makes the hidden fields
+(`mash_tun_volume_l`, `evaporation_rate_l_per_hour`,
+`efficiency_estimated_percent`) **optional**: the wizard sends only the 3 answers
+plus `name`, and the backend **seeds the hidden constants server-side** from a
+per-`system_type` defaults table (`equipment/domain/equipment-system-defaults.ts`),
+with `mash_tun_volume_l` defaulting to the boil-kettle volume (single-vessel
+assumption). This keeps the brewing constants **backend-owned** (ADR-0020) and the
+novice client free of domain numbers (editable later). **Q1 maps to the 3-value
+`EquipmentSystemType` enum**; mapping the richer **`equipment_templates`** catalog
+onto a profile is **deferred to E2** (its BeerXML-shaped fields don't map 1:1 to
+the profile DTO). Multi-fermenter is out of v1.
 
 **D2 — Equipment readiness for a brew = a capacity fit-check + the cleaning
 ritual, NOT a possession checklist.** Per brew the app does **not** re-tick owned

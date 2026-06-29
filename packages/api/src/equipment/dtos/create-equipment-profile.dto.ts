@@ -22,11 +22,16 @@ export class CreateEquipmentProfileDto {
   name: string;
 
   // Volumes (L)
-  @ApiProperty({ example: 25 })
+  /**
+   * Mash-tun volume. Optional from the wizard: when omitted, the service
+   * defaults it to the boil-kettle volume (single-vessel assumption).
+   */
+  @ApiPropertyOptional({ example: 25 })
   @Type(() => Number)
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  mash_tun_volume_l: number;
+  mash_tun_volume_l?: number;
 
   @ApiProperty({ example: 25 })
   @Type(() => Number)
@@ -63,18 +68,28 @@ export class CreateEquipmentProfileDto {
   transfer_loss_l?: number;
 
   // Rates / efficiency
-  @ApiProperty({ example: 3 })
+  /**
+   * Boil-off rate. Optional from the wizard: when omitted, the service defaults
+   * it from EQUIPMENT_SYSTEM_DEFAULTS keyed by system_type.
+   */
+  @ApiPropertyOptional({ example: 3 })
   @Type(() => Number)
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  evaporation_rate_l_per_hour: number;
+  evaporation_rate_l_per_hour?: number;
 
-  @ApiProperty({ example: 75, minimum: 0, maximum: 100 })
+  /**
+   * Estimated efficiency. Optional from the wizard: when omitted, the service
+   * defaults it from EQUIPMENT_SYSTEM_DEFAULTS keyed by system_type.
+   */
+  @ApiPropertyOptional({ example: 75, minimum: 0, maximum: 100 })
   @Type(() => Number)
+  @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(100)
-  efficiency_estimated_percent: number;
+  efficiency_estimated_percent?: number;
 
   @ApiPropertyOptional({ example: 72, minimum: 0, maximum: 100 })
   @Type(() => Number)

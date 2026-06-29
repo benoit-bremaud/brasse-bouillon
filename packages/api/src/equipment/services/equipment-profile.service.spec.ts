@@ -2,6 +2,7 @@ import { DeleteResult, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { CreateEquipmentProfileDto } from '../dtos/create-equipment-profile.dto';
+import { EQUIPMENT_SYSTEM_DEFAULTS } from '../domain/equipment-system-defaults';
 import { EquipmentProfileOrmEntity } from '../entities/equipment-profile.orm.entity';
 import { EquipmentProfileService } from './equipment-profile.service';
 import { EquipmentSystemType } from '../domain/enums/equipment-system-type.enum';
@@ -199,6 +200,74 @@ describe('EquipmentProfileService', () => {
       );
       expect(createSpy).toHaveBeenCalled();
       expect(saveSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('create() — wizard hidden-constant defaults', () => {
+    const minimalDto = (
+      systemType: EquipmentSystemType,
+    ): CreateEquipmentProfileDto => ({
+      name: 'Wizard setup',
+      fermenter_volume_l: 23,
+      boil_kettle_volume_l: 30,
+      system_type: systemType,
+    });
+
+    it.each([
+      EquipmentSystemType.EXTRACT,
+      EquipmentSystemType.ALL_GRAIN,
+      EquipmentSystemType.ALL_IN_ONE,
+    ])(
+      'seeds efficiency and evaporation from the system-type defaults when omitted (%s)',
+      async (systemType) => {
+        const dto = minimalDto(systemType);
+        const createdEntity = makeEntity({ system_type: systemType });
+
+        const createSpy = jest
+          .spyOn(repo, 'create')
+          .mockReturnValue(createdEntity);
+        jest.spyOn(repo, 'save').mockResolvedValue(createdEntity);
+
+        await service.create(ownerId, dto);
+
+        const defaults = EQUIPMENT_SYSTEM_DEFAULTS[systemType];
+        expect(createSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            evaporation_rate_l_per_hour: defaults.evaporationRateLPerHour,
+            efficiency_estimated_percent: defaults.efficiencyEstimatedPercent,
+            // Single-vessel assumption: mash tun mirrors the boil kettle.
+            mash_tun_volume_l: dto.boil_kettle_volume_l,
+          }),
+        );
+      },
+    );
+
+    it('does not overwrite hidden constants when the caller provides them', async () => {
+      const dto: CreateEquipmentProfileDto = {
+        name: 'Explicit setup',
+        fermenter_volume_l: 23,
+        boil_kettle_volume_l: 30,
+        mash_tun_volume_l: 27,
+        evaporation_rate_l_per_hour: 3.7,
+        efficiency_estimated_percent: 81,
+        system_type: EquipmentSystemType.ALL_GRAIN,
+      };
+      const createdEntity = makeEntity();
+
+      const createSpy = jest
+        .spyOn(repo, 'create')
+        .mockReturnValue(createdEntity);
+      jest.spyOn(repo, 'save').mockResolvedValue(createdEntity);
+
+      await service.create(ownerId, dto);
+
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mash_tun_volume_l: 27,
+          evaporation_rate_l_per_hour: 3.7,
+          efficiency_estimated_percent: 81,
+        }),
+      );
     });
   });
 

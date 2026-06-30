@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-06-30
+
+### PR #1280 merged (`6259a31`) — fix(batches): confirm before completing a step (F6) and keep the step list above the footer (F8)
+
+- Branch `fix/batch-step-ux`. First **baby-step slice** of the novice-journey correction backlog (live-test audit, 25 frictions F1–F25). Mobile-only, no backend. **F6** — completing a brew step happened on a single tap with no confirmation/undo, inconsistent with the bottling step's acknowledgment gate; now wrapped in an `Alert.alert` confirm (Annuler / Terminer) in `BatchDetailsScreen.handleComplete`. **F8** — the brew-day step `FlatList` grew inside a non-scrolling container, clipping the last steps behind the floating nav footer; gave the list `flex: 1` so it scrolls in a bounded region (the existing `paddingBottom` keeps footer clearance).
+- Reviews — local pre-push (pr-pre-reviewer) + Codex + Copilot reconciled: Copilot test-hygiene fix applied (`afterEach(jest.restoreAllMocks)` so the `Alert` spy can't leak on a thrown assertion); Codex P2 (`Alert.alert` is a no-op on `react-native-web`) **deferred** with rationale — it is the app-wide pattern (BrewPrep / scan / login) and web is not a shipped target; a shared cross-platform `confirmAsync()` helper is the right fix if web ever ships. Codex CLI unavailable locally (noted, not skipped). CI green (mobile-app incl. typecheck — local typecheck false-fails on stale `.expo` route types); `BatchDetailsScreen` 26/26.
+
 ## 2026-06-29
 
 ### PR #1277 merged (`a3dc240`) — feat(equipment): equipment wizard — 3-question profile + server-side defaults (E1)

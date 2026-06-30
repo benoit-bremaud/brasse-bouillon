@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -235,8 +236,25 @@ export function BatchDetailsScreen({ batchId }: Props) {
     if (missingBatchId) {
       return;
     }
-    setMutationError(null);
-    mutateCompleteCurrentStep();
+    // F6 — confirm before completing a step. Completing advances the brew to
+    // the next step and is not undoable, so gate it behind an acknowledgment
+    // (the ✋ pattern already used on the bottling step) instead of firing on
+    // a single tap.
+    Alert.alert(
+      "Terminer cette étape ?",
+      "Tu confirmes avoir terminé l'étape en cours ? L'étape suivante démarrera.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Terminer",
+          style: "default",
+          onPress: () => {
+            setMutationError(null);
+            mutateCompleteCurrentStep();
+          },
+        },
+      ],
+    );
   };
 
   const handleGoBack = () => {
@@ -444,6 +462,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
           <FlatList
             data={batch?.steps ?? []}
             keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
+            style={styles.stepsList}
             contentContainerStyle={[
               styles.list,
               { paddingBottom: bottomPadding },
@@ -510,6 +529,14 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.body,
   },
   list: {},
+  stepsList: {
+    // F8 — give the steps list its own bounded, scrollable region so the last
+    // steps stay reachable above the floating nav footer. Without flex, the
+    // list grew with its content inside a non-scrolling container and the
+    // bottom steps were clipped behind the footer (the paddingBottom offset
+    // alone could not rescue content that overflowed the screen).
+    flex: 1,
+  },
   fermentationCard: {
     padding: spacing.md,
     marginBottom: spacing.sm,

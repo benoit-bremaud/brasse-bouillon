@@ -1,8 +1,15 @@
+import { Alert, type AlertButton } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
 import {
+  completeCurrentBatchStep,
   getBatchDetailsViewModel,
   type BatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
@@ -122,6 +129,12 @@ describe("BatchDetailsScreen", () => {
     );
   });
 
+  // Always restore jest.spyOn spies (e.g. the Alert.alert spy in the F6 tests)
+  // even when an assertion throws, so a spy can never leak into later tests.
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders batch details with the recipe name as title (happy path)", async () => {
     renderBatchDetailsScreen();
 
@@ -130,6 +143,48 @@ describe("BatchDetailsScreen", () => {
     expect(screen.getByText("Progression du brassin")).toBeTruthy();
     expect(screen.getByText("Étapes")).toBeTruthy();
     expect(screen.getByText("Terminer l'étape en cours")).toBeTruthy();
+  });
+
+  it("confirms before completing a step, then completes on confirm (F6)", async () => {
+    (completeCurrentBatchStep as jest.Mock).mockClear();
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Terminer l'étape en cours"));
+
+    // The tap opens a confirmation dialog rather than completing immediately.
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Terminer cette étape ?",
+      expect.any(String),
+      expect.any(Array),
+    );
+    expect(completeCurrentBatchStep).not.toHaveBeenCalled();
+
+    // Confirming the dialog runs the completion.
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Terminer")?.onPress?.();
+
+    await waitFor(() =>
+      expect(completeCurrentBatchStep).toHaveBeenCalledTimes(1),
+    );
+  });
+
+  it("does not complete the step when the confirmation is cancelled (F6, sad path)", async () => {
+    (completeCurrentBatchStep as jest.Mock).mockClear();
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Terminer l'étape en cours"));
+
+    // Opening the confirmation dialog must not complete anything on its own.
+    expect(completeCurrentBatchStep).not.toHaveBeenCalled();
+
+    // "Annuler" is a pure native dismiss (no handler), so cancelling can never
+    // reach the completion mutation — assert it carries no onPress.
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    const cancelButton = buttons.find((button) => button.text === "Annuler");
+    expect(cancelButton).toBeDefined();
+    expect(cancelButton?.onPress).toBeUndefined();
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

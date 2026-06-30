@@ -132,3 +132,7 @@ export async function importFromCommunity(sourceId: string): Promise<Recipe> {
   );
   return mapRecipe(row);
 }
+
+export async function deleteRecipe(id: string): Promise<void> {
+  await request<void>(`/recipes/${id}`, { method: "DELETE" });
+}

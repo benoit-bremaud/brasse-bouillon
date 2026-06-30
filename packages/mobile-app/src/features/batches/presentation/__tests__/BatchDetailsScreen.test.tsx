@@ -129,6 +129,12 @@ describe("BatchDetailsScreen", () => {
     );
   });
 
+  // Always restore jest.spyOn spies (e.g. the Alert.alert spy in the F6 tests)
+  // even when an assertion throws, so a spy can never leak into later tests.
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders batch details with the recipe name as title (happy path)", async () => {
     renderBatchDetailsScreen();
 
@@ -161,8 +167,6 @@ describe("BatchDetailsScreen", () => {
     await waitFor(() =>
       expect(completeCurrentBatchStep).toHaveBeenCalledTimes(1),
     );
-
-    alertSpy.mockRestore();
   });
 
   it("does not complete the step when the confirmation is cancelled (F6, sad path)", async () => {
@@ -181,8 +185,6 @@ describe("BatchDetailsScreen", () => {
     const cancelButton = buttons.find((button) => button.text === "Annuler");
     expect(cancelButton).toBeDefined();
     expect(cancelButton?.onPress).toBeUndefined();
-
-    alertSpy.mockRestore();
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

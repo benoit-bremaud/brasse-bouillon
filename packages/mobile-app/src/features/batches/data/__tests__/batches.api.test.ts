@@ -8,6 +8,8 @@
 import * as httpClient from "@/core/http/http-client";
 
 import {
+  archiveBatch,
+  cancelBatch,
   deleteBatch,
   getMineById,
   startCurrentStep,
@@ -93,6 +95,52 @@ describe("batches.api — deleteBatch (F25)", () => {
     mockedRequest.mockRejectedValue(new Error("boom"));
 
     await expect(deleteBatch("b1")).rejects.toThrow("boom");
+  });
+});
+
+describe("batches.api — cancelBatch + archiveBatch (F16 / F25)", () => {
+  beforeEach(() => {
+    mockedRequest.mockReset();
+  });
+
+  const summaryDto = (status: string) =>
+    ({
+      id: "b1",
+      owner_id: "u1",
+      recipe_id: "r1",
+      status,
+      started_at: "2026-01-01T00:00:00.000Z",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    }) as never;
+
+  it("PATCHes the cancel endpoint and maps the summary (happy)", async () => {
+    mockedRequest.mockResolvedValue(summaryDto("cancelled"));
+
+    const summary = await cancelBatch("b1");
+
+    expect(mockedRequest).toHaveBeenCalledWith("/batches/b1/cancel", {
+      method: "PATCH",
+    });
+    expect(summary.status).toBe("cancelled");
+  });
+
+  it("PATCHes the archive endpoint and maps the summary (happy)", async () => {
+    mockedRequest.mockResolvedValue(summaryDto("archived"));
+
+    const summary = await archiveBatch("b1");
+
+    expect(mockedRequest).toHaveBeenCalledWith("/batches/b1/archive", {
+      method: "PATCH",
+    });
+    expect(summary.status).toBe("archived");
+  });
+
+  it("propagates the request error (sad)", async () => {
+    mockedRequest.mockRejectedValue(new Error("boom"));
+
+    await expect(cancelBatch("b1")).rejects.toThrow("boom");
+    await expect(archiveBatch("b1")).rejects.toThrow("boom");
   });
 });
 

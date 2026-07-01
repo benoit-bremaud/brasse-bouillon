@@ -1,4 +1,6 @@
 import {
+  archiveBatch as archiveBatchApi,
+  cancelBatch as cancelBatchApi,
   completeCurrentStep as completeCurrentStepApi,
   deleteBatch as deleteBatchApi,
   getMineById,
@@ -25,6 +27,28 @@ export async function deleteBatch(batchId: string): Promise<void> {
     return;
   }
   await deleteBatchApi(batchId);
+}
+
+/**
+ * Cancel a launched brew (F16) — soft, keeps the journal (distinct from
+ * deleteBatch). No-op in demo mode (demo batches are read-only).
+ */
+export async function cancelBatch(batchId: string): Promise<void> {
+  if (!batchId || dataSource.useDemoData) {
+    return;
+  }
+  await cancelBatchApi(batchId);
+}
+
+/**
+ * Archive a finished or cancelled brew (F25) — soft-hides it from the active
+ * list. No-op in demo mode.
+ */
+export async function archiveBatch(batchId: string): Promise<void> {
+  if (!batchId || dataSource.useDemoData) {
+    return;
+  }
+  await archiveBatchApi(batchId);
 }
 
 export async function getBatchDetails(batchId: string): Promise<Batch | null> {

@@ -79,12 +79,18 @@ export function BatchesScreen() {
     queryFn: listBatches,
   });
 
+  // Active « Mes brassins »: soft states (cancelled/archived) are hidden from
+  // the list without deleting their journal (brew-day/07 — F16/F25).
+  const activeBatches = batches.filter(
+    (batch) => batch.status !== "cancelled" && batch.status !== "archived",
+  );
+
   const error = queryError
     ? isFetching
       ? null
       : getErrorMessage(queryError, "Failed to load batches")
     : null;
-  const showEmptyState = isFetched && !isLoading && batches.length === 0;
+  const showEmptyState = isFetched && !isLoading && activeBatches.length === 0;
   const isRetryingWithError = isFetching && Boolean(queryError);
 
   const handleRefetch = () => {
@@ -93,7 +99,9 @@ export function BatchesScreen() {
 
   return (
     <Screen
-      isLoading={(isLoading && batches.length === 0) || isRetryingWithError}
+      isLoading={
+        (isLoading && activeBatches.length === 0) || isRetryingWithError
+      }
       error={error}
       onRetry={handleRefetch}
     >
@@ -108,7 +116,7 @@ export function BatchesScreen() {
       ) : null}
 
       <FlatList
-        data={batches}
+        data={activeBatches}
         keyExtractor={(item) => item.id}
         contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
         refreshControl={

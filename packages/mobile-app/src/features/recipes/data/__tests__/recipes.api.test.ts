@@ -1,4 +1,11 @@
-import { mapRecipe } from "@/features/recipes/data/recipes.api";
+import { deleteRecipe, mapRecipe } from "@/features/recipes/data/recipes.api";
+import { request } from "@/core/http/http-client";
+
+jest.mock("@/core/http/http-client", () => ({
+  request: jest.fn(),
+}));
+
+const mockedRequest = request as jest.MockedFunction<typeof request>;
 
 /**
  * Issue #779 — coverage guard on the API mapper for the catalog
@@ -123,5 +130,27 @@ describe("mapRecipe (Issue #779 — catalog API mapper coverage)", () => {
     expect(recipe.ownerId).toBeUndefined();
     expect(recipe.id).toBe("r-1");
     expect(recipe.name).toBe("Recipe");
+  });
+});
+
+describe("deleteRecipe (F24 — delete from carnet)", () => {
+  beforeEach(() => {
+    mockedRequest.mockReset();
+  });
+
+  it("happy: issues a DELETE to /recipes/:id", async () => {
+    mockedRequest.mockResolvedValueOnce(undefined as never);
+
+    await deleteRecipe("r-42");
+
+    expect(mockedRequest).toHaveBeenCalledWith("/recipes/r-42", {
+      method: "DELETE",
+    });
+  });
+
+  it("sad: propagates the request error", async () => {
+    mockedRequest.mockRejectedValueOnce(new Error("boom"));
+
+    await expect(deleteRecipe("r-42")).rejects.toThrow("boom");
   });
 });

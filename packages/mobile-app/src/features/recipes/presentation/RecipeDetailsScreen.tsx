@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -9,12 +12,12 @@ import { Screen } from "@/core/ui/Screen";
 import { colors, spacing } from "@/core/theme";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 
 import {
   RecipeDetailsViewModel,
+  deleteRecipeFromCarnet,
   getRecipeDetailsViewModel,
+  importRecipeFromCommunity,
 } from "@/features/recipes/application/recipes.use-cases";
 import {
   RECIPE_DETAIL_TABS,
@@ -90,6 +93,7 @@ const DEFAULT_TARGET_VOLUME_LITRES = 20;
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
   const bottomPadding = useNavigationFooterOffset();
+  const queryClient = useQueryClient();
 
   const hasRecipeId = recipeId.trim().length > 0;
 
@@ -328,6 +332,63 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     return null;
   }, [recipe]);
 
+  // Ownership signal (verified against GET /recipes/:id): the API only
+  // projects `ownerId` when the caller owns the recipe; a PUBLIC recipe read
+  // by a non-owner comes back without it. So `ownerId` present ⟺ owned.
+  const isOwned = recipe != null && recipe.ownerId != null;
+  const canImportToCarnet = recipe != null && recipe.ownerId == null;
+
+  const importMutation = useMutation({
+    mutationFn: () => importRecipeFromCommunity(recipeId),
+    onSuccess: (result) => {
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "list"] });
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
+      // Land on the freshly owned copy, ready to prepare.
+      router.replace({
+        pathname: "/(app)/recipes/[id]",
+        params: { id: result.recipeId },
+      });
+    },
+    onError: () => {
+      Alert.alert(
+        "Ajout impossible",
+        "La recette n'a pas pu être ajoutée à ton carnet. Vérifie ta connexion et réessaie.",
+      );
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteRecipeFromCarnet(recipeId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "list"] });
+      // An owned recipe can be public, so it may also sit in the catalog —
+      // invalidate both surfaces (symmetric with the import mutation).
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
+      router.replace("/recipes");
+    },
+    onError: () => {
+      Alert.alert(
+        "Suppression impossible",
+        "La recette n'a pas pu être supprimée. Vérifie ta connexion et réessaie.",
+      );
+    },
+  });
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Supprimer cette recette ?",
+      "Elle sera retirée de ton carnet. Cette action est irréversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => deleteMutation.mutate(),
+        },
+      ],
+    );
+  };
+
   const ctaLabel = "Préparer mon brassin";
   const ctaDisabled = isLoading || !recipe;
   const showStickyCta = activeTab !== "reviews";
@@ -365,11 +426,29 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
           title="Détail recette"
           subtitle="Carnet de brassage"
           action={
-            <HeaderBackButton
-              label="Mes recettes"
-              accessibilityLabel="Retour à mes recettes"
-              onPress={handleGoBack}
-            />
+            <View style={styles.headerActions}>
+              <HeaderBackButton
+                label="Mes recettes"
+                accessibilityLabel="Retour à mes recettes"
+                onPress={handleGoBack}
+              />
+              {isOwned ? (
+                <Pressable
+                  onPress={handleDelete}
+                  disabled={deleteMutation.isPending}
+                  accessibilityRole="button"
+                  accessibilityLabel="Supprimer cette recette"
+                  hitSlop={8}
+                  style={styles.deleteButton}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={22}
+                    color={colors.semantic.error}
+                  />
+                </Pressable>
+              ) : null}
+            </View>
           }
         />
       </View>
@@ -454,12 +533,23 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       </View>
 
       {showStickyCta ? (
-        <RecipeStickyCta
-          label={ctaLabel}
-          onPress={handlePrepare}
-          disabled={ctaDisabled}
-          bottomOffset={bottomPadding}
-        />
+        canImportToCarnet ? (
+          // A public recipe the user does not own yet: the primary action is
+          // to import it into « Mon Carnet » before preparing a brew from it.
+          <RecipeStickyCta
+            label="Ajouter à mon carnet"
+            onPress={() => importMutation.mutate()}
+            disabled={importMutation.isPending || !recipe}
+            bottomOffset={bottomPadding}
+          />
+        ) : (
+          <RecipeStickyCta
+            label={ctaLabel}
+            onPress={handlePrepare}
+            disabled={ctaDisabled}
+            bottomOffset={bottomPadding}
+          />
+        )
       ) : null}
     </Screen>
   );
@@ -472,6 +562,14 @@ const styles = StyleSheet.create({
   headerWrapper: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  deleteButton: {
+    padding: spacing.xs,
   },
   body: {
     flex: 1,

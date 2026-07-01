@@ -1,4 +1,5 @@
 import {
+  deleteRecipe,
   getMineById,
   importFromCommunity,
   listMine,
@@ -140,6 +141,17 @@ export async function importRecipeFromCommunity(
   }
   const imported = await importFromCommunity(sourceId);
   return { recipeId: imported.id, name: imported.name };
+}
+
+/**
+ * Delete one of the current user's recipes from « Mon Carnet ». In demo mode
+ * this is a no-op — the bundled demo catalog is read-only.
+ */
+export async function deleteRecipeFromCarnet(recipeId: string): Promise<void> {
+  if (dataSource.useDemoData) {
+    return;
+  }
+  await deleteRecipe(recipeId);
 }
 
 export async function getRecipeDetailsViewModel(

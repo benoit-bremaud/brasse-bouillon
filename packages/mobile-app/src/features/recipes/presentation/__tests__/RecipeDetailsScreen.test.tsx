@@ -1,9 +1,19 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react-native";
-
 import React from "react";
+import { Alert, type AlertButton } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
+
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
-import { getRecipeDetailsViewModel } from "@/features/recipes/application/recipes.use-cases";
+import {
+  deleteRecipeFromCarnet,
+  getRecipeDetailsViewModel,
+  importRecipeFromCommunity,
+} from "@/features/recipes/application/recipes.use-cases";
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -58,6 +68,8 @@ jest.mock("expo-router", () => {
 const baseViewModel = {
   recipe: {
     id: "r1",
+    // Private recipe → owned by the current user, so the API projects ownerId.
+    ownerId: "u1",
     name: "Test Recipe",
     description: "Test description",
     visibility: "private",
@@ -116,7 +128,21 @@ const baseViewModel = {
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
   getRecipeDetailsViewModel: jest.fn(),
+  importRecipeFromCommunity: jest.fn(),
+  deleteRecipeFromCarnet: jest.fn(),
 }));
+
+// A PUBLIC recipe the current user does NOT own: the API strips ownerId, so the
+// detail screen should offer « Ajouter à mon carnet » (import) instead of the
+// prepare / delete actions.
+const publicViewModel = {
+  ...baseViewModel,
+  recipe: {
+    ...baseViewModel.recipe,
+    ownerId: undefined,
+    visibility: "public",
+  },
+};
 
 function renderRecipeDetails(recipeId = "r1") {
   const queryClient = new QueryClient({
@@ -148,6 +174,19 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     mockReplace.mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(baseViewModel);
+    (importRecipeFromCommunity as jest.Mock).mockReset();
+    (importRecipeFromCommunity as jest.Mock).mockResolvedValue({
+      recipeId: "r-owned-9",
+      name: "Imported recipe",
+    });
+    (deleteRecipeFromCarnet as jest.Mock).mockReset();
+    (deleteRecipeFromCarnet as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  // Restore jest.spyOn spies (the Alert.alert spy in the delete test) even when
+  // an assertion throws, so the spy never leaks into later tests.
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("renders the side rail and lands on Overview by default", async () => {
@@ -184,6 +223,80 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
       pathname: "/(app)/recipes/[id]/prepare",
       params: { id: "r1" },
     });
+  });
+
+  it("F23: a public recipe shows « Ajouter à mon carnet » and imports on press, then lands on the owned copy", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(publicViewModel);
+    renderRecipeDetails("pub-1");
+
+    fireEvent.press(await screen.findByText("Ajouter à mon carnet"));
+
+    await waitFor(() =>
+      expect(importRecipeFromCommunity).toHaveBeenCalledWith("pub-1"),
+    );
+    await waitFor(() =>
+      expect(mockReplace).toHaveBeenCalledWith({
+        pathname: "/(app)/recipes/[id]",
+        params: { id: "r-owned-9" },
+      }),
+    );
+    // The prepare action is not offered for a recipe the user does not own yet.
+    expect(screen.queryByText("Préparer mon brassin")).toBeNull();
+  });
+
+  it("F23: an owned recipe does not show the import CTA (it shows prepare)", async () => {
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    expect(screen.getByText("Préparer mon brassin")).toBeTruthy();
+    expect(screen.queryByText("Ajouter à mon carnet")).toBeNull();
+  });
+
+  it("F24: an owned recipe offers delete and removes it on confirm", async () => {
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
+
+    // The tap opens a confirmation dialog rather than deleting immediately.
+    expect(alertSpy).toHaveBeenCalled();
+    expect(deleteRecipeFromCarnet).not.toHaveBeenCalled();
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    await waitFor(() =>
+      expect(deleteRecipeFromCarnet).toHaveBeenCalledWith("r1"),
+    );
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/recipes"));
+  });
+
+  it("F24: a public recipe the user does not own offers no delete action", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(publicViewModel);
+    renderRecipeDetails("pub-1");
+
+    await screen.findByText("Ajouter à mon carnet");
+    expect(screen.queryByLabelText("Supprimer cette recette")).toBeNull();
+  });
+
+  it("F24: surfaces an alert and does not navigate when the delete fails (sad path)", async () => {
+    (deleteRecipeFromCarnet as jest.Mock).mockRejectedValueOnce(
+      new Error("boom"),
+    );
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
+
+    // Confirm the deletion in the first dialog.
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    // The failure surfaces a second alert and never navigates away.
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
+    expect(mockReplace).not.toHaveBeenCalledWith("/recipes");
   });
 
   it("switches to the Ingredients tab and shows the ingredient list", async () => {

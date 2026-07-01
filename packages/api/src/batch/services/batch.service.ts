@@ -266,6 +266,31 @@ export class BatchService {
     ownerId: string,
     batchId: string,
   ): Promise<BatchWithSteps> {
+    return this.applyCurrentStepTransition(ownerId, batchId, (batch) =>
+      this.domain.completeCurrentStep(batch),
+    );
+  }
+
+  async startMineCurrentStep(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchWithSteps> {
+    return this.applyCurrentStepTransition(ownerId, batchId, (batch) =>
+      this.domain.startCurrentStep(batch),
+    );
+  }
+
+  /**
+   * Load the owner's batch, run a pure domain transition on it, and persist the
+   * result in a single transaction. Shared by the current-step transitions
+   * (activate PRÉP → ACTIF, complete). The domain function is the only variable
+   * part; loading, ownership/completed guards, and persistence are common.
+   */
+  private async applyCurrentStepTransition(
+    ownerId: string,
+    batchId: string,
+    transition: (batch: Batch) => Batch,
+  ): Promise<BatchWithSteps> {
     return this.batchRepo.manager.transaction(async (manager) => {
       const batchRepo = manager.getRepository(BatchOrmEntity);
       const stepRepo = manager.getRepository(BatchStepOrmEntity);
@@ -286,7 +311,7 @@ export class BatchService {
       });
 
       const domainBatch = this.toDomain(batch, steps);
-      const updated = this.domain.completeCurrentStep(domainBatch);
+      const updated = transition(domainBatch);
 
       batch.status = updated.status;
       batch.current_step_order = updated.currentStepOrder ?? null;

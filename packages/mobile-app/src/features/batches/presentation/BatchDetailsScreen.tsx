@@ -15,6 +15,7 @@ import {
   completeCurrentBatchStep,
   deleteBatch,
   getBatchDetailsViewModel,
+  startCurrentBatchStep,
 } from "@/features/batches/application/batches.use-cases";
 import { getTasting } from "@/features/batches/application/bottling.use-cases";
 import { computeAbv } from "@/features/batches/application/measurement.calculations";
@@ -210,6 +211,24 @@ export function BatchDetailsScreen({ batchId }: Props) {
     },
   });
 
+  const { mutate: mutateStartCurrentStep, isPending: isStarting } = useMutation<
+    Batch | null,
+    Error
+  >({
+    mutationFn: () => startCurrentBatchStep(batchId),
+    onSuccess: (nextBatch) => {
+      setMutationError(null);
+      queryClient.setQueryData<BatchDetailsViewModel | null>(
+        ["batches", "details", batchId],
+        nextBatch ? { batch: nextBatch, recipeName } : null,
+      );
+      void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
+    },
+    onError: (error) => {
+      setMutationError(getErrorMessage(error, "Échec du démarrage de l'étape"));
+    },
+  });
+
   const { mutate: mutateDeleteBatch, isPending: isDeleting } = useMutation<
     void,
     Error
@@ -270,6 +289,17 @@ export function BatchDetailsScreen({ batchId }: Props) {
         },
       ],
     );
+  };
+
+  const handleStart = () => {
+    if (missingBatchId) {
+      return;
+    }
+    // F1 — the current step opens in PRÉP (no timer). Tapping « Démarrer »
+    // activates it (ACTIF): the countdown only starts here, once the brewer has
+    // done the physical prep. No confirm — starting is low-stakes.
+    setMutationError(null);
+    mutateStartCurrentStep();
   };
 
   const handleGoBack = () => {
@@ -346,6 +376,10 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const fermentationInfo = useFermentationTrackerInfo(batch);
   const activeStep =
     batch?.steps?.find((step) => step.status === "in_progress") ?? null;
+  // PRÉP: the current step is in progress but not yet activated (no startedAt),
+  // so the timer is idle and the CTA is « Démarrer » rather than « Terminer »
+  // (F1; see brew-day/06). Demo steps carry a startedAt, so they read as ACTIF.
+  const isPrepPhase = activeStep != null && activeStep.startedAt == null;
   const [openTip, setOpenTip] = React.useState<{
     label: string;
     tip: string;
@@ -503,6 +537,12 @@ export function BatchDetailsScreen({ batchId }: Props) {
           label="Mettre en bouteille"
           onPress={handleGoToBottling}
           disabled={isLoading}
+        />
+      ) : isPrepPhase ? (
+        <PrimaryButton
+          label={isStarting ? "Démarrage…" : "Démarrer l'étape"}
+          onPress={handleStart}
+          disabled={isStarting || isLoading}
         />
       ) : !isCompletedLive ? (
         <PrimaryButton

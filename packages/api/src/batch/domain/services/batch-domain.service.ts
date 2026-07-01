@@ -21,8 +21,10 @@ export interface StartBatchInput {
  * - Tracking strict workflow progress through steps
  *
  * Current MVP behavior:
- * - Step 0 is auto-started when the batch starts
- * - Completing the current step auto-advances to the next one
+ * - Step 0 becomes the current step when the batch starts, but opens in the
+ *   PRÉP phase (in_progress with no `startedAt`) — the timer only starts once
+ *   the brewer activates it via `startCurrentStep` (ACTIF). See brew-day/06.
+ * - Completing the current step auto-advances to the next one (also in PRÉP)
  */
 export class BatchDomainService {
   constructor(private readonly now: () => Date = () => new Date()) {}
@@ -42,7 +44,10 @@ export class BatchDomainService {
         label: step.label,
         description: step.description,
         status: isFirst ? BatchStepStatus.IN_PROGRESS : BatchStepStatus.PENDING,
-        startedAt: isFirst ? createdAt : undefined,
+        // PRÉP phase: the current step has no `startedAt` until the brewer
+        // activates it (ACTIF). This keeps the countdown from running before
+        // the physical prep is done (novice-journey friction F1).
+        startedAt: undefined,
         completedAt: undefined,
         pedagogicalTip: guidance?.pedagogicalTip,
         plannedDurationMin: guidance?.plannedDurationMin ?? undefined,
@@ -91,7 +96,8 @@ export class BatchDomainService {
         return { ...step, status: BatchStepStatus.COMPLETED, completedAt: now };
       }
       if (step.order === nextOrder) {
-        return { ...step, status: BatchStepStatus.IN_PROGRESS, startedAt: now };
+        // Next step opens in PRÉP (no `startedAt`) — activated later (F1).
+        return { ...step, status: BatchStepStatus.IN_PROGRESS };
       }
       return step;
     });
@@ -113,6 +119,43 @@ export class BatchDomainService {
       updatedAt: now,
       completedAt: now,
     };
+  }
+
+  /**
+   * Activate the current step: PRÉP → ACTIF (brew-day/06).
+   *
+   * Sets `startedAt` on the current in-progress step, which is the anchor the
+   * countdown keys off. Idempotency is the caller's concern: activating an
+   * already-active step (one that already has `startedAt`) is rejected.
+   */
+  startCurrentStep(batch: Batch): Batch {
+    if (batch.status !== BatchStatus.IN_PROGRESS) {
+      throw new Error('Batch is not in progress');
+    }
+
+    const currentOrder = this.getCurrentStepOrder(batch);
+    if (currentOrder === undefined) {
+      throw new Error('Batch has no current step');
+    }
+
+    const current = batch.steps.find((step) => step.order === currentOrder);
+    if (!current) {
+      throw new Error(`Current step ${String(currentOrder)} not found`);
+    }
+    if (current.status !== BatchStepStatus.IN_PROGRESS) {
+      throw new Error('Current step is not in progress');
+    }
+    if (current.startedAt !== undefined) {
+      throw new Error('Current step is already active');
+    }
+
+    const now = this.now();
+
+    const steps: BatchStep[] = batch.steps.map((step) =>
+      step.order === currentOrder ? { ...step, startedAt: now } : step,
+    );
+
+    return { ...batch, steps, updatedAt: now };
   }
 
   private getCurrentStepOrder(batch: Batch): number | undefined {

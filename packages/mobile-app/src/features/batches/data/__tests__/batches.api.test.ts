@@ -7,7 +7,11 @@
 
 import * as httpClient from "@/core/http/http-client";
 
-import { deleteBatch, getMineById } from "@/features/batches/data/batches.api";
+import {
+  deleteBatch,
+  getMineById,
+  startCurrentStep,
+} from "@/features/batches/data/batches.api";
 
 jest.mock("@/core/http/http-client");
 
@@ -89,5 +93,33 @@ describe("batches.api — deleteBatch (F25)", () => {
     mockedRequest.mockRejectedValue(new Error("boom"));
 
     await expect(deleteBatch("b1")).rejects.toThrow("boom");
+  });
+});
+
+describe("batches.api — startCurrentStep (F1 PRÉP → ACTIF)", () => {
+  beforeEach(() => {
+    mockedRequest.mockReset();
+  });
+
+  it("POSTs to the step-start endpoint and maps the batch (happy)", async () => {
+    mockedRequest.mockResolvedValue(
+      batchDtoWithStep({ started_at: "2026-02-05T09:05:00.000Z" }),
+    );
+
+    const batch = await startCurrentStep("b1");
+
+    expect(mockedRequest).toHaveBeenCalledWith(
+      "/batches/b1/steps/current/start",
+      {
+        method: "POST",
+      },
+    );
+    expect(batch.steps[0].startedAt).toBe("2026-02-05T09:05:00.000Z");
+  });
+
+  it("propagates the request error (sad)", async () => {
+    mockedRequest.mockRejectedValue(new Error("boom"));
+
+    await expect(startCurrentStep("b1")).rejects.toThrow("boom");
   });
 });

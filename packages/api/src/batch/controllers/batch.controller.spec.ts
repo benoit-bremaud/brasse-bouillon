@@ -114,6 +114,7 @@ describe('BatchController', () => {
             listMineReminders: jest.fn(),
             createMineReminder: jest.fn(),
             updateMineReminder: jest.fn(),
+            startMineCurrentStep: jest.fn(),
             completeMineCurrentStep: jest.fn(),
             listMineMeasurements: jest.fn(),
             createMineMeasurement: jest.fn(),
@@ -291,6 +292,34 @@ describe('BatchController', () => {
 
       // Verify
       expect(completeMineCurrentStepSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockBatchOrm.id,
+      );
+      expect(result).toBeDefined();
+    });
+  });
+
+  /**
+   * POST /batches/:id/steps/current/start - Activate current step (PRÉP -> ACTIF)
+   */
+  describe('startMineCurrentStep() - POST /batches/:id/steps/current/start', () => {
+    it('should activate the current step', async () => {
+      // Setup
+      const startMineCurrentStepSpy = jest
+        .spyOn(service, 'startMineCurrentStep')
+        .mockResolvedValue({
+          batch: mockBatchOrm,
+          steps: mockSteps,
+        });
+
+      // Execute
+      const result = await controller.startMineCurrentStep(
+        mockUser,
+        mockBatchOrm.id,
+      );
+
+      // Verify
+      expect(startMineCurrentStepSpy).toHaveBeenCalledWith(
         mockUser.id,
         mockBatchOrm.id,
       );

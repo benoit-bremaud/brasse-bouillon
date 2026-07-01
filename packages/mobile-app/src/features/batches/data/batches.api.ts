@@ -116,6 +116,13 @@ export async function getMineById(id: string): Promise<Batch> {
   return mapBatch(row);
 }
 
+export async function startCurrentStep(id: string): Promise<Batch> {
+  const row = await request<BatchDto>(`/batches/${id}/steps/current/start`, {
+    method: "POST",
+  });
+  return mapBatch(row);
+}
+
 export async function completeCurrentStep(id: string): Promise<Batch> {
   const row = await request<BatchDto>(`/batches/${id}/steps/current/complete`, {
     method: "POST",

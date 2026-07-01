@@ -55,6 +55,13 @@ export interface BatchDetailsViewModel {
   recipeFg?: number | null;
 }
 
+// A real beer gravity sits roughly in [0.98, 1.2]. The recipe-stats mapper fills
+// a missing target with 0 (sentinel); treat any out-of-range value as absent so
+// the density estimate never computes a nonsensical ABV from it (brew-day/08).
+function plausibleGravity(value: number | null | undefined): number | null {
+  return value != null && value > 0.9 && value < 1.25 ? value : null;
+}
+
 export async function getBatchDetailsViewModel(
   batchId: string,
 ): Promise<BatchDetailsViewModel | null> {
@@ -74,8 +81,8 @@ export async function getBatchDetailsViewModel(
     const recipe = await getRecipeDetails(batch.recipeId);
     recipeName = recipe?.name ?? null;
     recipeVolumeL = recipe?.stats?.volumeLiters ?? null;
-    recipeOg = recipe?.stats?.og ?? null;
-    recipeFg = recipe?.stats?.fg ?? null;
+    recipeOg = plausibleGravity(recipe?.stats?.og);
+    recipeFg = plausibleGravity(recipe?.stats?.fg);
   } catch {
     recipeName = null;
     recipeVolumeL = null;

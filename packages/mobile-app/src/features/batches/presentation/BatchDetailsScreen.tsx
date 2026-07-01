@@ -404,7 +404,8 @@ export function BatchDetailsScreen({ batchId }: Props) {
   // JIT density gating (F3): the density card belongs to the fermentation
   // phase, not the mash. Show it only when fermentation is ACTIF (yeast pitched
   // → startedAt set) or at the Packaging step (FG before bottling). See
-  // brew-day/08. Demo mode keeps its always-on card for the screenshot.
+  // brew-day/08. The gate applies in demo mode too, so the demo journey shows
+  // the same JIT behaviour (no out-of-context mash card).
   const isFermentationActive =
     currentStep?.type === "fermentation" &&
     currentStep.status === "in_progress" &&
@@ -412,7 +413,8 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const isPackagingStep = currentStep?.type === "packaging";
   const showDensityCard =
     !isCompletedLive &&
-    (dataSource.useDemoData || isFermentationActive || isPackagingStep);
+    batch != null &&
+    (isFermentationActive || isPackagingStep);
 
   // Novice escape (F3): a display-only ABV estimated from the recipe targets,
   // revealed on demand when the brewer cannot measure. Never persisted; a real
@@ -605,7 +607,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
           />
 
           <Pressable
-            accessibilityRole="button"
+            accessibilityRole="link"
             onPress={handleExplainMeasurement}
             style={styles.linkButton}
           >
@@ -614,7 +616,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
           {abv == null && !showDensityEstimate ? (
             <Pressable
-              accessibilityRole="button"
+              accessibilityRole="link"
               onPress={() => setShowDensityEstimate(true)}
               style={styles.linkButton}
             >

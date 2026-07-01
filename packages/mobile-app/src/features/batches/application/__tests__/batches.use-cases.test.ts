@@ -361,5 +361,20 @@ describe("batches use-cases", () => {
       expect(result?.recipeOg).toBeNull();
       expect(result?.recipeFg).toBeNull();
     });
+
+    it("normalizes an implausible 0-sentinel target gravity to null (edge path)", async () => {
+      // The recipe-stats mapper fills a missing target with 0; that sentinel
+      // must NOT reach the estimate (it would yield a ~130% ABV).
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+        stats: { og: 1.06, fg: 0 },
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeOg).toBe(1.06);
+      expect(result?.recipeFg).toBeNull();
+    });
   });
 });

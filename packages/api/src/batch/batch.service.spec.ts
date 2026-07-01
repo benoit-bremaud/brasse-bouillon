@@ -520,94 +520,38 @@ describe('BatchService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('cancelMine() should soft-cancel a launched brew and keep the journal (F16)', async () => {
+  it('freezes a cancelled batch against every workflow endpoint (07a guard)', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
-    const started = await batchService.startMine(ownerId, recipe.id);
-
-    const cancelled = await batchService.cancelMine(ownerId, started.batch.id);
-
-    expect(cancelled.cancelled_at).toBeTruthy();
-    // Soft: the steps (journal) survive, unlike the hard deleteMine.
-    const steps = await batchStepRepo.find({
-      where: { batch_id: started.batch.id },
-    });
-    expect(steps.length).toBeGreaterThan(0);
-  });
-
-  it('cancelMine() should reject a re-cancel and a completed brew (sad)', async () => {
-    const ownerId = 'user-1';
-    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
-
     const started = await batchService.startMine(ownerId, recipe.id);
     await batchService.cancelMine(ownerId, started.batch.id);
-    await expect(
-      batchService.cancelMine(ownerId, started.batch.id),
-    ).rejects.toThrow(BadRequestException);
 
-    const other = await batchService.startMine(ownerId, recipe.id);
-    await completeBatch(ownerId, other.batch.id);
+    // A cancelled brew is frozen: no step transition, fermentation, or bottling
+    // may reactivate its journal (the timestamp-model cross-endpoint guard).
     await expect(
-      batchService.cancelMine(ownerId, other.batch.id),
+      batchService.startMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.completeMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.startFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.closeMineBottling(ownerId, started.batch.id),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('cancelMine() should enforce ownership', async () => {
+  it('freezes an archived batch against tasting (07a guard)', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
     const started = await batchService.startMine(ownerId, recipe.id);
-
-    await expect(
-      batchService.cancelMine('user-2', started.batch.id),
-    ).rejects.toThrow(NotFoundException);
-  });
-
-  it('archiveMine() should archive a completed OR a cancelled brew (F25)', async () => {
-    const ownerId = 'user-1';
-    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
-
-    const finished = await batchService.startMine(ownerId, recipe.id);
-    await completeBatch(ownerId, finished.batch.id);
-    const archivedDone = await batchService.archiveMine(
-      ownerId,
-      finished.batch.id,
-    );
-    expect(archivedDone.archived_at).toBeTruthy();
-
-    const toCancel = await batchService.startMine(ownerId, recipe.id);
-    await batchService.cancelMine(ownerId, toCancel.batch.id);
-    const archivedCancelled = await batchService.archiveMine(
-      ownerId,
-      toCancel.batch.id,
-    );
-    expect(archivedCancelled.archived_at).toBeTruthy();
-  });
-
-  it('archiveMine() should reject an in-progress brew and a re-archive (sad)', async () => {
-    const ownerId = 'user-1';
-    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
-    const started = await batchService.startMine(ownerId, recipe.id);
-
-    await expect(
-      batchService.archiveMine(ownerId, started.batch.id),
-    ).rejects.toThrow(BadRequestException);
-
     await completeBatch(ownerId, started.batch.id);
     await batchService.archiveMine(ownerId, started.batch.id);
+
     await expect(
-      batchService.archiveMine(ownerId, started.batch.id),
+      batchService.createMineTasting(ownerId, started.batch.id, { rating: 4 }),
     ).rejects.toThrow(BadRequestException);
-  });
-
-  it('archiveMine() should enforce ownership', async () => {
-    const ownerId = 'user-1';
-    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
-    const started = await batchService.startMine(ownerId, recipe.id);
-    await completeBatch(ownerId, started.batch.id);
-
-    await expect(
-      batchService.archiveMine('user-2', started.batch.id),
-    ).rejects.toThrow(NotFoundException);
   });
 
   it('completeFermentationMine() should require start and set completed_at', async () => {

@@ -184,6 +184,7 @@ export class BatchService {
     batchId: string,
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -200,6 +201,7 @@ export class BatchService {
     batchId: string,
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -374,6 +376,7 @@ export class BatchService {
       if (!batch) {
         throw new NotFoundException('Batch not found');
       }
+      this.assertMutable(batch);
       if (batch.status === BatchStatus.COMPLETED) {
         throw new BadRequestException('Batch already completed');
       }
@@ -638,6 +641,7 @@ export class BatchService {
       if (!batch) {
         throw new NotFoundException('Batch not found');
       }
+      this.assertMutable(batch);
       if (batch.status === BatchStatus.COMPLETED) {
         throw new BadRequestException('Batch already completed');
       }
@@ -732,6 +736,7 @@ export class BatchService {
 
     // Conception places tasting AFTER closure (the UI only exposes it from the
     // closure view): a batch can only be tasted once it is bottled (completed).
+    this.assertMutable(batch);
     if (batch.status !== BatchStatus.COMPLETED) {
       throw new BadRequestException(
         'Tasting can only be recorded once the batch is bottled (completed)',
@@ -819,5 +824,21 @@ export class BatchService {
       throw new NotFoundException('Batch not found');
     }
     return batch;
+  }
+
+  /**
+   * Guard against mutating a soft-closed batch. A cancelled or archived brew is
+   * frozen: its journal must not be reactivated by any workflow-advancing
+   * endpoint (fermentation, step transitions, bottling close, tasting). The raw
+   * `status` column stays in_progress/completed on a cancelled batch, so those
+   * endpoints check the soft-lifecycle stamps here (brew-day/07 timestamp model).
+   */
+  private assertMutable(batch: BatchOrmEntity): void {
+    if (batch.cancelled_at) {
+      throw new BadRequestException('Batch is cancelled');
+    }
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch is archived');
+    }
   }
 }

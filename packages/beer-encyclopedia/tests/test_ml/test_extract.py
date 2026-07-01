@@ -56,3 +56,17 @@ def test_extract_name_returns_none_when_all_lines_filtered(
     text: str, style: str | None, brewery: str | None
 ) -> None:
     assert extract_name(text, style=style, brewery=brewery) is None
+
+
+def test_extract_name_filters_brewery_with_irregular_whitespace() -> None:
+    # The brewery's OCR spacing differs from the line's; normalising both (not a
+    # bare ``.lower()``) keeps the brewery line from being read as the name.
+    text = "La  Brasserie\nMoinette\n8 %"
+    assert extract_name(text, style=None, brewery="La  Brasserie") == "Moinette"
+
+
+def test_extract_name_keeps_a_style_bearing_name() -> None:
+    # A name that carries a style word ("Punk IPA") must be preserved via the
+    # fallback rather than filtered as if it were the bare style ("IPA" -> None).
+    text = "Punk IPA\n5.6 %"
+    assert extract_name(text, style="ipa", brewery=None) == "Punk IPA"

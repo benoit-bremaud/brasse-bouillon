@@ -214,6 +214,48 @@ export class BatchService {
     return this.batchRepo.save(batch);
   }
 
+  /**
+   * Cancel a launched brew (F16). Soft: sets `cancelled_at`, keeps the journal
+   * (steps/measurements) — distinct from the hard `deleteMine`. Only an
+   * in-progress brew can be cancelled.
+   */
+  async cancelMine(ownerId: string, batchId: string): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch is archived');
+    }
+    if (batch.cancelled_at) {
+      throw new BadRequestException('Batch already cancelled');
+    }
+    if (batch.status !== BatchStatus.IN_PROGRESS) {
+      throw new BadRequestException('Only a launched brew can be cancelled');
+    }
+
+    batch.cancelled_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
+  /**
+   * Archive a finished or cancelled brew (F25). Soft-hides it from the active
+   * « Mes brassins » list without deleting its journal.
+   */
+  async archiveMine(ownerId: string, batchId: string): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch already archived');
+    }
+    const isCompleted = batch.status === BatchStatus.COMPLETED;
+    const isCancelled = Boolean(batch.cancelled_at);
+    if (!isCompleted && !isCancelled) {
+      throw new BadRequestException(
+        'Only a finished or cancelled brew can be archived',
+      );
+    }
+
+    batch.archived_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
   async listMineReminders(
     ownerId: string,
     batchId: string,

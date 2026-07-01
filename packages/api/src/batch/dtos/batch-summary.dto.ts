@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { BatchStatus } from '../domain/enums/batch-status.enum';
+import { deriveEffectiveStatus } from '../domain/enums/batch-status.enum';
+import type { EffectiveBatchStatus } from '../domain/enums/batch-status.enum';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
 
 export class BatchSummaryDto {
@@ -13,8 +14,12 @@ export class BatchSummaryDto {
   @ApiProperty()
   recipe_id: string;
 
-  @ApiProperty({ enum: BatchStatus })
-  status: BatchStatus;
+  // Effective lifecycle status: the brewing status (in_progress | completed)
+  // unless the batch was cancelled or archived (derived, archived > cancelled).
+  @ApiProperty({
+    description: 'in_progress | completed | cancelled | archived',
+  })
+  status: EffectiveBatchStatus;
 
   @ApiPropertyOptional({ nullable: true })
   current_step_order?: number | null;
@@ -34,6 +39,12 @@ export class BatchSummaryDto {
   @ApiPropertyOptional({ nullable: true })
   completed_at?: Date | null;
 
+  @ApiPropertyOptional({ nullable: true })
+  cancelled_at?: Date | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  archived_at?: Date | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -45,13 +56,15 @@ export class BatchSummaryDto {
       id: e.id,
       owner_id: e.owner_id,
       recipe_id: e.recipe_id,
-      status: e.status,
+      status: deriveEffectiveStatus(e.status, e.cancelled_at, e.archived_at),
       current_step_order: e.current_step_order ?? null,
       started_at: e.started_at,
       fermentation_started_at: e.fermentation_started_at ?? null,
       fermentation_completed_at: e.fermentation_completed_at ?? null,
       bottled_at: e.bottled_at ?? null,
       completed_at: e.completed_at ?? null,
+      cancelled_at: e.cancelled_at ?? null,
+      archived_at: e.archived_at ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
     };

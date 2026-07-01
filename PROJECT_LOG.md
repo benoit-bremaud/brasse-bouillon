@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-01
 
+### PR #1283 merged (`182ee31`) — feat(equipment,batch): equipment detail/delete (F22) + delete a batch (F25)
+
+- Branch `feat/equipment-batch-reversibility` (mobile-only). Fourth **baby-step slice** — finishes the « gérer mon contenu » reversibility cluster (the backend DELETE + GET endpoints already existed). **F22** — the equipment card in « L'Office » is now tappable → a new detail route (`app/(app)/equipment/[id].tsx` → `EquipmentDetailScreen`) shows the profile with a confirm-gated destructive delete (`getEquipmentProfileById` + `deleteEquipmentProfile`, demo-branched; a 404 maps to `null` so the screen shows the French « Matériel introuvable »); edit deferred. **F25** — a confirm-gated destructive « Supprimer ce brassin » in the batch detail header (visible live + completed) recovers an accidental / phantom batch (`deleteBatch`, demo-branched); archiving deferred. Completes the mobile CRUD gap (the backend already had full CRUD; the UI only did create+read — recipes shipped in #1281, equipment + batches here).
+- Reviews — local pre-push + Copilot: the pre-push pass added four sad-path tests + fixed the import order; Copilot caught a 404-not-mapped-to-null gap (fixed, mirroring `getTasting`). Library usage verified up to date via Context7 (TanStack Query v5, Expo Router SDK 54). CI green; equipment + batches suites green. Mobile-only — no redeploy.
+
 ### PR #1282 merged (`5bfffa7`) — feat(equipment): unique profile names per owner (F21) + equipment-axis labels (F17)
 
 - Branch `feat/equipment-wizard-polish` (API + mobile). Third **baby-step slice**. **F21** — block duplicate equipment profile names per owner: a composite unique index on `(owner_id, name)` (the migration de-dups pre-existing rows first so the boot-time `migrationsRun` cannot fail); `EquipmentProfileService` rejects a duplicate up front with a 409 `EquipmentProfileNameTakenException` AND converts a unique-constraint `QueryFailedError` from save into the same 409 (covers create + `updateMine` rename via a shared `saveOrThrowOnDuplicateName`); the mobile wizard maps the 409 to a French message. **F17** — relabel the three system types on the equipment axis: « Extrait » / « Cuves séparées » / « Cuve unique (BIAB) ».

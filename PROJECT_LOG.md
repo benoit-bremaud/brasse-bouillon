@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-01
+
+### PR #1281 merged (`25578f5`) — feat(recipes): add-to-carnet import (F23) and delete-from-carnet (F24)
+
+- Branch `feat/recipe-carnet-management`. Second **baby-step slice** of the novice-journey backlog — the recipe « carnet » management layer (mobile-only; the backend endpoints already existed). **F23** — re-enabled « Ajouter à mon carnet »: `RecipeDetailsScreen`'s sticky CTA branches on ownership (the API only projects `ownerId` to the owner) — a public recipe the user does not own shows an import CTA wired to `importRecipeFromCommunity`; on success it invalidates the carnet + catalog queries and lands on the freshly-owned copy. Owned recipes keep the « Préparer mon brassin » CTA. The entry point had been dropped in the #740 detail-screen redesign. **F24** — delete from the carnet: an owned recipe shows a destructive trash button in the header (Alert confirm → new `deleteRecipeFromCarnet` use-case over `DELETE /recipes/:id`); both mutations surface an Alert on failure.
+- Reviews — local pre-push + Copilot: Copilot's stale-catalog-cache-on-delete gap fixed (`1ee5353` — delete now also invalidates `['recipes','catalog']`, symmetric with the import); Copilot's demo-mode no-op flagged but deferred (mirrors `importRecipeFromCommunity`'s demo branch; demo is a non-shipped showcase). Library usage verified up to date via Context7 (TanStack Query v5, Expo Router SDK 54). CI green; recipe suites 96+; live-validated on a preview APK.
+
 ## 2026-06-30
 
 ### PR #1280 merged (`6259a31`) — fix(batches): confirm before completing a step (F6) and keep the step list above the footer (F8)

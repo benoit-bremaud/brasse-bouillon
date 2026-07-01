@@ -19,6 +19,12 @@ export interface FaqBotConfig {
   readonly monthlyBudgetEur: number;
   /** ALTCHA HMAC secret; empty string means "bot-check bypassed" (dev/CI). */
   readonly altchaHmacKey: string;
+  /**
+   * Whether the anti-bot check may be safely skipped when no HMAC secret is set.
+   * True only in local dev / test; false everywhere else so a misconfigured
+   * staging/prod fails closed instead of leaving the paid endpoint unprotected (ADR-0022).
+   */
+  readonly botCheckBypassAllowed: boolean;
 }
 
 /** Injection token for `FaqBotConfig`. */
@@ -45,21 +51,27 @@ function parseBoolean(raw: string | undefined, fallback: boolean): boolean {
 }
 
 /** Build the config from `process.env` (factory for the `FAQ_BOT_CONFIG` provider). */
-export const faqBotConfig = (): FaqBotConfig => ({
-  mistralApiKey: process.env.MISTRAL_API_KEY ?? '',
-  model: process.env.MISTRAL_MODEL?.trim() || DEFAULT_MODEL,
-  timeoutMs: parsePositiveInteger(
-    process.env.MISTRAL_TIMEOUT_MS,
-    DEFAULT_TIMEOUT_MS,
-  ),
-  maxAnswerTokens: parsePositiveInteger(
-    process.env.FAQ_BOT_MAX_ANSWER_TOKENS,
-    DEFAULT_MAX_ANSWER_TOKENS,
-  ),
-  enabled: parseBoolean(process.env.FAQ_BOT_ENABLED, true),
-  monthlyBudgetEur: parsePositiveInteger(
-    process.env.FAQ_BOT_MONTHLY_BUDGET_EUR,
-    DEFAULT_MONTHLY_BUDGET_EUR,
-  ),
-  altchaHmacKey: process.env.ALTCHA_HMAC_KEY ?? '',
-});
+export const faqBotConfig = (): FaqBotConfig => {
+  // Default to a production-like posture when unset so a misconfigured deploy fails closed.
+  const env =
+    process.env.APP_ENV?.trim() || process.env.NODE_ENV?.trim() || 'production';
+  return {
+    mistralApiKey: process.env.MISTRAL_API_KEY ?? '',
+    model: process.env.MISTRAL_MODEL?.trim() || DEFAULT_MODEL,
+    timeoutMs: parsePositiveInteger(
+      process.env.MISTRAL_TIMEOUT_MS,
+      DEFAULT_TIMEOUT_MS,
+    ),
+    maxAnswerTokens: parsePositiveInteger(
+      process.env.FAQ_BOT_MAX_ANSWER_TOKENS,
+      DEFAULT_MAX_ANSWER_TOKENS,
+    ),
+    enabled: parseBoolean(process.env.FAQ_BOT_ENABLED, true),
+    monthlyBudgetEur: parsePositiveInteger(
+      process.env.FAQ_BOT_MONTHLY_BUDGET_EUR,
+      DEFAULT_MONTHLY_BUDGET_EUR,
+    ),
+    altchaHmacKey: process.env.ALTCHA_HMAC_KEY ?? '',
+    botCheckBypassAllowed: env === 'development' || env === 'test',
+  };
+};

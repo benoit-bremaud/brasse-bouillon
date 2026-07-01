@@ -13,7 +13,9 @@
       .badge.ok { background: var(--ok); } .badge.ko { background: var(--ko); }
       .case { border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: .75rem 0; }
       .case h2 { font-size: 1rem; margin: 0 0 .5rem; display: flex; gap: .5rem; align-items: center; }
-      .answer { background: #faf3e0; border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; white-space: pre-wrap; }
+      .question { background: #eef3fb; border-left: 3px solid #6b8cce; border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; white-space: pre-wrap; }
+      .answer { background: #faf3e0; border-left: 3px solid var(--line); border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; white-space: pre-wrap; }
+      .qa-label { color: var(--muted); font-weight: 700; letter-spacing: .02em; }
       ul { margin: .25rem 0; padding-left: 1.25rem; }
       li.met { color: var(--ok); } li.unmet { color: var(--ko); font-weight: 600; }
       .note { color: var(--muted); font-weight: 400; }
@@ -25,6 +27,14 @@
     <p class="summary" id="summary">Loading <code>results.json</code>…</p>
     <div id="cases"></div>
     <script>
+      // Escape every LLM/judge-influenced value before HTML interpolation (dev-tool XSS hygiene).
+      const esc = (t) =>
+        String(t == null ? '' : t)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+
       // Always fetch the freshest results (the judge regenerates results.json each run).
       fetch('./results.json', { cache: 'no-store' })
         .then((r) => { if (!r.ok) throw new Error('results.json not found'); return r.json(); })
@@ -34,25 +44,26 @@
           document.getElementById('summary').innerHTML =
             `<span class="badge ${green ? 'ok' : 'ko'}">${green ? 'GREEN' : 'RED'}</span> ` +
             `${s.passed}/${s.total} cases passed` +
-            (data.generatedAt ? ` · <small>${data.generatedAt}</small>` : '');
+            (data.generatedAt ? ` · <small>${esc(data.generatedAt)}</small>` : '');
           const root = document.getElementById('cases');
           (data.results || []).forEach((c) => {
             const div = document.createElement('div');
             div.className = 'case';
             const exps = (c.expectations || [])
-              .map((e) => `<li class="${e.met ? 'met' : 'unmet'}">${e.met ? '✓' : '✗'} ${e.key}` +
-                (e.note ? ` — <span class="note">${e.note}</span>` : '') + `</li>`)
+              .map((e) => `<li class="${e.met ? 'met' : 'unmet'}">${e.met ? '✓' : '✗'} ${esc(e.key)}` +
+                (e.note ? ` — <span class="note">${esc(e.note)}</span>` : '') + `</li>`)
               .join('');
             div.innerHTML =
-              `<h2><span class="badge ${c.pass ? 'ok' : 'ko'}">${c.pass ? 'PASS' : 'FAIL'}</span> ${c.id}</h2>` +
-              `<div class="answer">${(c.answer || '').replace(/</g, '&lt;')}</div>` +
+              `<h2><span class="badge ${c.pass ? 'ok' : 'ko'}">${c.pass ? 'PASS' : 'FAIL'}</span> ${esc(c.id)}</h2>` +
+              (c.question ? `<div class="question"><span class="qa-label">Q ·</span> ${esc(c.question)}</div>` : '') +
+              `<div class="answer"><span class="qa-label">R ·</span> ${esc(c.answer)}</div>` +
               `<ul>${exps}</ul>`;
             root.appendChild(div);
           });
         })
         .catch((e) => {
           document.getElementById('summary').innerHTML =
-            `<span class="err">${e.message}. Run the eval judge (see AGENT.md), then reload.</span>`;
+            `<span class="err">${esc(e.message)}. Run the eval judge (see AGENT.md), then reload.</span>`;
         });
     </script>
   </body>

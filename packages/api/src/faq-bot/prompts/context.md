@@ -19,7 +19,9 @@ Only use the facts below. If something isn't here, treat it as unknown and point
 ## How to get involved
 
 - A beta is planned. Curious visitors can register their interest via [CONTACT].
-- Brasse-Bouillon is a personal, independent project.
+- Brasse-Bouillon is a personal, independent project, created and built solo by its founder,
+  Benoît (first name only), a French enthusiast passionate about both home-brewing and
+  computing/software, who works on it alone.
 
 ## Out of scope (redirect politely)
 

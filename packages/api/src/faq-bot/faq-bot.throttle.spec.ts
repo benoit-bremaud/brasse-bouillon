@@ -29,6 +29,7 @@ describe('FaqBot throttling (sad / abuse)', () => {
     enabled: true,
     monthlyBudgetEur: 1_000,
     altchaHmacKey: '', // empty → BotCheckGuard bypasses, isolating the throttler under test
+    botCheckBypassAllowed: true,
   };
 
   beforeAll(async () => {

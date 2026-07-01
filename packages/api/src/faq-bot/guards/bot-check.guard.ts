@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 
 import { FAQ_BOT_CONFIG, type FaqBotConfig } from '../config/faq-bot.config';
@@ -18,8 +19,9 @@ interface BotCheckRequest {
 /**
  * Verifies the ALTCHA proof-of-work payload on protected routes (via `BotCheckPort`).
  *
- * - **Bypass** when no HMAC secret is configured (dev/CI) — keeps local runs and the unit
- *   suite frictionless (ADR-0022).
+ * - **Bypass** when no HMAC secret is configured **and** we are in dev/test — keeps local
+ *   runs and the unit suite frictionless. Outside dev/test a missing secret **fails closed**
+ *   (503) so the paid endpoint is never left unprotected (ADR-0022).
  * - When a secret is set: **missing** payload → 400 (malformed request), **invalid** → 403
  *   (verification failed). Messages stay generic (no mechanism details).
  */
@@ -32,7 +34,14 @@ export class BotCheckGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (!this.config.altchaHmacKey) {
-      return true;
+      if (this.config.botCheckBypassAllowed) {
+        return true;
+      }
+      // Fail closed: outside dev/test a missing secret must not leave the paid
+      // endpoint unprotected — refuse rather than silently bypass (ADR-0022).
+      throw new ServiceUnavailableException(
+        'Anti-bot verification unavailable',
+      );
     }
 
     const request = context.switchToHttp().getRequest<BotCheckRequest>();

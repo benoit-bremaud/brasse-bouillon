@@ -14,6 +14,7 @@ function makeConfig(altchaHmacKey = HMAC): FaqBotConfig {
     enabled: true,
     monthlyBudgetEur: 20,
     altchaHmacKey,
+    botCheckBypassAllowed: true,
   };
 }
 
@@ -71,5 +72,20 @@ describe('AltchaBotCheckAdapter', () => {
     await expect(
       adapter.verify(await solvedPayload('another-key')),
     ).resolves.toBe(false);
+  });
+
+  it('accepts a solved payload once but rejects the same one replayed (edge)', async () => {
+    const adapter = new AltchaBotCheckAdapter(makeConfig());
+    const payload = await solvedPayload(HMAC);
+
+    await expect(adapter.verify(payload)).resolves.toBe(true);
+    await expect(adapter.verify(payload)).resolves.toBe(false);
+  });
+
+  it('accepts two distinct solved payloads independently (edge)', async () => {
+    const adapter = new AltchaBotCheckAdapter(makeConfig());
+
+    await expect(adapter.verify(await solvedPayload(HMAC))).resolves.toBe(true);
+    await expect(adapter.verify(await solvedPayload(HMAC))).resolves.toBe(true);
   });
 });

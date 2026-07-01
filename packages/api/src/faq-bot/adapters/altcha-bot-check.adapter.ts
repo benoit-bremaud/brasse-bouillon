@@ -17,6 +17,15 @@ const EXPIRES_MS = 10 * 60 * 1_000;
  */
 @Injectable()
 export class AltchaBotCheckAdapter implements BotCheckPort {
+  /**
+   * Challenges already spent, mapped to their expiry timestamp (ms). A solved proof is
+   * single-use: replaying it before expiry is rejected so the proof-of-work is actually
+   * paid per request. In-memory + best-effort (mono-instance, v1) — mirrors the monthly
+   * budget counter; the signed `expires` window (`EXPIRES_MS`) bounds the map, and
+   * `verifySolution` rejects an expired proof anyway.
+   */
+  private readonly consumed = new Map<string, number>();
+
   constructor(@Inject(FAQ_BOT_CONFIG) private readonly config: FaqBotConfig) {}
 
   async issueChallenge(): Promise<BotChallenge> {
@@ -36,10 +45,43 @@ export class AltchaBotCheckAdapter implements BotCheckPort {
 
   async verify(payload: string): Promise<boolean> {
     try {
-      return await verifySolution(payload, this.config.altchaHmacKey);
+      if (!(await verifySolution(payload, this.config.altchaHmacKey))) {
+        return false;
+      }
+      // Single-use: reject a proof whose challenge was already spent (replay defence).
+      const id = this.challengeId(payload);
+      if (id === undefined) {
+        return false;
+      }
+      const now = Date.now();
+      this.pruneExpired(now);
+      if (this.consumed.has(id)) {
+        return false;
+      }
+      this.consumed.set(id, now + EXPIRES_MS);
+      return true;
     } catch {
       // Malformed / unparseable payloads are simply invalid — never throw to the guard.
       return false;
+    }
+  }
+
+  /** Unique challenge string from the base64-JSON ALTCHA payload (dedup key for replay). */
+  private challengeId(payload: string): string | undefined {
+    const decoded = JSON.parse(
+      Buffer.from(payload, 'base64').toString('utf8'),
+    ) as { challenge?: unknown };
+    return typeof decoded.challenge === 'string'
+      ? decoded.challenge
+      : undefined;
+  }
+
+  /** Drop consumed entries past their expiry so the map stays bounded. */
+  private pruneExpired(now: number): void {
+    for (const [id, expiry] of this.consumed) {
+      if (expiry <= now) {
+        this.consumed.delete(id);
+      }
     }
   }
 }

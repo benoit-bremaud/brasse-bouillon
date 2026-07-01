@@ -59,6 +59,7 @@ function makeConfig(overrides: Partial<FaqBotConfig> = {}): FaqBotConfig {
     enabled: true,
     monthlyBudgetEur: 20,
     altchaHmacKey: '',
+    botCheckBypassAllowed: true,
     ...overrides,
   };
 }

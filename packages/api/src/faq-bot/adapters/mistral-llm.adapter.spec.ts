@@ -20,6 +20,7 @@ function makeConfig(overrides: Partial<FaqBotConfig> = {}): FaqBotConfig {
     enabled: true,
     monthlyBudgetEur: 20,
     altchaHmacKey: '',
+    botCheckBypassAllowed: true,
     ...overrides,
   };
 }
@@ -68,6 +69,13 @@ describe('MistralLlmAdapter', () => {
       { role: 'system', content: 'sys' },
       { role: 'user', content: 'usr' },
     ]);
+  });
+
+  it('fails fast without calling upstream when the API key is unset (sad)', async () => {
+    const adapter = new MistralLlmAdapter(makeConfig({ mistralApiKey: '' }));
+
+    await expect(adapter.complete(REQUEST)).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('throws on a non-2xx upstream response (sad)', async () => {

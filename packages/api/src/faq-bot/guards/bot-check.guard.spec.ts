@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ExecutionContext,
   ForbiddenException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 
 import { FaqBotConfig } from '../config/faq-bot.config';
@@ -28,7 +29,10 @@ class FakeBotCheck implements BotCheckPort {
   }
 }
 
-function makeConfig(altchaHmacKey: string): FaqBotConfig {
+function makeConfig(
+  altchaHmacKey: string,
+  botCheckBypassAllowed = true,
+): FaqBotConfig {
   return {
     mistralApiKey: '',
     model: 'mistral-small-latest',
@@ -37,6 +41,7 @@ function makeConfig(altchaHmacKey: string): FaqBotConfig {
     enabled: true,
     monthlyBudgetEur: 20,
     altchaHmacKey,
+    botCheckBypassAllowed,
   };
 }
 
@@ -58,6 +63,17 @@ describe('BotCheckGuard', () => {
       const guard = new BotCheckGuard(botCheck, makeConfig(''));
 
       await expect(guard.canActivate(contextWithBody({}))).resolves.toBe(true);
+      expect(botCheck.verifyCalls).toBe(0);
+    });
+  });
+
+  describe('fail closed (no HMAC secret outside dev/test)', () => {
+    it('refuses with 503 rather than bypassing the paid endpoint (sad)', async () => {
+      const guard = new BotCheckGuard(botCheck, makeConfig('', false));
+
+      await expect(
+        guard.canActivate(contextWithBody({ altcha: 'anything' })),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
       expect(botCheck.verifyCalls).toBe(0);
     });
   });

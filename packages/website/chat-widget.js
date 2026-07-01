@@ -112,8 +112,13 @@ async function sha256Hex(input) {
  * `altcha-lib`'s `solveChallenge` / `verifySolution` pair (ADR-0022).
  */
 async function solveChallenge(challenge) {
-  const max = challenge.maxnumber || POW_FALLBACK_MAX;
   const algorithm = challenge.algorithm || 'SHA-256';
+  // We only implement SHA-256 (altcha-lib's default). Bail on any other algorithm rather
+  // than burning the main thread looping to maxnumber on a hash we can never match.
+  if (algorithm !== 'SHA-256') {
+    return null;
+  }
+  const max = challenge.maxnumber || POW_FALLBACK_MAX;
   for (let number = 0; number <= max; number += 1) {
     const digest = await sha256Hex(challenge.salt + number);
     if (digest === challenge.challenge) {
@@ -137,7 +142,7 @@ const WIDGET_STYLES = `
   font-family: var(--font-body); }
 .bb-chat__launcher { display: inline-flex; align-items: center; gap: 8px;
   padding: 12px 18px; border: none; cursor: pointer;
-  background: var(--copper); color: #fff; font: inherit; font-weight: 600;
+  background: var(--copper); color: var(--color-card); font: inherit; font-weight: 600;
   border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
   transition: transform 0.25s var(--ease-out-soft), box-shadow 0.25s var(--ease-out-soft); }
 .bb-chat__launcher:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
@@ -162,7 +167,7 @@ const WIDGET_STYLES = `
 .bb-chat__intro { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .bb-chat__msg { max-width: 85%; padding: 10px 14px; border-radius: var(--radius-md);
   font-size: 0.95rem; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
-.bb-chat__msg--user { align-self: flex-end; background: var(--copper); color: #fff;
+.bb-chat__msg--user { align-self: flex-end; background: var(--copper); color: var(--color-card);
   border-bottom-right-radius: var(--radius-sm); }
 .bb-chat__msg--bot { align-self: flex-start; background: var(--foam); color: var(--ink);
   border-bottom-left-radius: var(--radius-sm); }
@@ -177,11 +182,11 @@ const WIDGET_STYLES = `
 .bb-chat__chip:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 .bb-chat__form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
 .bb-chat__input { flex: 1 1 auto; min-width: 0; padding: 10px 12px; font: inherit;
-  color: var(--ink); background: #fff;
+  color: var(--ink); background: var(--color-card);
   border: 1px solid var(--line); border-radius: var(--radius-md); }
 .bb-chat__input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
 .bb-chat__submit { flex: none; padding: 10px 16px; cursor: pointer; font: inherit;
-  font-weight: 600; color: #fff; background: var(--copper); border: none;
+  font-weight: 600; color: var(--color-card); background: var(--copper); border: none;
   border-radius: var(--radius-md); }
 .bb-chat__submit:disabled { opacity: 0.5; cursor: default; }
 .bb-chat__submit:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }

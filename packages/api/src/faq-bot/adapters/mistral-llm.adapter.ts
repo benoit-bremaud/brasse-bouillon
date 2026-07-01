@@ -30,6 +30,12 @@ export class MistralLlmAdapter implements LlmPort {
   constructor(@Inject(FAQ_BOT_CONFIG) private readonly config: FaqBotConfig) {}
 
   async complete(request: LlmRequest): Promise<LlmResult> {
+    if (!this.config.mistralApiKey) {
+      // Fail fast on misconfiguration: avoid a guaranteed 401 round-trip to the paid
+      // endpoint. The service maps this to a graceful `FaqBotUnavailableException` (503).
+      throw new Error('Mistral API key is not configured');
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
     try {

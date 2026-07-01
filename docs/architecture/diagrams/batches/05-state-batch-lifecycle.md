@@ -3,6 +3,8 @@
 > **Feature**: epic #595; status model (#605).
 > **Related**: the per-step state machine is the sibling brewing-session
 > conception (PR #1096 → `diagrams/brewing-session/05-state-batch-step.md`).
+> **Refined (brew-day scope)**: `../brew-day/07-state-batch-lifecycle.md` renames `planned`
+> to `draft` (« en préparation », now CARRYING the prep — F14/F15) and adds `cancelled` (F16).
 
 ## Context
 

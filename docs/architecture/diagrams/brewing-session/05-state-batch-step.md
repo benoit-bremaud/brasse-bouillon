@@ -2,6 +2,9 @@
 
 > **Feature**: step state machine #608; epic #868.
 > **Source spec**: `docs/architecture/specs/brewing-session.md` § Step lifecycle.
+> **Superseded (brew-day scope)**: `../brew-day/06-state-brew-step.md` refines this step
+> machine with the internal PRÉP → ACTIF → TERMINÉ phases (novice-journey audit F1/F4/F5/F9);
+> it subsumes the pause/skip transitions below.
 
 ## Context
 

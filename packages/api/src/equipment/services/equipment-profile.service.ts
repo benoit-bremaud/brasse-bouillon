@@ -74,19 +74,7 @@ export class EquipmentProfileService {
     });
 
     this.assertValid(ownerId, entity);
-
-    try {
-      return await this.repo.save(entity);
-    } catch (error) {
-      // Backstop for the check-then-save race (and any path that bypasses
-      // assertNameAvailable): the composite unique index rejects a duplicate
-      // (owner_id, name) with a QueryFailedError — surface it as a clean 409
-      // rather than letting it fall through as a 500.
-      if (this.isDuplicateNameError(error)) {
-        throw new EquipmentProfileNameTakenException();
-      }
-      throw error;
-    }
+    return this.saveOrThrowOnDuplicateName(entity);
   }
 
   /**
@@ -105,6 +93,24 @@ export class EquipmentProfileService {
     });
     if (existing) {
       throw new EquipmentProfileNameTakenException();
+    }
+  }
+
+  /**
+   * Persists an entity, converting the composite unique-index violation on
+   * (owner_id, name) into a clean 409 for BOTH create and rename (updateMine)
+   * — otherwise the raw QueryFailedError surfaces as a 500.
+   */
+  private async saveOrThrowOnDuplicateName(
+    entity: EquipmentProfileOrmEntity,
+  ): Promise<EquipmentProfileOrmEntity> {
+    try {
+      return await this.repo.save(entity);
+    } catch (error) {
+      if (this.isDuplicateNameError(error)) {
+        throw new EquipmentProfileNameTakenException();
+      }
+      throw error;
     }
   }
 
@@ -176,7 +182,9 @@ export class EquipmentProfileService {
     if (dto.system_type !== undefined) entity.system_type = dto.system_type;
 
     this.assertValid(ownerId, entity);
-    return this.repo.save(entity);
+    // A rename that collides with another of the owner's profiles hits the same
+    // unique index — map it to a 409 too (F21), not a 500.
+    return this.saveOrThrowOnDuplicateName(entity);
   }
 
   async deleteMine(ownerId: string, id: string): Promise<{ deleted: true }> {

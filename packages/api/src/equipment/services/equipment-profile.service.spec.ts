@@ -418,6 +418,26 @@ describe('EquipmentProfileService', () => {
       expect(result.system_type).toBe(EquipmentSystemType.ALL_IN_ONE);
     });
 
+    it('maps a rename that collides with another profile to a 409 (F21)', async () => {
+      const entity = makeEntity();
+      jest.spyOn(service, 'getMineById').mockResolvedValue(entity);
+      jest
+        .spyOn(repo, 'save')
+        .mockRejectedValue(
+          new QueryFailedError(
+            'UPDATE equipment_profiles',
+            [],
+            new Error(
+              'UNIQUE constraint failed: equipment_profiles.owner_id, equipment_profiles.name',
+            ),
+          ),
+        );
+
+      await expect(
+        service.updateMine(ownerId, entity.id, { name: 'Taken Name' }),
+      ).rejects.toBeInstanceOf(EquipmentProfileNameTakenException);
+    });
+
     it('should keep existing values when dto fields are undefined', async () => {
       const entity = makeEntity({
         name: 'Original Setup',

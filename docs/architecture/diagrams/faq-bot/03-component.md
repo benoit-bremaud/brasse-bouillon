@@ -23,7 +23,7 @@ flowchart TB
 
     subgraph API ["packages/api (NestJS)"]
         subgraph Mod ["FaqBotModule (src/faq-bot/)"]
-            Ctrl["faq-bot.controller.ts<br/>POST /ask + GET /challenge — public, throttle, CORS"]
+            Ctrl["faq-bot.controller.ts<br/>POST /ask + GET /challenge — public, throttle, ALTCHA"]
             Guard["guards/bot-check.guard.ts<br/>ALTCHA via BotCheckPort"]
             Svc["faq-bot.service.ts<br/>assemble prompt + post-checks + abstain"]
             Port{{"ports/llm.port.ts — interface (DIP)"}}

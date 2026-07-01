@@ -36,9 +36,10 @@ the key), ADR-0001 (build for today), ADR-0003 / ADR-0012 (consent / RGPD), ADR-
 
 1. **Public, server-side, proxied (ADR-0002).** Feature module
    `packages/api/src/faq-bot/` exposes `POST /faq-bot/ask` as a **public**
-   (anonymous) endpoint, **throttled**, with **CORS restricted to the site origin**. The website widget
+   (anonymous) endpoint, **throttled** and **ALTCHA-gated**. The website widget
    calls this endpoint; the **Mistral key stays server-side** (`MISTRAL_API_KEY` via
-   `@nestjs/config`) and never ships to the browser.
+   `@nestjs/config`) and never ships to the browser. (Strict CORS origin restriction is a
+   **deferred** cross-consumer follow-up — see Locked v1 parameters.)
 
 2. **Provider behind a port (CLEAN + SOLID).** `LlmPort` (`ports/`) ← `MistralLlmAdapter`
    (`adapters/`). Dependency Inversion: swapping provider = a new adapter; unit tests inject a
@@ -136,6 +137,10 @@ kill-switch, and it sits behind a `BotCheckPort` so a stronger provider can be s
 - **Metrics** anonymous, in-memory; **top-questions limited to the predefined widget chips**
   (free-text never stored) to honour "no conversation content logged".
 - **Widget** ships **staging/localhost-gated** first (production only once deployed + green).
+- **CORS** — v1 keeps the API's existing global setting (`origin: true`); a strict origin
+  restriction is **deferred** to a dedicated cross-consumer review. Rationale: CORS is a
+  browser-only control (bots ignore it) and the change is global (mobile/Expo regression risk);
+  the real cost/abuse gates are ALTCHA + throttle + budget cap + kill-switch.
 
 ## How we build it (TDD — the same loop as the kata)
 

@@ -18,6 +18,7 @@ def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
     _write_file(base, "feedback-widget.js", "// feedback widget loader\n")
+    _write_file(base, "chat-widget.js", "// chat widget loader\n")
     widget_tag = '<script type="module" src="feedback-widget.js"></script>'
     legal_html_template = (
         '<!DOCTYPE html><html lang="{lang}"><head>'
@@ -60,6 +61,7 @@ def _create_valid_fixture(base: Path) -> None:
   </div></header>
   <main id="mainContentFr"></main>
   <script type="module" src="feedback-widget.js"></script>
+  <script type="module" src="chat-widget.js"></script>
 </body>
 </html>
 """,
@@ -79,6 +81,7 @@ def _create_valid_fixture(base: Path) -> None:
 <body>
   <main id="mainContentEn"></main>
   <script type="module" src="feedback-widget.js"></script>
+  <script type="module" src="chat-widget.js"></script>
 </body>
 </html>
 """,
@@ -171,9 +174,23 @@ class QualityGateTests(unittest.TestCase):
             )
 
             errors = quality_gate.collect_errors(root)
-            self.assertTrue(
-                any("widget de feedback" in err for err in errors)
+            self.assertTrue(any("widget de feedback" in err for err in errors))
+
+    def test_detects_missing_chat_widget(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            en_path = root / "index-en.html"
+            en_path.write_text(
+                en_path.read_text(encoding="utf-8").replace(
+                    '<script type="module" src="chat-widget.js"></script>',
+                    "",
+                ),
+                encoding="utf-8",
             )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(any("widget de chat FAQ" in err for err in errors))
 
     def test_detects_missing_burger_toggle(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

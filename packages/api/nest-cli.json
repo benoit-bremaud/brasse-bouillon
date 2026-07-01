@@ -4,7 +4,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["faq-bot/prompts/*.md"],
+    "assets": [{ "include": "faq-bot/prompts/*.md", "outDir": "dist/src" }],
     "watchAssets": true
   }
 }

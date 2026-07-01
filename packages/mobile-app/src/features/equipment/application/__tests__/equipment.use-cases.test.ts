@@ -1,13 +1,18 @@
 import {
   createEquipmentProfile as createEquipmentProfileApi,
+  deleteEquipmentProfile as deleteEquipmentProfileApi,
+  getEquipmentProfileById,
   listMyEquipmentProfiles,
 } from "@/features/equipment/data/equipment.api";
 import {
   createEquipmentProfile,
+  deleteEquipmentProfile,
+  getEquipmentProfile,
   listEquipmentProfiles,
 } from "@/features/equipment/application/equipment.use-cases";
 
 import { EquipmentProfile } from "@/features/equipment/domain/equipment.types";
+import { HttpError } from "@/core/http/http-error";
 import { dataSource } from "@/core/data/data-source";
 import { demoEquipments } from "@/mocks/demo-data";
 
@@ -17,6 +22,8 @@ jest.mock("@/core/data/data-source", () => ({
 
 jest.mock("@/features/equipment/data/equipment.api", () => ({
   createEquipmentProfile: jest.fn(),
+  deleteEquipmentProfile: jest.fn(),
+  getEquipmentProfileById: jest.fn(),
   listMyEquipmentProfiles: jest.fn(),
 }));
 
@@ -25,6 +32,12 @@ const mockedCreateApi = createEquipmentProfileApi as jest.MockedFunction<
 >;
 const mockedListApi = listMyEquipmentProfiles as jest.MockedFunction<
   typeof listMyEquipmentProfiles
+>;
+const mockedDeleteApi = deleteEquipmentProfileApi as jest.MockedFunction<
+  typeof deleteEquipmentProfileApi
+>;
+const mockedGetApi = getEquipmentProfileById as jest.MockedFunction<
+  typeof getEquipmentProfileById
 >;
 
 function setDemo(value: boolean) {
@@ -113,6 +126,58 @@ describe("equipment.use-cases", () => {
     expect(mockedListApi).not.toHaveBeenCalled();
     expect(result).toHaveLength(demoEquipments.length);
     expect(result[0].id).toBe(demoEquipments[0].id);
+  });
+
+  it("getEquipmentProfile: fetches by id from the API when demo is off (F22)", async () => {
+    const profile = makeProfile();
+    mockedGetApi.mockResolvedValue(profile);
+
+    const result = await getEquipmentProfile("eq-1");
+
+    expect(mockedGetApi).toHaveBeenCalledWith("eq-1");
+    expect(result).toBe(profile);
+  });
+
+  it("getEquipmentProfile: resolves from demo data without the API (F22, demo)", async () => {
+    setDemo(true);
+
+    const result = await getEquipmentProfile(demoEquipments[0].id);
+
+    expect(mockedGetApi).not.toHaveBeenCalled();
+    expect(result?.id).toBe(demoEquipments[0].id);
+  });
+
+  it("deleteEquipmentProfile: calls the API when demo is off (F22)", async () => {
+    mockedDeleteApi.mockResolvedValue(undefined);
+
+    await deleteEquipmentProfile("eq-1");
+
+    expect(mockedDeleteApi).toHaveBeenCalledWith("eq-1");
+  });
+
+  it("deleteEquipmentProfile: is a no-op in demo mode (F22, demo)", async () => {
+    setDemo(true);
+
+    await expect(deleteEquipmentProfile("eq-1")).resolves.toBeUndefined();
+    expect(mockedDeleteApi).not.toHaveBeenCalled();
+  });
+
+  it("getEquipmentProfile: propagates a non-404 API error when demo is off (F22, sad)", async () => {
+    mockedGetApi.mockRejectedValue(new HttpError(500, "boom"));
+
+    await expect(getEquipmentProfile("eq-1")).rejects.toBeInstanceOf(HttpError);
+  });
+
+  it("getEquipmentProfile: maps a 404 to null so the screen shows a friendly message (F22, edge)", async () => {
+    mockedGetApi.mockRejectedValue(new HttpError(404, "Not Found"));
+
+    await expect(getEquipmentProfile("missing")).resolves.toBeNull();
+  });
+
+  it("deleteEquipmentProfile: propagates an API error when demo is off (F22, sad)", async () => {
+    mockedDeleteApi.mockRejectedValue(new Error("forbidden"));
+
+    await expect(deleteEquipmentProfile("eq-1")).rejects.toThrow("forbidden");
   });
 
   it("create: propagates an API error when demo is off (sad)", async () => {

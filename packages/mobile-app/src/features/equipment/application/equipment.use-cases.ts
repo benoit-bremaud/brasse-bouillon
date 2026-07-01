@@ -1,4 +1,5 @@
 import { dataSource } from "@/core/data/data-source";
+import { HttpError } from "@/core/http/http-error";
 import { Equipment, demoEquipments } from "@/mocks/demo-data";
 
 import {
@@ -8,6 +9,8 @@ import {
 } from "../domain/equipment.types";
 import {
   createEquipmentProfile as createEquipmentProfileApi,
+  deleteEquipmentProfile as deleteEquipmentProfileApi,
+  getEquipmentProfileById,
   listMyEquipmentProfiles,
 } from "../data/equipment.api";
 
@@ -88,4 +91,37 @@ export async function createEquipmentProfile(
     return synthesizeDemoProfile(input);
   }
   return createEquipmentProfileApi(input);
+}
+
+export async function getEquipmentProfile(
+  id: string,
+): Promise<EquipmentProfile | null> {
+  if (dataSource.useDemoData) {
+    return (
+      demoEquipments.map(fromDemoEquipment).find((item) => item.id === id) ??
+      null
+    );
+  }
+  try {
+    return await getEquipmentProfileById(id);
+  } catch (error) {
+    // A 404 is the expected "no such profile" state (e.g. after a delete) —
+    // return null so the detail screen shows its French "not found" copy
+    // instead of the raw server message. Anything else is a real failure.
+    if (error instanceof HttpError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Delete one of the current user's equipment profiles. In demo mode this is a
+ * no-op — the bundled demo rigs are read-only.
+ */
+export async function deleteEquipmentProfile(id: string): Promise<void> {
+  if (dataSource.useDemoData) {
+    return;
+  }
+  await deleteEquipmentProfileApi(id);
 }

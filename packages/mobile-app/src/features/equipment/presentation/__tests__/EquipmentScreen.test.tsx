@@ -102,6 +102,17 @@ describe("EquipmentScreen", () => {
     expect(mockPush).toHaveBeenCalledWith("/equipment/wizard");
   });
 
+  it("opens a profile's detail when its card is tapped (F22)", async () => {
+    mockedList.mockResolvedValue([
+      makeProfile({ id: "eq-1", name: "Ma cuve" }),
+    ]);
+
+    renderScreen();
+    fireEvent.press(await screen.findByTestId("equipment-card-eq-1"));
+
+    expect(mockPush).toHaveBeenCalledWith("/equipment/eq-1");
+  });
+
   it("shows an error card when the query fails (sad)", async () => {
     // getErrorMessage surfaces the error's own message (falling back to the
     // generic copy only when the error has none).

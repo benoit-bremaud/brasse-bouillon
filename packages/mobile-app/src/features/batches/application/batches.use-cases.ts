@@ -1,5 +1,6 @@
 import {
   completeCurrentStep as completeCurrentStepApi,
+  deleteBatch as deleteBatchApi,
   getMineById,
   listMine,
   startBatch as startBatchApi,
@@ -12,6 +13,17 @@ import { getRecipeDetails } from "@/features/recipes/application/recipes.use-cas
 
 export async function listBatches(): Promise<BatchSummary[]> {
   return dataSource.useDemoData ? demoBatchSummaries : listMine();
+}
+
+/**
+ * Delete one of the current user's batches. In demo mode this is a no-op — the
+ * bundled demo batches are read-only.
+ */
+export async function deleteBatch(batchId: string): Promise<void> {
+  if (dataSource.useDemoData) {
+    return;
+  }
+  await deleteBatchApi(batchId);
 }
 
 export async function getBatchDetails(batchId: string): Promise<Batch | null> {

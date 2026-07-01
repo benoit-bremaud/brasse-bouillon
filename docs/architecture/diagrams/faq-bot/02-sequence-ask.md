@@ -60,5 +60,7 @@ sequenceDiagram
 - The **Mistral key** is used only inside `MistralLlmAdapter` (server-side) — ADR-0002.
 - **No history** (one-shot) and **no content logged** — anonymous metadata only (latency, tokens).
 - The **ALTCHA** proof-of-work payload is verified server-side in `BotCheckGuard` via `altcha-lib`
-  with our own HMAC secret — **no third-party call** (self-hosted, EU-sovereign). The guard
-  **bypasses** when no secret is configured (dev/CI).
+  with our own HMAC secret — **no third-party call** (self-hosted, EU-sovereign). Solved proofs
+  are **single-use**: a replayed proof is rejected (in-memory, TTL = the challenge lifetime).
+  When no secret is configured the guard bypasses **only in dev/test** and **fails closed**
+  (503) anywhere else, so a misconfigured deploy never exposes the paid endpoint.

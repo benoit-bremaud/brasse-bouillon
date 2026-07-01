@@ -77,8 +77,8 @@ packages/api/src/faq-bot/            # the WHOLE bot lives here
 ├── ports/llm.port.ts                       # LLM interface (DIP) — the Mistral seam
 ├── ports/bot-check.port.ts                 # bot-check interface (DIP) — the ALTCHA seam
 ├── adapters/mistral-llm.adapter.ts         # implements LlmPort (Mistral REST via fetch, key via env, EU)
-├── adapters/altcha-bot-check.adapter.ts    # implements BotCheckPort (altcha-lib, HMAC secret, self-hosted)
-├── guards/bot-check.guard.ts               # verifies the ALTCHA payload via BotCheckPort (bypass if no secret)
+├── adapters/altcha-bot-check.adapter.ts    # implements BotCheckPort (altcha-lib, HMAC secret, single-use proofs)
+├── guards/bot-check.guard.ts               # verifies the ALTCHA payload via BotCheckPort (dev/test-only bypass, else fail-closed)
 ├── dto/ask-question.dto.ts                # class-validator (question non-empty, length-capped)
 ├── exceptions/faq-bot-unavailable.exception.ts
 ├── config/faq-bot.config.ts         # kill-switch flag + monthly budget cap + secrets

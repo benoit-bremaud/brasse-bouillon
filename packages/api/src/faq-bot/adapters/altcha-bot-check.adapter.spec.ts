@@ -88,4 +88,18 @@ describe('AltchaBotCheckAdapter', () => {
     await expect(adapter.verify(await solvedPayload(HMAC))).resolves.toBe(true);
     await expect(adapter.verify(await solvedPayload(HMAC))).resolves.toBe(true);
   });
+
+  it('lets exactly one of two concurrent verifies of the same proof pass (edge)', async () => {
+    // Pins the check-and-claim atomicity: the has/set pair runs synchronously after
+    // the verifySolution await, so a raced replay can never double-spend one proof.
+    const adapter = new AltchaBotCheckAdapter(makeConfig());
+    const payload = await solvedPayload(HMAC);
+
+    const results = await Promise.all([
+      adapter.verify(payload),
+      adapter.verify(payload),
+    ]);
+
+    expect(results.filter(Boolean)).toHaveLength(1);
+  });
 });

@@ -18,11 +18,12 @@ const EXPIRES_MS = 10 * 60 * 1_000;
 @Injectable()
 export class AltchaBotCheckAdapter implements BotCheckPort {
   /**
-   * Challenges already spent, mapped to their expiry timestamp (ms). A solved proof is
+   * Challenges already spent, mapped to their eviction timestamp (ms). A solved proof is
    * single-use: replaying it before expiry is rejected so the proof-of-work is actually
    * paid per request. In-memory + best-effort (mono-instance, v1) — mirrors the monthly
-   * budget counter; the signed `expires` window (`EXPIRES_MS`) bounds the map, and
-   * `verifySolution` rejects an expired proof anyway.
+   * budget counter. Entries are pruned `EXPIRES_MS` after consumption (a finite bound —
+   * slightly wider than the proof's own signed expiry, which `verifySolution` enforces
+   * anyway, so over-retention can only over-block a replay, never under-block).
    */
   private readonly consumed = new Map<string, number>();
 
@@ -49,6 +50,9 @@ export class AltchaBotCheckAdapter implements BotCheckPort {
         return false;
       }
       // Single-use: reject a proof whose challenge was already spent (replay defence).
+      // INVARIANT: everything from here to `set` is synchronous (no await), so the
+      // check-and-claim is atomic in the event loop — concurrent verifies of the same
+      // proof cannot both pass (pinned by the concurrent-replay spec).
       const id = this.challengeId(payload);
       if (id === undefined) {
         return false;
@@ -66,7 +70,10 @@ export class AltchaBotCheckAdapter implements BotCheckPort {
     }
   }
 
-  /** Unique challenge string from the base64-JSON ALTCHA payload (dedup key for replay). */
+  /**
+   * Unique challenge string from the base64-JSON ALTCHA payload (dedup key for replay).
+   * Throws on malformed base64/JSON — `verify`'s try/catch maps that to "invalid".
+   */
   private challengeId(payload: string): string | undefined {
     const decoded = JSON.parse(
       Buffer.from(payload, 'base64').toString('utf8'),

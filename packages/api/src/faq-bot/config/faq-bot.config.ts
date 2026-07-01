@@ -4,6 +4,8 @@
  * ADR-0022) rather than added to the central Joi schema. Secrets are read here only.
  */
 
+import { resolveBootstrapEnvironment } from '../../config/environment.config';
+
 export interface FaqBotConfig {
   /** Mistral API key — server-side only, used exclusively by `MistralLlmAdapter`. */
   readonly mistralApiKey: string;
@@ -50,11 +52,22 @@ function parseBoolean(raw: string | undefined, fallback: boolean): boolean {
   return raw === 'true' || raw === '1';
 }
 
+/**
+ * Whether the current environment tolerates skipping the anti-bot check. Reuses the
+ * package's canonical resolver (case-normalised, validated — single source of truth for
+ * "what is the environment") when any env var is declared; with none at all it assumes
+ * production so an undeclared deploy still fails closed.
+ */
+const isBotCheckBypassAllowed = (): boolean => {
+  const declared = Boolean(
+    process.env.APP_ENV?.trim() || process.env.NODE_ENV?.trim(),
+  );
+  const appEnv = declared ? resolveBootstrapEnvironment().appEnv : 'production';
+  return appEnv === 'development' || appEnv === 'test';
+};
+
 /** Build the config from `process.env` (factory for the `FAQ_BOT_CONFIG` provider). */
 export const faqBotConfig = (): FaqBotConfig => {
-  // Default to a production-like posture when unset so a misconfigured deploy fails closed.
-  const env =
-    process.env.APP_ENV?.trim() || process.env.NODE_ENV?.trim() || 'production';
   return {
     mistralApiKey: process.env.MISTRAL_API_KEY ?? '',
     model: process.env.MISTRAL_MODEL?.trim() || DEFAULT_MODEL,
@@ -72,6 +85,6 @@ export const faqBotConfig = (): FaqBotConfig => {
       DEFAULT_MONTHLY_BUDGET_EUR,
     ),
     altchaHmacKey: process.env.ALTCHA_HMAC_KEY ?? '',
-    botCheckBypassAllowed: env === 'development' || env === 'test',
+    botCheckBypassAllowed: isBotCheckBypassAllowed(),
   };
 };

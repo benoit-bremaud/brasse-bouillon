@@ -59,6 +59,7 @@ classDiagram
     }
     class AltchaBotCheckAdapter {
         -config: FaqBotConfig
+        -consumed: Map~string, number~
         +issueChallenge() Promise~BotChallenge~
         +verify(payload: string) Promise~boolean~
     }
@@ -85,9 +86,11 @@ classDiagram
         +mistralApiKey: string
         +model: string
         +timeoutMs: number
+        +maxAnswerTokens: number
         +enabled: boolean
         +monthlyBudgetEur: number
         +altchaHmacKey: string
+        +botCheckBypassAllowed: boolean
     }
 
     class FaqBotMetrics {
@@ -131,6 +134,10 @@ classDiagram
 - **DIP**: `FaqBotService` depends on `LlmPort`; `BotCheckGuard` depends on
   `BotCheckPort`. Neither imports Mistral or ALTCHA — the module binds `useClass` to the
   adapters. Unit tests inject fakes for both ports (boundaries mocked, ADR-0019).
+- **Anti-abuse invariants**: `AltchaBotCheckAdapter.consumed` makes solved proofs
+  **single-use** (in-memory replay rejection, TTL = the challenge lifetime, v1 mono-instance);
+  `FaqBotConfig.botCheckBypassAllowed` (true only in dev/test) lets `BotCheckGuard` bypass a
+  missing HMAC secret locally while **failing closed** (503) everywhere else.
 - **DTO validation** (`AskQuestionDto`): `question` is `@IsString @IsNotEmpty @MaxLength(500)`
   (trimmed); `altcha` is `@IsString @IsOptional` (the payload the guard verifies).
 - **`ask()` responsibilities**: kill-switch/budget gate (→ `FaqBotUnavailableException`),

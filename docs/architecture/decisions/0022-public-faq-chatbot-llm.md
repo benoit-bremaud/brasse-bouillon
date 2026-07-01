@@ -131,8 +131,10 @@ kill-switch, and it sits behind a `BotCheckPort` so a stronger provider can be s
 ## Locked v1 parameters
 
 - **Model** `mistral-small-latest` (REST API via native `fetch`, small/eco tier).
-- **Anti-bot** ALTCHA self-hosted (`altcha-lib`), guard **bypasses when no HMAC secret** is
-  configured (dev/CI), strict when present (prod/staging).
+- **Anti-bot** ALTCHA self-hosted (`altcha-lib`), strict when an HMAC secret is present
+  (prod/staging); solved proofs are **single-use** (in-memory replay rejection, TTL = the
+  challenge lifetime). When **no secret** is configured the guard bypasses **only in dev/test**
+  and otherwise **fails closed** (503), so a misconfigured deploy never exposes the paid endpoint.
 - **Throttle** ~5 requests / 60 s per IP on `/ask`; **question ≤ 500 chars**, **answer capped**.
 - **Kill-switch** `FAQ_BOT_ENABLED` (default on); **budget cap**
   `FAQ_BOT_MONTHLY_BUDGET_EUR` (default 20), v1 in-memory best-effort (persisted in v2).

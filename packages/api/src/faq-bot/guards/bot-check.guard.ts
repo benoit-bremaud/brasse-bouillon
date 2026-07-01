@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
 
@@ -27,6 +28,8 @@ interface BotCheckRequest {
  */
 @Injectable()
 export class BotCheckGuard implements CanActivate {
+  private readonly logger = new Logger(BotCheckGuard.name);
+
   constructor(
     @Inject(BOT_CHECK_PORT) private readonly botCheck: BotCheckPort,
     @Inject(FAQ_BOT_CONFIG) private readonly config: FaqBotConfig,
@@ -39,6 +42,10 @@ export class BotCheckGuard implements CanActivate {
       }
       // Fail closed: outside dev/test a missing secret must not leave the paid
       // endpoint unprotected — refuse rather than silently bypass (ADR-0022).
+      // Logged as an error: this always signals a deploy misconfiguration.
+      this.logger.error(
+        'ALTCHA HMAC secret missing outside dev/test — refusing anti-bot verification',
+      );
       throw new ServiceUnavailableException(
         'Anti-bot verification unavailable',
       );

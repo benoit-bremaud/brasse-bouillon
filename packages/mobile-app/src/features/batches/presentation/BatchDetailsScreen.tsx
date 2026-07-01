@@ -49,6 +49,16 @@ const DEMO_FERMENTATION_TARGET_DAYS = 14;
 const DEMO_FERMENTATION_DAYS_ELAPSED = 5;
 const DEMO_FERMENTATION_TEMPERATURE_C = 19;
 
+// Plain-French guide shown from the "Comment mesurer ?" affordance on the
+// density card (F3 pedagogy): teaches a novice how to read a hydrometer.
+const HOW_TO_MEASURE_TIP =
+  "Prélève un peu de moût dans un tube (ou un verre haut), plonge le " +
+  "densimètre et laisse-le flotter sans toucher les bords. Lis la valeur à la " +
+  "surface du liquide, à hauteur des yeux — par exemple 1.050. Un densimètre " +
+  "coûte quelques euros en magasin de brassage ou en ligne. L'OG se lit au " +
+  "début de la fermentation, la FG à la fin (quand la densité ne bouge plus " +
+  "2-3 jours de suite).";
+
 // Dynamic widths cannot live in `StyleSheet.create()` because they
 // depend on the runtime progress percentage. Centralising the
 // computed object in a tiny helper keeps the JSX free of inline
@@ -164,6 +174,8 @@ export function BatchDetailsScreen({ batchId }: Props) {
   const batch = viewModel?.batch ?? null;
   const recipeName = viewModel?.recipeName ?? null;
   const recipeVolumeL = viewModel?.recipeVolumeL ?? null;
+  const recipeOg = viewModel?.recipeOg ?? null;
+  const recipeFg = viewModel?.recipeFg ?? null;
   const isCompletedLive =
     batch?.status === "completed" && !dataSource.useDemoData;
 
@@ -200,7 +212,9 @@ export function BatchDetailsScreen({ batchId }: Props) {
       setMutationError(null);
       queryClient.setQueryData<BatchDetailsViewModel | null>(
         ["batches", "details", batchId],
-        nextBatch ? { batch: nextBatch, recipeName, recipeVolumeL } : null,
+        nextBatch
+          ? { batch: nextBatch, recipeName, recipeVolumeL, recipeOg, recipeFg }
+          : null,
       );
       void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
     },
@@ -220,7 +234,9 @@ export function BatchDetailsScreen({ batchId }: Props) {
       setMutationError(null);
       queryClient.setQueryData<BatchDetailsViewModel | null>(
         ["batches", "details", batchId],
-        nextBatch ? { batch: nextBatch, recipeName, recipeVolumeL } : null,
+        nextBatch
+          ? { batch: nextBatch, recipeName, recipeVolumeL, recipeOg, recipeFg }
+          : null,
       );
       void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
     },
@@ -385,6 +401,36 @@ export function BatchDetailsScreen({ batchId }: Props) {
     tip: string;
   } | null>(null);
 
+  // JIT density gating (F3): the density card belongs to the fermentation
+  // phase, not the mash. Show it only when fermentation is ACTIF (yeast pitched
+  // → startedAt set) or at the Packaging step (FG before bottling). See
+  // brew-day/08. The gate applies in demo mode too, so the demo journey shows
+  // the same JIT behaviour (no out-of-context mash card).
+  const isFermentationActive =
+    currentStep?.type === "fermentation" &&
+    currentStep.status === "in_progress" &&
+    currentStep.startedAt != null;
+  const isPackagingStep = currentStep?.type === "packaging";
+  const showDensityCard =
+    !isCompletedLive &&
+    batch != null &&
+    (isFermentationActive || isPackagingStep);
+
+  // Novice escape (F3): a display-only ABV estimated from the recipe targets,
+  // revealed on demand when the brewer cannot measure. Never persisted; a real
+  // reading (recordedOg/Fg) always takes precedence.
+  const [showDensityEstimate, setShowDensityEstimate] = React.useState(false);
+  const estimatedAbv =
+    recipeOg != null && recipeFg != null && recipeFg < recipeOg
+      ? computeAbv(recipeOg, recipeFg)
+      : null;
+  const handleExplainMeasurement = () => {
+    setOpenTip({
+      label: "Comment mesurer une densité ?",
+      tip: HOW_TO_MEASURE_TIP,
+    });
+  };
+
   const completeButtonLabel = getCompleteButtonLabel(isCompleted, isCompleting);
 
   return (
@@ -488,7 +534,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </Card>
       ) : null}
 
-      {!isCompletedLive && batch ? (
+      {showDensityCard ? (
         <Card style={styles.measurementCard}>
           <View style={styles.fermentationHeader}>
             <Ionicons
@@ -520,11 +566,65 @@ export function BatchDetailsScreen({ batchId }: Props) {
             </Text>
           )}
 
+          {abv == null && showDensityEstimate ? (
+            estimatedAbv != null ? (
+              <View style={styles.estimateBox}>
+                <Text
+                  style={styles.estimateValue}
+                  testID="density-estimated-abv"
+                >
+                  ≈ {estimatedAbv.toFixed(1)} % vol
+                </Text>
+                <Text style={styles.estimateLabel}>
+                  {"estimé d'après la recette · non mesuré"}
+                </Text>
+                <Text style={styles.estimateHint}>
+                  {
+                    "Approximatif : l'alcool réel dépend de ton rendement d'empâtage. Mesure la densité pour la vraie valeur."
+                  }
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.metricHint}>
+                {
+                  "Estimation indisponible : la recette n'indique pas de densités cibles."
+                }
+              </Text>
+            )
+          ) : null}
+
+          {/* OG-then-FG assumption: OG is prompted during fermentation ACTIF,
+              so by the Packaging gate an OG normally already exists and the CTA
+              reads « … finale (FG) ». */}
           <PrimaryButton
-            label="Saisir une densité"
+            label={
+              recordedOg == null
+                ? "Noter la densité initiale (OG)"
+                : "Noter la densité finale (FG)"
+            }
             onPress={handleRecordMeasurement}
             style={styles.measurementCta}
           />
+
+          <Pressable
+            accessibilityRole="link"
+            onPress={handleExplainMeasurement}
+            style={styles.linkButton}
+          >
+            <Text style={styles.linkText}>Comment mesurer ?</Text>
+          </Pressable>
+
+          {abv == null && !showDensityEstimate ? (
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => setShowDensityEstimate(true)}
+              style={styles.linkButton}
+            >
+              <Text style={styles.linkText}>
+                Je ne peux pas mesurer maintenant
+              </Text>
+            </Pressable>
+          ) : null}
         </Card>
       ) : null}
 
@@ -708,6 +808,45 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
     marginTop: spacing.xxs,
+  },
+  // Estimated (not measured) value: visually distinct from the bold, primary
+  // measured ABV — italic + muted tone + « ≈ » prefix so it never reads as real.
+  estimateBox: {
+    marginTop: spacing.sm,
+  },
+  estimateValue: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.medium,
+    fontStyle: "italic",
+    marginTop: spacing.xxs,
+  },
+  estimateLabel: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.medium,
+    fontStyle: "italic",
+  },
+  estimateHint: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontStyle: "italic",
+    marginTop: spacing.xxs,
+  },
+  linkButton: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.xs,
+    alignSelf: "flex-start",
+  },
+  linkText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+    textDecorationLine: "underline",
   },
   tipBackdrop: {
     flex: 1,

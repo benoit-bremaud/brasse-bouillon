@@ -539,11 +539,36 @@ describe("BatchDetailsScreen — measurement card (B2)", () => {
     createdAt: takenAt,
   });
 
+  // The density card is now gated to the fermentation ACTIF phase (F3), so the
+  // B2 card tests run on a fermentation-in-progress batch, not the mash.
+  const fermentationActiveBatch: Batch = {
+    id: "b1",
+    ownerId: "u-demo-1",
+    recipeId: "r1",
+    status: "in_progress",
+    currentStepOrder: 0,
+    startedAt: TS,
+    createdAt: TS,
+    updatedAt: TS,
+    steps: [
+      {
+        batchId: "b1",
+        stepOrder: 0,
+        type: "fermentation",
+        label: "Fermentation",
+        status: "in_progress",
+        startedAt: TS,
+        createdAt: TS,
+        updatedAt: TS,
+      },
+    ],
+  };
+
   beforeEach(() => {
     mockPush.mockReset();
     dataSource.useDemoData = false;
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
-      viewModel(mashBatch, "Ma recette test"),
+      viewModel(fermentationActiveBatch, "Ma recette test"),
     );
     (listBatchMeasurements as jest.Mock).mockResolvedValue([]);
   });
@@ -593,7 +618,8 @@ describe("BatchDetailsScreen — measurement card (B2)", () => {
 
     renderBatchDetailsScreen();
 
-    fireEvent.press(await screen.findByText("Saisir une densité"));
+    // OG already recorded → the CTA is the contextual FG prompt.
+    fireEvent.press(await screen.findByText("Noter la densité finale (FG)"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/batches/[id]/measurement",
@@ -605,12 +631,74 @@ describe("BatchDetailsScreen — measurement card (B2)", () => {
   it("navigates without an OG param when no measurement exists", async () => {
     renderBatchDetailsScreen();
 
-    fireEvent.press(await screen.findByText("Saisir une densité"));
+    // No OG yet → the CTA is the contextual OG prompt.
+    fireEvent.press(await screen.findByText("Noter la densité initiale (OG)"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/batches/[id]/measurement",
       params: { id: "b1" },
     });
+  });
+
+  // F3 gating: the density card must NOT appear during the mash (out of context).
+  it("hides the density card during the mash (F3)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(mashBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    await screen.findByText("Ma recette test");
+    expect(screen.queryByText("Densités & alcool")).toBeNull();
+    expect(screen.queryByText("Noter la densité initiale (OG)")).toBeNull();
+  });
+
+  // Novice escape (F3): no measurement + recipe targets → a clearly-marked,
+  // display-only estimated ABV, revealed on demand.
+  it("reveals a labelled estimated ABV when the brewer cannot measure", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: fermentationActiveBatch,
+      recipeName: "Ma recette test",
+      recipeOg: 1.06,
+      recipeFg: 1.008,
+    });
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(
+      await screen.findByText("Je ne peux pas mesurer maintenant"),
+    );
+
+    expect(await screen.findByTestId("density-estimated-abv")).toBeTruthy();
+    expect(screen.getByText(/estimé d'après la recette/)).toBeTruthy();
+  });
+
+  // Edge: no recipe targets → the estimate is honestly unavailable, never faked.
+  it("shows 'estimation indisponible' when the recipe has no target gravities", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: fermentationActiveBatch,
+      recipeName: "Ma recette test",
+      recipeOg: null,
+      recipeFg: null,
+    });
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(
+      await screen.findByText("Je ne peux pas mesurer maintenant"),
+    );
+
+    expect(await screen.findByText(/Estimation indisponible/)).toBeTruthy();
+    expect(screen.queryByTestId("density-estimated-abv")).toBeNull();
+  });
+
+  // Pedagogy: the "Comment mesurer ?" affordance opens the how-to guide.
+  it("opens the how-to-measure guide", async () => {
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Comment mesurer ?"));
+
+    expect(await screen.findByText(/plonge le densimètre/)).toBeTruthy();
   });
 });
 

@@ -55,11 +55,21 @@ def _numeric_score(value_a: float | None, value_b: float | None, tolerated_gap: 
 
 
 def score_recipe(extracted: ExtractedFields, recipe: Recipe) -> tuple[float, list[str]]:
+    """Score how well ``recipe`` matches the ``extracted`` label fields.
+
+    The score blends the style match (0.70) and the ABV proximity (0.30),
+    clamped to ``[0, 1]``. IBU is intentionally not scored: the label extractor
+    does not produce an IBU value yet, so weighting ``recipe.ibu`` against a
+    missing input only added a constant that diluted the real signals. Re-add an
+    IBU term here once ``ExtractedFields`` carries a parsed IBU.
+
+    Returns:
+        A ``(score, reasons)`` tuple; ``reasons`` explains the match to the user.
+    """
     style_score = _style_score(extracted.style, recipe.style)
     abv_score = _numeric_score(extracted.abv, recipe.abv, tolerated_gap=5.0)
-    ibu_score = _numeric_score(None, recipe.ibu, tolerated_gap=30.0)
 
-    total = 0.60 * style_score + 0.25 * abv_score + 0.15 * ibu_score
+    total = 0.70 * style_score + 0.30 * abv_score
     total = max(0.0, min(1.0, total))
 
     reasons: list[str] = []
@@ -67,8 +77,6 @@ def score_recipe(extracted: ExtractedFields, recipe: Recipe) -> tuple[float, lis
         reasons.append(f"Detected style: {extracted.style} vs recipe style: {recipe.style}")
     if extracted.abv is not None and recipe.abv is not None:
         reasons.append(f"ABV proximity ({extracted.abv:.1f}% vs {recipe.abv:.1f}%)")
-    if recipe.ibu is not None:
-        reasons.append(f"Recipe IBU: {recipe.ibu:.0f}")
 
     return total, reasons
 

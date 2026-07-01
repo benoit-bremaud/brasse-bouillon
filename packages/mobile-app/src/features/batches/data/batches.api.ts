@@ -131,6 +131,10 @@ export async function startBatch(recipeId: string): Promise<Batch> {
   return mapBatch(row);
 }
 
+export async function deleteBatch(id: string): Promise<void> {
+  await request<void>(`/batches/${id}`, { method: "DELETE" });
+}
+
 /**
  * Raw priming payload as returned by the backend (snake_case), mirroring the
  * backend `PrimingDto`. Mapped to {@link PrimingInfo} by {@link mapPriming}.

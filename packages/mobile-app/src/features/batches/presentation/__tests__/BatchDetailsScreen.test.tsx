@@ -10,6 +10,7 @@ import {
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
 import {
   completeCurrentBatchStep,
+  deleteBatch,
   getBatchDetailsViewModel,
   type BatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
@@ -89,6 +90,7 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
     currentStepOrder: 0,
     steps: [],
   }),
+  deleteBatch: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock("@/features/batches/application/measurement.use-cases", () => ({
@@ -185,6 +187,39 @@ describe("BatchDetailsScreen", () => {
     const cancelButton = buttons.find((button) => button.text === "Annuler");
     expect(cancelButton).toBeDefined();
     expect(cancelButton?.onPress).toBeUndefined();
+  });
+
+  it("deletes the batch after confirmation and navigates back (F25)", async () => {
+    (deleteBatch as jest.Mock).mockClear();
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Supprimer ce brassin"));
+
+    // The tap opens a confirmation dialog rather than deleting immediately.
+    expect(alertSpy).toHaveBeenCalled();
+    expect(deleteBatch).not.toHaveBeenCalled();
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    await waitFor(() => expect(deleteBatch).toHaveBeenCalledWith("b1"));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("surfaces an error and does not navigate when the batch delete fails (F25, sad)", async () => {
+    (deleteBatch as jest.Mock).mockRejectedValueOnce(new Error("boom"));
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Supprimer ce brassin"));
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    // The onError sets the shared error banner; getErrorMessage surfaces the
+    // error's own message ("boom") over the fallback copy.
+    expect(await screen.findByText("boom")).toBeTruthy();
+    expect(mockReplace).not.toHaveBeenCalledWith("/batches");
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

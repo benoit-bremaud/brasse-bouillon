@@ -13,6 +13,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   BatchDetailsViewModel,
   completeCurrentBatchStep,
+  deleteBatch,
   getBatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
 import { getTasting } from "@/features/batches/application/bottling.use-cases";
@@ -209,6 +210,20 @@ export function BatchDetailsScreen({ batchId }: Props) {
     },
   });
 
+  const { mutate: mutateDeleteBatch, isPending: isDeleting } = useMutation<
+    void,
+    Error
+  >({
+    mutationFn: () => deleteBatch(batchId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
+      router.replace("/batches");
+    },
+    onError: (error) => {
+      setMutationError(getErrorMessage(error, "Échec de la suppression"));
+    },
+  });
+
   const error = missingBatchId
     ? "Identifiant de brassin manquant."
     : (mutationError ??
@@ -259,6 +274,29 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const handleGoBack = () => {
     router.replace("/batches");
+  };
+
+  const handleDelete = () => {
+    if (missingBatchId) {
+      return;
+    }
+    // F25 — destructive + irreversible, so gate it behind a confirm (recovers
+    // an accidental/phantom batch). Archiving a completed brew is deferred.
+    Alert.alert(
+      "Supprimer ce brassin ?",
+      "Il sera définitivement retiré de tes brassins. Cette action est irréversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => {
+            setMutationError(null);
+            mutateDeleteBatch();
+          },
+        },
+      ],
+    );
   };
 
   const handleRecordMeasurement = () => {
@@ -324,11 +362,29 @@ export function BatchDetailsScreen({ batchId }: Props) {
       <ListHeader
         title="Détails du brassin"
         action={
-          <HeaderBackButton
-            label="Mes brassins"
-            accessibilityLabel="Retour à la liste des brassins"
-            onPress={handleGoBack}
-          />
+          <View style={styles.headerActions}>
+            <HeaderBackButton
+              label="Mes brassins"
+              accessibilityLabel="Retour à la liste des brassins"
+              onPress={handleGoBack}
+            />
+            {batch ? (
+              <Pressable
+                onPress={handleDelete}
+                disabled={isDeleting}
+                accessibilityRole="button"
+                accessibilityLabel="Supprimer ce brassin"
+                hitSlop={8}
+                style={styles.deleteButton}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={22}
+                  color={colors.semantic.error}
+                />
+              </Pressable>
+            ) : null}
+          </View>
         }
       />
       {batch ? (
@@ -504,6 +560,14 @@ export function BatchDetailsScreen({ batchId }: Props) {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  deleteButton: {
+    padding: spacing.xs,
+  },
   headerCard: {
     padding: spacing.md,
     marginBottom: spacing.sm,

@@ -7,7 +7,7 @@
 
 import * as httpClient from "@/core/http/http-client";
 
-import { getMineById } from "@/features/batches/data/batches.api";
+import { deleteBatch, getMineById } from "@/features/batches/data/batches.api";
 
 jest.mock("@/core/http/http-client");
 
@@ -67,5 +67,27 @@ describe("batches.api — mapBatchStep enrichment (B1-live)", () => {
 
     expect(batch.steps[0].plannedDurationMin).toBeNull();
     expect(batch.steps[0].pedagogicalTip).toBeNull();
+  });
+});
+
+describe("batches.api — deleteBatch (F25)", () => {
+  beforeEach(() => {
+    mockedRequest.mockReset();
+  });
+
+  it("DELETEs a batch by id (happy)", async () => {
+    mockedRequest.mockResolvedValue(undefined as never);
+
+    await deleteBatch("b1");
+
+    expect(mockedRequest).toHaveBeenCalledWith("/batches/b1", {
+      method: "DELETE",
+    });
+  });
+
+  it("propagates the request error (sad)", async () => {
+    mockedRequest.mockRejectedValue(new Error("boom"));
+
+    await expect(deleteBatch("b1")).rejects.toThrow("boom");
   });
 });

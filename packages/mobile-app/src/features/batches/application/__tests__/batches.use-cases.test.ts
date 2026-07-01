@@ -1,5 +1,6 @@
 import {
   completeCurrentBatchStep,
+  deleteBatch,
   getBatchDetails,
   getBatchDetailsViewModel,
   listBatches,
@@ -7,6 +8,7 @@ import {
 } from "@/features/batches/application/batches.use-cases";
 import {
   completeCurrentStep,
+  deleteBatch as deleteBatchApi,
   getMineById,
   listMine,
   startBatch as startBatchApi,
@@ -26,6 +28,7 @@ jest.mock("@/features/batches/data/batches.api", () => ({
   getMineById: jest.fn(),
   completeCurrentStep: jest.fn(),
   startBatch: jest.fn(),
+  deleteBatch: jest.fn(),
 }));
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
@@ -46,6 +49,9 @@ const mockedCompleteCurrentStep = completeCurrentStep as jest.MockedFunction<
 const mockedStartBatchApi = startBatchApi as jest.MockedFunction<
   typeof startBatchApi
 >;
+const mockedDeleteBatchApi = deleteBatchApi as jest.MockedFunction<
+  typeof deleteBatchApi
+>;
 
 describe("batches use-cases", () => {
   beforeEach(() => {
@@ -55,6 +61,30 @@ describe("batches use-cases", () => {
     mockedCompleteCurrentStep.mockReset();
     mockedStartBatchApi.mockReset();
     mockedGetRecipeDetails.mockReset();
+    mockedDeleteBatchApi.mockReset();
+  });
+
+  it("deleteBatch is a no-op in demo mode (F25, demo)", async () => {
+    dataSource.useDemoData = true;
+
+    await expect(deleteBatch("b1")).resolves.toBeUndefined();
+    expect(mockedDeleteBatchApi).not.toHaveBeenCalled();
+  });
+
+  it("deleteBatch calls the API when demo is off (F25, happy)", async () => {
+    dataSource.useDemoData = false;
+    mockedDeleteBatchApi.mockResolvedValue(undefined);
+
+    await deleteBatch("b1");
+
+    expect(mockedDeleteBatchApi).toHaveBeenCalledWith("b1");
+  });
+
+  it("deleteBatch propagates the API error when demo is off (F25, sad)", async () => {
+    dataSource.useDemoData = false;
+    mockedDeleteBatchApi.mockRejectedValue(new Error("boom"));
+
+    await expect(deleteBatch("b1")).rejects.toThrow("boom");
   });
 
   it("returns demo batches list when demo data is enabled", async () => {

@@ -834,11 +834,13 @@ export class BatchService {
    * endpoints check the soft-lifecycle stamps here (brew-day/07 timestamp model).
    */
   private assertMutable(batch: BatchOrmEntity): void {
-    if (batch.cancelled_at) {
-      throw new BadRequestException('Batch is cancelled');
-    }
+    // Archived takes precedence over cancelled (same order as
+    // deriveEffectiveStatus): an archive-after-cancel batch reports "archived".
     if (batch.archived_at) {
       throw new BadRequestException('Batch is archived');
+    }
+    if (batch.cancelled_at) {
+      throw new BadRequestException('Batch is cancelled');
     }
   }
 }

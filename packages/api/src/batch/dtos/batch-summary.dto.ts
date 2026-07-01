@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { deriveEffectiveStatus } from '../domain/enums/batch-status.enum';
+import {
+  deriveEffectiveStatus,
+  EFFECTIVE_BATCH_STATUSES,
+} from '../domain/enums/batch-status.enum';
 import type { EffectiveBatchStatus } from '../domain/enums/batch-status.enum';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
 
@@ -17,6 +20,7 @@ export class BatchSummaryDto {
   // Effective lifecycle status: the brewing status (in_progress | completed)
   // unless the batch was cancelled or archived (derived, archived > cancelled).
   @ApiProperty({
+    enum: EFFECTIVE_BATCH_STATUSES,
     description: 'in_progress | completed | cancelled | archived',
   })
   status: EffectiveBatchStatus;

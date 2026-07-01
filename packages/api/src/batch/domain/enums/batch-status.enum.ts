@@ -16,6 +16,17 @@ export enum BatchStatus {
  */
 export type EffectiveBatchStatus = BatchStatus | 'cancelled' | 'archived';
 
+/**
+ * Every value {@link EffectiveBatchStatus} can take, in precedence order. Kept
+ * next to the type so the OpenAPI `enum` on BatchSummaryDto never drifts from it.
+ */
+export const EFFECTIVE_BATCH_STATUSES: EffectiveBatchStatus[] = [
+  BatchStatus.IN_PROGRESS,
+  BatchStatus.COMPLETED,
+  'cancelled',
+  'archived',
+];
+
 export function deriveEffectiveStatus(
   status: BatchStatus,
   cancelledAt: Date | null | undefined,

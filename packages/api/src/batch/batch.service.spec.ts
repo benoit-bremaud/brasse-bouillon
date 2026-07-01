@@ -554,6 +554,20 @@ describe('BatchService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('reports "archived" (not "cancelled") when a cancelled batch is later archived (07a precedence)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+    await batchService.cancelMine(ownerId, started.batch.id);
+    await batchService.archiveMine(ownerId, started.batch.id);
+
+    // Both stamps are set; the freeze guard mirrors deriveEffectiveStatus and
+    // surfaces "archived" (precedence over cancelled), not "Batch is cancelled".
+    await expect(
+      batchService.startFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow('Batch is archived');
+  });
+
   it('completeFermentationMine() should require start and set completed_at', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });

@@ -58,19 +58,24 @@ stateDiagram-v2
   brassage" after the ingredient checklist is complete. It is the `draft → in_progress`
   transition.
 - **`Cancel` (F16).** `in_progress → cancelled` lets a brewer stop a launched brew (e.g. an
-  accidental launch, or a batch gone wrong) — distinct from `Discard` and `Archive`. Wires the
-  already-existing `DELETE /batches/:id` + a soft `cancelled` status, per the reversibility
-  cluster (F25 shipped the hard delete; this adds the lifecycle states).
+  accidental launch, or a batch gone wrong) — distinct from `Discard` and `Archive`. It is a
+  **status update to a soft `cancelled` state** (a new `PATCH` on the batch), **not** the
+  `DELETE /batches/:id` endpoint: cancelling **preserves the journal** (the brew stays in history,
+  hidden from the active list). The existing hard-deleting `DELETE` (F25/F22) is reserved for
+  `Discard` below.
 - **`Discard` vs `Archive` (delete mechanics).** `Discard` (`draft → discarded`) is a **hard
   delete** of a never-launched draft — the same shipped `DELETE /batches/:id` (F25/F22), since a
-  draft has no journal worth keeping. `cancelled` and `archived` are **soft states** that
-  preserve the journal (a cancelled/finished brew stays in history, just hidden from the active
-  list).
+  draft has no journal worth keeping; `discarded` is therefore **not a stored status** but the
+  terminal "row removed" outcome, drawn only to close the diagram. `cancelled` and `archived` are
+  **soft states** that preserve the journal (a cancelled/finished brew stays in history, just
+  hidden from the active list).
 - **`Archive` (F25).** `completed → archived` (and `cancelled → archived`) soft-hides a batch
   from the active « Mes brassins » list without deleting its journal — declutters the list.
-- **New statuses to persist (deferred — conception only).** `draft`, `cancelled`, `archived`,
-  `discarded` extend the current enum (`in_progress` / `completed`). A migration + the prep
-  moving onto the batch are the implementation work — NOT in this conception slice.
+- **New statuses to persist (deferred — conception only).** `draft`, `cancelled`, `archived`
+  extend the current enum (`in_progress` / `completed`). `discarded` is **not** a stored status —
+  it is the terminal outcome of the hard delete (the draft row is removed), shown as a state only
+  to close the diagram. A migration + the prep moving onto the batch are the implementation
+  work — NOT in this conception slice.
 - **`completed`** still opens the closure/celebration (B3 `BatchClosureView`) and is kept in
   history; the transition is driven by the last step completing (see `06`). This is the **same
   `completed` state** already amended by `05-state-batch-closure.md` with the `bottledAt`

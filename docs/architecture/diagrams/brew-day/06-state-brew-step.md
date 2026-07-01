@@ -28,7 +28,7 @@ stateDiagram-v2
     paused --> active: Resume
   }
 
-  in_progress --> completed: Complete
+  active --> completed: Complete
   completed --> in_progress: Reopen
   pending --> skipped: Skip
   in_progress --> skipped: Skip
@@ -51,18 +51,22 @@ stateDiagram-v2
 - **Phase mapping to the existing enum (minimal reconciliation).** `prep` and `active` are the
   two inner phases of the existing `in_progress` status — modelled as an inner `phase`
   attribute, **not** new step statuses. TERMINÉ maps to the existing `completed`. So the step
-  keeps `pending / in_progress / completed`; only `paused` / `skipped` are new (inherited from
-  the brewing-session machine, implementation deferred). No breaking status change.
+  keeps its `pending / in_progress / completed` statuses; the two additions sit at **different
+  levels** — `paused` is a new **inner phase** of `in_progress` (like `prep` / `active`, not a
+  status), while `skipped` is a new **top-level status**. Both are inherited from the
+  brewing-session machine (implementation deferred). No breaking change to the existing statuses.
 - **PRÉP → ACTIF is the F1 fix.** `Start` is an actor-gated ✋ transition ("prep done, go") — it
   is what starts the countdown. In PRÉP no timer runs, so a novice heating strike water is not
   stressed by a ticking clock (the central audit friction).
-- **Complete is a ✋ confirm (F6, already shipped) and is reversible.** `Complete` exits the
-  `in_progress` composite **from the `active` phase** — the acknowledgment that generalises B3's
-  bottling checkbox pattern; `Reopen` re-enters the `in_progress` composite and **resumes at the
-  `active` phase** (history semantics — the concrete re-entry point is an implementation detail,
-  not depicted), undoing an accidental completion and moving the batch pointer back (see `07`). The
-  transitions are drawn on the **composite boundary** (`in_progress`), so `prep`/`active` stay
-  internal phases — never top-level states (the whole point of the composite).
+- **Complete is a ✋ confirm (F6, already shipped) and is reversible.** `Complete` is an
+  **explicit exit from the `active` phase** (`active --> completed`) — the acknowledgment that
+  generalises B3's bottling checkbox pattern. A step the brewer never performs is `Skip`ped, not
+  `Complete`d — so Complete originates in ACTIF, never PRÉP. `Reopen` re-enters the `in_progress`
+  composite (`completed --> in_progress`), undoing an accidental completion and moving the batch
+  pointer back (see `07`); the concrete re-entry phase (redo PRÉP vs resume ACTIF) is an
+  implementation detail, not depicted. `Reopen` and `Skip` are drawn on the **composite boundary**
+  so they apply to the whole `in_progress` state; either way `prep` / `active` stay internal
+  phases — never top-level states (the whole point of the composite).
 - **ACTIF end is unified (F5).** A step always ends on ✋ `Complete`; the timer is an optional
   aid when `plannedDurationMin` is known. Event-gated steps (e.g. "chill to 20°C", "gravity
   stable") simply have no timer and state the end condition in the guidance — no separate step

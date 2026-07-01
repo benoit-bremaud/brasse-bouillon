@@ -361,6 +361,9 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     mutationFn: () => deleteRecipeFromCarnet(recipeId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["recipes", "list"] });
+      // An owned recipe can be public, so it may also sit in the catalog —
+      // invalidate both surfaces (symmetric with the import mutation).
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
       router.replace("/recipes");
     },
     onError: () => {

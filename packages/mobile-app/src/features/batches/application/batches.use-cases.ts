@@ -48,6 +48,11 @@ export interface BatchDetailsViewModel {
   // Recipe batch volume in litres, surfaced for the B3 closure view. Best-effort
   // like `recipeName`: null when the recipe lookup fails or omits the stat.
   recipeVolumeL?: number | null;
+  // Recipe target gravities, surfaced for the JIT-density estimate fallback (F3):
+  // a novice who cannot measure sees a display-only ABV computed from these.
+  // Best-effort like the others — null when the recipe lookup fails or omits them.
+  recipeOg?: number | null;
+  recipeFg?: number | null;
 }
 
 export async function getBatchDetailsViewModel(
@@ -63,15 +68,21 @@ export async function getBatchDetailsViewModel(
   // back to the "Brassin <id>" title instead of rejecting the whole query.
   let recipeName: string | null = null;
   let recipeVolumeL: number | null = null;
+  let recipeOg: number | null = null;
+  let recipeFg: number | null = null;
   try {
     const recipe = await getRecipeDetails(batch.recipeId);
     recipeName = recipe?.name ?? null;
     recipeVolumeL = recipe?.stats?.volumeLiters ?? null;
+    recipeOg = recipe?.stats?.og ?? null;
+    recipeFg = recipe?.stats?.fg ?? null;
   } catch {
     recipeName = null;
     recipeVolumeL = null;
+    recipeOg = null;
+    recipeFg = null;
   }
-  return { batch, recipeName, recipeVolumeL };
+  return { batch, recipeName, recipeVolumeL, recipeOg, recipeFg };
 }
 
 export async function startCurrentBatchStep(

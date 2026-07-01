@@ -335,5 +335,31 @@ describe("batches use-cases", () => {
 
       expect(result?.recipeVolumeL).toBeNull();
     });
+
+    it("surfaces the recipe target gravities for the density estimate (happy path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+        stats: { og: 1.06, fg: 1.012 },
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeOg).toBe(1.06);
+      expect(result?.recipeFg).toBe(1.012);
+    });
+
+    it("returns null target gravities when the recipe omits them (edge path)", async () => {
+      mockedGetRecipeDetails.mockResolvedValue({
+        id: "r-demo-pdd",
+        name: "La Première du dimanche",
+        stats: {},
+      } as never);
+
+      const result = await getBatchDetailsViewModel("b-demo-pdd-mash");
+
+      expect(result?.recipeOg).toBeNull();
+      expect(result?.recipeFg).toBeNull();
+    });
   });
 });

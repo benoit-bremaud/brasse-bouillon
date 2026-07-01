@@ -27,7 +27,8 @@
     "test:watch": "cross-env APP_ENV=test NODE_ENV=test JWT_SECRET=test_jwt_secret_key_change_me JWT_EXPIRATION=86400s jest --watch",
     "test:cov": "cross-env APP_ENV=test NODE_ENV=test JWT_SECRET=test_jwt_secret_key_change_me JWT_EXPIRATION=86400s jest --coverage",
     "test:debug": "cross-env APP_ENV=test NODE_ENV=test JWT_SECRET=test_jwt_secret_key_change_me JWT_EXPIRATION=86400s node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env APP_ENV=test NODE_ENV=test DATABASE_PATH=:memory: JWT_SECRET=test_jwt_secret_key_change_me JWT_EXPIRATION=86400s TYPEORM_SYNCHRONIZE=false TYPEORM_MIGRATIONS_RUN=true jest --config ./test/jest-e2e.json"
+    "test:e2e": "cross-env APP_ENV=test NODE_ENV=test DATABASE_PATH=:memory: JWT_SECRET=test_jwt_secret_key_change_me JWT_EXPIRATION=86400s TYPEORM_SYNCHRONIZE=false TYPEORM_MIGRATIONS_RUN=true jest --config ./test/jest-e2e.json",
+    "eval:faq-bot": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"CommonJS\"}' ts-node src/faq-bot/evals/prompt-tdd.eval.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

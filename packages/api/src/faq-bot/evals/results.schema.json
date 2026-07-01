@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "faq-bot eval results",
+  "type": "object",
+  "required": ["generatedAt", "results", "summary"],
+  "additionalProperties": true,
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "promptVersion": { "type": "string" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "answer", "expectations", "pass"],
+        "properties": {
+          "id": { "type": "string" },
+          "answer": { "type": "string" },
+          "expectations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["key", "met"],
+              "properties": {
+                "key": { "type": "string" },
+                "met": { "type": "boolean" },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "pass": { "type": "boolean" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "passed", "failed"],
+      "properties": {
+        "total": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" }
+      }
+    }
+  }
+}

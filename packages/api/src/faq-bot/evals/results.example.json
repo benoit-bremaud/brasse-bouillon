@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-07-01T00:00:00.000Z",
+  "promptVersion": "system-prompt.md@example",
+  "results": [
+    {
+      "id": "offtopic-weather-fr",
+      "answer": "Désolé, la météo je ne gère pas — moi je suis là pour te parler de Brasse-Bouillon ! Tu veux découvrir comment l'app t'aide à brasser ta première bière, ou rejoindre la beta ?",
+      "expectations": [
+        { "key": "declines_offtopic", "met": true, "note": "Declines the weather." },
+        { "key": "redirect_beta", "met": true, "note": "Redirects to the project + beta." },
+        { "key": "lang_fr", "met": true, "note": "French." }
+      ],
+      "pass": true
+    },
+    {
+      "id": "happy-what-is-fr",
+      "answer": "Brasse-Bouillon, c'est ton compagnon de brassage : une app qui t'accompagne pas à pas pour brasser ta bière, même en débutant, sans jamais te laisser coincé. Envie d'en être ? La beta arrive — écris à [CONTACT] !",
+      "expectations": [
+        { "key": "on_scope", "met": true, "note": "From curated context." },
+        { "key": "tutoiement", "met": true, "note": "Uses 'tu'." },
+        { "key": "short", "met": true, "note": "A few sentences." },
+        { "key": "no_hallucination", "met": true, "note": "No invented facts." }
+      ],
+      "pass": true
+    }
+  ],
+  "summary": { "total": 2, "passed": 2, "failed": 0 }
+}

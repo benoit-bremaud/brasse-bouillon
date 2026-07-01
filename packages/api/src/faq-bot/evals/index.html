@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>faq-bot — eval results</title>
+    <style>
+      :root { --ok: #2e7d32; --ko: #b3261e; --ink: #1a110a; --muted: #6b5a4c; --line: #e6cf95; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif; margin: 2rem auto; max-width: 900px; color: var(--ink); padding: 0 1rem; }
+      h1 { margin: 0 0 .25rem; }
+      .summary { font-size: 1.1rem; margin: 1rem 0 1.5rem; }
+      .badge { display: inline-block; padding: .1rem .5rem; border-radius: 999px; color: #fff; font-weight: 600; font-size: .85rem; }
+      .badge.ok { background: var(--ok); } .badge.ko { background: var(--ko); }
+      .case { border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+      .case h2 { font-size: 1rem; margin: 0 0 .5rem; display: flex; gap: .5rem; align-items: center; }
+      .answer { background: #faf3e0; border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; white-space: pre-wrap; }
+      ul { margin: .25rem 0; padding-left: 1.25rem; }
+      li.met { color: var(--ok); } li.unmet { color: var(--ko); font-weight: 600; }
+      .note { color: var(--muted); font-weight: 400; }
+      .err { color: var(--ko); }
+    </style>
+  </head>
+  <body>
+    <h1>faq-bot — eval results</h1>
+    <p class="summary" id="summary">Loading <code>results.json</code>…</p>
+    <div id="cases"></div>
+    <script>
+      // Always fetch the freshest results (the judge regenerates results.json each run).
+      fetch('./results.json', { cache: 'no-store' })
+        .then((r) => { if (!r.ok) throw new Error('results.json not found'); return r.json(); })
+        .then((data) => {
+          const s = data.summary || { total: 0, passed: 0, failed: 0 };
+          const green = s.failed === 0;
+          document.getElementById('summary').innerHTML =
+            `<span class="badge ${green ? 'ok' : 'ko'}">${green ? 'GREEN' : 'RED'}</span> ` +
+            `${s.passed}/${s.total} cases passed` +
+            (data.generatedAt ? ` · <small>${data.generatedAt}</small>` : '');
+          const root = document.getElementById('cases');
+          (data.results || []).forEach((c) => {
+            const div = document.createElement('div');
+            div.className = 'case';
+            const exps = (c.expectations || [])
+              .map((e) => `<li class="${e.met ? 'met' : 'unmet'}">${e.met ? '✓' : '✗'} ${e.key}` +
+                (e.note ? ` — <span class="note">${e.note}</span>` : '') + `</li>`)
+              .join('');
+            div.innerHTML =
+              `<h2><span class="badge ${c.pass ? 'ok' : 'ko'}">${c.pass ? 'PASS' : 'FAIL'}</span> ${c.id}</h2>` +
+              `<div class="answer">${(c.answer || '').replace(/</g, '&lt;')}</div>` +
+              `<ul>${exps}</ul>`;
+            root.appendChild(div);
+          });
+        })
+        .catch((e) => {
+          document.getElementById('summary').innerHTML =
+            `<span class="err">${e.message}. Run the eval judge (see AGENT.md), then reload.</span>`;
+        });
+    </script>
+  </body>
+</html>

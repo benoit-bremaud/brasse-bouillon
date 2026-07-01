@@ -114,10 +114,25 @@ export class EquipmentProfileService {
     }
   }
 
+  /**
+   * True only for the `(owner_id, name)` composite unique-index violation.
+   * SQLite reports it column-qualified as "UNIQUE constraint failed:
+   * equipment_profiles.owner_id, equipment_profiles.name" (table.column, not
+   * the index name), so match both columns — a primary-key collision or any
+   * future unique index on the table is NOT mis-mapped to the name-taken 409.
+   */
   private isDuplicateNameError(error: unknown): boolean {
+    if (!(error instanceof QueryFailedError)) {
+      return false;
+    }
+    const driver = error.driverError as {
+      code?: string | number;
+      message?: string;
+    };
+    const message = (driver.message ?? error.message).toLowerCase();
     return (
-      error instanceof QueryFailedError &&
-      /UNIQUE constraint failed: equipment_profiles/i.test(error.message)
+      message.includes('equipment_profiles.owner_id') &&
+      message.includes('equipment_profiles.name')
     );
   }
 

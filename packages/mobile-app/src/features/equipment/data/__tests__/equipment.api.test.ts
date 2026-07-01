@@ -1,5 +1,7 @@
 import {
   createEquipmentProfile,
+  deleteEquipmentProfile,
+  getEquipmentProfileById,
   listMyEquipmentProfiles,
   mapEquipmentProfile,
 } from "@/features/equipment/data/equipment.api";
@@ -70,6 +72,26 @@ describe("equipment.api", () => {
     expect(result).toHaveLength(1);
     expect(result[0].ownerId).toBe("u-1");
     expect(result[0].mashTunVolumeL).toBe(30);
+  });
+
+  it("GETs a profile by id and maps it (F22, happy)", async () => {
+    mockRequest.mockResolvedValue(sampleDto);
+
+    const result = await getEquipmentProfileById("eq-1");
+
+    expect(mockRequest).toHaveBeenCalledWith("/equipment-profiles/eq-1");
+    expect(result.id).toBe("eq-1");
+    expect(result.name).toBe("Tout-grain 30 L");
+  });
+
+  it("DELETEs a profile by id (F22, happy)", async () => {
+    mockRequest.mockResolvedValue(undefined);
+
+    await deleteEquipmentProfile("eq-1");
+
+    expect(mockRequest).toHaveBeenCalledWith("/equipment-profiles/eq-1", {
+      method: "DELETE",
+    });
   });
 
   it("maps an absent measured efficiency to null (edge)", () => {

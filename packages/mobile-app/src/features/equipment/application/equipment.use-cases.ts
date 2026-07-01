@@ -8,6 +8,8 @@ import {
 } from "../domain/equipment.types";
 import {
   createEquipmentProfile as createEquipmentProfileApi,
+  deleteEquipmentProfile as deleteEquipmentProfileApi,
+  getEquipmentProfileById,
   listMyEquipmentProfiles,
 } from "../data/equipment.api";
 
@@ -88,4 +90,27 @@ export async function createEquipmentProfile(
     return synthesizeDemoProfile(input);
   }
   return createEquipmentProfileApi(input);
+}
+
+export async function getEquipmentProfile(
+  id: string,
+): Promise<EquipmentProfile | null> {
+  if (dataSource.useDemoData) {
+    return (
+      demoEquipments.map(fromDemoEquipment).find((item) => item.id === id) ??
+      null
+    );
+  }
+  return getEquipmentProfileById(id);
+}
+
+/**
+ * Delete one of the current user's equipment profiles. In demo mode this is a
+ * no-op — the bundled demo rigs are read-only.
+ */
+export async function deleteEquipmentProfile(id: string): Promise<void> {
+  if (dataSource.useDemoData) {
+    return;
+  }
+  await deleteEquipmentProfileApi(id);
 }

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -80,7 +80,12 @@ export function EquipmentScreen() {
               styles.list,
               { paddingBottom: bottomPadding },
             ]}
-            renderItem={({ item }) => <EquipmentCard profile={item} />}
+            renderItem={({ item }) => (
+              <EquipmentCard
+                profile={item}
+                onPress={() => router.push(`/equipment/${item.id}` as Href)}
+              />
+            )}
           />
         </>
       ) : (
@@ -102,31 +107,47 @@ export function EquipmentScreen() {
 
 type EquipmentCardProps = {
   profile: EquipmentProfile;
+  onPress: () => void;
 };
 
-function EquipmentCard({ profile }: EquipmentCardProps) {
+function EquipmentCard({ profile, onPress }: EquipmentCardProps) {
   return (
-    <Card style={styles.card}>
-      <View style={styles.cardContent}>
-        <View style={styles.itemIcon}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Ouvrir ${profile.name}`}
+      testID={`equipment-card-${profile.id}`}
+    >
+      <Card style={styles.card}>
+        <View style={styles.cardContent}>
+          <View style={styles.itemIcon}>
+            <Ionicons
+              name="construct-outline"
+              size={24}
+              color={colors.brand.secondary}
+            />
+          </View>
+          <View style={styles.cardInfo}>
+            <View style={styles.cardTopRow}>
+              <Text style={styles.cardTitle}>{profile.name}</Text>
+              <Badge
+                label={systemTypeLabel(profile.systemType)}
+                variant="info"
+              />
+            </View>
+            <Text style={styles.meta}>
+              Fermenteur {profile.fermenterVolumeL} L •{" "}
+              {profile.efficiencyEstimatedPercent}% eff.
+            </Text>
+          </View>
           <Ionicons
-            name="construct-outline"
-            size={24}
-            color={colors.brand.secondary}
+            name="chevron-forward"
+            size={20}
+            color={colors.neutral.textSecondary}
           />
         </View>
-        <View style={styles.cardInfo}>
-          <View style={styles.cardTopRow}>
-            <Text style={styles.cardTitle}>{profile.name}</Text>
-            <Badge label={systemTypeLabel(profile.systemType)} variant="info" />
-          </View>
-          <Text style={styles.meta}>
-            Fermenteur {profile.fermenterVolumeL} L •{" "}
-            {profile.efficiencyEstimatedPercent}% eff.
-          </Text>
-        </View>
-      </View>
-    </Card>
+      </Card>
+    </Pressable>
   );
 }
 

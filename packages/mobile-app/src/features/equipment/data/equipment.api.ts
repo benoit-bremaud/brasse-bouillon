@@ -85,3 +85,14 @@ export async function createEquipmentProfile(
   });
   return mapEquipmentProfile(row);
 }
+
+export async function getEquipmentProfileById(
+  id: string,
+): Promise<EquipmentProfile> {
+  const row = await request<EquipmentProfileDto>(`/equipment-profiles/${id}`);
+  return mapEquipmentProfile(row);
+}
+
+export async function deleteEquipmentProfile(id: string): Promise<void> {
+  await request<void>(`/equipment-profiles/${id}`, { method: "DELETE" });
+}

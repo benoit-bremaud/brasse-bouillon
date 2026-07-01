@@ -102,6 +102,21 @@ export class BatchController {
     await this.service.deleteMine(user.id, id);
   }
 
+  @Post(':id/steps/current/start')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Activate the current batch step (PRÉP → ACTIF)' })
+  @ApiOkResponse({ type: BatchDto })
+  async startMineCurrentStep(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BatchDto> {
+    const { batch, steps } = await this.service.startMineCurrentStep(
+      user.id,
+      id,
+    );
+    return BatchDto.fromEntities(batch, steps);
+  }
+
   @Post(':id/steps/current/complete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Complete the current batch step' })

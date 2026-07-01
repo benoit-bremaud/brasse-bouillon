@@ -252,6 +252,49 @@ describe('BatchService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
+  it('startMineCurrentStep() should activate the current step (set started_at)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+
+    const started = await batchService.startMine(ownerId, recipe.id);
+    // PRÉP: the current step is in progress but not yet timed (F1)
+    expect(started.steps[0].status).toBe(BatchStepStatus.IN_PROGRESS);
+    expect(started.steps[0].started_at).toBeNull();
+
+    const activated = await batchService.startMineCurrentStep(
+      ownerId,
+      started.batch.id,
+    );
+
+    expect(activated.steps[0].status).toBe(BatchStepStatus.IN_PROGRESS);
+    expect(activated.steps[0].started_at).toBeTruthy();
+    expect(activated.batch.current_step_order).toBe(0);
+  });
+
+  it('startMineCurrentStep() should enforce ownership', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.startMineCurrentStep('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('startMineCurrentStep() should 409 (not 500) when the step is already active', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    // First activation succeeds (PRÉP -> ACTIF)...
+    await batchService.startMineCurrentStep(ownerId, started.batch.id);
+
+    // ...a second one is a normal conflict, surfaced as a client 409, not a 500.
+    await expect(
+      batchService.startMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(ConflictException);
+  });
+
   it('listMine() should filter by owner and order by updated_at desc', async () => {
     const ownerId = 'user-1';
     const otherOwner = 'user-2';

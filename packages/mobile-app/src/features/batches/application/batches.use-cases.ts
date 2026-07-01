@@ -4,6 +4,7 @@ import {
   getMineById,
   listMine,
   startBatch as startBatchApi,
+  startCurrentStep as startCurrentStepApi,
 } from "@/features/batches/data/batches.api";
 import { Batch, BatchSummary } from "@/features/batches/domain/batch.types";
 import { demoBatchSummaries, demoBatches } from "@/mocks/demo-data";
@@ -71,6 +72,18 @@ export async function getBatchDetailsViewModel(
     recipeVolumeL = null;
   }
   return { batch, recipeName, recipeVolumeL };
+}
+
+export async function startCurrentBatchStep(
+  batchId: string,
+): Promise<Batch | null> {
+  if (!batchId) {
+    return null;
+  }
+  if (dataSource.useDemoData) {
+    return demoBatches.find((item) => item.id === batchId) ?? null;
+  }
+  return startCurrentStepApi(batchId);
 }
 
 export async function completeCurrentBatchStep(

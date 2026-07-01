@@ -266,6 +266,62 @@ export class BatchService {
     ownerId: string,
     batchId: string,
   ): Promise<BatchWithSteps> {
+    return this.applyCurrentStepTransition(ownerId, batchId, (batch) =>
+      this.domain.completeCurrentStep(batch),
+    );
+  }
+
+  async startMineCurrentStep(
+    ownerId: string,
+    batchId: string,
+  ): Promise<BatchWithSteps> {
+    return this.applyCurrentStepTransition(ownerId, batchId, (batch) =>
+      this.domain.startCurrentStep(batch),
+    );
+  }
+
+  /**
+   * Run a pure domain step-transition and translate its state-guard rejections
+   * into HTTP-meaningful errors. The domain throws plain `Error`s for invalid
+   * transitions; without this they would surface as HTTP 500 for what are in
+   * fact normal client-side conflicts (e.g. a double-tap on « Démarrer »).
+   * Unknown errors are re-thrown untouched so genuine bugs still fail loud.
+   */
+  private runStepTransition(
+    transition: (batch: Batch) => Batch,
+    batch: Batch,
+  ): Batch {
+    try {
+      return transition(batch);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Current step is already active') {
+          throw new ConflictException(error.message);
+        }
+        const clientErrors = new Set([
+          'Batch is not in progress',
+          'Batch has no current step',
+          'Current step is not in progress',
+        ]);
+        if (clientErrors.has(error.message)) {
+          throw new BadRequestException(error.message);
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Load the owner's batch, run a pure domain transition on it, and persist the
+   * result in a single transaction. Shared by the current-step transitions
+   * (activate PRÉP → ACTIF, complete). The domain function is the only variable
+   * part; loading, ownership/completed guards, and persistence are common.
+   */
+  private async applyCurrentStepTransition(
+    ownerId: string,
+    batchId: string,
+    transition: (batch: Batch) => Batch,
+  ): Promise<BatchWithSteps> {
     return this.batchRepo.manager.transaction(async (manager) => {
       const batchRepo = manager.getRepository(BatchOrmEntity);
       const stepRepo = manager.getRepository(BatchStepOrmEntity);
@@ -286,7 +342,7 @@ export class BatchService {
       });
 
       const domainBatch = this.toDomain(batch, steps);
-      const updated = this.domain.completeCurrentStep(domainBatch);
+      const updated = this.runStepTransition(transition, domainBatch);
 
       batch.status = updated.status;
       batch.current_step_order = updated.currentStepOrder ?? null;

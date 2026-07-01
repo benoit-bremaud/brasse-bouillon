@@ -53,6 +53,29 @@ describe("useStepCountdown", () => {
     expect(result.current).toBeNull();
   });
 
+  // F1 PRÉP: a timed step in progress but not yet activated (no startedAt) runs
+  // no countdown in live mode — the timer only starts on « Démarrer ».
+  it("returns null in PRÉP (live, timed step with no startedAt)", () => {
+    const { result } = renderHook(() =>
+      useStepCountdown(
+        makeStep({ plannedDurationMin: 30, startedAt: undefined }),
+        false,
+      ),
+    );
+    expect(result.current).toBeNull();
+  });
+
+  // F1 ACTIF: once activated (startedAt set) the countdown runs from that anchor.
+  it("runs once the step is activated (live, startedAt set)", () => {
+    const startedAt = new Date(Date.now() - 5 * 60_000).toISOString(); // 5 min ago
+    const { result } = renderHook(() =>
+      useStepCountdown(makeStep({ plannedDurationMin: 30, startedAt }), false),
+    );
+    expect(result.current).not.toBeNull();
+    expect(result.current?.remainingSec).toBeGreaterThanOrEqual(1480);
+    expect(result.current?.remainingSec).toBeLessThanOrEqual(1500);
+  });
+
   // Happy path: demo anchors mid-brew (~40% remaining of a 30 min step)
   it("computes a mid-brew countdown in demo mode", () => {
     const { result } = renderHook(() =>

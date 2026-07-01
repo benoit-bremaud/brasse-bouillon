@@ -17,7 +17,9 @@ export type StepCountdown = {
  * Countdown for an in-progress brewing step that declares a planned duration
  * (brewing assistant, #781). Ticks once per second. Returns `null` when the
  * step has no `plannedDurationMin` (e.g. fermentation, which uses the day-based
- * tracker instead, or legacy steps).
+ * tracker instead, or legacy steps), or when the step is still in PRÉP — in
+ * progress but not yet activated (no `startedAt`), so no timer runs until the
+ * brewer taps « Démarrer » (novice-journey friction F1; see brew-day/06).
  *
  * Hooks run unconditionally; the `null` result is what callers gate on.
  */
@@ -25,8 +27,13 @@ export function useStepCountdown(
   step: BatchStep | null,
   useDemoData: boolean,
 ): StepCountdown | null {
+  // ACTIF vs PRÉP: a timed step only counts down once activated (`startedAt`
+  // set). Demo mode always shows a running timer for the screenshot.
+  const isActive = useDemoData || step?.startedAt != null;
   const totalSec =
-    step?.plannedDurationMin != null ? step.plannedDurationMin * 60 : 0;
+    isActive && step?.plannedDurationMin != null
+      ? step.plannedDurationMin * 60
+      : 0;
 
   // Identity of the step the anchor was fixed for. When it changes — the active
   // step moves on, or `startedAt` arrives late from persisted state — the anchor
@@ -50,7 +57,9 @@ export function useStepCountdown(
     } else if (step?.startedAt) {
       anchorRef.current = new Date(step.startedAt).getTime();
     } else {
-      anchorRef.current = Date.now();
+      // Unreachable while `stepKey` is non-null (that requires `totalSec > 0`,
+      // hence `isActive`). Defensive null so a stray render never anchors to now.
+      anchorRef.current = null;
     }
   }
 

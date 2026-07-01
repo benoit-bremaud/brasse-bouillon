@@ -5,6 +5,7 @@ import {
   getBatchDetailsViewModel,
   listBatches,
   startBatch,
+  startCurrentBatchStep,
 } from "@/features/batches/application/batches.use-cases";
 import {
   completeCurrentStep,
@@ -12,6 +13,7 @@ import {
   getMineById,
   listMine,
   startBatch as startBatchApi,
+  startCurrentStep,
 } from "@/features/batches/data/batches.api";
 
 import { dataSource } from "@/core/data/data-source";
@@ -26,6 +28,7 @@ jest.mock("@/core/data/data-source", () => ({
 jest.mock("@/features/batches/data/batches.api", () => ({
   listMine: jest.fn(),
   getMineById: jest.fn(),
+  startCurrentStep: jest.fn(),
   completeCurrentStep: jest.fn(),
   startBatch: jest.fn(),
   deleteBatch: jest.fn(),
@@ -45,6 +48,9 @@ const mockedGetMineById = getMineById as jest.MockedFunction<
 >;
 const mockedCompleteCurrentStep = completeCurrentStep as jest.MockedFunction<
   typeof completeCurrentStep
+>;
+const mockedStartCurrentStep = startCurrentStep as jest.MockedFunction<
+  typeof startCurrentStep
 >;
 const mockedStartBatchApi = startBatchApi as jest.MockedFunction<
   typeof startBatchApi
@@ -186,6 +192,45 @@ describe("batches use-cases", () => {
 
     expect(mockedCompleteCurrentStep).toHaveBeenCalledWith("b-live-1");
     expect(updatedBatch?.status).toBe("completed");
+  });
+
+  it("returns null for missing batch id in start step", async () => {
+    const batch = await startCurrentBatchStep("");
+
+    expect(batch).toBeNull();
+    expect(mockedStartCurrentStep).not.toHaveBeenCalled();
+  });
+
+  it("returns demo batch on start step when demo data is enabled", async () => {
+    dataSource.useDemoData = true;
+
+    const batch = await startCurrentBatchStep("b-demo-pdd-mash");
+
+    expect(batch?.id).toBe("b-demo-pdd-mash");
+    expect(mockedStartCurrentStep).not.toHaveBeenCalled();
+  });
+
+  it("uses live API for start current step when demo mode is disabled", async () => {
+    dataSource.useDemoData = false;
+    mockedStartCurrentStep.mockResolvedValue({
+      id: "b-live-1",
+      ownerId: "u1",
+      recipeId: "r1",
+      status: "in_progress",
+      currentStepOrder: 0,
+      startedAt: "2026-01-01T00:00:00.000Z",
+      fermentationStartedAt: null,
+      fermentationCompletedAt: null,
+      completedAt: null,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+      steps: [],
+    });
+
+    const activated = await startCurrentBatchStep("b-live-1");
+
+    expect(mockedStartCurrentStep).toHaveBeenCalledWith("b-live-1");
+    expect(activated?.status).toBe("in_progress");
   });
 
   it("returns the fil-rouge mash batch when starting a batch in demo mode", async () => {

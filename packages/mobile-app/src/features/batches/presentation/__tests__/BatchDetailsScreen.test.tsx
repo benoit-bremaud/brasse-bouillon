@@ -12,6 +12,7 @@ import {
   completeCurrentBatchStep,
   deleteBatch,
   getBatchDetailsViewModel,
+  startCurrentBatchStep,
   type BatchDetailsViewModel,
 } from "@/features/batches/application/batches.use-cases";
 import { listBatchMeasurements } from "@/features/batches/application/measurement.use-cases";
@@ -58,6 +59,9 @@ const mashBatch: Batch = {
       type: "mash",
       label: "Empâtage 67°C",
       status: "in_progress",
+      // ACTIF: the step has been activated (startedAt set), so the CTA is
+      // « Terminer ». A step with no startedAt is PRÉP (« Démarrer »).
+      startedAt: TS,
       createdAt: TS,
       updatedAt: TS,
     },
@@ -84,6 +88,12 @@ const viewModel = (
 
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
   getBatchDetailsViewModel: jest.fn(),
+  startCurrentBatchStep: jest.fn().mockResolvedValue({
+    id: "b1",
+    status: "in_progress",
+    currentStepOrder: 0,
+    steps: [],
+  }),
   completeCurrentBatchStep: jest.fn().mockResolvedValue({
     id: "b1",
     status: "completed",
@@ -145,6 +155,50 @@ describe("BatchDetailsScreen", () => {
     expect(screen.getByText("Progression du brassin")).toBeTruthy();
     expect(screen.getByText("Étapes")).toBeTruthy();
     expect(screen.getByText("Terminer l'étape en cours")).toBeTruthy();
+  });
+
+  it("shows « Démarrer » for a step still in PRÉP and activates it on tap (F1)", async () => {
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0 ? { ...step, startedAt: null } : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+    (startCurrentBatchStep as jest.Mock).mockClear();
+
+    renderBatchDetailsScreen();
+
+    // PRÉP: the CTA activates the step (no timer yet), it does not complete it.
+    fireEvent.press(await screen.findByText("Démarrer l'étape"));
+    expect(screen.queryByText("Terminer l'étape en cours")).toBeNull();
+
+    await waitFor(() => expect(startCurrentBatchStep).toHaveBeenCalledTimes(1));
+  });
+
+  it("surfaces an error when activating a PRÉP step fails (F1, sad)", async () => {
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0 ? { ...step, startedAt: null } : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+    (startCurrentBatchStep as jest.Mock).mockRejectedValueOnce(
+      new Error("boom"),
+    );
+
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByText("Démarrer l'étape"));
+
+    // onError sets the shared banner; getErrorMessage surfaces the error's own
+    // message ("boom") over the fallback copy.
+    expect(await screen.findByText("boom")).toBeTruthy();
   });
 
   it("confirms before completing a step, then completes on confirm (F6)", async () => {
@@ -638,7 +692,7 @@ describe("BatchDetailsScreen — B3 bottling routing + closure view", () => {
         currentStepOrder: 0,
         steps: packagingBatch.steps.map((step) =>
           step.stepOrder === 0
-            ? { ...step, status: "in_progress" }
+            ? { ...step, status: "in_progress", startedAt: TS }
             : { ...step, status: "pending" },
         ),
       },

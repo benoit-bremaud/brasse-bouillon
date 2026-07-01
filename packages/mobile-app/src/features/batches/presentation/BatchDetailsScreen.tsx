@@ -200,7 +200,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       setMutationError(null);
       queryClient.setQueryData<BatchDetailsViewModel | null>(
         ["batches", "details", batchId],
-        nextBatch ? { batch: nextBatch, recipeName } : null,
+        nextBatch ? { batch: nextBatch, recipeName, recipeVolumeL } : null,
       );
       void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
     },
@@ -220,7 +220,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       setMutationError(null);
       queryClient.setQueryData<BatchDetailsViewModel | null>(
         ["batches", "details", batchId],
-        nextBatch ? { batch: nextBatch, recipeName } : null,
+        nextBatch ? { batch: nextBatch, recipeName, recipeVolumeL } : null,
       );
       void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
     },

@@ -281,6 +281,20 @@ describe('BatchService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
+  it('startMineCurrentStep() should 409 (not 500) when the step is already active', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    // First activation succeeds (PRÉP -> ACTIF)...
+    await batchService.startMineCurrentStep(ownerId, started.batch.id);
+
+    // ...a second one is a normal conflict, surfaced as a client 409, not a 500.
+    await expect(
+      batchService.startMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(ConflictException);
+  });
+
   it('listMine() should filter by owner and order by updated_at desc', async () => {
     const ownerId = 'user-1';
     const otherOwner = 'user-2';

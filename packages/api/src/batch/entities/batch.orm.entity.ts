@@ -80,6 +80,18 @@ export class BatchOrmEntity {
   @Column({ type: 'datetime', nullable: true })
   completed_at?: Date | null;
 
+  // Soft lifecycle timestamps (brew-day/07). The `status` column stays the
+  // brewing lifecycle (in_progress/completed); these nullable stamps carry the
+  // reversibility states so no CHECK-constraint rebuild is needed. `cancelled_at`
+  // = a launched brew the brewer stopped (F16, keeps the journal); `archived_at`
+  // = a finished/cancelled brew hidden from the active list (F25). The effective
+  // status is derived (archived > cancelled > status) — see deriveEffectiveStatus.
+  @Column({ type: 'datetime', nullable: true })
+  cancelled_at?: Date | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  archived_at?: Date | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

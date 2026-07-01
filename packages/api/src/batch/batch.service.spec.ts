@@ -333,9 +333,143 @@ describe('BatchService', () => {
     expect(list.map((b) => b.id)).toEqual([batchA.batch.id, batchB.batch.id]);
   });
 
+  it('listMine() should preserve cancelled and archived soft lifecycle stamps', async () => {
+    const ownerId = 'user-1';
+    const recipeA = await recipeService.create(ownerId, {
+      name: 'Cancelled batch',
+    });
+    const recipeB = await recipeService.create(ownerId, {
+      name: 'Archived batch',
+    });
+
+    const cancelled = await batchService.startMine(ownerId, recipeA.id);
+    const archived = await batchService.startMine(ownerId, recipeB.id);
+    const cancelledAt = new Date('2026-06-01T10:00:00.000Z');
+    const archivedAt = new Date('2026-06-02T10:00:00.000Z');
+
+    await batchRepo.update(
+      { id: cancelled.batch.id },
+      { cancelled_at: cancelledAt },
+    );
+    await batchRepo.update(
+      { id: archived.batch.id },
+      { cancelled_at: cancelledAt, archived_at: archivedAt },
+    );
+
+    const list = await batchService.listMine(ownerId);
+
+    expect(list).toHaveLength(2);
+    const byId = new Map(list.map((batch) => [batch.id, batch]));
+    expect(byId.get(cancelled.batch.id)?.status).toBe(BatchStatus.IN_PROGRESS);
+    expect(byId.get(cancelled.batch.id)?.cancelled_at).toEqual(cancelledAt);
+    expect(byId.get(cancelled.batch.id)?.archived_at).toBeNull();
+    expect(byId.get(archived.batch.id)?.status).toBe(BatchStatus.IN_PROGRESS);
+    expect(byId.get(archived.batch.id)?.cancelled_at).toEqual(cancelledAt);
+    expect(byId.get(archived.batch.id)?.archived_at).toEqual(archivedAt);
+  });
+
   it('listMine() should return empty array when no batches', async () => {
     const list = await batchService.listMine('user-1');
     expect(list).toEqual([]);
+  });
+
+  it('cancelMine() should soft-cancel an in-progress batch and keep its journal', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    const cancelled = await batchService.cancelMine(ownerId, started.batch.id);
+
+    expect(cancelled.status).toBe(BatchStatus.IN_PROGRESS);
+    expect(cancelled.cancelled_at).toBeTruthy();
+    expect(cancelled.archived_at).toBeNull();
+    expect(
+      await batchStepRepo.count({ where: { batch_id: started.batch.id } }),
+    ).toBe(5);
+  });
+
+  it('cancelMine() should reject completed, archived, duplicate, and unowned batches', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.cancelMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+
+    await batchService.cancelMine(ownerId, started.batch.id);
+    await expect(
+      batchService.cancelMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    const completedRecipe = await recipeService.create(ownerId, {
+      name: 'Completed IPA',
+    });
+    const completed = await batchService.startMine(ownerId, completedRecipe.id);
+    await completeBatch(ownerId, completed.batch.id);
+    await expect(
+      batchService.cancelMine(ownerId, completed.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    const archivedRecipe = await recipeService.create(ownerId, {
+      name: 'Archived IPA',
+    });
+    const archived = await batchService.startMine(ownerId, archivedRecipe.id);
+    await batchRepo.update(
+      { id: archived.batch.id },
+      { archived_at: new Date('2026-06-01T10:00:00.000Z') },
+    );
+    await expect(
+      batchService.cancelMine(ownerId, archived.batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('archiveMine() should archive completed and cancelled batches', async () => {
+    const ownerId = 'user-1';
+    const completedRecipe = await recipeService.create(ownerId, {
+      name: 'Completed IPA',
+    });
+    const cancelledRecipe = await recipeService.create(ownerId, {
+      name: 'Cancelled IPA',
+    });
+
+    const completed = await batchService.startMine(ownerId, completedRecipe.id);
+    await completeBatch(ownerId, completed.batch.id);
+    const archivedCompleted = await batchService.archiveMine(
+      ownerId,
+      completed.batch.id,
+    );
+    expect(archivedCompleted.archived_at).toBeTruthy();
+
+    const cancelled = await batchService.startMine(ownerId, cancelledRecipe.id);
+    await batchService.cancelMine(ownerId, cancelled.batch.id);
+    const archivedCancelled = await batchService.archiveMine(
+      ownerId,
+      cancelled.batch.id,
+    );
+    expect(archivedCancelled.cancelled_at).toBeTruthy();
+    expect(archivedCancelled.archived_at).toBeTruthy();
+  });
+
+  it('archiveMine() should reject active, duplicate, and unowned batches', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.archiveMine('user-2', started.batch.id),
+    ).rejects.toThrow(NotFoundException);
+
+    await expect(
+      batchService.archiveMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+
+    await batchService.cancelMine(ownerId, started.batch.id);
+    await batchService.archiveMine(ownerId, started.batch.id);
+
+    await expect(
+      batchService.archiveMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('startMine() should backfill steps for legacy recipes', async () => {
@@ -384,6 +518,54 @@ describe('BatchService', () => {
     await expect(
       batchService.startFermentationMine('user-2', started.batch.id),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('freezes a cancelled batch against every workflow endpoint (07a guard)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+    await batchService.cancelMine(ownerId, started.batch.id);
+
+    // A cancelled brew is frozen: no step transition, fermentation, or bottling
+    // may reactivate its journal (the timestamp-model cross-endpoint guard).
+    await expect(
+      batchService.startMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.completeMineCurrentStep(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.startFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.closeMineBottling(ownerId, started.batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('freezes an archived batch against tasting (07a guard)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+    await completeBatch(ownerId, started.batch.id);
+    await batchService.archiveMine(ownerId, started.batch.id);
+
+    await expect(
+      batchService.createMineTasting(ownerId, started.batch.id, { rating: 4 }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('reports "archived" (not "cancelled") when a cancelled batch is later archived (07a precedence)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My IPA' });
+    const started = await batchService.startMine(ownerId, recipe.id);
+    await batchService.cancelMine(ownerId, started.batch.id);
+    await batchService.archiveMine(ownerId, started.batch.id);
+
+    // Both stamps are set; the freeze guard mirrors deriveEffectiveStatus and
+    // surfaces "archived" (precedence over cancelled), not "Batch is cancelled".
+    await expect(
+      batchService.startFermentationMine(ownerId, started.batch.id),
+    ).rejects.toThrow('Batch is archived');
   });
 
   it('completeFermentationMine() should require start and set completed_at', async () => {

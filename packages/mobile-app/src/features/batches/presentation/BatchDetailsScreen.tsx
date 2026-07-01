@@ -11,7 +11,9 @@ import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { BrewStepTimer } from "@/features/batches/presentation/BrewStepTimer";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
+  archiveBatch,
   BatchDetailsViewModel,
+  cancelBatch,
   completeCurrentBatchStep,
   deleteBatch,
   getBatchDetailsViewModel,
@@ -259,6 +261,34 @@ export function BatchDetailsScreen({ batchId }: Props) {
     },
   });
 
+  const { mutate: mutateCancelBatch, isPending: isCancelling } = useMutation<
+    void,
+    Error
+  >({
+    mutationFn: () => cancelBatch(batchId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
+      router.replace("/batches");
+    },
+    onError: (error) => {
+      setMutationError(getErrorMessage(error, "Échec de l'annulation"));
+    },
+  });
+
+  const { mutate: mutateArchiveBatch, isPending: isArchiving } = useMutation<
+    void,
+    Error
+  >({
+    mutationFn: () => archiveBatch(batchId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["batches", "list"] });
+      router.replace("/batches");
+    },
+    onError: (error) => {
+      setMutationError(getErrorMessage(error, "Échec de l'archivage"));
+    },
+  });
+
   const error = missingBatchId
     ? "Identifiant de brassin manquant."
     : (mutationError ??
@@ -327,7 +357,8 @@ export function BatchDetailsScreen({ batchId }: Props) {
       return;
     }
     // F25 — destructive + irreversible, so gate it behind a confirm (recovers
-    // an accidental/phantom batch). Archiving a completed brew is deferred.
+    // an accidental/phantom batch). Cancel (F16) and archive (F25) are the soft
+    // alternatives that keep the journal (see handleCancel / handleArchive).
     Alert.alert(
       "Supprimer ce brassin ?",
       "Il sera définitivement retiré de tes brassins. Cette action est irréversible.",
@@ -339,6 +370,51 @@ export function BatchDetailsScreen({ batchId }: Props) {
           onPress: () => {
             setMutationError(null);
             mutateDeleteBatch();
+          },
+        },
+      ],
+    );
+  };
+
+  const handleCancel = () => {
+    if (missingBatchId) {
+      return;
+    }
+    // F16 — stop a launched brew. Soft (keeps the journal), so a confirm is
+    // enough; it is not the irreversible delete.
+    Alert.alert(
+      "Annuler ce brassin ?",
+      "Le brassin sera arrêté et retiré de tes brassins actifs, mais son journal est conservé.",
+      [
+        { text: "Retour", style: "cancel" },
+        {
+          text: "Annuler le brassin",
+          style: "destructive",
+          onPress: () => {
+            setMutationError(null);
+            mutateCancelBatch();
+          },
+        },
+      ],
+    );
+  };
+
+  const handleArchive = () => {
+    if (missingBatchId) {
+      return;
+    }
+    // F25 — declutter: soft-hide a finished brew; its journal is kept.
+    Alert.alert(
+      "Archiver ce brassin ?",
+      "Il sera retiré de tes brassins actifs mais conservé dans ton historique.",
+      [
+        { text: "Retour", style: "cancel" },
+        {
+          text: "Archiver",
+          style: "default",
+          onPress: () => {
+            setMutationError(null);
+            mutateArchiveBatch();
           },
         },
       ],
@@ -670,6 +746,34 @@ export function BatchDetailsScreen({ batchId }: Props) {
         </>
       ) : null}
 
+      {batch?.status === "in_progress" ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Annuler ce brassin"
+          onPress={handleCancel}
+          disabled={isCancelling}
+          style={styles.softAction}
+        >
+          <Text style={styles.softActionDanger}>
+            {isCancelling ? "Annulation…" : "Annuler ce brassin"}
+          </Text>
+        </Pressable>
+      ) : null}
+
+      {isCompleted ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Archiver ce brassin"
+          onPress={handleArchive}
+          disabled={isArchiving}
+          style={styles.softAction}
+        >
+          <Text style={styles.softActionText}>
+            {isArchiving ? "Archivage…" : "Archiver ce brassin"}
+          </Text>
+        </Pressable>
+      ) : null}
+
       <Modal
         visible={openTip !== null}
         transparent
@@ -740,6 +844,27 @@ const styles = StyleSheet.create({
     // bottom steps were clipped behind the footer (the paddingBottom offset
     // alone could not rescue content that overflowed the screen).
     flex: 1,
+  },
+  // Secondary soft-lifecycle actions (F16 cancel / F25 archive) — quiet text
+  // links, distinct from the primary CTA.
+  softAction: {
+    marginTop: spacing.sm,
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+  },
+  softActionText: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+    color: colors.brand.secondary,
+    textDecorationLine: "underline",
+  },
+  softActionDanger: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+    color: colors.semantic.error,
+    textDecorationLine: "underline",
   },
   fermentationCard: {
     padding: spacing.md,

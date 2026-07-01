@@ -13,6 +13,8 @@ import type {
 export const BATCH_STATUS_LABELS: Record<BatchStatus, string> = {
   in_progress: "En cours",
   completed: "Terminé",
+  cancelled: "Annulé",
+  archived: "Archivé",
 };
 
 export const BATCH_STEP_STATUS_LABELS: Record<BatchStepStatus, string> = {

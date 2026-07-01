@@ -106,6 +106,30 @@ describe("BatchesScreen", () => {
     expect(screen.getByText("TERMINÉ")).toBeTruthy();
   });
 
+  it("hides archived and cancelled batches from the active list (07a)", async () => {
+    dataSource.useDemoData = true;
+    const base = {
+      ownerId: "u-demo-1",
+      recipeId: "r-demo-pdd",
+      startedAt: "2026-05-19T09:00:00.000Z",
+      createdAt: "2026-05-19T09:00:00.000Z",
+      updatedAt: "2026-05-19T09:30:00.000Z",
+    };
+    (listBatches as jest.Mock).mockResolvedValue([
+      { id: "b-active", status: "in_progress", ...base },
+      { id: "b-archived", status: "archived", ...base },
+      { id: "b-cancelled", status: "cancelled", ...base },
+    ]);
+
+    renderBatchesScreen();
+
+    // Only the active brew renders; the soft states are filtered out.
+    expect(await screen.findByText("EN COURS")).toBeTruthy();
+    expect(screen.queryByText("ARCHIVÉ")).toBeNull();
+    expect(screen.queryByText("ANNULÉ")).toBeNull();
+    expect(screen.getAllByText("La Première du dimanche").length).toBe(1);
+  });
+
   it("falls back to a French Brassin <id> label when no recipe is found (sad path)", async () => {
     dataSource.useDemoData = true;
     (listBatches as jest.Mock).mockResolvedValue([

@@ -1,4 +1,11 @@
-export type BatchStatus = "in_progress" | "completed";
+// Effective lifecycle status returned by the API: the brewing status
+// (in_progress | completed) unless the batch was cancelled or archived
+// (soft states derived server-side, archived > cancelled — brew-day/07).
+export type BatchStatus =
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "archived";
 
 export type BatchStepStatus = "pending" | "in_progress" | "completed";
 

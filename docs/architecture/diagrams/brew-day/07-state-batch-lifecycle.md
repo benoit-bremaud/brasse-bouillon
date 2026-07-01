@@ -71,11 +71,16 @@ stateDiagram-v2
   hidden from the active list).
 - **`Archive` (F25).** `completed → archived` (and `cancelled → archived`) soft-hides a batch
   from the active « Mes brassins » list without deleting its journal — declutters the list.
-- **New statuses to persist (deferred — conception only).** `draft`, `cancelled`, `archived`
-  extend the current enum (`in_progress` / `completed`). `discarded` is **not** a stored status —
-  it is the terminal outcome of the hard delete (the draft row is removed), shown as a state only
-  to close the diagram. A migration + the prep moving onto the batch are the implementation
-  work — NOT in this conception slice.
+- **Persistence model — timestamps, not new status enum values (07a implementation refinement).**
+  `cancelled` and `archived` are persisted as nullable **`cancelled_at` / `archived_at` timestamp
+  columns** on the batch (a plain `ADD COLUMN` migration, no backfill), **NOT** as new `status`
+  enum values: SQLite cannot alter the `status` CHECK constraint in place, and `batches` is
+  referenced by many cascade-FK child tables, so a table rebuild would be risky. The **effective**
+  lifecycle state returned to clients is *derived* — `archived` > `cancelled` > the raw
+  `in_progress`/`completed` status. Endpoints: `cancelled` = `PATCH /batches/:id/cancel` (only a
+  launched brew), `archived` = `PATCH /batches/:id/archive` (only a finished or cancelled brew).
+  `discarded` stays the terminal hard-delete outcome (not stored). **`draft`** + moving the prep
+  onto the batch (F14/F15) is the deferred, bigger slice (07b) — not in 07a.
 - **`completed`** still opens the closure/celebration (B3 `BatchClosureView`) and is kept in
   history; the transition is driven by the last step completing (see `06`). This is the **same
   `completed` state** already amended by `05-state-batch-closure.md` with the `bottledAt`

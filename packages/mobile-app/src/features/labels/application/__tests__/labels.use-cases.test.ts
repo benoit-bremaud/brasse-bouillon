@@ -129,6 +129,44 @@ describe("labels use-cases", () => {
     expect(candidates[1].style).toBe("Maltée");
   });
 
+  it("excludes cancelled and archived batches from label candidates", async () => {
+    mockedListBatches.mockResolvedValue([
+      {
+        id: "batch-live",
+        ownerId: "u1",
+        recipeId: "recipe-live",
+        status: "in_progress",
+        startedAt: "2026-03-01T00:00:00.000Z",
+        createdAt: "2026-03-01T00:00:00.000Z",
+        updatedAt: "2026-03-01T00:00:00.000Z",
+      },
+      {
+        id: "batch-cancelled",
+        ownerId: "u1",
+        recipeId: "recipe-cancelled",
+        status: "cancelled",
+        startedAt: "2026-03-02T00:00:00.000Z",
+        createdAt: "2026-03-02T00:00:00.000Z",
+        updatedAt: "2026-03-02T00:00:00.000Z",
+      },
+      {
+        id: "batch-archived",
+        ownerId: "u1",
+        recipeId: "recipe-archived",
+        status: "archived",
+        startedAt: "2026-03-03T00:00:00.000Z",
+        createdAt: "2026-03-03T00:00:00.000Z",
+        updatedAt: "2026-03-03T00:00:00.000Z",
+      },
+    ]);
+    mockedListRecipes.mockResolvedValue([]);
+
+    const candidates = await listLabelBatchCandidates();
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0].batchId).toBe("batch-live");
+  });
+
   it("sorts drafts by updated date descending", async () => {
     mockedLabelsStorage.listDrafts.mockResolvedValue([
       buildLabelDraft({ id: "draft-1", updatedAt: "2026-01-01T00:00:00.000Z" }),

@@ -1,4 +1,5 @@
 import { listBatches } from "@/features/batches/application/batches.use-cases";
+import { BatchSummary } from "@/features/batches/domain/batch.types";
 import { labelsStorage } from "@/features/labels/data/labels.repository";
 import { DEFAULT_LABEL_LEGAL_HINT } from "@/features/labels/domain/label.constants";
 import {
@@ -153,7 +154,16 @@ export async function listLabelBatchCandidates(): Promise<
   const [batches, recipes] = await Promise.all([listBatches(), listRecipes()]);
   const recipesById = new Map(recipes.map((recipe) => [recipe.id, recipe]));
 
+  // A cancelled or archived brew has nothing to bottle, so it is never a label
+  // candidate. The type predicate also narrows `status` to the two brewable
+  // states LabelBatchCandidate exposes (keeps getBatchStatusLabel exhaustive).
   return [...batches]
+    .filter(
+      (
+        batch,
+      ): batch is BatchSummary & { status: LabelBatchCandidate["status"] } =>
+        batch.status === "in_progress" || batch.status === "completed",
+    )
     .map((batch) => {
       const recipe = recipesById.get(batch.recipeId);
       const recipeName =

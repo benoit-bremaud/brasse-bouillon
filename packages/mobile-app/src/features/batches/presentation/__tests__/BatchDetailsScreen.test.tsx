@@ -9,6 +9,8 @@ import {
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
 import {
+  archiveBatch,
+  cancelBatch,
   completeCurrentBatchStep,
   deleteBatch,
   getBatchDetailsViewModel,
@@ -101,6 +103,8 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
     steps: [],
   }),
   deleteBatch: jest.fn().mockResolvedValue(undefined),
+  cancelBatch: jest.fn().mockResolvedValue(undefined),
+  archiveBatch: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock("@/features/batches/application/measurement.use-cases", () => ({
@@ -274,6 +278,40 @@ describe("BatchDetailsScreen", () => {
     // error's own message ("boom") over the fallback copy.
     expect(await screen.findByText("boom")).toBeTruthy();
     expect(mockReplace).not.toHaveBeenCalledWith("/batches");
+  });
+
+  it("cancels an in-progress batch after confirmation and navigates back (F16)", async () => {
+    (cancelBatch as jest.Mock).mockClear();
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    // mashBatch is in_progress → the soft cancel action is offered.
+    fireEvent.press(await screen.findByLabelText("Annuler ce brassin"));
+    expect(cancelBatch).not.toHaveBeenCalled();
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((b) => b.text === "Annuler le brassin")?.onPress?.();
+
+    await waitFor(() => expect(cancelBatch).toHaveBeenCalledWith("b1"));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("archives a completed batch after confirmation and navigates back (F25)", async () => {
+    (archiveBatch as jest.Mock).mockClear();
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel({ ...mashBatch, status: "completed" }, "Ma recette test"),
+    );
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Archiver ce brassin"));
+    expect(archiveBatch).not.toHaveBeenCalled();
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((b) => b.text === "Archiver")?.onPress?.();
+
+    await waitFor(() => expect(archiveBatch).toHaveBeenCalledWith("b1"));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

@@ -184,6 +184,7 @@ export class BatchService {
     batchId: string,
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -200,6 +201,7 @@ export class BatchService {
     batchId: string,
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -211,6 +213,48 @@ export class BatchService {
     }
 
     batch.fermentation_completed_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
+  /**
+   * Cancel a launched brew (F16). Soft: sets `cancelled_at`, keeps the journal
+   * (steps/measurements) — distinct from the hard `deleteMine`. Only an
+   * in-progress brew can be cancelled.
+   */
+  async cancelMine(ownerId: string, batchId: string): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch is archived');
+    }
+    if (batch.cancelled_at) {
+      throw new BadRequestException('Batch already cancelled');
+    }
+    if (batch.status !== BatchStatus.IN_PROGRESS) {
+      throw new BadRequestException('Only a launched brew can be cancelled');
+    }
+
+    batch.cancelled_at = new Date();
+    return this.batchRepo.save(batch);
+  }
+
+  /**
+   * Archive a finished or cancelled brew (F25). Soft-hides it from the active
+   * « Mes brassins » list without deleting its journal.
+   */
+  async archiveMine(ownerId: string, batchId: string): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch already archived');
+    }
+    const isCompleted = batch.status === BatchStatus.COMPLETED;
+    const isCancelled = Boolean(batch.cancelled_at);
+    if (!isCompleted && !isCancelled) {
+      throw new BadRequestException(
+        'Only a finished or cancelled brew can be archived',
+      );
+    }
+
+    batch.archived_at = new Date();
     return this.batchRepo.save(batch);
   }
 
@@ -332,6 +376,7 @@ export class BatchService {
       if (!batch) {
         throw new NotFoundException('Batch not found');
       }
+      this.assertMutable(batch);
       if (batch.status === BatchStatus.COMPLETED) {
         throw new BadRequestException('Batch already completed');
       }
@@ -596,6 +641,7 @@ export class BatchService {
       if (!batch) {
         throw new NotFoundException('Batch not found');
       }
+      this.assertMutable(batch);
       if (batch.status === BatchStatus.COMPLETED) {
         throw new BadRequestException('Batch already completed');
       }
@@ -690,6 +736,7 @@ export class BatchService {
 
     // Conception places tasting AFTER closure (the UI only exposes it from the
     // closure view): a batch can only be tasted once it is bottled (completed).
+    this.assertMutable(batch);
     if (batch.status !== BatchStatus.COMPLETED) {
       throw new BadRequestException(
         'Tasting can only be recorded once the batch is bottled (completed)',
@@ -777,5 +824,23 @@ export class BatchService {
       throw new NotFoundException('Batch not found');
     }
     return batch;
+  }
+
+  /**
+   * Guard against mutating a soft-closed batch. A cancelled or archived brew is
+   * frozen: its journal must not be reactivated by any workflow-advancing
+   * endpoint (fermentation, step transitions, bottling close, tasting). The raw
+   * `status` column stays in_progress/completed on a cancelled batch, so those
+   * endpoints check the soft-lifecycle stamps here (brew-day/07 timestamp model).
+   */
+  private assertMutable(batch: BatchOrmEntity): void {
+    // Archived takes precedence over cancelled (same order as
+    // deriveEffectiveStatus): an archive-after-cancel batch reports "archived".
+    if (batch.archived_at) {
+      throw new BadRequestException('Batch is archived');
+    }
+    if (batch.cancelled_at) {
+      throw new BadRequestException('Batch is cancelled');
+    }
   }
 }

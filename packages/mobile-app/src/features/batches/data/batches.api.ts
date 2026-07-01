@@ -142,6 +142,20 @@ export async function deleteBatch(id: string): Promise<void> {
   await request<void>(`/batches/${id}`, { method: "DELETE" });
 }
 
+export async function cancelBatch(id: string): Promise<BatchSummary> {
+  const row = await request<BatchSummaryDto>(`/batches/${id}/cancel`, {
+    method: "PATCH",
+  });
+  return mapBatchSummary(row);
+}
+
+export async function archiveBatch(id: string): Promise<BatchSummary> {
+  const row = await request<BatchSummaryDto>(`/batches/${id}/archive`, {
+    method: "PATCH",
+  });
+  return mapBatchSummary(row);
+}
+
 /**
  * Raw priming payload as returned by the backend (snake_case), mirroring the
  * backend `PrimingDto`. Mapped to {@link PrimingInfo} by {@link mapPriming}.

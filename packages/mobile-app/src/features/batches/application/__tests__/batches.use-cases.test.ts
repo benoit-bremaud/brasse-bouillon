@@ -1,4 +1,6 @@
 import {
+  archiveBatch,
+  cancelBatch,
   completeCurrentBatchStep,
   deleteBatch,
   getBatchDetails,
@@ -8,6 +10,8 @@ import {
   startCurrentBatchStep,
 } from "@/features/batches/application/batches.use-cases";
 import {
+  archiveBatch as archiveBatchApi,
+  cancelBatch as cancelBatchApi,
   completeCurrentStep,
   deleteBatch as deleteBatchApi,
   getMineById,
@@ -32,6 +36,8 @@ jest.mock("@/features/batches/data/batches.api", () => ({
   completeCurrentStep: jest.fn(),
   startBatch: jest.fn(),
   deleteBatch: jest.fn(),
+  cancelBatch: jest.fn(),
+  archiveBatch: jest.fn(),
 }));
 
 jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
@@ -58,6 +64,12 @@ const mockedStartBatchApi = startBatchApi as jest.MockedFunction<
 const mockedDeleteBatchApi = deleteBatchApi as jest.MockedFunction<
   typeof deleteBatchApi
 >;
+const mockedCancelBatchApi = cancelBatchApi as jest.MockedFunction<
+  typeof cancelBatchApi
+>;
+const mockedArchiveBatchApi = archiveBatchApi as jest.MockedFunction<
+  typeof archiveBatchApi
+>;
 
 describe("batches use-cases", () => {
   beforeEach(() => {
@@ -68,6 +80,8 @@ describe("batches use-cases", () => {
     mockedStartBatchApi.mockReset();
     mockedGetRecipeDetails.mockReset();
     mockedDeleteBatchApi.mockReset();
+    mockedCancelBatchApi.mockReset();
+    mockedArchiveBatchApi.mockReset();
   });
 
   it("deleteBatch is a no-op in demo mode (F25, demo)", async () => {
@@ -91,6 +105,41 @@ describe("batches use-cases", () => {
     mockedDeleteBatchApi.mockRejectedValue(new Error("boom"));
 
     await expect(deleteBatch("b1")).rejects.toThrow("boom");
+  });
+
+  it("cancelBatch is a no-op in demo mode; calls the API when live (F16)", async () => {
+    dataSource.useDemoData = true;
+    await expect(cancelBatch("b1")).resolves.toBeUndefined();
+    expect(mockedCancelBatchApi).not.toHaveBeenCalled();
+
+    dataSource.useDemoData = false;
+    mockedCancelBatchApi.mockResolvedValue({ id: "b1" } as never);
+    await cancelBatch("b1");
+    expect(mockedCancelBatchApi).toHaveBeenCalledWith("b1");
+  });
+
+  it("cancelBatch returns early on a missing id (sad)", async () => {
+    dataSource.useDemoData = false;
+    await expect(cancelBatch("")).resolves.toBeUndefined();
+    expect(mockedCancelBatchApi).not.toHaveBeenCalled();
+  });
+
+  it("archiveBatch is a no-op in demo mode; calls the API when live (F25)", async () => {
+    dataSource.useDemoData = true;
+    await expect(archiveBatch("b1")).resolves.toBeUndefined();
+    expect(mockedArchiveBatchApi).not.toHaveBeenCalled();
+
+    dataSource.useDemoData = false;
+    mockedArchiveBatchApi.mockResolvedValue({ id: "b1" } as never);
+    await archiveBatch("b1");
+    expect(mockedArchiveBatchApi).toHaveBeenCalledWith("b1");
+  });
+
+  it("archiveBatch propagates the API error when live (sad)", async () => {
+    dataSource.useDemoData = false;
+    mockedArchiveBatchApi.mockRejectedValue(new Error("boom"));
+
+    await expect(archiveBatch("b1")).rejects.toThrow("boom");
   });
 
   it("returns demo batches list when demo data is enabled", async () => {

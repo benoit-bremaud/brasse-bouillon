@@ -132,6 +132,30 @@ export class BatchController {
     return BatchDto.fromEntities(batch, steps);
   }
 
+  @Patch(':id/cancel')
+  @ApiOperation({
+    summary: 'Cancel a launched brew (soft — keeps the journal)',
+  })
+  @ApiOkResponse({ type: BatchSummaryDto })
+  async cancelMine(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BatchSummaryDto> {
+    const batch = await this.service.cancelMine(user.id, id);
+    return BatchSummaryDto.fromEntity(batch);
+  }
+
+  @Patch(':id/archive')
+  @ApiOperation({ summary: 'Archive a finished or cancelled brew (soft-hide)' })
+  @ApiOkResponse({ type: BatchSummaryDto })
+  async archiveMine(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BatchSummaryDto> {
+    const batch = await this.service.archiveMine(user.id, id);
+    return BatchSummaryDto.fromEntity(batch);
+  }
+
   @Post(':id/fermentation/start')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Start fermentation for one of my batches' })

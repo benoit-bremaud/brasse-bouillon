@@ -109,6 +109,8 @@ describe('BatchController', () => {
             listMine: jest.fn(),
             getMineById: jest.fn(),
             deleteMine: jest.fn(),
+            cancelMine: jest.fn(),
+            archiveMine: jest.fn(),
             startFermentationMine: jest.fn(),
             completeFermentationMine: jest.fn(),
             listMineReminders: jest.fn(),
@@ -352,6 +354,33 @@ describe('BatchController', () => {
         mockUser.id,
         mockBatchOrm.id,
       );
+      expect(result).toBeDefined();
+    });
+  });
+
+  /**
+   * PATCH /batches/:id/cancel + /archive — soft lifecycle (F16 / F25)
+   */
+  describe('cancelMine() + archiveMine() - PATCH soft lifecycle', () => {
+    it('cancels the current batch', async () => {
+      const cancelSpy = jest
+        .spyOn(service, 'cancelMine')
+        .mockResolvedValue({ ...mockBatchOrm, cancelled_at: new Date() });
+
+      const result = await controller.cancelMine(mockUser, mockBatchOrm.id);
+
+      expect(cancelSpy).toHaveBeenCalledWith(mockUser.id, mockBatchOrm.id);
+      expect(result).toBeDefined();
+    });
+
+    it('archives the current batch', async () => {
+      const archiveSpy = jest
+        .spyOn(service, 'archiveMine')
+        .mockResolvedValue({ ...mockBatchOrm, archived_at: new Date() });
+
+      const result = await controller.archiveMine(mockUser, mockBatchOrm.id);
+
+      expect(archiveSpy).toHaveBeenCalledWith(mockUser.id, mockBatchOrm.id);
       expect(result).toBeDefined();
     });
   });

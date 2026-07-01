@@ -7,6 +7,15 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiServiceUnavailableResponse,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+} from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 import { AnswerDto } from './dto/answer.dto';
@@ -27,6 +36,7 @@ const ASK_TTL_MS = 60_000;
  * issues an anti-bot challenge for the widget. Controllers return plain data; the global
  * interceptor wraps the response envelope.
  */
+@ApiTags('FaqBot')
 @Controller('faq-bot')
 export class FaqBotController {
   constructor(private readonly service: FaqBotService) {}
@@ -35,6 +45,24 @@ export class FaqBotController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ThrottlerGuard, BotCheckGuard)
   @Throttle({ default: { limit: ASK_LIMIT, ttl: ASK_TTL_MS } })
+  @ApiOperation({
+    summary:
+      'Ask the public FAQ chatbot a question about the Brasse-Bouillon project',
+  })
+  @ApiOkResponse({
+    type: AnswerDto,
+    description: 'The chatbot answer (single block, no history)',
+  })
+  @ApiBadRequestResponse({
+    description: 'Empty/too-long question, or missing anti-bot payload',
+  })
+  @ApiForbiddenResponse({ description: 'Invalid anti-bot (ALTCHA) solution' })
+  @ApiTooManyRequestsResponse({
+    description: 'Rate limit exceeded for this IP',
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Chatbot disabled (kill-switch) or monthly budget reached',
+  })
   async ask(@Body() dto: AskQuestionDto): Promise<AnswerDto> {
     return this.service.ask(dto.question);
   }
@@ -42,6 +70,13 @@ export class FaqBotController {
   @Get('challenge')
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: ASK_LIMIT, ttl: ASK_TTL_MS } })
+  @ApiOperation({
+    summary: 'Issue an anti-bot (ALTCHA) challenge for the widget to solve',
+  })
+  @ApiOkResponse({ description: 'A fresh ALTCHA proof-of-work challenge' })
+  @ApiTooManyRequestsResponse({
+    description: 'Rate limit exceeded for this IP',
+  })
   async challenge(): Promise<BotChallenge> {
     return this.service.issueChallenge();
   }

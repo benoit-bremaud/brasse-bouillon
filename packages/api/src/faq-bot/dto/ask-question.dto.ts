@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
@@ -9,6 +10,11 @@ import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
  * so the guard can bypass when no HMAC secret is configured (dev/CI).
  */
 export class AskQuestionDto {
+  @ApiProperty({
+    description:
+      'The visitor question about the project (trimmed, max 500 chars).',
+    maxLength: 500,
+  })
   @Transform(({ value }): unknown =>
     typeof value === 'string' ? value.trim() : value,
   )
@@ -17,6 +23,11 @@ export class AskQuestionDto {
   @MaxLength(500)
   readonly question!: string;
 
+  @ApiPropertyOptional({
+    description:
+      'Solved ALTCHA proof-of-work payload (base64). Required only when the anti-bot secret is configured.',
+    maxLength: 8000,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(8000)

@@ -12,6 +12,7 @@ import {
 } from "@/features/equipment/application/equipment.use-cases";
 
 import { EquipmentProfile } from "@/features/equipment/domain/equipment.types";
+import { HttpError } from "@/core/http/http-error";
 import { dataSource } from "@/core/data/data-source";
 import { demoEquipments } from "@/mocks/demo-data";
 
@@ -161,10 +162,16 @@ describe("equipment.use-cases", () => {
     expect(mockedDeleteApi).not.toHaveBeenCalled();
   });
 
-  it("getEquipmentProfile: propagates an API error when demo is off (F22, sad)", async () => {
-    mockedGetApi.mockRejectedValue(new Error("network"));
+  it("getEquipmentProfile: propagates a non-404 API error when demo is off (F22, sad)", async () => {
+    mockedGetApi.mockRejectedValue(new HttpError(500, "boom"));
 
-    await expect(getEquipmentProfile("eq-1")).rejects.toThrow("network");
+    await expect(getEquipmentProfile("eq-1")).rejects.toBeInstanceOf(HttpError);
+  });
+
+  it("getEquipmentProfile: maps a 404 to null so the screen shows a friendly message (F22, edge)", async () => {
+    mockedGetApi.mockRejectedValue(new HttpError(404, "Not Found"));
+
+    await expect(getEquipmentProfile("missing")).resolves.toBeNull();
   });
 
   it("deleteEquipmentProfile: propagates an API error when demo is off (F22, sad)", async () => {

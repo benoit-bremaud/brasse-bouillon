@@ -1,4 +1,5 @@
 import { dataSource } from "@/core/data/data-source";
+import { HttpError } from "@/core/http/http-error";
 import { Equipment, demoEquipments } from "@/mocks/demo-data";
 
 import {
@@ -101,7 +102,17 @@ export async function getEquipmentProfile(
       null
     );
   }
-  return getEquipmentProfileById(id);
+  try {
+    return await getEquipmentProfileById(id);
+  } catch (error) {
+    // A 404 is the expected "no such profile" state (e.g. after a delete) —
+    // return null so the detail screen shows its French "not found" copy
+    // instead of the raw server message. Anything else is a real failure.
+    if (error instanceof HttpError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**

@@ -1,8 +1,9 @@
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, QueryFailedError, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { CreateEquipmentProfileDto } from '../dtos/create-equipment-profile.dto';
 import { EQUIPMENT_SYSTEM_DEFAULTS } from '../domain/equipment-system-defaults';
+import { EquipmentProfileNameTakenException } from '../../common/exceptions/equipment-profile-name-taken.exception';
 import { EquipmentProfileOrmEntity } from '../entities/equipment-profile.orm.entity';
 import { EquipmentProfileService } from './equipment-profile.service';
 import { EquipmentSystemType } from '../domain/enums/equipment-system-type.enum';
@@ -75,6 +76,62 @@ describe('EquipmentProfileService', () => {
   });
 
   describe('create()', () => {
+    beforeEach(() => {
+      // The happy-path create tests assume the name is available — state it
+      // explicitly rather than relying on the jest.fn() default.
+      jest.spyOn(repo, 'findOne').mockResolvedValue(null);
+    });
+
+    it('rejects a duplicate name for the same owner with a 409 and does not save (F21)', async () => {
+      const dto: CreateEquipmentProfileDto = {
+        name: 'My Brewing Setup',
+        boil_kettle_volume_l: 40,
+        fermenter_volume_l: 30,
+        system_type: EquipmentSystemType.ALL_GRAIN,
+      };
+      const findOneSpy = jest
+        .spyOn(repo, 'findOne')
+        .mockResolvedValue(makeEntity());
+      const saveSpy = jest.spyOn(repo, 'save');
+
+      await expect(service.create(ownerId, dto)).rejects.toBeInstanceOf(
+        EquipmentProfileNameTakenException,
+      );
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { owner_id: ownerId, name: dto.name },
+      });
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('maps a unique-constraint save failure to a 409 (F21 race backstop)', async () => {
+      const dto: CreateEquipmentProfileDto = {
+        name: 'Racy Setup',
+        boil_kettle_volume_l: 40,
+        fermenter_volume_l: 30,
+        system_type: EquipmentSystemType.ALL_GRAIN,
+      };
+      // Name looks available at check time, but the DB unique index rejects it
+      // at save time (concurrent insert) — must still surface a clean 409.
+      jest
+        .spyOn(repo, 'create')
+        .mockReturnValue(makeEntity({ name: dto.name }));
+      jest
+        .spyOn(repo, 'save')
+        .mockRejectedValue(
+          new QueryFailedError(
+            'INSERT INTO equipment_profiles',
+            [],
+            new Error(
+              'UNIQUE constraint failed: equipment_profiles.owner_id, equipment_profiles.name',
+            ),
+          ),
+        );
+
+      await expect(service.create(ownerId, dto)).rejects.toBeInstanceOf(
+        EquipmentProfileNameTakenException,
+      );
+    });
+
     it('should create profile with default optional values when omitted', async () => {
       const dto: CreateEquipmentProfileDto = {
         name: 'All Grain 30L',
@@ -359,6 +416,26 @@ describe('EquipmentProfileService', () => {
       expect(result.cooling_time_minutes).toBe(30);
       expect(result.cooling_flow_rate_l_per_minute).toBe(7);
       expect(result.system_type).toBe(EquipmentSystemType.ALL_IN_ONE);
+    });
+
+    it('maps a rename that collides with another profile to a 409 (F21)', async () => {
+      const entity = makeEntity();
+      jest.spyOn(service, 'getMineById').mockResolvedValue(entity);
+      jest
+        .spyOn(repo, 'save')
+        .mockRejectedValue(
+          new QueryFailedError(
+            'UPDATE equipment_profiles',
+            [],
+            new Error(
+              'UNIQUE constraint failed: equipment_profiles.owner_id, equipment_profiles.name',
+            ),
+          ),
+        );
+
+      await expect(
+        service.updateMine(ownerId, entity.id, { name: 'Taken Name' }),
+      ).rejects.toBeInstanceOf(EquipmentProfileNameTakenException);
     });
 
     it('should keep existing values when dto fields are undefined', async () => {

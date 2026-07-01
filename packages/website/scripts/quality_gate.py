@@ -32,6 +32,7 @@ REQUIRED_FILES = [
     "sitemap.xml",
     "robots.txt",
     "feedback-widget.js",
+    "chat-widget.js",
 ]
 
 # Every public HTML page must reference the feedback widget loader (a single
@@ -50,6 +51,14 @@ WIDGET_HTML_FILES = [
     "terms-en.html",
 ]
 WIDGET_LOADER = "feedback-widget.js"
+
+# The public FAQ chat widget lives on the two landing pages only (it presents the
+# project). Guard both so the loader is never dropped from one language variant.
+CHAT_WIDGET_HTML_FILES = [
+    "index.html",
+    "index-en.html",
+]
+CHAT_WIDGET_LOADER = "chat-widget.js"
 
 HTML_RULES = {
     "index.html": [
@@ -209,6 +218,21 @@ def check_feedback_widget(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_chat_widget(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for rel_path in CHAT_WIDGET_HTML_FILES:
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+        content = full_path.read_text(encoding="utf-8")
+        if CHAT_WIDGET_LOADER not in content:
+            errors.append(
+                f"{rel_path}: référence au widget de chat FAQ "
+                f"({CHAT_WIDGET_LOADER}) manquante"
+            )
+    return errors
+
+
 def check_sitemap_policy(root: Path = ROOT) -> list[str]:
     sitemap_path = root / "sitemap.xml"
     if not sitemap_path.exists():
@@ -265,6 +289,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_required_files(root))
     errors.extend(check_html_files(root))
     errors.extend(check_feedback_widget(root))
+    errors.extend(check_chat_widget(root))
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
     return errors

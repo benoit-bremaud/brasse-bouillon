@@ -28,6 +28,10 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 
 - `index.html`: FR page
 - `index-en.html`: EN page
+- `chat-widget.js`: self-hosted public FAQ chat widget — a floating bubble that answers
+  visitors about the project only (not brewing help). First-party call to the NestJS
+  `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking, and it
+  mounts on staging/localhost only (never on the public site in v1). See ADR-0022.
 - `favicon.ico`, `logo.png`, `logo-removebg-preview.png`, `CNAME`: static assets
 - `docs/ROADMAP.md`: product roadmap
 - `docs/roadmap-feed.json`: machine-readable roadmap sync feed
@@ -49,6 +53,7 @@ The monorepo CI runs `scripts/quality_gate.py` (via the `website:` job in [`ci.y
 - presence of critical files,
 - minimal FR/EN HTML structure,
 - no Git conflict markers,
+- presence of the feedback and FAQ-chat widget loaders on their required pages,
 - per-page structural rules (lang attribute, canonical, schema.org, etc.).
 
 ### Deployment
@@ -65,6 +70,28 @@ python3 scripts/quality_gate.py
 python3 -m py_compile scripts/quality_gate.py
 python3 -m py_compile scripts/roadmap_sync.py
 ```
+
+---
+
+## 🤖 FAQ chat widget — manual test checklist
+
+`chat-widget.js` is host-gated to staging/localhost and is the FAQ chatbot's front-end
+(ADR-0022). The static site has no JS test harness (like `feedback-widget.js`, it ships
+without unit tests), so a browser/DOM unit suite is a **deferred follow-up**. Until then,
+verify the widget manually with the API running (`npm run dev:api`) and the site on `localhost`:
+
+- [ ] **Mount / gate** — bubble appears on `localhost` / `127.0.0.1`; absent on a production-host build.
+- [ ] **Open / close** — click opens the panel (focus moves to the input); close button and `Escape` close it (focus returns to the launcher).
+- [ ] **Chips** — each question chip sends its question and renders an answer.
+- [ ] **Ask success** — a typed question returns a single-block answer (envelope `data.answer`).
+- [ ] **Challenge / solve** — with `ALTCHA_HMAC_KEY` set on the API, the widget fetches `GET /faq-bot/challenge`, solves the PoW, and the answer still returns; with no key it still answers (guard bypass).
+- [ ] **Rate limit (429)** — the 6th question within a minute shows the "too many questions" message.
+- [ ] **Unavailable (503)** — with `FAQ_BOT_ENABLED=false`, the widget shows the "temporarily unavailable" message.
+- [ ] **Offline** — with the network cut, it shows the offline message (no crash).
+- [ ] **Malformed / error response** — a non-OK or empty-`data` response falls back to the generic error message, never a blank/`undefined` bubble.
+- [ ] **A11y** — full keyboard path (Tab/Enter/Escape), visible focus, screen reader announces the answer (`aria-live`), and `prefers-reduced-motion` disables transitions.
+- [ ] **RGPD** — no network call fires on page load (only on ask); no cookies/localStorage set.
+- [ ] **Bilingual** — chrome is French on `index.html`, English on `index-en.html`.
 
 ---
 

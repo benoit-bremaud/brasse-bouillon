@@ -12,6 +12,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { FaqBotModule } from './faq-bot/faq-bot.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthModule } from './health/health.module';
 import { LabelModule } from './label/label.module';
@@ -104,6 +105,9 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     // immutable data consumed by the recipe and brewing flows.
     // Issue #708 / #869, Phase 1 PR #1 ships HopModule.
     CatalogModule,
+
+    // Public FAQ chatbot (faq-bot) — POST /faq-bot/ask + GET /faq-bot/challenge (ADR-0022)
+    FaqBotModule,
   ],
 
   // Controllers that handle HTTP requests at root level

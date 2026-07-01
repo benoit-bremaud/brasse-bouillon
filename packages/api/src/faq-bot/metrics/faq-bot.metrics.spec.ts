@@ -10,12 +10,10 @@ describe('FaqBotMetrics', () => {
   it('starts at zero (edge)', () => {
     expect(metrics.snapshot()).toEqual({
       answers: 0,
-      abstentions: 0,
       errors: 0,
       promptTokens: 0,
       completionTokens: 0,
       estimatedMonthlyEur: 0,
-      chipCounts: {},
     });
   });
 
@@ -30,16 +28,11 @@ describe('FaqBotMetrics', () => {
     expect(snapshot.estimatedMonthlyEur).toBeGreaterThan(0);
   });
 
-  it('counts abstentions, errors and predefined chips (no free-text stored)', () => {
-    metrics.recordAbstention();
+  it('counts errors (no free-text stored)', () => {
     metrics.recordError();
-    metrics.recordChip('what-is');
-    metrics.recordChip('what-is');
-    metrics.recordChip('join-beta');
+    metrics.recordError();
 
     const snapshot = metrics.snapshot();
-    expect(snapshot.abstentions).toBe(1);
-    expect(snapshot.errors).toBe(1);
-    expect(snapshot.chipCounts).toEqual({ 'what-is': 2, 'join-beta': 1 });
+    expect(snapshot.errors).toBe(2);
   });
 });

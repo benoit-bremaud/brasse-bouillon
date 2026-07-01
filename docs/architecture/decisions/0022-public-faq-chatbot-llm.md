@@ -67,7 +67,9 @@ the key), ADR-0001 (build for today), ADR-0003 / ADR-0012 (consent / RGPD), ADR-
    - **Graceful fallback** on provider failure (clear message + **[CONTACT]**).
 
 5. **GDPR (ADR-0003 / ADR-0012).** **No conversation content logged** — anonymous **metadata
-   only** (latency, tokens, volume, abstention rate, top questions). **Light in-widget notice**
+   only** (tokens, answer/error volume, estimated spend). Abstention-rate and top-questions
+   metrics are **deferred to v2** (they need a reliable abstain sentinel and a chip-id
+   channel; see § Locked v1 parameters). **Light in-widget notice**
    (“AI-powered, don’t share personal info”), **no tracking**. **Mistral DPA + no-training /
    zero-retention** enabled (to confirm in current terms).
 
@@ -134,8 +136,11 @@ kill-switch, and it sits behind a `BotCheckPort` so a stronger provider can be s
 - **Throttle** ~5 requests / 60 s per IP on `/ask`; **question ≤ 500 chars**, **answer capped**.
 - **Kill-switch** `FAQ_BOT_ENABLED` (default on); **budget cap**
   `FAQ_BOT_MONTHLY_BUDGET_EUR` (default 20), v1 in-memory best-effort (persisted in v2).
-- **Metrics** anonymous, in-memory; **top-questions limited to the predefined widget chips**
-  (free-text never stored) to honour "no conversation content logged".
+- **Metrics** anonymous, in-memory, **aggregate counters only** in v1 (answers, errors,
+  prompt/completion tokens, estimated spend) — free-text never stored. **Abstention-rate and
+  top-questions (per-chip) are v2**: they require a reliable abstain sentinel and a chip-id
+  channel from the widget/API, absent in v1 — and no fragile marker detection, since
+  `[CONTACT]` also appears in valid answers (e.g. "register for the beta via [CONTACT]").
 - **Widget** ships **staging/localhost-gated** first (production only once deployed + green).
 - **CORS** — v1 keeps the API's existing global setting (`origin: true`); a strict origin
   restriction is **deferred** to a dedicated cross-consumer review. Rationale: CORS is a

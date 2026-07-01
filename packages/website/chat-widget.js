@@ -26,13 +26,15 @@ const WIDGET_HOSTS = [
 
 /**
  * NestJS `faq-bot` API origin per host. Localhost points at the dev API (PORT=3000).
- * The staging origin is the deployed faq-bot API — set it to the real origin when the
- * backend is deployed with the ALTCHA/Mistral keys.
+ * The staging origin is a deploy-time placeholder — it must point at the deployed STAGING
+ * faq-bot API, never at production, so staging never exercises the prod API. Set the real
+ * origin (or inject it at deploy) once the backend is deployed with the ALTCHA/Mistral keys.
  */
 const API_BASE_BY_HOST = {
   localhost: 'http://localhost:3000',
   '127.0.0.1': 'http://localhost:3000',
-  'staging.brasse-bouillon-website.pages.dev': 'https://api.brasse-bouillon.com',
+  // TODO(deploy): set to the deployed STAGING faq-bot API origin (must NOT be the prod API).
+  'staging.brasse-bouillon-website.pages.dev': 'https://staging-api.brasse-bouillon.com',
 };
 
 /** Upper bound for the proof-of-work search (must be >= the server's maxnumber). */

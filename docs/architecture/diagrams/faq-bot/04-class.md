@@ -92,9 +92,7 @@ classDiagram
 
     class FaqBotMetrics {
         +recordAnswer(promptTokens, completionTokens) void
-        +recordAbstention() void
         +recordError() void
-        +recordChip(chipId: string) void
         +snapshot() MetricsSnapshot
     }
 

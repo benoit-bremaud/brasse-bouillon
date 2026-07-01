@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 
+import { EquipmentProfileNameTakenException } from '../../common/exceptions';
 import { EQUIPMENT_SYSTEM_DEFAULTS } from '../domain/equipment-system-defaults';
 import { EquipmentProfileDomainService } from '../domain/services/equipment-profile-domain.service';
 import { EquipmentProfileOrmEntity } from '../entities/equipment-profile.orm.entity';
@@ -34,6 +35,10 @@ export class EquipmentProfileService {
     ownerId: string,
     dto: CreateEquipmentProfileDto,
   ): Promise<EquipmentProfileOrmEntity> {
+    // Names are unique per owner (F21). The composite unique index is the
+    // durable guarantee; this check produces a clean 409 for the common case.
+    await this.assertNameAvailable(ownerId, dto.name);
+
     const id = randomUUID();
 
     // The 3-question wizard omits the "hidden" brewing constants; seed them per
@@ -69,7 +74,45 @@ export class EquipmentProfileService {
     });
 
     this.assertValid(ownerId, entity);
-    return this.repo.save(entity);
+
+    try {
+      return await this.repo.save(entity);
+    } catch (error) {
+      // Backstop for the check-then-save race (and any path that bypasses
+      // assertNameAvailable): the composite unique index rejects a duplicate
+      // (owner_id, name) with a QueryFailedError — surface it as a clean 409
+      // rather than letting it fall through as a 500.
+      if (this.isDuplicateNameError(error)) {
+        throw new EquipmentProfileNameTakenException();
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Rejects a create when the owner already has a profile with the same name
+   * (F21). Throws a 409 EquipmentProfileNameTakenException.
+   *
+   * The comparison is exact — case- and whitespace-sensitive per the SQLite
+   * column collation (no normalisation), matching the unique index.
+   */
+  private async assertNameAvailable(
+    ownerId: string,
+    name: string,
+  ): Promise<void> {
+    const existing = await this.repo.findOne({
+      where: { owner_id: ownerId, name },
+    });
+    if (existing) {
+      throw new EquipmentProfileNameTakenException();
+    }
+  }
+
+  private isDuplicateNameError(error: unknown): boolean {
+    return (
+      error instanceof QueryFailedError &&
+      /UNIQUE constraint failed: equipment_profiles/i.test(error.message)
+    );
   }
 
   async listMine(ownerId: string): Promise<EquipmentProfileOrmEntity[]> {

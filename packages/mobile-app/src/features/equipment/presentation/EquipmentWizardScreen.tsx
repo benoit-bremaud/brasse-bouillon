@@ -4,7 +4,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getErrorMessage } from "@/core/http/http-error";
+import { HttpError, getErrorMessage } from "@/core/http/http-error";
 import { createEquipmentProfile } from "@/features/equipment/application/equipment.use-cases";
 import {
   EQUIPMENT_SYSTEM_OPTIONS,
@@ -80,6 +80,14 @@ export function EquipmentWizardScreen() {
       router.replace("/equipment");
     },
   });
+
+  // A 409 means the name is already used by another of the user's profiles
+  // (F21) — show a clear French hint instead of the raw server message.
+  const errorMessage = mutationError
+    ? mutationError instanceof HttpError && mutationError.status === 409
+      ? "Un matériel porte déjà ce nom. Choisis-en un autre."
+      : getErrorMessage(mutationError, "Échec de la création du matériel")
+    : null;
 
   const isStepValid = ((): boolean => {
     switch (step) {
@@ -246,11 +254,9 @@ export function EquipmentWizardScreen() {
         </Card>
       ) : null}
 
-      {mutationError ? (
+      {errorMessage ? (
         <Card style={[styles.card, styles.blockCard]}>
-          <Text style={styles.blockText}>
-            {getErrorMessage(mutationError, "Échec de la création du matériel")}
-          </Text>
+          <Text style={styles.blockText}>{errorMessage}</Text>
         </Card>
       ) : null}
 

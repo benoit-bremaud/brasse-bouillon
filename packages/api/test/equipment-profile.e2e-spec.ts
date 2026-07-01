@@ -137,4 +137,51 @@ describe('Equipment profile create (e2e — E1)', () => {
       })
       .expect(401);
   });
+
+  // F21 — a second profile with the same name for the same owner is a 409.
+  it('rejects a duplicate profile name for the same owner with 409', async () => {
+    const { token } = await register();
+    const body = {
+      name: 'Mon matériel',
+      fermenter_volume_l: 23,
+      boil_kettle_volume_l: 30,
+      system_type: EquipmentSystemType.ALL_GRAIN,
+    };
+
+    await request(app.getHttpServer())
+      .post('/equipment-profiles')
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/equipment-profiles')
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
+      .expect(409);
+  });
+
+  // F21 — uniqueness is per owner: two different users may reuse the same name.
+  it('allows the same profile name for two different owners', async () => {
+    const first = await register();
+    const second = await register();
+    const body = {
+      name: 'Setup partagé',
+      fermenter_volume_l: 23,
+      boil_kettle_volume_l: 30,
+      system_type: EquipmentSystemType.ALL_GRAIN,
+    };
+
+    await request(app.getHttpServer())
+      .post('/equipment-profiles')
+      .set('Authorization', `Bearer ${first.token}`)
+      .send(body)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/equipment-profiles')
+      .set('Authorization', `Bearer ${second.token}`)
+      .send(body)
+      .expect(201);
+  });
 });

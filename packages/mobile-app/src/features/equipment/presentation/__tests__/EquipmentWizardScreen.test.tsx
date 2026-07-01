@@ -9,6 +9,7 @@ import {
 import { EquipmentProfile } from "@/features/equipment/domain/equipment.types";
 import { EquipmentWizardScreen } from "@/features/equipment/presentation/EquipmentWizardScreen";
 import React from "react";
+import { HttpError } from "@/core/http/http-error";
 import { createEquipmentProfile } from "@/features/equipment/application/equipment.use-cases";
 
 const mockReplace = jest.fn();
@@ -37,7 +38,7 @@ const mockedCreate = createEquipmentProfile as jest.MockedFunction<
 const CREATED_PROFILE: EquipmentProfile = {
   id: "eq-1",
   ownerId: "u-1",
-  name: "Tout-grain 23 L",
+  name: "Cuves séparées 23 L",
   mashTunVolumeL: 30,
   boilKettleVolumeL: 30,
   fermenterVolumeL: 23,
@@ -92,7 +93,7 @@ describe("EquipmentWizardScreen", () => {
 
     await waitFor(() => {
       expect(mockedCreate).toHaveBeenCalledWith({
-        name: "Tout-grain 23 L",
+        name: "Cuves séparées 23 L",
         systemType: "all-grain",
         fermenterVolumeL: 23,
         boilKettleVolumeL: 30,
@@ -121,6 +122,30 @@ describe("EquipmentWizardScreen", () => {
 
     await waitFor(() => {
       expect(screen.getByText("network down")).toBeTruthy();
+    });
+  });
+
+  it("labels the system types on the equipment axis (F17)", () => {
+    renderScreen();
+
+    expect(screen.getByText("Extrait")).toBeTruthy();
+    expect(screen.getByText("Cuves séparées")).toBeTruthy();
+    expect(screen.getByText("Cuve unique (BIAB)")).toBeTruthy();
+  });
+
+  it("shows a French duplicate-name message on a 409 (F21)", async () => {
+    mockedCreate.mockRejectedValue(
+      new HttpError(409, "An equipment profile with this name already exists"),
+    );
+
+    renderScreen();
+    completeAllSteps();
+    fireEvent.press(screen.getByTestId("equipment-wizard-create"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Un matériel porte déjà ce nom. Choisis-en un autre."),
+      ).toBeTruthy();
     });
   });
 });

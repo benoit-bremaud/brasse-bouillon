@@ -112,6 +112,12 @@ export class BatchDomainService {
         completedAt: undefined,
         pedagogicalTip: guidance?.pedagogicalTip,
         plannedDurationMin: guidance?.plannedDurationMin ?? undefined,
+        // An empty list (e.g. PACKAGING — the B3 bottling gate covers it)
+        // stays undefined so the column persists null and mobile renders no
+        // empty PRÉP block.
+        prepActions: guidance?.prepActions.length
+          ? guidance.prepActions
+          : undefined,
       };
     });
   }

@@ -35,4 +35,26 @@ describe('getStepGuidance', () => {
   it('returns undefined for an unknown step type (sad/edge)', () => {
     expect(getStepGuidance('barrel-aging' as RecipeStepType)).toBeUndefined();
   });
+
+  it('carries PRÉP actions with a gesture AND its pedagogical why on brewing steps (happy, F4)', () => {
+    const prepTypes = [
+      RecipeStepType.MASH,
+      RecipeStepType.BOIL,
+      RecipeStepType.WHIRLPOOL,
+      RecipeStepType.FERMENTATION,
+    ];
+    for (const type of prepTypes) {
+      const actions = getStepGuidance(type)?.prepActions ?? [];
+      expect(actions.length).toBeGreaterThan(0);
+      for (const prep of actions) {
+        // The app teaches: a gesture without its why is executing, not learning.
+        expect(prep.action.trim().length).toBeGreaterThan(0);
+        expect(prep.why.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('carries NO PRÉP actions for packaging — the B3 bottling gate covers it (edge)', () => {
+    expect(getStepGuidance(RecipeStepType.PACKAGING)?.prepActions).toEqual([]);
+  });
 });

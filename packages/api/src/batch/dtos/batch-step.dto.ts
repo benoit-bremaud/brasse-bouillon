@@ -5,6 +5,15 @@ import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum'
 import { BatchStepStatus } from '../domain/enums/batch-step-status.enum';
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
 
+/** One PRÉP-phase gesture with its pedagogical why (F4, brew-day/01+06). */
+export class StepPrepActionDto {
+  @ApiProperty({ description: 'The physical gesture, imperative French' })
+  action: string;
+
+  @ApiProperty({ description: "The gesture's one-line pedagogical why" })
+  why: string;
+}
+
 export class BatchStepDto {
   @ApiProperty()
   batch_id: string;
@@ -36,6 +45,9 @@ export class BatchStepDto {
   @ApiPropertyOptional({ nullable: true })
   pedagogical_tip?: string | null;
 
+  @ApiPropertyOptional({ type: [StepPrepActionDto], nullable: true })
+  prep_actions?: StepPrepActionDto[] | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -54,6 +66,7 @@ export class BatchStepDto {
       completed_at: e.completed_at ?? null,
       planned_duration_min: e.planned_duration_min ?? null,
       pedagogical_tip: e.pedagogical_tip ?? null,
+      prep_actions: e.prep_actions ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
     };

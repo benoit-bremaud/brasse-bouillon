@@ -1,6 +1,7 @@
 import { RecipeStepType } from '../../../recipe/domain/enums/recipe-step-type.enum';
 
 import { BatchStepStatus } from '../enums/batch-step-status.enum';
+import { StepPrepAction } from '../services/step-guidance';
 
 /**
  * BatchStep
@@ -35,4 +36,10 @@ export interface BatchStep {
 
   /** Default planned duration in minutes; null/undefined when not time-boxed. */
   readonly plannedDurationMin?: number | null;
+
+  /**
+   * PRÉP-phase physical gestures + their pedagogical why (F4, brew-day/01+06).
+   * Undefined when the type carries none (e.g. packaging — B3 covers it).
+   */
+  readonly prepActions?: readonly StepPrepAction[];
 }

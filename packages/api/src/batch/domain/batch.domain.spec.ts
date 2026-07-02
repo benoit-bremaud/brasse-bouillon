@@ -73,6 +73,43 @@ describe('BatchDomainService', () => {
     );
   });
 
+  it('enriches steps with PRÉP actions, each gesture with its why (happy, F4)', () => {
+    const service = new BatchDomainService(
+      () => new Date('2026-02-05T09:00:00.000Z'),
+    );
+
+    const batch = service.startBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+      steps: new RecipeWorkflowService().getDefaultWorkflow(),
+    });
+
+    const mash = batch.steps.find((s) => s.type === RecipeStepType.MASH);
+    expect(mash?.prepActions?.length).toBeGreaterThan(0);
+    expect(mash?.prepActions?.[0].action).toBeTruthy();
+    expect(mash?.prepActions?.[0].why).toBeTruthy();
+  });
+
+  it('leaves prepActions undefined on packaging — B3 covers it (edge, F4)', () => {
+    const service = new BatchDomainService(
+      () => new Date('2026-02-05T09:00:00.000Z'),
+    );
+
+    const batch = service.startBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+      steps: new RecipeWorkflowService().getDefaultWorkflow(),
+    });
+
+    const packaging = batch.steps.find(
+      (s) => s.type === RecipeStepType.PACKAGING,
+    );
+    expect(packaging).toBeDefined();
+    expect(packaging?.prepActions).toBeUndefined();
+  });
+
   it('should complete steps and auto-advance until completion', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:10:00.000Z');

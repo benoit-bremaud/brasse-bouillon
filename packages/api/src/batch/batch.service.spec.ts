@@ -1138,6 +1138,31 @@ describe('BatchService', () => {
     expect(steps[0].started_at).toBeNull();
   });
 
+  it('launchMine() persists PRÉP actions and step transitions preserve them (happy/edge, F4)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const draft = await batchService.prepareMine(ownerId, recipe.id);
+
+    const { batch, steps } = await batchService.launchMine(
+      ownerId,
+      draft.batch.id,
+    );
+
+    // Step 0 (mash) carries the gestures, each with its pedagogical why.
+    expect(steps[0].prep_actions?.length).toBeGreaterThan(0);
+    for (const prep of steps[0].prep_actions ?? []) {
+      expect(prep.action.trim().length).toBeGreaterThan(0);
+      expect(prep.why.trim().length).toBeGreaterThan(0);
+    }
+    // Packaging (last step) has none — the B3 bottling gate covers it.
+    expect(steps[steps.length - 1].prep_actions).toBeNull();
+
+    // A step transition re-saves the whole snapshot: the prep actions must
+    // survive the domain round-trip (regression guard against silent drops).
+    const started = await batchService.startMineCurrentStep(ownerId, batch.id);
+    expect(started.steps[0].prep_actions).toEqual(steps[0].prep_actions);
+  });
+
   it('launchMine() rejects a double launch with Conflict-free 400 and keeps the journal intact (sad)', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });

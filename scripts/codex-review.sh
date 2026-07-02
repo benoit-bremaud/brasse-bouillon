@@ -85,14 +85,22 @@ Must Have (blocking) — flag any of:
 - Hardcoded secret, token, or credential.
 - Hardcoded color/spacing/font in packages/mobile-app (must use theme tokens).
 - Inline `style={{...}}` in React Native (must use StyleSheet.create()).
+- Inline `style="..."` in packages/website/ HTML.
 - Bypass of the NestJS response envelope in packages/api.
+- Skipped or `xit`/`xdescribe` tests introduced.
 - Missing TypeORM migration when an entity adds/removes/renames a column.
+- Direct commit to `main` detectable in the commit history.
 - ADR violations (read docs/architecture/decisions/0001..0005 and 0013): e.g.
-  mobile calling a third-party HTTP service directly instead of via the API.
+  mobile calling a third-party HTTP service directly instead of via the API
+  (ADR-0002), or consent-store writes outside the canonical append-only
+  feature-namespaced API (ADR-0003).
 
-Should Have — tests not following Happy/Sad/Edge, missing Swagger decorator on a
-new endpoint, naming/import-order deviations, Conventional Commits not respected,
-any AI attribution in commit messages or files.
+Should Have — tests not following Happy/Sad/Edge, a new mobile feature not
+persisting via the API from day one, missing Swagger decorator on a new
+endpoint, naming/import-order deviations, Conventional Commits not respected,
+a packages/website/ public page edited on one language side only (missing
+French/English mirror), no PROJECT_LOG.md entry drafted for a significant
+change, any AI attribution in commit messages or files.
 
 Nice to Have — readability, extraction, WHY-not-WHAT comments.
 
@@ -100,7 +108,8 @@ Disagree — anything that looks off but is justified by a tolerated ADR-0001
 exception or an established pattern; give a one-line rationale.
 
 End with a Summary: ADRs honoured (y/n), forbidden patterns present (y/n),
-H/S/E covered for new units (y/n), Ready for push (y/n).
+H/S/E covered for new units (y/n), branch from main + Conventional Commits
+(y/n), Ready for push (y/n).
 PROMPT
 
 echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2

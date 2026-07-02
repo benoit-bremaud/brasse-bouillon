@@ -297,6 +297,15 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
 
     tickAll();
+    // The launch stays gated while the coche saves are in flight — let them
+    // settle before pressing the CTA.
+    await waitFor(() =>
+      expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+        PILSNER_ID,
+        CASCADE_ID,
+      ]),
+    );
+    await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
     expect(Alert.alert).toHaveBeenCalledTimes(1);
 
@@ -319,6 +328,13 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
 
     tickAll();
+    await waitFor(() =>
+      expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+        PILSNER_ID,
+        CASCADE_ID,
+      ]),
+    );
+    await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
     await act(async () => {
       confirmLaunchAlert();
@@ -356,6 +372,41 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     await waitFor(() => {
       expect(mockLaunchBatch).toHaveBeenCalledWith("draft-1");
       expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
+    });
+  });
+
+  it("edge: the launch stays gated while a coche save is still in flight", async () => {
+    // One ingredient only: a single tick completes the checklist while its
+    // PATCH hangs — the optimistic gate is open but persistence is not done.
+    mockGetViewModel.mockResolvedValue(buildViewModel([TWO_INGREDIENTS[0]]));
+    let resolveSave: () => void = () => {};
+    mockUpdateChecklist.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = () => resolve(undefined);
+        }),
+    );
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
+
+    fireEvent.press(screen.getAllByRole("checkbox")[0]);
+    // Wait for the hanging PATCH to actually be in flight (the mutationFn
+    // runs on a microtask, and captures resolveSave only then).
+    await waitFor(() => expect(mockUpdateChecklist).toHaveBeenCalled());
+    expect(screen.getByText("PRÊT")).toBeTruthy();
+
+    // Launching now would race the backend: launch stamps launched_at and
+    // the in-flight PATCH gets rejected ("already launched") — so the CTA
+    // must stay inert until the save settles.
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    expect(Alert.alert).not.toHaveBeenCalled();
+
+    resolveSave();
+    await waitFor(() => {
+      fireEvent.press(screen.getByText("Lancer le brassage"));
+      expect(Alert.alert).toHaveBeenCalled();
     });
   });
 

@@ -183,12 +183,18 @@ export function BrewPrepScreen({ recipeId }: Props) {
   };
 
   const isStarting = launchMutation.isPending;
+  // Launching while a checklist PATCH is in flight (or queued) would race
+  // the backend: launch stamps launched_at, then the late PATCH is rejected
+  // ("already launched") — last tick lost + error alert after navigation.
+  // The queue only fills while a send is in flight and is flushed on settle,
+  // so isPending alone covers both.
+  const isSavingChecklist = persistMutation.isPending;
 
   // The launch is irreversible (phase B = point of no return), so it is
-  // gated twice: the CTA is disabled until the checklist is complete, and a
-  // final confirmation dialog guards the actual batch creation.
+  // gated twice: the CTA is disabled until the checklist is complete AND
+  // persisted, and a final confirmation dialog guards the batch creation.
   const handleLaunch = () => {
-    if (!complete || isStarting || !draft) {
+    if (!complete || isStarting || isSavingChecklist || !draft) {
       return;
     }
     Alert.alert(
@@ -327,7 +333,9 @@ export function BrewPrepScreen({ recipeId }: Props) {
         label={ctaLabel}
         helperText={ctaHelper}
         onPress={handleLaunch}
-        disabled={!complete || isStarting || !viewModel || !draft}
+        disabled={
+          !complete || isStarting || isSavingChecklist || !viewModel || !draft
+        }
         bottomOffset={footerOffset}
       />
     </Screen>

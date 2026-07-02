@@ -84,7 +84,10 @@ export const faqBotConfig = (): FaqBotConfig => {
       process.env.FAQ_BOT_MONTHLY_BUDGET_EUR,
       DEFAULT_MONTHLY_BUDGET_EUR,
     ),
-    altchaHmacKey: process.env.ALTCHA_HMAC_KEY ?? '',
+    // Trimmed so a whitespace-only secret (secrets-UI copy-paste slip) reads
+    // as missing and hits the fail-closed guards instead of an opaque
+    // altcha-lib DataError deep inside challenge issuance/verification.
+    altchaHmacKey: process.env.ALTCHA_HMAC_KEY?.trim() ?? '',
     botCheckBypassAllowed: isBotCheckBypassAllowed(),
   };
 };

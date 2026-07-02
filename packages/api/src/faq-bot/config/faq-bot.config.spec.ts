@@ -75,3 +75,30 @@ describe('faqBotConfig — botCheckBypassAllowed derivation', () => {
     expect(() => faqBotConfig()).toThrow(/Invalid APP_ENV/);
   });
 });
+
+describe('faqBotConfig — altchaHmacKey parsing', () => {
+  const saved = process.env.ALTCHA_HMAC_KEY;
+
+  afterEach(() => {
+    if (saved === undefined) {
+      delete process.env.ALTCHA_HMAC_KEY;
+    } else {
+      process.env.ALTCHA_HMAC_KEY = saved;
+    }
+  });
+
+  it('reads a whitespace-only secret as missing (edge — secrets-UI slip)', () => {
+    process.env.APP_ENV = 'test';
+    process.env.ALTCHA_HMAC_KEY = '   ';
+
+    // A blank secret must hit the fail-closed guards, not reach altcha-lib.
+    expect(faqBotConfig().altchaHmacKey).toBe('');
+  });
+
+  it('trims a padded secret to its usable value (happy)', () => {
+    process.env.APP_ENV = 'test';
+    process.env.ALTCHA_HMAC_KEY = ' real-secret ';
+
+    expect(faqBotConfig().altchaHmacKey).toBe('real-secret');
+  });
+});

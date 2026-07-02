@@ -37,10 +37,12 @@ import { MeasurementDto } from '../dtos/measurement.dto';
 import { ObservationDto } from '../dtos/observation.dto';
 import { CreateTastingDto } from '../dtos/create-tasting.dto';
 import { GetPrimingQueryDto } from '../dtos/get-priming-query.dto';
+import { PrepareBatchDto } from '../dtos/prepare-batch.dto';
 import { PrimingDto } from '../dtos/priming.dto';
 import { StartBatchDto } from '../dtos/start-batch.dto';
 import { TastingDto } from '../dtos/tasting.dto';
 import { UpdateBatchReminderDto } from '../dtos/update-batch-reminder.dto';
+import { UpdatePrepChecklistDto } from '../dtos/update-prep-checklist.dto';
 import { BatchService } from '../services/batch.service';
 
 /**
@@ -69,6 +71,57 @@ export class BatchController {
       user.id,
       dto.recipeId,
     );
+    return BatchDto.fromEntities(batch, steps);
+  }
+
+  @Post('prepare')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      'Create (or resume) the « en préparation » draft batch for a recipe',
+  })
+  @ApiCreatedResponse({ type: BatchDto })
+  async prepareMine(
+    @CurrentUser() user: User,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: PrepareBatchDto,
+  ): Promise<BatchDto> {
+    const { batch, steps } = await this.service.prepareMine(
+      user.id,
+      dto.recipeId,
+    );
+    return BatchDto.fromEntities(batch, steps);
+  }
+
+  @Patch(':id/prep-checklist')
+  @ApiOperation({
+    summary: "Replace the draft's checked prep-item ids (F14)",
+  })
+  @ApiOkResponse({ type: BatchSummaryDto })
+  async updateMinePrepChecklist(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: UpdatePrepChecklistDto,
+  ): Promise<BatchSummaryDto> {
+    const batch = await this.service.updateMinePrepChecklist(
+      user.id,
+      id,
+      dto.checkedIds,
+    );
+    return BatchSummaryDto.fromEntity(batch);
+  }
+
+  @Patch(':id/launch')
+  @ApiOperation({
+    summary: 'Launch a draft (snapshot the recipe steps, start the brew)',
+  })
+  @ApiOkResponse({ type: BatchDto })
+  async launchMine(
+    @CurrentUser() user: User,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<BatchDto> {
+    const { batch, steps } = await this.service.launchMine(user.id, id);
     return BatchDto.fromEntities(batch, steps);
   }
 

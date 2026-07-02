@@ -86,6 +86,8 @@ describe('seedDemoBatch (Issue #782)', () => {
       expect(created.recipe_id).toBe(DEMO_PUNK_IPA_RECIPE_ID);
       expect(created.name).toBe('Mon premier Punk IPA');
       expect(created.status).toBe(BatchStatus.COMPLETED);
+      // launched_at must be stamped or the derived status reads as draft.
+      expect(created.launched_at).toEqual(created.started_at);
       expect(created.target_volume_l).toBe(20);
       expect(created.final_volume_l).toBe(18);
       expect(created.og_actual).toBe(1.057);

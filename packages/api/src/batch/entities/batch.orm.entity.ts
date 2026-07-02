@@ -11,6 +11,13 @@ import {
 @Entity('batches')
 @Index(['owner_id'])
 @Index(['recipe_id'])
+// DB backstop for prepareMine's idempotency: at most ONE unlaunched draft per
+// owner+recipe, even under concurrent prepare calls (the read-then-insert in
+// the service cannot see a row another request has not committed yet).
+@Index('idx_batches_one_draft_per_owner_recipe', ['owner_id', 'recipe_id'], {
+  unique: true,
+  where: '"launched_at" IS NULL',
+})
 export class BatchOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
@@ -91,6 +98,23 @@ export class BatchOrmEntity {
 
   @Column({ type: 'datetime', nullable: true })
   archived_at?: Date | null;
+
+  // Draft lifecycle (brew-day/07 F14/F15). `launched_at` null = an « en
+  // préparation » draft created by "Préparer": it carries the prep and has no
+  // steps yet; Launch stamps it (and refreshes `started_at`, which the CHECK-
+  // constrained schema keeps NOT NULL as the row-creation instant until then).
+  // Same additive-timestamp model as cancelled_at/archived_at — the effective
+  // status is derived, no `status` CHECK rebuild. Legacy rows are backfilled
+  // launched_at = started_at (they were all launched at creation).
+  @Column({ type: 'datetime', nullable: true })
+  launched_at?: Date | null;
+
+  // Prep-checklist state carried by the draft (F14: per-batch, resets each
+  // brew). Only the CHECKED item ids are stored — the items themselves stay
+  // derived from the recipe (single source of truth); ids from a recipe edited
+  // mid-prep simply stop matching (benign, drafts are short-lived).
+  @Column({ type: 'simple-json', nullable: true })
+  prep_checked_ids?: string[] | null;
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

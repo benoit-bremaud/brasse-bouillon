@@ -130,6 +130,12 @@ export function BatchesScreen() {
           return (
             <Pressable
               onPress={() => {
+                // An « en préparation » draft resumes its prep screen — it
+                // has no brewing journal to open yet (brew-day/07, F15).
+                if (item.status === "draft") {
+                  router.push(`/(app)/recipes/${item.recipeId}/prepare`);
+                  return;
+                }
                 // Demo mode: a finished brassin opens the celebration
                 // mockup ("La Première du dimanche est prête à
                 // déguster") instead of the technical details view.

@@ -176,7 +176,10 @@ export async function listLabelBatchCandidates(): Promise<
         style: resolveCandidateStyle(recipeName, recipe?.description),
         abv: recipe?.stats?.abv ?? null,
         breweryName: resolveCandidateBreweryName(),
-        brewedAtIso: batch.startedAt,
+        // Candidates are launched (in_progress/completed per the predicate
+        // above), so startedAt is always set in practice; the createdAt
+        // fallback only satisfies the nullable type (drafts never reach here).
+        brewedAtIso: batch.startedAt ?? batch.createdAt,
         status: batch.status,
       } satisfies LabelBatchCandidate;
     })

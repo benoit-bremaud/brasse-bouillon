@@ -1,7 +1,9 @@
 // Effective lifecycle status returned by the API: the brewing status
-// (in_progress | completed) unless the batch was cancelled or archived
-// (soft states derived server-side, archived > cancelled — brew-day/07).
+// (in_progress | completed) unless the batch is a never-launched draft
+// (« en préparation », F14/F15) or was cancelled or archived (soft states
+// derived server-side, archived > cancelled > draft — brew-day/07).
 export type BatchStatus =
+  | "draft"
   | "in_progress"
   | "completed"
   | "cancelled"
@@ -22,7 +24,9 @@ export type BatchSummary = {
   recipeId: string;
   status: BatchStatus;
   currentStepOrder?: number | null;
-  startedAt: string;
+  // ISO-8601 launch instant, or null while the batch is an « en préparation »
+  // draft (the brew has not started — brew-day/07).
+  startedAt: string | null;
   fermentationStartedAt?: string | null;
   fermentationCompletedAt?: string | null;
   // ISO-8601 instant the batch was bottled (B3 closure), or null before
@@ -55,4 +59,8 @@ export type BatchStep = {
 
 export type Batch = BatchSummary & {
   steps: BatchStep[];
+  // Checked prep-item ids carried by an « en préparation » draft (F14 — the
+  // coches live on the batch, per-brew). Null when nothing was ever checked;
+  // the checklist items themselves stay derived from the recipe.
+  prepCheckedIds?: string[] | null;
 };

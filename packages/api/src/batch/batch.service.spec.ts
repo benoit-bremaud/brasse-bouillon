@@ -1013,4 +1013,190 @@ describe('BatchService', () => {
       batchService.getMineTasting(otherOwner, batch.id),
     ).rejects.toThrow(NotFoundException);
   });
+
+  // Draft « en préparation » lifecycle (brew-day/07, F14/F15)
+
+  it('prepareMine() creates a draft: no steps, no launched_at, empty prep state (happy)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+
+    const { batch, steps } = await batchService.prepareMine(ownerId, recipe.id);
+
+    expect(batch.owner_id).toBe(ownerId);
+    expect(batch.recipe_id).toBe(recipe.id);
+    expect(batch.launched_at).toBeNull();
+    expect(batch.prep_checked_ids).toBeNull();
+    expect(batch.current_step_order).toBeNull();
+    expect(steps).toHaveLength(0);
+  });
+
+  it('prepareMine() is idempotent: a second prepare resumes the same draft (happy)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+
+    const first = await batchService.prepareMine(ownerId, recipe.id);
+    await batchService.updateMinePrepChecklist(ownerId, first.batch.id, [
+      'malt-0',
+    ]);
+
+    const second = await batchService.prepareMine(ownerId, recipe.id);
+
+    expect(second.batch.id).toBe(first.batch.id);
+    expect(second.batch.prep_checked_ids).toEqual(['malt-0']);
+  });
+
+  it('prepareMine() resumes the winner draft when a concurrent prepare wins the race (edge)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+
+    const existing = await batchService.prepareMine(ownerId, recipe.id);
+
+    // Simulate the race: the pre-insert existence check misses the draft a
+    // concurrent request already committed, so the insert hits the partial
+    // unique index and the service must resume the winner's row instead.
+    const findOneSpy = jest
+      .spyOn(batchRepo, 'findOne')
+      .mockResolvedValueOnce(null);
+
+    const second = await batchService.prepareMine(ownerId, recipe.id);
+
+    expect(second.batch.id).toBe(existing.batch.id);
+    findOneSpy.mockRestore();
+  });
+
+  it('prepareMine() creates a fresh draft once the previous one is launched (edge)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+
+    const first = await batchService.prepareMine(ownerId, recipe.id);
+    await batchService.launchMine(ownerId, first.batch.id);
+
+    const second = await batchService.prepareMine(ownerId, recipe.id);
+    expect(second.batch.id).not.toBe(first.batch.id);
+  });
+
+  it('prepareMine() rejects a foreign or unknown recipe with NotFound (sad)', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+
+    await expect(
+      batchService.prepareMine(otherOwner, recipe.id),
+    ).rejects.toThrow(NotFoundException);
+    await expect(
+      batchService.prepareMine(ownerId, randomUUID()),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('updateMinePrepChecklist() persists deduplicated coches on the draft (happy)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.prepareMine(ownerId, recipe.id);
+
+    const updated = await batchService.updateMinePrepChecklist(
+      ownerId,
+      batch.id,
+      ['malt-0', 'hop-1', 'malt-0'],
+    );
+
+    expect(updated.prep_checked_ids).toEqual(['malt-0', 'hop-1']);
+  });
+
+  it('updateMinePrepChecklist() rejects a launched batch and enforces ownership (sad)', async () => {
+    const ownerId = 'user-1';
+    const otherOwner = 'user-2';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.prepareMine(ownerId, recipe.id);
+
+    await expect(
+      batchService.updateMinePrepChecklist(otherOwner, batch.id, ['x']),
+    ).rejects.toThrow(NotFoundException);
+
+    await batchService.launchMine(ownerId, batch.id);
+    await expect(
+      batchService.updateMinePrepChecklist(ownerId, batch.id, ['x']),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('launchMine() snapshots steps, stamps launched_at/started_at and opens step 0 in PRÉP (happy)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const draft = await batchService.prepareMine(ownerId, recipe.id);
+
+    const { batch, steps } = await batchService.launchMine(
+      ownerId,
+      draft.batch.id,
+    );
+
+    expect(batch.id).toBe(draft.batch.id);
+    expect(batch.launched_at).toBeTruthy();
+    expect(batch.started_at).toEqual(batch.launched_at);
+    expect(batch.status).toBe(BatchStatus.IN_PROGRESS);
+    expect(batch.current_step_order).toBe(0);
+    expect(steps).toHaveLength(5);
+    expect(steps[0].status).toBe(BatchStepStatus.IN_PROGRESS);
+    expect(steps[0].started_at).toBeNull();
+  });
+
+  it('launchMine() rejects a double launch with Conflict-free 400 and keeps the journal intact (sad)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const draft = await batchService.prepareMine(ownerId, recipe.id);
+    await batchService.launchMine(ownerId, draft.batch.id);
+
+    await expect(
+      batchService.launchMine(ownerId, draft.batch.id),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('brewing-journal endpoints reject a draft (edge: guards on every surface)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.prepareMine(ownerId, recipe.id);
+
+    // A draft has brewed nothing: no step transitions, no fermentation, no
+    // journal entries, and no soft-cancel (a draft is discarded via DELETE).
+    await expect(
+      batchService.completeMineCurrentStep(ownerId, batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.startMineCurrentStep(ownerId, batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.startFermentationMine(ownerId, batch.id),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.createMineMeasurement(ownerId, batch.id, {
+        type: MeasurementType.OG,
+        value: 1.05,
+      }),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.createMineObservation(ownerId, batch.id, {
+        freeText: 'note',
+      }),
+    ).rejects.toThrow(BadRequestException);
+    await expect(
+      batchService.createMineReminder(ownerId, batch.id, {
+        label: 'buy yeast',
+        dueAt: new Date(),
+      }),
+    ).rejects.toThrow(BadRequestException);
+    await expect(batchService.cancelMine(ownerId, batch.id)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('a draft is discardable via deleteMine and shows as draft in listMine (edge)', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, { name: 'My Blonde' });
+    const { batch } = await batchService.prepareMine(ownerId, recipe.id);
+
+    const rows = await batchService.listMine(ownerId);
+    expect(rows.map((row) => row.id)).toContain(batch.id);
+
+    await batchService.deleteMine(ownerId, batch.id);
+    const after = await batchService.listMine(ownerId);
+    expect(after.map((row) => row.id)).not.toContain(batch.id);
+  });
 });

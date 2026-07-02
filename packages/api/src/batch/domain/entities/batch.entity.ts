@@ -44,8 +44,24 @@ export interface Batch {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 
-  /** Start timestamp for the batch. */
+  /**
+   * Start timestamp for the batch. For a prep draft (`launchedAt` undefined)
+   * this is the row-creation instant (the column is NOT NULL); Launch
+   * refreshes it to the launch instant, after which both agree.
+   */
   readonly startedAt: Date;
+
+  /**
+   * Launch timestamp (brew-day/07). Undefined = the batch is a « en
+   * préparation » draft: it carries the prep checklist and has no steps yet.
+   */
+  readonly launchedAt?: Date;
+
+  /**
+   * Checked prep-item ids the draft carries (F14 — per-batch checklist state;
+   * the items themselves stay derived from the recipe).
+   */
+  readonly prepCheckedIds?: ReadonlyArray<string>;
 
   /** Timestamp when fermentation was started. */
   readonly fermentationStartedAt?: Date;

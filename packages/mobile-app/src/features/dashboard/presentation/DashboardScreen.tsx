@@ -182,8 +182,11 @@ const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
   Bientôt: 2,
 };
 
-function parseDateOrNow(value: string, fallback: Date): Date {
-  const parsed = Date.parse(value);
+// `value` is nullable since batch.startedAt is null while a batch is an « en
+// préparation » draft (brew-day/07); drafts are filtered out upstream, so the
+// fallback path is a type-level safety net rather than a live branch.
+function parseDateOrNow(value: string | null, fallback: Date): Date {
+  const parsed = value === null ? Number.NaN : Date.parse(value);
   if (!Number.isNaN(parsed)) {
     return new Date(parsed);
   }
@@ -239,11 +242,11 @@ function formatRelativeDue(dueAt: Date, now: Date): string {
 }
 
 function isWithinSelectedPeriod(
-  isoDate: string,
+  isoDate: string | null,
   period: PeriodKey,
   now: Date,
 ): boolean {
-  const parsed = Date.parse(isoDate);
+  const parsed = isoDate === null ? Number.NaN : Date.parse(isoDate);
   if (Number.isNaN(parsed)) {
     return false;
   }

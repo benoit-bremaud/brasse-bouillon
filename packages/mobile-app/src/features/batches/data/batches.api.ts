@@ -19,7 +19,8 @@ type BatchSummaryDto = {
   recipe_id: string;
   status: BatchSummary["status"];
   current_step_order?: number | null;
-  started_at: string;
+  // Null while the batch is an « en préparation » draft (brew-day/07).
+  started_at: string | null;
   fermentation_started_at?: string | null;
   fermentation_completed_at?: string | null;
   bottled_at?: string | null;
@@ -45,6 +46,7 @@ type BatchStepDto = {
 
 type BatchDto = BatchSummaryDto & {
   steps: BatchStepDto[];
+  prep_checked_ids?: string[] | null;
 };
 
 type StartBatchResponse = BatchDto;
@@ -103,6 +105,7 @@ function mapBatch(dto: BatchDto): Batch {
   return {
     ...mapBatchSummary(dto),
     steps: dto.steps.map(mapBatchStep),
+    prepCheckedIds: dto.prep_checked_ids ?? null,
   };
 }
 
@@ -134,6 +137,45 @@ export async function startBatch(recipeId: string): Promise<Batch> {
   const row = await request<StartBatchResponse>("/batches", {
     method: "POST",
     body: { recipeId },
+  });
+  return mapBatch(row);
+}
+
+/**
+ * Creates (or resumes) the « en préparation » draft batch for a recipe via
+ * `POST /batches/prepare` (brew-day/07, F14/F15). Idempotent server-side: a
+ * second call returns the existing unlaunched draft with its coches.
+ */
+export async function prepareBatch(recipeId: string): Promise<Batch> {
+  const row = await request<BatchDto>("/batches/prepare", {
+    method: "POST",
+    body: { recipeId },
+  });
+  return mapBatch(row);
+}
+
+/**
+ * Replaces the draft's checked prep-item ids via
+ * `PATCH /batches/:id/prep-checklist` (F14 — coches persisted on the batch).
+ */
+export async function updatePrepChecklist(
+  id: string,
+  checkedIds: string[],
+): Promise<BatchSummary> {
+  const row = await request<BatchSummaryDto>(`/batches/${id}/prep-checklist`, {
+    method: "PATCH",
+    body: { checkedIds },
+  });
+  return mapBatchSummary(row);
+}
+
+/**
+ * Launches a draft via `PATCH /batches/:id/launch` — the draft → in_progress
+ * transition of brew-day/07 (steps snapshotted server-side at launch).
+ */
+export async function launchBatch(id: string): Promise<Batch> {
+  const row = await request<BatchDto>(`/batches/${id}/launch`, {
+    method: "PATCH",
   });
   return mapBatch(row);
 }

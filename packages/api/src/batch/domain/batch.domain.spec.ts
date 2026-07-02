@@ -81,7 +81,9 @@ describe('BatchDomainService', () => {
     const t4 = new Date('2026-02-05T09:40:00.000Z');
     const t5 = new Date('2026-02-05T09:50:00.000Z');
 
-    const timestamps = [t0, t1, t2, t3, t4, t5];
+    // startBatch = prepare + launch, so it consumes TWO clock ticks (both t0
+    // here); every queue below front-loads that duplicate.
+    const timestamps = [t0, t0, t1, t2, t3, t4, t5];
     const service = new BatchDomainService(() => {
       const next = timestamps.shift();
       if (!next) throw new Error('Missing timestamp');
@@ -121,7 +123,7 @@ describe('BatchDomainService', () => {
   it('should activate the current step (PRÉP -> ACTIF) and set startedAt', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:05:00.000Z');
-    const timestamps = [t0, t1];
+    const timestamps = [t0, t0, t1];
     const service = new BatchDomainService(() => {
       const next = timestamps.shift();
       if (!next) throw new Error('Missing timestamp');
@@ -148,7 +150,7 @@ describe('BatchDomainService', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:10:00.000Z');
     const t2 = new Date('2026-02-05T09:12:00.000Z');
-    const timestamps = [t0, t1, t2];
+    const timestamps = [t0, t0, t1, t2];
     const service = new BatchDomainService(() => {
       const next = timestamps.shift();
       if (!next) throw new Error('Missing timestamp');
@@ -191,7 +193,7 @@ describe('BatchDomainService', () => {
   it('should throw when activating a step of a completed batch', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:10:00.000Z');
-    const timestamps = [t0, t1];
+    const timestamps = [t0, t0, t1];
     const service = new BatchDomainService(() => {
       const next = timestamps.shift();
       if (!next) throw new Error('Missing timestamp');
@@ -223,7 +225,7 @@ describe('BatchDomainService', () => {
   it('should throw when completing an already completed batch', () => {
     const t0 = new Date('2026-02-05T09:00:00.000Z');
     const t1 = new Date('2026-02-05T09:10:00.000Z');
-    const timestamps = [t0, t1];
+    const timestamps = [t0, t0, t1];
     const service = new BatchDomainService(() => {
       const next = timestamps.shift();
       if (!next) throw new Error('Missing timestamp');
@@ -249,6 +251,77 @@ describe('BatchDomainService', () => {
 
     expect(() => service.completeCurrentStep(completed)).toThrow(
       'Batch is not in progress',
+    );
+  });
+
+  // Draft « en préparation » lifecycle (brew-day/07, F14/F15)
+
+  it('prepareBatch() creates a stepless draft with no launchedAt', () => {
+    const t0 = new Date('2026-02-05T09:00:00.000Z');
+    const service = new BatchDomainService(() => t0);
+
+    const draft = service.prepareBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+    });
+
+    expect(draft.launchedAt).toBeUndefined();
+    expect(draft.steps).toHaveLength(0);
+    expect(draft.currentStepOrder).toBeUndefined();
+    expect(draft.status).toBe(BatchStatus.IN_PROGRESS);
+    expect(draft.createdAt).toEqual(t0);
+    expect(draft.startedAt).toEqual(t0);
+  });
+
+  it('launchBatch() stamps launchedAt/startedAt and snapshots steps in PRÉP', () => {
+    const t0 = new Date('2026-02-05T09:00:00.000Z');
+    const t1 = new Date('2026-02-05T10:00:00.000Z');
+    const timestamps = [t0, t1];
+    const service = new BatchDomainService(() => {
+      const next = timestamps.shift();
+      if (!next) throw new Error('Missing timestamp');
+      return next;
+    });
+
+    const draft = service.prepareBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+    });
+    const launched = service.launchBatch(
+      draft,
+      new RecipeWorkflowService().getDefaultWorkflow(),
+    );
+
+    expect(launched.launchedAt).toEqual(t1);
+    expect(launched.startedAt).toEqual(t1);
+    expect(launched.currentStepOrder).toBe(0);
+    expect(launched.steps).toHaveLength(5);
+    expect(launched.steps[0].status).toBe(BatchStepStatus.IN_PROGRESS);
+    expect(launched.steps[0].startedAt).toBeUndefined();
+    // the prep coches survive the launch untouched (journal history)
+    expect(launched.prepCheckedIds).toEqual(draft.prepCheckedIds);
+  });
+
+  it('launchBatch() rejects an already-launched batch and an empty snapshot', () => {
+    const service = new BatchDomainService(
+      () => new Date('2026-02-05T09:00:00.000Z'),
+    );
+
+    const draft = service.prepareBatch({
+      id: 'batch-1',
+      ownerId: 'user-1',
+      recipeId: 'recipe-1',
+    });
+    const workflow = new RecipeWorkflowService().getDefaultWorkflow();
+    const launched = service.launchBatch(draft, workflow);
+
+    expect(() => service.launchBatch(launched, workflow)).toThrow(
+      'Batch already launched',
+    );
+    expect(() => service.launchBatch(draft, [])).toThrow(
+      'Batch must include at least one step',
     );
   });
 

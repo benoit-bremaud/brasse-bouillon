@@ -18,18 +18,22 @@ export class BatchSummaryDto {
   recipe_id: string;
 
   // Effective lifecycle status: the brewing status (in_progress | completed)
-  // unless the batch was cancelled or archived (derived, archived > cancelled).
+  // unless the batch is a never-launched draft, or was cancelled or archived
+  // (derived, archived > cancelled > draft — brew-day/07).
   @ApiProperty({
     enum: EFFECTIVE_BATCH_STATUSES,
-    description: 'in_progress | completed | cancelled | archived',
+    description: 'draft | in_progress | completed | cancelled | archived',
   })
   status: EffectiveBatchStatus;
 
   @ApiPropertyOptional({ nullable: true })
   current_step_order?: number | null;
 
-  @ApiProperty()
-  started_at: Date;
+  // Null while the batch is an « en préparation » draft (the brew has not
+  // started); stamped at launch. The raw column stays NOT NULL for schema
+  // stability — the DTO hides the placeholder a draft row carries.
+  @ApiPropertyOptional({ nullable: true })
+  started_at: Date | null;
 
   @ApiPropertyOptional({ nullable: true })
   fermentation_started_at?: Date | null;
@@ -60,9 +64,14 @@ export class BatchSummaryDto {
       id: e.id,
       owner_id: e.owner_id,
       recipe_id: e.recipe_id,
-      status: deriveEffectiveStatus(e.status, e.cancelled_at, e.archived_at),
+      status: deriveEffectiveStatus(
+        e.status,
+        e.cancelled_at,
+        e.archived_at,
+        e.launched_at,
+      ),
       current_step_order: e.current_step_order ?? null,
-      started_at: e.started_at,
+      started_at: e.launched_at ? e.started_at : null,
       fermentation_started_at: e.fermentation_started_at ?? null,
       fermentation_completed_at: e.fermentation_completed_at ?? null,
       bottled_at: e.bottled_at ?? null,

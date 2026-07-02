@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -25,7 +25,12 @@ import {
 } from "@/features/recipes/application/brew-readiness.use-cases";
 import type { ReadinessChecklist } from "@/features/recipes/domain/brew-readiness.types";
 import { RecipeStickyCta } from "@/features/recipes/presentation/components/RecipeStickyCta";
-import { startBatch } from "@/features/batches/application/batches.use-cases";
+import {
+  launchBatch,
+  prepareBatch,
+  updateBatchPrepChecklist,
+} from "@/features/batches/application/batches.use-cases";
+import type { Batch } from "@/features/batches/domain/batch.types";
 
 type Props = Readonly<{ recipeId: string }>;
 
@@ -39,10 +44,12 @@ type Props = Readonly<{ recipeId: string }>;
  * (A3) will be added to this same screen and extend the gate to
  * `ingredient.isComplete() && equipment.isComplete()` (BrewReadiness).
  *
- * The tick state is reversible client state (a sparse `have` overlay kept in
- * `useState`, reset when the screen unmounts) — matching the conception's
- * "client state pre-batch, mirror deferred". Confirming the launch starts the
- * batch and navigates to its tracking screen (phase B = point of no return).
+ * The prep is carried by an « en préparation » draft batch (brew-day/07,
+ * F14/F15): opening the screen prepares (or resumes) the recipe's draft, each
+ * tick is persisted on it, and « Lancer le brassage » is the draft →
+ * in_progress transition. The checklist items stay derived from the recipe —
+ * only the coches live on the batch, so they reset naturally on each new brew
+ * (F14) while surviving app restarts mid-prep.
  */
 export function BrewPrepScreen({ recipeId }: Props) {
   const router = useRouter();
@@ -62,13 +69,69 @@ export function BrewPrepScreen({ recipeId }: Props) {
     enabled: hasRecipeId,
   });
 
-  const startBatchMutation = useMutation({
-    mutationFn: () => startBatch(recipeId),
+  // The draft batch carrying this prep. A POST used as a query is deliberate:
+  // prepareBatch is idempotent server-side (it resumes the existing draft), so
+  // re-mounting the screen re-opens the same prep with its persisted coches.
+  const {
+    data: draft = null,
+    isLoading: isDraftLoading,
+    error: draftError,
+    refetch: refetchDraft,
+  } = useQuery<Batch | null>({
+    queryKey: ["batches", "prep", recipeId],
+    queryFn: () => prepareBatch(recipeId),
+    enabled: hasRecipeId,
+  });
+
+  const launchMutation = useMutation({
+    mutationFn: (draftId: string) => launchBatch(draftId),
     onSuccess: (batch) => {
       void queryClient.invalidateQueries({ queryKey: ["batches"] });
       router.push(`/(app)/batches/${batch.id}`);
     },
   });
+
+  // Persists the full checked-ids list on the draft. The payload being a full
+  // replacement, PATCHes must never overlap: two in-flight requests can reach
+  // the server out of order and the OLDER list would win (lost tick). So one
+  // request flies at a time; while it runs only the LATEST desired list is
+  // kept queued (intermediate lists are obsolete by construction).
+  const persistMutation = useMutation({
+    mutationFn: (input: { draftId: string; checkedIds: string[] }) =>
+      updateBatchPrepChecklist(input.draftId, input.checkedIds),
+  });
+  const patchInFlightRef = useRef(false);
+  const queuedCheckedIdsRef = useRef<string[] | null>(null);
+
+  const sendCheckedIds = (draftId: string, checkedIds: string[]) => {
+    patchInFlightRef.current = true;
+    persistMutation.mutate(
+      { draftId, checkedIds },
+      {
+        onError: (error) => {
+          // The failed PATCH may carry several coalesced ticks, so per-tick
+          // rollback is meaningless: drop the optimistic overlay, re-sync the
+          // draft from the server, and tell the brewer — a silently lost
+          // coche would resurface as a phantom missing ingredient later.
+          queuedCheckedIdsRef.current = null;
+          setHaveById({});
+          void refetchDraft();
+          Alert.alert(
+            "Coche non enregistrée",
+            getErrorMessage(error, "Réessaie dans un instant."),
+          );
+        },
+        onSettled: () => {
+          patchInFlightRef.current = false;
+          const queued = queuedCheckedIdsRef.current;
+          queuedCheckedIdsRef.current = null;
+          if (queued) {
+            sendCheckedIds(draftId, queued);
+          }
+        },
+      },
+    );
+  };
 
   // Base checklist derived from the recipe; never mutated by ticks (a refetch
   // re-derives it, but the user's `have` overlay below is kept separately so
@@ -78,6 +141,12 @@ export function BrewPrepScreen({ recipeId }: Props) {
     [viewModel],
   );
 
+  // Coches persisted on the draft (source of truth) + the session's optimistic
+  // overrides (snappy toggles while the PATCH is in flight).
+  const persistedChecked = useMemo(
+    () => new Set(draft?.prepCheckedIds ?? []),
+    [draft],
+  );
   const [haveById, setHaveById] = useState<Record<string, boolean>>({});
 
   const mergedChecklist = useMemo<ReadinessChecklist>(
@@ -85,10 +154,10 @@ export function BrewPrepScreen({ recipeId }: Props) {
       ...checklist,
       items: checklist.items.map((item) => ({
         ...item,
-        have: haveById[item.id] ?? false,
+        have: haveById[item.id] ?? persistedChecked.has(item.id),
       })),
     }),
-    [checklist, haveById],
+    [checklist, haveById, persistedChecked],
   );
 
   const missing = getMissingItems(mergedChecklist);
@@ -96,16 +165,30 @@ export function BrewPrepScreen({ recipeId }: Props) {
   const hasItems = mergedChecklist.items.length > 0;
 
   const toggle = (id: string) => {
-    setHaveById((current) => ({ ...current, [id]: !(current[id] ?? false) }));
+    const next = !(haveById[id] ?? persistedChecked.has(id));
+    setHaveById((current) => ({ ...current, [id]: next }));
+
+    if (!draft) {
+      return;
+    }
+    const checkedIds = mergedChecklist.items
+      .map((item) => (item.id === id ? { ...item, have: next } : item))
+      .filter((item) => item.have)
+      .map((item) => item.id);
+    if (patchInFlightRef.current) {
+      queuedCheckedIdsRef.current = checkedIds;
+      return;
+    }
+    sendCheckedIds(draft.id, checkedIds);
   };
 
-  const isStarting = startBatchMutation.isPending;
+  const isStarting = launchMutation.isPending;
 
   // The launch is irreversible (phase B = point of no return), so it is
   // gated twice: the CTA is disabled until the checklist is complete, and a
   // final confirmation dialog guards the actual batch creation.
   const handleLaunch = () => {
-    if (!complete || isStarting) {
+    if (!complete || isStarting || !draft) {
       return;
     }
     Alert.alert(
@@ -116,27 +199,30 @@ export function BrewPrepScreen({ recipeId }: Props) {
         {
           text: "Lancer",
           style: "default",
-          onPress: () => startBatchMutation.mutate(),
+          onPress: () => launchMutation.mutate(draft.id),
         },
       ],
     );
   };
 
   const handleRetry = () => {
-    if (startBatchMutation.error) {
-      startBatchMutation.reset();
+    if (launchMutation.error) {
+      launchMutation.reset();
     }
     void refetch();
+    void refetchDraft();
   };
 
   const errorMessage = queryError
     ? getErrorMessage(queryError, "Impossible de charger la recette")
-    : startBatchMutation.error
-      ? getErrorMessage(
-          startBatchMutation.error,
-          "Le démarrage du brassin a échoué",
-        )
-      : null;
+    : draftError
+      ? getErrorMessage(draftError, "Impossible de préparer le brassin")
+      : launchMutation.error
+        ? getErrorMessage(
+            launchMutation.error,
+            "Le démarrage du brassin a échoué",
+          )
+        : null;
 
   // A missing id, or a fetch that resolved to no recipe (stale / deleted id),
   // is a not-found state — not an empty checklist (see PR #1255 for context).
@@ -164,7 +250,11 @@ export function BrewPrepScreen({ recipeId }: Props) {
     : "Coche tous les ingrédients pour lancer le brassage.";
 
   return (
-    <Screen isLoading={isLoading} error={errorMessage} onRetry={handleRetry}>
+    <Screen
+      isLoading={isLoading || isDraftLoading}
+      error={errorMessage}
+      onRetry={handleRetry}
+    >
       <HeaderBackButton
         label="Recette"
         accessibilityLabel="Revenir à la recette"
@@ -237,7 +327,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
         label={ctaLabel}
         helperText={ctaHelper}
         onPress={handleLaunch}
-        disabled={!complete || isStarting || !viewModel}
+        disabled={!complete || isStarting || !viewModel || !draft}
         bottomOffset={footerOffset}
       />
     </Screen>

@@ -178,6 +178,31 @@ describe("BatchesScreen", () => {
     expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b-demo-pdd-mash");
   });
 
+  it("routes an « en préparation » draft back to its prepare screen (F15)", async () => {
+    dataSource.useDemoData = true;
+    (listBatches as jest.Mock).mockResolvedValue([
+      {
+        id: "b-demo-pdd-draft",
+        ownerId: "u-demo-1",
+        recipeId: "r-demo-pdd",
+        status: "draft",
+        currentStepOrder: null,
+        startedAt: null,
+        fermentationStartedAt: null,
+        fermentationCompletedAt: null,
+        completedAt: null,
+        createdAt: "2026-05-19T09:00:00.000Z",
+        updatedAt: "2026-05-19T09:30:00.000Z",
+      },
+    ]);
+
+    renderBatchesScreen();
+
+    fireEvent.press(await screen.findByText("La Première du dimanche"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-demo-pdd/prepare");
+  });
+
   it("routes a completed brassin to the celebration mockup in demo mode", async () => {
     dataSource.useDemoData = true;
     (listBatches as jest.Mock).mockResolvedValue([

@@ -12,6 +12,12 @@
 # without mutating the working tree. It replays the same checklist as the
 # `pr-pre-reviewer` agent so both reviewers judge against the same rules.
 #
+# Since codex CLI 0.142, `--base <BRANCH>` and a custom [PROMPT] are mutually
+# exclusive: the positional prompt is now its own "custom" review target,
+# alongside --uncommitted / --base / --commit. To keep the shared checklist
+# AND the base-branch scope, the script passes everything as the custom
+# prompt, pinning the diff scope to the merge-base SHA computed locally.
+#
 # Cost note: each run consumes the OpenAI/ChatGPT quota tied to your Codex
 # CLI auth — a quota SEPARATE from GitHub Copilot premium requests.
 #
@@ -65,14 +71,30 @@ if [[ "$CURRENT_BRANCH" == "$BASE" ]]; then
 fi
 
 # Keep the comparison honest against the latest remote base (read-only fetch).
-git fetch origin "$BASE" --quiet 2>/dev/null || true
+git fetch origin "$BASE" --quiet 2>/dev/null \
+  || echo "warning: could not fetch 'origin/$BASE' (offline or no remote?); comparing against local refs." >&2
+
+# Pin the review scope to an exact merge-base SHA so the reviewer cannot
+# drift onto the wrong diff (prefer the freshly fetched remote base).
+MERGE_BASE="$(git merge-base "origin/$BASE" HEAD 2>/dev/null || git merge-base "$BASE" HEAD 2>/dev/null || true)"
+if [[ -z "$MERGE_BASE" ]]; then
+  echo "error: cannot find a merge base between '$CURRENT_BRANCH' and '$BASE' (nor 'origin/$BASE')." >&2
+  exit 1
+fi
 
 # The review instructions mirror the pr-pre-reviewer checklist so Claude and
 # Codex grade against the same bar. Keep this in sync with
 # .claude/agents/pr-pre-reviewer.md.
+read -r -d '' SCOPE <<SCOPE_BLOCK || true
+Review scope (mandatory): the changes of branch '$CURRENT_BRANCH' relative to
+base branch '$BASE'. The merge base is commit $MERGE_BASE. Inspect exactly:
+  git diff $MERGE_BASE HEAD
+Review ONLY that diff — nothing outside it. Do not modify any file.
+SCOPE_BLOCK
+
 read -r -d '' INSTRUCTIONS <<'PROMPT' || true
 You are a strict, read-only reviewer for the brasse-bouillon monorepo.
-Review ONLY the diff against the base branch. Output English, no AI attribution.
+Output English, no AI attribution.
 
 Group findings as Must Have / Should Have / Nice to Have / Disagree, each with
 a `path/to/file.ts:line` anchor and a one-line suggested fix.
@@ -103,12 +125,18 @@ End with a Summary: ADRs honoured (y/n), forbidden patterns present (y/n),
 H/S/E covered for new units (y/n), Ready for push (y/n).
 PROMPT
 
-echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2
+echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE' (merge base $MERGE_BASE)..." >&2
+
+# The full prompt is the "custom" review target (codex >= 0.142 forbids
+# combining --base with a prompt); sandbox_mode pins the run read-only.
+FULL_PROMPT="$SCOPE
+
+$INSTRUCTIONS"
 
 if [[ -n "$OUT" ]]; then
-  codex exec review --base "$BASE" --output-last-message "$OUT" "$INSTRUCTIONS"
+  codex exec review -c 'sandbox_mode="read-only"' --output-last-message "$OUT" "$FULL_PROMPT"
   echo "Report written to: $OUT" >&2
   cat "$OUT"
 else
-  codex exec review --base "$BASE" "$INSTRUCTIONS"
+  codex exec review -c 'sandbox_mode="read-only"' "$FULL_PROMPT"
 fi

@@ -1,7 +1,19 @@
 import { RecipeStepType } from '../../../recipe/domain/enums/recipe-step-type.enum';
 
 import { BatchStepStatus } from '../enums/batch-step-status.enum';
-import { StepPrepAction } from '../services/step-guidance';
+
+/**
+ * One physical prep gesture of a step's PRÉP phase (F4), with its one-line
+ * pedagogical why — the app teaches the craft, a novice must learn to brew
+ * alone, not just execute (brew-day/01 + 06, educational vocation).
+ *
+ * Lives with the entities (not the guidance service) so the dependency points
+ * services → entities, never the reverse.
+ */
+export interface StepPrepAction {
+  readonly action: string;
+  readonly why: string;
+}
 
 /**
  * BatchStep

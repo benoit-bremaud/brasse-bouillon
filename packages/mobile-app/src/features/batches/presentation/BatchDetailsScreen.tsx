@@ -473,9 +473,11 @@ export function BatchDetailsScreen({ batchId }: Props) {
   // so the timer is idle and the CTA is « Démarrer » rather than « Terminer »
   // (F1; see brew-day/06). Demo steps carry a startedAt, so they read as ACTIF.
   const isPrepPhase = activeStep != null && activeStep.startedAt == null;
-  // PRÉP physical gestures (F4, brew-day/01+06): local ticks only — keyed by
-  // step so advancing resets naturally — and « Démarrer » is never hard-gated
-  // on them (guidance + escape hatch, unlike the F14 ingredient launch gate).
+  // PRÉP physical gestures (F4, brew-day/01+06): local ticks only, namespaced
+  // by step order so each step starts unticked. The record is bounded by the
+  // batch's own gestures (~20 booleans) and lives only for this screen mount —
+  // no reset needed. « Démarrer » is never hard-gated on the ticks (guidance +
+  // escape hatch, unlike the F14 ingredient launch gate).
   const [prepDoneByKey, setPrepDoneByKey] = React.useState<
     Record<string, boolean>
   >({});

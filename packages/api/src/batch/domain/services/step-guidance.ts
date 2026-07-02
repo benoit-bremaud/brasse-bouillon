@@ -1,14 +1,8 @@
 import { RecipeStepType } from '../../../recipe/domain/enums/recipe-step-type.enum';
 
-/**
- * One physical prep gesture of a step's PRÉP phase (F4), with its one-line
- * pedagogical why — the app teaches the craft, a novice must learn to brew
- * alone, not just execute (brew-day/01 + 06, educational vocation).
- */
-export interface StepPrepAction {
-  readonly action: string;
-  readonly why: string;
-}
+import { StepPrepAction } from '../entities/batch-step.entity';
+
+export type { StepPrepAction };
 
 /**
  * StepGuidance

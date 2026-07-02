@@ -69,7 +69,7 @@ machine `shared-cpu-1x:512MB` in `cdg`, volume `bb_data` 1 GB, public URL
 | `DATABASE_PATH` | `/app/data/brasse-bouillon.db` | Absolute path on the volume |
 | `SWAGGER_ENABLED` | `false` | Production hides schema; flip to `true` for debugging |
 | `min_machines_running` | `0` | Scale-to-zero: no traffic → no running machine → no machine-time billing |
-| `auto_stop_machines` | `"stop"` | Fly's proxy stops the machine after a few idle minutes and auto-starts it on the next request (~2-3 s cold start, acceptable pre-launch). Was `false`/`1` (always-on) until 2026-07-02 for the 27 May live demo |
+| `auto_stop_machines` | `"stop"` | Fly's proxy stops the machine after a few idle minutes and auto-starts it on the next request (~10 s cold start measured — NestJS boot + migrations — acceptable pre-launch). Was `false`/`1` (always-on) until 2026-07-02 for the 27 May live demo |
 | `vm.memory` | `512 mb` | Enough for NestJS + SQLite at expected load |
 
 ## Day-to-day operations

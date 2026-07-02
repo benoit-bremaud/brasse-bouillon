@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-02
+
+### PR #1293 merged (`28a1535`) — feat(faq-bot): public FAQ chatbot — API (Mistral + ALTCHA) + website widget
+
+- Branch `feat/faq-bot`, 11 commits (API + website). **Conception-first**: ADR-0022 (accepted; EU-sovereign decision matrices → Mistral + ALTCHA) + 4 UML diagrams under `docs/architecture/diagrams/faq-bot/`. Adds an isolated `faq-bot` NestJS module — `POST /faq-bot/ask` + `GET /faq-bot/challenge` (public, anonymous) — with two DIP seams: `LlmPort` → `MistralLlmAdapter` (`mistral-small-latest`, native `fetch`, key server-side only) and `BotCheckPort` → `AltchaBotCheckAdapter` (self-hosted `altcha-lib`, no third-party call). Anti-abuse: throttle 5/min/IP, **single-use ALTCHA proofs** (in-memory replay rejection), **fail-closed guard** when the HMAC secret is missing outside dev/test (503; derivation via the canonical `resolveBootstrapEnvironment`), kill-switch + monthly budget cap, Mistral adapter fails fast on a missing key. RGPD: no conversation content logged — anonymous aggregate counters only. Website: self-hosted `chat-widget.js`, staging/localhost-gated (never prod in v1), solves the ALTCHA proof-of-work with Web Crypto, XSS-safe (`textContent`), no network call on page load, bilingual FR/EN. Prompt guardrails: project-only FAQ (NOT a brewing assistant), abstain → `[CONTACT]`, founder first-name-only (no links/contact), no emojis. Prompt-as-spec eval harness (`evals/AGENT.md` judge protocol) re-judged pre-merge — **13/13 GREEN**; 865 API unit tests.
+- Reviews — Copilot (8 threads) + Codex (2 × P2) all addressed, then a **three-agent adversarial follow-up** (architecture / test-quality / security): env derivation moved to the canonical resolver (DRY, case-normalised), new `faq-bot.config.spec.ts` pins the bypass derivation, new concurrent-replay spec pins check-and-claim atomicity; one flagged TOCTOU race **rejected with rationale** (synchronous has/set after the await) and locked in by that spec. Conception docs re-aligned in the same pass (fail-closed + single-use reflected in ADR-0022 and the sequence/component/class diagrams). CORS restriction deferred to a cross-consumer review (documented in ADR-0022). **Deploy config pending**: Fly secrets (`MISTRAL_API_KEY`, `ALTCHA_HMAC_KEY`) + the widget's staging API origin — at deploy time.
+
 ## 2026-07-01
 
 ### PR #1292 merged (`3f99584`) — feat(batches): cancel + archive batch soft-lifecycle (F16/F25)

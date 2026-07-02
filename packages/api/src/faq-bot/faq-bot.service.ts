@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { FAQ_BOT_CONFIG, type FaqBotConfig } from './config/faq-bot.config';
 import { FaqBotUnavailableException } from './exceptions/faq-bot-unavailable.exception';
@@ -24,6 +24,8 @@ const MAX_ANSWER_CHARS = 1200;
  */
 @Injectable()
 export class FaqBotService {
+  private readonly logger = new Logger(FaqBotService.name);
+
   constructor(
     @Inject(LLM_PORT) private readonly llm: LlmPort,
     @Inject(BOT_CHECK_PORT) private readonly botCheck: BotCheckPort,
@@ -57,6 +59,16 @@ export class FaqBotService {
 
   /** Issue a fresh anti-bot challenge for the widget (delegates to the bot-check port). */
   async issueChallenge(): Promise<BotChallenge> {
+    if (!this.config.altchaHmacKey) {
+      // Fail closed, mirroring BotCheckGuard: issuing is impossible without
+      // the HMAC secret (altcha-lib rejects a zero-length key with an opaque
+      // unhandled 500) — surface a clean 503 that signals the deploy
+      // misconfiguration instead (ADR-0022).
+      this.logger.error(
+        'ALTCHA HMAC secret missing — cannot issue an anti-bot challenge',
+      );
+      throw new FaqBotUnavailableException('Anti-bot challenge unavailable');
+    }
     return this.botCheck.issueChallenge();
   }
 

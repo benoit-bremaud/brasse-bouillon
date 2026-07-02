@@ -75,3 +75,39 @@ describe('faqBotConfig — botCheckBypassAllowed derivation', () => {
     expect(() => faqBotConfig()).toThrow(/Invalid APP_ENV/);
   });
 });
+
+describe('faqBotConfig — altchaHmacKey parsing', () => {
+  // Restore every env key the suite mutates (APP_ENV included) so no state
+  // leaks into other spec files and the suite stays order-independent.
+  const KEYS = ['ALTCHA_HMAC_KEY', 'APP_ENV'] as const;
+  let saved: Record<string, string | undefined>;
+
+  beforeEach(() => {
+    saved = Object.fromEntries(KEYS.map((key) => [key, process.env[key]]));
+  });
+
+  afterEach(() => {
+    for (const key of KEYS) {
+      if (saved[key] === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = saved[key];
+      }
+    }
+  });
+
+  it('reads a whitespace-only secret as missing (edge — secrets-UI slip)', () => {
+    process.env.APP_ENV = 'test';
+    process.env.ALTCHA_HMAC_KEY = '   ';
+
+    // A blank secret must hit the fail-closed guards, not reach altcha-lib.
+    expect(faqBotConfig().altchaHmacKey).toBe('');
+  });
+
+  it('trims a padded secret to its usable value (happy)', () => {
+    process.env.APP_ENV = 'test';
+    process.env.ALTCHA_HMAC_KEY = ' real-secret ';
+
+    expect(faqBotConfig().altchaHmacKey).toBe('real-secret');
+  });
+});

@@ -127,12 +127,28 @@ describe('FaqBotService', () => {
   });
 
   describe('issueChallenge', () => {
-    it('delegates to the bot-check port', async () => {
-      const service = build();
+    it('delegates to the bot-check port when the HMAC secret is set (happy)', async () => {
+      const service = build(makeConfig({ altchaHmacKey: 'test-secret' }));
 
       await expect(service.issueChallenge()).resolves.toEqual(
         botCheck.challenge,
       );
+    });
+
+    it('fails closed with 503 when the HMAC secret is missing (sad)', async () => {
+      // Without this guard, altcha-lib rejects the zero-length key with an
+      // opaque unhandled 500 instead of a clean unavailable signal.
+      const service = build(makeConfig({ altchaHmacKey: '' }));
+
+      const error: unknown = await service
+        .issueChallenge()
+        .then(() => null)
+        .catch((thrown: unknown) => thrown);
+
+      expect(error).toBeInstanceOf(FaqBotUnavailableException);
+      // Pin the actual HTTP status: exception type alone would keep passing
+      // if the status ever regressed.
+      expect((error as FaqBotUnavailableException).getStatus()).toBe(503);
     });
   });
 });

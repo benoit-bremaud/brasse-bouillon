@@ -55,6 +55,16 @@ export type BatchStep = {
   plannedDurationMin?: number | null;
   // Vulgarized "why" surfaced via the ⓘ icon on the step (brewing assistant).
   pedagogicalTip?: string | null;
+  // PRÉP-phase physical gestures, each with its pedagogical why (F4,
+  // brew-day/01+06). Null on legacy steps and types without prep (packaging).
+  prepActions?: StepPrepAction[] | null;
+};
+
+// One PRÉP gesture + its one-line why — the app teaches, a novice must learn
+// to brew alone (educational vocation).
+export type StepPrepAction = {
+  action: string;
+  why: string;
 };
 
 export type Batch = BatchSummary & {

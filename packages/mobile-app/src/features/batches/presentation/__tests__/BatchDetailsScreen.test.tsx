@@ -205,6 +205,92 @@ describe("BatchDetailsScreen", () => {
     expect(await screen.findByText("boom")).toBeTruthy();
   });
 
+  it("PRÉP lists the physical gestures with their pedagogical why (F4, happy)", async () => {
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? {
+              ...step,
+              startedAt: null,
+              prepActions: [
+                {
+                  action: "Chauffe ~7 L d'eau à ~72 °C.",
+                  why: "Le grain fera chuter l'eau vers 66-67 °C.",
+                },
+                {
+                  action: "Nettoie et rince la cuve.",
+                  why: "Avant l'ébullition, « propre » suffit.",
+                },
+              ],
+            }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+    (startCurrentBatchStep as jest.Mock).mockClear();
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Avant de démarrer")).toBeTruthy();
+    // Gesture AND its why: the app teaches, not just instructs.
+    expect(screen.getByText("Chauffe ~7 L d'eau à ~72 °C.")).toBeTruthy();
+    expect(
+      screen.getByText("Le grain fera chuter l'eau vers 66-67 °C."),
+    ).toBeTruthy();
+    expect(screen.getByText("Nettoie et rince la cuve.")).toBeTruthy();
+
+    // Ticks are local guidance; « Démarrer » is never gated on them (escape
+    // hatch) — starting with one gesture unticked must still work.
+    fireEvent.press(screen.getByTestId("prep-action-0-0"));
+    fireEvent.press(screen.getByText("Démarrer l'étape"));
+    await waitFor(() => expect(startCurrentBatchStep).toHaveBeenCalledTimes(1));
+  });
+
+  it("PRÉP without prep actions renders no gesture block (F4, edge: legacy step)", async () => {
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? { ...step, startedAt: null, prepActions: null }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Démarrer l'étape")).toBeTruthy();
+    expect(screen.queryByText("Avant de démarrer")).toBeNull();
+  });
+
+  it("ACTIF hides the gesture block — prep is over once the step runs (F4, edge)", async () => {
+    const activeBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? {
+              ...step,
+              prepActions: [{ action: "Chauffe l'eau.", why: "Strike." }],
+            }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(activeBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    // mashBatch step 0 carries a startedAt → ACTIF: complete CTA, no PRÉP list.
+    expect(await screen.findByText("Terminer l'étape en cours")).toBeTruthy();
+    expect(screen.queryByText("Avant de démarrer")).toBeNull();
+  });
+
   it("confirms before completing a step, then completes on confirm (F6)", async () => {
     (completeCurrentBatchStep as jest.Mock).mockClear();
     const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});

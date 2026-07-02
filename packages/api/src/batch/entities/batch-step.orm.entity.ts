@@ -53,6 +53,12 @@ export class BatchStepOrmEntity {
   @Column({ type: 'text', nullable: true })
   pedagogical_tip?: string | null;
 
+  // PRÉP-phase physical gestures + their pedagogical why (F4, brew-day/01+06).
+  // Snapshotted at launch like the tip; null when the type carries none
+  // (e.g. packaging — the B3 bottling gate already covers it).
+  @Column({ type: 'simple-json', nullable: true })
+  prep_actions?: { action: string; why: string }[] | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

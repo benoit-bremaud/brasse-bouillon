@@ -37,4 +37,19 @@ describe('BatchStepDto.fromEntity', () => {
     expect(dto.planned_duration_min).toBeNull();
     expect(dto.pedagogical_tip).toBeNull();
   });
+
+  it('maps the PRÉP actions with their pedagogical why (happy, F4)', () => {
+    const prep = [
+      { action: 'Chauffe ~7 L à ~72 °C.', why: 'Le grain refroidit l’eau.' },
+    ];
+    const dto = BatchStepDto.fromEntity(makeEntity({ prep_actions: prep }));
+    expect(dto.prep_actions).toEqual(prep);
+  });
+
+  it('nulls prep_actions for legacy or packaging steps (edge)', () => {
+    expect(BatchStepDto.fromEntity(makeEntity()).prep_actions).toBeNull();
+    expect(
+      BatchStepDto.fromEntity(makeEntity({ prep_actions: null })).prep_actions,
+    ).toBeNull();
+  });
 });

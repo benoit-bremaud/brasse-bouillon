@@ -32,6 +32,7 @@ import { BATCH_STATUS_LABELS } from "@/features/batches/presentation/batch-displ
 import { BatchTimeline } from "@/features/batches/presentation/BatchTimeline";
 import { StepCard } from "@/features/batches/presentation/StepCard";
 import { Card } from "@/core/ui/Card";
+import { ChecklistRow } from "@/core/ui/ChecklistRow";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -472,6 +473,14 @@ export function BatchDetailsScreen({ batchId }: Props) {
   // so the timer is idle and the CTA is « Démarrer » rather than « Terminer »
   // (F1; see brew-day/06). Demo steps carry a startedAt, so they read as ACTIF.
   const isPrepPhase = activeStep != null && activeStep.startedAt == null;
+  // PRÉP physical gestures (F4, brew-day/01+06): local ticks only, namespaced
+  // by step order so each step starts unticked. The record is bounded by the
+  // batch's own gestures (~20 booleans) and lives only for this screen mount —
+  // no reset needed. « Démarrer » is never hard-gated on the ticks (guidance +
+  // escape hatch, unlike the F14 ingredient launch gate).
+  const [prepDoneByKey, setPrepDoneByKey] = React.useState<
+    Record<string, boolean>
+  >({});
   const [openTip, setOpenTip] = React.useState<{
     label: string;
     tip: string;
@@ -706,6 +715,30 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
       {!isCompletedLive && activeStep ? (
         <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
+      ) : null}
+
+      {isPrepPhase && activeStep?.prepActions?.length ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Avant de démarrer</Text>
+          {activeStep.prepActions.map((prep, index) => {
+            const key = `${activeStep.stepOrder}:${index}`;
+            return (
+              <ChecklistRow
+                key={key}
+                testID={`prep-action-${activeStep.stepOrder}-${index}`}
+                label={prep.action}
+                meta={prep.why}
+                checked={prepDoneByKey[key] ?? false}
+                onToggle={() =>
+                  setPrepDoneByKey((current) => ({
+                    ...current,
+                    [key]: !current[key],
+                  }))
+                }
+              />
+            );
+          })}
+        </Card>
       ) : null}
 
       {showBottlingCta ? (

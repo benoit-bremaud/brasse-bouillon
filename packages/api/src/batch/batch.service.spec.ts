@@ -1156,11 +1156,15 @@ describe('BatchService', () => {
     }
     // Packaging (last step) has none — the B3 bottling gate covers it.
     expect(steps[steps.length - 1].prep_actions).toBeNull();
+    // F5: every launched step carries its end condition.
+    expect(steps[0].done_when?.trim().length).toBeGreaterThan(0);
+    expect(steps[steps.length - 1].done_when?.trim().length).toBeGreaterThan(0);
 
-    // A step transition re-saves the whole snapshot: the prep actions must
+    // A step transition re-saves the whole snapshot: the guidance must
     // survive the domain round-trip (regression guard against silent drops).
     const started = await batchService.startMineCurrentStep(ownerId, batch.id);
     expect(started.steps[0].prep_actions).toEqual(steps[0].prep_actions);
+    expect(started.steps[0].done_when).toBe(steps[0].done_when);
   });
 
   it('launchMine() rejects a double launch with Conflict-free 400 and keeps the journal intact (sad)', async () => {

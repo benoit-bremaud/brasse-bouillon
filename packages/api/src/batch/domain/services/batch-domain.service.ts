@@ -118,6 +118,7 @@ export class BatchDomainService {
         prepActions: guidance?.prepActions.length
           ? guidance.prepActions
           : undefined,
+        doneWhen: guidance?.doneWhen,
       };
     });
   }

@@ -41,6 +41,7 @@ type BatchStepDto = {
   planned_duration_min?: number | null;
   pedagogical_tip?: string | null;
   prep_actions?: { action: string; why: string }[] | null;
+  done_when?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -98,6 +99,7 @@ function mapBatchStep(dto: BatchStepDto): BatchStep {
     plannedDurationMin: dto.planned_duration_min ?? null,
     pedagogicalTip: dto.pedagogical_tip ?? null,
     prepActions: dto.prep_actions ?? null,
+    doneWhen: dto.done_when ?? null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

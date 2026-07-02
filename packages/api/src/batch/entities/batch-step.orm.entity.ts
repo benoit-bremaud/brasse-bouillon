@@ -59,6 +59,11 @@ export class BatchStepOrmEntity {
   @Column({ type: 'simple-json', nullable: true })
   prep_actions?: { action: string; why: string }[] | null;
 
+  // ACTIF-phase end condition (F5, brew-day/01+06) — when the step is over.
+  // Snapshotted at launch like the tip; null on legacy steps.
+  @Column({ type: 'text', nullable: true })
+  done_when?: string | null;
+
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

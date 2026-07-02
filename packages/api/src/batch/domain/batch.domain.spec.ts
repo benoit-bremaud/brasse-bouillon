@@ -89,6 +89,8 @@ describe('BatchDomainService', () => {
     expect(mash?.prepActions?.length).toBeGreaterThan(0);
     expect(mash?.prepActions?.[0].action).toBeTruthy();
     expect(mash?.prepActions?.[0].why).toBeTruthy();
+    // F5: the snapshot also carries the step's end condition.
+    expect(mash?.doneWhen).toBeTruthy();
   });
 
   it('leaves prepActions undefined on packaging — B3 covers it (edge, F4)', () => {

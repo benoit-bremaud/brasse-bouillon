@@ -58,6 +58,9 @@ export type BatchStep = {
   // PRÉP-phase physical gestures, each with its pedagogical why (F4,
   // brew-day/01+06). Null on legacy steps and types without prep (packaging).
   prepActions?: StepPrepAction[] | null;
+  // ACTIF-phase end condition (F5): when the step is over, one pedagogical
+  // sentence. Never gates Complete. Null on legacy steps.
+  doneWhen?: string | null;
 };
 
 // One PRÉP gesture + its one-line why — the app teaches, a novice must learn

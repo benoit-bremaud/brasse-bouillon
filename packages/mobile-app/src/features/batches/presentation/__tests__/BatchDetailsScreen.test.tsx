@@ -291,6 +291,72 @@ describe("BatchDetailsScreen", () => {
     expect(screen.queryByText("Avant de démarrer")).toBeNull();
   });
 
+  it("ACTIF shows the step's end condition near the complete CTA (F5, happy)", async () => {
+    const activeBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? {
+              ...step,
+              doneWhen:
+                "Terminé quand les ~60 minutes sont écoulées. Le chrono est une aide, pas un ordre.",
+            }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(activeBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    // mashBatch step 0 carries a startedAt → ACTIF: the end condition shows,
+    // and « Terminer » stays available regardless (never gated on it).
+    expect(await screen.findByText("C'est terminé quand…")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Terminé quand les ~60 minutes sont écoulées. Le chrono est une aide, pas un ordre.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText("Terminer l'étape en cours")).toBeTruthy();
+  });
+
+  it("PRÉP hides the end condition — it belongs to the running step (F5, edge)", async () => {
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? { ...step, startedAt: null, doneWhen: "Quand ~60 min." }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Démarrer l'étape")).toBeTruthy();
+    expect(screen.queryByText("C'est terminé quand…")).toBeNull();
+  });
+
+  it("ACTIF without an end condition renders no F5 card (edge: legacy step)", async () => {
+    const legacyBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0 ? { ...step, doneWhen: null } : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(legacyBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Terminer l'étape en cours")).toBeTruthy();
+    expect(screen.queryByText("C'est terminé quand…")).toBeNull();
+  });
+
   it("confirms before completing a step, then completes on confirm (F6)", async () => {
     (completeCurrentBatchStep as jest.Mock).mockClear();
     const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});

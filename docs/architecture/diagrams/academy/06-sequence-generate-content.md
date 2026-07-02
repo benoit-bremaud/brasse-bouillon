@@ -14,22 +14,35 @@ glossary references, broken article links, and unsupported blocks before runtime
 ```mermaid
 sequenceDiagram
   actor E as Editor
-  participant Git as "Git repository"
-  participant Parser as "Content parser"
-  participant Schema as "Schema validator"
-  participant Links as "Link validator"
-  participant Blocks as "Block transformer"
-  participant Gen as "Content generator"
-  participant Mobile as "Generated mobile content"
+  box Source_Driver
+    participant Git as "Git repository"
+    participant Markdown as "Markdown/front matter files"
+  end
+  box Pipeline_Adapter
+    participant Parser as "ContentParserAdapter"
+    participant Blocks as "ContentBlockFactory"
+    participant Gen as "TypedContentGenerator"
+  end
+  box Domain_Validation
+    participant Schema as "AcademySchemaSpecifications"
+    participant Links as "AcademyLinkSpecifications"
+    participant Safety as "AcademySafetySpecifications"
+  end
+  box Generated_Driver
+    participant Mobile as "Generated mobile content"
+    participant Retrieval as "Retrieval chunks (future)"
+  end
 
   E->>Git: Add or edit Markdown article
-  Git->>Parser: read docs/academy/**/*.md
+  Git->>Markdown: version content source
+  Markdown->>Parser: read docs/academy/**/*.md
   Parser->>Parser: split front matter and Markdown body
   Parser-->>Schema: parsed article documents
 
   Schema->>Schema: validate required metadata
   Schema->>Schema: validate enums and dates
   Schema->>Schema: validate review/source fields
+  Schema->>Safety: validate sensitive content rules
 
   alt metadata invalid
     Schema-->>E: fail with actionable errors
@@ -39,6 +52,7 @@ sequenceDiagram
     Links->>Links: validate glossary terms
     Links->>Links: validate calculator slugs
     Links->>Links: validate source references
+    Links->>Safety: validate source requirements
 
     alt links invalid
       Links-->>E: fail with broken-link report
@@ -51,7 +65,7 @@ sequenceDiagram
       Gen->>Mobile: write article payloads
       Gen->>Mobile: write glossary payload
       Gen->>Mobile: write search entries
-      Gen->>Mobile: write retrieval chunks (future)
+      Gen->>Retrieval: write retrieval chunks (future)
       Mobile-->>E: generated content ready
     end
   end
@@ -64,3 +78,8 @@ sequenceDiagram
   where possible.
 - Retrieval chunk generation can be present as a future-facing artifact, but the
   chatbot remains out of V1 runtime scope.
+- This sequence shows Clean boundaries because generation crosses source
+  drivers, parser/generator adapters, domain validation specifications, and
+  generated drivers.
+- Domain validation specifications must not depend on filesystem, Markdown
+  parser, or mobile output details.

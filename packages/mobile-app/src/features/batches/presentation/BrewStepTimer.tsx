@@ -14,7 +14,14 @@ import {
 type Props = {
   step: BatchStep;
   useDemoData: boolean;
+  // Next step in the workflow, for the T-minus pre-announce (F9a,
+  // brew-day/06). Null/omitted on the last step: nothing to announce.
+  nextStep?: BatchStep | null;
 };
+
+// T-minus threshold for announcing the next step's PRÉP (F9a). Fixed 5 min:
+// enough to heat/sanitize ahead, short enough to stay relevant.
+const T_MINUS_ANNOUNCE_SEC = 5 * 60;
 
 // Dynamic width can't live in StyleSheet.create() (runtime percentage); keeping
 // it in a tiny helper keeps the JSX free of inline style literals (project rule).
@@ -27,7 +34,11 @@ function progressFillWidth(percent: number) {
  * Renders nothing when the step declares no planned duration (e.g. fermentation,
  * which has its own day-based tracker).
  */
-export function BrewStepTimer({ step, useDemoData }: Readonly<Props>) {
+export function BrewStepTimer({
+  step,
+  useDemoData,
+  nextStep = null,
+}: Readonly<Props>) {
   const countdown = useStepCountdown(step, useDemoData);
   if (!countdown) {
     return null;
@@ -37,6 +48,16 @@ export function BrewStepTimer({ step, useDemoData }: Readonly<Props>) {
     (countdown.totalSec - countdown.remainingSec) / 60,
   );
   const totalMin = Math.round(countdown.totalSec / 60);
+
+  // Derived anticipation cues (F9a, brew-day/06) — nothing persisted:
+  // elapsed timer = calm hand-off to the F5 end condition (never an alarm,
+  // overrunning is NORMAL in brewing); T-minus window = announce the next
+  // step's PRÉP so the brewer anticipates instead of enduring.
+  const isElapsed = countdown.remainingSec <= 0;
+  const announcedNext =
+    !isElapsed && countdown.remainingSec <= T_MINUS_ANNOUNCE_SEC
+      ? nextStep
+      : null;
 
   return (
     <Card style={styles.card}>
@@ -52,10 +73,36 @@ export function BrewStepTimer({ step, useDemoData }: Readonly<Props>) {
         </Text>
       </View>
 
-      <Text style={styles.countdown}>
-        {formatCountdown(countdown.remainingSec)}
-      </Text>
-      <Text style={styles.remainingHint}>restantes</Text>
+      {isElapsed ? (
+        <View style={styles.elapsedBlock}>
+          <Text style={styles.elapsedTitle}>Temps écoulé</Text>
+          <Text style={styles.elapsedHint}>
+            Vérifie la condition de fin ci-dessous, puis termine l'étape quand
+            c'est bon.
+          </Text>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.countdown}>
+            {formatCountdown(countdown.remainingSec)}
+          </Text>
+          <Text style={styles.remainingHint}>restantes</Text>
+        </>
+      )}
+
+      {announcedNext ? (
+        <View style={styles.announceBlock} testID="next-step-announce">
+          <Text style={styles.announceTitle}>
+            Bientôt : {announcedNext.label}
+          </Text>
+          {announcedNext.prepActions?.length ? (
+            <Text style={styles.announceHint}>
+              Profites-en pour préparer : «{" "}
+              {announcedNext.prepActions[0].action} »
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
 
       <View style={styles.progressTrack}>
         <View
@@ -128,5 +175,41 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.caption,
     marginTop: spacing.xxs,
     textAlign: "center",
+  },
+  elapsedBlock: {
+    alignItems: "center",
+    marginBottom: spacing.sm,
+    gap: spacing.xxs,
+  },
+  elapsedTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.h2,
+    lineHeight: typography.lineHeight.h2,
+    fontWeight: typography.weight.bold,
+    textAlign: "center",
+  },
+  elapsedHint: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    textAlign: "center",
+  },
+  announceBlock: {
+    borderRadius: radius.md,
+    backgroundColor: colors.state.infoBackground,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+    gap: spacing.xxs,
+  },
+  announceTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  announceHint: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
 });

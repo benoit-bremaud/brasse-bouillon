@@ -714,7 +714,15 @@ export function BatchDetailsScreen({ batchId }: Props) {
       ) : null}
 
       {!isCompletedLive && activeStep ? (
-        <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
+        <BrewStepTimer
+          step={activeStep}
+          useDemoData={dataSource.useDemoData}
+          nextStep={
+            batch?.steps?.find(
+              (s) => s.stepOrder === activeStep.stepOrder + 1,
+            ) ?? null
+          }
+        />
       ) : null}
 
       {/* End condition (F5, brew-day/01+06): shown only in ACTIF — the brewer

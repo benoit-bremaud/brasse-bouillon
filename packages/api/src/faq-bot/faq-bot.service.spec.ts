@@ -140,9 +140,15 @@ describe('FaqBotService', () => {
       // opaque unhandled 500 instead of a clean unavailable signal.
       const service = build(makeConfig({ altchaHmacKey: '' }));
 
-      await expect(service.issueChallenge()).rejects.toThrow(
-        FaqBotUnavailableException,
-      );
+      const error: unknown = await service
+        .issueChallenge()
+        .then(() => null)
+        .catch((thrown: unknown) => thrown);
+
+      expect(error).toBeInstanceOf(FaqBotUnavailableException);
+      // Pin the actual HTTP status: exception type alone would keep passing
+      // if the status ever regressed.
+      expect((error as FaqBotUnavailableException).getStatus()).toBe(503);
     });
   });
 });

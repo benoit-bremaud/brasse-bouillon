@@ -77,13 +77,22 @@ describe('faqBotConfig — botCheckBypassAllowed derivation', () => {
 });
 
 describe('faqBotConfig — altchaHmacKey parsing', () => {
-  const saved = process.env.ALTCHA_HMAC_KEY;
+  // Restore every env key the suite mutates (APP_ENV included) so no state
+  // leaks into other spec files and the suite stays order-independent.
+  const KEYS = ['ALTCHA_HMAC_KEY', 'APP_ENV'] as const;
+  let saved: Record<string, string | undefined>;
+
+  beforeEach(() => {
+    saved = Object.fromEntries(KEYS.map((key) => [key, process.env[key]]));
+  });
 
   afterEach(() => {
-    if (saved === undefined) {
-      delete process.env.ALTCHA_HMAC_KEY;
-    } else {
-      process.env.ALTCHA_HMAC_KEY = saved;
+    for (const key of KEYS) {
+      if (saved[key] === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = saved[key];
+      }
     }
   });
 

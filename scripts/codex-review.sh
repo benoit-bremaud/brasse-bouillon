@@ -89,7 +89,7 @@ Must Have (blocking) — flag any of:
 - Bypass of the NestJS response envelope in packages/api.
 - Skipped or `xit`/`xdescribe` tests introduced.
 - Missing TypeORM migration when an entity adds/removes/renames a column.
-- Direct commit to `main` detectable in the commit history.
+- Direct commit to `__BASE__` detectable in the commit history.
 - ADR violations (read docs/architecture/decisions/0001..0005 and 0013): e.g.
   mobile calling a third-party HTTP service directly instead of via the API
   (ADR-0002), or consent-store writes outside the canonical append-only
@@ -108,9 +108,12 @@ Disagree — anything that looks off but is justified by a tolerated ADR-0001
 exception or an established pattern; give a one-line rationale.
 
 End with a Summary: ADRs honoured (y/n), forbidden patterns present (y/n),
-H/S/E covered for new units (y/n), branch from main + Conventional Commits
+H/S/E covered for new units (y/n), branch from __BASE__ + Conventional Commits
 (y/n), Ready for push (y/n).
 PROMPT
+
+# The heredoc is quoted so its backticks stay literal; inject the runtime base.
+INSTRUCTIONS="${INSTRUCTIONS//__BASE__/$BASE}"
 
 echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2
 

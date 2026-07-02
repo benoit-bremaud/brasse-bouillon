@@ -64,6 +64,12 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   exit 1
 fi
 
+# Reject option-lookalike or malformed refs before handing $BASE to git.
+if [[ "$BASE" == -* ]] || ! git check-ref-format --branch "$BASE" >/dev/null 2>&1; then
+  echo "error: invalid base branch name: '$BASE'" >&2
+  exit 2
+fi
+
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$CURRENT_BRANCH" == "$BASE" ]]; then
   echo "error: current branch is '$BASE'; nothing to review against itself." >&2

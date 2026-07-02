@@ -9,7 +9,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### PR #1317 merged (`2f607c8`) — chore(mobile): drop the dead encyclopedia URL from EAS build profiles
 
-- Branch `chore/eas-drop-dead-encyclopedia-url`. Removes `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` (the destroyed `brasse-bouillon-encyclopedia` Fly app, [[project_encyclopedia_fly_deploy]]) from the `preview` and `preview-demo` EAS profiles; `env.encyclopediaUrlIsConfigured` now reads false so consumers stop dialing a dead host. Per-surface behaviour (review-verified): beer-catalog fails fast (« encyclopedia not configured », Codex #871 guard); scan falls back to the legacy NestJS `/scan/lookup` path (#1186) — NOT a fail-fast. Brew-day novice journey unaffected. Prep for the `preview`-profile APK (live prod API, migrations 1805-1807 live) for the novice re-test.
+- Branch `chore/eas-drop-dead-encyclopedia-url`. Removes `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` (the `brasse-bouillon-encyclopedia` Fly app was destroyed 2026-07-02) from the `preview` and `preview-demo` EAS profiles; `env.encyclopediaUrlIsConfigured` now reads false so consumers stop dialing a dead host. Per-surface behaviour (review-verified): beer-catalog fails fast (« encyclopedia not configured », Codex #871 guard); scan falls back to the legacy NestJS `/scan/lookup` path (#1186) — NOT a fail-fast. Brew-day novice journey unaffected. Prep for the `preview`-profile APK (live prod API, migrations 1805-1807 live) for the novice re-test.
 - Reviews — local pre-push ritual (Claude 0 Must Have; the review corrected the initial commit narrative, which overstated scan as fail-fast). Config-only; CI green.
 
 ### EAS Android build submitted (2026-07-03) — `preview` profile for the novice re-test

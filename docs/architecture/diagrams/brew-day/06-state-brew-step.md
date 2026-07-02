@@ -81,6 +81,13 @@ stateDiagram-v2
 - **Pedagogy hook (ADR-0021 D5).** Each phase carries the adaptive "why?" (inline + foldable +
   glossary), tuned to the declared brewer level — surfaced in PRÉP (what to do) and ACTIF (what
   is happening). Not a state; an overlay on every phase.
+- **PRÉP content (F4, amended 2026-07-02).** The "guided do X" of PRÉP is realised by the
+  per-step-type **prep actions** carried by the launch-time guidance enrichment (see
+  `01-sequence-step-enrichment.md`): a short physical checklist (heat strike water, sanitize,
+  chill + pitch, …), each action carrying its **one-line pedagogical why** (the app teaches —
+  a novice must learn to brew alone), rendered above the `Start` CTA. Ticks are UI-local and
+  `Start` is **not hard-gated** on them — guidance with an escape hatch, mirroring the unified
+  ✋ philosophy.
 - **Open question.** Reopen semantics when the batch has already advanced several steps — bound
   Reopen to the *current* step only, or allow reopening any completed step? Resolve at
   implementation (baby-step slice).

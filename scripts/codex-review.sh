@@ -72,7 +72,8 @@ git fetch origin "$BASE" --quiet 2>/dev/null || true
 # .claude/agents/pr-pre-reviewer.md.
 read -r -d '' INSTRUCTIONS <<'PROMPT' || true
 You are a strict, read-only reviewer for the brasse-bouillon monorepo.
-Review ONLY the diff against the base branch. Output English, no AI attribution.
+Review ONLY the diff against the base branch. Output English. AI attribution
+(Co-Authored-By, "Generated with") is allowed, not mandatory — never flag it.
 
 Group findings as Must Have / Should Have / Nice to Have / Disagree, each with
 a `path/to/file.ts:line` anchor and a one-line suggested fix.
@@ -100,7 +101,7 @@ persisting via the API from day one, missing Swagger decorator on a new
 endpoint, naming/import-order deviations, Conventional Commits not respected,
 a packages/website/ public page edited on one language side only (missing
 French/English mirror), no PROJECT_LOG.md entry drafted for a significant
-change, any AI attribution in commit messages or files.
+change.
 
 Nice to Have — readability, extraction, WHY-not-WHAT comments.
 

@@ -70,7 +70,6 @@ For every file in the diff, check the points below. Group findings by priority.
 - **Imports out of order** (React/RN → third-party → `@/core` → `@/features` → relative)
 - **Missing French/English mirror** in `packages/website/` (a public page edited only on one language side)
 - **No PROJECT_LOG.md entry** drafted when this PR would merge a significant change
-- **AI attribution** (`Co-Authored-By`, "Generated with", "Claude", "Copilot", "Codex", "GPT") in any commit message or file under git
 
 ### Nice to Have — cosmetic / optional
 
@@ -132,5 +131,5 @@ If there are no findings in a section, write `_None._` rather than omitting the 
 - **Cite, don't paraphrase.** When flagging an ADR violation, quote the ADR clause briefly.
 - **Be specific.** Always provide `file:line`. Never say "somewhere in the recipes module".
 - **English only** in the report. The developer reads it in the editor; GitHub-bound artefacts are English.
-- **No AI attribution** in any text you produce.
+- **AI attribution is allowed** (policy reversed 2026-07-02): `Co-Authored-By` trailers, "Generated with", or AI-tool mentions in commits/files are permitted, not mandatory — never flag them as a finding.
 - **Stop early** if the diff is empty (no commits between `origin/main` and `HEAD`). Report it and exit.

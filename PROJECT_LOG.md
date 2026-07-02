@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-03
+
+### PR #1311 merged (`7641480`) — fix(api): copy faq-bot prompt assets to the runtime dist root
+
+- Branch `fix/api-nest-cli-assets-outdir`, 2 commits (`12e01c0`, `9f499a8`). Closes the **H3 blocker** (2026-07-02 hosting session): the faq-bot module (#1293) crashed NestJS at boot in the production image (`ENOENT dist/faq-bot/prompts/system-prompt.md`), leaving `main` undeployable to Fly. Root cause: the Docker build copies `src/` only → tsc infers `rootDir=src` → compiled loader at `dist/faq-bot/prompts/`, while the nest-cli assets glob shipped the `.md` to `dist/src/…`. Fix in two moves: assets `outDir` → `dist`, then (Codex P1, accepted) `scripts/` excluded from `tsconfig.build.json` so **every** build — Docker src-only, CI full checkout, local — emits the same layout (`dist/main.js`, prompts beside the compiled loader). Verified by reproducing both layouts and executing the compiled `loadFaqBotPrompts()`.
+- Reviews — local pre-push ritual (Claude 0 Must / 0 Should); **Codex GitHub review returned** (quota refilled) with 1 P1, accepted in `9f499a8`. CI green. **Unblocks**: Fly API deploys from `main` (migrations 1805-1807 queued) and the faq-bot activation prerequisites (budget-counter persistence + secrets, tracked separately).
+
 ## 2026-07-02
 
 ### PR #1309 merged (`30c075e`) — feat(batches): T-minus pre-announce + calm elapsed timer state (F9a)

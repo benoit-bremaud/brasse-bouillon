@@ -99,5 +99,6 @@ Otherwise, loop back to Step 4. The human triggers the actual `git push`.
 - **Read-only reviewers.** Steps 1–2 never mutate the working tree. Fixes happen
   in Step 4, attributed to the reconciled list.
 - **No silent skips.** If a reviewer could not run, say so in the output.
-- **English** in all review artefacts and commit messages; **no AI attribution**.
+- **English** in all review artefacts and commit messages. AI attribution
+  (`Co-Authored-By`, "Generated with") is allowed, not mandatory — never a finding.
 - **Never push automatically.** Step 5 authorises; the human pushes.

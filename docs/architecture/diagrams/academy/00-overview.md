@@ -59,6 +59,22 @@ screen components.
 9. [Sequence: future chatbot RAG](09-sequence-chatbot-rag.md)
 10. [Implementation notes](10-implementation-notes.md)
 
+## Documentation Check
+
+Context7 was requested but is not available in this Codex session. The review
+therefore used current official documentation directly:
+
+- Mermaid 11.16.0 syntax documentation for flowchart, class, sequence, and state
+  diagrams.
+- Expo Router documentation for file-based routing, dynamic route parameters,
+  `Link asChild`, and route prefetch constraints.
+- React Native documentation for accessibility labels, hints, and image `alt`
+  support.
+
+The diagrams intentionally use conservative Mermaid syntax. Newer flowchart
+shape aliases and ambiguous labels such as lowercase `end` are avoided until the
+project renderer version is confirmed.
+
 ## Implementation Order Suggested By This Study
 
 1. Domain contracts for articles, blocks, glossary, links, sources, and search.

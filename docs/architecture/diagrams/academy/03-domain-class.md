@@ -42,7 +42,7 @@ classDiagram
   }
 
   class AcademyContentBlock {
-    <<union>>
+    <<enumeration>>
     paragraph
     heading
     bulletList

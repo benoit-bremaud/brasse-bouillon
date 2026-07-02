@@ -37,6 +37,24 @@ packages/mobile-app/src/features/academy/
 If moving files in one PR is too broad, the first implementation may keep route
 files in place and introduce the new feature boundary incrementally.
 
+## Routing Notes
+
+The Academy should follow Expo Router conventions already used by the mobile
+app.
+
+- Prefer canonical app routes such as `/(app)/academy/[slug]` and
+  `/(app)/tools/[slug]/calculator` when the implementation phase defines final
+  route names.
+- Use dynamic route parameters for article, glossary, and calculator slugs
+  instead of building paths through string concatenation in screens.
+- Use `Link asChild` when a card, chip, or custom `Pressable` acts as a link,
+  because `Link` renders text-oriented children by default.
+- Keep route resolution inside `AcademyLinkResolver`; screens should request an
+  action for a semantic link target.
+- Treat prefetch as an optimization only. Expo Router preloaded screens have
+  restrictions before navigation, so loaders and analytics must work correctly
+  without depending on prefetch.
+
 ## Content Source Shape
 
 Recommended source structure:
@@ -84,6 +102,10 @@ It should not:
 - Import article-specific components.
 - Parse raw Markdown at runtime.
 - Hardcode calculator routes outside the link resolver.
+
+Image blocks should expose accessible text through React Native `Image` `alt`
+where available. Interactive controls should use meaningful accessibility labels
+and hints when the visible text is not enough.
 
 ## V1 Test Focus
 

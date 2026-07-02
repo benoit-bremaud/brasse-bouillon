@@ -330,7 +330,8 @@ Visual requirements:
 
 - Mobile optimized.
 - Tablet scalable.
-- Accessible alt text.
+- Accessible text for visual content, using React Native `Image` `alt` where
+  available and accessibility labels or hints for interactive controls.
 - Lightweight.
 - Prefer simple SVG or native diagram components when appropriate.
 

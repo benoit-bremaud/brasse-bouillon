@@ -51,6 +51,10 @@ docs/academy/
 - Reading time is positive.
 - Slug matches file or configured canonical slug rule.
 - Published articles include summary, tags, update date, and review metadata.
+- Editorial front matter uses snake_case; generated TypeScript payloads use
+  camelCase. The generator owns this mapping and validates both sides through
+  schemas. The source `slug` is promoted to `AcademyArticle.slug` in generated
+  payloads to avoid duplicated slug state.
 
 ### Phase 3 - Body Parsing
 

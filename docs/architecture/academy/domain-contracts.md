@@ -53,7 +53,6 @@ export interface AcademyReviewMetadata {
 }
 
 export interface AcademyArticleMetadata {
-  readonly slug: string;
   readonly title: string;
   readonly summary: string;
   readonly category: AcademyCategory;
@@ -80,7 +79,12 @@ export interface AcademyArticleMetadata {
 
 ```ts
 export interface AcademyArticle {
+  readonly slug: string;
   readonly metadata: AcademyArticleMetadata;
+  readonly body: AcademyArticleBody;
+}
+
+export interface AcademyArticleBody {
   readonly sections: readonly AcademySection[];
 }
 
@@ -244,6 +248,7 @@ export interface CalculatorLink {
   readonly slug: string;
   readonly label: string;
   readonly reason: string;
+  readonly target: Extract<AcademyLinkTarget, { readonly type: 'calculator' }>;
 }
 
 export type AcademyLinkTarget =
@@ -259,7 +264,12 @@ targets into navigation actions.
 ## Search
 
 ```ts
-export type AcademySearchResultKind = 'article' | 'section' | 'glossary';
+export type AcademySearchResultKind =
+  | 'article'
+  | 'section'
+  | 'glossary'
+  | 'faq'
+  | 'calculator';
 
 export interface AcademySearchEntry {
   readonly id: string;

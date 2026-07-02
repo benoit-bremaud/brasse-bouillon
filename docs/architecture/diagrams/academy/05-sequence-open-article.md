@@ -23,8 +23,7 @@ sequenceDiagram
     participant LinkPort as "AcademyLinkResolverPort"
   end
   box Domain
-    participant Article as "AcademyArticle"
-    participant Blocks as "AcademyContentBlock[]"
+    participant DomainModel as "AcademyArticle + blocks"
   end
   box Adapter
     participant Repo as "GeneratedAcademyRepository"
@@ -50,12 +49,13 @@ sequenceDiagram
   Repo->>Payload: read generated article content
   alt article found
     Payload-->>Repo: raw generated article data
-    Repo-->>Article: map to domain article
-    Article-->>Repo: AcademyArticle
+    Repo->>Repo: map to domain article
+    Repo-->>DomainModel: creates immutable domain data
+    DomainModel-->>Repo: AcademyArticle
     Repo-->>UC: AcademyArticle
     UC->>Presenter: toArticleViewModel(article)
-    Presenter->>Blocks: read block contracts
-    Blocks-->>Presenter: renderable sections
+    Presenter->>DomainModel: read block contracts
+    DomainModel-->>Presenter: renderable sections
     Presenter-->>UC: ArticleViewModel
     UC-->>Screen: ArticleViewModel
     Screen->>Renderer: render(viewModel.sections)
@@ -80,3 +80,4 @@ sequenceDiagram
   application, domain, adapter, and generated-driver boundaries.
 - Presentation depends on use cases and presenters; the domain does not depend
   on React Native, Expo Router, or generated files.
+- Domain participants represent immutable data and rules, not active services.

@@ -26,7 +26,7 @@ classDiagram
     +AcademyLevel level
     +AcademyStatus status
     +string version
-    +int estimatedReadTime
+    +int estimatedReadTimeMinutes
     +Date updatedAt
     +boolean sensitive
   }
@@ -58,19 +58,22 @@ classDiagram
 
   class GlossaryTerm {
     +string slug
-    +string term
+    +string label
     +string[] aliases
     +string shortDefinition
-    +string longDefinition
-    +AcademyLevel level
+    +string detailedDefinition
   }
 
   class SourceReference {
     +string id
+    +SourceKind kind
     +string title
+    +string[] authors
+    +string publisher
     +string url
-    +SourceType type
-    +string note
+    +Date accessedAt
+    +int year
+    +string notes
   }
 
   class ReviewMetadata {
@@ -81,17 +84,20 @@ classDiagram
   }
 
   class CalculatorLink {
-    +CalculatorSlug slug
+    +string slug
     +string label
+    +string reason
     +AcademyLinkTarget target
   }
 
-  class SearchIndexEntry {
+  class AcademySearchEntry {
     +string id
-    +SearchEntryType type
+    +AcademySearchResultKind kind
     +string title
-    +string summary
-    +string[] tokens
+    +string excerpt
+    +string[] keywords
+    +AcademyLevel level
+    +AcademyCategory category
     +AcademyLinkTarget target
   }
 
@@ -99,9 +105,10 @@ classDiagram
     +string id
     +string articleSlug
     +string sectionId
-    +string content
+    +string text
     +string[] sourceIds
-    +string version
+    +string[] glossaryTermSlugs
+    +boolean sensitive
   }
 
   class ChatbotAnswer {
@@ -140,10 +147,10 @@ classDiagram
   AcademyArticleMetadata "*" --> "*" CalculatorLink
   AcademyArticleMetadata "*" --> "*" GlossaryTerm
   CalculatorLink ..> AcademyLinkTarget : targets
-  SearchIndexEntry ..> AcademyLinkTarget : targets
+  AcademySearchEntry ..> AcademyLinkTarget : targets
   RelatedAction ..> AcademyLinkTarget : targets
-  SearchIndexEntry ..> AcademyArticle : indexes
-  SearchIndexEntry ..> GlossaryTerm : indexes
+  AcademySearchEntry ..> AcademyArticle : indexes
+  AcademySearchEntry ..> GlossaryTerm : indexes
   RetrievalChunk ..> AcademySection : chunks
   RetrievalChunk ..> SourceReference : cites
   ChatbotAnswer "1" --> "*" ChatbotCitation
@@ -206,7 +213,7 @@ classDiagram
   LocalAcademySearchStrategy ..|> AcademySearchPort
   ExpoAcademyLinkResolver ..|> AcademyLinkResolverPort
   AcademyArticlePresenter ..> AcademyArticle
-  AcademyHubPresenter ..> SearchIndexEntry
+  AcademyHubPresenter ..> AcademySearchEntry
 ```
 
 ## Enumerations
@@ -221,7 +228,7 @@ classDiagram
     fermentation
     water
     equipment
-    styles
+    beer_styles
     safety
     troubleshooting
     glossary
@@ -249,21 +256,23 @@ classDiagram
     validated
   }
 
-  class SourceType {
+  class SourceKind {
     <<enumeration>>
     book
     standard
-    technical_article
-    manufacturer_doc
-    internal_note
+    article
+    website
+    course
+    manufacturer_documentation
   }
 
-  class SearchEntryType {
+  class AcademySearchResultKind {
     <<enumeration>>
     article
     section
-    glossary_term
+    glossary
     faq
+    calculator
   }
 
   class RelatedActionType {
@@ -278,6 +287,9 @@ classDiagram
 ## Notes
 
 - `AcademyContentBlock` is a discriminated union in TypeScript.
+- Mermaid enumeration entries use underscore-safe labels where TypeScript
+  literals may use hyphenated values, for example `beer_styles` maps to
+  `'beer-styles'`.
 - `RetrievalChunk` is generated for future chatbot retrieval, not manually edited.
 - `ChatbotAnswer` is future-facing and must not drive V1 scope.
 - `CalculatorLink` and search entries expose semantic targets, not concrete

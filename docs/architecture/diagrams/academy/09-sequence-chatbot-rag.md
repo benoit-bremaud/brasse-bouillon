@@ -26,7 +26,6 @@ sequenceDiagram
   end
   box Domain
     participant Policy as "SourcedAnswerPolicy"
-    participant Answer as "ChatbotAnswer"
   end
   box Adapter
     participant Retrieve as "AcademyRetrievalAdapter"
@@ -49,7 +48,7 @@ sequenceDiagram
   alt no reliable source
     Retrieve-->>API: insufficient evidence
     API->>Policy: build abstention
-    Policy-->>Answer: no sourced answer
+    Policy-->>API: no sourced answer
     API-->>UI: no sourced answer + related articles
     UI-->>B: "No validated Academy source yet"
   else sources found
@@ -62,8 +61,7 @@ sequenceDiagram
     Provider-->>LLM: provider response
     LLM-->>API: draft answer
     API->>Citations: attach article/section/source citations
-    Citations-->>Answer: sourced answer
-    Answer-->>API: ChatbotAnswer
+    Citations-->>API: ChatbotAnswer
     API-->>UI: answer + citations + related actions
     UI-->>B: display sourced answer
   end
@@ -81,6 +79,8 @@ sequenceDiagram
   providers.
 - The use case depends on `RetrievalPort` and `LlmPort`, not directly on vector
   storage or LLM provider SDKs.
+- Domain policy is modeled as behavior; `ChatbotAnswer` remains a returned data
+  contract, not an active service participant.
 
 ## Future Extensions
 

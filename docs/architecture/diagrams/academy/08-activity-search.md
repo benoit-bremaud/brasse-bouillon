@@ -33,7 +33,7 @@ flowchart TD
   Open -->|calculator| Calculator["Open calculator"]
   Open -->|faq| FaqTarget["Open target article section"]
 
-  HasResults -->|no| NoResult["Show no-result state<br/>suggest categories and future chatbot entry"]
+  HasResults -->|no| NoResult["Show no-result state<br/>suggest categories and future help placeholder if enabled"]
 
   Suggestions --> End([Done])
   Article --> End

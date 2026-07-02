@@ -123,6 +123,15 @@ sensitive: false
 The article body should use Markdown plus a small controlled set of custom
 blocks. The source must not become arbitrary embedded React components.
 
+Naming rule:
+
+```text
+Editorial front matter uses snake_case.
+Generated TypeScript payloads use camelCase.
+The content generator owns the mapping between both shapes.
+The source `slug` is promoted to `AcademyArticle.slug` in generated payloads.
+```
+
 Allowed V1 block families:
 
 - Paragraphs.

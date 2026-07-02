@@ -113,7 +113,7 @@ describe("BrewStepTimer", () => {
   it("switches to a calm elapsed state at 00:00 and hands off to the end condition (F9a)", () => {
     render(
       <BrewStepTimer
-        step={liveStepAt(-1)}
+        step={{ ...liveStepAt(-1), doneWhen: "Quand les ~60 min sont là." }}
         useDemoData={false}
         nextStep={NEXT_STEP}
       />,
@@ -127,5 +127,20 @@ describe("BrewStepTimer", () => {
     // step's PRÉP will greet the brewer right after Terminer anyway).
     expect(screen.queryByText("restantes")).toBeNull();
     expect(screen.queryByText(/Bientôt/)).toBeNull();
+  });
+
+  it("elapsed on a legacy step points nowhere — no doneWhen card exists (F9a, edge)", () => {
+    render(
+      <BrewStepTimer
+        step={liveStepAt(-1)}
+        useDemoData={false}
+        nextStep={null}
+      />,
+    );
+
+    expect(screen.getByText("Temps écoulé")).toBeTruthy();
+    // The hint must not reference a card that is not on the screen.
+    expect(screen.queryByText(/condition de fin ci-dessous/)).toBeNull();
+    expect(screen.getByText(/Termine l'étape quand c'est bon/)).toBeTruthy();
   });
 });

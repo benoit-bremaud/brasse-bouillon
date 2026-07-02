@@ -76,9 +76,12 @@ export function BrewStepTimer({
       {isElapsed ? (
         <View style={styles.elapsedBlock}>
           <Text style={styles.elapsedTitle}>Temps écoulé</Text>
+          {/* Point at the F5 doneWhen card only when the step carries one —
+              legacy steps have none, so the pointer would mislead. */}
           <Text style={styles.elapsedHint}>
-            Vérifie la condition de fin ci-dessous, puis termine l'étape quand
-            c'est bon.
+            {step.doneWhen
+              ? "Vérifie la condition de fin ci-dessous, puis termine l'étape quand c'est bon."
+              : "Termine l'étape quand c'est bon — le chrono est une aide, pas un ordre."}
           </Text>
         </View>
       ) : (

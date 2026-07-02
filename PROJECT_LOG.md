@@ -7,10 +7,22 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-02
 
+### PR #1302 merged (`9a80e6f`) — chore(review): fix codex-review.sh for codex-cli >= 0.142 review targets
+
+- Branch `chore/codex-review-target-fix`, 2 commits (`4a208f1`, `c51bf48`). codex-cli 0.142 made `--base` and a custom PROMPT mutually exclusive review targets, breaking the pre-push ritual's Codex leg; the base-diff scope now rides in the prompt, with the base ref resolved in bash (prefer `refs/remotes/origin/<base>` when present) so Codex receives one concrete range. Review — Copilot 1 thread (resolve-in-bash) accepted in `c51bf48`. Related: #1298 closed as duplicate (superseded by #1301 + this PR).
+
+### PR #1301 merged (`a542c49`) — chore(review): align review pipeline with reversed AI-attribution policy
+
+- Branch `chore/review-ai-attribution-policy`. Removes the stale "no AI attribution" instructions from the local review pipeline (codex-review.sh prompt, pr-pre-reviewer agent, pre-push-review skill) — the attribution policy was reversed 2026-07-02 (transparency; see PR #1296 for the repo-wide CLAUDE.md alignment).
+
 ### PR #1300 merged (`53f34a9`) — feat(batches): draft/prep batch tier with persisted checklist (F14/F15)
 
 - Branch `feat/batch-draft-prep` (API + mobile), 2 commits (`d185a7e` feature, `f1d178a` review fix). Slice **07b** of the brew-day structural block. A batch now exists as an « en préparation » **draft** before launch: nullable `launched_at` + `prep_checked_ids` columns (same soft-lifecycle model as 07a — no CHECK rebuild), derived precedence archived > cancelled > draft > raw status; migration `1805000000000` backfills `launched_at = started_at` for legacy rows and adds a **partial unique index** (one unlaunched draft per owner+recipe) backing `prepareMine`'s idempotency under concurrent calls (race recovery in the service). Domain `startBatch` split into `prepareBatch()` / `launchBatch()` (steps snapshotted at launch, not at prepare); `updateMinePrepChecklist()` persists the checklist ticks on the draft; draft guards freeze every journal operation on an unlaunched batch. Endpoints: `POST /batches/prepare`, `PATCH /batches/:id/prep-checklist`, `PATCH /batches/:id/launch`. Mobile: `BrewPrepScreen` backed by the persisted draft (optimistic toggles; checklist PATCHes **serialized client-side** — one in flight, latest list coalesced — so out-of-order full replacements cannot lose ticks); `BatchesScreen` shows « En préparation » and routes drafts back to the prepare screen; demo seed stamps `launched_at` so the completed demo brew never derives as a draft. UML synced (brew-day `07-state-batch-lifecycle`, brew-prep `02-sequence-plan-and-confirm` + `04-class`). Fixes F14/F15.
 - Reviews — local pre-push ritual (0 Must Have; 3 P2 fixed pre-push: unique-index idempotency backstop, demo-seed stamp, PATCH serialization) then GitHub round 1 (Copilot + Codex, 4 threads): launch now **gated until checklist saves settle** (`f1d178a` — a launch racing an in-flight PATCH lost the last tick); prepare-on-readable-recipe semantics **kept with rationale** (mirrors `startMine`, #779) — import-first vs brew-readable flagged as a product-level follow-up candidate. CI green; API 908 tests; mobile 1163 tests. Migration applies on the next Fly `api` deploy (still blocked by the H3 `nest-cli.json` fix).
+
+### PR #1299 merged (`6459945`) — chore(review): sync codex-review.sh checklist with pr-pre-reviewer agent
+
+- Branch `chore/codex-review-checklist-sync`. Item-by-item diff of the script's condensed `INSTRUCTIONS` heredoc against `.claude/agents/pr-pre-reviewer.md` found drift; re-aligned (three missing Must Have items plus Should Have additions) while keeping the script's terse style — the two checklists must stay in sync so both local reviewers grade against the same bar.
 
 ### Fly.io hosting cost session (decisions H1–H3)
 

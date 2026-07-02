@@ -8,9 +8,11 @@
 # `pr-pre-reviewer` agent + /code-review, Codex reviews here, and the two
 # reports are reconciled before any push.
 #
-# It wraps `codex exec review`, which reviews the diff against a base branch
-# without mutating the working tree. It replays the same checklist as the
-# `pr-pre-reviewer` agent so both reviewers judge against the same rules.
+# It wraps `codex exec review` (custom-prompt target), which reviews without
+# mutating the working tree. Since codex-cli 0.142, `--base` and a custom
+# PROMPT are mutually exclusive review targets, so the base-diff scope is
+# injected into the prompt instead of passed as a flag. It replays the same
+# checklist as the `pr-pre-reviewer` agent so both judge against the same rules.
 #
 # Cost note: each run consumes the OpenAI/ChatGPT quota tied to your Codex
 # CLI auth — a quota SEPARATE from GitHub Copilot premium requests.
@@ -38,7 +40,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -h|--help)
-      sed -n '2,30p' "$0"
+      sed -n '2,25p' "$0"
       exit 0
       ;;
     *)
@@ -116,12 +118,25 @@ PROMPT
 # The heredoc is quoted so its backticks stay literal; inject the runtime base.
 INSTRUCTIONS="${INSTRUCTIONS//__BASE__/$BASE}"
 
+# codex-cli rejects `--base` alongside a custom prompt, so the diff scope
+# rides in the prompt itself. Resolve the base ref here (prefer the
+# remote-tracking ref when present) so Codex receives ONE concrete range
+# instead of a fallback rule it could misapply.
+if git rev-parse --verify --quiet "refs/remotes/origin/${BASE}" >/dev/null; then
+  DIFF_BASE="origin/${BASE}"
+else
+  DIFF_BASE="${BASE}"
+fi
+printf -v INSTRUCTIONS '%s\n%s' \
+  "Review the diff ${DIFF_BASE}...HEAD." \
+  "$INSTRUCTIONS"
+
 echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2
 
 if [[ -n "$OUT" ]]; then
-  codex exec review --base "$BASE" --output-last-message "$OUT" "$INSTRUCTIONS"
+  codex exec review --output-last-message "$OUT" "$INSTRUCTIONS"
   echo "Report written to: $OUT" >&2
   cat "$OUT"
 else
-  codex exec review --base "$BASE" "$INSTRUCTIONS"
+  codex exec review "$INSTRUCTIONS"
 fi

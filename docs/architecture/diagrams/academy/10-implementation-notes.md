@@ -55,6 +55,36 @@ app.
   restrictions before navigation, so loaders and analytics must work correctly
   without depending on prefetch.
 
+## Design Patterns Guidance
+
+Use design patterns when they reduce coupling, improve testability, or clarify a
+business responsibility. Do not introduce a pattern only to make the architecture
+look more formal.
+
+Recommended patterns for the Academy implementation:
+
+- `Repository`: expose article, glossary, search index, and source data through
+  stable read APIs. Screens and use cases should not import generated files
+  directly.
+- `Adapter`: convert Markdown/front matter, YAML, or generated payloads into the
+  domain contracts consumed by the app.
+- `Factory` or `Builder`: create validated `AcademyContentBlock[]` structures
+  from parsed content during generation.
+- `Strategy`: isolate search behavior so V1 lexical search can later evolve
+  toward hybrid or retrieval-backed search without rewriting screens.
+- `Resolver`: centralize article, glossary, calculator, and app-context links in
+  `AcademyLinkResolver`.
+- `Presenter` or view model: prepare dense mobile article and hub data for UI
+  components without leaking business rules into React Native views.
+- `Specification`: express validation rules such as required sources for
+  sensitive content, allowed article states, and valid bidirectional links.
+- `Template Method`: structure the content generation pipeline only if the
+  implementation needs a repeatable sequence of read, parse, validate, generate,
+  and index steps.
+
+Pattern usage must remain concrete. If a pattern adds files without removing
+real duplication or coupling, keep the simpler implementation.
+
 ## Content Source Shape
 
 Recommended source structure:

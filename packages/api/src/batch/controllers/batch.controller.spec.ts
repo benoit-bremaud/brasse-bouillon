@@ -11,7 +11,7 @@ import { BatchStepStatus } from '../domain/enums/batch-step-status.enum';
 import { CreateBatchReminderDto } from '../dtos/create-batch-reminder.dto';
 import { MeasurementOrmEntity } from '../entities/measurement.orm.entity';
 import { MeasurementType } from '../domain/enums/measurement-type.enum';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ObservationOrmEntity } from '../entities/observation.orm.entity';
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
 import { StartBatchDto } from '../dtos/start-batch.dto';
@@ -41,11 +41,25 @@ describe('BatchController', () => {
     status: BatchStatus.IN_PROGRESS,
     current_step_order: 1,
     started_at: new Date(),
+    // launched: without this stamp the DTO would derive a draft (brew-day/07)
+    launched_at: new Date(),
+    prep_checked_ids: null,
     fermentation_started_at: null,
     fermentation_completed_at: null,
     completed_at: null,
     created_at: new Date(),
     updated_at: new Date(),
+  };
+
+  /**
+   * Mock draft batch (« en préparation » — never launched)
+   */
+  const mockDraftOrm: BatchOrmEntity = {
+    ...mockBatchOrm,
+    id: '550e8400-e29b-41d4-a716-446655440009',
+    current_step_order: null,
+    launched_at: null,
+    prep_checked_ids: ['malt-0'],
   };
 
   /**
@@ -106,6 +120,9 @@ describe('BatchController', () => {
           provide: BatchService,
           useValue: {
             startMine: jest.fn(),
+            prepareMine: jest.fn(),
+            updateMinePrepChecklist: jest.fn(),
+            launchMine: jest.fn(),
             listMine: jest.fn(),
             getMineById: jest.fn(),
             deleteMine: jest.fn(),
@@ -172,6 +189,102 @@ describe('BatchController', () => {
         NotFoundException,
       );
       expect(startMineSpy).toHaveBeenCalledWith(mockUser.id, dto.recipeId);
+    });
+  });
+
+  /**
+   * Draft « en préparation » routes (brew-day/07, F14/F15)
+   */
+  describe('prepareMine() - POST /batches/prepare', () => {
+    it('should create or resume the draft and expose the draft status + coches', async () => {
+      const prepareSpy = jest.spyOn(service, 'prepareMine').mockResolvedValue({
+        batch: mockDraftOrm,
+        steps: [],
+      });
+
+      const result = await controller.prepareMine(mockUser, {
+        recipeId: mockDraftOrm.recipe_id,
+      });
+
+      expect(prepareSpy).toHaveBeenCalledWith(
+        mockUser.id,
+        mockDraftOrm.recipe_id,
+      );
+      expect(result.status).toBe('draft');
+      expect(result.started_at).toBeNull();
+      expect(result.prep_checked_ids).toEqual(['malt-0']);
+      expect(result.steps).toHaveLength(0);
+    });
+
+    it('should propagate NotFound for a foreign or unknown recipe', async () => {
+      jest
+        .spyOn(service, 'prepareMine')
+        .mockRejectedValue(new NotFoundException('Recipe not found'));
+
+      await expect(
+        controller.prepareMine(mockUser, { recipeId: 'unknown' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateMinePrepChecklist() - PATCH /batches/:id/prep-checklist', () => {
+    it('should persist the coches and return the summary', async () => {
+      const updateSpy = jest
+        .spyOn(service, 'updateMinePrepChecklist')
+        .mockResolvedValue({
+          ...mockDraftOrm,
+          prep_checked_ids: ['malt-0', 'hop-1'],
+        });
+
+      const result = await controller.updateMinePrepChecklist(
+        mockUser,
+        mockDraftOrm.id,
+        { checkedIds: ['malt-0', 'hop-1'] },
+      );
+
+      expect(updateSpy).toHaveBeenCalledWith(mockUser.id, mockDraftOrm.id, [
+        'malt-0',
+        'hop-1',
+      ]);
+      expect(result.status).toBe('draft');
+    });
+
+    it('should propagate BadRequest when the batch is already launched', async () => {
+      jest
+        .spyOn(service, 'updateMinePrepChecklist')
+        .mockRejectedValue(new BadRequestException('Batch already launched'));
+
+      await expect(
+        controller.updateMinePrepChecklist(mockUser, mockBatchOrm.id, {
+          checkedIds: [],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('launchMine() - PATCH /batches/:id/launch', () => {
+    it('should launch the draft and return the batch with its snapshot', async () => {
+      const launchSpy = jest.spyOn(service, 'launchMine').mockResolvedValue({
+        batch: mockBatchOrm,
+        steps: mockSteps,
+      });
+
+      const result = await controller.launchMine(mockUser, mockDraftOrm.id);
+
+      expect(launchSpy).toHaveBeenCalledWith(mockUser.id, mockDraftOrm.id);
+      expect(result.status).toBe(BatchStatus.IN_PROGRESS);
+      expect(result.started_at).not.toBeNull();
+      expect(result.steps).toHaveLength(1);
+    });
+
+    it('should propagate BadRequest on a double launch', async () => {
+      jest
+        .spyOn(service, 'launchMine')
+        .mockRejectedValue(new BadRequestException('Batch already launched'));
+
+      await expect(
+        controller.launchMine(mockUser, mockBatchOrm.id),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

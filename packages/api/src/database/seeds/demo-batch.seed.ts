@@ -235,6 +235,9 @@ export async function seedDemoBatch(
     status: BatchStatus.COMPLETED,
     current_step_order: null,
     started_at: startedAt,
+    // A completed demo brew was launched — without this stamp the derived
+    // status (launched_at null => draft) would misclassify it as a draft.
+    launched_at: startedAt,
     fermentation_started_at: startedAt,
     fermentation_completed_at: completedAt,
     completed_at: completedAt,

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
@@ -10,6 +10,12 @@ export class BatchDto extends BatchSummaryDto {
   @ApiProperty({ type: BatchStepDto, isArray: true })
   steps: BatchStepDto[];
 
+  // Checked prep-item ids carried by an « en préparation » draft (F14). Null
+  // when nothing was ever checked; the checklist items themselves are derived
+  // from the recipe on the client — only the coches live on the batch.
+  @ApiPropertyOptional({ type: String, isArray: true, nullable: true })
+  prep_checked_ids?: string[] | null;
+
   static fromEntities(
     batch: BatchOrmEntity,
     steps: BatchStepOrmEntity[],
@@ -17,6 +23,7 @@ export class BatchDto extends BatchSummaryDto {
     return {
       ...BatchSummaryDto.fromEntity(batch),
       steps: steps.map((step) => BatchStepDto.fromEntity(step)),
+      prep_checked_ids: batch.prep_checked_ids ?? null,
     };
   }
 }

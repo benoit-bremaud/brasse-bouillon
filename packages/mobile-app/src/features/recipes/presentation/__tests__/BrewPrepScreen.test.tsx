@@ -15,7 +15,12 @@ import {
   getRecipeDetailsViewModel,
   type RecipeDetailsIngredientItem,
 } from "@/features/recipes/application/recipes.use-cases";
-import { startBatch } from "@/features/batches/application/batches.use-cases";
+import {
+  launchBatch,
+  prepareBatch,
+  updateBatchPrepChecklist,
+} from "@/features/batches/application/batches.use-cases";
+import type { Batch } from "@/features/batches/domain/batch.types";
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
@@ -29,7 +34,9 @@ jest.mock("@/features/recipes/application/recipes.use-cases", () => ({
 }));
 
 jest.mock("@/features/batches/application/batches.use-cases", () => ({
-  startBatch: jest.fn(),
+  launchBatch: jest.fn(),
+  prepareBatch: jest.fn(),
+  updateBatchPrepChecklist: jest.fn(),
 }));
 
 jest.mock("expo-router", () => {
@@ -41,12 +48,16 @@ jest.mock("expo-router", () => {
 });
 
 const mockGetViewModel = getRecipeDetailsViewModel as jest.Mock;
-const mockStartBatch = startBatch as jest.Mock;
+const mockPrepareBatch = prepareBatch as jest.Mock;
+const mockLaunchBatch = launchBatch as jest.Mock;
+const mockUpdateChecklist = updateBatchPrepChecklist as jest.Mock;
 
-const PILSNER_ROW = "ingredient-readiness-row-ferm-1-no-timing-0";
-const CASCADE_ROW = "ingredient-readiness-row-hop-1-no-timing-1";
-const PILSNER_MISSING = "ingredient-readiness-missing-ferm-1-no-timing-0";
-const CASCADE_MISSING = "ingredient-readiness-missing-hop-1-no-timing-1";
+const PILSNER_ID = "ferm-1-no-timing-0";
+const CASCADE_ID = "hop-1-no-timing-1";
+const PILSNER_ROW = `ingredient-readiness-row-${PILSNER_ID}`;
+const CASCADE_ROW = `ingredient-readiness-row-${CASCADE_ID}`;
+const PILSNER_MISSING = `ingredient-readiness-missing-${PILSNER_ID}`;
+const CASCADE_MISSING = `ingredient-readiness-missing-${CASCADE_ID}`;
 
 function buildViewModel(ingredients: RecipeDetailsIngredientItem[]) {
   return {
@@ -63,6 +74,22 @@ function buildViewModel(ingredients: RecipeDetailsIngredientItem[]) {
     steps: [],
     equipment: [],
     ingredients,
+  };
+}
+
+// The « en préparation » draft carrying the prep (brew-day/07, F14/F15).
+function buildDraft(prepCheckedIds: string[] = []): Batch {
+  return {
+    id: "draft-1",
+    ownerId: "u1",
+    recipeId: "r1",
+    status: "draft",
+    currentStepOrder: null,
+    startedAt: null,
+    steps: [],
+    prepCheckedIds,
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
   };
 }
 
@@ -118,25 +145,28 @@ function confirmLaunchAlert() {
   buttons.find((button) => button.text === "Lancer")?.onPress?.();
 }
 
-describe("BrewPrepScreen — pre-launch gate", () => {
+describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
   let alertSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
     alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
-    mockStartBatch.mockResolvedValue({ id: "b1" });
+    mockPrepareBatch.mockResolvedValue(buildDraft());
+    mockLaunchBatch.mockResolvedValue({ id: "b1" });
+    mockUpdateChecklist.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     alertSpy.mockRestore();
   });
 
-  it("happy: lists ingredients as missing and keeps the launch gated", async () => {
+  it("happy: prepares the draft, lists ingredients as missing and keeps the launch gated", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
 
     renderScreen();
 
     expect(await screen.findByText("Pilsner Malt")).toBeTruthy();
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalledWith("r1"));
     expect(screen.getByTestId(PILSNER_ROW)).toBeTruthy();
     expect(screen.getByTestId(CASCADE_ROW)).toBeTruthy();
     expect(screen.getByTestId(PILSNER_MISSING)).toBeTruthy();
@@ -145,7 +175,98 @@ describe("BrewPrepScreen — pre-launch gate", () => {
     // Gate closed: pressing the disabled CTA must not open the dialog.
     fireEvent.press(screen.getByText("Lancer le brassage"));
     expect(Alert.alert).not.toHaveBeenCalled();
-    expect(mockStartBatch).not.toHaveBeenCalled();
+    expect(mockLaunchBatch).not.toHaveBeenCalled();
+  });
+
+  it("happy: coches persisted on the draft pre-check their rows (F14 resume)", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+    mockPrepareBatch.mockResolvedValue(buildDraft([PILSNER_ID]));
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(PILSNER_MISSING)).toBeNull();
+    });
+    expect(screen.getByTestId(CASCADE_MISSING)).toBeTruthy();
+  });
+
+  it("interaction: each tick persists the full checked list on the draft", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
+
+    fireEvent.press(screen.getAllByRole("checkbox")[0]);
+    await waitFor(() => {
+      expect(mockUpdateChecklist).toHaveBeenCalledWith("draft-1", [PILSNER_ID]);
+    });
+
+    fireEvent.press(screen.getAllByRole("checkbox")[1]);
+    await waitFor(() => {
+      expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+        PILSNER_ID,
+        CASCADE_ID,
+      ]);
+    });
+  });
+
+  it("edge: ticks landing while a save is in flight coalesce into one ordered PATCH", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+    let resolveFirstSave: () => void = () => {};
+    mockUpdateChecklist.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFirstSave = () => resolve(undefined);
+        }),
+    );
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
+
+    fireEvent.press(screen.getAllByRole("checkbox")[0]);
+    fireEvent.press(screen.getAllByRole("checkbox")[1]);
+
+    // The second tick must NOT fire a concurrent PATCH (full-replacement
+    // writes reaching the server out of order would lose the last tick).
+    await waitFor(() => {
+      expect(mockUpdateChecklist).toHaveBeenCalledWith("draft-1", [PILSNER_ID]);
+    });
+    expect(mockUpdateChecklist).toHaveBeenCalledTimes(1);
+
+    resolveFirstSave();
+
+    // Once the first save settles, the queued latest list goes out — one
+    // coalesced PATCH carrying both ticks, in order.
+    await waitFor(() => {
+      expect(mockUpdateChecklist).toHaveBeenCalledTimes(2);
+    });
+    expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+      PILSNER_ID,
+      CASCADE_ID,
+    ]);
+  });
+
+  it("sad: a failed coche save rolls the tick back and alerts the brewer", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+    mockUpdateChecklist.mockRejectedValueOnce(new Error("offline"));
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
+
+    fireEvent.press(screen.getAllByRole("checkbox")[0]);
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        "Coche non enregistrée",
+        expect.stringMatching(/offline/i),
+      );
+    });
+    // The optimistic tick was rolled back → the item is missing again.
+    expect(screen.getByTestId(PILSNER_MISSING)).toBeTruthy();
   });
 
   it("interaction: ticking everything opens the gate (Prêt), unticking re-closes it", async () => {
@@ -168,13 +289,23 @@ describe("BrewPrepScreen — pre-launch gate", () => {
     expect(screen.queryByText("PRÊT")).toBeNull();
   });
 
-  it("launch: confirming the dialog starts the batch and navigates to it", async () => {
+  it("launch: confirming the dialog launches the draft and navigates to the batch", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
 
     renderScreen();
     await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
 
     tickAll();
+    // The launch stays gated while the coche saves are in flight — let them
+    // settle before pressing the CTA.
+    await waitFor(() =>
+      expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+        PILSNER_ID,
+        CASCADE_ID,
+      ]),
+    );
+    await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
     expect(Alert.alert).toHaveBeenCalledTimes(1);
 
@@ -183,19 +314,27 @@ describe("BrewPrepScreen — pre-launch gate", () => {
     });
 
     await waitFor(() => {
-      expect(mockStartBatch).toHaveBeenCalledWith("r1");
+      expect(mockLaunchBatch).toHaveBeenCalledWith("draft-1");
       expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
     });
   });
 
   it("sad: a failed launch surfaces the error banner and does not navigate", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
-    mockStartBatch.mockRejectedValueOnce(new Error("Backend down"));
+    mockLaunchBatch.mockRejectedValueOnce(new Error("Backend down"));
 
     renderScreen();
     await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
 
     tickAll();
+    await waitFor(() =>
+      expect(mockUpdateChecklist).toHaveBeenLastCalledWith("draft-1", [
+        PILSNER_ID,
+        CASCADE_ID,
+      ]),
+    );
+    await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
     await act(async () => {
       confirmLaunchAlert();
@@ -205,6 +344,16 @@ describe("BrewPrepScreen — pre-launch gate", () => {
     expect(mockPush).not.toHaveBeenCalled();
   });
 
+  it("sad: a failed draft preparation surfaces the error banner", async () => {
+    mockGetViewModel.mockResolvedValue(buildViewModel(TWO_INGREDIENTS));
+    mockPrepareBatch.mockRejectedValue(new Error("prep down"));
+
+    renderScreen();
+
+    expect(await screen.findByText(/prep down/i)).toBeTruthy();
+    expect(mockLaunchBatch).not.toHaveBeenCalled();
+  });
+
   it("edge: an empty ingredient list shows the empty state but still allows launch", async () => {
     mockGetViewModel.mockResolvedValue(buildViewModel([]));
 
@@ -212,6 +361,7 @@ describe("BrewPrepScreen — pre-launch gate", () => {
 
     expect(await screen.findByText("Aucun ingrédient listé")).toBeTruthy();
     expect(screen.queryByText("Ce qu'il te manque")).toBeNull();
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
 
     // Nothing to check → the gate is vacuously open and the launch proceeds.
     fireEvent.press(screen.getByText("Lancer le brassage"));
@@ -220,8 +370,43 @@ describe("BrewPrepScreen — pre-launch gate", () => {
       confirmLaunchAlert();
     });
     await waitFor(() => {
-      expect(mockStartBatch).toHaveBeenCalledWith("r1");
+      expect(mockLaunchBatch).toHaveBeenCalledWith("draft-1");
       expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
+    });
+  });
+
+  it("edge: the launch stays gated while a coche save is still in flight", async () => {
+    // One ingredient only: a single tick completes the checklist while its
+    // PATCH hangs — the optimistic gate is open but persistence is not done.
+    mockGetViewModel.mockResolvedValue(buildViewModel([TWO_INGREDIENTS[0]]));
+    let resolveSave: () => void = () => {};
+    mockUpdateChecklist.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = () => resolve(undefined);
+        }),
+    );
+
+    renderScreen();
+    await screen.findByText("Pilsner Malt");
+    await waitFor(() => expect(mockPrepareBatch).toHaveBeenCalled());
+
+    fireEvent.press(screen.getAllByRole("checkbox")[0]);
+    // Wait for the hanging PATCH to actually be in flight (the mutationFn
+    // runs on a microtask, and captures resolveSave only then).
+    await waitFor(() => expect(mockUpdateChecklist).toHaveBeenCalled());
+    expect(screen.getByText("PRÊT")).toBeTruthy();
+
+    // Launching now would race the backend: launch stamps launched_at and
+    // the in-flight PATCH gets rejected ("already launched") — so the CTA
+    // must stay inert until the save settles.
+    fireEvent.press(screen.getByText("Lancer le brassage"));
+    expect(Alert.alert).not.toHaveBeenCalled();
+
+    resolveSave();
+    await waitFor(() => {
+      fireEvent.press(screen.getByText("Lancer le brassage"));
+      expect(Alert.alert).toHaveBeenCalled();
     });
   });
 

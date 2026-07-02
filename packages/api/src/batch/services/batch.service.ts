@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import { EntityManager, QueryFailedError, Repository } from 'typeorm';
+import { EntityManager, IsNull, QueryFailedError, Repository } from 'typeorm';
 
 import { RecipeStep } from '../../recipe/domain/entities/recipe-step.entity';
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
@@ -137,6 +137,113 @@ export class BatchService {
     });
   }
 
+  /**
+   * Create (or resume) the draft « en préparation » batch for a recipe
+   * (brew-day/07, F14/F15). Idempotent: if the owner already has an unlaunched
+   * draft for this recipe it is returned as-is — « Préparer » twice resumes
+   * the same prep instead of piling up phantom drafts. To start over, discard
+   * the draft (DELETE) and prepare again.
+   */
+  async prepareMine(
+    ownerId: string,
+    recipeId: string,
+  ): Promise<BatchWithSteps> {
+    const existingDraft = await this.batchRepo.findOne({
+      where: { owner_id: ownerId, recipe_id: recipeId, launched_at: IsNull() },
+    });
+    if (existingDraft) {
+      return { batch: existingDraft, steps: [] };
+    }
+
+    // Validates ownership/existence (404 on a foreign or unknown recipe) and
+    // fails fast on an un-brewable recipe: a stepless draft could never launch.
+    const recipeSteps = await this.recipeService.listMineSteps(
+      ownerId,
+      recipeId,
+    );
+    if (recipeSteps.length === 0) {
+      throw new BadRequestException('Recipe has no steps');
+    }
+
+    const draft = this.domain.prepareBatch({
+      id: randomUUID(),
+      ownerId,
+      recipeId,
+    });
+
+    try {
+      return await this.batchRepo.manager.transaction(async (manager) => {
+        return this.persistBatch(manager, draft);
+      });
+    } catch (error) {
+      // A concurrent prepare won the race on the one-draft-per-owner+recipe
+      // unique index between our findOne above and this insert — honour the
+      // idempotency contract by resuming the winner's draft.
+      if (error instanceof QueryFailedError) {
+        const winner = await this.batchRepo.findOne({
+          where: {
+            owner_id: ownerId,
+            recipe_id: recipeId,
+            launched_at: IsNull(),
+          },
+        });
+        if (winner) {
+          return { batch: winner, steps: [] };
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Persist the draft's prep-checklist state (F14 — the coches live on the
+   * batch, not the recipe). Only the checked ids are stored; the checklist
+   * items themselves stay derived from the recipe on the client.
+   */
+  async updateMinePrepChecklist(
+    ownerId: string,
+    batchId: string,
+    checkedIds: string[],
+  ): Promise<BatchOrmEntity> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
+    this.assertDraft(batch);
+
+    batch.prep_checked_ids = [...new Set(checkedIds)];
+    return this.batchRepo.save(batch);
+  }
+
+  /**
+   * Launch a draft: the draft → in_progress transition of brew-day/07. The
+   * recipe steps are snapshotted onto the batch NOW (not at prepare time) so
+   * the brew always runs the recipe as it stands at launch.
+   */
+  async launchMine(ownerId: string, batchId: string): Promise<BatchWithSteps> {
+    const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertMutable(batch);
+    this.assertDraft(batch);
+
+    const recipeSteps = await this.recipeService.listMineSteps(
+      ownerId,
+      batch.recipe_id,
+    );
+    const snapshotSteps: RecipeStep[] = recipeSteps.map((step) => ({
+      order: step.step_order,
+      type: step.type,
+      label: step.label,
+      description: step.description ?? undefined,
+    }));
+
+    const launched = this.runStepTransition(
+      (draft) => this.domain.launchBatch(draft, snapshotSteps),
+      this.toDomain(batch, []),
+    );
+
+    return this.batchRepo.manager.transaction(async (manager) => {
+      return this.persistBatch(manager, launched);
+    });
+  }
+
   async listMine(ownerId: string): Promise<BatchOrmEntity[]> {
     return this.batchRepo.find({
       where: { owner_id: ownerId },
@@ -185,6 +292,7 @@ export class BatchService {
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
     this.assertMutable(batch);
+    this.assertLaunched(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -202,6 +310,7 @@ export class BatchService {
   ): Promise<BatchOrmEntity> {
     const batch = await this.getMineBatch(ownerId, batchId);
     this.assertMutable(batch);
+    this.assertLaunched(batch);
     if (batch.status === BatchStatus.COMPLETED) {
       throw new BadRequestException('Batch already completed');
     }
@@ -229,6 +338,10 @@ export class BatchService {
     if (batch.cancelled_at) {
       throw new BadRequestException('Batch already cancelled');
     }
+    // A draft's raw status is already in_progress, so the status check alone
+    // would let a draft be cancelled — a draft is discarded (DELETE), not
+    // cancelled (brew-day/07).
+    this.assertLaunched(batch);
     if (batch.status !== BatchStatus.IN_PROGRESS) {
       throw new BadRequestException('Only a launched brew can be cancelled');
     }
@@ -274,7 +387,8 @@ export class BatchService {
     batchId: string,
     input: CreateBatchReminderInput,
   ): Promise<BatchReminderOrmEntity> {
-    await this.getMineBatch(ownerId, batchId);
+    const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertLaunched(batch);
     const reminder = this.reminderRepo.create({
       id: randomUUID(),
       batch_id: batchId,
@@ -342,10 +456,20 @@ export class BatchService {
         if (error.message === 'Current step is already active') {
           throw new ConflictException(error.message);
         }
+        // NB: the domain's own 'Batch already launched' guard is unreachable
+        // here — launchMine pre-guards with assertDraft (400) — so it is
+        // deliberately unmapped: if a future path reaches it, it fails loud.
         const clientErrors = new Set([
           'Batch is not in progress',
           'Batch has no current step',
           'Current step is not in progress',
+          // Launch-time snapshot validation (the recipe was edited into an
+          // un-brewable state between prepare and launch).
+          'Batch must include at least one step',
+          'Step order must be a non-negative integer',
+          'Step orders must be unique',
+          'Step orders must start at 0 and be continuous',
+          'Step label must not be empty',
         ]);
         if (clientErrors.has(error.message)) {
           throw new BadRequestException(error.message);
@@ -377,6 +501,9 @@ export class BatchService {
         throw new NotFoundException('Batch not found');
       }
       this.assertMutable(batch);
+      // A draft has no steps to transition — reject it explicitly rather than
+      // via the opaque "no current step" domain error.
+      this.assertLaunched(batch);
       if (batch.status === BatchStatus.COMPLETED) {
         throw new BadRequestException('Batch already completed');
       }
@@ -431,6 +558,8 @@ export class BatchService {
       status: batch.status,
       current_step_order: batch.currentStepOrder ?? null,
       started_at: batch.startedAt,
+      launched_at: batch.launchedAt ?? null,
+      prep_checked_ids: batch.prepCheckedIds ? [...batch.prepCheckedIds] : null,
       completed_at: batch.completedAt ?? null,
     });
 
@@ -468,6 +597,8 @@ export class BatchService {
       createdAt: batch.created_at,
       updatedAt: batch.updated_at,
       startedAt: batch.started_at,
+      launchedAt: batch.launched_at ?? undefined,
+      prepCheckedIds: batch.prep_checked_ids ?? undefined,
       fermentationStartedAt: batch.fermentation_started_at ?? undefined,
       fermentationCompletedAt: batch.fermentation_completed_at ?? undefined,
       bottledAt: batch.bottled_at ?? undefined,
@@ -505,7 +636,8 @@ export class BatchService {
     batchId: string,
     input: CreateMeasurementInput,
   ): Promise<MeasurementOrmEntity> {
-    await this.getMineBatch(ownerId, batchId);
+    const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertLaunched(batch);
 
     // The domain factory enforces per-type range invariants the DTO can't
     // express; surface a violation as a 400 rather than a 500.
@@ -554,7 +686,8 @@ export class BatchService {
     batchId: string,
     input: CreateObservationInput,
   ): Promise<ObservationOrmEntity> {
-    await this.getMineBatch(ownerId, batchId);
+    const batch = await this.getMineBatch(ownerId, batchId);
+    this.assertLaunched(batch);
 
     let normalised: Observation;
     try {
@@ -841,6 +974,29 @@ export class BatchService {
     }
     if (batch.cancelled_at) {
       throw new BadRequestException('Batch is cancelled');
+    }
+  }
+
+  /**
+   * Guard for draft-only operations (prep checklist, launch): the raw
+   * `status` column of a draft is already in_progress (CHECK constraint), so
+   * draftness is the absence of the `launched_at` stamp (brew-day/07).
+   */
+  private assertDraft(batch: BatchOrmEntity): void {
+    if (batch.launched_at) {
+      throw new BadRequestException('Batch already launched');
+    }
+  }
+
+  /**
+   * Guard for brewing-journal operations (fermentation, measurements,
+   * observations, reminders, cancel): a draft has not brewed anything yet, so
+   * these endpoints must reject it — its raw `status` alone cannot tell
+   * (in_progress covers both draft and launched, brew-day/07).
+   */
+  private assertLaunched(batch: BatchOrmEntity): void {
+    if (!batch.launched_at) {
+      throw new BadRequestException('Batch not launched');
     }
   }
 }

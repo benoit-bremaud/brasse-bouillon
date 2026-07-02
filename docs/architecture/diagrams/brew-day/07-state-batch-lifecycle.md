@@ -80,7 +80,20 @@ stateDiagram-v2
   `in_progress`/`completed` status. Endpoints: `cancelled` = `PATCH /batches/:id/cancel` (only a
   launched brew), `archived` = `PATCH /batches/:id/archive` (only a finished or cancelled brew).
   `discarded` stays the terminal hard-delete outcome (not stored). **`draft`** + moving the prep
-  onto the batch (F14/F15) is the deferred, bigger slice (07b) — not in 07a.
+  onto the batch (F14/F15) is the second slice (07b) — see below.
+- **`draft` persistence — same timestamp model (07b implementation refinement).** `draft` is
+  realised as a nullable **`launched_at`** stamp (plain `ADD COLUMN`, legacy rows backfilled
+  `launched_at = started_at` since they were all launched at creation), **not** a new `status`
+  enum value — same CHECK-constraint rationale as 07a. The effective-state derivation becomes
+  `archived` > `cancelled` > `draft` (`launched_at` null) > raw status; while a batch is a draft
+  its DTO `started_at` reads **null** (the brew has not started). The draft **carries the prep**
+  as a `prep_checked_ids` JSON column (only the coches — the checklist items stay derived from
+  the recipe, see brew-prep/04). Endpoints: `POST /batches/prepare` (idempotent per
+  owner+recipe: re-preparing resumes the existing draft), `PATCH /batches/:id/prep-checklist`
+  (draft-only), `PATCH /batches/:id/launch` (= `Launch`; the recipe steps are snapshotted at
+  launch, not at prepare, so the brew runs the recipe as it stands). Brewing-journal endpoints
+  (steps, fermentation, measurements, observations, reminders, cancel) reject a draft — it has
+  brewed nothing; its only exits are `Launch` and `Discard` (the shipped hard `DELETE`).
 - **`completed`** still opens the closure/celebration (B3 `BatchClosureView`) and is kept in
   history; the transition is driven by the last step completing (see `06`). This is the **same
   `completed` state** already amended by `05-state-batch-closure.md` with the `bottledAt`

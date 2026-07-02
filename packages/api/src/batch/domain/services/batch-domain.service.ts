@@ -13,15 +13,22 @@ export interface StartBatchInput {
   steps: ReadonlyArray<RecipeStep>;
 }
 
+export interface PrepareBatchInput {
+  id: BatchId;
+  ownerId: UserId;
+  recipeId: RecipeId;
+}
+
 /**
  * BatchDomainService
  *
  * Pure domain service responsible for:
- * - Starting a new brewing batch from a recipe step snapshot
+ * - Preparing a draft batch that carries the mise-en-place (brew-day/07)
+ * - Launching it (or starting one directly) from a recipe step snapshot
  * - Tracking strict workflow progress through steps
  *
  * Current MVP behavior:
- * - Step 0 becomes the current step when the batch starts, but opens in the
+ * - Step 0 becomes the current step when the batch launches, but opens in the
  *   PRÉP phase (in_progress with no `startedAt`) — the timer only starts once
  *   the brewer activates it via `startCurrentStep` (ACTIF). See brew-day/06.
  * - Completing the current step auto-advances to the next one (also in PRÉP)
@@ -29,13 +36,70 @@ export interface StartBatchInput {
 export class BatchDomainService {
   constructor(private readonly now: () => Date = () => new Date()) {}
 
-  startBatch(input: StartBatchInput): Batch {
-    this.validateRecipeSteps(input.steps);
-
+  /**
+   * Create a draft « en préparation » batch (brew-day/07, F14/F15): no steps,
+   * no `launchedAt` — it exists to carry the per-batch prep checklist until
+   * the brewer launches (or discards) it.
+   */
+  prepareBatch(input: PrepareBatchInput): Batch {
     const createdAt = this.now();
 
-    const sortedSteps = [...input.steps].sort((a, b) => a.order - b.order);
-    const steps: BatchStep[] = sortedSteps.map((step) => {
+    return {
+      id: input.id,
+      ownerId: input.ownerId,
+      recipeId: input.recipeId,
+      status: BatchStatus.IN_PROGRESS,
+      currentStepOrder: undefined,
+      steps: [],
+      createdAt,
+      updatedAt: createdAt,
+      // The schema keeps started_at NOT NULL: a draft stores its creation
+      // instant; launchBatch refreshes it. Clients never see it while draft
+      // (the DTO derives startedAt from launchedAt).
+      startedAt: createdAt,
+      launchedAt: undefined,
+      prepCheckedIds: undefined,
+      completedAt: undefined,
+    };
+  }
+
+  /**
+   * Launch a draft: snapshot the recipe steps onto the batch and stamp
+   * `launchedAt` (the draft → in_progress transition of brew-day/07). The
+   * first step opens in PRÉP (no step `startedAt`) per brew-day/06.
+   */
+  launchBatch(batch: Batch, recipeSteps: ReadonlyArray<RecipeStep>): Batch {
+    if (batch.launchedAt !== undefined) {
+      throw new Error('Batch already launched');
+    }
+    this.validateRecipeSteps(recipeSteps);
+
+    const now = this.now();
+
+    return {
+      ...batch,
+      status: BatchStatus.IN_PROGRESS,
+      currentStepOrder: 0,
+      steps: this.snapshotSteps(recipeSteps),
+      updatedAt: now,
+      startedAt: now,
+      launchedAt: now,
+    };
+  }
+
+  /** Prepare + launch in one shot — the direct POST /batches path. */
+  startBatch(input: StartBatchInput): Batch {
+    return this.launchBatch(this.prepareBatch(input), input.steps);
+  }
+
+  /**
+   * Freeze the recipe steps onto the batch (the launch-time snapshot). Every
+   * step starts pending except step 0, which opens as the current step in the
+   * PRÉP phase (no `startedAt` until the brewer activates it — F1).
+   */
+  private snapshotSteps(recipeSteps: ReadonlyArray<RecipeStep>): BatchStep[] {
+    const sortedSteps = [...recipeSteps].sort((a, b) => a.order - b.order);
+    return sortedSteps.map((step) => {
       const isFirst = step.order === 0;
       const guidance = getStepGuidance(step.type);
       return {
@@ -44,28 +108,12 @@ export class BatchDomainService {
         label: step.label,
         description: step.description,
         status: isFirst ? BatchStepStatus.IN_PROGRESS : BatchStepStatus.PENDING,
-        // PRÉP phase: the current step has no `startedAt` until the brewer
-        // activates it (ACTIF). This keeps the countdown from running before
-        // the physical prep is done (novice-journey friction F1).
         startedAt: undefined,
         completedAt: undefined,
         pedagogicalTip: guidance?.pedagogicalTip,
         plannedDurationMin: guidance?.plannedDurationMin ?? undefined,
       };
     });
-
-    return {
-      id: input.id,
-      ownerId: input.ownerId,
-      recipeId: input.recipeId,
-      status: BatchStatus.IN_PROGRESS,
-      currentStepOrder: 0,
-      steps,
-      createdAt,
-      updatedAt: createdAt,
-      startedAt: createdAt,
-      completedAt: undefined,
-    };
   }
 
   completeCurrentStep(batch: Batch): Batch {

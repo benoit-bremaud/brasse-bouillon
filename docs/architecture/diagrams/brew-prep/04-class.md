@@ -57,6 +57,7 @@ classDiagram
   class Batch {
     <<brewing-session epic>>
     +UUID id
+    +string[] prepCheckedIds
   }
   Recipe "1" ..> "1" VolumePlan : targets feed
   EquipmentProfile "1" ..> "1" VolumePlan : caps & method (D1/D2)
@@ -64,6 +65,7 @@ classDiagram
   BrewReadiness "1" o-- "2" ReadinessChecklist
   ReadinessChecklist "1" *-- "1..*" ChecklistItem
   Batch "1" *-- "1" VolumePlan : snapshot at launch (Memento)
+  Batch "1" ..> "1" ReadinessChecklist : carries the coches (draft, F14)
 ```
 
 ## Notes
@@ -82,6 +84,15 @@ classDiagram
   out of this conception's scope — it appears here solely to anchor the snapshot
   (Memento) target and make the persistence contract explicit.
 - `BrewReadiness.readyToLaunch = ingredientChecklist.isComplete() && equipmentChecklist.isComplete()` (UC6).
+- **Checklist state lives on the draft `Batch` (F14/F15 amendment, brew-day/07b).**
+  "Préparer" creates (or resumes) an « en préparation » draft batch that carries
+  the ticks as `prepCheckedIds` — only the CHECKED item ids are persisted; the
+  `ChecklistItem`s themselves (name, qty, required) stay **derived from the
+  Recipe** by the pure `buildIngredientChecklist` (single source of truth, no
+  snapshot of ingredient data). The coches are therefore per-batch and reset
+  naturally on each new brew — the original "client state pre-batch" note in
+  `02` is superseded. Ids from a recipe edited mid-prep simply stop matching
+  (benign; drafts are short-lived).
 - Enums: `Method` = {FULL_VOLUME, DUNK_SPARGE}; `Kind` = {INGREDIENT, EQUIPMENT}.
 - **Design patterns (named, see ADR-0020 § Design patterns):** `VolumePlan` is a
   **Value Object** (immutable, identity-less — the `«value object»` stereotype);

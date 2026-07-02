@@ -4,9 +4,12 @@ import {
   completeCurrentStep as completeCurrentStepApi,
   deleteBatch as deleteBatchApi,
   getMineById,
+  launchBatch as launchBatchApi,
   listMine,
+  prepareBatch as prepareBatchApi,
   startBatch as startBatchApi,
   startCurrentStep as startCurrentStepApi,
+  updatePrepChecklist as updatePrepChecklistApi,
 } from "@/features/batches/data/batches.api";
 import { Batch, BatchSummary } from "@/features/batches/domain/batch.types";
 import { demoBatchSummaries, demoBatches } from "@/mocks/demo-data";
@@ -140,16 +143,75 @@ export async function completeCurrentBatchStep(
   return completeCurrentStepApi(batchId);
 }
 
+// Demo mode maps every batch start/launch onto the bundled fil-rouge batch —
+// the demo store is read-only, so no real batch is ever created.
+function getDemoFilRougeBatch(): Batch {
+  const filRouge = demoBatches.find((item) => item.id === "b-demo-pdd-mash");
+  if (!filRouge) {
+    throw new Error(
+      "Demo data is missing the fil-rouge batch b-demo-pdd-mash.",
+    );
+  }
+  return filRouge;
+}
+
 export async function startBatch(recipeId: string): Promise<Batch> {
   if (dataSource.useDemoData) {
-    const filRouge = demoBatches.find((item) => item.id === "b-demo-pdd-mash");
-    if (!filRouge) {
-      throw new Error(
-        "Demo data is missing the fil-rouge batch b-demo-pdd-mash.",
-      );
-    }
-    return filRouge;
+    return getDemoFilRougeBatch();
   }
 
   return startBatchApi(recipeId);
+}
+
+/**
+ * Create (or resume) the « en préparation » draft batch carrying the prep
+ * checklist for a recipe (brew-day/07, F14/F15). In demo mode the draft is a
+ * synthetic, non-persisted object — the demo store stays read-only, ticks
+ * live in screen state only.
+ */
+export async function prepareBatch(recipeId: string): Promise<Batch> {
+  if (dataSource.useDemoData) {
+    const now = new Date().toISOString();
+    return {
+      id: `demo-draft-${recipeId}`,
+      ownerId: "demo-user",
+      recipeId,
+      status: "draft",
+      currentStepOrder: null,
+      startedAt: null,
+      steps: [],
+      prepCheckedIds: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  return prepareBatchApi(recipeId);
+}
+
+/**
+ * Persist the draft's checked prep-item ids (F14 — coches live on the batch,
+ * per-brew). No-op in demo mode (the synthetic draft is not persisted).
+ */
+export async function updateBatchPrepChecklist(
+  batchId: string,
+  checkedIds: string[],
+): Promise<void> {
+  if (!batchId || dataSource.useDemoData) {
+    return;
+  }
+  await updatePrepChecklistApi(batchId, checkedIds);
+}
+
+/**
+ * Launch a draft — the draft → in_progress transition of brew-day/07 (the
+ * recipe steps are snapshotted server-side at launch). Demo mode returns the
+ * fil-rouge batch, mirroring `startBatch`.
+ */
+export async function launchBatch(batchId: string): Promise<Batch> {
+  if (dataSource.useDemoData) {
+    return getDemoFilRougeBatch();
+  }
+
+  return launchBatchApi(batchId);
 }

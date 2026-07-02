@@ -11,6 +11,7 @@ import type {
 // (BatchesScreen) and the batch detail (BatchDetailsScreen).
 
 export const BATCH_STATUS_LABELS: Record<BatchStatus, string> = {
+  draft: "En préparation",
   in_progress: "En cours",
   completed: "Terminé",
   cancelled: "Annulé",

@@ -118,9 +118,16 @@ PROMPT
 INSTRUCTIONS="${INSTRUCTIONS//__BASE__/$BASE}"
 
 # codex-cli rejects `--base` alongside a custom prompt, so the diff scope
-# rides in the prompt itself.
+# rides in the prompt itself. Resolve the base ref here (prefer the
+# remote-tracking ref when present) so Codex receives ONE concrete range
+# instead of a fallback rule it could misapply.
+if git rev-parse --verify --quiet "refs/remotes/origin/${BASE}" >/dev/null; then
+  DIFF_BASE="origin/${BASE}"
+else
+  DIFF_BASE="${BASE}"
+fi
 printf -v INSTRUCTIONS '%s\n%s' \
-  "Review the diff origin/${BASE}...HEAD (fall back to ${BASE} if the remote ref is missing)." \
+  "Review the diff ${DIFF_BASE}...HEAD." \
   "$INSTRUCTIONS"
 
 echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2

@@ -78,6 +78,15 @@ stateDiagram-v2
   **T-minus pre-announce** of the *next* step's PRÉP (F9, in-app cue for v1 — real background
   notifications are a later epic), and the *overdue* alert (`now > plannedEnd` while `active`)
   are all **derived** from the step + timer state; they are not modelled as transitions.
+  **Amended 2026-07-02 (F9a realised):** two derived cues ship on the batch screen —
+  (1) **T-minus pre-announce**: when a timed ACTIF step has ≤ 5 min remaining, a card announces
+  the *next* step and its first PRÉP gesture (« Bientôt : … — profites-en pour préparer : … »),
+  so the brewer anticipates instead of enduring; (2) **overdue state**: at 00:00 the timer card
+  switches to « Temps écoulé » and points at the step's `doneWhen` end condition (F5) + the ✋
+  Complete — the elapsed timer never auto-completes anything (unified end). Both are computed
+  from `remainingSec` + the steps snapshot, nothing persisted. The **cross-screen persistent
+  reminder (F9b) is deferred** to the background-notifications epic — during a live brew the
+  brewer lives on the batch screen; the away-from-app case is the notifications epic's job.
 - **Pause / Skip** are inherited from `brewing-session/05-state-batch-step.md`: `Pause` freezes
   the timer (stays inside `in_progress`); `Skip` (with a reason, confirm) is for optional phases
   only (whirlpool, dry hop). This diagram subsumes that one for the brew-day scope.

@@ -49,4 +49,98 @@ describe("BrewStepTimer", () => {
 
     expect(screen.queryByText("Minuterie d'étape")).toBeNull();
   });
+
+  // A live 60-min step whose startedAt puts the countdown at `remainingMin`.
+  function liveStepAt(remainingMin: number): BatchStep {
+    return makeStep({
+      plannedDurationMin: 60,
+      startedAt: new Date(
+        Date.now() - (60 - remainingMin) * 60 * 1000,
+      ).toISOString(),
+    });
+  }
+
+  const NEXT_STEP = makeStep({
+    stepOrder: 1,
+    type: "boil",
+    label: "Ébullition",
+    prepActions: [
+      { action: "Retire le sac de grain.", why: "Il ne doit pas cuire." },
+    ],
+  });
+
+  it("announces the next step's PRÉP inside the T-minus window (F9a, happy)", () => {
+    render(
+      <BrewStepTimer
+        step={liveStepAt(4)}
+        useDemoData={false}
+        nextStep={NEXT_STEP}
+      />,
+    );
+
+    expect(screen.getByText("Bientôt : Ébullition")).toBeTruthy();
+    expect(
+      screen.getByText(/Profites-en pour préparer .*Retire le sac de grain/),
+    ).toBeTruthy();
+    // The countdown keeps running — the announce complements it.
+    expect(screen.getByText("restantes")).toBeTruthy();
+  });
+
+  it("stays silent outside the T-minus window (F9a, edge)", () => {
+    render(
+      <BrewStepTimer
+        step={liveStepAt(6)}
+        useDemoData={false}
+        nextStep={NEXT_STEP}
+      />,
+    );
+
+    expect(screen.queryByText(/Bientôt/)).toBeNull();
+  });
+
+  it("announces nothing on the last step (F9a, edge)", () => {
+    render(
+      <BrewStepTimer
+        step={liveStepAt(4)}
+        useDemoData={false}
+        nextStep={null}
+      />,
+    );
+
+    expect(screen.queryByText(/Bientôt/)).toBeNull();
+  });
+
+  it("switches to a calm elapsed state at 00:00 and hands off to the end condition (F9a)", () => {
+    render(
+      <BrewStepTimer
+        step={{ ...liveStepAt(-1), doneWhen: "Quand les ~60 min sont là." }}
+        useDemoData={false}
+        nextStep={NEXT_STEP}
+      />,
+    );
+
+    expect(screen.getByText("Temps écoulé")).toBeTruthy();
+    expect(
+      screen.getByText(/Vérifie la condition de fin ci-dessous/),
+    ).toBeTruthy();
+    // No running countdown, and the announce yields to the hand-off (the next
+    // step's PRÉP will greet the brewer right after Terminer anyway).
+    expect(screen.queryByText("restantes")).toBeNull();
+    expect(screen.queryByText(/Bientôt/)).toBeNull();
+  });
+
+  it("elapsed on a legacy step points nowhere — no doneWhen card exists (F9a, edge)", () => {
+    render(
+      <BrewStepTimer
+        step={liveStepAt(-1)}
+        useDemoData={false}
+        nextStep={null}
+      />,
+    );
+
+    expect(screen.getByText("Temps écoulé")).toBeTruthy();
+    // The hint must not reference a card that is not on the screen.
+    expect(screen.queryByText(/condition de fin ci-dessous/)).toBeNull();
+    expect(screen.getByText(/Termine l'étape quand c'est bon/)).toBeTruthy();
+  });
 });

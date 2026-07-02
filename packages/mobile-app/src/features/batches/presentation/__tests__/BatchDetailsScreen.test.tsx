@@ -291,6 +291,31 @@ describe("BatchDetailsScreen", () => {
     expect(screen.queryByText("Avant de démarrer")).toBeNull();
   });
 
+  it("wires the workflow's next step into the T-minus announce (F9a, happy)", async () => {
+    const anticipationBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? {
+              ...step,
+              plannedDurationMin: 60,
+              // 56 min elapsed on a 60-min step → inside the T-5 min window.
+              startedAt: new Date(Date.now() - 56 * 60 * 1000).toISOString(),
+            }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(anticipationBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    // The announce names the ACTUAL next step of the workflow (stepOrder 1),
+    // proving the screen-level lookup — not just the leaf component.
+    expect(await screen.findByText("Bientôt : Ébullition 60 min")).toBeTruthy();
+  });
+
   it("ACTIF shows the step's end condition near the complete CTA (F5, happy)", async () => {
     const activeBatch: Batch = {
       ...mashBatch,

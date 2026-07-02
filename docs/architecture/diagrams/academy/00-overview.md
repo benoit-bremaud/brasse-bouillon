@@ -5,6 +5,8 @@
 > local search, calculator links. Future: sourced RAG chatbot.
 > **Product framing**:
 > `docs/product/academy/academy-knowledge-base-framing.md`.
+> **Implementation design pack**:
+> `docs/architecture/academy/design-pack.md`.
 
 ## Context
 
@@ -21,11 +23,29 @@ screen components.
 
 - Clean boundaries: editorial source, generation, domain model, use cases, and
   presentation stay distinct.
+- Clean dependency rule: domain contracts stay framework-agnostic; use cases
+  depend on ports; adapters implement ports; React Native and Expo Router stay
+  at the outer layer.
 - SOLID: renderers depend on block contracts, not article slugs.
 - KISS: V1 ships a vertical slice with three pilot articles.
 - YAGNI: no CMS, backend publishing, vector search, or chatbot implementation in
   V1.
 - DRY: one glossary model, one content model, one calculator-link contract.
+
+## Clean Architecture Mapping
+
+- Entities: `AcademyArticle`, `AcademySection`, `AcademyContentBlock`,
+  `GlossaryTerm`, `SourceReference`, `AcademyLinkTarget`.
+- Use cases: article opening, Academy search, glossary lookup, semantic link
+  resolution.
+- Interface adapters: generated content repository, local search strategy,
+  presenters/view models, link resolver adapter.
+- Frameworks and drivers: Markdown parser, generated files, React Native
+  screens, Expo Router navigation, future LLM provider.
+
+Dependencies must point inward. Screens and generated adapters can depend on
+application contracts; domain contracts must not depend on screens, routers,
+Markdown parser types, or generated file paths.
 
 ## V1 Decisions
 

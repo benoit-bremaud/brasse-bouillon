@@ -83,7 +83,7 @@ classDiagram
   class CalculatorLink {
     +CalculatorSlug slug
     +string label
-    +string route
+    +AcademyLinkTarget target
   }
 
   class SearchIndexEntry {
@@ -92,7 +92,7 @@ classDiagram
     +string title
     +string summary
     +string[] tokens
-    +string route
+    +AcademyLinkTarget target
   }
 
   class RetrievalChunk {
@@ -119,8 +119,16 @@ classDiagram
 
   class RelatedAction {
     +string label
-    +string route
+    +AcademyLinkTarget target
     +RelatedActionType type
+  }
+
+  class AcademyLinkTarget {
+    <<enumeration>>
+    article
+    glossary
+    calculator
+    app_context
   }
 
   AcademyArticle "1" --> "1" AcademyArticleMetadata
@@ -131,12 +139,74 @@ classDiagram
   AcademyArticleMetadata "*" --> "*" SourceReference
   AcademyArticleMetadata "*" --> "*" CalculatorLink
   AcademyArticleMetadata "*" --> "*" GlossaryTerm
+  CalculatorLink ..> AcademyLinkTarget : targets
+  SearchIndexEntry ..> AcademyLinkTarget : targets
+  RelatedAction ..> AcademyLinkTarget : targets
   SearchIndexEntry ..> AcademyArticle : indexes
   SearchIndexEntry ..> GlossaryTerm : indexes
   RetrievalChunk ..> AcademySection : chunks
   RetrievalChunk ..> SourceReference : cites
   ChatbotAnswer "1" --> "*" ChatbotCitation
   ChatbotAnswer "1" --> "*" RelatedAction
+```
+
+## SOLID-Oriented Application Contracts
+
+```mermaid
+classDiagram
+  class AcademyContentRepositoryPort {
+    <<Interface>>
+    +listPublishedArticles()
+    +getArticleBySlug(slug)
+    +getGlossaryTerm(slug)
+  }
+
+  class AcademySearchPort {
+    <<Interface>>
+    +search(query)
+  }
+
+  class AcademyLinkResolverPort {
+    <<Interface>>
+    +resolve(target)
+  }
+
+  class AcademyArticlePresenter {
+    +toArticleViewModel(article)
+  }
+
+  class AcademyHubPresenter {
+    +toHubViewModel(index)
+  }
+
+  class GeneratedAcademyRepository {
+    +listPublishedArticles()
+    +getArticleBySlug(slug)
+    +getGlossaryTerm(slug)
+  }
+
+  class LocalAcademySearchStrategy {
+    +search(query)
+  }
+
+  class ExpoAcademyLinkResolver {
+    +resolve(target)
+  }
+
+  class AcademyUseCases {
+    +openArticle(slug)
+    +search(query)
+    +openSemanticTarget(target)
+  }
+
+  AcademyUseCases ..> AcademyContentRepositoryPort : DIP
+  AcademyUseCases ..> AcademySearchPort : DIP
+  AcademyUseCases ..> AcademyLinkResolverPort : DIP
+  GeneratedAcademyRepository ..|> AcademyContentRepositoryPort
+  LocalAcademySearchStrategy ..|> AcademySearchPort
+  ExpoAcademyLinkResolver ..|> AcademyLinkResolverPort
+  AcademyArticlePresenter ..> AcademyArticle
+  AcademyHubPresenter ..> SearchIndexEntry
 ```
 
 ## Enumerations
@@ -210,4 +280,13 @@ classDiagram
 - `AcademyContentBlock` is a discriminated union in TypeScript.
 - `RetrievalChunk` is generated for future chatbot retrieval, not manually edited.
 - `ChatbotAnswer` is future-facing and must not drive V1 scope.
-- `CalculatorLink` replaces slug convention-only wiring over time.
+- `CalculatorLink` and search entries expose semantic targets, not concrete
+  routes. Route mapping belongs to the link resolver.
+- SOLID application contracts make Dependency Inversion explicit: use cases
+  depend on ports, while generated repositories, search strategies, and route
+  resolvers implement those ports.
+- Single Responsibility is enforced by keeping presenters, repositories, search,
+  and link resolution separate.
+- Open/Closed is supported by content block discriminants and search/link
+  strategy interfaces: new block renderers or search strategies should not
+  require rewriting screens.

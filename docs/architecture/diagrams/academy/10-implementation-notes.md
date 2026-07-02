@@ -37,6 +37,35 @@ packages/mobile-app/src/features/academy/
 If moving files in one PR is too broad, the first implementation may keep route
 files in place and introduce the new feature boundary incrementally.
 
+## Clean Architecture Guardrails
+
+Clean Architecture applies to the Academy where it creates useful boundaries:
+
+- `domain/` contains framework-agnostic entities, value objects, literal unions,
+  and discriminated unions.
+- `application/` contains use cases, ports, link resolution contracts, search
+  contracts, and presenter/view-model preparation.
+- `data/` contains generated payloads and adapters that implement application
+  ports.
+- `presentation/` contains React Native screens, renderers, modal components,
+  and view state.
+
+Dependency rule:
+
+```text
+presentation -> application -> domain
+data adapter -> application ports -> domain
+```
+
+Forbidden dependencies:
+
+- `domain/` importing React Native, Expo Router, Markdown parser, generated
+  files, or storage APIs.
+- `application/` importing React Native screens or Expo Router APIs directly.
+- `presentation/` importing Markdown source files or parsing raw content.
+- screens importing generated article files directly instead of using a
+  repository/use-case boundary.
+
 ## Routing Notes
 
 The Academy should follow Expo Router conventions already used by the mobile

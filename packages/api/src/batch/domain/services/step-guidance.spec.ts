@@ -57,4 +57,12 @@ describe('getStepGuidance', () => {
   it('carries NO PRÉP actions for packaging — the B3 bottling gate covers it (edge)', () => {
     expect(getStepGuidance(RecipeStepType.PACKAGING)?.prepActions).toEqual([]);
   });
+
+  it('states a non-empty end condition (doneWhen) on every type (happy, F5)', () => {
+    for (const type of Object.values(RecipeStepType)) {
+      // Every step must tell the brewer WHEN it is over — the timer is an
+      // aid, the condition is the truth (brew-day/06 unified end).
+      expect(getStepGuidance(type)?.doneWhen.trim().length).toBeGreaterThan(0);
+    }
+  });
 });

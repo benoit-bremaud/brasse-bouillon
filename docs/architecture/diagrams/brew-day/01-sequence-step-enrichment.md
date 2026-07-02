@@ -1,8 +1,9 @@
-# Sequence diagram — brew-day — Enrich live batch steps with guidance (B1-live, F4 prep actions)
+# Sequence diagram — brew-day — Enrich live batch steps with guidance (B1-live, F4 prep actions, F5 done-when)
 
 > **Feature**: first real brew — making the brew-day step guide work in **LIVE** mode (roadmap P0 "TRACKER → ASSISTANT").
-> **Realizes**: B1-live + **F4 physical prep actions** (novice-journey audit). **Related**: brew-prep state machine ([`../brew-prep/05-state-readiness.md`](../brew-prep/05-state-readiness.md)), step lifecycle ([`06-state-brew-step.md`](06-state-brew-step.md)).
+> **Realizes**: B1-live + **F4 physical prep actions** + **F5 end conditions** (novice-journey audit). **Related**: brew-prep state machine ([`../brew-prep/05-state-readiness.md`](../brew-prep/05-state-readiness.md)), step lifecycle ([`06-state-brew-step.md`](06-state-brew-step.md)).
 > **Amended 2026-07-02 (F4 + 07b sync)**: enrichment now happens at **launch** (steps are snapshotted by `launchBatch`, not at batch creation — brew-day/07 F14/F15) and carries the **physical prep actions** shown in the step's PRÉP phase.
+> **Amended 2026-07-02 (F5)**: enrichment also carries the step's **end condition** (`doneWhen`) — one pedagogical FR sentence per type shown in the **ACTIF** phase, so the brewer always knows *when the step is over* (the timer is an aid, the condition is the truth; event-gated steps like fermentation get their condition instead of a countdown).
 
 ## Context
 
@@ -23,12 +24,12 @@ sequenceDiagram
   API->>API: load recipe steps (order, type, label, description)
   API->>D: launchBatch(draft, steps)
   loop each step
-    D->>D: getStepGuidance(step.type) gives tip + duration + prepActions, or none
+    D->>D: getStepGuidance(step.type) gives tip + duration + prepActions + doneWhen, or none
   end
-  D-->>API: BatchStep[] enriched (tip + duration + prepActions)
-  API->>API: persist batch_steps (pedagogical_tip, planned_duration_min, prep_actions)
-  API-->>M: BatchDto (steps carry tip + duration + prepActions)
-  M-->>B: PRÉP shows the physical actions; Start begins ACTIF (+ timer)
+  D-->>API: BatchStep[] enriched (tip + duration + prepActions + doneWhen)
+  API->>API: persist batch_steps (pedagogical_tip, planned_duration_min, prep_actions, done_when)
+  API-->>M: BatchDto (steps carry tip + duration + prepActions + doneWhen)
+  M-->>B: PRÉP shows the physical actions; ACTIF shows the timer + « C'est terminé quand… »
 ```
 
 ## Notes
@@ -44,6 +45,7 @@ sequenceDiagram
   transfer/aerate/pitch + airlock & temperature; PACKAGING = **none** — bottling already has the
   richer B3 gate (`03-sequence-bottle-and-close.md`), prep actions must not duplicate it.
 - **Not a gate:** the PRÉP checklist is guidance; `Start` stays a single ✋ confirmation (brew-day/06). Ticks are local UI state — nothing new persisted per tick (unlike the brew-prep ingredient checklist F14, which is a launch gate).
+- **End condition per type (F5):** `doneWhen` — one pedagogical FR sentence stating when the step is over, rendered in the **ACTIF** phase near the ✋ Complete CTA. For timed steps it frames the countdown as an aid, not an order (MASH/BOIL/WHIRLPOOL); for event-gated steps it IS the end signal (FERMENTATION: stable gravity over 2-3 days, never a fixed date). Like the prep actions it never gates `Complete` — the ✋ stays sovereign (unified end, brew-day/06).
 - **Description preserved:** the recipe-authored `description` is untouched; only type-level guidance is added.
 - **Backward compatible:** the `batch_steps` columns are nullable; steps launched before this carry no enrichment (mobile falls back to the bare card).
 - **Mobile:** `BatchDetailsScreen` already derives the PRÉP phase (`startedAt == null`, F1) — the PRÉP block renders `prepActions` above the Start CTA.

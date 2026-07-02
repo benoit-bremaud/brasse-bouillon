@@ -48,6 +48,12 @@ export class BatchStepDto {
   @ApiPropertyOptional({ type: [StepPrepActionDto], nullable: true })
   prep_actions?: StepPrepActionDto[] | null;
 
+  @ApiPropertyOptional({
+    nullable: true,
+    description: "The step's pedagogical end condition (F5), shown in ACTIF",
+  })
+  done_when?: string | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -67,6 +73,7 @@ export class BatchStepDto {
       planned_duration_min: e.planned_duration_min ?? null,
       pedagogical_tip: e.pedagogical_tip ?? null,
       prep_actions: e.prep_actions ?? null,
+      done_when: e.done_when ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
     };

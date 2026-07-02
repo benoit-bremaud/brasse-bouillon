@@ -52,4 +52,12 @@ describe('BatchStepDto.fromEntity', () => {
       BatchStepDto.fromEntity(makeEntity({ prep_actions: null })).prep_actions,
     ).toBeNull();
   });
+
+  it('maps the end condition and nulls it for legacy steps (happy/edge, F5)', () => {
+    expect(
+      BatchStepDto.fromEntity(makeEntity({ done_when: 'Quand ~60 min.' }))
+        .done_when,
+    ).toBe('Quand ~60 min.');
+    expect(BatchStepDto.fromEntity(makeEntity()).done_when).toBeNull();
+  });
 });

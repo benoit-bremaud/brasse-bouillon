@@ -54,4 +54,10 @@ export interface BatchStep {
    * Undefined when the type carries none (e.g. packaging — B3 covers it).
    */
   readonly prepActions?: readonly StepPrepAction[];
+
+  /**
+   * ACTIF-phase end condition (F5) — when the step is over, one pedagogical
+   * sentence. Never gates Complete. Undefined on legacy steps.
+   */
+  readonly doneWhen?: string;
 }

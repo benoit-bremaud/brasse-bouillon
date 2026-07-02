@@ -717,6 +717,16 @@ export function BatchDetailsScreen({ batchId }: Props) {
         <BrewStepTimer step={activeStep} useDemoData={dataSource.useDemoData} />
       ) : null}
 
+      {/* End condition (F5, brew-day/01+06): shown only in ACTIF — the brewer
+          always knows when the step is over. The timer is an aid, this is the
+          truth; it never gates « Terminer » (the ✋ stays sovereign). */}
+      {!isCompletedLive && activeStep && !isPrepPhase && activeStep.doneWhen ? (
+        <Card>
+          <Text style={styles.sectionTitle}>C'est terminé quand…</Text>
+          <Text style={styles.doneWhenText}>{activeStep.doneWhen}</Text>
+        </Card>
+      ) : null}
+
       {isPrepPhase && activeStep?.prepActions?.length ? (
         <Card>
           <Text style={styles.sectionTitle}>Avant de démarrer</Text>
@@ -868,6 +878,11 @@ const styles = StyleSheet.create({
     color: colors.neutral.textPrimary,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
+  },
+  doneWhenText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   list: {},
   stepsList: {

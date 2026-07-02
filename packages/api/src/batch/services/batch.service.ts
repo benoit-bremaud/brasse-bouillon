@@ -535,6 +535,7 @@ export class BatchService {
           planned_duration_min: step.plannedDurationMin ?? null,
           pedagogical_tip: step.pedagogicalTip ?? null,
           prep_actions: step.prepActions ? [...step.prepActions] : null,
+          done_when: step.doneWhen ?? null,
         }),
       );
 
@@ -579,6 +580,7 @@ export class BatchService {
         planned_duration_min: step.plannedDurationMin ?? null,
         pedagogical_tip: step.pedagogicalTip ?? null,
         prep_actions: step.prepActions ? [...step.prepActions] : null,
+        done_when: step.doneWhen ?? null,
       }),
     );
 
@@ -622,6 +624,7 @@ export class BatchService {
       // Round-trip matters: step transitions re-save the full snapshot, so a
       // missing mapping here would silently drop prep_actions on first use.
       prepActions: step.prep_actions ?? undefined,
+      doneWhen: step.done_when ?? undefined,
     };
   }
 
@@ -839,6 +842,7 @@ export class BatchService {
           planned_duration_min: step.plannedDurationMin ?? null,
           pedagogical_tip: step.pedagogicalTip ?? null,
           prep_actions: step.prepActions ? [...step.prepActions] : null,
+          done_when: step.doneWhen ?? null,
         }),
       );
 

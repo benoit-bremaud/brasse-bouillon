@@ -70,7 +70,10 @@ stateDiagram-v2
 - **ACTIF end is unified (F5).** A step always ends on ✋ `Complete`; the timer is an optional
   aid when `plannedDurationMin` is known. Event-gated steps (e.g. "chill to 20°C", "gravity
   stable") simply have no timer and state the end condition in the guidance — no separate step
-  *type* is introduced.
+  *type* is introduced. **Amended 2026-07-02:** the end condition is now explicit content —
+  `doneWhen`, one pedagogical FR sentence per type carried by the launch-time enrichment
+  (`01-sequence-step-enrichment.md`) and rendered in ACTIF near the `Complete` CTA. It never
+  gates `Complete` (the ✋ stays sovereign).
 - **Derived state, not transitions (from brewing-session/05).** The hop-addition cues, the
   **T-minus pre-announce** of the *next* step's PRÉP (F9, in-app cue for v1 — real background
   notifications are a later epic), and the *overdue* alert (`now > plannedEnd` while `active`)

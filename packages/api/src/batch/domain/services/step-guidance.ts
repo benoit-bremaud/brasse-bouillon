@@ -28,6 +28,13 @@ export interface StepGuidance {
    * step needs none (PACKAGING: the richer B3 bottling gate already covers it).
    */
   readonly prepActions: readonly StepPrepAction[];
+  /**
+   * The step's end condition (F5) — one pedagogical FR sentence stating when
+   * the step is over, shown in ACTIF near the Complete CTA. For timed steps it
+   * frames the countdown as an aid; for event-gated steps it IS the end signal.
+   * Never gates Complete (the ✋ stays sovereign — brew-day/06).
+   */
+  readonly doneWhen: string;
 }
 
 const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
@@ -35,6 +42,8 @@ const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
     pedagogicalTip:
       "L'empâtage fait infuser le grain concassé dans l'eau chaude (~65-67°C) : les enzymes y convertissent l'amidon en sucres fermentescibles. Plus chaud donne une bière plus ronde, plus froid une bière plus sèche.",
     plannedDurationMin: 60,
+    doneWhen:
+      'Terminé quand les ~60 minutes sont écoulées. Le chrono est une aide, pas un ordre : quelques minutes de plus ne gâchent rien — les enzymes ont simplement fini leur travail de conversion.',
     prepActions: [
       {
         action: "Chauffe ~7 L d'eau à ~72 °C (pour ~4 L de bière).",
@@ -54,6 +63,8 @@ const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
     pedagogicalTip:
       "L'ébullition stérilise le moût, isomérise les acides alpha du houblon (l'amertume) et concentre les sucres. Les houblons d'amertume vont tôt, les houblons d'arôme en toute fin d'ébullition.",
     plannedDurationMin: 60,
+    doneWhen:
+      "Terminé quand les ~60 minutes d'ébullition sont écoulées ET que tous tes ajouts de houblon prévus sont faits. Si un ajout a été oublié, mieux vaut prolonger de quelques minutes que de le sauter.",
     prepActions: [
       {
         action:
@@ -74,6 +85,8 @@ const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
     pedagogicalTip:
       "Le whirlpool fait tourner le moût pour rassembler les résidus (le trub) au centre, puis on refroidit vite avant d'ensemencer la levure. À partir d'ici, tout ce qui touche le moût refroidi doit être désinfecté.",
     plannedDurationMin: 15,
+    doneWhen:
+      "Terminé quand le tourbillon s'est calmé et que les dépôts (le trub) forment un cône au centre — environ 15 minutes. Plus le moût repose, plus il sera clair au transfert.",
     prepActions: [
       {
         action: 'Coupe le feu et remue le moût en cercle.',
@@ -90,6 +103,8 @@ const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
     pedagogicalTip:
       'La levure transforme les sucres en alcool et CO₂. Maintiens 18-20°C : trop chaud, elle stresse et produit des arômes indésirables. La fermentation est finie quand la densité est stable, pas à une date fixe.',
     plannedDurationMin: null,
+    doneWhen:
+      "Terminée quand la densité est STABLE sur 2-3 jours d'affilée — jamais à une date fixe. Sans densimètre, un barboteur silencieux depuis plusieurs jours est un indice, mais moins fiable qu'une mesure.",
     prepActions: [
       {
         action: 'Refroidis le moût à ~20 °C, aussi vite que possible.',
@@ -115,6 +130,8 @@ const STEP_TYPE_GUIDANCE: Readonly<Record<RecipeStepType, StepGuidance>> = {
     pedagogicalTip:
       "À l'embouteillage, on ajoute une dose précise de sucre (priming) pour la carbonatation : trop de sucre et les bouteilles explosent. Désinfecte les bouteilles, remplis, capsule, puis laisse conditionner ~2 semaines.",
     plannedDurationMin: null,
+    doneWhen:
+      "Terminé quand toutes les bouteilles sont remplies, capsulées et rangées à température ambiante, à l'abri de la lumière, pour ~2 semaines de refermentation.",
     // No PRÉP actions: the bottling flow already carries the richer B3 gate
     // (sanitize bottles + priming + bottle-bomb checkbox) — never duplicated.
     prepActions: [],

@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1315 merged (`c58a4b5`) — fix(faq-bot): fail closed on GET /challenge when the HMAC secret is missing
+
+- Branch `fix/faq-bot-challenge-fail-closed`, 2 commits (`cb65638`, `9f8556e`). Discovered on the first post-H3 prod deploy: with no `ALTCHA_HMAC_KEY`, `GET /faq-bot/challenge` returned an unhandled 500 (altcha-lib `DataError: Zero-length key` inside `issueChallenge`) instead of the fail-closed 503 the design mandates — the `BotCheckGuard` covered verification but not issuance. `FaqBotService.issueChallenge()` now fails closed (logged error + `FaqBotUnavailableException`, port never called), deliberately independent of the dev/test bypass flag (issuing is cryptographically impossible without a key in any environment); `faqBotConfig()` trims `ALTCHA_HMAC_KEY` so a whitespace-only secret reads as missing in both the guard and the service. Follow-up filed for the widget's 400-vs-503 error-message gap: #1314.
+- Reviews — local pre-push ritual (Claude 0 Must Have; both Should Haves addressed: config trim implemented, widget gap → issue); Copilot round 1 (2 test-hygiene threads) accepted in `9f8556e` (env save/restore, `getStatus() === 503` pinned). CI green; API 920 tests.
+
+### API deployed to Fly (2×, 2026-07-03) — `main` live in production again
+
+- First deploy after the H3 fix (#1311): boot green in ~10 s, `ENOENT dist/faq-bot/prompts/system-prompt.md` gone, migrations `1805`-`1807` applied (draft batch tier, PRÉP actions, doneWhen — the whole novice-journey block B is now server-side in prod). Second deploy after #1315: `GET /faq-bot/challenge` verified returning a clean 503 (`Anti-bot challenge unavailable`); `/health` 200. Prod no longer runs the pre-#1293 rollback image. Faq-bot remains inert by design until the activation prerequisites are met (budget-counter persistence, Fly secrets, widget origin).
+
 ### PR #1311 merged (`7641480`) — fix(api): copy faq-bot prompt assets to the runtime dist root
 
 - Branch `fix/api-nest-cli-assets-outdir`, 2 commits (`12e01c0`, `9f499a8`). Closes the **H3 blocker** (2026-07-02 hosting session): the faq-bot module (#1293) crashed NestJS at boot in the production image (`ENOENT dist/faq-bot/prompts/system-prompt.md`), leaving `main` undeployable to Fly. Root cause: the Docker build copies `src/` only → tsc infers `rootDir=src` → compiled loader at `dist/faq-bot/prompts/`, while the nest-cli assets glob shipped the `.md` to `dist/src/…`. Fix in two moves: assets `outDir` → `dist`, then (Codex P1, accepted) `scripts/` excluded from `tsconfig.build.json` so **every** build — Docker src-only, CI full checkout, local — emits the same layout (`dist/main.js`, prompts beside the compiled loader). Verified by reproducing both layouts and executing the compiled `loadFaqBotPrompts()`.

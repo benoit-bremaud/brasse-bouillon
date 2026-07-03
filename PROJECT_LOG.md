@@ -7,6 +7,26 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1340 merged (`1c55ab4`) — feat(mobile/demo): non-owned community recipe so community flows are demoable
+
+- Branch `feat/demo-community-recipe`, 2 commits. Adds a demo recipe « Blonde de la Communauté » (`r-demo-community-1`) with **no `ownerId`**, so demo mode finally carries a community (non-owned) recipe. `listRecipes` (« Mes recettes ») filters to `ownerId != null` → it stays out of the carnet and surfaces only in « Découvrir » via `listPublicRecipes` (public visibility). Unblocks live verification of Tranche A (#1331) — the add-to-carnet undo snackbar and the lighter unsaved-recipe Water tab were previously unreachable on-screen for lack of a non-owned recipe. Verified live on the emulator during the follow-up run (the PR body's « verification to follow » predates that check): « Ajouter à mon carnet », the lightened Water tab, and the « Recette ajoutée · Annuler » snackbar all fire.
+- Reviews — the shape test asserting every public recipe carries an `ownerId` was audited, not forced green: a public/community recipe legitimately has none (the backend strips it, which is what drives « Ajouter à mon carnet »), so it now checks `visibility` plus a positive « stays out of Mes recettes, in Découvrir » test. Copilot: 1 stale-comment thread (the owned-only filter is no longer a no-op) reworded (`9cc9c62`) + resolved. CI green; full mobile suite green.
+
+### PR #1339 merged (`fd4232b`) — fix(mobile/ui): Snackbar floats above a sticky CTA instead of overlapping it
+
+- Branch `fix/snackbar-sticky-cta-overlap`, 2 commits. Screen-review follow-up from Tranche A: the app-level Snackbar overlapped the recipe detail's sticky « Ajouter à mon carnet » CTA (confirmed live on the emulator). New `core/ui/sticky-cta-clearance` provider tracks mounted sticky CTAs — split register/clearance contexts so a mounted CTA never re-triggers its own register effect — and exposes the extra bottom clearance; `RecipeStickyCta` calls `useMarkStickyCtaPresent()`, and the Snackbar adds that clearance to its `paddingBottom` so it floats above the bar instead of covering it.
+- Reviews — Copilot round: hardcoded `48` → height derived from the same theme tokens `PrimaryButton` uses (`spacing.sm * 2 + typography.lineHeight.label`, `f098820`); missing coverage → new `sticky-cta-clearance.test.tsx` (clearance hook 0 → bar height → 0 on unmount, plus an integration check that the Snackbar overlay `paddingBottom` grows by exactly the bar height). Both threads resolved. CI green; mobile suite green.
+
+### PR #1338 merged (`f7c193e`) — docs: remove redundant root user_stories.md (both were superseded by the Product Backlog)
+
+- Branch `docs/dedup-user-stories`, 1 commit. Repo-hygiene: the two `user_stories.md` copies were **both already superseded stubs** pointing at the Product Backlog — not two divergent live copies as first assumed. Deleted the redundant root `docs/user_stories.md`, updated the Product Backlog's supersedes line to drop the dead path, and annotated `docs/README.md`. The mistaken « consolidate two divergent copies » premise was surfaced and the correct clean action taken instead.
+- Reviews — docs-only; no review threads. CI green.
+
+### PR #1337 merged (`a300240`) — test(mobile/scan): regression test for the concurrent-import guard (#766)
+
+- Branch `test/scan-concurrent-import-guard`, 1 commit. Fills the deferred coverage gap from #1327: a regression test on `BeerInfoCardScreen` asserting a second import cannot launch while one is already pending (react-query `isPending` guard). Holds the first import mid-flight with a deferred promise + a micro-task flush (`await act(async () => { await Promise.resolve(); })`) to propagate the pending-state re-render before the second tap, then asserts the import use-case fired exactly once.
+- Reviews — test-only; no review threads. CI green; 36/36 BeerInfoCard tests green.
+
 ### PR #1334 merged (`89491c4`) — docs(recipe-difficulty/architecture): ADR-0024 + spec + UML for the difficulty badge (Tranche B)
 
 - Branch `docs/recipe-difficulty-conception`, 3 commits. **Conception-first** for the per-recipe brewing-difficulty badge (screen-review Tranche B): **ADR-0024** (rule-based scoring, max-dominates + bounded compounding, backend-computed + author override, 3 levels, all-grain baseline; weighted decision matrix + a documented web study), a **spec** (`recipe-difficulty-algorithm.md` — factors F1 yeast / F2 gravity / F3 fault-tolerance lager-gated / F4 water / F5 mash *deferred* / F6 complexity, v1 thresholds, glossed plain-French explanation strings, aggregation, 3 new `recipe` fields, worked H/S/E examples), and **4 diagrams** (`diagrams/recipe-difficulty/` use-case, sequence, component, class).

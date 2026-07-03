@@ -2317,6 +2317,45 @@ export const demoRecipes: Recipe[] = [
     createdAt: "2026-04-15T10:00:00.000Z",
     updatedAt: "2026-04-20T10:00:00.000Z",
   },
+  {
+    // A community recipe the demo user does NOT own: no `ownerId`, so
+    // `isOwned = ownerId != null` is false → it shows « Ajouter à mon carnet »,
+    // the lightened Water tab, and the import snackbar. It stays OUT of « Mes
+    // recettes » (listRecipes filters on ownerId) but appears in « Découvrir ».
+    id: "r-demo-community-1",
+    name: "Blonde de la Communauté",
+    description:
+      "Une blonde légère et désaltérante, partagée par la communauté",
+    stats: {
+      ibu: 20,
+      abv: 4.8,
+      og: 1.046,
+      fg: 1.008,
+      volumeLiters: 20,
+      colorEbc: 8,
+    },
+    ingredients: [
+      { ingredientId: "malt-1", amount: 4, unit: "kg", timing: "mash" },
+      { ingredientId: "hop-3", amount: 20, unit: "g", timing: "boil - 60 min" },
+      {
+        ingredientId: "yeast-1",
+        amount: 1,
+        unit: "unit",
+        timing: "fermentation",
+        notes: "Pitch at 18°C",
+      },
+    ],
+    equipment: [
+      { equipmentId: "eq-1", role: "Mash & boil" },
+      { equipmentId: "eq-3", role: "Fermentation" },
+    ],
+    visibility: "public",
+    version: 1,
+    rootRecipeId: "r-demo-community-1",
+    parentRecipeId: null,
+    createdAt: "2026-05-01T10:00:00.000Z",
+    updatedAt: "2026-05-01T10:00:00.000Z",
+  },
 ];
 
 /**

@@ -54,7 +54,12 @@ export type RecipeDetailsViewModel = {
 };
 
 export async function listRecipes(): Promise<Recipe[]> {
-  return dataSource.useDemoData ? demoRecipes : listMine();
+  // « Mes recettes » = owned only. Demo recipes without an `ownerId` are
+  // community recipes (they surface in « Découvrir » via `listPublicRecipes`);
+  // no-op for the seeded recipes, which all carry an owner.
+  return dataSource.useDemoData
+    ? demoRecipes.filter((recipe) => recipe.ownerId != null)
+    : listMine();
 }
 
 /**

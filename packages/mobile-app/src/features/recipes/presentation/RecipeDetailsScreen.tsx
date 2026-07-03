@@ -395,7 +395,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       Alert.alert(
         "Suppression impossible",
         isReferencedByBatch
-          ? "Cette recette est utilisée par un brassin. Tu ne peux pas la supprimer tant que ce brassin existe : supprime ou archive d'abord le brassin correspondant dans « Mes brassins »."
+          ? "Cette recette est utilisée par un brassin. Tu ne peux pas la supprimer tant que ce brassin existe : supprime d'abord le brassin correspondant dans « Mes brassins »."
           : "La recette n'a pas pu être supprimée. Vérifie ta connexion et réessaie.",
       );
     },

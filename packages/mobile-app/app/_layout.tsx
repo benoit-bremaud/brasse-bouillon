@@ -2,6 +2,7 @@ import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "@/core/auth/auth-context";
 
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { QueryProvider } from "@/core/query/query-provider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack } from "expo-router";
@@ -13,8 +14,10 @@ function AppShell() {
 
   return (
     <QueryProvider key={queryScopeKey}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="auto" />
+      <ConfirmProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="auto" />
+      </ConfirmProvider>
     </QueryProvider>
   );
 }

@@ -41,18 +41,25 @@ classDiagram
   }
   class RecipeYeast {
     +RecipeYeastType type
-    +int temperatureMinC
     +int temperatureMaxC
   }
+  class RecipeYeastType {
+    <<enumeration>>
+    ale
+    lager
+    wild
+    brett
+  }
   class RecipeHop {
-    +HopUse use
-    +int additionTimeMin
+    +String variety
+    +RecipeHopAdditionStage additionStage
   }
   class RecipeWater {
-    +String salts
-  }
-  class RecipeStep {
-    +RecipeStepType type
+    +Real calciumPpm
+    +Real magnesiumPpm
+    +Real sulfatePpm
+    +Real chloridePpm
+    +Real phTarget
   }
   class DifficultyService {
     +compute(Recipe) DifficultyResult
@@ -62,9 +69,9 @@ classDiagram
   Recipe "1" --> "0..1" DifficultyLevel : override
   Recipe "1" o-- "0..*" DifficultyReason
   Recipe "1" o-- "1..*" RecipeYeast
+  RecipeYeast "1" --> "1" RecipeYeastType
   Recipe "1" o-- "0..*" RecipeHop
-  Recipe "1" o-- "0..*" RecipeWater
-  Recipe "1" o-- "1..*" RecipeStep
+  Recipe "1" o-- "0..1" RecipeWater
   DifficultyService ..> Recipe : reads
   DifficultyService ..> DifficultyReason : produces
 ```
@@ -75,8 +82,10 @@ classDiagram
   `difficultyReasons` (json). `difficultyEffective()` = `override ?? computed` (ADR-0024 D3).
 - **`DifficultyReason`** is the stored breakdown that feeds tap-to-explain — computed on write,
   read as-is (no client compute).
-- The sub-entities (`RecipeYeast.type`/temps, `RecipeHop.use`, `RecipeWater`, `RecipeStep.type`,
-  and `ibuTarget`/`ebcTarget`/`ogTarget` on `Recipe`) are the rule-engine inputs (spec §F1–F6) —
-  **unchanged** by this feature.
+- The rule-engine inputs (spec §F1–F6): `RecipeYeast.type` (+ `temperatureMaxC`),
+  `RecipeWater` ion/pH targets, `RecipeHop.variety` (for the F6 variety count),
+  and `ogTarget`/`abvEstimated`/`ebcTarget` on `Recipe`. `RecipeStep` is **not** an input
+  (F5 mash complexity deferred — no per-rest temperature). The sub-entities themselves are
+  **unchanged** by this feature — only `Recipe` gains the three difficulty fields.
 - `DifficultyService` holds no state — a pure function (ADR-0024 D1), which is why it is a
   service, not an entity.

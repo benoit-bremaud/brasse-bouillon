@@ -63,13 +63,16 @@ of truth — like ADR-0020 volume planning), ADR-0013 (canonical beer/recipe mod
 
 ## Decision
 
-### D1 — Rule-based, per-factor tiering, **max-dominates** aggregation
+### D1 — Rule-based, per-factor tiering, **max-dominates + bounded compounding**
 
 The difficulty is computed by a deterministic **rule engine** over the recipe's structured
-fields. Each factor is scored to a tier (`facile=0` / `intermediaire=1` / `avance=2`); the
-recipe tier is the **maximum** of the per-factor tiers, plus a few **hard overrides**
-(any wild/sour culture → Avancé; any lager → at least Intermédiaire). Each factor that raised
-the tier contributes a plain-French **explanation sentence** (the tap-to-explain / pedagogy).
+fields. Each factor is scored to a tier (`facile=0` / `intermediaire=1` / `avance=2`); the recipe
+tier is the **maximum** of the per-factor tiers, with a **bounded compounding** step (when ≥ 3
+factors are at tier 1, bump one level, capped at Avancé — so several moderate stressors outrank a
+single one). The wild-culture → Avancé and lager → ≥ Intermédiaire escalations are **encoded in
+the yeast factor's tier** (not a separate override step, which would double-count). Every factor
+that fires contributes a plain-French **explanation sentence**, and **all** firing factors (not
+only the one at the max) go into the tap-to-explain, so pedagogy is not silently dropped.
 
 Rejected alternatives — see the decision matrix below: a **weighted numeric score** (opaque,
 hard to explain to a novice, arbitrary weights), a **style→tier lookup table** (the same
@@ -81,12 +84,12 @@ over-engineering per ADR-0001).
 
 | Factor | Signal (existing field) | Escalates because |
 |---|---|---|
-| **Fermentation / levure** | `recipe-yeast.type` (+ `temperature_min/max_c`) | wild/sour = Avancé override; lager (or ferment temp < ~14 °C) = ≥ Intermédiaire (cold control) |
+| **Fermentation / levure** | `recipe-yeast.type` (`{wild, brett}` / `lager` / `ale`) + `temperature_max_c` | wild culture = Avancé; lager **or** cold ferment (<14 °C) **or** hot/active ferment (>26 °C, e.g. saison) = ≥ Intermédiaire |
 | **Force / densité** | `og_target`, `abv_estimated` | high-gravity stresses the yeast, needs a starter |
-| **Tolérance aux fautes** | `ebc_target` + `ibu_target` | pale + clean = "no place to hide" — **gated on lager**: a pale *ale* stays Facile (ale-yeast forgiveness, keeps « Blonde Facile »), a pale *lager* (pilsner) → Avancé |
-| **Chimie de l'eau** | `recipe-water` / additives present | salt/pH adjustment is an advanced skill |
-| **Techniques** | mash steps (`recipe-step`), dry-hop (`recipe-hop.use`) | multi-step mash, dry hop = extra handling/timing |
-| **Base (complexité)** | count of fermentables / hops / additives | "kitchen-sink" grain bill and hop schedule multiply error surface |
+| **Tolérance aux fautes** | `ebc_target` (pale ≤ 10) **gated on `lager`** | a pale *lager* = "no place to hide" → Avancé; a pale *ale* stays Facile (keeps « Blonde Facile »). IBU is **not** used — hops don't mask lager faults |
+| **Chimie de l'eau** | `recipe-water` ion/pH **targets** | a real target profile (pH or ≥2 ion targets), not a lone pre-measured sachet |
+| **Base (complexité)** | count of fermentables + hop **varieties** + additives (> 7) | "kitchen-sink" bill multiplies error surface; counts varieties, not timed additions |
+| ~~Empâtage multi-palier~~ | `recipe-step` | **deferred v1** — steps carry no per-rest temperature, so a step/decoction mash is not detectable yet |
 
 Exact thresholds and the explanation strings live in the spec
 (`docs/architecture/specs/recipe-difficulty-algorithm.md`) — they are **v1 defaults, meant to
@@ -109,8 +112,11 @@ deliberately omitted (all-grain baseline, D-context above).
 
 `facile` (green) / `intermediaire` (amber) / `avance` (red). An internal integer score MAY back
 the tiering for calibration, but **only 3 levels are ever exposed** (no false precision). Every
-badge is **tap-to-explain**: the stored reasons render as « Avancé car : c'est une lager
-(fermentation à froid) + densité élevée ». Pedagogy is the point (`feedback_educational_vocation`).
+badge is **tap-to-explain**, and each stored sentence is written in **glossed plain French** (the
+sentence is the deepest layer — nothing behind it — so it must introduce *and* explain each term),
+e.g. « Avancé car : une lager blonde et nette — ni houblon fort ni malt torréfié pour cacher un
+défaut, la moindre erreur se voit ». Pedagogy is the point (`feedback_educational_vocation`); the
+spec holds the exact strings and they must stay at this clarity bar.
 
 ### D5 — Brassage tab (same review)
 
@@ -119,6 +125,11 @@ Separate but adjacent: the Brassage tab replaces its **generic** brewing-phase g
 generic glossary **moves to the Academy** (ADR-0023) — it is education, not recipe-specific.
 The difficulty badge appears here as a reminder. Captured here for traceability; detailed in
 the use-case diagram.
+
+**Emulator-grounded refinement (2026-07-03):** the tab already exposes three modes —
+« Phases de brassage » (the generic glossary, currently default), « Étapes de la recette » (the
+real steps), « Condensé ». So D5 is a re-default + relocation, not a rebuild: **promote « Étapes
+de la recette » as the default**, and **move « Phases de brassage » into the Academy**.
 
 ---
 
@@ -148,12 +159,16 @@ recipe-authoring burden (computed from fields already captured); no data-model c
 omitted extraction axis; backend-owned (ADR-0002) so all clients agree.
 
 **Negative / risks** — thresholds are **judgement calls**; v1 defaults will need calibration
-against real recipes (mitigation: thresholds isolated in the spec + an internal score for
-tuning, plus the author override as an escape hatch). The **fault-tolerance** axis (EBC/IBU) is
-a proxy and can misjudge edge styles (e.g. a malt-forward big beer the sources call "easy") —
-mitigation: max-dominates + override, and we document the known style disagreements in the spec.
-Omitting extraction method is safe **only while the app stays all-grain**; if extract recipes
-are ever modelled, revisit with a `brewMethod` field (noted as a follow-up, not built).
+against real recipes (mitigation: thresholds isolated in the spec + the author override as an
+escape hatch). Documented v1 limitations (spec §6): (a) **fault-tolerance uses `lager` as a coarse
+proxy** and deliberately under-penalises clean pale *ales* (Kölsch, Cream Ale, Bitter…) to keep
+the flagship « Blonde Facile » at Facile; (b) **F5 mash complexity is deferred** — `recipe-step`
+carries no per-rest temperature, so step/decoction mashes are invisible until the mash model
+gains rests; (c) the yeast enum has **no `sour`/`mixed`** value, so a kettle-sour is folded into
+`wild` and scored Avancé (conservative); (d) malt-forward big beers still score up on gravity
+(accepted). Omitting extraction method is safe **only while the app stays all-grain**; if extract
+recipes are ever modelled, revisit with a `brewMethod` field (follow-up, not built). All mitigated
+by max-dominates + author override + the calibration knobs.
 
 ---
 

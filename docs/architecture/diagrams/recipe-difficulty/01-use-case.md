@@ -50,3 +50,6 @@ flowchart LR
   hand-off; its realization is the Academy feature, not this one.
 - No « Recevoir/Voir le badge » use case — a badge is displayed state, not an actor-initiated
   goal; the reader's goal is UC1 (repérer) / UC2 (comprendre).
+- The `Author -.-> Novice` dashed arrow is a Mermaid **approximation** of UML actor
+  generalisation (UML draws a solid line with a hollow triangle, which Mermaid flowcharts
+  cannot render). Read it as "Author is a Novice too", not a dependency.

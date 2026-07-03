@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { colors, shadows, spacing, typography } from "@/core/theme";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { useMarkStickyCtaPresent } from "@/core/ui/sticky-cta-clearance";
 
 type RecipeStickyCtaProps = {
   label: string;
@@ -26,6 +27,8 @@ export function RecipeStickyCta({
   helperText = null,
   bottomOffset = 0,
 }: RecipeStickyCtaProps) {
+  // Declare this bar mounted so app-level floating UI (Snackbar) clears it.
+  useMarkStickyCtaPresent();
   return (
     <View
       testID="recipe-sticky-cta"

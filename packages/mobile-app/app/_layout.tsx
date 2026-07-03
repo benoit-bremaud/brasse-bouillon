@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/core/auth/auth-context";
 
 import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { SnackbarProvider } from "@/core/ui/snackbar-provider";
+import { StickyCtaClearanceProvider } from "@/core/ui/sticky-cta-clearance";
 import { QueryProvider } from "@/core/query/query-provider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack } from "expo-router";
@@ -16,10 +17,12 @@ function AppShell() {
   return (
     <QueryProvider key={queryScopeKey}>
       <ConfirmProvider>
-        <SnackbarProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-          <StatusBar style="auto" />
-        </SnackbarProvider>
+        <StickyCtaClearanceProvider>
+          <SnackbarProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+            <StatusBar style="auto" />
+          </SnackbarProvider>
+        </StickyCtaClearanceProvider>
       </ConfirmProvider>
     </QueryProvider>
   );

@@ -14,7 +14,8 @@ Couvre le domaine **beer-encyclopedia** (backend), la **réalisation mobile du c
 au fil des revues. Études de cas d'usage :
 [`beer-encyclopedia/01-use-case.md`](diagrams/beer-encyclopedia/01-use-case.md) (backend) ·
 [`mobile-catalog/01-use-case.md`](diagrams/mobile-catalog/01-use-case.md) (mobile) ·
-[`catalog-moderation/01-use-case.md`](diagrams/catalog-moderation/01-use-case.md) (modération).
+[`catalog-moderation/01-use-case.md`](diagrams/catalog-moderation/01-use-case.md) (modération) ·
+[`academy/00-overview.md`](diagrams/academy/00-overview.md) (Académie brassicole, ADR-0023).
 
 ## État des diagrammes — beer-encyclopedia
 
@@ -77,6 +78,25 @@ Légende : ✅ fait · 🎯 conçu (cible, code à venir) · ⬜ à venir · —
 | UC7 Gérer le catalogue (C/U/D) | Curer | 🎯 `catalog-moderation/02` (M3 dépublier = suppression logique) | `catalog-moderation/03` 🎯 | Beer, Brewery | `catalog-moderation/04` 🎯 | — | livré (CRUD) · modération in-app 🎯 | #1151 (auth), #1152 (re-cadré ADR-0018), #1175 |
 | UC8 Alimenter les référentiels | Curer | — | 03 ⬜ | Style, LegalDenomination, Source | — | — | livré | #1152 |
 | UC9 Modérer les corrections / promouvoir | Curer | 🎯 `catalog-moderation/02` (M2 promouvoir) · corrections ⬜ | `catalog-moderation/03` 🎯 | CommunityCorrection, Beer (is_verified) | `catalog-moderation/04` 🎯 · corrections (05 ⬜) | — | planifié · promotion in-app 🎯 | #1153, #1154, #1155, ADR-0015 D4 |
+
+## État des diagrammes — academy
+
+Réalisation **mobile** de l'Académie brassicole comme base de connaissances générée
+(ADR-0023). Étude conçue avant code : tous les diagrammes sont 🎯 cible.
+
+| Diagramme | Fichier | État |
+|-----------|---------|------|
+| Vue d'ensemble | [`00-overview.md`](diagrams/academy/00-overview.md) | 🎯 cible |
+| Contexte | [`01-context.md`](diagrams/academy/01-context.md) | 🎯 cible |
+| Cas d'usage | [`02-use-case.md`](diagrams/academy/02-use-case.md) | 🎯 cible |
+| Classes domaine | [`03-domain-class.md`](diagrams/academy/03-domain-class.md) | 🎯 cible |
+| Composants | [`04-components.md`](diagrams/academy/04-components.md) | 🎯 cible |
+| Séquence — ouvrir un article | [`05-sequence-open-article.md`](diagrams/academy/05-sequence-open-article.md) | 🎯 cible |
+| Séquence — générer le contenu | [`06-sequence-generate-content.md`](diagrams/academy/06-sequence-generate-content.md) | 🎯 cible |
+| États — cycle de vie article | [`07-state-article-lifecycle.md`](diagrams/academy/07-state-article-lifecycle.md) | 🎯 cible |
+| Activité — recherche locale | [`08-activity-search.md`](diagrams/academy/08-activity-search.md) | 🎯 cible |
+| Séquence — futur chatbot RAG | [`09-sequence-chatbot-rag.md`](diagrams/academy/09-sequence-chatbot-rag.md) | 🎯 cible V2 |
+| Notes d'implémentation | [`10-implementation-notes.md`](diagrams/academy/10-implementation-notes.md) | 🎯 cible |
 
 ## Règles de traçabilité
 

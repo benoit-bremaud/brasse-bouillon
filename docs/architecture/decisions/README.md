@@ -60,6 +60,7 @@ Every ADR follows the same skeleton (inspired by Michael Nygard's template):
 | [0020](0020-equipment-driven-volume-planning.md) | Equipment-driven batch sizing & volume planning (computed in the backend) | Accepted | 2026-06-19 |
 | [0021](0021-equipment-readiness-cleaning-and-adaptive-pedagogy.md) | Equipment readiness = reusable profile + capacity fit-check + cleaning ritual; adaptive pedagogy | Proposed | 2026-06-24 |
 | [0022](0022-public-faq-chatbot-llm.md) | Public project FAQ chatbot on the website, backed by Mistral (EU/RGPD), prompt-as-spec with an eval gate | Proposed | 2026-07-01 |
+| [0023](0023-brewing-academy-knowledge-base.md) | Brewing Academy as a generated knowledge base | Proposed | 2026-07-02 |
 
 > **Numbers 0006–0008 are reserved** (not yet drafted) for decisions already
 > referenced by open epics: 0006 — private journal vs. social product (#833),

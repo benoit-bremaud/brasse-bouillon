@@ -276,6 +276,44 @@ describe('RecipeDifficultyService (integration)', () => {
     );
   });
 
+  // happy: updating a gravity target through updateMine() recomputes the level
+  // (guards the update-path wiring + its transaction wrapper).
+  it('recomputes the stored level when updateMine changes the gravity target', async () => {
+    const recipe = await recipes.create(OWNER, {
+      name: 'Was easy',
+      og_target: 1.04,
+    });
+    expect((await reload(recipe.id)).difficulty_computed).toBe(
+      RecipeDifficultyLevel.FACILE,
+    );
+
+    await recipes.updateMine(OWNER, recipe.id, { og_target: 1.09 });
+
+    const saved = await reload(recipe.id);
+    expect(saved.difficulty_computed).toBe(RecipeDifficultyLevel.AVANCE);
+    expect(
+      (saved.difficulty_reasons ?? []).some((r) => r.factor === 'F2'),
+    ).toBe(true);
+  });
+
+  // sad: clearing the override via updateMine falls the effective level back to
+  // the computed value.
+  it('clears the author override when updateMine sends difficulty_override: null', async () => {
+    const recipe = await recipes.create(OWNER, {
+      name: 'Override then clear',
+      og_target: 1.04,
+      difficulty_override: RecipeDifficultyLevel.AVANCE,
+    });
+
+    await recipes.updateMine(OWNER, recipe.id, { difficulty_override: null });
+
+    const saved = await reload(recipe.id);
+    expect(saved.difficulty_override).toBeNull();
+    expect(RecipeDto.fromEntity(saved).difficulty_effective).toBe(
+      saved.difficulty_computed,
+    );
+  });
+
   // sad: a missing recipe is a no-op, not a throw.
   it('returns null and no-ops for a missing recipe', async () => {
     await expect(

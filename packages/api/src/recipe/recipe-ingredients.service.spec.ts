@@ -6,6 +6,7 @@ import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { RecipeAdditiveOrmEntity } from './entities/recipe-additive.orm.entity';
 import { RecipeAdditiveType } from './domain/enums/recipe-additive-type.enum';
+import { RecipeDifficultyLevel } from './domain/enums/recipe-difficulty-level.enum';
 import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.entity';
 import { RecipeFermentableType } from './domain/enums/recipe-fermentable-type.enum';
 import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
@@ -305,6 +306,59 @@ describe('RecipeIngredientsService', () => {
       await expect(service.listYeasts(OTHER, recipe.id)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  // ─── Difficulty recompute wiring (slice 2) ───────────────────────────────────
+
+  describe('Difficulty recompute (slice 2)', () => {
+    it('recomputes UP when a pale lager yeast is added, then DOWN when it is removed', async () => {
+      const recipe = await recipeService.create(OWNER, {
+        name: 'Pilsner',
+        og_target: 1.05,
+        ebc_target: 6,
+      });
+      // Baseline: no ingredients yet → Facile.
+      expect(
+        (await recipeRepo.findOneByOrFail({ id: recipe.id }))
+          .difficulty_computed,
+      ).toBe(RecipeDifficultyLevel.FACILE);
+
+      // Adding a pale lager yeast through the real mutation must recompute UP.
+      const yeast = await service.addYeast(OWNER, recipe.id, {
+        name: 'W-34/70',
+        type: RecipeYeastType.LAGER,
+        amount_g: 11,
+        temperature_max_c: 12,
+      });
+      let saved = await recipeRepo.findOneByOrFail({ id: recipe.id });
+      expect(saved.difficulty_computed).toBe(RecipeDifficultyLevel.AVANCE);
+      expect(
+        (saved.difficulty_reasons ?? []).some((r) => r.factor === 'F3'),
+      ).toBe(true);
+
+      // Removing the last yeast must recompute back DOWN.
+      await service.removeYeast(OWNER, recipe.id, yeast.id);
+      saved = await recipeRepo.findOneByOrFail({ id: recipe.id });
+      expect(saved.difficulty_computed).toBe(RecipeDifficultyLevel.FACILE);
+    });
+
+    it('recomputes when a water treatment target is upserted (F4)', async () => {
+      const recipe = await recipeService.create(OWNER, {
+        name: 'Watered',
+        og_target: 1.05,
+      });
+
+      await service.upsertWater(OWNER, recipe.id, {
+        mash_volume_l: 15,
+        sparge_volume_l: 10,
+        ph_target: 5.4,
+      });
+
+      const saved = await recipeRepo.findOneByOrFail({ id: recipe.id });
+      expect(
+        (saved.difficulty_reasons ?? []).some((r) => r.factor === 'F4'),
+      ).toBe(true);
     });
   });
 

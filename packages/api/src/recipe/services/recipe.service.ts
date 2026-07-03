@@ -141,10 +141,11 @@ export class RecipeService {
    * recipes that are not owned by the viewer still surface as
    * NotFound (deny by default, no information leak).
    *
-   * Write operations (`updateMine`, `deleteMine`, the step
-   * write-helpers) intentionally keep using `getMineById` so the
-   * authorisation surface for mutations stays strictly
-   * owner-scoped.
+   * Write operations stay strictly owner-scoped: `deleteMine` and the
+   * step write-helpers use `getMineById`, while `updateMine` performs the
+   * equivalent owner-scoped lookup (`{ id, owner_id }`) inline inside its
+   * own transaction so the field update and the difficulty recompute commit
+   * atomically. None of them use this public/owner reader.
    */
   async getReadableById(
     viewerOwnerId: string,

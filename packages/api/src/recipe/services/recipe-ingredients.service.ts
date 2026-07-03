@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
@@ -47,14 +47,24 @@ export class RecipeIngredientsService {
     private readonly waterRepo: Repository<RecipeWaterOrmEntity>,
   ) {}
 
+  private readonly logger = new Logger(RecipeIngredientsService.name);
+
   /**
    * Recomputes the parent recipe's stored difficulty after an ingredient
    * mutation (its fermentables/hops/yeast/water feed the score). Runs in its
    * own connection (the mutation already committed); idempotent, so a failure
-   * here self-heals on the next mutation rather than rolling back the edit.
+   * here is swallowed (logged, never rethrown) rather than turning a successful
+   * ingredient edit into a 5xx — the difficulty self-heals on the next mutation.
    */
   private async refreshDifficulty(recipeId: string): Promise<void> {
-    await this.difficulty.recomputeForRecipe(recipeId);
+    try {
+      await this.difficulty.recomputeForRecipe(recipeId);
+    } catch (error) {
+      this.logger.warn(
+        `Difficulty recompute failed for recipe ${recipeId}; it will self-heal on the next save`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 
   // ─── Fermentables ───────────────────────────────────────────────────────────

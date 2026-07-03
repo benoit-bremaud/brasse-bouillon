@@ -161,4 +161,24 @@ describe('RecipeDifficultyDomainService — factor rules & edges', () => {
       RecipeDifficultyLevel.AVANCE,
     );
   });
+
+  it('a cold-fermented ALE fires F1 (Intermédiaire) with a « froid » gloss, not a lager label', () => {
+    const result = compute({
+      yeast: { type: RecipeYeastType.ALE, temperatureMaxC: 10 },
+    });
+    expect(result.computed).toBe(RecipeDifficultyLevel.INTERMEDIAIRE);
+    const f1 = result.reasons.find((r) => r.factor === 'F1');
+    expect(f1?.sentence).toMatch(/froid/);
+    // The sentence keys on the type — a cold ale is never told « c'est une lager ».
+    expect(f1?.sentence).not.toMatch(/lager/i);
+  });
+
+  it('keeps the glossed tap-to-explain strings stable (pedagogy contract, D4)', () => {
+    // The stored sentence is the deepest pedagogy layer (ADR-0024 D4) — it must
+    // gloss the term. Guard a stable substring so a silent edit is caught.
+    const lagerF1 = compute({ yeast: lager }).reasons.find(
+      (r) => r.factor === 'F1',
+    );
+    expect(lagerF1?.sentence).toMatch(/refroidir/);
+  });
 });

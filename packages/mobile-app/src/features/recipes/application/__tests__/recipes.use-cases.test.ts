@@ -1,6 +1,7 @@
 import {
   getRecipeDetailsViewModel,
   listPublicRecipes,
+  listRecipes,
 } from "@/features/recipes/application/recipes.use-cases";
 import { dataSource } from "@/core/data/data-source";
 import { getMineById, listSteps } from "@/features/recipes/data/recipes.api";
@@ -46,16 +47,26 @@ describe("recipes use-cases — listPublicRecipes (Issue #779)", () => {
     }
   });
 
-  // sad: every recipe returned has the well-formed shape the
-  // CatalogScreen relies on (id, name, ownerId, visibility).
+  // sad: every recipe returned has the well-formed shape the CatalogScreen
+  // relies on (id, name, visibility). A public/community recipe legitimately
+  // has NO ownerId — the backend strips it (ownerId present ⟺ owned), which is
+  // exactly what drives « Ajouter à mon carnet » — so we do not require it here.
   it("sad: every returned recipe carries the minimum shape the screen relies on", async () => {
     const recipes = await listPublicRecipes();
 
     for (const recipe of recipes) {
       expect(recipe.id).toBeTruthy();
       expect(recipe.name).toBeTruthy();
-      expect(recipe.ownerId).toBeTruthy();
+      expect(recipe.visibility).toBe("public");
     }
+  });
+
+  it("keeps a community recipe (no ownerId) out of « Mes recettes » but in « Découvrir »", async () => {
+    const mine = await listRecipes();
+    const discover = await listPublicRecipes();
+
+    expect(mine.some((r) => r.id === "r-demo-community-1")).toBe(false);
+    expect(discover.some((r) => r.id === "r-demo-community-1")).toBe(true);
   });
 
   // edge: no PRIVATE or UNLISTED recipe leaks even when the demo

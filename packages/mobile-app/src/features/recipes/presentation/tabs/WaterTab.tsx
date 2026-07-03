@@ -36,6 +36,13 @@ type WaterTabProps = Readonly<{
   localWaterProfile: WaterProfile;
   compatibility: CompatibilityScore;
   targetVolumeLiters: number;
+  /**
+   * When false (a community recipe the user has not saved to their carnet yet),
+   * the tab shows only the recommended profile + a « save to compare » hint; the
+   * local-water comparison, compatibility score and salt additions are hidden
+   * until the recipe is owned.
+   */
+  canCompare: boolean;
   nonPublicWaterPreference: NonPublicWaterPreference;
   onChangeNonPublicWaterPreference: (value: NonPublicWaterPreference) => void;
   selectedWaterStylePresetId: WaterStylePresetId;
@@ -65,6 +72,7 @@ export function WaterTab(props: WaterTabProps) {
     localWaterProfile,
     compatibility,
     targetVolumeLiters,
+    canCompare,
     nonPublicWaterPreference,
     onChangeNonPublicWaterPreference,
     selectedWaterStylePresetId,
@@ -75,11 +83,14 @@ export function WaterTab(props: WaterTabProps) {
   } = props;
 
   const isPublic = recipe.visibility === "public";
-  const additions = computeWaterSaltAdditions(
-    recommendedWaterProfile,
-    localWaterProfile,
-    targetVolumeLiters,
-  );
+  // Salt additions only make sense once we can compare against local water.
+  const additions = canCompare
+    ? computeWaterSaltAdditions(
+        recommendedWaterProfile,
+        localWaterProfile,
+        targetVolumeLiters,
+      )
+    : [];
 
   return (
     <ScrollView
@@ -91,100 +102,106 @@ export function WaterTab(props: WaterTabProps) {
       <Card style={styles.card}>
         <Text style={styles.helperText}>{recommendedWaterLabel}</Text>
 
-        {!isPublic ? (
-          <View style={styles.toggleRow}>
-            {NON_PUBLIC_WATER_PREFERENCE_OPTIONS.map((option) => (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Use ${option.label.toLowerCase()} recommendation`}
-                style={[
-                  styles.toggleChip,
-                  nonPublicWaterPreference === option.id &&
-                    styles.toggleChipActive,
-                ]}
-                onPress={() => onChangeNonPublicWaterPreference(option.id)}
-              >
-                <Text
-                  style={[
-                    styles.toggleChipText,
-                    nonPublicWaterPreference === option.id &&
-                      styles.toggleChipTextActive,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-
-        {!isPublic && nonPublicWaterPreference === "style" ? (
-          <View style={styles.choiceWrap}>
-            {WATER_STYLE_PRESETS.map((preset) => {
-              const isSelected = preset.id === selectedWaterStylePresetId;
-              return (
-                <Pressable
-                  key={preset.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select water style preset ${preset.name}`}
-                  style={[
-                    styles.choiceChip,
-                    isSelected && styles.choiceChipActive,
-                  ]}
-                  onPress={() => onChangeWaterStylePreset(preset.id)}
-                >
-                  <Text
+        {canCompare ? (
+          <>
+            {!isPublic ? (
+              <View style={styles.toggleRow}>
+                {NON_PUBLIC_WATER_PREFERENCE_OPTIONS.map((option) => (
+                  <Pressable
+                    key={option.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Use ${option.label.toLowerCase()} recommendation`}
                     style={[
-                      styles.choiceChipText,
-                      isSelected && styles.choiceChipTextActive,
+                      styles.toggleChip,
+                      nonPublicWaterPreference === option.id &&
+                        styles.toggleChipActive,
                     ]}
+                    onPress={() => onChangeNonPublicWaterPreference(option.id)}
                   >
-                    {preset.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+                    <Text
+                      style={[
+                        styles.toggleChipText,
+                        nonPublicWaterPreference === option.id &&
+                          styles.toggleChipTextActive,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+
+            {!isPublic && nonPublicWaterPreference === "style" ? (
+              <View style={styles.choiceWrap}>
+                {WATER_STYLE_PRESETS.map((preset) => {
+                  const isSelected = preset.id === selectedWaterStylePresetId;
+                  return (
+                    <Pressable
+                      key={preset.id}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Select water style preset ${preset.name}`}
+                      style={[
+                        styles.choiceChip,
+                        isSelected && styles.choiceChipActive,
+                      ]}
+                      onPress={() => onChangeWaterStylePreset(preset.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.choiceChipText,
+                          isSelected && styles.choiceChipTextActive,
+                        ]}
+                      >
+                        {preset.name}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+
+            <Text style={styles.fieldLabel}>Ton eau locale</Text>
+            <View style={styles.choiceWrap}>
+              {WATER_LOCATION_PROFILES.map((profile) => {
+                const isSelected =
+                  profile.name === selectedLocalWaterProfileName;
+                return (
+                  <Pressable
+                    key={profile.name}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select water location ${profile.name}`}
+                    style={[
+                      styles.choiceChip,
+                      isSelected && styles.choiceChipActive,
+                    ]}
+                    onPress={() => onChangeLocalWaterProfileName(profile.name)}
+                  >
+                    <Text
+                      style={[
+                        styles.choiceChipText,
+                        isSelected && styles.choiceChipTextActive,
+                      ]}
+                    >
+                      {profile.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <View style={styles.compatibilityCard}>
+              <Text style={styles.compatibilityTitle}>
+                Score compatibilité : {compatibility.score}% (
+                {compatibility.label})
+              </Text>
+              <Text style={styles.compatibilitySubtitle}>
+                {compatibility.matchedMetrics}/{compatibility.totalMetrics}{" "}
+                métriques dans la zone cible
+              </Text>
+            </View>
+          </>
         ) : null}
-
-        <Text style={styles.fieldLabel}>Ton eau locale</Text>
-        <View style={styles.choiceWrap}>
-          {WATER_LOCATION_PROFILES.map((profile) => {
-            const isSelected = profile.name === selectedLocalWaterProfileName;
-            return (
-              <Pressable
-                key={profile.name}
-                accessibilityRole="button"
-                accessibilityLabel={`Select water location ${profile.name}`}
-                style={[
-                  styles.choiceChip,
-                  isSelected && styles.choiceChipActive,
-                ]}
-                onPress={() => onChangeLocalWaterProfileName(profile.name)}
-              >
-                <Text
-                  style={[
-                    styles.choiceChipText,
-                    isSelected && styles.choiceChipTextActive,
-                  ]}
-                >
-                  {profile.name}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <View style={styles.compatibilityCard}>
-          <Text style={styles.compatibilityTitle}>
-            Score compatibilité : {compatibility.score}% ({compatibility.label})
-          </Text>
-          <Text style={styles.compatibilitySubtitle}>
-            {compatibility.matchedMetrics}/{compatibility.totalMetrics}{" "}
-            métriques dans la zone cible
-          </Text>
-        </View>
 
         {(Object.keys(WATER_METRIC_LABELS) as WaterMineralKey[]).map(
           (metric) => (
@@ -193,46 +210,60 @@ export function WaterTab(props: WaterTabProps) {
                 {WATER_METRIC_LABELS[metric]}
               </Text>
               <Text style={styles.metricValue}>
-                {recommendedWaterProfile[metric]} / {localWaterProfile[metric]}{" "}
-                ppm
+                {canCompare
+                  ? `${recommendedWaterProfile[metric]} / ${localWaterProfile[metric]} ppm`
+                  : `${recommendedWaterProfile[metric]} ppm`}
               </Text>
             </View>
           ),
         )}
 
-        <PrimaryButton
-          label="Comparer dans le Calculateur Eau"
-          onPress={onOpenWaterCalculator}
-        />
+        {canCompare ? (
+          <PrimaryButton
+            label="Comparer dans le Calculateur Eau"
+            onPress={onOpenWaterCalculator}
+          />
+        ) : (
+          <View style={styles.saveHint}>
+            <Text style={styles.saveHintText}>
+              Enregistre cette recette dans ton carnet pour la comparer à ton
+              eau locale et voir les sels à ajouter.
+            </Text>
+          </View>
+        )}
       </Card>
 
-      <Text style={styles.sectionTitle}>Ajouter pour matcher</Text>
-      <Card style={styles.card}>
-        {additions.length === 0 ? (
-          <Text style={styles.emptyText}>
-            Ton eau locale est déjà alignée sur le profil cible (ou les écarts
-            ne sont pas couvrables par ajout de sels).
-          </Text>
-        ) : (
-          additions.map((addition) => (
-            <View key={addition.id} style={styles.additionRow}>
-              <View style={styles.additionMain}>
-                <Text style={styles.additionName}>
-                  {addition.name} ({addition.formula})
-                </Text>
-                <Text style={styles.additionRationale}>
-                  {addition.rationale}
-                </Text>
-              </View>
-              <Text style={styles.additionGrams}>+{addition.grams} g</Text>
-            </View>
-          ))
-        )}
-        <Text style={styles.additionFootnote}>
-          Quantités calculées pour {targetVolumeLiters} L. Pour aller plus loin
-          (pH du mash, dilution), utilise le Calculateur Eau.
-        </Text>
-      </Card>
+      {canCompare ? (
+        <>
+          <Text style={styles.sectionTitle}>Ajouter pour matcher</Text>
+          <Card style={styles.card}>
+            {additions.length === 0 ? (
+              <Text style={styles.emptyText}>
+                Ton eau locale est déjà alignée sur le profil cible (ou les
+                écarts ne sont pas couvrables par ajout de sels).
+              </Text>
+            ) : (
+              additions.map((addition) => (
+                <View key={addition.id} style={styles.additionRow}>
+                  <View style={styles.additionMain}>
+                    <Text style={styles.additionName}>
+                      {addition.name} ({addition.formula})
+                    </Text>
+                    <Text style={styles.additionRationale}>
+                      {addition.rationale}
+                    </Text>
+                  </View>
+                  <Text style={styles.additionGrams}>+{addition.grams} g</Text>
+                </View>
+              ))
+            )}
+            <Text style={styles.additionFootnote}>
+              Quantités calculées pour {targetVolumeLiters} L. Pour aller plus
+              loin (pH du mash, dilution), utilise le Calculateur Eau.
+            </Text>
+          </Card>
+        </>
+      ) : null}
     </ScrollView>
   );
 }
@@ -399,5 +430,16 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
+  },
+  saveHint: {
+    marginTop: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.brand.background,
+    padding: spacing.sm,
+  },
+  saveHintText: {
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
 });

@@ -323,6 +323,22 @@ describe("LoginScreen — keyboard avoidance", () => {
     }
   });
 
+  it("leaves the behavior undefined on web (the pan-mode workaround is native-only)", () => {
+    // The `height` workaround is Android-specific; web has no soft-keyboard
+    // overlap, so it must stay untouched (no forced height/padding).
+    const original = Platform.OS;
+    Platform.OS = "web";
+    try {
+      render(<LoginScreen />);
+
+      expect(
+        screen.UNSAFE_getByType(KeyboardAvoidingView).props.behavior,
+      ).toBeUndefined();
+    } finally {
+      Platform.OS = original;
+    }
+  });
+
   it("exposes return-key actions: email goes to the next field, password submits", () => {
     render(<LoginScreen />);
 

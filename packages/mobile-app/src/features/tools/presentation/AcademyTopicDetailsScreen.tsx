@@ -10,6 +10,9 @@ import {
 } from "react-native";
 
 import { normalizeRouteParam } from "@/core/navigation/route-params";
+import { getAcademyArticleBySlug } from "@/features/academy/application";
+import { generatedAcademyRepository } from "@/features/academy/data";
+import { AcademyArticleRenderer } from "@/features/academy/presentation";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -41,6 +44,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const isAvances = topic?.slug === "avances";
   const isGlossaire = topic?.slug === "glossaire";
   const calculatorLabel = "Ouvrir le calculateur";
+  const generatedArticle = normalizedSlug
+    ? getAcademyArticleBySlug(generatedAcademyRepository, normalizedSlug)
+    : null;
+  const publishedGeneratedArticle =
+    generatedArticle?.metadata.status === "published" ? generatedArticle : null;
 
   if (!topic) {
     return (
@@ -64,6 +72,65 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
             />
           }
         />
+      </Screen>
+    );
+  }
+
+  if (publishedGeneratedArticle) {
+    return (
+      <Screen>
+        <ListHeader
+          title={publishedGeneratedArticle.metadata.title}
+          subtitle="Article Académie"
+          action={
+            <Pressable onPress={() => router.push("/(app)/academy")}>
+              <Text style={styles.backLink}>← Retour</Text>
+            </Pressable>
+          }
+        />
+
+        <ScrollView
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
+          {topic.hasCalculator ? (
+            <Card style={styles.sectionCard}>
+              <PrimaryButton
+                label={calculatorLabel}
+                onPress={() =>
+                  router.push({
+                    pathname: "/tools/[slug]/calculator",
+                    params: { slug: topic.slug },
+                  })
+                }
+              />
+            </Card>
+          ) : null}
+
+          <AcademyArticleRenderer
+            article={publishedGeneratedArticle}
+            onCalculatorPress={(slug) =>
+              router.push({
+                pathname: "/tools/[slug]/calculator",
+                params: { slug },
+              })
+            }
+            onGlossaryPress={() =>
+              router.push({
+                pathname: "/(app)/academy/[slug]",
+                params: { slug: "glossaire" },
+              })
+            }
+            onRelatedArticlePress={(articleSlug) =>
+              router.push({
+                pathname: "/(app)/academy/[slug]",
+                params: { slug: articleSlug },
+              })
+            }
+          />
+        </ScrollView>
       </Screen>
     );
   }

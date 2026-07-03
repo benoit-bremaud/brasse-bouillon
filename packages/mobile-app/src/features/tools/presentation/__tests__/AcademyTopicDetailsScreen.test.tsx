@@ -79,4 +79,14 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       expect(topic.status).toBe("ready");
     }
   });
+
+  it("renders the generated published article when the topic has migrated content", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    expect(
+      screen.getByText("Reference guide for hop roles in brewing."),
+    ).toBeTruthy();
+    expect(screen.getByText("Role du houblon")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
 });

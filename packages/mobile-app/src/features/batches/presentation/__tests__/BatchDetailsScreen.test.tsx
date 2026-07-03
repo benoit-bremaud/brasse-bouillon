@@ -1,4 +1,4 @@
-import { Alert, type AlertButton } from "react-native";
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   fireEvent,
@@ -132,9 +132,17 @@ function renderBatchDetailsScreen(batchId = "b1") {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <BatchDetailsScreen batchId={batchId} />
+      <ConfirmProvider>
+        <BatchDetailsScreen batchId={batchId} />
+      </ConfirmProvider>
     </QueryClientProvider>,
   );
+}
+
+// The batch confirmations are the branded in-app ConfirmDialog; press a button
+// by its accessibilityLabel to confirm or cancel.
+async function pressDialogButton(label: string) {
+  fireEvent.press(await screen.findByLabelText(label));
 }
 
 describe("BatchDetailsScreen", () => {
@@ -146,8 +154,8 @@ describe("BatchDetailsScreen", () => {
     );
   });
 
-  // Always restore jest.spyOn spies (e.g. the Alert.alert spy in the F6 tests)
-  // even when an assertion throws, so a spy can never leak into later tests.
+  // Always restore jest.spyOn spies even when an assertion throws, so a spy can
+  // never leak into later tests.
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -415,22 +423,17 @@ describe("BatchDetailsScreen", () => {
 
   it("confirms before completing a step, then completes on confirm (F6)", async () => {
     (completeCurrentBatchStep as jest.Mock).mockClear();
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     fireEvent.press(await screen.findByText("Terminer l'étape en cours"));
 
-    // The tap opens a confirmation dialog rather than completing immediately.
-    expect(alertSpy).toHaveBeenCalledWith(
-      "Terminer cette étape ?",
-      expect.any(String),
-      expect.any(Array),
-    );
+    // The tap opens the branded confirmation dialog rather than completing
+    // immediately.
+    expect(await screen.findByText("Terminer cette étape ?")).toBeTruthy();
     expect(completeCurrentBatchStep).not.toHaveBeenCalled();
 
     // Confirming the dialog runs the completion.
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Terminer")?.onPress?.();
+    await pressDialogButton("Terminer");
 
     await waitFor(() =>
       expect(completeCurrentBatchStep).toHaveBeenCalledTimes(1),
@@ -439,35 +442,32 @@ describe("BatchDetailsScreen", () => {
 
   it("does not complete the step when the confirmation is cancelled (F6, sad path)", async () => {
     (completeCurrentBatchStep as jest.Mock).mockClear();
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     fireEvent.press(await screen.findByText("Terminer l'étape en cours"));
 
     // Opening the confirmation dialog must not complete anything on its own.
+    expect(await screen.findByText("Terminer cette étape ?")).toBeTruthy();
     expect(completeCurrentBatchStep).not.toHaveBeenCalled();
 
-    // "Annuler" is a pure native dismiss (no handler), so cancelling can never
-    // reach the completion mutation — assert it carries no onPress.
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    const cancelButton = buttons.find((button) => button.text === "Annuler");
-    expect(cancelButton).toBeDefined();
-    expect(cancelButton?.onPress).toBeUndefined();
+    // Cancelling via « Annuler » dismisses without reaching the completion.
+    await pressDialogButton("Annuler");
+
+    expect(completeCurrentBatchStep).not.toHaveBeenCalled();
   });
 
   it("deletes the batch after confirmation and navigates back (F25)", async () => {
     (deleteBatch as jest.Mock).mockClear();
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     fireEvent.press(await screen.findByLabelText("Supprimer ce brassin"));
 
-    // The tap opens a confirmation dialog rather than deleting immediately.
-    expect(alertSpy).toHaveBeenCalled();
+    // The tap opens the branded confirmation dialog rather than deleting
+    // immediately.
+    expect(await screen.findByText("Supprimer ce brassin ?")).toBeTruthy();
     expect(deleteBatch).not.toHaveBeenCalled();
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await pressDialogButton("Supprimer");
 
     await waitFor(() => expect(deleteBatch).toHaveBeenCalledWith("b1"));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
@@ -475,12 +475,10 @@ describe("BatchDetailsScreen", () => {
 
   it("surfaces an error and does not navigate when the batch delete fails (F25, sad)", async () => {
     (deleteBatch as jest.Mock).mockRejectedValueOnce(new Error("boom"));
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     fireEvent.press(await screen.findByLabelText("Supprimer ce brassin"));
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await pressDialogButton("Supprimer");
 
     // The onError sets the shared error banner; getErrorMessage surfaces the
     // error's own message ("boom") over the fallback copy.
@@ -490,18 +488,28 @@ describe("BatchDetailsScreen", () => {
 
   it("cancels an in-progress batch after confirmation and navigates back (F16)", async () => {
     (cancelBatch as jest.Mock).mockClear();
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     // mashBatch is in_progress → the soft cancel action is offered.
     fireEvent.press(await screen.findByLabelText("Annuler ce brassin"));
     expect(cancelBatch).not.toHaveBeenCalled();
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((b) => b.text === "Annuler le brassin")?.onPress?.();
+    await pressDialogButton("Annuler le brassin");
 
     await waitFor(() => expect(cancelBatch).toHaveBeenCalledWith("b1"));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("surfaces an error and does not navigate when the batch cancel fails (F16, sad)", async () => {
+    (cancelBatch as jest.Mock).mockRejectedValueOnce(new Error("boom-cancel"));
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Annuler ce brassin"));
+    await pressDialogButton("Annuler le brassin");
+
+    // onError surfaces the error's own message over the fallback copy.
+    expect(await screen.findByText("boom-cancel")).toBeTruthy();
+    expect(mockReplace).not.toHaveBeenCalledWith("/batches");
   });
 
   it("archives a completed batch after confirmation and navigates back (F25)", async () => {
@@ -509,17 +517,32 @@ describe("BatchDetailsScreen", () => {
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
       viewModel({ ...mashBatch, status: "completed" }, "Ma recette test"),
     );
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderBatchDetailsScreen();
 
     fireEvent.press(await screen.findByLabelText("Archiver ce brassin"));
     expect(archiveBatch).not.toHaveBeenCalled();
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((b) => b.text === "Archiver")?.onPress?.();
+    await pressDialogButton("Archiver");
 
     await waitFor(() => expect(archiveBatch).toHaveBeenCalledWith("b1"));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("surfaces an error and does not navigate when the batch archive fails (F25, sad)", async () => {
+    (archiveBatch as jest.Mock).mockRejectedValueOnce(
+      new Error("boom-archive"),
+    );
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel({ ...mashBatch, status: "completed" }, "Ma recette test"),
+    );
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Archiver ce brassin"));
+    await pressDialogButton("Archiver");
+
+    // onError surfaces the error's own message over the fallback copy.
+    expect(await screen.findByText("boom-archive")).toBeTruthy();
+    expect(mockReplace).not.toHaveBeenCalledWith("/batches");
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

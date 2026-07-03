@@ -12,6 +12,7 @@ import { Screen } from "@/core/ui/Screen";
 import { colors, spacing } from "@/core/theme";
 import { getErrorMessage, HttpError } from "@/core/http/http-error";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { useConfirm } from "@/core/ui/confirm-provider";
 
 import {
   RecipeDetailsViewModel,
@@ -110,6 +111,7 @@ function isRecipeReferencedByBatch(
  */
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const bottomPadding = useNavigationFooterOffset();
   const queryClient = useQueryClient();
 
@@ -401,19 +403,17 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
     },
   });
 
-  const handleDelete = () => {
-    Alert.alert(
-      "Supprimer cette recette ?",
-      "Elle sera retirée de ton carnet. Cette action est irréversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => deleteMutation.mutate(),
-        },
-      ],
-    );
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: "Supprimer cette recette ?",
+      message:
+        "Elle sera retirée de ton carnet. Cette action est irréversible.",
+      confirmLabel: "Supprimer",
+      destructive: true,
+    });
+    if (confirmed) {
+      deleteMutation.mutate();
+    }
   };
 
   const ctaLabel = "Préparer mon brassin";
@@ -461,7 +461,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
               />
               {isOwned ? (
                 <Pressable
-                  onPress={handleDelete}
+                  onPress={() => void handleDelete()}
                   disabled={deleteMutation.isPending}
                   accessibilityRole="button"
                   accessibilityLabel="Supprimer cette recette"

@@ -11,6 +11,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { useConfirm } from "@/core/ui/confirm-provider";
 
 import {
   deleteEquipmentProfile,
@@ -42,6 +43,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 export function EquipmentDetailScreen({ profileId }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
 
   const {
     data: profile,
@@ -70,19 +72,16 @@ export function EquipmentDetailScreen({ profileId }: Props) {
 
   const goBack = () => router.replace("/equipment");
 
-  const confirmDelete = () => {
-    Alert.alert(
-      "Supprimer ce matériel ?",
-      "Il sera retiré de ton office. Cette action est irréversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => removeProfile(),
-        },
-      ],
-    );
+  const confirmDelete = async () => {
+    const confirmed = await confirm({
+      title: "Supprimer ce matériel ?",
+      message: "Il sera retiré de ton office. Cette action est irréversible.",
+      confirmLabel: "Supprimer",
+      destructive: true,
+    });
+    if (confirmed) {
+      removeProfile();
+    }
   };
 
   const header = (
@@ -149,7 +148,7 @@ export function EquipmentDetailScreen({ profileId }: Props) {
       <PrimaryButton
         testID="equipment-delete-cta"
         label="Supprimer ce matériel"
-        onPress={confirmDelete}
+        onPress={() => void confirmDelete()}
         disabled={isDeleting}
         style={styles.deleteCta}
       />

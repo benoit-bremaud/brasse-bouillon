@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, type AlertButton } from "react-native";
+import { Alert } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   fireEvent,
@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react-native";
 
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { HttpError } from "@/core/http/http-error";
 import {
   deleteRecipeFromCarnet,
@@ -160,13 +161,21 @@ function renderRecipeDetails(recipeId = "r1") {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <RecipeDetailsScreen recipeId={recipeId} />
+      <ConfirmProvider>
+        <RecipeDetailsScreen recipeId={recipeId} />
+      </ConfirmProvider>
     </QueryClientProvider>,
   );
 }
 
 function switchToTab(tabId: string) {
   fireEvent.press(screen.getByTestId(`recipe-detail-tab-${tabId}`));
+}
+
+// The delete confirmation is the branded in-app ConfirmDialog; press its
+// « Supprimer » button (accessibilityLabel) to confirm the deletion.
+async function confirmDeleteInDialog() {
+  fireEvent.press(await screen.findByLabelText("Supprimer"));
 }
 
 describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () => {
@@ -254,18 +263,17 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
   });
 
   it("F24: an owned recipe offers delete and removes it on confirm", async () => {
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderRecipeDetails();
 
     await screen.findByTestId("recipe-overview-tab");
     fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
 
-    // The tap opens a confirmation dialog rather than deleting immediately.
-    expect(alertSpy).toHaveBeenCalled();
+    // The tap opens the branded confirmation dialog rather than deleting
+    // immediately.
+    expect(await screen.findByText("Supprimer cette recette ?")).toBeTruthy();
     expect(deleteRecipeFromCarnet).not.toHaveBeenCalled();
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await confirmDeleteInDialog();
 
     await waitFor(() =>
       expect(deleteRecipeFromCarnet).toHaveBeenCalledWith("r1"),
@@ -291,14 +299,14 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     await screen.findByTestId("recipe-overview-tab");
     fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
 
-    // Confirm the deletion in the first dialog.
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    // Confirm the deletion in the branded dialog.
+    await confirmDeleteInDialog();
 
-    // A non-HTTP failure surfaces the generic connection message and never
+    // A non-HTTP failure surfaces the generic connection message (via the
+    // native error Alert, which is not part of this migration) and never
     // navigates away.
-    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
-    expect(alertSpy.mock.calls[1][1]).toMatch(/Vérifie ta connexion/);
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(1));
+    expect(alertSpy.mock.calls[0][1]).toMatch(/Vérifie ta connexion/);
     expect(mockReplace).not.toHaveBeenCalledWith("/recipes");
   });
 
@@ -317,11 +325,10 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     await screen.findByTestId("recipe-overview-tab");
     fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await confirmDeleteInDialog();
 
-    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
-    expect(alertSpy.mock.calls[1][1]).toMatch(/utilisée par un brassin/);
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(1));
+    expect(alertSpy.mock.calls[0][1]).toMatch(/utilisée par un brassin/);
     expect(mockReplace).not.toHaveBeenCalledWith("/recipes");
   });
 
@@ -337,11 +344,10 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     await screen.findByTestId("recipe-overview-tab");
     fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await confirmDeleteInDialog();
 
-    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
-    expect(alertSpy.mock.calls[1][1]).toMatch(/Vérifie ta connexion/);
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(1));
+    expect(alertSpy.mock.calls[0][1]).toMatch(/Vérifie ta connexion/);
   });
 
   it("switches to the Ingredients tab and shows the ingredient list", async () => {

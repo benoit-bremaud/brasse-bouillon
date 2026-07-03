@@ -7,6 +7,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1327 merged (`77f00a7`) — refactor(mobile): migrate remaining native confirmations to the branded ConfirmDialog (#1324)
+
+- Branch `refactor/native-dialogs-to-confirmdialog`, 2 commits (`676e4a0`, `b917a27`). Closes #1324. Finishes the migration begun in #1323: the 7 remaining yes/no `Alert.alert` confirmations now route through the branded `ConfirmDialog` via `useConfirm()` — delete recipe (RecipeDetails), delete equipment (EquipmentDetail), import a community recipe (BeerInfoCard / `MatchingRecipesSection`, #766), and the four BatchDetails actions complete-step (F6) / delete (F25) / cancel (F16) / archive (F25). Destructive flags preserved 1:1 from the prior native styling (cancel destructive, archive not — #1292); the `missingBatchId` early-returns and the scan concurrent-import re-check kept. Informational single-OK notices (onError, "coming soon", "copied", the post-import toast) intentionally left native (out of scope). Each screen's tests re-wired through the real `ConfirmProvider`, driving the dialog by `accessibilityLabel`.
+- Reviews — local pre-push ritual (pr-pre-reviewer 0 Must Have; Codex clean); 2 pre-existing sad-path gaps flagged → batch cancel (F16) + archive (F25) failure-path tests added (`b917a27`); scan concurrent-import guard test deferred (tracked). CI green; full mobile suite green.
+
+### PR #1326 merged (`a56c41e`) — fix(mobile/auth): keep the submit button reachable when the keyboard is up
+
+- Branch `fix/login-keyboard-covers-button`, 2 commits (`2a26246`, `635b0bf`). Screen-review point found live on the emulator: on `LoginScreen`, the open keyboard hid the « Se connecter » button with no way to reach it. Root cause: Android `softwareKeyboardLayoutMode: "pan"` (set by #1080 to keep the focused field visible) leaves the button below it under the keyboard. Fix scopes the `KeyboardAvoidingView` behavior per platform — `android` → `height` (the ScrollView reveals the button), `ios` → `padding`, `web`/other → `undefined` — leaving the deliberate `pan` mode untouched. Verified live on an Android emulator.
+- Reviews — local pre-push ritual (pr-pre-reviewer + Codex clean, 0 Must Have); Copilot flagged the initial non-iOS `height` reaching `web` → scoped explicitly to `Platform.OS` + a regression test asserting `web` stays `undefined` (`635b0bf`). CI green; 23 LoginScreen tests + full mobile suite green.
+
 ### PR #1323 merged (`028a021`) — feat(ui): branded ConfirmDialog + useConfirm hook (replaces native Alert)
 
 - Branch `feat/branded-confirm-dialog`, 2 commits. Screen-review point (« le pop-up est dégueulasse »): confirmations used RN `Alert.alert()` → the unstylable OS-native dialog, off-brand. Adds `ConfirmDialog` (`core/ui`, branded modal, red destructive variant) + `ConfirmProvider` + `useConfirm()` (single dialog at the app root, imperative `confirm(options): Promise<boolean>`); call sites move from `Alert.alert(title, msg, [cancel, confirm])` to `if (await confirm({…})) {…}`. **First migration**: `BrewPrepScreen` « Lancer le brassage ? ». Remaining confirmations (delete recipe/batch, cancel, archive, equipment, scan) tracked in **#1324**, before the next APK build; single-button info alerts out of scope.

@@ -33,6 +33,7 @@ export function Snackbar({
   }
   return (
     <View
+      testID="snackbar-overlay"
       style={[styles.overlay, { paddingBottom: footerOffset + ctaClearance }]}
       pointerEvents="box-none"
     >

@@ -1,13 +1,19 @@
 import React from "react";
 
-import { spacing } from "@/core/theme";
+import { spacing, typography } from "@/core/theme";
+
+// `PrimaryButton` (what the sticky CTA renders) sets no fixed height: it is its
+// label line box plus `spacing.sm` padding top and bottom. Derive from the same
+// tokens so the clearance stays in sync if typography/spacing ever change.
+const PRIMARY_BUTTON_HEIGHT = spacing.sm * 2 + typography.lineHeight.label;
 
 /**
  * Visible height of a sticky CTA bar *above* the nav-footer offset — its button
- * (~48) plus the top/bottom paddings (`spacing.sm` each). App-level floating UI
+ * plus the bar's top/bottom paddings (`spacing.sm` each). App-level floating UI
  * (the Snackbar) adds this to clear a sticky CTA instead of overlapping it.
  */
-export const STICKY_CTA_BAR_HEIGHT = spacing.sm + 48 + spacing.sm;
+export const STICKY_CTA_BAR_HEIGHT =
+  spacing.sm + PRIMARY_BUTTON_HEIGHT + spacing.sm;
 
 // Split read/write so a mounted CTA never re-triggers its own register effect
 // when the count changes: `register` is stable, only the clearance value moves.

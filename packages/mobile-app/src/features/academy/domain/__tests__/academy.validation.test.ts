@@ -24,6 +24,11 @@ const bjcpSource: SourceReference = {
 
 const validationContext: AcademyValidationContext = {
   knownArticleSlugs: new Set(["houblons", "levures", "eau"]),
+  knownArticleSectionIds: new Map([
+    ["houblons", new Set(["role-du-houblon"])],
+    ["levures", new Set(["fermentation"])],
+    ["eau", new Set(["profil-mineral"])],
+  ]),
   knownGlossarySlugs: new Set(["ibu", "acide-alpha"]),
   knownCalculatorSlugs: new Set(["houblons", "levures", "eau"]),
 };
@@ -120,10 +125,26 @@ describe("Academy domain validation", () => {
     expect(result.issues.map((issue) => issue.code)).toEqual(
       expect.arrayContaining([
         "article.sensitive.sources.required",
-        "article.sensitive.review.required",
+        "article.publishedSensitive.review.required",
         "article.block.source.unknown",
       ]),
     );
+  });
+
+  it("allows sensitive draft content to omit review metadata", () => {
+    const article: AcademyArticle = {
+      ...validArticle,
+      metadata: {
+        ...validArticle.metadata,
+        status: "draft",
+        review: null,
+      },
+    };
+
+    const result = validateAcademyArticle(article, validationContext);
+
+    expect(result.valid).toBe(true);
+    expect(result.issues).toEqual([]);
   });
 
   it("rejects unknown semantic links", () => {
@@ -185,6 +206,36 @@ describe("Academy domain validation", () => {
     expect(result.valid).toBe(false);
     expect(result.issues.map((issue) => issue.code)).toContain(
       "article.block.table.rowSize.invalid",
+    );
+  });
+
+  it("rejects related article blocks with unknown section ids", () => {
+    const article: AcademyArticle = {
+      ...validArticle,
+      body: {
+        sections: [
+          {
+            id: "role-du-houblon",
+            title: "Hop role",
+            blocks: [
+              {
+                id: "related-levures",
+                type: "relatedArticle",
+                articleSlug: "levures",
+                sectionId: "unknown-section",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const result = validateAcademyArticle(article, validationContext);
+
+    expect(result.valid).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "article.block.relatedArticleSection.unknown",
     );
   });
 

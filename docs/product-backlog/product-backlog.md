@@ -1,7 +1,7 @@
 # Product Backlog — Brasse-Bouillon
 
 > **Single source of truth** for all User Stories.
-> Supersedes `docs/user_stories.md` and `docs/requirements/user_stories.md`.
+> Supersedes `docs/requirements/user_stories.md`.
 
 ## Personas
 

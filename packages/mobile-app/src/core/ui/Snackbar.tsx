@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { useStickyCtaClearance } from "@/core/ui/sticky-cta-clearance";
 
 export type SnackbarProps = Readonly<{
   visible: boolean;
@@ -25,12 +26,14 @@ export function Snackbar({
   onAction,
 }: SnackbarProps) {
   const footerOffset = useNavigationFooterOffset();
+  // Float above a sticky CTA when one is mounted, instead of overlapping it.
+  const ctaClearance = useStickyCtaClearance();
   if (!visible) {
     return null;
   }
   return (
     <View
-      style={[styles.overlay, { paddingBottom: footerOffset }]}
+      style={[styles.overlay, { paddingBottom: footerOffset + ctaClearance }]}
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="alert">

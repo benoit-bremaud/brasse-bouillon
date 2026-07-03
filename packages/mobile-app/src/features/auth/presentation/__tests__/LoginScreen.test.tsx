@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react-native";
 
 import { LoginScreen } from "@/features/auth/presentation/LoginScreen";
-import { Alert, KeyboardAvoidingView } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import React from "react";
 
 const mockLogin = jest.fn();
@@ -290,6 +290,37 @@ describe("LoginScreen — keyboard avoidance", () => {
     render(<LoginScreen />);
 
     expect(screen.UNSAFE_getByType(KeyboardAvoidingView)).toBeTruthy();
+  });
+
+  it("uses the height behavior on Android so the submit button is not hidden behind the keyboard", () => {
+    // Regression guard: the Android window runs in `pan` mode (app.json), which
+    // only keeps the focused field visible and leaves the submit button under
+    // the keyboard. `height` lets the ScrollView reveal it again.
+    const original = Platform.OS;
+    Platform.OS = "android";
+    try {
+      render(<LoginScreen />);
+
+      expect(screen.UNSAFE_getByType(KeyboardAvoidingView).props.behavior).toBe(
+        "height",
+      );
+    } finally {
+      Platform.OS = original;
+    }
+  });
+
+  it("uses the padding behavior on iOS", () => {
+    const original = Platform.OS;
+    Platform.OS = "ios";
+    try {
+      render(<LoginScreen />);
+
+      expect(screen.UNSAFE_getByType(KeyboardAvoidingView).props.behavior).toBe(
+        "padding",
+      );
+    } finally {
+      Platform.OS = original;
+    }
   });
 
   it("exposes return-key actions: email goes to the next field, password submits", () => {

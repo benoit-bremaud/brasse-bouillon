@@ -183,7 +183,11 @@ export function LoginScreen() {
     <Screen>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        // Android window is in `pan` mode (app.json) so it only keeps the
+        // focused field visible — the submit button below it stays hidden under
+        // the keyboard. `height` shrinks this container so the ScrollView can
+        // reveal the button; iOS uses `padding` as usual.
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           contentContainerStyle={styles.container}

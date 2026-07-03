@@ -5,6 +5,9 @@ import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { listPublishedAcademyArticlesUseCase } from "@/features/academy/application";
+import { generatedAcademyRepository } from "@/features/academy/data";
+import { createAcademyHubCards } from "@/features/academy/presentation";
 import { academyTopics } from "@/features/tools/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -27,6 +30,10 @@ const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export function AcademyHubScreen() {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
+  const academyCards = createAcademyHubCards(
+    listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
+    academyTopics,
+  );
 
   return (
     <Screen>
@@ -41,21 +48,21 @@ export function AcademyHubScreen() {
           { paddingBottom: bottomPadding },
         ]}
       >
-        {academyTopics.map((topic) => {
+        {academyCards.map((card) => {
           const iconColor =
-            topic.slug === "glossaire"
+            card.slug === "glossaire"
               ? colors.semantic.warning
               : colors.brand.primary;
 
           return (
             <Pressable
-              key={topic.slug}
+              key={card.slug}
               accessibilityRole="button"
-              accessibilityLabel={`Ouvrir le thème ${topic.title}`}
+              accessibilityLabel={`Ouvrir le thème ${card.title}`}
               onPress={() =>
                 router.push({
                   pathname: "/(app)/academy/[slug]",
-                  params: { slug: topic.slug },
+                  params: { slug: card.slug },
                 })
               }
               style={({ pressed }) => [
@@ -72,15 +79,16 @@ export function AcademyHubScreen() {
                     ]}
                   >
                     <Ionicons
-                      name={ACADEMY_ICONS[topic.slug] ?? "book-outline"}
+                      name={ACADEMY_ICONS[card.slug] ?? "book-outline"}
                       size={24}
                       color={iconColor}
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <Text style={styles.cardTitle}>{topic.title}</Text>
-                    <Text style={styles.cardMeta}>
-                      {topic.shortDescription}
+                    <Text style={styles.cardTitle}>{card.title}</Text>
+                    <Text style={styles.cardMeta}>{card.summary}</Text>
+                    <Text style={styles.cardContext}>
+                      {card.focus} · {card.estimatedReadTime}
                     </Text>
                   </View>
                   <Ionicons
@@ -138,6 +146,12 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+  },
+  cardContext: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
     marginTop: spacing.xxs,
   },
 });

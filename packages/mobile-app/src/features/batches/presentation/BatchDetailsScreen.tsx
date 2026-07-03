@@ -1,8 +1,8 @@
 import {
   Alert,
-  FlatList,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -37,6 +37,9 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
+// Reused sticky-CTA bar (same pattern as BrewPrepScreen). Generic despite the
+// « Recipe » name — a promotion to core/ui is a sensible follow-up.
+import { RecipeStickyCta } from "@/features/recipes/presentation/components/RecipeStickyCta";
 import React from "react";
 import { Screen } from "@/core/ui/Screen";
 import { dataSource } from "@/core/data/data-source";
@@ -518,6 +521,35 @@ export function BatchDetailsScreen({ batchId }: Props) {
 
   const completeButtonLabel = getCompleteButtonLabel(isCompleted, isCompleting);
 
+  // The single primary action, surfaced as a sticky bar pinned above the
+  // footer so it stays reachable however tall the scrolling content grows
+  // (the F4 « Avant de démarrer » checklist used to push it under the footer).
+  // Priority: bottling (packaging, live) → start (PRÉP) → complete (ACTIF).
+  // Null while a live batch is finished (BatchClosureView owns that state).
+  const primaryCta: {
+    label: string;
+    onPress: () => void;
+    disabled: boolean;
+  } | null = showBottlingCta
+    ? {
+        label: "Mettre en bouteille",
+        onPress: handleGoToBottling,
+        disabled: isLoading,
+      }
+    : isPrepPhase
+      ? {
+          label: isStarting ? "Démarrage…" : "Démarrer l'étape",
+          onPress: handleStart,
+          disabled: isStarting || isLoading,
+        }
+      : !isCompletedLive
+        ? {
+            label: completeButtonLabel,
+            onPress: handleComplete,
+            disabled: isCompleting || isCompleted || isLoading,
+          }
+        : null;
+
   return (
     <Screen
       isLoading={(isLoading && !missingBatchId) || isRetryingWithError}
@@ -552,277 +584,286 @@ export function BatchDetailsScreen({ batchId }: Props) {
           </View>
         }
       />
-      {batch ? (
-        <Card style={styles.headerCard}>
-          <Text style={styles.title}>
-            {recipeName ?? `Brassin ${batch.id.slice(0, 8)}`}
-          </Text>
-          <BatchTimeline steps={batch.steps} />
-          <Text style={styles.meta}>
-            Statut : {BATCH_STATUS_LABELS[batch.status]}
-          </Text>
-          <Text style={styles.meta}>
-            Étape en cours :{" "}
-            {batch.currentStepOrder != null ? batch.currentStepOrder + 1 : "—"}
-          </Text>
-        </Card>
-      ) : null}
-
-      {isCompletedLive && batch ? (
-        <BatchClosureView
-          batch={batch}
-          recipeName={recipeName}
-          volumeL={recipeVolumeL}
-          tasting={tasting}
-          onRateTasting={handleRateTasting}
-        />
-      ) : null}
-
-      {!isCompletedLive && fermentationInfo ? (
-        <Card style={styles.fermentationCard}>
-          <View style={styles.fermentationHeader}>
-            <Ionicons name="flask" size={18} color={colors.brand.secondary} />
-            <Text style={styles.fermentationTitle}>Fermentation</Text>
-            <Text style={styles.fermentationDays}>
-              J+{fermentationInfo.daysElapsed} / J+{fermentationInfo.daysTarget}
-            </Text>
-          </View>
-
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                progressFillWidth(fermentationInfo.progressPct),
-              ]}
-            />
-          </View>
-
-          <View style={styles.metricsRow}>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Densité actuelle</Text>
-              <Text style={styles.metricValue}>
-                {fermentationInfo.currentSg.toFixed(3)}
+      <View style={styles.body}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {batch ? (
+            <Card style={styles.headerCard}>
+              <Text style={styles.title}>
+                {recipeName ?? `Brassin ${batch.id.slice(0, 8)}`}
               </Text>
-              <Text style={styles.metricHint}>
-                cible {fermentationInfo.targetFg.toFixed(3)} · départ{" "}
-                {fermentationInfo.originalOg.toFixed(3)}
+              <BatchTimeline steps={batch.steps} />
+              <Text style={styles.meta}>
+                Statut : {BATCH_STATUS_LABELS[batch.status]}
               </Text>
-            </View>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Température</Text>
-              <Text style={styles.metricValue}>
-                {fermentationInfo.temperature} °C
+              <Text style={styles.meta}>
+                Étape en cours :{" "}
+                {batch.currentStepOrder != null
+                  ? batch.currentStepOrder + 1
+                  : "—"}
               </Text>
-              <Text style={styles.metricHint}>idéal 18–20 °C</Text>
-            </View>
-          </View>
-        </Card>
-      ) : null}
-
-      {showDensityCard ? (
-        <Card style={styles.measurementCard}>
-          <View style={styles.fermentationHeader}>
-            <Ionicons
-              name="speedometer"
-              size={18}
-              color={colors.brand.secondary}
-            />
-            <Text style={styles.fermentationTitle}>Densités & alcool</Text>
-          </View>
-
-          {abv != null ? (
-            <>
-              <Text style={styles.metricValue}>{abv.toFixed(1)} % vol</Text>
-              <Text style={styles.metricHint}>
-                Calcul : (OG − FG) × 131,25 = ({recordedOg?.toFixed(3)} −{" "}
-                {recordedFg?.toFixed(3)}) × 131,25. La levure a transformé le
-                sucre (chute de densité) en alcool.
-              </Text>
-            </>
-          ) : recordedOg != null ? (
-            <Text style={styles.metricHint}>
-              ABV calculée à la fin de la fermentation : saisis la densité
-              finale (FG) quand la fermentation sera terminée.
-            </Text>
-          ) : (
-            <Text style={styles.metricHint}>
-              Aucune densité saisie. Note la densité initiale (OG) au début de
-              la fermentation, la finale (FG) à la fin.
-            </Text>
-          )}
-
-          {abv == null && showDensityEstimate ? (
-            estimatedAbv != null ? (
-              <View style={styles.estimateBox}>
-                <Text
-                  style={styles.estimateValue}
-                  testID="density-estimated-abv"
-                >
-                  ≈ {estimatedAbv.toFixed(1)} % vol
-                </Text>
-                <Text style={styles.estimateLabel}>
-                  {"estimé d'après la recette · non mesuré"}
-                </Text>
-                <Text style={styles.estimateHint}>
-                  {
-                    "Approximatif : l'alcool réel dépend de ton rendement d'empâtage. Mesure la densité pour la vraie valeur."
-                  }
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.metricHint}>
-                {
-                  "Estimation indisponible : la recette n'indique pas de densités cibles."
-                }
-              </Text>
-            )
+            </Card>
           ) : null}
 
-          {/* OG-then-FG assumption: OG is prompted during fermentation ACTIF,
+          {isCompletedLive && batch ? (
+            <BatchClosureView
+              batch={batch}
+              recipeName={recipeName}
+              volumeL={recipeVolumeL}
+              tasting={tasting}
+              onRateTasting={handleRateTasting}
+            />
+          ) : null}
+
+          {!isCompletedLive && fermentationInfo ? (
+            <Card style={styles.fermentationCard}>
+              <View style={styles.fermentationHeader}>
+                <Ionicons
+                  name="flask"
+                  size={18}
+                  color={colors.brand.secondary}
+                />
+                <Text style={styles.fermentationTitle}>Fermentation</Text>
+                <Text style={styles.fermentationDays}>
+                  J+{fermentationInfo.daysElapsed} / J+
+                  {fermentationInfo.daysTarget}
+                </Text>
+              </View>
+
+              <View style={styles.progressTrack}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    progressFillWidth(fermentationInfo.progressPct),
+                  ]}
+                />
+              </View>
+
+              <View style={styles.metricsRow}>
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>Densité actuelle</Text>
+                  <Text style={styles.metricValue}>
+                    {fermentationInfo.currentSg.toFixed(3)}
+                  </Text>
+                  <Text style={styles.metricHint}>
+                    cible {fermentationInfo.targetFg.toFixed(3)} · départ{" "}
+                    {fermentationInfo.originalOg.toFixed(3)}
+                  </Text>
+                </View>
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>Température</Text>
+                  <Text style={styles.metricValue}>
+                    {fermentationInfo.temperature} °C
+                  </Text>
+                  <Text style={styles.metricHint}>idéal 18–20 °C</Text>
+                </View>
+              </View>
+            </Card>
+          ) : null}
+
+          {showDensityCard ? (
+            <Card style={styles.measurementCard}>
+              <View style={styles.fermentationHeader}>
+                <Ionicons
+                  name="speedometer"
+                  size={18}
+                  color={colors.brand.secondary}
+                />
+                <Text style={styles.fermentationTitle}>Densités & alcool</Text>
+              </View>
+
+              {abv != null ? (
+                <>
+                  <Text style={styles.metricValue}>{abv.toFixed(1)} % vol</Text>
+                  <Text style={styles.metricHint}>
+                    Calcul : (OG − FG) × 131,25 = ({recordedOg?.toFixed(3)} −{" "}
+                    {recordedFg?.toFixed(3)}) × 131,25. La levure a transformé
+                    le sucre (chute de densité) en alcool.
+                  </Text>
+                </>
+              ) : recordedOg != null ? (
+                <Text style={styles.metricHint}>
+                  ABV calculée à la fin de la fermentation : saisis la densité
+                  finale (FG) quand la fermentation sera terminée.
+                </Text>
+              ) : (
+                <Text style={styles.metricHint}>
+                  Aucune densité saisie. Note la densité initiale (OG) au début
+                  de la fermentation, la finale (FG) à la fin.
+                </Text>
+              )}
+
+              {abv == null && showDensityEstimate ? (
+                estimatedAbv != null ? (
+                  <View style={styles.estimateBox}>
+                    <Text
+                      style={styles.estimateValue}
+                      testID="density-estimated-abv"
+                    >
+                      ≈ {estimatedAbv.toFixed(1)} % vol
+                    </Text>
+                    <Text style={styles.estimateLabel}>
+                      {"estimé d'après la recette · non mesuré"}
+                    </Text>
+                    <Text style={styles.estimateHint}>
+                      {
+                        "Approximatif : l'alcool réel dépend de ton rendement d'empâtage. Mesure la densité pour la vraie valeur."
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <Text style={styles.metricHint}>
+                    {
+                      "Estimation indisponible : la recette n'indique pas de densités cibles."
+                    }
+                  </Text>
+                )
+              ) : null}
+
+              {/* OG-then-FG assumption: OG is prompted during fermentation ACTIF,
               so by the Packaging gate an OG normally already exists and the CTA
               reads « … finale (FG) ». */}
-          <PrimaryButton
-            label={
-              recordedOg == null
-                ? "Noter la densité initiale (OG)"
-                : "Noter la densité finale (FG)"
-            }
-            onPress={handleRecordMeasurement}
-            style={styles.measurementCta}
-          />
+              <PrimaryButton
+                label={
+                  recordedOg == null
+                    ? "Noter la densité initiale (OG)"
+                    : "Noter la densité finale (FG)"
+                }
+                onPress={handleRecordMeasurement}
+                style={styles.measurementCta}
+              />
 
-          <Pressable
-            accessibilityRole="link"
-            onPress={handleExplainMeasurement}
-            style={styles.linkButton}
-          >
-            <Text style={styles.linkText}>Comment mesurer ?</Text>
-          </Pressable>
+              <Pressable
+                accessibilityRole="link"
+                onPress={handleExplainMeasurement}
+                style={styles.linkButton}
+              >
+                <Text style={styles.linkText}>Comment mesurer ?</Text>
+              </Pressable>
 
-          {abv == null && !showDensityEstimate ? (
+              {abv == null && !showDensityEstimate ? (
+                <Pressable
+                  accessibilityRole="link"
+                  onPress={() => setShowDensityEstimate(true)}
+                  style={styles.linkButton}
+                >
+                  <Text style={styles.linkText}>
+                    Je ne peux pas mesurer maintenant
+                  </Text>
+                </Pressable>
+              ) : null}
+            </Card>
+          ) : null}
+
+          {!isCompletedLive && activeStep ? (
+            <BrewStepTimer
+              step={activeStep}
+              useDemoData={dataSource.useDemoData}
+              nextStep={
+                batch?.steps?.find(
+                  (s) => s.stepOrder === activeStep.stepOrder + 1,
+                ) ?? null
+              }
+            />
+          ) : null}
+
+          {/* End condition (F5, brew-day/01+06): shown only in ACTIF — the brewer
+          always knows when the step is over. The timer is an aid, this is the
+          truth; it never gates « Terminer » (the ✋ stays sovereign). */}
+          {!isCompletedLive &&
+          activeStep &&
+          !isPrepPhase &&
+          activeStep.doneWhen ? (
+            <Card>
+              <Text style={styles.sectionTitle}>C'est terminé quand…</Text>
+              <Text style={styles.doneWhenText}>{activeStep.doneWhen}</Text>
+            </Card>
+          ) : null}
+
+          {isPrepPhase && activeStep?.prepActions?.length ? (
+            <Card>
+              <Text style={styles.sectionTitle}>Avant de démarrer</Text>
+              {activeStep.prepActions.map((prep, index) => {
+                const key = `${activeStep.stepOrder}:${index}`;
+                return (
+                  <ChecklistRow
+                    key={key}
+                    testID={`prep-action-${activeStep.stepOrder}-${index}`}
+                    label={prep.action}
+                    meta={prep.why}
+                    checked={prepDoneByKey[key] ?? false}
+                    onToggle={() =>
+                      setPrepDoneByKey((current) => ({
+                        ...current,
+                        [key]: !current[key],
+                      }))
+                    }
+                  />
+                );
+              })}
+            </Card>
+          ) : null}
+
+          {!isCompletedLive ? (
+            <>
+              <Text style={styles.sectionTitle}>Étapes</Text>
+              {/* A plain map, not a FlatList: a batch snapshots the recipe
+                  workflow (mash/boil/whirlpool/fermentation/packaging — a
+                  handful of steps), so there is nothing to virtualize and a
+                  nested VirtualizedList inside this ScrollView would warn.
+                  Revisit if steps ever become unbounded (custom workflows). */}
+              {(batch?.steps ?? []).map((item) => (
+                <StepCard
+                  key={`${item.batchId}-${item.stepOrder}`}
+                  step={item}
+                  onOpenTip={setOpenTip}
+                />
+              ))}
+            </>
+          ) : null}
+
+          {batch?.status === "in_progress" ? (
             <Pressable
-              accessibilityRole="link"
-              onPress={() => setShowDensityEstimate(true)}
-              style={styles.linkButton}
+              accessibilityRole="button"
+              accessibilityLabel="Annuler ce brassin"
+              onPress={handleCancel}
+              disabled={isCancelling}
+              style={styles.softAction}
             >
-              <Text style={styles.linkText}>
-                Je ne peux pas mesurer maintenant
+              <Text style={styles.softActionDanger}>
+                {isCancelling ? "Annulation…" : "Annuler ce brassin"}
               </Text>
             </Pressable>
           ) : null}
-        </Card>
-      ) : null}
 
-      {!isCompletedLive && activeStep ? (
-        <BrewStepTimer
-          step={activeStep}
-          useDemoData={dataSource.useDemoData}
-          nextStep={
-            batch?.steps?.find(
-              (s) => s.stepOrder === activeStep.stepOrder + 1,
-            ) ?? null
-          }
+          {isCompleted ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Archiver ce brassin"
+              onPress={handleArchive}
+              disabled={isArchiving}
+              style={styles.softAction}
+            >
+              <Text style={styles.softActionText}>
+                {isArchiving ? "Archivage…" : "Archiver ce brassin"}
+              </Text>
+            </Pressable>
+          ) : null}
+        </ScrollView>
+      </View>
+
+      {primaryCta ? (
+        <RecipeStickyCta
+          label={primaryCta.label}
+          onPress={primaryCta.onPress}
+          disabled={primaryCta.disabled}
+          bottomOffset={bottomPadding}
         />
-      ) : null}
-
-      {/* End condition (F5, brew-day/01+06): shown only in ACTIF — the brewer
-          always knows when the step is over. The timer is an aid, this is the
-          truth; it never gates « Terminer » (the ✋ stays sovereign). */}
-      {!isCompletedLive && activeStep && !isPrepPhase && activeStep.doneWhen ? (
-        <Card>
-          <Text style={styles.sectionTitle}>C'est terminé quand…</Text>
-          <Text style={styles.doneWhenText}>{activeStep.doneWhen}</Text>
-        </Card>
-      ) : null}
-
-      {isPrepPhase && activeStep?.prepActions?.length ? (
-        <Card>
-          <Text style={styles.sectionTitle}>Avant de démarrer</Text>
-          {activeStep.prepActions.map((prep, index) => {
-            const key = `${activeStep.stepOrder}:${index}`;
-            return (
-              <ChecklistRow
-                key={key}
-                testID={`prep-action-${activeStep.stepOrder}-${index}`}
-                label={prep.action}
-                meta={prep.why}
-                checked={prepDoneByKey[key] ?? false}
-                onToggle={() =>
-                  setPrepDoneByKey((current) => ({
-                    ...current,
-                    [key]: !current[key],
-                  }))
-                }
-              />
-            );
-          })}
-        </Card>
-      ) : null}
-
-      {showBottlingCta ? (
-        <PrimaryButton
-          label="Mettre en bouteille"
-          onPress={handleGoToBottling}
-          disabled={isLoading}
-        />
-      ) : isPrepPhase ? (
-        <PrimaryButton
-          label={isStarting ? "Démarrage…" : "Démarrer l'étape"}
-          onPress={handleStart}
-          disabled={isStarting || isLoading}
-        />
-      ) : !isCompletedLive ? (
-        <PrimaryButton
-          label={completeButtonLabel}
-          onPress={handleComplete}
-          disabled={isCompleting || isCompleted || isLoading}
-        />
-      ) : null}
-
-      {!isCompletedLive ? (
-        <>
-          <Text style={styles.sectionTitle}>Étapes</Text>
-          <FlatList
-            data={batch?.steps ?? []}
-            keyExtractor={(item) => `${item.batchId}-${item.stepOrder}`}
-            style={styles.stepsList}
-            contentContainerStyle={[
-              styles.list,
-              { paddingBottom: bottomPadding },
-            ]}
-            renderItem={({ item }) => (
-              <StepCard step={item} onOpenTip={setOpenTip} />
-            )}
-          />
-        </>
-      ) : null}
-
-      {batch?.status === "in_progress" ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Annuler ce brassin"
-          onPress={handleCancel}
-          disabled={isCancelling}
-          style={styles.softAction}
-        >
-          <Text style={styles.softActionDanger}>
-            {isCancelling ? "Annulation…" : "Annuler ce brassin"}
-          </Text>
-        </Pressable>
-      ) : null}
-
-      {isCompleted ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Archiver ce brassin"
-          onPress={handleArchive}
-          disabled={isArchiving}
-          style={styles.softAction}
-        >
-          <Text style={styles.softActionText}>
-            {isArchiving ? "Archivage…" : "Archiver ce brassin"}
-          </Text>
-        </Pressable>
       ) : null}
 
       <Modal
@@ -855,6 +896,15 @@ export function BatchDetailsScreen({ batchId }: Props) {
 }
 
 const styles = StyleSheet.create({
+  // The whole detail body scrolls (F8 + brew-day UX pass): the primary action
+  // is a sticky bar below this region, so tall content (e.g. the F4 « Avant de
+  // démarrer » checklist) can never push the CTA under the floating footer.
+  body: {
+    flex: 1,
+  },
+  content: {
+    paddingTop: spacing.md,
+  },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
@@ -891,15 +941,6 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
-  },
-  list: {},
-  stepsList: {
-    // F8 — give the steps list its own bounded, scrollable region so the last
-    // steps stay reachable above the floating nav footer. Without flex, the
-    // list grew with its content inside a non-scrolling container and the
-    // bottom steps were clipped behind the footer (the paddingBottom offset
-    // alone could not rescue content that overflowed the screen).
-    flex: 1,
   },
   // Secondary soft-lifecycle actions (F16 cancel / F25 archive) — quiet text
   // links, distinct from the primary CTA.

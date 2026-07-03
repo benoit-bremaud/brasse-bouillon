@@ -5,6 +5,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react-native";
 
 import { BatchDetailsScreen } from "@/features/batches/presentation/BatchDetailsScreen";
@@ -289,6 +290,36 @@ describe("BatchDetailsScreen", () => {
     // mashBatch step 0 carries a startedAt → ACTIF: complete CTA, no PRÉP list.
     expect(await screen.findByText("Terminer l'étape en cours")).toBeTruthy();
     expect(screen.queryByText("Avant de démarrer")).toBeNull();
+  });
+
+  it("keeps the primary CTA in a sticky bar so it stays reachable (scroll fix, happy)", async () => {
+    // The F4 « Avant de démarrer » checklist used to push « Démarrer » under
+    // the floating footer with no scroll. The action now lives in the sticky
+    // bar, pinned above the footer regardless of content height.
+    const prepBatch: Batch = {
+      ...mashBatch,
+      steps: mashBatch.steps.map((step) =>
+        step.stepOrder === 0
+          ? {
+              ...step,
+              startedAt: null,
+              prepActions: [
+                { action: "Chauffe l'eau.", why: "Strike." },
+                { action: "Désinfecte.", why: "Propreté." },
+                { action: "Empâte.", why: "Conversion." },
+              ],
+            }
+          : step,
+      ),
+    };
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel(prepBatch, "Ma recette test"),
+    );
+
+    renderBatchDetailsScreen();
+
+    const sticky = await screen.findByTestId("recipe-sticky-cta");
+    expect(within(sticky).getByText("Démarrer l'étape")).toBeTruthy();
   });
 
   it("wires the workflow's next step into the T-minus announce (F9a, happy)", async () => {
@@ -1023,6 +1054,20 @@ describe("BatchDetailsScreen — B3 bottling routing + closure view", () => {
     expect(screen.getByText(/Mis en bouteille le/)).toBeTruthy();
     // The completed live path replaces the steps list + measurement card.
     expect(screen.queryByText("Étapes")).toBeNull();
+  });
+
+  it("hides the sticky CTA for a finished live batch (scroll fix, edge)", async () => {
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue({
+      batch: completedBatch,
+      recipeName: "Ma blonde",
+      recipeVolumeL: 4.3,
+    });
+
+    renderBatchDetailsScreen();
+
+    // Live closure state owns the screen — no start/complete sticky action.
+    await screen.findByTestId("batch-closure-view");
+    expect(screen.queryByTestId("recipe-sticky-cta")).toBeNull();
   });
 
   it("navigates to the tasting route from the closure CTA (happy path)", async () => {

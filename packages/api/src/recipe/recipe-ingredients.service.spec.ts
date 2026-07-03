@@ -12,6 +12,7 @@ import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
 import { RecipeIbuEstimateDto } from './dtos/recipe-ibu-estimate.dto';
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
 import { RecipeIngredientsService } from './services/recipe-ingredients.service';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
@@ -60,7 +61,11 @@ describe('RecipeIngredientsService', () => {
           RecipeWaterOrmEntity,
         ]),
       ],
-      providers: [RecipeService, RecipeIngredientsService],
+      providers: [
+        RecipeService,
+        RecipeIngredientsService,
+        RecipeDifficultyService,
+      ],
     }).compile();
 
     service = module.get(RecipeIngredientsService);

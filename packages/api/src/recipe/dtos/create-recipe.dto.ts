@@ -12,6 +12,7 @@ import {
   Min,
 } from 'class-validator';
 
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
 export class CreateRecipeDto {
@@ -97,4 +98,14 @@ export class CreateRecipeDto {
   @Min(30)
   @Max(100)
   efficiency_target?: number;
+
+  // Difficulty is computed by the backend; the author may override it (ADR-0024).
+  @ApiPropertyOptional({
+    enum: RecipeDifficultyLevel,
+    nullable: true,
+    description: 'Optional author override of the computed brewing difficulty.',
+  })
+  @IsOptional()
+  @IsEnum(RecipeDifficultyLevel)
+  difficulty_override?: RecipeDifficultyLevel | null;
 }

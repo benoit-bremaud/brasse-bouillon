@@ -11,6 +11,7 @@ import { EntityManager, QueryFailedError, Repository } from 'typeorm';
 import { RecipeDomainService } from '../domain/services/recipe-domain.service';
 import { RecipeIbuTinsethDomainService } from '../domain/services/recipe-ibu-tinseth.domain.service';
 import { RecipeWorkflowService } from '../domain/services/recipe-workflow.service';
+import { RecipeDifficultyService } from './recipe-difficulty.service';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 import { RecipeAdditiveOrmEntity } from '../entities/recipe-additive.orm.entity';
 import { RecipeFermentableOrmEntity } from '../entities/recipe-fermentable.orm.entity';
@@ -37,6 +38,7 @@ export class RecipeService {
     private readonly stepRepo: Repository<RecipeStepOrmEntity>,
     @InjectRepository(RecipeHopOrmEntity)
     private readonly hopRepo: Repository<RecipeHopOrmEntity>,
+    private readonly difficulty: RecipeDifficultyService,
   ) {}
 
   async create(
@@ -73,10 +75,22 @@ export class RecipeService {
         ibu_target: dto.ibu_target ?? null,
         ebc_target: dto.ebc_target ?? null,
         efficiency_target: dto.efficiency_target ?? null,
+        difficulty_override: dto.difficulty_override ?? null,
       });
 
       const saved = await recipeRepo.save(entity);
       await this.ensureDefaultSteps(saved.id, manager);
+      // A fresh recipe has no ingredients yet, so this scores Facile — but we
+      // still store it (+ the positive reason) so the badge is never empty and
+      // the value is consistent with the recompute on later ingredient edits.
+      const difficulty = await this.difficulty.recomputeForRecipe(
+        saved.id,
+        manager,
+      );
+      if (difficulty) {
+        saved.difficulty_computed = difficulty.computed;
+        saved.difficulty_reasons = difficulty.reasons;
+      }
       return saved;
     });
   }
@@ -154,26 +168,51 @@ export class RecipeService {
     id: string,
     dto: UpdateRecipeDto,
   ): Promise<RecipeOrmEntity> {
-    const entity = await this.getMineById(ownerId, id);
+    // Wrapped in a transaction so the field update and the difficulty recompute
+    // (gravity/colour targets feed the score) commit atomically (ADR-0024 D3).
+    return this.repo.manager.transaction(async (manager) => {
+      const recipeRepo = manager.getRepository(RecipeOrmEntity);
+      const entity = await recipeRepo.findOne({
+        where: { id, owner_id: ownerId },
+      });
+      if (!entity) {
+        throw new NotFoundException('Recipe not found');
+      }
 
-    if (dto.name !== undefined) entity.name = dto.name;
-    if (dto.description !== undefined) entity.description = dto.description;
-    if (dto.visibility !== undefined) entity.visibility = dto.visibility;
+      if (dto.name !== undefined) entity.name = dto.name;
+      if (dto.description !== undefined) entity.description = dto.description;
+      if (dto.visibility !== undefined) entity.visibility = dto.visibility;
 
-    // Update brewing metrics
-    if (dto.batch_size_l !== undefined) entity.batch_size_l = dto.batch_size_l;
-    if (dto.boil_time_min !== undefined)
-      entity.boil_time_min = dto.boil_time_min;
-    if (dto.og_target !== undefined) entity.og_target = dto.og_target;
-    if (dto.fg_target !== undefined) entity.fg_target = dto.fg_target;
-    if (dto.abv_estimated !== undefined)
-      entity.abv_estimated = dto.abv_estimated;
-    if (dto.ibu_target !== undefined) entity.ibu_target = dto.ibu_target;
-    if (dto.ebc_target !== undefined) entity.ebc_target = dto.ebc_target;
-    if (dto.efficiency_target !== undefined)
-      entity.efficiency_target = dto.efficiency_target;
+      // Update brewing metrics
+      if (dto.batch_size_l !== undefined)
+        entity.batch_size_l = dto.batch_size_l;
+      if (dto.boil_time_min !== undefined)
+        entity.boil_time_min = dto.boil_time_min;
+      if (dto.og_target !== undefined) entity.og_target = dto.og_target;
+      if (dto.fg_target !== undefined) entity.fg_target = dto.fg_target;
+      if (dto.abv_estimated !== undefined)
+        entity.abv_estimated = dto.abv_estimated;
+      if (dto.ibu_target !== undefined) entity.ibu_target = dto.ibu_target;
+      if (dto.ebc_target !== undefined) entity.ebc_target = dto.ebc_target;
+      if (dto.efficiency_target !== undefined)
+        entity.efficiency_target = dto.efficiency_target;
 
-    return this.repo.save(entity);
+      // Author override (nullable — an explicit null clears it).
+      if (dto.difficulty_override !== undefined)
+        entity.difficulty_override = dto.difficulty_override ?? null;
+
+      await recipeRepo.save(entity);
+
+      const difficulty = await this.difficulty.recomputeForRecipe(
+        entity.id,
+        manager,
+      );
+      if (difficulty) {
+        entity.difficulty_computed = difficulty.computed;
+        entity.difficulty_reasons = difficulty.reasons;
+      }
+      return entity;
+    });
   }
 
   async deleteMine(ownerId: string, id: string): Promise<{ deleted: true }> {
@@ -283,6 +322,17 @@ export class RecipeService {
       const saved = await recipeRepo.save(newRecipe);
 
       await this.copyRecipeSatellites(source.id, newId, manager);
+
+      // Satellites are copied — recompute so the imported copy carries the same
+      // difficulty as the source instead of the create-time Facile placeholder.
+      const difficulty = await this.difficulty.recomputeForRecipe(
+        newId,
+        manager,
+      );
+      if (difficulty) {
+        saved.difficulty_computed = difficulty.computed;
+        saved.difficulty_reasons = difficulty.reasons;
+      }
 
       return saved;
     });

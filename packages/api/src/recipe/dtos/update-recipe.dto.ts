@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
 export class UpdateRecipeDto {
@@ -101,4 +102,15 @@ export class UpdateRecipeDto {
   @Min(30)
   @Max(100)
   efficiency_target?: number;
+
+  // Author override of the computed difficulty. An explicit `null` clears it
+  // and falls back to the computed value (ADR-0024 D3).
+  @ApiPropertyOptional({
+    enum: RecipeDifficultyLevel,
+    nullable: true,
+    description: 'Optional author override of the computed brewing difficulty.',
+  })
+  @IsOptional()
+  @IsEnum(RecipeDifficultyLevel)
+  difficulty_override?: RecipeDifficultyLevel | null;
 }

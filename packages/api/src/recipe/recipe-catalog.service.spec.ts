@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
 import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
@@ -29,7 +30,7 @@ describe('RecipeService catalog read paths (Issue #779)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [...buildRecipeTestingTypeOrm()],
-      providers: [RecipeService],
+      providers: [RecipeService, RecipeDifficultyService],
     }).compile();
 
     service = module.get(RecipeService);

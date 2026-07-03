@@ -10,6 +10,7 @@ import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.en
 import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
 import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
@@ -54,7 +55,7 @@ describe('RecipeService.importFromCommunity (Issue #601)', () => {
           RecipeWaterOrmEntity,
         ]),
       ],
-      providers: [RecipeService],
+      providers: [RecipeService, RecipeDifficultyService],
     }).compile();
 
     service = module.get(RecipeService);

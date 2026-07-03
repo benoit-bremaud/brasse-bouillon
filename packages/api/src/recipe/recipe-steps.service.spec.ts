@@ -5,6 +5,9 @@ import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 
+import { RecipeAdditiveOrmEntity } from './entities/recipe-additive.orm.entity';
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
+import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.entity';
 import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
@@ -13,6 +16,8 @@ import { RecipeService } from './services/recipe.service';
 import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
 import { RecipeStepType } from './domain/enums/recipe-step-type.enum';
 import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
+import { RecipeWaterOrmEntity } from './entities/recipe-water.orm.entity';
+import { RecipeYeastOrmEntity } from './entities/recipe-yeast.orm.entity';
 import { randomUUID } from 'crypto';
 
 describe('RecipeService (steps)', () => {
@@ -29,7 +34,15 @@ describe('RecipeService (steps)', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [RecipeOrmEntity, RecipeStepOrmEntity, RecipeHopOrmEntity],
+          entities: [
+            RecipeOrmEntity,
+            RecipeStepOrmEntity,
+            RecipeHopOrmEntity,
+            RecipeFermentableOrmEntity,
+            RecipeYeastOrmEntity,
+            RecipeAdditiveOrmEntity,
+            RecipeWaterOrmEntity,
+          ],
           synchronize: true,
           logging: false,
         }),
@@ -37,9 +50,13 @@ describe('RecipeService (steps)', () => {
           RecipeOrmEntity,
           RecipeStepOrmEntity,
           RecipeHopOrmEntity,
+          RecipeFermentableOrmEntity,
+          RecipeYeastOrmEntity,
+          RecipeAdditiveOrmEntity,
+          RecipeWaterOrmEntity,
         ]),
       ],
-      providers: [RecipeService],
+      providers: [RecipeService, RecipeDifficultyService],
     }).compile();
 
     service = module.get(RecipeService);

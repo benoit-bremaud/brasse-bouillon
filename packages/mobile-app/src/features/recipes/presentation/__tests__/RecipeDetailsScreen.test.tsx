@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react-native";
 
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
+import { HttpError } from "@/core/http/http-error";
 import {
   deleteRecipeFromCarnet,
   getRecipeDetailsViewModel,
@@ -280,7 +281,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.queryByLabelText("Supprimer cette recette")).toBeNull();
   });
 
-  it("F24: surfaces an alert and does not navigate when the delete fails (sad path)", async () => {
+  it("F24: surfaces the generic error and does not navigate when the delete fails (sad path)", async () => {
     (deleteRecipeFromCarnet as jest.Mock).mockRejectedValueOnce(
       new Error("boom"),
     );
@@ -294,9 +295,53 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
     buttons.find((button) => button.text === "Supprimer")?.onPress?.();
 
-    // The failure surfaces a second alert and never navigates away.
+    // A non-HTTP failure surfaces the generic connection message and never
+    // navigates away.
     await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
+    expect(alertSpy.mock.calls[1][1]).toMatch(/Vérifie ta connexion/);
     expect(mockReplace).not.toHaveBeenCalledWith("/recipes");
+  });
+
+  it("F24: explains the real reason when a batch still references the recipe (400 errorCode, edge)", async () => {
+    // The API returns 400 + errorCode RECIPE_REFERENCED_BY_BATCH when a batch's
+    // journal points at this recipe. The brewer must see that reason, not the
+    // misleading « connexion » copy.
+    (deleteRecipeFromCarnet as jest.Mock).mockRejectedValueOnce(
+      new HttpError(400, "referenced by at least one batch", {
+        errorCode: "RECIPE_REFERENCED_BY_BATCH",
+      }),
+    );
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
+    expect(alertSpy.mock.calls[1][1]).toMatch(/utilisée par un brassin/);
+    expect(mockReplace).not.toHaveBeenCalledWith("/recipes");
+  });
+
+  it("F24: keeps the generic message for an unrelated 400, e.g. a malformed id (edge)", async () => {
+    // A ParseUUIDPipe rejection is also a 400 but carries no errorCode — it
+    // must NOT masquerade as « utilisée par un brassin ».
+    (deleteRecipeFromCarnet as jest.Mock).mockRejectedValueOnce(
+      new HttpError(400, "Validation failed (uuid is expected)"),
+    );
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+    fireEvent.press(screen.getByLabelText("Supprimer cette recette"));
+
+    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
+    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledTimes(2));
+    expect(alertSpy.mock.calls[1][1]).toMatch(/Vérifie ta connexion/);
   });
 
   it("switches to the Ingredients tab and shows the ingredient list", async () => {

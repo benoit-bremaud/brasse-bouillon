@@ -196,9 +196,14 @@ export class RecipeService {
           error instanceof QueryFailedError &&
           this.isForeignKeyViolation(error)
         ) {
-          throw new BadRequestException(
-            'Recipe cannot be deleted because it is referenced by at least one batch',
-          );
+          // Structured errorCode (mirrors NotABeerException) so the mobile
+          // client discriminates this from other 400s (e.g. a malformed-id
+          // ParseUUIDPipe rejection) and shows the right message.
+          throw new BadRequestException({
+            message:
+              'Recipe cannot be deleted because it is referenced by at least one batch',
+            errorCode: 'RECIPE_REFERENCED_BY_BATCH',
+          });
         }
         throw error;
       }

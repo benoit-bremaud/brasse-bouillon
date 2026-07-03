@@ -164,7 +164,7 @@ describe('RecipeService (steps)', () => {
     expect(await stepRepo.count({ where: { recipe_id: recipe.id } })).toBe(0);
   });
 
-  it('deleteMine() should throw BadRequestException when recipe is referenced by a batch', async () => {
+  it('deleteMine() should throw BadRequestException with a structured errorCode when referenced by a batch', async () => {
     const ownerId = 'user-1';
     const recipe = await service.create(ownerId, { name: 'Protected recipe' });
 
@@ -173,11 +173,16 @@ describe('RecipeService (steps)', () => {
       [randomUUID(), recipe.id],
     );
 
-    await expect(service.deleteMine(ownerId, recipe.id)).rejects.toThrow(
-      new BadRequestException(
-        'Recipe cannot be deleted because it is referenced by at least one batch',
-      ),
-    );
+    const error = await service
+      .deleteMine(ownerId, recipe.id)
+      .then(() => null)
+      .catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(BadRequestException);
+    // The errorCode lets the mobile client discriminate this from other 400s.
+    expect((error as BadRequestException).getResponse()).toMatchObject({
+      errorCode: 'RECIPE_REFERENCED_BY_BATCH',
+    });
   });
 
   it('updateMineStep() should reject negative order values', async () => {

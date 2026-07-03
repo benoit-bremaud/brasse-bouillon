@@ -10,7 +10,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { colors, spacing } from "@/core/theme";
-import { getErrorMessage } from "@/core/http/http-error";
+import { getErrorMessage, HttpError } from "@/core/http/http-error";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import {
@@ -75,6 +75,24 @@ const DEFAULT_NON_PUBLIC_WATER_PREFERENCE: NonPublicWaterPreference =
   NON_PUBLIC_WATER_PREFERENCE_OPTIONS[0]?.id ?? "style";
 
 const DEFAULT_TARGET_VOLUME_LITRES = 20;
+
+/**
+ * Type guard for the DELETE /recipes/:id 400 body carrying the
+ * `RECIPE_REFERENCED_BY_BATCH` errorCode (mirrors the scan flow's
+ * NOT_A_BEER guard). The filter spreads the errorCode to the top level of
+ * the response body, which `http-client` stores on `HttpError.details`.
+ */
+function isRecipeReferencedByBatch(
+  details: unknown,
+): details is { errorCode: "RECIPE_REFERENCED_BY_BATCH" } {
+  return (
+    typeof details === "object" &&
+    details !== null &&
+    "errorCode" in details &&
+    (details as { errorCode: unknown }).errorCode ===
+      "RECIPE_REFERENCED_BY_BATCH"
+  );
+}
 
 /**
  * Redesigned recipe detail screen — Issue #740 Round 4 v2.
@@ -366,10 +384,19 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
       router.replace("/recipes");
     },
-    onError: () => {
+    onError: (error) => {
+      // The API returns 400 with errorCode RECIPE_REFERENCED_BY_BATCH when a
+      // batch still references this recipe (its journal points at it). Key off
+      // the errorCode, NOT the status alone — a malformed id also 400s via
+      // ParseUUIDPipe. Tell the brewer the real reason: the generic « connexion »
+      // copy sent them retrying in vain (live-test point).
+      const isReferencedByBatch =
+        error instanceof HttpError && isRecipeReferencedByBatch(error.details);
       Alert.alert(
         "Suppression impossible",
-        "La recette n'a pas pu être supprimée. Vérifie ta connexion et réessaie.",
+        isReferencedByBatch
+          ? "Cette recette est utilisée par un brassin. Tu ne peux pas la supprimer tant que ce brassin existe : supprime d'abord le brassin correspondant dans « Mes brassins »."
+          : "La recette n'a pas pu être supprimée. Vérifie ta connexion et réessaie.",
       );
     },
   });

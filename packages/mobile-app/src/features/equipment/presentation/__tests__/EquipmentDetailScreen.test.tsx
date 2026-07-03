@@ -1,4 +1,4 @@
-import { Alert, type AlertButton } from "react-native";
+import { Alert } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   fireEvent,
@@ -9,6 +9,7 @@ import {
 
 import React from "react";
 import { EquipmentDetailScreen } from "@/features/equipment/presentation/EquipmentDetailScreen";
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { EquipmentProfile } from "@/features/equipment/domain/equipment.types";
 import {
   deleteEquipmentProfile,
@@ -80,9 +81,17 @@ function renderScreen(profileId = "eq-1") {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <EquipmentDetailScreen profileId={profileId} />
+      <ConfirmProvider>
+        <EquipmentDetailScreen profileId={profileId} />
+      </ConfirmProvider>
     </QueryClientProvider>,
   );
+}
+
+// The delete confirmation is the branded in-app ConfirmDialog; press its
+// « Supprimer » button (accessibilityLabel) to confirm the deletion.
+async function confirmDeleteInDialog() {
+  fireEvent.press(await screen.findByLabelText("Supprimer"));
 }
 
 describe("EquipmentDetailScreen", () => {
@@ -105,17 +114,16 @@ describe("EquipmentDetailScreen", () => {
   });
 
   it("deletes the profile after confirmation and navigates back (F22)", async () => {
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
     renderScreen();
 
     fireEvent.press(await screen.findByTestId("equipment-delete-cta"));
 
-    // The tap opens a confirmation dialog rather than deleting immediately.
-    expect(alertSpy).toHaveBeenCalled();
+    // The tap opens the branded confirmation dialog rather than deleting
+    // immediately.
+    expect(await screen.findByText("Supprimer ce matériel ?")).toBeTruthy();
     expect(mockedDelete).not.toHaveBeenCalled();
 
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await confirmDeleteInDialog();
 
     await waitFor(() => expect(mockedDelete).toHaveBeenCalledWith("eq-1"));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/equipment"));
@@ -134,9 +142,10 @@ describe("EquipmentDetailScreen", () => {
     renderScreen();
 
     fireEvent.press(await screen.findByTestId("equipment-delete-cta"));
-    const buttons = alertSpy.mock.calls[0][2] as AlertButton[];
-    buttons.find((button) => button.text === "Supprimer")?.onPress?.();
+    await confirmDeleteInDialog();
 
+    // The failure feedback still uses the native error Alert (not part of this
+    // migration).
     await waitFor(() =>
       expect(alertSpy).toHaveBeenCalledWith(
         "Suppression impossible",

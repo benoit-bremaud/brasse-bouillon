@@ -1,5 +1,4 @@
 import {
-  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -37,6 +36,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { useConfirm } from "@/core/ui/confirm-provider";
 // Reused sticky-CTA bar (same pattern as BrewPrepScreen). Generic despite the
 // « Recipe » name — a promotion to core/ui is a sensible follow-up.
 import { RecipeStickyCta } from "@/features/recipes/presentation/components/RecipeStickyCta";
@@ -161,6 +161,7 @@ function useFermentationTrackerInfo(batch: Batch | null) {
 export function BatchDetailsScreen({ batchId }: Props) {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
+  const confirm = useConfirm();
   const queryClient = useQueryClient();
   const [mutationError, setMutationError] = React.useState<string | null>(null);
   const missingBatchId = !batchId;
@@ -316,7 +317,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (missingBatchId) {
       return;
     }
@@ -324,21 +325,16 @@ export function BatchDetailsScreen({ batchId }: Props) {
     // the next step and is not undoable, so gate it behind an acknowledgment
     // (the ✋ pattern already used on the bottling step) instead of firing on
     // a single tap.
-    Alert.alert(
-      "Terminer cette étape ?",
-      "Tu confirmes avoir terminé l'étape en cours ? L'étape suivante démarrera.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Terminer",
-          style: "default",
-          onPress: () => {
-            setMutationError(null);
-            mutateCompleteCurrentStep();
-          },
-        },
-      ],
-    );
+    const confirmed = await confirm({
+      title: "Terminer cette étape ?",
+      message:
+        "Tu confirmes avoir terminé l'étape en cours ? L'étape suivante démarrera.",
+      confirmLabel: "Terminer",
+    });
+    if (confirmed) {
+      setMutationError(null);
+      mutateCompleteCurrentStep();
+    }
   };
 
   const handleStart = () => {
@@ -356,73 +352,62 @@ export function BatchDetailsScreen({ batchId }: Props) {
     router.replace("/batches");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (missingBatchId) {
       return;
     }
     // F25 — destructive + irreversible, so gate it behind a confirm (recovers
     // an accidental/phantom batch). Cancel (F16) and archive (F25) are the soft
     // alternatives that keep the journal (see handleCancel / handleArchive).
-    Alert.alert(
-      "Supprimer ce brassin ?",
-      "Il sera définitivement retiré de tes brassins. Cette action est irréversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => {
-            setMutationError(null);
-            mutateDeleteBatch();
-          },
-        },
-      ],
-    );
+    const confirmed = await confirm({
+      title: "Supprimer ce brassin ?",
+      message:
+        "Il sera définitivement retiré de tes brassins. Cette action est irréversible.",
+      confirmLabel: "Supprimer",
+      destructive: true,
+    });
+    if (confirmed) {
+      setMutationError(null);
+      mutateDeleteBatch();
+    }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (missingBatchId) {
       return;
     }
     // F16 — stop a launched brew. Soft (keeps the journal), so a confirm is
     // enough; it is not the irreversible delete.
-    Alert.alert(
-      "Annuler ce brassin ?",
-      "Le brassin sera arrêté et retiré de tes brassins actifs, mais son journal est conservé.",
-      [
-        { text: "Retour", style: "cancel" },
-        {
-          text: "Annuler le brassin",
-          style: "destructive",
-          onPress: () => {
-            setMutationError(null);
-            mutateCancelBatch();
-          },
-        },
-      ],
-    );
+    const confirmed = await confirm({
+      title: "Annuler ce brassin ?",
+      message:
+        "Le brassin sera arrêté et retiré de tes brassins actifs, mais son journal est conservé.",
+      confirmLabel: "Annuler le brassin",
+      cancelLabel: "Retour",
+      destructive: true,
+    });
+    if (confirmed) {
+      setMutationError(null);
+      mutateCancelBatch();
+    }
   };
 
-  const handleArchive = () => {
+  const handleArchive = async () => {
     if (missingBatchId) {
       return;
     }
     // F25 — declutter: soft-hide a finished brew; its journal is kept.
-    Alert.alert(
-      "Archiver ce brassin ?",
-      "Il sera retiré de tes brassins actifs mais conservé dans ton historique.",
-      [
-        { text: "Retour", style: "cancel" },
-        {
-          text: "Archiver",
-          style: "default",
-          onPress: () => {
-            setMutationError(null);
-            mutateArchiveBatch();
-          },
-        },
-      ],
-    );
+    const confirmed = await confirm({
+      title: "Archiver ce brassin ?",
+      message:
+        "Il sera retiré de tes brassins actifs mais conservé dans ton historique.",
+      confirmLabel: "Archiver",
+      cancelLabel: "Retour",
+    });
+    if (confirmed) {
+      setMutationError(null);
+      mutateArchiveBatch();
+    }
   };
 
   const handleRecordMeasurement = () => {
@@ -545,7 +530,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
       : !isCompletedLive
         ? {
             label: completeButtonLabel,
-            onPress: handleComplete,
+            onPress: () => void handleComplete(),
             disabled: isCompleting || isCompleted || isLoading,
           }
         : null;
@@ -567,7 +552,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
             />
             {batch ? (
               <Pressable
-                onPress={handleDelete}
+                onPress={() => void handleDelete()}
                 disabled={isDeleting}
                 accessibilityRole="button"
                 accessibilityLabel="Supprimer ce brassin"
@@ -831,7 +816,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Annuler ce brassin"
-              onPress={handleCancel}
+              onPress={() => void handleCancel()}
               disabled={isCancelling}
               style={styles.softAction}
             >
@@ -845,7 +830,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Archiver ce brassin"
-              onPress={handleArchive}
+              onPress={() => void handleArchive()}
               disabled={isArchiving}
               style={styles.softAction}
             >

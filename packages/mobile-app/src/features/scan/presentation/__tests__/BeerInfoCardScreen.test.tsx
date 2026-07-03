@@ -10,6 +10,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { BeerInfoCardScreen } from "@/features/scan/presentation/BeerInfoCardScreen";
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { getMatchingRecipes } from "@/features/scan/application/recipe-matching.use-cases";
 import { importRecipeFromCommunity } from "@/features/recipes/application/recipes.use-cases";
 import {
@@ -78,7 +79,9 @@ function renderScreen(ui: React.ReactElement) {
     },
   });
   return render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+    <QueryClientProvider client={client}>
+      <ConfirmProvider>{ui}</ConfirmProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -521,28 +524,15 @@ describe("BeerInfoCardScreen", () => {
 
   describe("import community recipe", () => {
     /**
-     * Issue #766 — every import flow now goes through a pre-flight
-     * confirmation Alert. This helper traverses the confirmation by
-     * pressing "Importer" so the existing happy-path assertions
-     * downstream stay focused on what they were originally testing.
+     * Issue #766 — every import flow goes through a pre-flight confirmation,
+     * now the branded in-app ConfirmDialog. This helper confirms it by pressing
+     * the « Importer » button so the downstream happy-path assertions stay
+     * focused on what they were originally testing.
      */
-    async function pressImporterOnConfirmationAlert(): Promise<void> {
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          "Importer cette recette ?",
-          expect.any(String),
-          expect.any(Array),
-          expect.any(Object),
-        );
-      });
-      const confirmButtons = alertSpy.mock.calls[0][2] as Array<{
-        text: string;
-        onPress?: () => void;
-      }>;
-      const importerButton = confirmButtons.find((b) => b.text === "Importer");
-      expect(importerButton).toBeDefined();
+    async function confirmImportInDialog(): Promise<void> {
+      const importerButton = await screen.findByLabelText("Importer");
       await act(async () => {
-        importerButton?.onPress?.();
+        fireEvent.press(importerButton);
       });
     }
 
@@ -559,13 +549,13 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
-      await pressImporterOnConfirmationAlert();
+      await confirmImportInDialog();
 
       await waitFor(() => {
         expect(mockedImport).toHaveBeenCalledWith("r-demo-1");
       });
-      // The success Alert is the SECOND call (the first was the
-      // confirmation Alert traversed above).
+      // The success Alert is the only native Alert now (the pre-flight
+      // confirmation moved to the branded ConfirmDialog).
       const successCall = alertSpy.mock.calls.find(
         (c) => c[0] === "Recette importée",
       );
@@ -599,7 +589,7 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
-      await pressImporterOnConfirmationAlert();
+      await confirmImportInDialog();
 
       await waitFor(() => {
         expect(
@@ -633,7 +623,7 @@ describe("BeerInfoCardScreen", () => {
       await act(async () => {
         fireEvent.press(row);
       });
-      await pressImporterOnConfirmationAlert();
+      await confirmImportInDialog();
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith(
@@ -645,7 +635,7 @@ describe("BeerInfoCardScreen", () => {
     });
 
     describe("pre-flight confirmation modal (Issue #766)", () => {
-      it("opens a confirmation Alert with the recipe name on tap", async () => {
+      it("opens the branded confirmation dialog with the recipe name on tap", async () => {
         mockedLookup.mockResolvedValueOnce(buildResult());
         renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
 
@@ -654,13 +644,14 @@ describe("BeerInfoCardScreen", () => {
           fireEvent.press(row);
         });
 
-        expect(alertSpy).toHaveBeenCalledWith(
-          "Importer cette recette ?",
-          expect.stringContaining("Session IPA Citra"),
-          expect.any(Array),
-          expect.any(Object),
-        );
-        // The API call is NOT yet made — we are blocked on confirmation.
+        // The branded ConfirmDialog appears (title + recipe name); the API call
+        // is NOT yet made — we are blocked on confirmation.
+        expect(
+          await screen.findByText("Importer cette recette ?"),
+        ).toBeTruthy();
+        expect(
+          screen.getByText(/La recette « Session IPA Citra » sera ajoutée/),
+        ).toBeTruthy();
         expect(mockedImport).not.toHaveBeenCalled();
       });
 
@@ -673,16 +664,12 @@ describe("BeerInfoCardScreen", () => {
           fireEvent.press(row);
         });
 
-        const confirmButtons = alertSpy.mock.calls[0][2] as Array<{
-          text: string;
-          style?: string;
-          onPress?: () => void;
-        }>;
-        const cancelButton = confirmButtons.find((b) => b.style === "cancel");
-        expect(cancelButton?.text).toBe("Annuler");
-        // The cancel button has no onPress (per RN Alert convention) —
-        // tapping it just dismisses without firing anything.
-        expect(cancelButton?.onPress).toBeUndefined();
+        // Cancel in the branded dialog: « Annuler » dismisses without importing
+        // or navigating.
+        await act(async () => {
+          fireEvent.press(await screen.findByLabelText("Annuler"));
+        });
+
         expect(mockedImport).not.toHaveBeenCalled();
         expect(mockPush).not.toHaveBeenCalled();
       });

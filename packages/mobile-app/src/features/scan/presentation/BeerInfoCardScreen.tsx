@@ -14,6 +14,7 @@ import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { useConfirm } from "@/core/ui/confirm-provider";
 
 import {
   getImportSourceId,
@@ -420,6 +421,7 @@ function MatchingRecipesSection({
     staleTime: 0,
   });
   const matching = matchingQuery.data ?? null;
+  const confirm = useConfirm();
 
   const importMutation = useMutation({
     mutationFn: (recipe: ScanRecipeMatch) =>
@@ -462,29 +464,21 @@ function MatchingRecipesSection({
    * vs "Annuler" choice so Léa knows what's about to happen.
    */
   const handleImport = useCallback(
-    (recipe: ScanRecipeMatch) => {
+    async (recipe: ScanRecipeMatch) => {
       if (importMutation.isPending) return;
-      Alert.alert(
-        "Importer cette recette ?",
-        `La recette « ${recipe.name} » sera ajoutée à ton carnet.`,
-        [
-          { text: "Annuler", style: "cancel" },
-          {
-            text: "Importer",
-            // Re-check before firing: a second confirmation (e.g. another
-            // row's Alert opened before this one was answered) must not
-            // launch a concurrent import. Restores the guard the previous
-            // performImport had at call time.
-            onPress: () => {
-              if (importMutation.isPending) return;
-              importMutation.mutate(recipe);
-            },
-          },
-        ],
-        { cancelable: true },
-      );
+      const confirmed = await confirm({
+        title: "Importer cette recette ?",
+        message: `La recette « ${recipe.name} » sera ajoutée à ton carnet.`,
+        confirmLabel: "Importer",
+      });
+      // Re-check before firing: a second confirmation (e.g. another row's
+      // dialog opened before this one was answered) must not launch a
+      // concurrent import. Restores the guard the previous performImport had.
+      if (confirmed && !importMutation.isPending) {
+        importMutation.mutate(recipe);
+      }
     },
-    [importMutation],
+    [importMutation, confirm],
   );
 
   if (matchingQuery.isError) {
@@ -524,7 +518,7 @@ function MatchingRecipesSection({
               importMutation.variables?.recipeId === officialRecipe.recipeId
             }
             isDisabled={importMutation.isPending}
-            onPress={() => handleImport(officialRecipe)}
+            onPress={() => void handleImport(officialRecipe)}
             highlightOfficial
           />
         </Card>
@@ -545,7 +539,7 @@ function MatchingRecipesSection({
                 importMutation.variables?.recipeId === recipe.recipeId
               }
               isDisabled={importMutation.isPending}
-              onPress={() => handleImport(recipe)}
+              onPress={() => void handleImport(recipe)}
             />
           ))}
         </Card>

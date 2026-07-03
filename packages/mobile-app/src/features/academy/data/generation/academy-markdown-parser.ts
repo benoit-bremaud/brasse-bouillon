@@ -26,10 +26,10 @@ interface MarkdownDirective {
   readonly attributes: Readonly<Record<string, string>>;
 }
 
-const FRONT_MATTER_PATTERN = /^---\n([\s\S]*?)\n---\n?/;
+const FRONT_MATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const HEADING_PATTERN = /^##\s+(.+?)\s+\{#([a-z0-9]+(?:-[a-z0-9]+)*)\}$/;
 const DIRECTIVE_PATTERN = /^:::(\w+)\s*(.*?):::$/;
-const ATTRIBUTE_PATTERN = /(\w+)="([^"]*)"/g;
+const ATTRIBUTE_PATTERN_SOURCE = String.raw`(\w+)="([^"]*)"`;
 
 export function parseAcademyMarkdownArticle(
   filePath: string,
@@ -209,11 +209,12 @@ function parseDirective(line: string): MarkdownDirective | null {
 
   const attributes: Record<string, string> = {};
   const rawAttributes = match[2];
-  let attributeMatch = ATTRIBUTE_PATTERN.exec(rawAttributes);
+  const attributePattern = new RegExp(ATTRIBUTE_PATTERN_SOURCE, "g");
+  let attributeMatch = attributePattern.exec(rawAttributes);
 
   while (attributeMatch) {
     attributes[attributeMatch[1]] = attributeMatch[2];
-    attributeMatch = ATTRIBUTE_PATTERN.exec(rawAttributes);
+    attributeMatch = attributePattern.exec(rawAttributes);
   }
 
   return {

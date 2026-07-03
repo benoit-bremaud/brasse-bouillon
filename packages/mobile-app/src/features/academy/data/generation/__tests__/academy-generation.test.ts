@@ -130,6 +130,41 @@ describe("Academy content generation", () => {
     );
   });
 
+  it("parses CRLF front matter from Markdown files", () => {
+    const article = parseAcademyMarkdownArticle(
+      "docs/academy/ingredients/houblons.md",
+      articleMarkdown.replace(/\n/g, "\r\n"),
+    );
+
+    expect(article.errors).toEqual([]);
+    expect(article.value?.slug).toBe("houblons");
+    expect(article.value?.sections[0]?.id).toBe("role-du-houblon");
+  });
+
+  it("parses attributes for every repeated Academy directive", () => {
+    const article = parseAcademyMarkdownArticle(
+      "docs/academy/ingredients/houblons.md",
+      articleMarkdown,
+    );
+
+    const blocks = article.value?.sections[0]?.blocks ?? [];
+
+    expect(blocks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "ibu-reference",
+          type: "glossaryReference",
+          termSlug: "ibu",
+        }),
+        expect.objectContaining({
+          id: "hop-calculator",
+          type: "calculatorCta",
+          calculatorSlug: "houblons",
+        }),
+      ]),
+    );
+  });
+
   it("surfaces source-validation errors before generating files", () => {
     const article = parseAcademyMarkdownArticle(
       "docs/academy/ingredients/houblons.md",

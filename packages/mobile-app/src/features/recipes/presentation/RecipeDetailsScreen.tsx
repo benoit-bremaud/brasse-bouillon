@@ -82,7 +82,9 @@ const DEFAULT_TARGET_VOLUME_LITRES = 20;
  * NOT_A_BEER guard). The filter spreads the errorCode to the top level of
  * the response body, which `http-client` stores on `HttpError.details`.
  */
-function isRecipeReferencedByBatch(details: unknown): boolean {
+function isRecipeReferencedByBatch(
+  details: unknown,
+): details is { errorCode: "RECIPE_REFERENCED_BY_BATCH" } {
   return (
     typeof details === "object" &&
     details !== null &&

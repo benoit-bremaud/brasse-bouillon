@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1320 merged (`8fd4221`) — fix(batches): make the brew-day detail screen scroll + sticky primary CTA
+
+- Branch `fix/batch-details-scroll-sticky-cta`. First fix of the **screen-by-screen UX review** (post-APK live test). Bug: on `BatchDetailsScreen`, a step with a tall F4 « Avant de démarrer » checklist (fermentation) pushed the primary button under the floating footer with no scroll to reach it. Root cause: only the inner steps `FlatList` scrolled; the upper column (progression/timer/doneWhen/F4/CTA) was fixed-height. Fix mirrors `BrewPrepScreen`: whole body is one `ScrollView`, and the single primary action (Mettre en bouteille / Démarrer / Terminer, computed via a `primaryCta` object, null in live-closure) is a sticky `RecipeStickyCta` bar pinned above the footer; steps render as a mapped list (≤5, no virtualization). Follow-up #1319: promote `RecipeStickyCta` → `core/ui` (3rd, cross-feature consumer).
+- Reviews — local pre-push ritual (Claude 0 Must Have; ≤5-steps assumption documented inline; the 3 former inline CTAs verified preserved 1:1). CI green; mobile 1177 tests. Mobile-only — needs an APK rebuild to reach the device.
+
 ### PR #1317 merged (`2f607c8`) — chore(mobile): drop the dead encyclopedia URL from EAS build profiles
 
 - Branch `chore/eas-drop-dead-encyclopedia-url`. Removes `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` (the `brasse-bouillon-encyclopedia` Fly app was destroyed 2026-07-02) from the `preview` and `preview-demo` EAS profiles; `env.encyclopediaUrlIsConfigured` now reads false so consumers stop dialing a dead host. Per-surface behaviour (review-verified): beer-catalog fails fast (« encyclopedia not configured », Codex #871 guard); scan falls back to the legacy NestJS `/scan/lookup` path (#1186) — NOT a fail-fast. Brew-day novice journey unaffected. Prep for the `preview`-profile APK (live prod API, migrations 1805-1807 live) for the novice re-test.

@@ -11,8 +11,8 @@
 The screen-by-screen UX review (2026-07-03) activated a **per-recipe brewing-difficulty
 badge**: a novice must see, at a glance, *how hard a recipe is to brew* so they can pick one
 at their level. This is a property of the **recipe** (how hard it is to brew), distinct from
-the **user's declared level** (ADR-0021 D5). It surfaces on the recipe Vue/hero and on the
-recipe cards (« Mes recettes » / catalog), with a tap-to-explain sentence (the app **teaches
+the **user's declared level** (ADR-0021 D5). It surfaces on the recipe « Vue » tab / hero and on
+the recipe cards (« Mes recettes » / catalog), with a tap-to-explain sentence (the app **teaches
 why**), plus an optional reminder on the Brassage tab. See [[project_screen_by_screen_ux_review]]
 and the difficulty-badge decisions in `bb-recipe-hallmark`.
 

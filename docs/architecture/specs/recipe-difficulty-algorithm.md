@@ -114,7 +114,7 @@ base   = max(f1, f2, f3, f4, f5, f6)
 moderateCount = count(fi == 1)
 tier   = (moderateCount >= 3) ? min(base + 1, 2) : base   // several moderate stressors ⇒ a notch up
 computed = ["facile","intermediaire","avance"][tier]
-reasons  = [sentence(fi) for fi where tier(fi) >= 1], ordered by tier desc
+reasons  = [sentence(fi) for fi where tier(fi) >= 1], ordered by tier desc, ties by factor id F1→F6
 if tier == 0: reasons = [ positiveFacileReason ]          // stored, not synthesised client-side
 ```
 

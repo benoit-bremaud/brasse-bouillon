@@ -16,7 +16,7 @@ the recipe module (the math lives server-side, ADR-0002 / ADR-0020); the mobile 
 ```mermaid
 flowchart LR
   subgraph Mobile ["packages/mobile-app"]
-    Card["RecipeCard / Vue (badge)"]
+    Card["RecipeCard / recipe « Vue » tab (badge)"]
     Badge["DifficultyBadge (core/ui) — presentational"]
     UC["recipes use-case"]
     HTTP["core/http/http-client"]

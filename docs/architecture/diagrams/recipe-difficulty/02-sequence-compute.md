@@ -27,7 +27,7 @@ sequenceDiagram
   Note over Author,DB: Write path — compute on create/update
   Author->>M: Save recipe (fields, optional override)
   M->>API: "POST/PUT /recipes"
-  API->>DS: "compute(recipe, yeast, hops, water, stats)"
+  API->>DS: "compute(recipe + sub-entities: yeast, hops, water)"
   DS->>DS: "yeastClass + per-factor tiers F1..F6 (F5 deferred, all-grain baseline)"
   DS->>DS: "tier = max(f1..f6), +1 if ≥3 at tier 1 (capped) — reasons: all firing factors"
   DS-->>API: "{ computed, reasons[] }"

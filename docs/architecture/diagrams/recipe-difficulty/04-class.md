@@ -61,6 +61,10 @@ classDiagram
     +Real chloridePpm
     +Real phTarget
   }
+  class DifficultyResult {
+    +DifficultyLevel computed
+    +DifficultyReason[] reasons
+  }
   class DifficultyService {
     +compute(Recipe) DifficultyResult
   }
@@ -68,12 +72,13 @@ classDiagram
   Recipe "1" --> "1" DifficultyLevel : computed
   Recipe "1" --> "0..1" DifficultyLevel : override
   Recipe "1" o-- "0..*" DifficultyReason
-  Recipe "1" o-- "1..*" RecipeYeast
+  Recipe "1" o-- "0..*" RecipeYeast
   RecipeYeast "1" --> "1" RecipeYeastType
   Recipe "1" o-- "0..*" RecipeHop
   Recipe "1" o-- "0..1" RecipeWater
   DifficultyService ..> Recipe : reads
-  DifficultyService ..> DifficultyReason : produces
+  DifficultyService ..> DifficultyResult : returns
+  DifficultyResult o-- "0..*" DifficultyReason
 ```
 
 ## Notes

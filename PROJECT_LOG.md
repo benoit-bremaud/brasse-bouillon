@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1323 merged (`028a021`) — feat(ui): branded ConfirmDialog + useConfirm hook (replaces native Alert)
+
+- Branch `feat/branded-confirm-dialog`, 2 commits. Screen-review point (« le pop-up est dégueulasse »): confirmations used RN `Alert.alert()` → the unstylable OS-native dialog, off-brand. Adds `ConfirmDialog` (`core/ui`, branded modal, red destructive variant) + `ConfirmProvider` + `useConfirm()` (single dialog at the app root, imperative `confirm(options) => Promise<boolean>`); call sites move from `Alert.alert(title, msg, [cancel, confirm])` to `if (await confirm({…})) {…}`. **First migration**: `BrewPrepScreen` « Lancer le brassage ? ». Remaining confirmations (delete recipe/batch, cancel, archive, equipment, scan) tracked in **#1324**, before the next APK build; single-button info alerts out of scope.
+- Reviews — local pre-push (Claude 0 Must Have) then Copilot round 1: **re-entrancy** hardened (a 2nd `confirm()` settles the 1st promise as declined, never leaks) + unmount-while-pending cleanup + tests; async launch handler voided at the call site; backdrop a11y role. CI green; mobile 1183 tests.
+
+### PR #1322 merged (`06cf5a0`) — fix(recipes): explain why a recipe used by a batch cannot be deleted
+
+- Branch `fix/recipe-delete-referenced-message` (API + mobile), 3 commits. Screen-review blocking point: deleting a recipe referenced by a batch showed a misleading « Vérifie ta connexion » — the user retried in vain. Backend `deleteMine` now throws its FK-violation `BadRequestException` with a structured `errorCode: 'RECIPE_REFERENCED_BY_BATCH'` (mirrors `NotABeerException`), so mobile discriminates it from other 400s (e.g. `ParseUUIDPipe`); the delete `onError` keys off that errorCode and shows « Cette recette est utilisée par un brassin… supprime d'abord le brassin ». Behaviour unchanged (still blocked). Reviews — Claude round-1 Must Have (status-only ambiguity → errorCode); Copilot (type predicate) + Codex P2 (dropped the wrong « ou archive » advice — archiving keeps the FK). CI green; API 920, mobile 1179.
+
 ### PR #1320 merged (`8fd4221`) — fix(batches): make the brew-day detail screen scroll + sticky primary CTA
 
 - Branch `fix/batch-details-scroll-sticky-cta`. First fix of the **screen-by-screen UX review** (post-APK live test). Bug: on `BatchDetailsScreen`, a step with a tall F4 « Avant de démarrer » checklist (fermentation) pushed the primary button under the floating footer with no scroll to reach it. Root cause: only the inner steps `FlatList` scrolled; the upper column (progression/timer/doneWhen/F4/CTA) was fixed-height. Fix mirrors `BrewPrepScreen`: whole body is one `ScrollView`, and the single primary action (Mettre en bouteille / Démarrer / Terminer, computed via a `primaryCta` object, null in live-closure) is a sticky `RecipeStickyCta` bar pinned above the footer; steps render as a mapped list (≤5, no virtualization). Follow-up #1319: promote `RecipeStickyCta` → `core/ui` (3rd, cross-feature consumer).

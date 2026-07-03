@@ -22,6 +22,7 @@ export interface AcademyValidationResult {
 
 export interface AcademyValidationContext {
   readonly knownArticleSlugs: ReadonlySet<string>;
+  readonly knownArticleSectionIds: ReadonlyMap<string, ReadonlySet<string>>;
   readonly knownGlossarySlugs: ReadonlySet<string>;
   readonly knownCalculatorSlugs: ReadonlySet<string>;
 }
@@ -94,13 +95,13 @@ export function validateAcademyArticle(
       );
     }
 
-    if (!article.metadata.review) {
+    if (article.metadata.status === "published" && !article.metadata.review) {
       pushIssue(
         issues,
         "error",
-        "article.sensitive.review.required",
+        "article.publishedSensitive.review.required",
         "metadata.review",
-        "Sensitive Academy content must include review metadata.",
+        "Published sensitive Academy content must include review metadata.",
       );
     }
   }
@@ -251,8 +252,15 @@ export function validateAcademyCorpus(
     "Calculator slugs must be unique.",
     issues,
   );
+  const knownArticleSectionIds = new Map(
+    corpus.articles.map((article) => [
+      article.slug,
+      new Set(article.body.sections.map((section) => section.id)),
+    ]),
+  );
   const context: AcademyValidationContext = {
     knownArticleSlugs,
+    knownArticleSectionIds,
     knownGlossarySlugs,
     knownCalculatorSlugs,
   };
@@ -508,6 +516,13 @@ function validateBlock(
         "Related article block points to an unknown article.",
         issues,
       );
+      validateKnownSectionId(
+        block.articleSlug,
+        block.sectionId,
+        context.knownArticleSectionIds,
+        `${path}.sectionId`,
+        issues,
+      );
       break;
     case "sourceReference":
       if (!articleSourceIds.has(block.sourceId)) {
@@ -520,6 +535,39 @@ function validateBlock(
         );
       }
       break;
+  }
+}
+
+function validateKnownSectionId(
+  articleSlug: string,
+  sectionId: string | null,
+  knownArticleSectionIds: ReadonlyMap<string, ReadonlySet<string>>,
+  path: string,
+  issues: AcademyValidationIssue[],
+) {
+  if (!sectionId) {
+    return;
+  }
+
+  requirePattern(
+    sectionId,
+    SECTION_ID_PATTERN,
+    path,
+    "article.block.relatedArticleSection.invalid",
+    "Related article section id must be lowercase kebab-case.",
+    issues,
+  );
+
+  const knownSectionIds = knownArticleSectionIds.get(articleSlug);
+
+  if (knownSectionIds && !knownSectionIds.has(sectionId)) {
+    pushIssue(
+      issues,
+      "error",
+      "article.block.relatedArticleSection.unknown",
+      path,
+      "Related article block points to an unknown section.",
+    );
   }
 }
 

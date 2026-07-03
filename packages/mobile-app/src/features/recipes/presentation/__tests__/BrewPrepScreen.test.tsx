@@ -11,6 +11,7 @@ import React from "react";
 import { Alert } from "react-native";
 
 import { BrewPrepScreen } from "@/features/recipes/presentation/BrewPrepScreen";
+import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import {
   getRecipeDetailsViewModel,
   type RecipeDetailsIngredientItem,
@@ -125,7 +126,9 @@ function renderScreen(recipeId = "r1") {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <BrewPrepScreen recipeId={recipeId} />
+      <ConfirmProvider>
+        <BrewPrepScreen recipeId={recipeId} />
+      </ConfirmProvider>
     </QueryClientProvider>,
   );
 }
@@ -134,15 +137,10 @@ function tickAll() {
   screen.getAllByRole("checkbox").forEach((box) => fireEvent.press(box));
 }
 
-// The launch confirmation is a native Alert; grab the "Lancer" button from the
-// last Alert.alert call and invoke its onPress to simulate the user confirming.
-function confirmLaunchAlert() {
-  const calls = (Alert.alert as jest.Mock).mock.calls;
-  const buttons = calls[calls.length - 1][2] as Array<{
-    text: string;
-    onPress?: () => void;
-  }>;
-  buttons.find((button) => button.text === "Lancer")?.onPress?.();
+// The launch confirmation is the branded in-app ConfirmDialog; press its
+// « Lancer » button (accessibilityLabel) to simulate the user confirming.
+async function confirmLaunch() {
+  fireEvent.press(await screen.findByLabelText("Lancer"));
 }
 
 describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
@@ -174,7 +172,7 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
 
     // Gate closed: pressing the disabled CTA must not open the dialog.
     fireEvent.press(screen.getByText("Lancer le brassage"));
-    expect(Alert.alert).not.toHaveBeenCalled();
+    expect(screen.queryByText("Lancer le brassage ?")).toBeNull();
     expect(mockLaunchBatch).not.toHaveBeenCalled();
   });
 
@@ -307,11 +305,9 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     );
     await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
-    expect(Alert.alert).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText("Lancer le brassage ?")).toBeTruthy();
 
-    await act(async () => {
-      confirmLaunchAlert();
-    });
+    await confirmLaunch();
 
     await waitFor(() => {
       expect(mockLaunchBatch).toHaveBeenCalledWith("draft-1");
@@ -336,9 +332,7 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     );
     await act(async () => {});
     fireEvent.press(screen.getByText("Lancer le brassage"));
-    await act(async () => {
-      confirmLaunchAlert();
-    });
+    await confirmLaunch();
 
     expect(await screen.findByText(/Backend down/i)).toBeTruthy();
     expect(mockPush).not.toHaveBeenCalled();
@@ -365,10 +359,8 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
 
     // Nothing to check → the gate is vacuously open and the launch proceeds.
     fireEvent.press(screen.getByText("Lancer le brassage"));
-    expect(Alert.alert).toHaveBeenCalledTimes(1);
-    await act(async () => {
-      confirmLaunchAlert();
-    });
+    expect(await screen.findByText("Lancer le brassage ?")).toBeTruthy();
+    await confirmLaunch();
     await waitFor(() => {
       expect(mockLaunchBatch).toHaveBeenCalledWith("draft-1");
       expect(mockPush).toHaveBeenCalledWith("/(app)/batches/b1");
@@ -401,12 +393,12 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     // the in-flight PATCH gets rejected ("already launched") — so the CTA
     // must stay inert until the save settles.
     fireEvent.press(screen.getByText("Lancer le brassage"));
-    expect(Alert.alert).not.toHaveBeenCalled();
+    expect(screen.queryByText("Lancer le brassage ?")).toBeNull();
 
     resolveSave();
     await waitFor(() => {
       fireEvent.press(screen.getByText("Lancer le brassage"));
-      expect(Alert.alert).toHaveBeenCalled();
+      expect(screen.getByText("Lancer le brassage ?")).toBeTruthy();
     });
   });
 

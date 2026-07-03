@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { colors, spacing, typography } from "@/core/theme";
 import { getErrorMessage } from "@/core/http/http-error";
+import { useConfirm } from "@/core/ui/confirm-provider";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ChecklistRow } from "@/core/ui/ChecklistRow";
@@ -53,6 +54,7 @@ type Props = Readonly<{ recipeId: string }>;
  */
 export function BrewPrepScreen({ recipeId }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const queryClient = useQueryClient();
   const footerOffset = useNavigationFooterOffset();
   const hasRecipeId = recipeId.trim().length > 0;
@@ -193,22 +195,19 @@ export function BrewPrepScreen({ recipeId }: Props) {
   // The launch is irreversible (phase B = point of no return), so it is
   // gated twice: the CTA is disabled until the checklist is complete AND
   // persisted, and a final confirmation dialog guards the batch creation.
-  const handleLaunch = () => {
+  const handleLaunch = async () => {
     if (!complete || isStarting || isSavingChecklist || !draft) {
       return;
     }
-    Alert.alert(
-      "Lancer le brassage ?",
-      "Cette action démarre le suivi du brassin et n'est pas réversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Lancer",
-          style: "default",
-          onPress: () => launchMutation.mutate(draft.id),
-        },
-      ],
-    );
+    const confirmed = await confirm({
+      title: "Lancer le brassage ?",
+      message:
+        "Cette action démarre le suivi du brassin et n'est pas réversible.",
+      confirmLabel: "Lancer",
+    });
+    if (confirmed) {
+      launchMutation.mutate(draft.id);
+    }
   };
 
   const handleRetry = () => {
@@ -332,7 +331,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
       <RecipeStickyCta
         label={ctaLabel}
         helperText={ctaHelper}
-        onPress={handleLaunch}
+        onPress={() => void handleLaunch()}
         disabled={
           !complete || isStarting || isSavingChecklist || !viewModel || !draft
         }

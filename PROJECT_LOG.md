@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-03
 
+### PR #1317 merged (`2f607c8`) — chore(mobile): drop the dead encyclopedia URL from EAS build profiles
+
+- Branch `chore/eas-drop-dead-encyclopedia-url`. Removes `EXPO_PUBLIC_BEER_ENCYCLOPEDIA_URL` (the `brasse-bouillon-encyclopedia` Fly app was destroyed 2026-07-02) from the `preview` and `preview-demo` EAS profiles; `env.encyclopediaUrlIsConfigured` now reads false so consumers stop dialing a dead host. Per-surface behaviour (review-verified): beer-catalog fails fast (« encyclopedia not configured », Codex #871 guard); scan falls back to the legacy NestJS `/scan/lookup` path (#1186) — NOT a fail-fast. Brew-day novice journey unaffected. Prep for the `preview`-profile APK (live prod API, migrations 1805-1807 live) for the novice re-test.
+- Reviews — local pre-push ritual (Claude 0 Must Have; the review corrected the initial commit narrative, which overstated scan as fail-fast). Config-only; CI green.
+
+### EAS Android build submitted (2026-07-03) — `preview` profile for the novice re-test
+
+- `preview` profile Android APK (id `a78138ba-c6e4-494b-bda1-c7c89725ff66`), live data against the freshly-deployed prod API (`EXPO_PUBLIC_USE_DEMO_DATA=false`), built from the encyclopedia-URL-cleanup branch. First real-conditions build carrying novice-journey block B (F1/F3/F4/F5/F9a + F14/F15 draft tier). Note for the test: the prod API is scale-to-zero, so the first backend call wakes it in ~10 s.
+
 ### PR #1315 merged (`c58a4b5`) — fix(faq-bot): fail closed on GET /challenge when the HMAC secret is missing
 
 - Branch `fix/faq-bot-challenge-fail-closed`, 2 commits (`cb65638`, `9f8556e`). Discovered on the first post-H3 prod deploy: with no `ALTCHA_HMAC_KEY`, `GET /faq-bot/challenge` returned an unhandled 500 (altcha-lib `DataError: Zero-length key` inside `issueChallenge`) instead of the fail-closed 503 the design mandates — the `BotCheckGuard` covered verification but not issuance. `FaqBotService.issueChallenge()` now fails closed (logged error + `FaqBotUnavailableException`, port never called), deliberately independent of the dev/test bypass flag (issuing is cryptographically impossible without a key in any environment); `faqBotConfig()` trims `ALTCHA_HMAC_KEY` so a whitespace-only secret reads as missing in both the guard and the service. Follow-up filed for the widget's 400-vs-503 error-message gap: #1314.

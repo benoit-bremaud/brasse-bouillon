@@ -127,6 +127,24 @@ describe("ConfirmProvider / useConfirm", () => {
     await waitFor(() => expect(second).toHaveBeenCalledWith(true));
   });
 
+  it("resolves a pending promise as declined when the provider unmounts (edge)", async () => {
+    const onResult = jest.fn();
+    const { unmount } = render(
+      <ConfirmProvider>
+        <Harness options={{ title: "Encore ouvert ?" }} onResult={onResult} />
+      </ConfirmProvider>,
+    );
+
+    fireEvent.press(screen.getByLabelText("ask"));
+    await screen.findByText("Encore ouvert ?");
+
+    // Tearing down the provider (e.g. logout / root remount) must not leave an
+    // awaiting caller hanging forever.
+    unmount();
+
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith(false));
+  });
+
   it("throws when useConfirm is used outside a ConfirmProvider (edge)", () => {
     const Bare = () => {
       useConfirm();

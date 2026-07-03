@@ -331,7 +331,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
       <RecipeStickyCta
         label={ctaLabel}
         helperText={ctaHelper}
-        onPress={handleLaunch}
+        onPress={() => void handleLaunch()}
         disabled={
           !complete || isStarting || isSavingChecklist || !viewModel || !draft
         }

@@ -10,6 +10,7 @@ import {
 
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
 import { ConfirmProvider } from "@/core/ui/confirm-provider";
+import { SnackbarProvider } from "@/core/ui/snackbar-provider";
 import { HttpError } from "@/core/http/http-error";
 import {
   deleteRecipeFromCarnet,
@@ -162,7 +163,9 @@ function renderRecipeDetails(recipeId = "r1") {
   return render(
     <QueryClientProvider client={queryClient}>
       <ConfirmProvider>
-        <RecipeDetailsScreen recipeId={recipeId} />
+        <SnackbarProvider>
+          <RecipeDetailsScreen recipeId={recipeId} />
+        </SnackbarProvider>
       </ConfirmProvider>
     </QueryClientProvider>,
   );
@@ -252,6 +255,67 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     );
     // The prepare action is not offered for a recipe the user does not own yet.
     expect(screen.queryByText("Préparer mon brassin")).toBeNull();
+  });
+
+  it("Tranche A: confirms the import with a snackbar and undoes it (deletes the copy, returns to source)", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(publicViewModel);
+    renderRecipeDetails("pub-1");
+
+    fireEvent.press(await screen.findByText("Ajouter à mon carnet"));
+
+    // The import is confirmed by a snackbar rather than navigating silently.
+    expect(
+      await screen.findByText("Recette ajoutée à ton carnet"),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(mockReplace).toHaveBeenCalledWith({
+        pathname: "/(app)/recipes/[id]",
+        params: { id: "r-owned-9" },
+      }),
+    );
+
+    // Undo: delete the just-created copy and return to the source recipe.
+    fireEvent.press(screen.getByLabelText("Annuler"));
+
+    await waitFor(() =>
+      expect(deleteRecipeFromCarnet).toHaveBeenCalledWith("r-owned-9"),
+    );
+    await waitFor(() =>
+      expect(mockReplace).toHaveBeenCalledWith({
+        pathname: "/(app)/recipes/[id]",
+        params: { id: "pub-1" },
+      }),
+    );
+  });
+
+  it("Tranche A: alerts and does not navigate back when the undo delete fails (sad)", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(publicViewModel);
+    (deleteRecipeFromCarnet as jest.Mock).mockRejectedValueOnce(
+      new Error("boom"),
+    );
+    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    renderRecipeDetails("pub-1");
+
+    fireEvent.press(await screen.findByText("Ajouter à mon carnet"));
+    expect(
+      await screen.findByText("Recette ajoutée à ton carnet"),
+    ).toBeTruthy();
+
+    // Ignore the import navigation; isolate the undo's own navigation.
+    mockReplace.mockClear();
+    fireEvent.press(screen.getByLabelText("Annuler"));
+
+    // The undo delete failed → alert the user and do NOT return to the source.
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Annulation impossible",
+        expect.any(String),
+      ),
+    );
+    expect(mockReplace).not.toHaveBeenCalledWith({
+      pathname: "/(app)/recipes/[id]",
+      params: { id: "pub-1" },
+    });
   });
 
   it("F23: an owned recipe does not show the import CTA (it shows prepare)", async () => {
@@ -489,6 +553,25 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
       pathname: "/(app)/tools/[slug]/calculator",
       params: { slug: "eau" },
     });
+  });
+
+  it("Tranche A: lightens the Water tab for a community recipe not yet saved", async () => {
+    (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(publicViewModel);
+    renderRecipeDetails("pub-1");
+
+    await screen.findByText("Ajouter à mon carnet");
+    switchToTab("water");
+
+    // The recommended profile stays; the local-water comparison, calculator
+    // button and salts section are hidden until the recipe is saved.
+    expect(screen.getByTestId("recipe-water-tab")).toBeTruthy();
+    expect(screen.getByText("Profil eau")).toBeTruthy();
+    expect(screen.queryByText("Comparer dans le Calculateur Eau")).toBeNull();
+    expect(screen.queryByText("Ton eau locale")).toBeNull();
+    expect(screen.queryByText("Ajouter pour matcher")).toBeNull();
+    expect(
+      screen.getByText(/Enregistre cette recette dans ton carnet/),
+    ).toBeTruthy();
   });
 
   it("renders the Brewing tab with the process preview modes", async () => {

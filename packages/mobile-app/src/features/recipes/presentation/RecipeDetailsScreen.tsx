@@ -13,6 +13,7 @@ import { colors, spacing } from "@/core/theme";
 import { getErrorMessage, HttpError } from "@/core/http/http-error";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { useConfirm } from "@/core/ui/confirm-provider";
+import { useSnackbar } from "@/core/ui/snackbar-provider";
 
 import {
   RecipeDetailsViewModel,
@@ -112,6 +113,7 @@ function isRecipeReferencedByBatch(
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
   const confirm = useConfirm();
+  const snackbar = useSnackbar();
   const bottomPadding = useNavigationFooterOffset();
   const queryClient = useQueryClient();
 
@@ -358,15 +360,44 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   const isOwned = recipe != null && recipe.ownerId != null;
   const canImportToCarnet = recipe != null && recipe.ownerId == null;
 
+  // Undo for the just-imported copy: remove it and return to the source
+  // community recipe. Invoked from the app-level snackbar, so it must not depend
+  // on this screen still being mounted — it calls the use-case directly, then
+  // the stable queryClient / router.
+  const undoImport = async (importedRecipeId: string) => {
+    try {
+      await deleteRecipeFromCarnet(importedRecipeId);
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "list"] });
+      void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
+      router.replace({
+        pathname: "/(app)/recipes/[id]",
+        params: { id: recipeId },
+      });
+    } catch {
+      Alert.alert(
+        "Annulation impossible",
+        "La recette n'a pas pu être retirée. Tu peux la supprimer depuis ton carnet.",
+      );
+    }
+  };
+
   const importMutation = useMutation({
     mutationFn: () => importRecipeFromCommunity(recipeId),
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["recipes", "list"] });
       void queryClient.invalidateQueries({ queryKey: ["recipes", "catalog"] });
-      // Land on the freshly owned copy, ready to prepare.
+      // Land on the freshly owned copy, ready to prepare...
       router.replace({
         pathname: "/(app)/recipes/[id]",
         params: { id: result.recipeId },
+      });
+      // ...and confirm the (previously silent) import with an undo affordance.
+      snackbar({
+        message: "Recette ajoutée à ton carnet",
+        actionLabel: "Annuler",
+        onAction: () => {
+          void undoImport(result.recipeId);
+        },
       });
     },
     onError: () => {
@@ -524,6 +555,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     localWaterProfile={localWaterProfile}
                     compatibility={waterCompatibility}
                     targetVolumeLiters={targetVolumeLiters}
+                    canCompare={isOwned}
                     nonPublicWaterPreference={nonPublicWaterPreference}
                     onChangeNonPublicWaterPreference={
                       setNonPublicWaterPreference

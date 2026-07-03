@@ -81,8 +81,7 @@ Markdown parser types, or generated file paths.
 
 ## Documentation Check
 
-Context7 was requested but is not available in this Codex session. The review
-therefore used current official documentation directly:
+The design review used current official documentation directly:
 
 - Mermaid 11.16.0 syntax documentation for flowchart, class, sequence, and state
   diagrams.
@@ -93,7 +92,9 @@ therefore used current official documentation directly:
 
 The diagrams intentionally use conservative Mermaid syntax. Newer flowchart
 shape aliases and ambiguous labels such as lowercase `end` are avoided until the
-project renderer version is confirmed.
+project renderer version is confirmed. Before implementation, verify these notes
+against the Mermaid, Expo Router, and React Native versions actually installed
+in the repository.
 
 ## Implementation Order Suggested By This Study
 

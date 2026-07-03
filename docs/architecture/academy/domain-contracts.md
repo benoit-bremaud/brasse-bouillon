@@ -71,7 +71,7 @@ export interface AcademyArticleMetadata {
   readonly sensitive: boolean;
   readonly riskTopics: readonly string[];
   readonly sources: readonly SourceReference[];
-  readonly review: AcademyReviewMetadata;
+  readonly review: AcademyReviewMetadata | null;
 }
 ```
 

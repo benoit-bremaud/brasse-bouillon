@@ -8,7 +8,7 @@ It is intentionally implementation-oriented.
 | ID | Need | Decision | Technical impact | Acceptance criteria | Priority |
 | --- | --- | --- | --- | --- | --- |
 | ACAD-REQ-001 | The Academy is a reference base, not the active tutorial. | Keep complete explanations in Academy and short contextual help in app flows. | Academy feature gets its own domain boundary. | Article pages can be opened independently from brew flows. | V1 |
-| ACAD-REQ-002 | Users need beginner-first explanations without losing depth. | Articles include levels and optional deeper sections. | Metadata includes `level`, `prerequisites`, `learningObjectives`, and `teaches`. | A beginner article can still link to advanced notes. | V1 |
+| ACAD-REQ-002 | Users need beginner-first explanations without losing depth. | Articles include levels and optional deeper sections. | Front matter includes `level`, `prerequisites`, `learning_objectives`, and `teaches`; generated payloads expose camelCase equivalents. | A beginner article can still link to advanced notes. | V1 |
 | ACAD-REQ-003 | Content must not remain hardcoded in screens. | Markdown/front matter is the canonical source. | Add parser, validator, and generated typed payloads. | New pilot articles render without article-specific JSX. | V1 |
 | ACAD-REQ-004 | The app must work offline for core Academy content. | Generated content is bundled in the mobile app. | Repository reads local generated payloads. | Pilot articles open without network access. | V1 |
 | ACAD-REQ-005 | Users need fast lookup on mobile. | Hub is search-first and category-aware. | Add local search index and compact mobile cards. | Search returns article and glossary results under normal mobile constraints. | V1 |

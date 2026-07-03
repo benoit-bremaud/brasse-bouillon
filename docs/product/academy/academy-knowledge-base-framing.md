@@ -130,6 +130,7 @@ Editorial front matter uses snake_case.
 Generated TypeScript payloads use camelCase.
 The content generator owns the mapping between both shapes.
 The source `slug` is promoted to `AcademyArticle.slug` in generated payloads.
+Glossary source `term` is mapped to `GlossaryTerm.label`.
 ```
 
 Allowed V1 block families:
@@ -140,6 +141,7 @@ Allowed V1 block families:
 - Tables.
 - Formulas.
 - Callouts.
+- Diagrams.
 - Calculator calls to action.
 - Glossary references.
 - Related article references.
@@ -249,6 +251,9 @@ related_articles: ["alcohol-density", "fermentation"]
 related_calculators: ["fermentescibles"]
 level: "beginner"
 ```
+
+Glossary source files use `term` as the editorial display field. Generated
+TypeScript payloads expose this value as `GlossaryTerm.label`.
 
 The glossary must be reusable by:
 

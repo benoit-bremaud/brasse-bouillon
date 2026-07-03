@@ -195,7 +195,8 @@ Each commit should keep a coherent review boundary.
 
 ## PR Strategy
 
-Do not open a PR until explicitly validated by the user.
+Do not start implementation work until the Academy design pack and ADR-0023 have
+been reviewed and accepted for the implementation slice.
 
 Recommended PR split:
 

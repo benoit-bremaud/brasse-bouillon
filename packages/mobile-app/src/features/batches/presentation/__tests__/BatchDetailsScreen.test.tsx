@@ -500,6 +500,18 @@ describe("BatchDetailsScreen", () => {
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
   });
 
+  it("surfaces an error and does not navigate when the batch cancel fails (F16, sad)", async () => {
+    (cancelBatch as jest.Mock).mockRejectedValueOnce(new Error("boom-cancel"));
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Annuler ce brassin"));
+    await pressDialogButton("Annuler le brassin");
+
+    // onError surfaces the error's own message over the fallback copy.
+    expect(await screen.findByText("boom-cancel")).toBeTruthy();
+    expect(mockReplace).not.toHaveBeenCalledWith("/batches");
+  });
+
   it("archives a completed batch after confirmation and navigates back (F25)", async () => {
     (archiveBatch as jest.Mock).mockClear();
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
@@ -514,6 +526,23 @@ describe("BatchDetailsScreen", () => {
 
     await waitFor(() => expect(archiveBatch).toHaveBeenCalledWith("b1"));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("surfaces an error and does not navigate when the batch archive fails (F25, sad)", async () => {
+    (archiveBatch as jest.Mock).mockRejectedValueOnce(
+      new Error("boom-archive"),
+    );
+    (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
+      viewModel({ ...mashBatch, status: "completed" }, "Ma recette test"),
+    );
+    renderBatchDetailsScreen();
+
+    fireEvent.press(await screen.findByLabelText("Archiver ce brassin"));
+    await pressDialogButton("Archiver");
+
+    // onError surfaces the error's own message over the fallback copy.
+    expect(await screen.findByText("boom-archive")).toBeTruthy();
+    expect(mockReplace).not.toHaveBeenCalledWith("/batches");
   });
 
   it("renders French status, step index, badges and phase labels", async () => {

@@ -1,0 +1,31 @@
+- slug: ibu
+  label: IBU
+  aliases:
+    - International Bitterness Units
+  short_definition: Bitterness estimate used for beer recipes.
+  detailed_definition: IBU estimates the concentration of bittering compounds contributed mostly by hops after boiling.
+  related_terms:
+    - acide-alpha
+  source_ids:
+    - palmer-2017
+
+- slug: acide-alpha
+  label: Acide alpha
+  aliases:
+    - alpha acid
+  short_definition: Hop resin contributing to beer bitterness.
+  detailed_definition: Alpha acids are hop compounds that isomerize during boiling and contribute bitterness.
+  related_terms:
+    - ibu
+  source_ids:
+    - palmer-2017
+
+- slug: profil-mineral
+  label: Profil mineral
+  aliases:
+    - water profile
+  short_definition: Mineral composition of brewing water.
+  detailed_definition: A mineral profile summarizes ions such as calcium, sulfate, chloride, sodium, magnesium, and bicarbonate.
+  related_terms: []
+  source_ids:
+    - brun-water-knowledge

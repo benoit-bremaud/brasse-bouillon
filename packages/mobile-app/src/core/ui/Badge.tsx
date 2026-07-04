@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextProps } from "react-native";
 
 import React from "react";
 
-type Variant = "neutral" | "info" | "success";
+type Variant = "neutral" | "info" | "success" | "warning" | "error";
 type Placement = "inline" | "corner";
 
 type Props = TextProps & {
@@ -41,6 +41,20 @@ const variantStyles: Record<Variant, { container: object; text: object }> = {
       borderColor: colors.semantic.success,
     },
     text: { color: colors.semantic.success },
+  },
+  warning: {
+    container: {
+      backgroundColor: colors.state.warningBackground,
+      borderColor: colors.semantic.warning,
+    },
+    text: { color: colors.semantic.warning },
+  },
+  error: {
+    container: {
+      backgroundColor: colors.state.errorBackground,
+      borderColor: colors.semantic.error,
+    },
+    text: { color: colors.semantic.error },
   },
 };
 

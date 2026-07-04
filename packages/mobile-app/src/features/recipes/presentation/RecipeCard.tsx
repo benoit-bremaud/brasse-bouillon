@@ -3,6 +3,7 @@ import { colors, radius, spacing, typography } from "@/core/theme";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
+import { DifficultyBadge } from "@/features/recipes/presentation/components/DifficultyBadge";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
@@ -89,6 +90,12 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
                 <Text style={styles.statItem}>{stats.volumeLiters}L</Text>
               </View>
             )}
+            {recipe.difficultyEffective ? (
+              <DifficultyBadge
+                level={recipe.difficultyEffective}
+                style={styles.difficultyBadge}
+              />
+            ) : null}
           </View>
           <Ionicons
             name="chevron-forward"
@@ -131,6 +138,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: spacing.xxs,
+  },
+  difficultyBadge: {
+    marginTop: spacing.xs,
   },
   statItem: {
     fontSize: typography.size.label,

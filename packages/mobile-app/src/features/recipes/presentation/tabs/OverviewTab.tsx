@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { BeerHero } from "@/features/scan/presentation/components/BeerHero";
 import { Card } from "@/core/ui/Card";
 import { colors, radius, spacing, typography } from "@/core/theme";
+import { DifficultyBadge } from "@/features/recipes/presentation/components/DifficultyBadge";
 import { RecipeProvenanceBadge } from "@/features/recipes/presentation/components/RecipeProvenanceBadge";
 import type {
   Recipe,
@@ -55,6 +56,16 @@ export function OverviewTab({
         style={styleLabel}
         colorEbc={colorEbc}
       />
+
+      {recipe.difficultyEffective ? (
+        <DifficultyBadge
+          level={recipe.difficultyEffective}
+          computed={recipe.difficultyComputed}
+          reasons={recipe.difficultyReasons}
+          interactive
+          style={styles.difficultyBadge}
+        />
+      ) : null}
 
       {stats ? (
         <Card style={styles.statsCard}>
@@ -159,6 +170,9 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
+  },
+  difficultyBadge: {
+    marginTop: spacing.md,
   },
   statsCard: {
     padding: spacing.md,

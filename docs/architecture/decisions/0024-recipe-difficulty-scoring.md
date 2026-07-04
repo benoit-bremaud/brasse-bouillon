@@ -1,7 +1,7 @@
 # ADR-0024 — Recipe brewing-difficulty badge: rule-based, max-dominates, backend-computed
 
-**Status** Proposed
-**Date** 2026-07-03
+**Status** Accepted
+**Date** 2026-07-03 (accepted 2026-07-04, on the Tranche B build landing: backend #1342 + mobile badge)
 **Owners** @benoit-bremaud
 
 ---

@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-04
+
+### PR #1342 merged (`45bdfd3`) — feat(api/recipe): brewing-difficulty compute + storage (Tranche B slices 1+2)
+
+- Branch `feat/recipe-difficulty-service`, 4 commits. Backend for the per-recipe brewing-difficulty badge (ADR-0024). **Slice 1** = pure `RecipeDifficultyDomainService` (rule-based, max-dominates + bounded compounding, factors F1 yeast / F2 gravity / F3 fault-tolerance lager-gated / F4 water / F5 mash *deferred* / F6 complexity, glossed FR tap-to-explain sentences). **Slice 2** = `RecipeDifficultyService` adapts a recipe + sub-entities → domain input (worst-case yeast reduction ordered by `created_at`, distinct fermentable/hop-variety counts) and persists `difficulty_computed` + `difficulty_reasons`; recompute wired into recipe create/update (in-tx) + import (after satellites) + all 15 ingredient mutations (ingredient path is fire-and-forget: logged, never fails a committed edit). 3 new `recipes` columns (migration 1808, `difficulty_computed` not-null `'facile'` default, `difficulty_override` nullable, `difficulty_reasons` nullable json, no backfill). DTOs expose effective = `override ?? computed` + reasons on `RecipeDto`/`PublicRecipeDto`; override accepted+validated on create/update.
+- Reviews — pre-push multi-lens adversarial workflow (5 lenses, skeptic-verified) + local `pr-pre-reviewer`: 2 MUST (recompute wiring at the 15 ingredient sites + via `updateMine` was untested — mutation-testing proved neutralising it kept the suite green) → integration tests through the real methods; 1 real bug (ingredient recompute failure surfaced as a 5xx on a committed edit) → swallowed+logged; import/override/effective-fallback coverage + spec §6 multi-yeast note added. Copilot round: deterministic yeast ordering + correct `Logger.warn` usage, both resolved. Full API suite green (956 tests, +10). **ADR-0024 stays Proposed** — promoted to Accepted + CLAUDE.md index with slice 3 (mobile badge).
+
 ## 2026-07-03
 
 ### PR #1340 merged (`1c55ab4`) — feat(mobile/demo): non-owned community recipe so community flows are demoable

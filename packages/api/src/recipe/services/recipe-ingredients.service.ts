@@ -60,9 +60,9 @@ export class RecipeIngredientsService {
     try {
       await this.difficulty.recomputeForRecipe(recipeId);
     } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
       this.logger.warn(
-        `Difficulty recompute failed for recipe ${recipeId}; it will self-heal on the next save`,
-        error instanceof Error ? error.stack : String(error),
+        `Difficulty recompute failed for recipe ${recipeId} (${reason}); it will self-heal on the next save`,
       );
     }
   }

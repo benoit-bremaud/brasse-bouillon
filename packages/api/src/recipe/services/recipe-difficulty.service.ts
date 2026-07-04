@@ -73,8 +73,11 @@ export class RecipeDifficultyService {
   ): Promise<DifficultyInput> {
     const recipeId = recipe.id;
     const [yeasts, water, fermentables, hops, additives] = await Promise.all([
+      // Ordered so the multi-yeast "first row within a class wins" reduction is
+      // deterministic (a bare find() has no defined row order).
       em.getRepository(RecipeYeastOrmEntity).find({
         where: { recipe_id: recipeId },
+        order: { created_at: 'ASC' },
       }),
       em.getRepository(RecipeWaterOrmEntity).findOne({
         where: { recipe_id: recipeId },

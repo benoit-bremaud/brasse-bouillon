@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RecipeAdditiveOrmEntity } from './entities/recipe-additive.orm.entity';
 import { RecipeController } from './controllers/recipe.controller';
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
 import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.entity';
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeIngredientsController } from './controllers/recipe-ingredients.controller';
@@ -30,7 +31,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ]),
   ],
   controllers: [RecipeController, RecipeIngredientsController],
-  providers: [RecipeService, RecipeIngredientsService, RecipeMatchingService],
+  providers: [
+    RecipeService,
+    RecipeDifficultyService,
+    RecipeIngredientsService,
+    RecipeMatchingService,
+  ],
   exports: [RecipeService],
 })
 export class RecipeModule {}

@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
+import { RecipeDifficultyReasonDto } from './recipe-difficulty-reason.dto';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
@@ -52,6 +54,33 @@ export class RecipeDto {
 
   @ApiPropertyOptional({ nullable: true })
   efficiency_target?: number | null;
+
+  // Brewing-difficulty badge (ADR-0024).
+  @ApiProperty({
+    enum: RecipeDifficultyLevel,
+    description: 'Backend-computed brewing difficulty (from recipe signals).',
+  })
+  difficulty_computed: RecipeDifficultyLevel;
+
+  @ApiPropertyOptional({
+    enum: RecipeDifficultyLevel,
+    nullable: true,
+    description: 'Author override of the computed difficulty, if set.',
+  })
+  difficulty_override?: RecipeDifficultyLevel | null;
+
+  @ApiProperty({
+    enum: RecipeDifficultyLevel,
+    description:
+      'Effective difficulty shown in the app: difficulty_override ?? difficulty_computed.',
+  })
+  difficulty_effective: RecipeDifficultyLevel;
+
+  @ApiProperty({
+    type: [RecipeDifficultyReasonDto],
+    description: 'Stored per-factor breakdown feeding the tap-to-explain.',
+  })
+  difficulty_reasons: RecipeDifficultyReasonDto[];
 
   // Quality fields feeding the scan matching algorithm (Epic #693 part 2).
   @ApiPropertyOptional({
@@ -118,6 +147,10 @@ export class RecipeDto {
       ibu_target: e.ibu_target ?? null,
       ebc_target: e.ebc_target ?? null,
       efficiency_target: e.efficiency_target ?? null,
+      difficulty_computed: e.difficulty_computed,
+      difficulty_override: e.difficulty_override ?? null,
+      difficulty_effective: e.difficulty_override ?? e.difficulty_computed,
+      difficulty_reasons: e.difficulty_reasons ?? [],
       avg_rating: e.avg_rating ?? null,
       brew_count: e.brew_count,
       last_brewed_at: e.last_brewed_at ?? null,

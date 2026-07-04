@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
+import { RecipeDifficultyReasonDto } from './recipe-difficulty-reason.dto';
 import { RecipeDto } from './recipe.dto';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
@@ -76,6 +78,19 @@ export class PublicRecipeDto implements Omit<RecipeDto, SensitiveFieldName> {
 
   @ApiPropertyOptional({ nullable: true })
   efficiency_target?: number | null;
+
+  // Brewing-difficulty badge (ADR-0024) — surfaced on catalog cards.
+  @ApiProperty({ enum: RecipeDifficultyLevel })
+  difficulty_computed: RecipeDifficultyLevel;
+
+  @ApiPropertyOptional({ enum: RecipeDifficultyLevel, nullable: true })
+  difficulty_override?: RecipeDifficultyLevel | null;
+
+  @ApiProperty({ enum: RecipeDifficultyLevel })
+  difficulty_effective: RecipeDifficultyLevel;
+
+  @ApiProperty({ type: [RecipeDifficultyReasonDto] })
+  difficulty_reasons: RecipeDifficultyReasonDto[];
 
   // Quality fields used by the matching algo + sorting/badging.
   @ApiPropertyOptional({ nullable: true })

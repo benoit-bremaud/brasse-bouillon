@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 
 import { RecipeService } from './recipe.service';
+import { RecipeDifficultyService } from './recipe-difficulty.service';
 import { RecipeAdditiveOrmEntity } from '../entities/recipe-additive.orm.entity';
 import { RecipeFermentableOrmEntity } from '../entities/recipe-fermentable.orm.entity';
 import { RecipeHopOrmEntity } from '../entities/recipe-hop.orm.entity';
@@ -33,6 +34,7 @@ import { UpsertRecipeWaterDto } from '../dtos/upsert-recipe-water.dto';
 export class RecipeIngredientsService {
   constructor(
     private readonly recipeService: RecipeService,
+    private readonly difficulty: RecipeDifficultyService,
     @InjectRepository(RecipeFermentableOrmEntity)
     private readonly fermentableRepo: Repository<RecipeFermentableOrmEntity>,
     @InjectRepository(RecipeHopOrmEntity)
@@ -44,6 +46,26 @@ export class RecipeIngredientsService {
     @InjectRepository(RecipeWaterOrmEntity)
     private readonly waterRepo: Repository<RecipeWaterOrmEntity>,
   ) {}
+
+  private readonly logger = new Logger(RecipeIngredientsService.name);
+
+  /**
+   * Recomputes the parent recipe's stored difficulty after an ingredient
+   * mutation (its fermentables/hops/yeast/water feed the score). Runs in its
+   * own connection (the mutation already committed); idempotent, so a failure
+   * here is swallowed (logged, never rethrown) rather than turning a successful
+   * ingredient edit into a 5xx — the difficulty self-heals on the next mutation.
+   */
+  private async refreshDifficulty(recipeId: string): Promise<void> {
+    try {
+      await this.difficulty.recomputeForRecipe(recipeId);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `Difficulty recompute failed for recipe ${recipeId} (${reason}); it will self-heal on the next save`,
+      );
+    }
+  }
 
   // ─── Fermentables ───────────────────────────────────────────────────────────
 
@@ -73,7 +95,9 @@ export class RecipeIngredientsService {
       potential_gravity: dto.potential_gravity ?? null,
       color_ebc: dto.color_ebc ?? null,
     });
-    return this.fermentableRepo.save(entity);
+    const saved = await this.fermentableRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async updateFermentable(
@@ -92,7 +116,9 @@ export class RecipeIngredientsService {
       entity.potential_gravity = dto.potential_gravity ?? null;
     if (dto.color_ebc !== undefined) entity.color_ebc = dto.color_ebc ?? null;
 
-    return this.fermentableRepo.save(entity);
+    const saved = await this.fermentableRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async removeFermentable(
@@ -108,6 +134,7 @@ export class RecipeIngredientsService {
     if (!result.affected) {
       throw new NotFoundException('Fermentable not found');
     }
+    await this.refreshDifficulty(recipeId);
     return { deleted: true };
   }
 
@@ -140,7 +167,9 @@ export class RecipeIngredientsService {
       addition_stage: dto.addition_stage,
       addition_time_min: dto.addition_time_min ?? null,
     });
-    return this.hopRepo.save(entity);
+    const saved = await this.hopRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async updateHop(
@@ -162,7 +191,9 @@ export class RecipeIngredientsService {
     if (dto.addition_time_min !== undefined)
       entity.addition_time_min = dto.addition_time_min ?? null;
 
-    return this.hopRepo.save(entity);
+    const saved = await this.hopRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async removeHop(
@@ -178,6 +209,7 @@ export class RecipeIngredientsService {
     if (!result.affected) {
       throw new NotFoundException('Hop not found');
     }
+    await this.refreshDifficulty(recipeId);
     return { deleted: true };
   }
 
@@ -210,7 +242,9 @@ export class RecipeIngredientsService {
       temperature_min_c: dto.temperature_min_c ?? null,
       temperature_max_c: dto.temperature_max_c ?? null,
     });
-    return this.yeastRepo.save(entity);
+    const saved = await this.yeastRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async updateYeast(
@@ -232,7 +266,9 @@ export class RecipeIngredientsService {
     if (dto.temperature_max_c !== undefined)
       entity.temperature_max_c = dto.temperature_max_c ?? null;
 
-    return this.yeastRepo.save(entity);
+    const saved = await this.yeastRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async removeYeast(
@@ -248,6 +284,7 @@ export class RecipeIngredientsService {
     if (!result.affected) {
       throw new NotFoundException('Yeast not found');
     }
+    await this.refreshDifficulty(recipeId);
     return { deleted: true };
   }
 
@@ -279,7 +316,9 @@ export class RecipeIngredientsService {
       addition_step: dto.addition_step,
       addition_time_min: dto.addition_time_min ?? null,
     });
-    return this.additiveRepo.save(entity);
+    const saved = await this.additiveRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async updateAdditive(
@@ -299,7 +338,9 @@ export class RecipeIngredientsService {
     if (dto.addition_time_min !== undefined)
       entity.addition_time_min = dto.addition_time_min ?? null;
 
-    return this.additiveRepo.save(entity);
+    const saved = await this.additiveRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async removeAdditive(
@@ -315,6 +356,7 @@ export class RecipeIngredientsService {
     if (!result.affected) {
       throw new NotFoundException('Additive not found');
     }
+    await this.refreshDifficulty(recipeId);
     return { deleted: true };
   }
 
@@ -349,7 +391,9 @@ export class RecipeIngredientsService {
       existing.sulfate_ppm = dto.sulfate_ppm ?? null;
       existing.chloride_ppm = dto.chloride_ppm ?? null;
       existing.ph_target = dto.ph_target ?? null;
-      return this.waterRepo.save(existing);
+      const saved = await this.waterRepo.save(existing);
+      await this.refreshDifficulty(recipeId);
+      return saved;
     }
 
     const entity = this.waterRepo.create({
@@ -364,7 +408,9 @@ export class RecipeIngredientsService {
       chloride_ppm: dto.chloride_ppm ?? null,
       ph_target: dto.ph_target ?? null,
     });
-    return this.waterRepo.save(entity);
+    const saved = await this.waterRepo.save(entity);
+    await this.refreshDifficulty(recipeId);
+    return saved;
   }
 
   async removeWater(
@@ -376,6 +422,7 @@ export class RecipeIngredientsService {
     if (!result.affected) {
       throw new NotFoundException('Water profile not found');
     }
+    await this.refreshDifficulty(recipeId);
     return { deleted: true };
   }
 

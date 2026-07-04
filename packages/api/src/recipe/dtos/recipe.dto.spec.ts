@@ -1,3 +1,4 @@
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
 import { RecipeOrmEntity } from '../entities/recipe.orm.entity';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 import { RecipeDto } from './recipe.dto';
@@ -22,6 +23,9 @@ function buildEntity(
     ibu_target: 40,
     ebc_target: 15,
     efficiency_target: 72,
+    difficulty_computed: RecipeDifficultyLevel.FACILE,
+    difficulty_override: null,
+    difficulty_reasons: null,
     avg_rating: null,
     brew_count: 0,
     last_brewed_at: null,
@@ -111,5 +115,41 @@ describe('RecipeDto.fromEntity — quality fields (Epic #693 part 2)', () => {
       expect(dto.avg_rating).toBeNull();
       expect(dto.last_brewed_at).toBeNull();
     });
+  });
+});
+
+describe('RecipeDto.fromEntity — difficulty (ADR-0024)', () => {
+  it('effective difficulty falls back to computed when no override is set', () => {
+    const dto = RecipeDto.fromEntity(
+      buildEntity({
+        difficulty_computed: RecipeDifficultyLevel.INTERMEDIAIRE,
+        difficulty_override: null,
+        difficulty_reasons: [{ factor: 'F1', tier: 1, sentence: 'x' }],
+      }),
+    );
+
+    expect(dto.difficulty_effective).toBe(RecipeDifficultyLevel.INTERMEDIAIRE);
+    expect(dto.difficulty_override).toBeNull();
+    expect(dto.difficulty_reasons).toEqual([
+      { factor: 'F1', tier: 1, sentence: 'x' },
+    ]);
+  });
+
+  it('effective difficulty is the author override when one is set', () => {
+    const dto = RecipeDto.fromEntity(
+      buildEntity({
+        difficulty_computed: RecipeDifficultyLevel.FACILE,
+        difficulty_override: RecipeDifficultyLevel.AVANCE,
+      }),
+    );
+
+    expect(dto.difficulty_effective).toBe(RecipeDifficultyLevel.AVANCE);
+    expect(dto.difficulty_override).toBe(RecipeDifficultyLevel.AVANCE);
+  });
+
+  it('defaults difficulty_reasons to [] when the row carries none', () => {
+    const dto = RecipeDto.fromEntity(buildEntity({ difficulty_reasons: null }));
+
+    expect(dto.difficulty_reasons).toEqual([]);
   });
 });

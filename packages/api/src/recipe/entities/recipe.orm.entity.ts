@@ -7,6 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { RecipeDifficultyLevel } from '../domain/enums/recipe-difficulty-level.enum';
+import { DifficultyReason } from '../domain/services/recipe-difficulty.types';
 import { RecipeVisibility } from '../domain/enums/recipe-visibility.enum';
 
 @Entity('recipes')
@@ -73,6 +75,32 @@ export class RecipeOrmEntity {
 
   @Column({ type: 'real', nullable: true })
   efficiency_target?: number | null;
+
+  // Brewing-difficulty badge (ADR-0024). Backend-computed from the recipe +
+  // its sub-entities on every create/update, plus an optional author override.
+  // The effective level shown in the app is `difficulty_override ?? difficulty_computed`.
+  @Column({
+    type: 'varchar',
+    length: 20,
+    enum: RecipeDifficultyLevel,
+    nullable: false,
+    default: RecipeDifficultyLevel.FACILE,
+  })
+  difficulty_computed: RecipeDifficultyLevel;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    enum: RecipeDifficultyLevel,
+    nullable: true,
+  })
+  difficulty_override?: RecipeDifficultyLevel | null;
+
+  // Stored per-factor breakdown feeding the tap-to-explain (read as-is, never
+  // recomputed client-side). Null on rows created before the feature; the
+  // application layer recomputes it on the next save.
+  @Column({ type: 'simple-json', nullable: true })
+  difficulty_reasons?: DifficultyReason[] | null;
 
   // Quality fields feeding the scan matching algorithm (Epic #693 part 2).
   // Denormalized aggregates + flag maintained by the recipe / batch / rating

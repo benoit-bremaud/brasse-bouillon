@@ -16,6 +16,16 @@ describe("demoRecipes — difficulty (ADR-0024)", () => {
     expect(overridden?.difficultyEffective).toBe("avance");
   });
 
+  it("edge: a recipe outside the curated set carries no difficulty (badge degrades away)", () => {
+    // r-demo-4 is intentionally absent from DEMO_DIFFICULTY — it stands in for a
+    // recipe created before the feature, so the badge must not render for it.
+    const bare = demoRecipes.find((r) => r.id === "r-demo-4");
+
+    expect(bare).toBeDefined();
+    expect(bare?.difficultyEffective).toBeUndefined();
+    expect(bare?.difficultyReasons).toBeUndefined();
+  });
+
   it("covers all three levels across the demo set (badge is demoable)", () => {
     const levels = new Set(
       demoRecipes

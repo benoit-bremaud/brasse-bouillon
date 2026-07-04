@@ -47,7 +47,11 @@ const variantStyles: Record<Variant, { container: object; text: object }> = {
       backgroundColor: colors.state.warningBackground,
       borderColor: colors.semantic.warning,
     },
-    text: { color: colors.semantic.warning },
+    // `semantic.warning` (#d9b364) is a decorative amber — used for the border
+    // only. The label needs a darker token to stay legible on the pale amber
+    // background (brand.secondary ≈ 5.3:1 vs the 1.8:1 of amber-on-amber), while
+    // reading distinct from the `error` variant's darker brown.
+    text: { color: colors.brand.secondary },
   },
   error: {
     container: {

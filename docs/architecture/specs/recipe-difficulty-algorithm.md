@@ -19,7 +19,10 @@ DifficultyLevel = "facile" | "intermediaire" | "avance"   // tiers 0 / 1 / 2
 effectiveDifficulty = difficultyOverride ?? difficultyComputed
 ```
 
-Badge colour: facile = green, intermediaire = amber, avance = red.
+Badge colour: a **brand traffic-light** in the app's warm charte (not literal RGB) — facile =
+olive-green, intermediaire = amber, avance = terracotta. The mobile maps each level onto the
+design-system semantic tokens (`success` / `warning` / `error`); label text is darkened off the
+decorative amber so every pill clears WCAG AA (ADR-0024 D4, slice 3 decision 2026-07-04).
 
 `yeastClass` is derived **once** from `RecipeYeastType` (`ale | lager | wild | brett`) and used by
 several factors, so a factor never doubles as a category (kept separate from the integer tiers):

@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-05
 
+### PR #1346 merged (`f78e22b`) — feat(mobile/recipes): default the Brassage tab to the recipe's own steps (ADR-0024 D5)
+
+- Branch `feat/brewing-tab-recipe-steps-default`, 1 commit. **ADR-0024 D5 (part a)**: the recipe detail's Brassage tab now defaults its process-display mode to `recipe` (« Étapes de la recette » — this recipe's own steps) instead of `phases` (the generic brewing-phase glossary), and the toggle chips are reordered so the default leads. The novice lands on what to do for the recipe in front of them. The glossary stays reachable as a non-default mode; **D5 part b (move « Phases de brassage » to the Academy) is deferred to the Academy epic #1333.** Empty-steps recipes keep the pre-existing empty-state hint.
+- Reviews — local `pr-pre-reviewer` (0 Must / 0 Should; 1 Nice applied — dropped a redundant press on the now-default chip). Full mobile suite green (1218); verified live on the emulator (Brassage opens on the recipe's steps).
+
 ### PR #1344 merged (`105a0b3`) — feat(mobile/recipes): brewing-difficulty badge + tap-to-explain (Tranche B slice 3)
 
 - Branch `feat/recipe-difficulty-badge-mobile`, 5 commits. The **mobile** half of the difficulty badge (ADR-0024) — the user-visible completion of Tranche B (backend was #1342). Mobile is a **pure consumer**: renders `difficultyEffective` (= override ?? computed) + stored `difficultyReasons`, never scores. Extends the generic `core/ui/Badge` (warning/error variants); new `DifficultyBadge` (level → brand-palette variant + FR label) — display-only on list cards (no nested touchable), interactive on the recipe « Vue » where a tap opens a read-only `DifficultyExplainModal` (reasons + a « calculé : … » hint on override). `Recipe` type + `mapRecipe` gain the 4 difficulty fields (snake→camel, all optional); demo data carries a pre-computed difficulty on a representative subset (3 levels + one override). **ADR-0024 promoted Proposed → Accepted + added to the CLAUDE.md index** (build landed).

@@ -22,12 +22,15 @@ export const RECIPE_VOLUME_INPUT_MODES: {
 
 export type RecipeProcessDisplayMode = "phases" | "recipe" | "compact";
 
+// Order matters: the leading chip is the default view (ADR-0024 D5) — the
+// recipe's own steps come first, the generic brewing-phase glossary second
+// (it moves to the Academy later, epic #1333), the compact summary last.
 export const RECIPE_PROCESS_DISPLAY_OPTIONS: {
   id: RecipeProcessDisplayMode;
   label: string;
 }[] = [
-  { id: "phases", label: "Phases de brassage" },
   { id: "recipe", label: "Étapes de la recette" },
+  { id: "phases", label: "Phases de brassage" },
   { id: "compact", label: "Condensé" },
 ];
 

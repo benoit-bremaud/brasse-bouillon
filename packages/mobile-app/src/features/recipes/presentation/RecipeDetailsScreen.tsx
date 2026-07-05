@@ -137,8 +137,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   const [targetVolumeLiters, setTargetVolumeLiters] = useState(
     DEFAULT_TARGET_VOLUME_LITRES,
   );
+  // Default to THIS recipe's own steps rather than the generic brewing-phase
+  // glossary (ADR-0024 D5): a novice should land on what to do for the recipe in
+  // front of them. The glossary stays reachable as a non-default mode until it
+  // moves to the Academy (pending the Academy epic #1333).
   const [processDisplayMode, setProcessDisplayMode] =
-    useState<RecipeProcessDisplayMode>("phases");
+    useState<RecipeProcessDisplayMode>("recipe");
 
   const [selectedLocalWaterProfileName, setSelectedLocalWaterProfileName] =
     useState(DEFAULT_LOCAL_WATER_PROFILE_NAME);

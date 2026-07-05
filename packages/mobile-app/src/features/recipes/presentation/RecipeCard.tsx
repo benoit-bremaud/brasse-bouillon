@@ -90,7 +90,7 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
                 <Text style={styles.statItem}>{stats.volumeLiters}L</Text>
               </View>
             )}
-            {recipe.difficultyEffective ? (
+            {recipe.difficultyEffective && recipe.difficultyReasons?.length ? (
               <DifficultyBadge
                 level={recipe.difficultyEffective}
                 style={styles.difficultyBadge}

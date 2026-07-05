@@ -57,7 +57,11 @@ export function OverviewTab({
         colorEbc={colorEbc}
       />
 
-      {recipe.difficultyEffective ? (
+      {/* Gate on `reasons`, not just `difficultyEffective`: the backend defaults
+          pre-feature rows to `facile` with empty reasons (migration, no backfill),
+          so a genuinely-computed recipe always carries ≥1 reason while an
+          un-recomputed placeholder carries none — no misleading badge for it. */}
+      {recipe.difficultyEffective && recipe.difficultyReasons?.length ? (
         <DifficultyBadge
           level={recipe.difficultyEffective}
           computed={recipe.difficultyComputed}

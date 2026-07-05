@@ -9,7 +9,8 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ### PR #1348 merged (`4571eee`) — fix(mobile/ui): demo/live nav parity — drop the demo-only « Communauté » tab
 
-- Branch `fix/nav-footer-demo-live-parity`, 1 commit. The bottom nav diverged between demo and live: demo inserted a « Communauté » tab (a soutenance-era teaser for the social feature deferred to v0.2), absent in live/prod — spotted by the founder testing the demo APK (#1344's build). The demo must represent the real app, so the nav is now identical in both modes (Accueil · Brassins · Recettes · Scan · Académie · Profil); removed the demo-only branch + `COMMUNITY_NAV_ITEM`, the footer no longer reads the demo flag. Regression guard added; verified live on the emulator. The now-orphaned `/social` placeholder route (`app/(app)/social.tsx`) is flagged for a separate dead-code cleanup. Full mobile suite green (1219). Local `pr-pre-reviewer` skipped for this small removal; CI + guard cover it.
+- Branch `fix/nav-footer-demo-live-parity`, 1 commit. The bottom nav diverged between demo and live: demo inserted a « Communauté » tab (a soutenance-era teaser for the social feature deferred to v0.2), absent in live/prod — spotted by the founder testing the demo APK (#1344's build). The demo must represent the real app, so the nav is now identical in both modes (Accueil · Brassins · Recettes · Scan · Académie · Profil); removed the demo-only branch + `COMMUNITY_NAV_ITEM`, the footer no longer reads the demo flag. The now-orphaned `/social` placeholder route (`app/(app)/social.tsx`) is flagged for a separate dead-code cleanup.
+- Reviews — local `pr-pre-reviewer` skipped for this small removal (CI + the added regression guard cover it); verified live on the emulator (demo footer now shows the six live items). Full mobile suite green (1219).
 
 ### PR #1346 merged (`f78e22b`) — feat(mobile/recipes): default the Brassage tab to the recipe's own steps (ADR-0024 D5)
 

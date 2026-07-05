@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-05
 
+### PR #1348 merged (`4571eee`) — fix(mobile/ui): demo/live nav parity — drop the demo-only « Communauté » tab
+
+- Branch `fix/nav-footer-demo-live-parity`, 1 commit. The bottom nav diverged between demo and live: demo inserted a « Communauté » tab (a soutenance-era teaser for the social feature deferred to v0.2), absent in live/prod — spotted by the founder testing the demo APK (#1344's build). The demo must represent the real app, so the nav is now identical in both modes (Accueil · Brassins · Recettes · Scan · Académie · Profil); removed the demo-only branch + `COMMUNITY_NAV_ITEM`, the footer no longer reads the demo flag. The now-orphaned `/social` placeholder route (`app/(app)/social.tsx`) is flagged for a separate dead-code cleanup.
+- Reviews — local `pr-pre-reviewer` skipped for this small removal (CI + the added regression guard cover it); verified live on the emulator (demo footer now shows the six live items). Full mobile suite green (1219).
+
 ### PR #1346 merged (`f78e22b`) — feat(mobile/recipes): default the Brassage tab to the recipe's own steps (ADR-0024 D5)
 
 - Branch `feat/brewing-tab-recipe-steps-default`, 1 commit. **ADR-0024 D5 (part a)**: the recipe detail's Brassage tab now defaults its process-display mode to `recipe` (« Étapes de la recette » — this recipe's own steps) instead of `phases` (the generic brewing-phase glossary), and the toggle chips are reordered so the default leads. The novice lands on what to do for the recipe in front of them. The glossary stays reachable as a non-default mode; **D5 part b (move « Phases de brassage » to the Academy) is deferred to the Academy epic #1333.** Empty-steps recipes keep the pre-existing empty-state hint.

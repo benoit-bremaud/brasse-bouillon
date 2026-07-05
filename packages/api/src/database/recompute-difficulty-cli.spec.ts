@@ -84,4 +84,13 @@ describe('backfillRecipeDifficulty', () => {
 
     expect(result).toEqual({ total: 2, recomputed: 1 });
   });
+
+  it('sad: propagates a recompute failure so the operator gets a non-zero exit', async () => {
+    recompute.mockRejectedValueOnce(new Error('db boom'));
+    const { dataSource } = buildDataSource(true, [{ id: 'r1' }, { id: 'r2' }]);
+
+    await expect(backfillRecipeDifficulty(dataSource)).rejects.toThrow(
+      'db boom',
+    );
+  });
 });

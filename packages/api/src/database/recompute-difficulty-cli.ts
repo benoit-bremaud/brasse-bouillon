@@ -37,8 +37,10 @@ export interface RecipeDifficultyBackfillSummary {
 
 /**
  * Recomputes and persists the difficulty of every recipe. The caller owns the
- * DataSource lifecycle; this initialises it if needed (which also applies any
- * pending migrations, `migrationsRun: true`) but never destroys it.
+ * DataSource lifecycle: this initialises it if needed but never destroys it.
+ * (Whether `initialize()` also applies pending migrations depends on the
+ * DataSource's own `migrationsRun` option — the CLI's, built by
+ * `buildTypeOrmOptions()`, has it on; see `bootstrap`.)
  */
 export async function backfillRecipeDifficulty(
   dataSource: DataSource,
@@ -63,8 +65,10 @@ export async function backfillRecipeDifficulty(
 }
 
 /**
- * CLI bootstrap: build a runtime DataSource, run the backfill, and always
- * release the connection. Exits non-zero on failure so the operator sees it.
+ * CLI bootstrap: build a runtime DataSource (`migrationsRun: true`, so
+ * `initialize()` applies any pending migrations first), run the backfill, and
+ * always release the connection. Exits non-zero on failure so the operator
+ * sees it.
  */
 async function bootstrap(): Promise<void> {
   const dataSource = new DataSource(buildTypeOrmOptions());

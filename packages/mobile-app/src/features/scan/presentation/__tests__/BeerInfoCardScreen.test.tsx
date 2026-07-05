@@ -556,10 +556,16 @@ describe("BeerInfoCardScreen", () => {
       await confirmImportInDialog(); // fires the (pending) import
 
       await waitFor(() => expect(mockedImport).toHaveBeenCalledTimes(1));
-      // Flush the pending-state re-render so the handlers observe isPending=true.
-      await act(async () => {
-        await Promise.resolve();
-      });
+      // Wait for the pending-state re-render to LAND before retrying — a single
+      // micro-task flush was racy under CI (the handler could still observe the
+      // stale isPending=false and fire a 2nd import). The row surfaces its busy
+      // state via accessibilityState.disabled, so poll on that: deterministic.
+      await waitFor(() =>
+        expect(
+          screen.getByLabelText(/Importer Session IPA Citra/).props
+            .accessibilityState?.disabled,
+        ).toBe(true),
+      );
 
       // Second attempt while the first is still pending. Whether the top-of-
       // handler guard blocks the dialog or the post-confirm `!isPending` re-check

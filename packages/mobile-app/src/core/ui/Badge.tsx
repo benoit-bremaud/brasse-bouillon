@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextProps } from "react-native";
 
 import React from "react";
 
-type Variant = "neutral" | "info" | "success";
+type Variant = "neutral" | "info" | "success" | "warning" | "error";
 type Placement = "inline" | "corner";
 
 type Props = TextProps & {
@@ -41,6 +41,24 @@ const variantStyles: Record<Variant, { container: object; text: object }> = {
       borderColor: colors.semantic.success,
     },
     text: { color: colors.semantic.success },
+  },
+  warning: {
+    container: {
+      backgroundColor: colors.state.warningBackground,
+      borderColor: colors.semantic.warning,
+    },
+    // `semantic.warning` (#d9b364) is a decorative amber — used for the border
+    // only. The label needs a darker token to stay legible on the pale amber
+    // background (brand.secondary ≈ 5.3:1 vs the 1.8:1 of amber-on-amber), while
+    // reading distinct from the `error` variant's darker brown.
+    text: { color: colors.brand.secondary },
+  },
+  error: {
+    container: {
+      backgroundColor: colors.state.errorBackground,
+      borderColor: colors.semantic.error,
+    },
+    text: { color: colors.semantic.error },
   },
 };
 

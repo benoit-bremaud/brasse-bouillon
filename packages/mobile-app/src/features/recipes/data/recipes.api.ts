@@ -1,6 +1,11 @@
 import { request } from "@/core/http/http-client";
 
-import { Recipe, RecipeStep } from "../domain/recipe.types";
+import {
+  Recipe,
+  RecipeDifficultyLevel,
+  RecipeDifficultyReason,
+  RecipeStep,
+} from "../domain/recipe.types";
 
 type RecipeDto = {
   id: string;
@@ -24,6 +29,13 @@ type RecipeDto = {
   abv_estimated?: number | null;
   ibu_target?: number | null;
   ebc_target?: number | null;
+  // Brewing-difficulty badge (ADR-0024). Backend-computed; the effective level
+  // = `difficulty_override ?? difficulty_computed`. `difficulty_reasons` feeds
+  // the tap-to-explain (rendered as-is, never recomputed client-side).
+  difficulty_computed?: RecipeDifficultyLevel | null;
+  difficulty_override?: RecipeDifficultyLevel | null;
+  difficulty_effective?: RecipeDifficultyLevel | null;
+  difficulty_reasons?: RecipeDifficultyReason[] | null;
   created_at: string;
   updated_at: string;
 };
@@ -51,6 +63,10 @@ export function mapRecipe(dto: RecipeDto): Recipe {
     rootRecipeId: dto.root_recipe_id,
     parentRecipeId: dto.parent_recipe_id ?? null,
     stats: mapRecipeStats(dto),
+    difficultyComputed: dto.difficulty_computed ?? undefined,
+    difficultyOverride: dto.difficulty_override ?? null,
+    difficultyEffective: dto.difficulty_effective ?? undefined,
+    difficultyReasons: dto.difficulty_reasons ?? undefined,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

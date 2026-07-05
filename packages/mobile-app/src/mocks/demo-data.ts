@@ -3,7 +3,12 @@ import {
   BatchStep,
   BatchSummary,
 } from "@/features/batches/domain/batch.types";
-import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
+import {
+  Recipe,
+  RecipeDifficultyLevel,
+  RecipeDifficultyReason,
+  RecipeStep,
+} from "@/features/recipes/domain/recipe.types";
 
 import { User } from "@/features/auth/domain/auth.types";
 import { HopProduct } from "@/features/ingredients/domain/hop.types";
@@ -1271,7 +1276,7 @@ export const demoRecipeSteps: RecipeStep[] = [
   },
 ];
 
-export const demoRecipes: Recipe[] = [
+const demoRecipesSeed: Recipe[] = [
   {
     id: "r-demo-1",
     ownerId: demoUsers[0].id,
@@ -2357,6 +2362,91 @@ export const demoRecipes: Recipe[] = [
     updatedAt: "2026-05-01T10:00:00.000Z",
   },
 ];
+
+// Pre-computed difficulty for a representative subset of the demo recipes, as
+// the backend would store it (the mobile never computes difficulty — ADR-0024).
+// Covers the three levels + one author override, so the badge + tap-to-explain
+// are demonstrable in demo mode. Recipes not listed here intentionally carry no
+// badge (they stand in for recipes created before the feature).
+const FACILE_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "facile",
+    tier: 0,
+    sentence:
+      "Recette accessible : fermentation haute, densité modérée, pas de technique avancée — idéale pour un premier brassin.",
+  },
+];
+const GRAVITY_MODERATE_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F2",
+    tier: 1,
+    sentence:
+      "bière assez forte : il y a beaucoup de sucres à transformer, la fermentation demande plus d'attention",
+  },
+];
+const LAGER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F1",
+    tier: 1,
+    sentence:
+      "elle fermente au froid (≈10 °C) puis se garde plusieurs semaines : il te faut de quoi refroidir et de la patience",
+  },
+];
+const PALE_LAGER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F3",
+    tier: 2,
+    sentence:
+      "une lager blonde et nette : ni houblon fort ni malt torréfié pour cacher un défaut — la moindre erreur se voit tout de suite",
+  },
+  ...LAGER_REASONS,
+];
+const BIG_BEER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F2",
+    tier: 2,
+    sentence:
+      "grosse bière : il faut BEAUCOUP de levure au départ (un « pied de levure »), sinon la fermentation risque de s'arrêter avant la fin",
+  },
+];
+
+const DEMO_DIFFICULTY: Record<
+  string,
+  {
+    computed: RecipeDifficultyLevel;
+    override?: RecipeDifficultyLevel;
+    reasons: RecipeDifficultyReason[];
+  }
+> = {
+  "r-demo-community-1": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-1": { computed: "intermediaire", reasons: GRAVITY_MODERATE_REASONS },
+  "r-demo-2": { computed: "avance", reasons: BIG_BEER_REASONS },
+  "r-demo-3": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-5": { computed: "intermediaire", reasons: LAGER_REASONS },
+  // Author override: computed Intermédiaire, the author bumped it to Avancé —
+  // the modal shows « calculé : Intermédiaire ».
+  "r-demo-8": {
+    computed: "intermediaire",
+    override: "avance",
+    reasons: GRAVITY_MODERATE_REASONS,
+  },
+  "r-demo-11": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-brewdog-diy-dog": { computed: "avance", reasons: PALE_LAGER_REASONS },
+};
+
+export const demoRecipes: Recipe[] = demoRecipesSeed.map((recipe) => {
+  const difficulty = DEMO_DIFFICULTY[recipe.id];
+  if (!difficulty) {
+    return recipe;
+  }
+  return {
+    ...recipe,
+    difficultyComputed: difficulty.computed,
+    difficultyOverride: difficulty.override ?? null,
+    difficultyEffective: difficulty.override ?? difficulty.computed,
+    difficultyReasons: difficulty.reasons,
+  };
+});
 
 /**
  * Steps for the "La Première du dimanche" fil-rouge batches.

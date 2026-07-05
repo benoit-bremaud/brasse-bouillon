@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-05
 
+### PR #1350 merged (`0126536`) — feat(api/db): one-off difficulty backfill CLI (recompute existing recipes)
+
+- Branch `feat/api-difficulty-backfill-cli`, 2 commits. Migration 1808 added the difficulty columns with **no backfill**, so pre-feature recipes are `'facile'` placeholders with empty reasons — and the mobile hides the badge for those (gates on `difficulty_reasons`). New/edited recipes recompute on save, but existing ones stay placeholders until touched. Adds `recompute-difficulty-cli` (mirrors `seed-cli`): compiles to `dist/database/recompute-difficulty-cli.js`, runs on the Fly app machine via `fly ssh console --app brasse-bouillon-api -C "node dist/database/recompute-difficulty-cli.js"`, recomputes+persists every recipe's difficulty by reusing `RecipeDifficultyService` verbatim (no duplicated logic). Idempotent. Prep for the prod-representative live APK: deploy → backfill → the badge renders on the real catalogue. **Not yet run in prod** (needs the operator to deploy + run it).
+- Reviews — unit-tested H/S/E (5 cases, using the same DataSource-mocking approach as `seed-cli.spec`), CI green. Copilot round: JSDoc corrected (the function doesn't itself run migrations — that's the DataSource's `migrationsRun` option) + a recompute-failure propagation test added; both resolved.
+
 ### PR #1348 merged (`4571eee`) — fix(mobile/ui): demo/live nav parity — drop the demo-only « Communauté » tab
 
 - Branch `fix/nav-footer-demo-live-parity`, 1 commit. The bottom nav diverged between demo and live: demo inserted a « Communauté » tab (a soutenance-era teaser for the social feature deferred to v0.2), absent in live/prod — spotted by the founder testing the demo APK (#1344's build). The demo must represent the real app, so the nav is now identical in both modes (Accueil · Brassins · Recettes · Scan · Académie · Profil); removed the demo-only branch + `COMMUNITY_NAV_ITEM`, the footer no longer reads the demo flag. The now-orphaned `/social` placeholder route (`app/(app)/social.tsx`) is flagged for a separate dead-code cleanup.

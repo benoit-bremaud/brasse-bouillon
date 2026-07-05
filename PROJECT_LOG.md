@@ -5,6 +5,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-05
+
+### PR #1344 merged (`105a0b3`) — feat(mobile/recipes): brewing-difficulty badge + tap-to-explain (Tranche B slice 3)
+
+- Branch `feat/recipe-difficulty-badge-mobile`, 5 commits. The **mobile** half of the difficulty badge (ADR-0024) — the user-visible completion of Tranche B (backend was #1342). Mobile is a **pure consumer**: renders `difficultyEffective` (= override ?? computed) + stored `difficultyReasons`, never scores. Extends the generic `core/ui/Badge` (warning/error variants); new `DifficultyBadge` (level → brand-palette variant + FR label) — display-only on list cards (no nested touchable), interactive on the recipe « Vue » where a tap opens a read-only `DifficultyExplainModal` (reasons + a « calculé : … » hint on override). `Recipe` type + `mapRecipe` gain the 4 difficulty fields (snake→camel, all optional); demo data carries a pre-computed difficulty on a representative subset (3 levels + one override). **ADR-0024 promoted Proposed → Accepted + added to the CLAUDE.md index** (build landed).
+- Reviews — adversarial multi-lens workflow + pr-pre-reviewer + Copilot. **MUST (a11y)**: the amber `warning` badge text was illegible on the amber bg (1.8:1) → darkened to `brand.secondary` (~5.3:1), border stays amber; **verified live on the emulator**. **Palette reconciled** to the brand traffic-light (olive/amber/terracotta), ADR-0024 D4 + spec updated (founder decision 2026-07-04). **Copilot**: badge gated on `difficultyReasons?.length` (not just the level) so a backend placeholder — un-recomputed row defaulting to `facile` + empty reasons — degrades away instead of a misleading pill. **CI de-flake**: the pre-existing concurrent-import guard test (#1337) was flaky under CI (single micro-task flush) → deterministic `waitFor` on the row's busy state. Live-verified end-to-end (badge on Vue + tap-to-explain, cards across 3 levels, override « Avancé », no badge for un-computed rows). Full mobile suite green (1217+). **Tranche B (difficulty) is complete.**
+
 ## 2026-07-04
 
 ### PR #1342 merged (`45bdfd3`) — feat(api/recipe): brewing-difficulty compute + storage (Tranche B slices 1+2)

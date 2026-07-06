@@ -5,6 +5,18 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-06
+
+### PR #1352 merged (`6595786`) — fix(api/water): restore the Hub'Eau water-quality check (v1 API contract drift)
+
+- Branch `fix/hubeau-water-quality-field-names`, 2 commits. Hub'Eau v1 silently renamed the `communes_udi`/`resultats_dis` response fields (`code_udi`→`code_reseau`, `nom_udi`→`nom_reseau`, `nom_parametre`→`libelle_parametre`, `..._pc`→`conformite_limites_pc_prelevement`) and dropped `nb_prelevements`, so the water check returned nothing. Provider now tracks the current shapes, fetches the brewing ions by SANDRE `code_parametre` (Ca/Mg/SO4/Cl/HCO3 — a generic size-N page missed Ca/Mg entirely), and picks the dominant network by a 3-tier rule (highest « NN% » coverage → commune-name match → first record, `nb_prelevements` being gone). Aggregation label→ion matching tightened: `chlorures` no longer sweeps chlorinated compounds/pesticides, `hydrogenocarbonates` now captures HCO3 (was `bicarbonate`, never matched). Foundation brick for the prep-readiness « eau » checks epic. Live E2E: Lille (59350) → Ca 114.8 / Mg 22.8 / Cl 50.3 / SO4 106.4 / HCO3 341.5 mg/L, hardness 124.1°f.
+- Reviews — pre-push `pr-pre-reviewer` (0 Must / 3 Should / 2 Nice / 1 intentional Disagree): all Should (coverage tie-break + `selectDominantRecord` edge tests) and the shared-helper Nice implemented — duplicated NFD/diacritic normalizer extracted to `common/normalize-french-label.ts`; `foldStyleKey` left distinct (extra apostrophe/whitespace folding). Copilot: 0 inline comments. `nest build` green; water suite 25/25; full CI green.
+
+### PR #1353 merged (`fafc75f`) — refactor(mobile): remove the orphaned /social route + SocialFeedScreen mockup
+
+- Branch `refactor/remove-orphaned-social-route`, 1 commit. Dead-code cleanup flagged by #1348: once the demo-only « Communauté » nav tab was dropped, the `app/(app)/social.tsx` route, the `src/features/social/` SocialFeedScreen mockup (a soutenance-era placeholder), and the `<Tabs.Screen name="social">` entry in the app layout were all unreferenced. Removed. Mobile suite + tsc + lint green.
+- Reviews — refactor-only removal; CI green.
+
 ## 2026-07-05
 
 ### PR #1350 merged (`0126536`) — feat(api/db): one-off difficulty backfill CLI (recompute existing recipes)

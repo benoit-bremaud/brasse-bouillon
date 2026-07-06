@@ -9,6 +9,7 @@ import {
   NonPublicWaterPreference,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import { WATER_METRIC_LABELS } from "@/features/recipes/presentation/recipe-details.utils";
+import { LocalWaterByPostalCode } from "@/features/recipes/presentation/components/LocalWaterByPostalCode";
 import {
   WATER_LOCATION_PROFILES,
   WATER_STYLE_PRESETS,
@@ -189,6 +190,8 @@ export function WaterTab(props: WaterTabProps) {
                 );
               })}
             </View>
+
+            <LocalWaterByPostalCode />
 
             <View style={styles.compatibilityCard}>
               <Text style={styles.compatibilityTitle}>

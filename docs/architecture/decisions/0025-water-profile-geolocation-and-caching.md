@@ -176,9 +176,14 @@ the user's own location). **C** front-loads analytics screens the feature doesn'
 - **Freshness** = honest **year + conformity** for now ("Analyses <année> — eau conforme, source
   ARS via Hub'Eau"); the exact **dated** freshness pastille arrives with slice-2 (when the DTO
   carries `max(date_prelevement)`). **Never** show a fetch-date as if it were the data currency.
-- **Compatibility** = **reuse the existing global 0–100 score** (`recipe-details.utils`) fed by
-  the live profile instead of a preset. Per-ion %, mineral-water %, and the salt engine stay in
-  later epic slices. **Do not touch** the client-side salts helper
+- **Compatibility** = **deferred to a follow-up slice** (revised at build time). The intent was
+  to reuse the existing global 0–100 score (`recipe-details.utils`), but that function iterates
+  all **6** ions **including sodium** and coerces `null → 0` (`Math.abs(actual − recommended)`);
+  fed the live profile (no Na + nullable ions) it would produce a **confidently-wrong** score —
+  the exact silent-wrong trap this ADR forbids. Slice-1 therefore renders the **raw local
+  profile only**; the score returns once it is adapted to nullable / 5-ion profiles (this also
+  defers `UC3` "compare to the recipe target" to that slice). Per-ion %, mineral-water %, and the
+  salt engine stay in later epic slices. **Do not touch** the client-side salts helper
   (`helpers/water-mineral-salts.ts`) — it contradicts "water-math = backend".
 - **Missing/partial data** = an explicit "donnée partielle / ion non mesuré" state, **distinct**
   from "non conforme" and from "conforme", so blanks never read as either.

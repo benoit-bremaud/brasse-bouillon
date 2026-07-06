@@ -50,4 +50,25 @@ describe("AcademyHubScreen", () => {
       params: { slug: "histoire" },
     });
   });
+
+  it("filters academy cards from the local search field", () => {
+    render(<AcademyHubScreen />);
+
+    fireEvent.changeText(screen.getByTestId("academy-search-input"), "houblon");
+
+    expect(screen.getByText("Houblons")).toBeTruthy();
+    expect(screen.queryByText("Histoire de la bière")).toBeNull();
+  });
+
+  it("clears the academy search field", () => {
+    render(<AcademyHubScreen />);
+
+    fireEvent.changeText(screen.getByTestId("academy-search-input"), "zzzz");
+    expect(screen.getByText("Aucun résultat")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("academy-search-clear"));
+
+    expect(screen.getByText("Histoire de la bière")).toBeTruthy();
+    expect(screen.queryByText("Aucun résultat")).toBeNull();
+  });
 });

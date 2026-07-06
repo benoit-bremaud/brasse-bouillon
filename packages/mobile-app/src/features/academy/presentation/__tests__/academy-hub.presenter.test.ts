@@ -2,6 +2,7 @@ import { AcademyArticle } from "../../domain";
 import {
   AcademyLegacyHubTopic,
   createAcademyHubCards,
+  filterAcademyHubCards,
 } from "../academy-hub.presenter";
 
 const article: AcademyArticle = {
@@ -121,5 +122,17 @@ describe("createAcademyHubCards", () => {
       hasCalculator: false,
       source: "generated",
     });
+  });
+
+  it("filters hub cards with normalized title, summary, focus, and slug text", () => {
+    const cards = createAcademyHubCards([article], legacyTopics);
+
+    expect(filterAcademyHubCards(cards, "ingredients")).toEqual([
+      expect.objectContaining({ slug: "houblons" }),
+    ]);
+    expect(filterAcademyHubCards(cards, "INTRO")).toEqual([
+      expect.objectContaining({ slug: "introduction" }),
+    ]);
+    expect(filterAcademyHubCards(cards, "unknown")).toEqual([]);
   });
 });

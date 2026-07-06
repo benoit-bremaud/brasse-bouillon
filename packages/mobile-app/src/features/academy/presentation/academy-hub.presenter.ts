@@ -59,6 +59,23 @@ export function createAcademyHubCards(
   );
 }
 
+export function filterAcademyHubCards(
+  cards: readonly AcademyHubCardViewModel[],
+  query: string,
+): readonly AcademyHubCardViewModel[] {
+  const normalizedQuery = normalizeSearchValue(query).trim();
+
+  if (!normalizedQuery) {
+    return cards;
+  }
+
+  return cards.filter((card) =>
+    [card.slug, card.title, card.summary, card.focus, card.estimatedReadTime]
+      .map(normalizeSearchValue)
+      .some((value) => value.includes(normalizedQuery)),
+  );
+}
+
 function createGeneratedHubCard(
   article: AcademyArticle,
   fallback: AcademyLegacyHubTopic,
@@ -119,4 +136,11 @@ function createCategoryLabel(category: AcademyArticle["metadata"]["category"]) {
     case "glossary":
       return "Glossaire";
   }
+}
+
+function normalizeSearchValue(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
 }

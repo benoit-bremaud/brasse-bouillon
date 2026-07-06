@@ -110,6 +110,114 @@ describe('HubeauWaterQualityProvider', () => {
     expect(result).toEqual({ code: 'R-1', name: 'Syndicat A' });
   });
 
+  it('prefers the network with the highest « NN% » population coverage', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({
+          data: [
+            // Same latest year: the commune-named one would win by rule 2, but a
+            // higher coverage figure on another network takes precedence (rule 1).
+            {
+              code_reseau: 'R-1',
+              nom_reseau: 'TOULOUSE',
+              nom_commune: 'TOULOUSE',
+              nom_quartier: '30 % de la population',
+              annee: '2024',
+            },
+            {
+              code_reseau: 'R-2',
+              nom_reseau: 'Réseau sud',
+              nom_commune: 'TOULOUSE',
+              nom_quartier: '70 % de la population',
+              annee: '2024',
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await provider.findDominantNetworkByInsee('31555');
+
+    expect(result).toEqual({ code: 'R-2', name: 'Réseau sud' });
+  });
+
+  it('falls back to the whole set when every record has a null year', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({
+          data: [
+            {
+              code_reseau: 'R-1',
+              nom_reseau: 'Réseau interco',
+              nom_commune: 'RENNES',
+              annee: null,
+            },
+            {
+              code_reseau: 'R-2',
+              nom_reseau: 'RENNES',
+              nom_commune: 'RENNES',
+              annee: null,
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await provider.findDominantNetworkByInsee('35238');
+
+    // No year to filter on → all records are candidates; the commune-named one wins.
+    expect(result).toEqual({ code: 'R-2', name: 'RENNES' });
+  });
+
+  it('returns the only network when a single record is served', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({
+          data: [
+            {
+              code_reseau: 'R-1',
+              nom_reseau: 'Syndicat unique',
+              nom_commune: 'BREST',
+              annee: '2024',
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await provider.findDominantNetworkByInsee('29019');
+
+    expect(result).toEqual({ code: 'R-1', name: 'Syndicat unique' });
+  });
+
+  it('does not throw when nom_reseau is null on some candidates', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({
+          data: [
+            {
+              code_reseau: 'R-1',
+              nom_reseau: null,
+              nom_commune: 'ANGERS',
+              annee: '2024',
+            },
+            {
+              code_reseau: 'R-2',
+              nom_reseau: 'ANGERS',
+              nom_commune: 'ANGERS',
+              annee: '2024',
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await provider.findDominantNetworkByInsee('49007');
+
+    // The null-named record must not crash the name comparison; the commune-named one wins.
+    expect(result).toEqual({ code: 'R-2', name: 'ANGERS' });
+  });
+
   it('should return null when no network is found', async () => {
     fetchMock.mockResolvedValue(
       buildResponse(200, () => Promise.resolve({ data: [] })),

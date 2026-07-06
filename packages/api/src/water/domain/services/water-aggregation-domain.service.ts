@@ -2,6 +2,7 @@ import { WaterConformity } from '../enums/water-conformity.enum';
 import { WaterProfileEntity } from '../entities/water-profile.entity';
 import { WaterProviderKey } from '../enums/water-provider-key.enum';
 import { WaterSample } from '../ports/water-quality-provider.port';
+import { normalizeFrenchLabel } from '../../../common/normalize-french-label';
 
 type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
 
@@ -35,13 +36,6 @@ const resolveMineralKey = (normalizedLabel: string): MineralKey | null => {
 
   return null;
 };
-
-const normalizeParameterLabel = (value: string): string =>
-  value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
 
 interface AggregateBucket {
   sum: number;
@@ -104,7 +98,7 @@ export class WaterAggregationDomainService {
     const aggregate = createEmptyAggregate();
     for (const sample of samples) {
       const key = resolveMineralKey(
-        normalizeParameterLabel(sample.parameterLabel),
+        normalizeFrenchLabel(sample.parameterLabel),
       );
       if (!key) {
         continue;

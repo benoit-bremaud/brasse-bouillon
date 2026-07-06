@@ -8,6 +8,7 @@ import {
 import type { WaterConfig } from '../../config/water.config';
 import { WATER_CONFIG } from '../water.constants';
 import { WaterProviderKey } from '../domain/enums/water-provider-key.enum';
+import { normalizeFrenchLabel } from '../../common/normalize-french-label';
 
 // Hub'Eau v1 renamed the `communes_udi` fields (`code_udi`→`code_reseau`,
 // `nom_udi`→`nom_reseau`) and dropped `nb_prelevements`, so this record shape
@@ -16,6 +17,10 @@ interface HubEauCommuneUdiRecord {
   readonly code_reseau: string;
   readonly nom_reseau: string | null;
   readonly nom_commune: string | null;
+  // Sometimes a « NN% » population-coverage figure for the network, sometimes an
+  // arrondissement/quartier description — used as the dominant-network signal
+  // only when it parses as a percentage.
+  readonly nom_quartier: string | null;
   readonly annee: string | null;
 }
 
@@ -84,8 +89,9 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
   /**
    * Picks the network that best represents the commune. Hub'Eau dropped
    * `nb_prelevements` (the old "most-sampled" proxy), so we take the most recent
-   * year's records and, within them, prefer the network named after the commune
-   * (the usual main one), falling back to the first record.
+   * year's records and, within them: (1) the network with the highest « NN% »
+   * population coverage when Hub'Eau exposes one, else (2) the network named
+   * after the commune (the usual main one), else (3) the first record.
    */
   private selectDominantRecord(
     records: HubEauCommuneUdiRecord[],
@@ -103,23 +109,44 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
       : records;
     const candidates = inLatestYear.length ? inLatestYear : records;
 
+    // 1. Highest population coverage — the truest "dominant" signal left after
+    // `nb_prelevements` was dropped (only some communes expose a « NN% »).
+    const byCoverage = candidates
+      .map((record) => ({
+        record,
+        coverage: this.parseCoveragePercent(record.nom_quartier),
+      }))
+      .filter(
+        (
+          entry,
+        ): entry is { record: HubEauCommuneUdiRecord; coverage: number } =>
+          entry.coverage !== null,
+      )
+      .sort((a, b) => b.coverage - a.coverage);
+    if (byCoverage.length) {
+      return byCoverage[0].record;
+    }
+
+    // 2. The network named after the commune.
     const namedAfterCommune = candidates.find(
       (record) =>
         record.nom_reseau != null &&
         record.nom_commune != null &&
-        this.normalizeName(record.nom_reseau) ===
-          this.normalizeName(record.nom_commune),
+        normalizeFrenchLabel(record.nom_reseau) ===
+          normalizeFrenchLabel(record.nom_commune),
     );
 
+    // 3. Deterministic fallback: the first record.
     return namedAfterCommune ?? candidates[0];
   }
 
-  private normalizeName(value: string): string {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim()
-      .toLowerCase();
+  /** Reads a « NN% » population-coverage figure out of `nom_quartier`, if any. */
+  private parseCoveragePercent(value: string | null): number | null {
+    if (!value) {
+      return null;
+    }
+    const match = /(\d+(?:[.,]\d+)?)\s*%/.exec(value);
+    return match ? this.toNullableNumber(match[1]) : null;
   }
 
   async getNetworkSamples(input: {

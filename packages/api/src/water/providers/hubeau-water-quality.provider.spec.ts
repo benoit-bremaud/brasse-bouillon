@@ -38,20 +38,29 @@ describe('HubeauWaterQualityProvider', () => {
     fetchMock.mockRestore();
   });
 
-  it('should return dominant network by highest sample count', async () => {
+  it('selects the dominant network: latest year, preferring the one named after the commune', async () => {
     fetchMock.mockResolvedValue(
       buildResponse(200, () =>
         Promise.resolve({
           data: [
+            // An older year — ignored once a later year exists for the commune.
             {
-              code_udi: 'UDI-1',
-              nom_udi: 'Network A',
-              nb_prelevements: '2',
+              code_reseau: 'R-OLD',
+              nom_reseau: 'NANTES',
+              nom_commune: 'NANTES',
+              annee: '2019',
             },
             {
-              code_udi: 'UDI-2',
-              nom_udi: 'Network B',
-              nb_prelevements: 7,
+              code_reseau: 'R-1',
+              nom_reseau: 'Réseau interco',
+              nom_commune: 'NANTES',
+              annee: '2024',
+            },
+            {
+              code_reseau: 'R-2',
+              nom_reseau: 'NANTES',
+              nom_commune: 'NANTES',
+              annee: '2024',
             },
           ],
         }),
@@ -61,9 +70,7 @@ describe('HubeauWaterQualityProvider', () => {
     const result = await provider.findDominantNetworkByInsee('44109');
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const firstCall = fetchMock.mock.calls[0];
-    const requestUrl = firstCall?.[0];
-
+    const requestUrl = fetchMock.mock.calls[0]?.[0];
     expect(typeof requestUrl).toBe('string');
     if (typeof requestUrl !== 'string') {
       throw new Error('Expected fetch URL to be a string');
@@ -72,7 +79,35 @@ describe('HubeauWaterQualityProvider', () => {
     expect(requestUrl).toContain('/communes_udi?');
     expect(requestUrl).toContain('code_commune=44109');
     expect(requestUrl).toContain('size=10');
-    expect(result).toEqual({ code: 'UDI-2', name: 'Network B' });
+    // Latest year (2024) + the réseau named after the commune → R-2.
+    expect(result).toEqual({ code: 'R-2', name: 'NANTES' });
+  });
+
+  it('falls back to the first record of the latest year when none matches the commune name', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({
+          data: [
+            {
+              code_reseau: 'R-1',
+              nom_reseau: 'Syndicat A',
+              nom_commune: 'PETIT-BOURG',
+              annee: '2023',
+            },
+            {
+              code_reseau: 'R-2',
+              nom_reseau: 'Syndicat B',
+              nom_commune: 'PETIT-BOURG',
+              annee: '2023',
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await provider.findDominantNetworkByInsee('97101');
+
+    expect(result).toEqual({ code: 'R-1', name: 'Syndicat A' });
   });
 
   it('should return null when no network is found', async () => {
@@ -85,30 +120,30 @@ describe('HubeauWaterQualityProvider', () => {
     ).resolves.toBeNull();
   });
 
-  it('should map and sanitize provider samples', async () => {
+  it('fetches only the ion parameters and maps + sanitizes the samples', async () => {
     fetchMock.mockResolvedValue(
       buildResponse(200, () =>
         Promise.resolve({
           data: [
             {
-              nom_parametre: 'Calcium',
+              libelle_parametre: 'Calcium',
               resultat_numerique: '42,5',
-              conclusion_conformite_prelevement_pc: 'C',
+              conformite_limites_pc_prelevement: 'C',
             },
             {
-              nom_parametre: 'Magnesium',
+              libelle_parametre: 'Magnésium',
               resultat_numerique: 9,
-              conclusion_conformite_prelevement_pc: null,
+              conformite_limites_pc_prelevement: null,
             },
             {
-              nom_parametre: '',
+              libelle_parametre: '',
               resultat_numerique: 10,
-              conclusion_conformite_prelevement_pc: 'C',
+              conformite_limites_pc_prelevement: 'C',
             },
             {
-              nom_parametre: 'Chlorides',
+              libelle_parametre: 'Chlorures',
               resultat_numerique: 'not-a-number',
-              conclusion_conformite_prelevement_pc: 'D',
+              conformite_limites_pc_prelevement: 'N',
             },
           ],
         }),
@@ -116,42 +151,33 @@ describe('HubeauWaterQualityProvider', () => {
     );
 
     const samples = await provider.getNetworkSamples({
-      networkCode: 'UDI-2',
+      networkCode: 'R-2',
       year: 2024,
       size: 3,
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const firstCall = fetchMock.mock.calls[0];
-    const requestUrl = firstCall?.[0];
-
+    const requestUrl = fetchMock.mock.calls[0]?.[0];
     expect(typeof requestUrl).toBe('string');
     if (typeof requestUrl !== 'string') {
       throw new Error('Expected fetch URL to be a string');
     }
 
     expect(requestUrl).toContain('/resultats_dis?');
-    expect(requestUrl).toContain('code_udi=UDI-2');
+    expect(requestUrl).toContain('code_reseau=R-2');
+    // Targeted ion fetch (Ca, Mg, SO4, Cl, HCO3) so infrequently-sampled ions
+    // are never missed on a generic page. URLSearchParams encodes the commas.
+    expect(requestUrl).toContain(
+      'code_parametre=1374%2C1372%2C1338%2C1337%2C1327',
+    );
     expect(requestUrl).toContain('date_min_prelevement=2024-01-01');
     expect(requestUrl).toContain('date_max_prelevement=2024-12-31');
     expect(requestUrl).toContain('size=3');
 
     expect(samples).toEqual([
-      {
-        parameterLabel: 'Calcium',
-        numericResult: 42.5,
-        conformity: 'C',
-      },
-      {
-        parameterLabel: 'Magnesium',
-        numericResult: 9,
-        conformity: null,
-      },
-      {
-        parameterLabel: 'Chlorides',
-        numericResult: null,
-        conformity: 'D',
-      },
+      { parameterLabel: 'Calcium', numericResult: 42.5, conformity: 'C' },
+      { parameterLabel: 'Magnésium', numericResult: 9, conformity: null },
+      { parameterLabel: 'Chlorures', numericResult: null, conformity: 'N' },
     ]);
   });
 

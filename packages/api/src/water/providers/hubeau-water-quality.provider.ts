@@ -9,25 +9,46 @@ import type { WaterConfig } from '../../config/water.config';
 import { WATER_CONFIG } from '../water.constants';
 import { WaterProviderKey } from '../domain/enums/water-provider-key.enum';
 
+// Hub'Eau v1 renamed the `communes_udi` fields (`code_udi`→`code_reseau`,
+// `nom_udi`→`nom_reseau`) and dropped `nb_prelevements`, so this record shape
+// tracks the current API.
 interface HubEauCommuneUdiRecord {
-  readonly code_udi: string;
-  readonly nom_udi: string | null;
-  readonly nb_prelevements: number | string | null;
+  readonly code_reseau: string;
+  readonly nom_reseau: string | null;
+  readonly nom_commune: string | null;
+  readonly annee: string | null;
 }
 
 interface HubEauCommuneUdiResponse {
   readonly data: HubEauCommuneUdiRecord[];
 }
 
+// `resultats_dis` renamed `nom_parametre`→`libelle_parametre`; the old
+// `conclusion_conformite_prelevement_pc` short code now lives in
+// `conformite_limites_pc_prelevement` (the physico-chemical limits verdict).
 interface HubEauResultatsRecord {
-  readonly nom_parametre: string;
+  readonly libelle_parametre: string;
   readonly resultat_numerique: number | string | null;
-  readonly conclusion_conformite_prelevement_pc: string | null;
+  readonly conformite_limites_pc_prelevement: string | null;
 }
 
 interface HubEauResultatsResponse {
   readonly data: HubEauResultatsRecord[];
 }
+
+/**
+ * SANDRE parameter codes for the brewing-relevant ions. Hub'Eau serves hundreds
+ * of parameters and the ions are sampled infrequently, so a generic results
+ * page (size N, most-recent first) can miss Calcium/Magnésium entirely — we
+ * filter the query to exactly these codes so the profile always sees them.
+ */
+const ION_PARAMETER_CODES = [
+  '1374', // Calcium
+  '1372', // Magnésium
+  '1338', // Sulfates
+  '1337', // Chlorures
+  '1327', // Hydrogénocarbonates (bicarbonate / HCO3)
+] as const;
 
 @Injectable()
 export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
@@ -53,19 +74,52 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
       return null;
     }
 
-    const dominant = response.data.reduce<HubEauCommuneUdiRecord>(
-      (currentDominant, record) => {
-        const currentMax = this.toSafeNumber(currentDominant.nb_prelevements);
-        const value = this.toSafeNumber(record.nb_prelevements);
-        return value > currentMax ? record : currentDominant;
-      },
-      response.data[0],
+    const dominant = this.selectDominantRecord(response.data);
+    return {
+      code: dominant.code_reseau,
+      name: dominant.nom_reseau,
+    };
+  }
+
+  /**
+   * Picks the network that best represents the commune. Hub'Eau dropped
+   * `nb_prelevements` (the old "most-sampled" proxy), so we take the most recent
+   * year's records and, within them, prefer the network named after the commune
+   * (the usual main one), falling back to the first record.
+   */
+  private selectDominantRecord(
+    records: HubEauCommuneUdiRecord[],
+  ): HubEauCommuneUdiRecord {
+    const latestYear = records.reduce<string | null>(
+      (max, record) =>
+        record.annee && (max === null || record.annee > max)
+          ? record.annee
+          : max,
+      null,
     );
 
-    return {
-      code: dominant.code_udi,
-      name: dominant.nom_udi,
-    };
+    const inLatestYear = latestYear
+      ? records.filter((record) => record.annee === latestYear)
+      : records;
+    const candidates = inLatestYear.length ? inLatestYear : records;
+
+    const namedAfterCommune = candidates.find(
+      (record) =>
+        record.nom_reseau != null &&
+        record.nom_commune != null &&
+        this.normalizeName(record.nom_reseau) ===
+          this.normalizeName(record.nom_commune),
+    );
+
+    return namedAfterCommune ?? candidates[0];
+  }
+
+  private normalizeName(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   async getNetworkSamples(input: {
@@ -76,9 +130,10 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
     const response = await this.fetchHubEau<HubEauResultatsResponse>(
       `${this.waterConfig.hubeauBaseUrl}/resultats_dis`,
       {
-        code_udi: input.networkCode,
+        code_reseau: input.networkCode,
+        code_parametre: ION_PARAMETER_CODES.join(','),
         fields:
-          'nom_parametre,resultat_numerique,conclusion_conformite_prelevement_pc',
+          'libelle_parametre,resultat_numerique,conformite_limites_pc_prelevement',
         date_min_prelevement: `${input.year}-01-01`,
         date_max_prelevement: `${input.year}-12-31`,
         size: String(input.size),
@@ -89,12 +144,13 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
     return response.data
       .filter(
         (row) =>
-          typeof row.nom_parametre === 'string' && row.nom_parametre.length > 0,
+          typeof row.libelle_parametre === 'string' &&
+          row.libelle_parametre.length > 0,
       )
       .map((row) => ({
-        parameterLabel: row.nom_parametre,
+        parameterLabel: row.libelle_parametre,
         numericResult: this.toNullableNumber(row.resultat_numerique),
-        conformity: row.conclusion_conformite_prelevement_pc,
+        conformity: row.conformite_limites_pc_prelevement,
       }));
   }
 
@@ -137,11 +193,6 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
 
       throw new BadGatewayException("Hub'Eau request failed");
     }
-  }
-
-  private toSafeNumber(value: number | string | null): number {
-    const numberValue = this.toNullableNumber(value);
-    return numberValue ?? 0;
   }
 
   private toNullableNumber(value: number | string | null): number | null {

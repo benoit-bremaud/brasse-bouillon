@@ -59,9 +59,10 @@ flowchart TB
   API **through `http-client`** — not a new backend endpoint (ADR-0025 § INSEE resolution = A).
 - **Aggregation** lives in `WaterAggregationDomainService` (a domain service `WaterService`
   orchestrates), not in `WaterService` itself.
-- **Caching**: `WaterService` already holds an **in-memory per-request TTL cache** on the live
-  path (slice 1). `WaterMeasurementRepository` + the append-only DB are the **slice-2** *durable /
-  history* layer — a different, additional cache, not the first one.
+- **Caching**: `WaterService` already holds a **process-level in-memory TTL cache** (a `Map` on
+  the singleton, shared across requests) on the live path (slice 1). `WaterMeasurementRepository`
+  + the append-only DB are the **slice-2** *durable / history* layer — a different, additional
+  cache, not the first one.
 - **Slice boundary**: the **endpoint contract and the mobile call site are unchanged** when slice
   2 lands; slice 2 **additively** extends the `/water` DTO with the freshness date (the mobile
   upgrades its year-granular line to a dated pastille). Same `GET /water`, same 5

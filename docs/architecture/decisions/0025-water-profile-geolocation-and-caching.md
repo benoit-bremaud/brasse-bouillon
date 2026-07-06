@@ -11,9 +11,10 @@
 A brewer needs the **tap-water profile where they live** to judge whether their water suits a
 recipe (and, later, how to correct it). Today the recipe **Water tab** runs entirely on 8
 hardcoded predefined-city presets (`features/tools/data/water-profiles.data.ts`: Paris, Munich,
-Dortmund, Burton, Dublin, London, Edinburgh, Pilsen) and **never calls the backend** — no
-grep hit for `/water`, `getWaterProfile`, `codeInsee`, or `hubeau` anywhere in
-`packages/mobile-app/src`.
+Dortmund, Burton, Dublin, London, Edinburgh, Pilsen) and **never calls the backend `/water`
+endpoint** — there is no HTTP call to it (`getWaterProfile`, `codeInsee`, and `hubeau` return
+nothing in `packages/mobile-app/src`; the `/water` substring appears only inside unrelated import
+paths like `water-profiles` / `water-mineral-salts`).
 
 The backend already exposes the data: `GET /water?codeInsee=&year=` (JWT-guarded,
 `packages/api/src/water/controllers/water.controller.ts`), fixed on `main` in #1352 (`6595786`)
@@ -68,9 +69,9 @@ every external fact below was **verified live** against the two public APIs.
   dominant network (`communes_udi` → `code_reseau`), queries `resultats_dis` by that
   `code_reseau` + the 5 ion SANDRE codes (Ca `1374`, Mg `1372`, SO4 `1338`, Cl `1337`, HCO3
   `1327`) + a one-year window (`size=100`), then **averages** the matching rows (cap 50) — **no**
-  `code_prelevement` dedupe today. It already has an **in-memory per-request TTL cache**
-  (`WaterService`, 3600 s, 500 entries); slice-2's append-only DB cache is a **separate durable
-  layer**, not the first cache.
+  `code_prelevement` dedupe today. It already has a **process-level in-memory TTL cache** (a `Map`
+  on the singleton `WaterService`, shared across requests, 3600 s, 500 entries); slice-2's
+  append-only DB cache is a **separate durable layer**, not the first cache.
 - **A clickable commune-level map is a real build, not a widget.** ~35 000 commune polygons
   crash / single-digit-FPS on `react-native-maps <Polygon>`; the only fully Expo-Go-compatible,
   offline, tile-free path is `react-native-svg` drawing simplified GeoJSON (region+dept contours
@@ -149,7 +150,7 @@ want to cache/normalise it or feed the deferred salt engine.
 | **Weighted score** | **3.40** | **4.55** | **2.90** |
 
 **Chosen: B.** Slice-1 ships on the live proxy (top score on time-to-value, unchanged); slice-2
-adds the **append-only cache** (history accrues for free, keyed `commune + parameter +
+adds the **append-only cache** (history accrues for free, keyed `code_reseau + parameter +
 date_prelevement + code_prelevement`) with a **conditional sync** and a **DB fallback**. This is
 RGPD-safe — the cached data is **public** ARS/Hub'Eau reference data, **not PII** (distinct from
 the user's own location). **C** front-loads analytics screens the feature doesn't need yet

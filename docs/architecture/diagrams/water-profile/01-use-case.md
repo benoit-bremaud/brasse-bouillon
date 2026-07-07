@@ -25,9 +25,9 @@ flowchart LR
     subgraph Eau ["Domaine Eau"]
       UC1(("Consulter le profil d'eau<br/>de ma commune"))
       UC2(("Choisir la commune<br/>(si code postal ambigu)"))
-      UC3(("Comparer mon eau au<br/>profil cible de la recette"))
     end
     subgraph Differe ["Différé (hors slice 1)"]
+      UC3(("Comparer mon eau au<br/>profil cible de la recette"))
       D1(("Explorer via la carte<br/>de France"))
       D2(("Retenir mon eau<br/>(persistée, consentie)"))
       D3(("Corriger mon eau<br/>(sels correcteurs)"))
@@ -35,17 +35,17 @@ flowchart LR
   end
 
   Brewer --> UC1
-  Brewer --> UC3
   UC2 -.->|"«extend» [CP → plusieurs communes]"| UC1
   GeoApi --- UC1
   HubEau --- UC1
 
+  Brewer --> UC3
   Brewer --> D1
   Brewer --> D2
   Brewer --> D3
 
   classDef deferred fill:#eee,stroke:#bbb,stroke-dasharray:4 3,color:#888
-  class D1,D2,D3 deferred
+  class UC3,D1,D2,D3 deferred
 ```
 
 ## Notes
@@ -59,8 +59,9 @@ flowchart LR
 - **`UC2` is an «extend»** with a real guard `[CP → plusieurs communes]`: disambiguation only
   fires when one postal code maps to several communes (verified live: `01400` → 10). Arrondissement
   input resolves to the parent commune.
-- **`UC3` is a standalone goal** (compare my water to the recipe target), realized by reusing the
-  existing global 0–100 compatibility score — not a conditional fragment of `UC1`.
-- The three **deferred** goals (map, remember-my-water, corrective salts) are solid associations
-  greyed via `classDef` so the slice-1 boundary is unambiguous; each is its own later slice/epic
-  per ADR-0025.
+- **`UC3` (compare my water to the recipe target) is deferred with the compatibility score**
+  (ADR-0025 § Compatibility): the existing global 0–100 score coerces missing/nullable ions to 0,
+  so it is unsafe for the live 5-ion profile (no Na); slice-1 renders the **raw** profile only.
+- The **deferred** goals (compare-to-target, map, remember-my-water, corrective salts) are solid
+  associations greyed via `classDef` so the slice-1 boundary is unambiguous; each is its own later
+  slice/epic per ADR-0025.

@@ -190,6 +190,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "fermentescibles",
+      metadata: {
+        title: "Malts et fermentescibles",
+        summary: "Generated fermentables article summary.",
+        category: "ingredients",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 10,
+        tags: ["malt"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "fermentescibles",
+            label: "Fermentables calculator",
+            reason: "Estimate alcohol.",
+            target: { type: "calculator", slug: "fermentescibles" },
+          },
+        ],
+        learningObjectives: ["Understand malt basics."],
+        prerequisites: [],
+        teaches: ["malt-basics"],
+        sensitive: true,
+        riskTopics: ["fermentation-health"],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-du-malt",
+            title: "Pourquoi le malt est central",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated malt and fermentables article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",
@@ -388,6 +435,19 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
 
     expect(screen.getByText("Generated water article summary.")).toBeTruthy();
     expect(screen.getByText("Pourquoi l'eau est critique")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated malt and fermentables article with calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="fermentescibles" />);
+
+    expect(
+      screen.getByText("Generated fermentables article summary."),
+    ).toBeTruthy();
+    expect(
+      screen.getAllByText("Malts et fermentescibles").length,
+    ).toBeGreaterThan(0);
+    expect(screen.getByText("Pourquoi le malt est central")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 

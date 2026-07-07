@@ -28,9 +28,9 @@ describe("Academy generated repository", () => {
       listPublishedAcademyArticlesUseCase(generatedAcademyRepository).map(
         (article) => article.slug,
       ),
-    ).toEqual(["introduction", "houblons"]);
+    ).toEqual(["introduction", "houblons", "levures"]);
     expect(
-      searchAcademy(generatedAcademyRepository, "levures").map(
+      searchAcademy(generatedAcademyRepository, "draft-only").map(
         (result) => result.id,
       ),
     ).toEqual([]);

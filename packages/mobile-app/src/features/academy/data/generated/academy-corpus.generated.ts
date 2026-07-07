@@ -294,15 +294,16 @@ export const academyCorpus: AcademyCorpus = {
       slug: "levures",
       metadata: {
         title: "Levures",
-        summary: "Reference guide for fermentation vocabulary.",
+        summary:
+          "Reference guide for fermentation, yeast roles, pitch rate, and temperature control.",
         category: "fermentation",
         level: "beginner",
-        status: "draft",
-        version: "0.1.0",
-        estimatedReadTimeMinutes: 5,
-        tags: ["fermentation", "yeast"],
-        updatedAt: "2026-07-03",
-        relatedArticles: ["houblons"],
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["fermentation", "yeast", "temperature"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["introduction", "houblons"],
         relatedGlossaryTerms: [],
         relatedCalculators: [
           {
@@ -315,11 +316,19 @@ export const academyCorpus: AcademyCorpus = {
             },
           },
         ],
-        learningObjectives: ["Explain what yeast changes during fermentation."],
-        prerequisites: [],
-        teaches: ["fermentation-basics"],
-        sensitive: false,
-        riskTopics: [],
+        learningObjectives: [
+          "Explain what yeast changes during fermentation.",
+          "Identify the main levers of a healthy fermentation.",
+          "Understand why pitch rate and temperature matter.",
+        ],
+        prerequisites: ["brewing-overview"],
+        teaches: [
+          "fermentation-basics",
+          "yeast-pitch-rate",
+          "fermentation-temperature",
+        ],
+        sensitive: true,
+        riskTopics: ["fermentation-health", "sanitation"],
         sources: [
           {
             id: "palmer-2017",
@@ -333,18 +342,110 @@ export const academyCorpus: AcademyCorpus = {
             notes: "General homebrewing reference for ingredients and process.",
           },
         ],
-        review: null,
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: ["Migrated from the legacy mobile Academy yeast topic."],
+        },
       },
       body: {
         sections: [
           {
             id: "fermentation",
-            title: "Fermentation",
+            title: "Pourquoi la levure est critique",
             blocks: [
               {
                 id: "fermentation-paragraph-1",
                 type: "paragraph",
-                text: "La levure transforme les sucres du mout en alcool, en dioxyde de carbone et en composes aromatiques. La temperature, la quantite de levure et l'etat sanitaire du mout influencent fortement le resultat.",
+                text: "La levure transforme le mout sucre en alcool, en dioxyde de carbone et en composes aromatiques. C'est elle qui fait passer une recette correcte a une biere propre, expressive et stable.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-attenuation",
+                type: "definition",
+                term: "Attenuation",
+                definition:
+                  "Part des sucres fermentescibles consommee par la levure. Elle influence directement la densite finale, le corps et la sensation de secheresse.",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "example-yeast-impact",
+                type: "example",
+                title: "Impact concret",
+                body: "Deux recettes identiques peuvent donner des bieres tres differentes si l'une fermente proprement dans la plage de temperature de la souche et l'autre trop chaud.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "piliers-fermentation",
+            title: "Les 4 piliers d'une fermentation reussie",
+            blocks: [
+              {
+                id: "piliers-fermentation-paragraph-1",
+                type: "paragraph",
+                text: "Une fermentation fiable repose sur quatre leviers : une quantite suffisante de cellules au depart, une levure viable, une temperature adaptee a la souche, et un mout correctement prepare pour permettre un bon depart de fermentation.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-pitch-rate",
+                type: "definition",
+                term: "Pitch rate",
+                definition:
+                  "Quantite de cellules de levure ensemencees par volume de mout et par degre Plato. Un pitch rate adapte reduit les risques de fermentation lente ou incomplete.",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "yeast-calculator",
+                type: "calculatorCta",
+                calculatorSlug: "levures",
+                title: "Estimer la quantite de levure",
+                description:
+                  "Utiliser le calculateur levures pour relier volume, densite initiale et besoin en cellules.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "reperes-rapides",
+            title: "Reperes rapides",
+            blocks: [
+              {
+                id: "reperes-rapides-paragraph-1",
+                type: "paragraph",
+                text: "Pour une Ale, un repere courant est environ 0,75 million de cellules par mL et par degre Plato. Pour une Lager, le besoin est souvent plus eleve, autour de 1,5 million de cellules par mL et par degre Plato. Ces valeurs restent des reperes pratiques : la souche, la fraicheur et le fabricant comptent aussi.",
+                sourceIds: [],
+              },
+              {
+                id: "example-ipa-20l",
+                type: "example",
+                title: "IPA de 20 L",
+                body: "Avec une OG proche de 1,065, le besoin peut approcher plusieurs centaines de milliards de cellules pour une Ale. En pratique, cela conduit souvent a verifier le nombre de sachets ou l'interet d'un starter.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "temperature",
+            title: "Temperature et impact aromatique",
+            blocks: [
+              {
+                id: "temperature-paragraph-1",
+                type: "paragraph",
+                text: "La temperature est un levier majeur sur les esters, les phenols et les off-flavors. Plus bas ne veut pas toujours dire meilleur : il faut surtout rester dans la plage utile de la souche. Trop chaud augmente les risques d'aromes de solvant ou d'alcools superieurs ; trop froid peut ralentir ou bloquer la fermentation.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "pieges",
+            title: "Pieges frequents a eviter",
+            blocks: [
+              {
+                id: "pieges-paragraph-1",
+                type: "paragraph",
+                text: "Les erreurs les plus courantes sont le sous-pitch, une levure trop vieille, un mauvais controle de temperature, une oxygenation insuffisante du mout avant ensemencement, et l'oubli d'une phase de repos adaptee sur certaines Lagers.",
                 sourceIds: [],
               },
               {

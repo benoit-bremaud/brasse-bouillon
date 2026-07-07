@@ -96,6 +96,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "levures",
+      metadata: {
+        title: "Levures",
+        summary: "Generated yeast article summary.",
+        category: "fermentation",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["fermentation"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "levures",
+            label: "Yeast calculator",
+            reason: "Estimate pitch rate.",
+            target: { type: "calculator", slug: "levures" },
+          },
+        ],
+        learningObjectives: ["Understand fermentation."],
+        prerequisites: [],
+        teaches: ["fermentation-basics"],
+        sensitive: true,
+        riskTopics: ["fermentation-health"],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "fermentation",
+            title: "Pourquoi la levure est critique",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated yeast article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "orphan-malt",
       metadata: {
         title: "Malt generated",
@@ -239,6 +286,14 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(screen.getByText("Generated introduction summary.")).toBeTruthy();
     expect(screen.getByText("Generated introduction article.")).toBeTruthy();
     expect(screen.queryByText("Les 4 ingrédients fondamentaux")).toBeNull();
+  });
+
+  it("renders the generated yeast article and keeps the calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="levures" />);
+
+    expect(screen.getByText("Generated yeast article summary.")).toBeTruthy();
+    expect(screen.getByText("Pourquoi la levure est critique")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 
   it("renders a published generated article even without a legacy topic", () => {

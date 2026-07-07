@@ -71,6 +71,21 @@ export const academyCorpus: AcademyCorpus = {
                 sourceIds: [],
               },
               {
+                id: "definition-acide-alpha",
+                type: "definition",
+                term: "Acide alpha",
+                definition:
+                  "Compose du houblon qui se transforme pendant l'ebullition et contribue a l'amertume mesuree en IBU.",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "example-ajout-tardif",
+                type: "example",
+                title: "Ajout tardif",
+                body: "Un ajout dans les dernieres minutes d'ebullition ou en whirlpool favorisera davantage l'expression aromatique qu'un ajout de debut d'ebullition.",
+                sourceIds: ["palmer-2017"],
+              },
+              {
                 id: "ibu-reference",
                 type: "glossaryReference",
                 termSlug: "ibu",

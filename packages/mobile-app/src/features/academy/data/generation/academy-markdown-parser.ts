@@ -230,6 +230,58 @@ function toDirectiveBlock(
   errors: string[],
 ): AcademyContentBlock | null {
   switch (directive.type) {
+    case "definition":
+      return {
+        id: requireDirectiveAttribute(
+          directive,
+          "id",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        type: "definition",
+        term: requireDirectiveAttribute(
+          directive,
+          "term",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        definition: requireDirectiveAttribute(
+          directive,
+          "definition",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        sourceIds: parseSourceIds(directive.attributes.sourceIds),
+      };
+    case "example":
+      return {
+        id: requireDirectiveAttribute(
+          directive,
+          "id",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        type: "example",
+        title: requireDirectiveAttribute(
+          directive,
+          "title",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        body: requireDirectiveAttribute(
+          directive,
+          "body",
+          filePath,
+          lineNumber,
+          errors,
+        ),
+        sourceIds: parseSourceIds(directive.attributes.sourceIds),
+      };
     case "glossaryReference":
       return {
         id: requireDirectiveAttribute(

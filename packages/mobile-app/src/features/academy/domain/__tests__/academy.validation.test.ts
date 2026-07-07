@@ -81,6 +81,20 @@ const validArticle: AcademyArticle = {
             sourceIds: ["bjcp-2021"],
           },
           {
+            id: "alpha-definition",
+            type: "definition",
+            term: "Alpha acid",
+            definition: "Hop resin contributing bitterness after boiling.",
+            sourceIds: ["bjcp-2021"],
+          },
+          {
+            id: "late-hop-example",
+            type: "example",
+            title: "Late addition",
+            body: "A late addition preserves more hop aroma.",
+            sourceIds: ["bjcp-2021"],
+          },
+          {
             id: "ibu-ref",
             type: "glossaryReference",
             termSlug: "ibu",
@@ -206,6 +220,48 @@ describe("Academy domain validation", () => {
     expect(result.valid).toBe(false);
     expect(result.issues.map((issue) => issue.code)).toContain(
       "article.block.table.rowSize.invalid",
+    );
+  });
+
+  it("rejects incomplete pedagogical blocks", () => {
+    const article: AcademyArticle = {
+      ...validArticle,
+      body: {
+        sections: [
+          {
+            id: "role-du-houblon",
+            title: "Hop role",
+            blocks: [
+              {
+                id: "empty-definition",
+                type: "definition",
+                term: "",
+                definition: "",
+                sourceIds: [],
+              },
+              {
+                id: "empty-example",
+                type: "example",
+                title: "",
+                body: "",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const result = validateAcademyArticle(article, validationContext);
+
+    expect(result.valid).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toEqual(
+      expect.arrayContaining([
+        "article.block.definition.term.required",
+        "article.block.definition.text.required",
+        "article.block.example.title.required",
+        "article.block.example.body.required",
+      ]),
     );
   });
 

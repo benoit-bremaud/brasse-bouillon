@@ -48,6 +48,10 @@ part de stabilite microbiologique. Pour un debutant, la premiere distinction a
 retenir est simple : plus l'ajout est long pendant l'ebullition, plus il sert
 l'amertume ; plus il est tardif, plus il preserve les aromes.
 
+:::definition id="definition-acide-alpha" term="Acide alpha" definition="Compose du houblon qui se transforme pendant l'ebullition et contribue a l'amertume mesuree en IBU." sourceIds="palmer-2017":::
+
+:::example id="example-ajout-tardif" title="Ajout tardif" body="Un ajout dans les dernieres minutes d'ebullition ou en whirlpool favorisera davantage l'expression aromatique qu'un ajout de debut d'ebullition." sourceIds="palmer-2017":::
+
 :::glossaryReference id="ibu-reference" termSlug="ibu" label="IBU" sourceIds="palmer-2017":::
 
 :::calculatorCta id="hop-calculator" calculatorSlug="houblons" title="Calculer une amertume cible" description="Utiliser le calculateur houblons pour estimer les IBU d'une recette." sourceIds="palmer-2017":::

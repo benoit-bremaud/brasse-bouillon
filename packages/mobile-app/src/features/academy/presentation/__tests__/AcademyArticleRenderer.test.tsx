@@ -60,6 +60,20 @@ const article: AcademyArticle = {
             sourceIds: ["palmer-2017"],
           },
           {
+            id: "definition-alpha-acid",
+            type: "definition",
+            term: "Acide alpha",
+            definition: "Compose du houblon qui contribue a l'amertume.",
+            sourceIds: ["palmer-2017"],
+          },
+          {
+            id: "example-late-hop",
+            type: "example",
+            title: "Ajout en fin d'ebullition",
+            body: "Un ajout tardif favorise l'aromatique.",
+            sourceIds: ["palmer-2017"],
+          },
+          {
             id: "glossary-ibu",
             type: "glossaryReference",
             termSlug: "ibu",
@@ -106,6 +120,16 @@ describe("AcademyArticleRenderer", () => {
     expect(screen.getByText("Ajout tardif")).toBeTruthy();
     expect(
       screen.getByText("Un ajout tardif preserve davantage les aromes."),
+    ).toBeTruthy();
+    expect(screen.getByText("Définition")).toBeTruthy();
+    expect(screen.getByText("Acide alpha")).toBeTruthy();
+    expect(
+      screen.getByText("Compose du houblon qui contribue a l'amertume."),
+    ).toBeTruthy();
+    expect(screen.getByText("Exemple")).toBeTruthy();
+    expect(screen.getByText("Ajout en fin d'ebullition")).toBeTruthy();
+    expect(
+      screen.getByText("Un ajout tardif favorise l'aromatique."),
     ).toBeTruthy();
     expect(screen.getByText("Sources")).toBeTruthy();
     expect(screen.getByText("How to Brew (2017)")).toBeTruthy();

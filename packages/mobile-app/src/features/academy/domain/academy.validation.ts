@@ -441,6 +441,34 @@ function validateBlock(
         issues,
       );
       break;
+    case "definition":
+      requireText(
+        block.term,
+        `${path}.term`,
+        "article.block.definition.term.required",
+        issues,
+      );
+      requireText(
+        block.definition,
+        `${path}.definition`,
+        "article.block.definition.text.required",
+        issues,
+      );
+      break;
+    case "example":
+      requireText(
+        block.title,
+        `${path}.title`,
+        "article.block.example.title.required",
+        issues,
+      );
+      requireText(
+        block.body,
+        `${path}.body`,
+        "article.block.example.body.required",
+        issues,
+      );
+      break;
     case "heading":
       requireText(
         block.text,

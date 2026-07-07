@@ -74,6 +74,8 @@ export interface AcademySection {
 
 export type AcademyContentBlock =
   | ParagraphBlock
+  | DefinitionBlock
+  | ExampleBlock
   | HeadingBlock
   | BulletListBlock
   | TableBlock
@@ -93,6 +95,18 @@ export interface BaseContentBlock {
 export interface ParagraphBlock extends BaseContentBlock {
   readonly type: "paragraph";
   readonly text: string;
+}
+
+export interface DefinitionBlock extends BaseContentBlock {
+  readonly type: "definition";
+  readonly term: string;
+  readonly definition: string;
+}
+
+export interface ExampleBlock extends BaseContentBlock {
+  readonly type: "example";
+  readonly title: string;
+  readonly body: string;
 }
 
 export interface HeadingBlock extends BaseContentBlock {

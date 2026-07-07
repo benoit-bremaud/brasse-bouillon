@@ -147,6 +147,22 @@ function AcademyBlockRenderer({
   switch (block.type) {
     case "paragraph":
       return <Text style={styles.paragraph}>{block.text}</Text>;
+    case "definition":
+      return (
+        <Card style={styles.definitionCard} variant="subtle">
+          <Text style={styles.blockEyebrow}>Définition</Text>
+          <Text style={styles.calloutTitle}>{block.term}</Text>
+          <Text style={styles.paragraph}>{block.definition}</Text>
+        </Card>
+      );
+    case "example":
+      return (
+        <Card style={styles.exampleCard}>
+          <Text style={styles.blockEyebrow}>Exemple</Text>
+          <Text style={styles.calloutTitle}>{block.title}</Text>
+          <Text style={styles.paragraph}>{block.body}</Text>
+        </Card>
+      );
     case "heading":
       return (
         <Text
@@ -400,6 +416,23 @@ const styles = StyleSheet.create({
   calloutCard: {
     gap: spacing.xs,
     borderLeftWidth: spacing.xxs,
+  },
+  definitionCard: {
+    gap: spacing.xs,
+    borderLeftWidth: spacing.xxs,
+    borderLeftColor: colors.brand.secondary,
+    backgroundColor: colors.state.infoBackground,
+  },
+  exampleCard: {
+    gap: spacing.xs,
+    borderLeftWidth: spacing.xxs,
+    borderLeftColor: colors.semantic.success,
+  },
+  blockEyebrow: {
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.secondary,
   },
   calloutInfo: {
     borderLeftColor: colors.brand.secondary,

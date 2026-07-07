@@ -71,6 +71,10 @@ review:
 
 Hops bring bitterness, aroma, flavor, and some preservative effects.
 
+:::definition id="definition-alpha-acid" term="Alpha acid" definition="Hop resin that contributes bitterness after isomerization." sourceIds="palmer-2017":::
+
+:::example id="example-late-hop" title="Late hop addition" body="A late boil addition preserves more aroma than a long bittering addition." sourceIds="palmer-2017":::
+
 :::glossaryReference id="ibu-reference" termSlug="ibu" label="IBU" sourceIds="palmer-2017":::
 
 :::calculatorCta id="hop-calculator" calculatorSlug="houblons" title="Hop calculator" description="Estimate bitterness." sourceIds="palmer-2017":::
@@ -126,7 +130,7 @@ describe("Academy content generation", () => {
 
     expect(article.value).toBeNull();
     expect(article.errors).toContain(
-      'docs/academy/ingredients/houblons.md:44: unsupported Academy directive "videoEmbed".',
+      'docs/academy/ingredients/houblons.md:48: unsupported Academy directive "videoEmbed".',
     );
   });
 
@@ -151,6 +155,16 @@ describe("Academy content generation", () => {
 
     expect(blocks).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          id: "definition-alpha-acid",
+          type: "definition",
+          term: "Alpha acid",
+        }),
+        expect.objectContaining({
+          id: "example-late-hop",
+          type: "example",
+          title: "Late hop addition",
+        }),
         expect.objectContaining({
           id: "ibu-reference",
           type: "glossaryReference",

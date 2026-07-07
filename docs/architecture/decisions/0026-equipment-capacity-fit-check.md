@@ -42,9 +42,13 @@ hold — a silent dead-end that contradicts the "never dead-end mid-brew" north-
 
 ### Documented study (why we are not guessing)
 
-- **Fermenter sizing is a fit question, headspace ≠ losses.** Homebrew practice sizes the fermenter
-  **~20–25 % above** the batch volume to absorb krausen and allow a blow-off — critical on a
-  narrow-neck demijohn. That **headspace** decides whether the wort *physically fits*; the stored
+- **Fermenter sizing is a fit question, headspace ≠ losses.** The general krausen-safe norm sizes the
+  fermenter **~20–25 % above** the batch volume (blow-off room), but the project's **own canonical
+  first brew deliberately runs tight** — `Blonde Facile (premier brassin)` seeds `batch_size_l: 4.3`
+  into a **5 L demijohn** (`public-recipes.seed.ts`), i.e. ~14 % headspace. So **v1 defaults
+  `HEADSPACE_RATIO = 0.10`** (usable = `5 × 0.90 = 4.5 L ≥ 4.3` → the flagship reads `FITS` with
+  margin, never `TOO_LARGE`); the 20–25 % norm is the **deferred per-style refinement**. That
+  **headspace** decides whether the wort *physically fits*; the stored
   `trub_/dead_space_/transfer_loss_l` fields reduce *final yield*, not fit. The two must not be
   conflated. No `headspace` value exists on the profile today, so v1 introduces it as a **constant**.
 - **The kettle "physically impossible" test is method-dependent.** Whether a kettle can hold the
@@ -62,10 +66,12 @@ Ship the equipment leg of the readiness journey as an **advisory capacity fit-ch
 the **backend**, reusing the **real** equipment fields — **not** the conceived item checklist.
 
 - **Fermenter (primary check).** `fermenterUsableL = fermenter_volume_l × (1 − HEADSPACE_RATIO)`
-  compared to the recipe's **`batch_size_l`**. Verdicts: **`FITS`** or **`TOO_LARGE`**. `TOO_LARGE`
-  is **advisory**: it surfaces the **scale ratio** `scaleRatio = batch_size_l / fermenterUsableL`
-  ("cette recette vise 20 L, ton fermenteur tient ~4 L utiles → divise par ~5") as a manual escape
-  hatch — computed **only when `fermenterUsableL > 0`** (never a raw division). **No auto-rescale in
+  compared to the recipe's **`batch_size_l`**. Verdicts: **`FITS`** (`batch_size_l ≤ fermenterUsableL`)
+  or **`TOO_LARGE`** (`batch_size_l > fermenterUsableL`, **strict `>`** so a boundary-equal recipe
+  reads `FITS`). `TOO_LARGE` is **advisory**: it surfaces the **scale ratio**
+  `scaleRatio = batch_size_l / fermenterUsableL` ("cette recette vise 20 L, ton fermenteur ne tient
+  que ~4,5 L utiles → réduis d'un facteur ~4–5") as a manual escape hatch — computed **only when
+  `fermenterUsableL > 0`** (never a raw division). **No auto-rescale in
   v1** (guided rescale is the next slice; the recipe-scaling code does not exist yet). The fermenter
   verdict is **`NOT_EVALUATED`** (**never `FITS`**, never a division) whenever **either input is
   missing/degenerate**: `batch_size_l` **null, non-finite, or ≤ 0** (a common case — user recipes
@@ -82,8 +88,12 @@ the **backend**, reusing the **real** equipment fields — **not** the conceived
   `boil_kettle_volume_l` is **null, non-finite, or ≤ 0**; only the fermenter check then runs.
 - **No profile → `NOT_EVALUATED`.** When the user has declared no equipment, the check renders a
   **just-in-time call-to-action** ("déclare ton matériel pour vérifier l'adéquation", linking to the
-  Equipment screen) and does **not** block the launch. v1 uses the user's **default / only** profile;
-  multi-profile selection is deferred.
+  Equipment screen) and does **not** block the launch. There is **no persisted default marker** on
+  `equipment_profiles` today, so v1 uses the user's **single profile** when there is one, and — for a
+  user with several — the **most-recently-created** one (the existing `EquipmentProfileService.listMine`
+  `created_at DESC` order), documented as the de-facto default. An explicit `profileId` selection / a
+  real default marker is a **deferred** slice; until then the endpoint accepts an optional
+  `profileId` and falls back to that most-recent profile.
 - **One response shape for `NOT_EVALUATED`, tagged with a `reason`.** Every non-evaluable case
   returns the **same `CapacityFit`** object with the affected per-verdict enum(s) set to
   `NOT_EVALUATED`, the numeric fields absent (optional — `number?` on the class), and a **per-verdict
@@ -97,7 +107,8 @@ the **backend**, reusing the **real** equipment fields — **not** the conceived
 - **The launch gate is unchanged in v1.** `readyToLaunch = ingredientChecklist.isComplete()`. The
   capacity fit-check is **advisory only** — it never disables "Démarrer" in v1. Placement on the
   screen puts the **capacity block first** (most fundamental), then the ingredient checklist.
-- **`HEADSPACE_RATIO` is a calibratable constant** (defaulted **0.20**), in the spirit of ADR-0020
+- **`HEADSPACE_RATIO` is a calibratable constant** (defaulted **0.10**, calibrated so the shipped
+  guided first brew — `batch_size_l 4.3` in a 5 L demijohn — reads `FITS`), in the spirit of ADR-0020
   D4 — a backend constant in v1, promotable to a per-profile `fermenterHeadspaceRatio` field later.
 
 This is the **first consumer** of the equipment profile and a **partial, honest realization** of
@@ -176,7 +187,8 @@ without building the (non-existent) rescale engine or silently changing the novi
   longer conflated with a good fit — it is flagged here so the gap is explicit, not silent.
 - The `04-class` `ReadinessChecklist` of `Kind = EQUIPMENT` is **replaced** by a `CapacityFit`
   value object; the launch gate stays ingredient-only in v1 (`05-state-readiness` updated).
-- `HEADSPACE_RATIO = 0.20` is a documented, calibratable constant, distinct from the stored losses.
+- `HEADSPACE_RATIO = 0.10` is a documented, calibratable constant (calibrated so the shipped guided
+  first brew reads `FITS`), distinct from the stored losses.
 
 ## Relation to other ADRs
 

@@ -22,8 +22,8 @@ sequenceDiagram
   participant R as Recipe store
   participant RW as recipe_water store
 
-  B->>M: Open Preparer mon brassin
-  M->>API: GET /recipes/:id/equipment-fit with default profileId
+  B->>M: Open Préparer mon brassin
+  M->>API: GET /recipes/:id/equipment-fit with optional profileId, else backend resolves my default
   API->>FS: computeFit recipeId profileId
   FS->>EP: load default equipment profile
   FS->>R: load recipe batch_size_l
@@ -32,7 +32,7 @@ sequenceDiagram
     EP-->>FS: none
     FS-->>API: CapacityFit both NOT_EVALUATED, both reason NO_PROFILE
     API-->>M: 200 CapacityFit
-    M-->>B: reason NO_PROFILE drives the JIT CTA declare ton materiel
+    M-->>B: reason NO_PROFILE drives the JIT CTA déclare ton matériel
   else Profile exists
     EP-->>FS: capacities fermenter and kettle
     alt batch_size_l missing or not positive

@@ -80,7 +80,7 @@ classDiagram
   EquipmentProfile "1" ..> "1" VolumePlan : caps & method (D1/D2)
   Recipe "1" ..> "1" CapacityFit : batch_size_l
   RecipeWater "0..1" ..> "1" CapacityFit : mash + sparge (pre-boil)
-  EquipmentProfile "1" ..> "1" CapacityFit : fermenter + kettle (ADR-0026)
+  EquipmentProfile "0..1" ..> "1" CapacityFit : fermenter + kettle (ADR-0026)
   BrewReadiness "1" o-- "1" VolumePlan
   BrewReadiness "1" o-- "1" ReadinessChecklist : ingredient (gates v1)
   BrewReadiness "1" o-- "1" CapacityFit : equipment (advisory, v1)
@@ -111,14 +111,15 @@ classDiagram
 - **`CapacityFit` (ADR-0026)** replaces the conceived equipment `ReadinessChecklist`: the equipment
   profile is **capacity-based** (three volumes), not an item list, so the equipment leg is a
   backend-computed fit — `fermenterUsableL = fermenterCapacityL × (1 − HEADSPACE_RATIO)` (default
-  `0.20`, distinct from the yield-only trub/dead-space/transfer losses) vs `recipeVolumeL`, and
+  `0.10`, distinct from the yield-only trub/dead-space/transfer losses) vs `recipeVolumeL`, and
   `kettleCapacityL` vs an **approximate** `preBoilL = mash_volume_l + sparge_volume_l`. `scaleRatio`
   is surfaced on `TOO_LARGE` as a manual escape hatch (no auto-rescale in v1).
-- **Source mapping (backend, ADR-0026):** the value-object fields alias the shipped columns —
-  `recipeVolumeL` ← the recipe's **nullable** `batch_size_l`; `fermenterUsableL` ← the profile's
-  `fermenter_volume_l`; `kettleCapacityL` ← `boil_kettle_volume_l`; `preBoilL` ← `mash_volume_l +
-  sparge_volume_l` on the **optional `RecipeWater`**. (The mobile surfaces `batch_size_l` as
-  `RecipeStats.volumeLiters`; do not use that mobile name for the backend fetch.)
+- **Source mapping (backend, ADR-0026):** `recipeVolumeL` ← the recipe's **nullable** `batch_size_l`;
+  `kettleCapacityL` ← the profile's `boil_kettle_volume_l` (direct alias); `preBoilL` ← `mash_volume_l
+  + sparge_volume_l` on the **optional `RecipeWater`**. **`fermenterUsableL` is DERIVED, not a raw
+  alias** — `fermenter_volume_l × (1 − HEADSPACE_RATIO)` — so the mobile must display the
+  headspace-adjusted usable volume, never the raw `fermenter_volume_l`. (The mobile surfaces
+  `batch_size_l` as `RecipeStats.volumeLiters`; do not use that mobile name for the backend fetch.)
 - **`NOT_EVALUATED` is per-verdict, carries a `reason`, and the numeric fields are populated only
   when that verdict is evaluated** — shown as **`number?`** (optional `[0..1]`) on the class body;
   absent otherwise. Every non-evaluable case returns the **same `CapacityFit`** shape (never a bare
@@ -153,7 +154,7 @@ classDiagram
   when its matching verdict is `NOT_EVALUATED`, and drives which advisory the mobile shows.
 - **`EquipmentProfile.fermenterHeadspaceRatio` is the ADR-0020 *target* field, deferred in v1**
   (ADR-0026 § Consequences): the v1 `CapacityFit` uses the backend `HEADSPACE_RATIO` **constant**
-  (`0.20`, line derivation above), **not** this per-profile field — which only the ADR-0020 cascade
+  (`0.10`, line derivation above), **not** this per-profile field — which only the ADR-0020 cascade
   (`intoFermenterL`, line 93) reads. Like the dropped `EQUIPMENT` `Kind` and the inactive
   `HARD_STOP`, it is modelled-but-not-v1.
 - **Design patterns (named, see ADR-0020 § Design patterns):** `VolumePlan` is a

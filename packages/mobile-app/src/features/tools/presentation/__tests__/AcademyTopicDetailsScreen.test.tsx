@@ -190,6 +190,46 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "glossaire",
+      metadata: {
+        title: "Glossaire brassicole",
+        summary: "Generated glossary article summary.",
+        category: "glossary",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 8,
+        tags: ["glossary"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: ["ibu"],
+        relatedCalculators: [],
+        learningObjectives: ["Understand brewing vocabulary."],
+        prerequisites: [],
+        teaches: ["brewing-vocabulary"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-glossaire",
+            title: "Pourquoi un glossaire brassicole",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated glossary article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "orphan-malt",
       metadata: {
         title: "Malt generated",
@@ -349,6 +389,16 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(screen.getByText("Generated water article summary.")).toBeTruthy();
     expect(screen.getByText("Pourquoi l'eau est critique")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated glossary article without a calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    expect(
+      screen.getByText("Generated glossary article summary."),
+    ).toBeTruthy();
+    expect(screen.getByText("Pourquoi un glossaire brassicole")).toBeTruthy();
+    expect(screen.queryByText("Ouvrir le calculateur")).toBeNull();
   });
 
   it("renders a published generated article even without a legacy topic", () => {

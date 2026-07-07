@@ -663,6 +663,175 @@ export const academyCorpus: AcademyCorpus = {
         ],
       },
     },
+    {
+      slug: "glossaire",
+      metadata: {
+        title: "Glossaire brassicole",
+        summary:
+          "Reference guide for reading brewing vocabulary, units, acronyms, and common technical confusions.",
+        category: "glossary",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 8,
+        tags: ["glossary", "vocabulary", "reference"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["introduction", "houblons", "levures", "eau"],
+        relatedGlossaryTerms: ["ibu", "acide-alpha", "profil-mineral"],
+        relatedCalculators: [],
+        learningObjectives: [
+          "Understand how to read a brewing glossary entry.",
+          "Distinguish measurements, calculated values, and process targets.",
+          "Identify common vocabulary families used across the Academy.",
+        ],
+        prerequisites: ["brewing-overview"],
+        teaches: ["brewing-vocabulary", "technical-reading"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [
+          {
+            id: "palmer-2017",
+            kind: "book",
+            title: "How to Brew",
+            authors: ["John J. Palmer"],
+            publisher: "Brewers Publications",
+            url: "https://www.howtobrew.com/",
+            accessedAt: "2026-07-03",
+            year: 2017,
+            notes: "General homebrewing reference for ingredients and process.",
+          },
+          {
+            id: "brun-water-knowledge",
+            kind: "website",
+            title: "Bru'n Water Knowledge",
+            authors: ["Martin Brungard"],
+            publisher: "Bru'n Water",
+            url: "https://www.brunwater.com/water-knowledge",
+            accessedAt: "2026-07-03",
+            year: null,
+            notes: "Practical brewing water chemistry reference.",
+          },
+        ],
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: ["Migrated from the legacy mobile Academy glossary topic."],
+        },
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-glossaire",
+            title: "Pourquoi un glossaire brassicole",
+            blocks: [
+              {
+                id: "pourquoi-glossaire-paragraph-1",
+                type: "paragraph",
+                text: "En brassage, une decision depend souvent d'un mot technique bien compris : OG, FG, attenuation, IBU, pH, RA, pitch rate ou volumes CO2. Le glossaire sert de reference rapide pour lire une recette, comprendre une fiche technique et relier chaque terme a une action concrete.",
+                sourceIds: [],
+              },
+              {
+                id: "example-vocabulary-decision",
+                type: "example",
+                title: "Vocabulaire utile",
+                body: "IBU aide a raisonner l'amertume calculee, mais ne remplace pas la degustation. Le mot est utile seulement si on sait aussi ce qu'il mesure et ce qu'il ne mesure pas.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "lire-entree",
+            title: "Comment lire une entree",
+            blocks: [
+              {
+                id: "lire-entree-paragraph-1",
+                type: "paragraph",
+                text: "Une bonne entree de glossaire doit donner une definition simple, l'unite associee quand elle existe, l'impact pratique sur le process, puis la confusion frequente a eviter. Cette structure evite d'apprendre des acronymes sans savoir quoi en faire pendant un brassin.",
+                sourceIds: [],
+              },
+              {
+                id: "reference-ibu",
+                type: "glossaryReference",
+                termSlug: "ibu",
+                label: "IBU",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "reference-profil-mineral",
+                type: "glossaryReference",
+                termSlug: "profil-mineral",
+                label: "Profil mineral",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "familles",
+            title: "Familles de termes couvertes",
+            blocks: [
+              {
+                id: "familles-paragraph-1",
+                type: "paragraph",
+                text: "Les termes de densite et d'alcool couvrent OG, FG, ABV, attenuation et degres Plato. Les termes d'amertume et de couleur couvrent IBU, BU:GU, MCU, SRM et EBC. Les termes d'eau et de chimie couvrent pH, alcalinite residuelle, sulfates, chlorures et bicarbonates. Les termes de fermentation couvrent pitch rate, floculation, repos diacetyle et nutriments de levure.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-mesure-cible",
+                type: "definition",
+                term: "Mesure, calcul et cible",
+                definition:
+                  "Une mesure vient d'un instrument, un calcul derive une valeur, et une cible represente l'objectif process choisi pour une recette.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "reperes",
+            title: "Reperes incontournables",
+            blocks: [
+              {
+                id: "reperes-paragraph-1",
+                type: "paragraph",
+                text: "Les premiers reperes a maitriser sont OG pour la densite initiale, FG pour la densite finale, ABV pour l'alcool, IBU pour l'amertume calculee, EBC ou SRM pour la couleur, pH pour l'acidite, attenuation pour la part des sucres fermentes, pitch rate pour la quantite de levure, RA pour l'effet tampon de l'eau, et volumes CO2 pour la carbonatation.",
+                sourceIds: [],
+              },
+              {
+                id: "reference-acide-alpha",
+                type: "glossaryReference",
+                termSlug: "acide-alpha",
+                label: "Acide alpha",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "confusions",
+            title: "Confusions frequentes",
+            blocks: [
+              {
+                id: "confusions-paragraph-1",
+                type: "paragraph",
+                text: "Les confusions les plus courantes sont de melanger OG et FG avec ABV, de confondre EBC du malt et couleur finale de la biere, de prendre les IBU theoriques pour l'amertume reellement percue, de melanger SG, points et degres Plato sans conversion, ou de comparer un pH mesure a chaud avec une cible prevue a temperature de lecture.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "methode",
+            title: "Methode d'apprentissage rapide",
+            blocks: [
+              {
+                id: "methode-paragraph-1",
+                type: "paragraph",
+                text: "Commencer par memoriser les reperes essentiels, puis associer chaque terme a une decision concrete : corriger une recette, choisir une levure, ajuster l'eau ou diagnostiquer un brassin. Ajouter les unites dans les notes de brassage aide a eviter les erreurs de lecture. Apres chaque brassin, revenir au glossaire pour consolider les termes rencontres en pratique.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
   ],
   glossaryTerms: [
     {

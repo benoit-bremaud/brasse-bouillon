@@ -44,7 +44,7 @@ review:
   reviewed_at: 2026-07-07
   notes:
     - Migrated from the legacy mobile Academy efficiency topic.
-    - Aligned with the existing Rendement calculator tabs: efficiency, volumes, and water plan.
+    - "Aligned with the existing Rendement calculator tabs: efficiency, volumes, and water plan."
 ---
 
 ## Pourquoi le rendement est critique {#role-rendement}

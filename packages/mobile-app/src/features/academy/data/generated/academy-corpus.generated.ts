@@ -1927,5 +1927,14 @@ export const academyCorpus: AcademyCorpus = {
       notes: "Practical brewing water chemistry reference.",
     },
   ],
-  calculatorSlugs: ["houblons", "levures", "eau"],
+  calculatorSlugs: [
+    "houblons",
+    "levures",
+    "eau",
+    "fermentescibles",
+    "couleur",
+    "carbonatation",
+    "rendement",
+    "avances",
+  ],
 };

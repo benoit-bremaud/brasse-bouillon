@@ -20,6 +20,11 @@ describe("Academy generated repository", () => {
       "houblons",
       "levures",
       "eau",
+      "fermentescibles",
+      "couleur",
+      "carbonatation",
+      "rendement",
+      "avances",
     ]);
   });
 

@@ -1,7 +1,7 @@
 ---
 slug: avances
 title: Calculs avancés
-summary: Reference guide for advanced brewing diagnostics: diastatic power, wort indicators, and altitude corrections.
+summary: "Reference guide for advanced brewing diagnostics: diastatic power, wort indicators, and altitude corrections."
 category: process
 level: advanced
 status: published
@@ -26,7 +26,7 @@ related_calculators:
     target_slug: avances
 learning_objectives:
   - Identify when advanced diagnostics are useful.
-  - Understand the three calculator areas: enzymes, wort, and altitude.
+  - "Understand the three calculator areas: enzymes, wort, and altitude."
   - Avoid treating advanced estimates as absolute truths.
 prerequisites:
   - malt-basics
@@ -49,7 +49,7 @@ review:
   reviewed_at: 2026-07-07
   notes:
     - Migrated from the legacy mobile Academy advanced calculations topic.
-    - Aligned with the existing Advanced calculator tabs: enzymes, wort, and altitude.
+    - "Aligned with the existing Advanced calculator tabs: enzymes, wort, and altitude."
 ---
 
 ## Pourquoi ces calculs sont avances {#role-avances}

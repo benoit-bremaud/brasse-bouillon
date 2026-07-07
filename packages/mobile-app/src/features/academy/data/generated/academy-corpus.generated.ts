@@ -870,6 +870,215 @@ export const academyCorpus: AcademyCorpus = {
       },
     },
     {
+      slug: "carbonatation",
+      metadata: {
+        title: "Carbonatation",
+        summary:
+          "Reference guide for carbonation targets, residual CO2, priming sugar, and safe packaging checks.",
+        category: "process",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["carbonation", "packaging", "priming", "safety"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["introduction", "levures"],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "carbonatation",
+            label: "Carbonation calculator",
+            reason: "Estimate priming sugar for a target carbonation level.",
+            target: {
+              type: "calculator",
+              slug: "carbonatation",
+            },
+          },
+        ],
+        learningObjectives: [
+          "Choose a carbonation target adapted to a beer style.",
+          "Understand residual CO2 and priming sugar calculations.",
+          "Identify the safety checks required before bottling.",
+        ],
+        prerequisites: ["brewing-overview", "fermentation-basics"],
+        teaches: ["carbonation-targets", "priming-sugar", "packaging-safety"],
+        sensitive: true,
+        riskTopics: ["bottle-pressure", "priming-dosage"],
+        sources: [
+          {
+            id: "palmer-2017",
+            kind: "book",
+            title: "How to Brew",
+            authors: ["John J. Palmer"],
+            publisher: "Brewers Publications",
+            url: "https://www.howtobrew.com/",
+            accessedAt: "2026-07-03",
+            year: 2017,
+            notes: "General homebrewing reference for ingredients and process.",
+          },
+        ],
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: [
+            "Migrated from the legacy mobile Academy carbonation topic.",
+            "Safety wording kept explicit because bottling too early can create dangerous pressure.",
+          ],
+        },
+      },
+      body: {
+        sections: [
+          {
+            id: "role-carbonatation",
+            title: "Pourquoi la carbonatation est critique",
+            blocks: [
+              {
+                id: "role-carbonatation-paragraph-1",
+                type: "paragraph",
+                text: "La carbonatation ne sert pas seulement a faire des bulles. Elle influence la mousse, la perception des aromes, la sensation en bouche et la coherence avec le style. Une cible trop faible donne une biere plate ; une cible trop elevee peut provoquer du gushing, une sensation agressive et, en bouteille, un risque de surpression.",
+                sourceIds: [],
+              },
+              {
+                id: "example-carbonation-style",
+                type: "example",
+                title: "Lecture sensorielle",
+                body: "Une Bitter anglaise reste souvent peu petillante et douce au service, alors qu'une Saison ou une Weizen peut demander une carbonatation nettement plus elevee avec un contenant adapte.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "reperes",
+            title: "Reperes rapides",
+            blocks: [
+              {
+                id: "reperes-paragraph-1",
+                type: "paragraph",
+                text: "Un volume de CO2 signifie un litre de CO2 dissous dans un litre de biere. La biere contient deja du CO2 residuel apres fermentation, et cette quantite depend surtout de la temperature la plus haute atteinte avant conditionnement. Plus la biere est froide, plus elle retient naturellement le CO2. Le priming consiste a ajouter une quantite precise de sucre avant embouteillage pour generer le CO2 manquant.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-volume-co2",
+                type: "definition",
+                term: "Volume de CO2",
+                definition:
+                  "Unite pratique de carbonatation. Une biere a 2,4 volumes contient environ 2,4 litres de CO2 dissous par litre de biere.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "priming",
+            title: "Calculer le sucre de priming",
+            blocks: [
+              {
+                id: "priming-paragraph-1",
+                type: "paragraph",
+                text: "Le calcul part de trois donnees : la cible de CO2, le CO2 residuel et le volume de biere a conditionner. Pour du glucose ou dextrose, un repere pratique est : sucre en grammes environ egal a CO2 cible moins CO2 residuel, multiplie par le volume en litres, puis par 4,0. Pour du saccharose, la quantite est legerement plus faible, avec un coefficient pratique autour de 3,8.",
+                sourceIds: [],
+              },
+              {
+                id: "carbonation-calculator",
+                type: "calculatorCta",
+                calculatorSlug: "carbonatation",
+                title: "Calculer le sucre de priming",
+                description:
+                  "Utiliser le calculateur carbonatation pour relier volume, temperature, cible CO2 et type de sucre.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "co2-residuel",
+            title: "CO2 residuel et temperature",
+            blocks: [
+              {
+                id: "co2-residuel-paragraph-1",
+                type: "paragraph",
+                text: "Le CO2 residuel doit etre estime avec la temperature la plus haute atteinte par la biere avant conditionnement, pas seulement la temperature du jour de mise en bouteille. Comme ordre de grandeur, une biere proche de 0°C retient environ 1,7 volume, autour de 10°C environ 1,2 volume, et autour de 20°C environ 0,85 volume. Ces valeurs servent de repere ; le calculateur doit rester la source de dosage pratique.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "exemple-20l",
+            title: "Exemple concret",
+            blocks: [
+              {
+                id: "exemple-20l-paragraph-1",
+                type: "paragraph",
+                text: "Pour un lot de 20 L a 20°C avec une cible de 2,4 volumes de CO2, le CO2 residuel peut etre estime autour de 0,85 volume. Le CO2 manquant est donc environ 1,55 volume. Avec du dextrose, le dosage approche 1,55 x 20 x 4,0, soit environ 124 g.",
+                sourceIds: [],
+              },
+              {
+                id: "example-priming-20l",
+                type: "example",
+                title: "Lot de 20 L",
+                body: "Une erreur de quelques dizaines de grammes peut deja changer fortement le resultat. Le sucre doit etre pese precisement et melange uniformement.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "cibles-style",
+            title: "Cibles utiles par style",
+            blocks: [
+              {
+                id: "cibles-style-paragraph-1",
+                type: "paragraph",
+                text: "Une Bitter ou une Stout anglaise se situe souvent autour de 1,8 a 2,2 volumes. Une Pale Ale ou une IPA vise souvent 2,2 a 2,6 volumes. Une Belgian Ale ou une biere de ble peut monter autour de 2,6 a 3,2 volumes. Les cibles tres hautes, comme certaines Saisons ou Weizen, exigent des bouteilles adaptees a la pression et une verification stricte de la fermentation terminee.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "methodes",
+            title: "Priming bouteille et force carbonation",
+            blocks: [
+              {
+                id: "methodes-paragraph-1",
+                type: "paragraph",
+                text: "Le priming est simple, autonome et adapte au conditionnement bouteille. La force carbonation est plus rapide et plus precise pour le service en fut, mais elle depend de la temperature de service et de la pression appliquee. En bouteille, l'homogeneisation du sirop de sucre est essentielle pour eviter des bouteilles sous-carbonatees et d'autres sur-carbonatees.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "securite",
+            title: "Pieges et securite",
+            blocks: [
+              {
+                id: "securite-paragraph-1",
+                type: "paragraph",
+                text: "Ne jamais embouteiller une biere dont la FG n'est pas stable. Une fermentation encore active peut creer une surpression dangereuse. Les autres erreurs critiques sont un dosage approximatif du sucre, une mauvaise homogeneisation du sirop, une temperature residuelle mal estimee, ou l'utilisation de bouteilles non compatibles avec la pression cible.",
+                sourceIds: [],
+              },
+              {
+                id: "related-yeast",
+                type: "relatedArticle",
+                articleSlug: "levures",
+                sectionId: "fermentation",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "checklist",
+            title: "Checklist conditionnement",
+            blocks: [
+              {
+                id: "checklist-paragraph-1",
+                type: "paragraph",
+                text: "Avant conditionnement, verifier que la FG est stable sur 2 a 3 jours, noter la temperature la plus haute atteinte avant packaging, calculer et peser le sucre avec precision, melanger doucement et uniformement, utiliser des contenants adaptes a la pression visee, puis controler une bouteille test apres 7 a 10 jours.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",

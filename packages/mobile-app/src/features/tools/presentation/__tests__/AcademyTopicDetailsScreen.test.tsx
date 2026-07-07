@@ -237,6 +237,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "carbonatation",
+      metadata: {
+        title: "Carbonatation",
+        summary: "Generated carbonation article summary.",
+        category: "process",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["carbonation"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "carbonatation",
+            label: "Carbonation calculator",
+            reason: "Estimate priming sugar.",
+            target: { type: "calculator", slug: "carbonatation" },
+          },
+        ],
+        learningObjectives: ["Understand carbonation safety."],
+        prerequisites: [],
+        teaches: ["packaging-safety"],
+        sensitive: true,
+        riskTopics: ["bottle-pressure"],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-carbonatation",
+            title: "Pourquoi la carbonatation est critique",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated carbonation article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",
@@ -448,6 +495,18 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getAllByText("Malts et fermentescibles").length,
     ).toBeGreaterThan(0);
     expect(screen.getByText("Pourquoi le malt est central")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated carbonation article with calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="carbonatation" />);
+
+    expect(
+      screen.getByText("Generated carbonation article summary."),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("Pourquoi la carbonatation est critique"),
+    ).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 

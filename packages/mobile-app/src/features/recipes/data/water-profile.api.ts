@@ -51,6 +51,10 @@ interface WaterMineralsMgLDto {
   readonly hco3: number | null;
 }
 
+// Mirrors the backend `WaterProfileDto` (already camelCase). `mineralsMgL` is
+// typed nullable here as a defensive client guard only — the server always
+// populates the block (individual ions may be null); do NOT design partial-data
+// UX around a null block, which never arrives from the API.
 interface WaterProfileDto {
   readonly codeInsee: string;
   readonly year: number;

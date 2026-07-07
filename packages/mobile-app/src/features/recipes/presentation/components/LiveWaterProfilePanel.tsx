@@ -73,7 +73,7 @@ export function LiveWaterProfilePanel({ profile }: Props) {
   const pedagogy = hardnessSentence(profile.hardnessFrench);
 
   return (
-    <Card variant="subtle" style={styles.card}>
+    <Card variant="subtle" style={styles.card} testID="water-profile-panel">
       <View style={styles.headerRow}>
         <Text style={styles.network} numberOfLines={2}>
           {profile.networkName ?? "Réseau d'eau local"}
@@ -81,6 +81,7 @@ export function LiveWaterProfilePanel({ profile }: Props) {
         <Badge
           label={CONFORMITY_LABEL[profile.conformity]}
           variant={CONFORMITY_VARIANT[profile.conformity]}
+          accessibilityLabel={`Conformité : ${CONFORMITY_LABEL[profile.conformity]}`}
         />
       </View>
 

@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { HttpError } from "@/core/http/http-error";
 import {
   loadWaterProfile,
   resolveCommunes,
@@ -44,7 +45,7 @@ const lomme: Commune = {
 };
 const profile: LiveWaterProfile = {
   codeInsee: "59350",
-  year: 2024,
+  year: 2025,
   networkName: "LILLE",
   sampleCount: 100,
   conformity: "C",
@@ -65,6 +66,11 @@ function renderComponent() {
   );
 }
 
+function submit(postalCode: string) {
+  fireEvent.changeText(screen.getByTestId("water-postal-input"), postalCode);
+  fireEvent.press(screen.getByTestId("water-resolve-button"));
+}
+
 describe("LocalWaterByPostalCode", () => {
   afterEach(() => jest.clearAllMocks());
 
@@ -73,21 +79,19 @@ describe("LocalWaterByPostalCode", () => {
     mockLoad.mockResolvedValue(profile);
     renderComponent();
 
-    fireEvent.changeText(screen.getByTestId("water-postal-input"), "59000");
-    fireEvent.press(screen.getByTestId("water-resolve-button"));
+    submit("59000");
 
-    expect(await screen.findByText("LILLE")).toBeTruthy();
+    expect(await screen.findByTestId("water-profile-panel")).toBeTruthy();
     expect(mockResolve).toHaveBeenCalledWith("59000", expect.anything());
     expect(mockLoad.mock.calls[0][0]).toBe("59350");
   });
 
-  it("forces a commune choice when the postal code maps to several communes", async () => {
+  it("forces a commune choice on several communes and keeps the picker to switch", async () => {
     mockResolve.mockResolvedValue([lille, lomme]);
     mockLoad.mockResolvedValue(profile);
     renderComponent();
 
-    fireEvent.changeText(screen.getByTestId("water-postal-input"), "59000");
-    fireEvent.press(screen.getByTestId("water-resolve-button"));
+    submit("59000");
 
     expect(
       await screen.findByText(/Plusieurs communes partagent ce code postal/),
@@ -98,13 +102,14 @@ describe("LocalWaterByPostalCode", () => {
 
     await waitFor(() => expect(mockLoad).toHaveBeenCalled());
     expect(mockLoad.mock.calls[0][0]).toBe("59352");
+    // The picker stays mounted so the user can switch after a miss.
+    expect(screen.getByTestId("water-commune-59350")).toBeTruthy();
   });
 
   it("does not query on an invalid postal code and shows a hint", () => {
     renderComponent();
 
-    fireEvent.changeText(screen.getByTestId("water-postal-input"), "5900");
-    fireEvent.press(screen.getByTestId("water-resolve-button"));
+    submit("5900");
 
     expect(
       screen.getByText("Un code postal français comporte 5 chiffres."),
@@ -116,8 +121,7 @@ describe("LocalWaterByPostalCode", () => {
     mockResolve.mockResolvedValue([]);
     renderComponent();
 
-    fireEvent.changeText(screen.getByTestId("water-postal-input"), "00000");
-    fireEvent.press(screen.getByTestId("water-resolve-button"));
+    submit("00000");
 
     expect(
       await screen.findByText("Code postal inconnu, vérifie ta saisie."),
@@ -128,9 +132,53 @@ describe("LocalWaterByPostalCode", () => {
     mockResolve.mockRejectedValue(new Error("Service géo indisponible"));
     renderComponent();
 
-    fireEvent.changeText(screen.getByTestId("water-postal-input"), "59000");
-    fireEvent.press(screen.getByTestId("water-resolve-button"));
+    submit("59000");
 
     expect(await screen.findByText("Service géo indisponible")).toBeTruthy();
+  });
+
+  it("shows the French no-data message on a 404 water fetch", async () => {
+    mockResolve.mockResolvedValue([lille]);
+    mockLoad.mockRejectedValue(
+      new HttpError(404, "No data for this city/year"),
+    );
+    renderComponent();
+
+    submit("59000");
+
+    expect(
+      await screen.findByText(
+        "Pas de données d'eau pour cette commune cette année.",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("passes through a non-404 water error message", async () => {
+    mockResolve.mockResolvedValue([lille]);
+    mockLoad.mockRejectedValue(new Error("Backend indisponible"));
+    renderComponent();
+
+    submit("59000");
+
+    expect(await screen.findByText("Backend indisponible")).toBeTruthy();
+  });
+
+  it("shows the loading indicator while communes resolve", async () => {
+    mockResolve.mockReturnValue(new Promise<Commune[]>(() => {}));
+    renderComponent();
+
+    submit("59000");
+
+    expect(await screen.findByTestId("water-communes-loading")).toBeTruthy();
+  });
+
+  it("shows the loading indicator while the water profile loads", async () => {
+    mockResolve.mockResolvedValue([lille]);
+    mockLoad.mockReturnValue(new Promise<LiveWaterProfile>(() => {}));
+    renderComponent();
+
+    submit("59000");
+
+    expect(await screen.findByTestId("water-profile-loading")).toBeTruthy();
   });
 });

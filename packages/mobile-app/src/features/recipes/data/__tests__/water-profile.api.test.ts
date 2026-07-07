@@ -105,15 +105,19 @@ describe("water-profile.api", () => {
       mockRequest.mockResolvedValue([
         { code: "59350", nom: "Lille", codesPostaux: ["59000"] },
       ]);
+      const controller = new AbortController();
 
-      const result = await getCommunesByPostalCode("59000");
+      const result = await getCommunesByPostalCode("59000", controller.signal);
 
       expect(mockRequest).toHaveBeenCalledTimes(1);
       const [path, options] = mockRequest.mock.calls[0];
-      expect(path).toContain("/communes?codePostal=59000");
+      expect(path).toBe(
+        "/communes?codePostal=59000&fields=nom,code,codesPostaux",
+      );
       expect(options).toMatchObject({
         auth: false,
         baseUrl: "https://geo.api.gouv.fr",
+        signal: controller.signal,
       });
       expect(result).toEqual([
         { codeInsee: "59350", nom: "Lille", codesPostaux: ["59000"] },
@@ -133,10 +137,16 @@ describe("water-profile.api", () => {
         hardnessFrench: 125.4,
       });
 
-      const result = await getLiveWaterProfile("59350", 2024);
+      const controller = new AbortController();
+      const result = await getLiveWaterProfile(
+        "59350",
+        2024,
+        controller.signal,
+      );
 
-      const [path] = mockRequest.mock.calls[0];
+      const [path, options] = mockRequest.mock.calls[0];
       expect(path).toBe("/water?codeInsee=59350&year=2024");
+      expect(options).toMatchObject({ signal: controller.signal });
       expect(result.networkName).toBe("LILLE");
       expect(result.conformity).toBe("C");
       expect(result.mineralsMgL.ca).toBe(116.7);

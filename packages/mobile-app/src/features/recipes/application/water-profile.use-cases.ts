@@ -1,3 +1,4 @@
+import { HttpError } from "@/core/http/http-error";
 import {
   getCommunesByPostalCode,
   getLiveWaterProfile,
@@ -26,14 +27,23 @@ export async function resolveCommunes(
 }
 
 /**
- * Loads the local water profile for a resolved commune. `year` defaults to the
- * current calendar year (most communes publish within it); an empty year yields
- * a backend not-found the UI renders as "no data".
+ * Loads the local water profile for a resolved commune, trying the current year
+ * first and falling back to the previous one on a not-found. Hub'Eau lags
+ * ~6 weeks, so the in-progress year is often empty (a 404) even where fresh
+ * prior-year data exists — the fallback keeps the freshest *available* year
+ * instead of dead-ending on "no data". A genuine miss (both years 404) rethrows.
  */
 export async function loadWaterProfile(
   codeInsee: string,
-  year: number,
   signal?: AbortSignal,
 ): Promise<LiveWaterProfile> {
-  return getLiveWaterProfile(codeInsee, year, signal);
+  const currentYear = new Date().getFullYear();
+  try {
+    return await getLiveWaterProfile(codeInsee, currentYear, signal);
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) {
+      return getLiveWaterProfile(codeInsee, currentYear - 1, signal);
+    }
+    throw error;
+  }
 }

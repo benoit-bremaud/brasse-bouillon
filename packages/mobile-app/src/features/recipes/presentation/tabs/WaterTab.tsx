@@ -191,6 +191,9 @@ export function WaterTab(props: WaterTabProps) {
               })}
             </View>
 
+            {/* Slice-1 placement: beside the local-water presets, inside the
+                owned-recipe block. Broadening to community recipes is a
+                deliberate follow-up (ADR-0025 leaves the destination open). */}
             <LocalWaterByPostalCode />
 
             <View style={styles.compatibilityCard}>

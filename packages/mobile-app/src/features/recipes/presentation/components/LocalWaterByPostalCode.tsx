@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { getErrorMessage } from "@/core/http/http-error";
+import { HttpError, getErrorMessage } from "@/core/http/http-error";
 
 import {
   isValidPostalCode,
@@ -21,13 +21,16 @@ import {
 import type { Commune } from "@/features/recipes/domain/water-profile.types";
 import { LiveWaterProfilePanel } from "@/features/recipes/presentation/components/LiveWaterProfilePanel";
 
+function isNotFound(error: unknown): boolean {
+  return error instanceof HttpError && error.status === 404;
+}
+
 /**
  * Self-contained local-water lookup (ADR-0025 slice 1): postal code → resolve
  * communes via geo.api.gouv.fr → disambiguate if several → fetch the live
  * `/water` profile → render it. Location is ephemeral (nothing is persisted).
  */
 export function LocalWaterByPostalCode() {
-  const year = new Date().getFullYear();
   const [postalCode, setPostalCode] = useState("");
   const [submittedPostalCode, setSubmittedPostalCode] = useState("");
   const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
@@ -36,22 +39,21 @@ export function LocalWaterByPostalCode() {
     queryKey: ["geo-communes", submittedPostalCode],
     queryFn: ({ signal }) => resolveCommunes(submittedPostalCode, signal),
     enabled: isValidPostalCode(submittedPostalCode),
+    retry: false,
   });
 
   const communes = communesQuery.data;
-
-  // Auto-select when exactly one commune matches the postal code.
-  useEffect(() => {
-    if (communes && communes.length === 1 && !selectedCommune) {
-      setSelectedCommune(communes[0]);
-    }
-  }, [communes, selectedCommune]);
+  // Derived, not an effect: one commune auto-selects; the user's explicit pick
+  // wins. Recomputes cleanly whenever a new postal code changes the query key.
+  const effectiveCommune =
+    selectedCommune ?? (communes?.length === 1 ? communes[0] : null);
 
   const waterQuery = useQuery({
-    queryKey: ["water", selectedCommune?.codeInsee, year],
+    queryKey: ["water", effectiveCommune?.codeInsee],
     queryFn: ({ signal }) =>
-      loadWaterProfile(selectedCommune?.codeInsee ?? "", year, signal),
-    enabled: !!selectedCommune,
+      loadWaterProfile(effectiveCommune?.codeInsee ?? "", signal),
+    enabled: !!effectiveCommune,
+    retry: false,
   });
 
   const handleResolve = () => {
@@ -61,7 +63,9 @@ export function LocalWaterByPostalCode() {
 
   const showInvalidHint =
     postalCode.trim().length > 0 && !isValidPostalCode(postalCode);
-  const showPicker = !selectedCommune && !!communes && communes.length > 1;
+  // Kept mounted while several communes match, so the user can switch after a
+  // miss without re-typing (highlighting the current pick).
+  const showPicker = !!communes && communes.length > 1;
   const showUnknown =
     !!communes && communes.length === 0 && !communesQuery.isFetching;
 
@@ -89,6 +93,8 @@ export function LocalWaterByPostalCode() {
           label="Trouver mon eau"
           onPress={handleResolve}
           disabled={!isValidPostalCode(postalCode)}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: !isValidPostalCode(postalCode) }}
           style={styles.button}
         />
       </View>
@@ -107,7 +113,9 @@ export function LocalWaterByPostalCode() {
       ) : null}
 
       {communesQuery.isError ? (
-        <Text style={styles.error}>{getErrorMessage(communesQuery.error)}</Text>
+        <Text testID="water-communes-error" style={styles.error}>
+          {getErrorMessage(communesQuery.error)}
+        </Text>
       ) : null}
 
       {showUnknown ? (
@@ -119,37 +127,44 @@ export function LocalWaterByPostalCode() {
           <Text style={styles.pickerTitle}>
             Plusieurs communes partagent ce code postal — laquelle ?
           </Text>
-          {communes?.map((commune) => (
-            <Pressable
-              key={commune.codeInsee}
-              testID={`water-commune-${commune.codeInsee}`}
-              style={styles.pickerOption}
-              onPress={() => setSelectedCommune(commune)}
-              accessibilityRole="button"
-            >
-              <Text style={styles.pickerOptionText}>{commune.nom}</Text>
-            </Pressable>
-          ))}
+          {communes?.map((commune) => {
+            const isSelected =
+              commune.codeInsee === effectiveCommune?.codeInsee;
+            return (
+              <Pressable
+                key={commune.codeInsee}
+                testID={`water-commune-${commune.codeInsee}`}
+                style={[
+                  styles.pickerOption,
+                  isSelected && styles.pickerOptionSelected,
+                ]}
+                onPress={() => setSelectedCommune(commune)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+              >
+                <Text style={styles.pickerOptionText}>{commune.nom}</Text>
+              </Pressable>
+            );
+          })}
         </View>
       ) : null}
 
-      {selectedCommune && waterQuery.isLoading ? (
+      {effectiveCommune && waterQuery.isLoading ? (
         <ActivityIndicator
           testID="water-profile-loading"
           color={colors.brand.primary}
         />
       ) : null}
 
-      {selectedCommune && waterQuery.isError ? (
-        <Text style={styles.error}>
-          {getErrorMessage(
-            waterQuery.error,
-            "Pas de données d'eau pour cette commune cette année.",
-          )}
+      {effectiveCommune && waterQuery.isError ? (
+        <Text testID="water-profile-error" style={styles.error}>
+          {isNotFound(waterQuery.error)
+            ? "Pas de données d'eau pour cette commune cette année."
+            : getErrorMessage(waterQuery.error)}
         </Text>
       ) : null}
 
-      {selectedCommune && waterQuery.data ? (
+      {effectiveCommune && waterQuery.data ? (
         <LiveWaterProfilePanel profile={waterQuery.data} />
       ) : null}
     </View>
@@ -211,6 +226,10 @@ const styles = StyleSheet.create({
     borderColor: colors.neutral.border,
     borderRadius: radius.md,
     backgroundColor: colors.neutral.white,
+  },
+  pickerOptionSelected: {
+    borderColor: colors.brand.primary,
+    backgroundColor: colors.state.infoBackground,
   },
   pickerOptionText: {
     fontSize: typography.size.body,

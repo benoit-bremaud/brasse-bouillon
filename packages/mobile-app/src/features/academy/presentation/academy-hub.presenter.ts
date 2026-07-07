@@ -2,12 +2,12 @@ import { AcademyArticle } from "../domain";
 
 export interface AcademyLegacyHubTopic {
   readonly slug: string;
-  readonly title: string;
-  readonly shortDescription: string;
-  readonly focus: string;
+  readonly title?: string;
+  readonly shortDescription?: string;
+  readonly focus?: string;
   readonly order: number;
-  readonly estimatedReadTime: string;
-  readonly hasCalculator: boolean;
+  readonly estimatedReadTime?: string;
+  readonly hasCalculator?: boolean;
   readonly status: "ready" | "coming-soon";
 }
 
@@ -29,12 +29,14 @@ export function createAcademyHubCards(
   const articleBySlug = new Map(
     articles.map((article) => [article.slug, article] as const),
   );
-  const mappedLegacyTopics = legacyTopics.map((topic) => {
+  const mappedLegacyTopics = legacyTopics.flatMap((topic) => {
     const article = articleBySlug.get(topic.slug);
+    if (article) {
+      return [createGeneratedHubCard(article, topic)];
+    }
 
-    return article
-      ? createGeneratedHubCard(article, topic)
-      : createLegacyHubCard(topic);
+    const legacyCard = createLegacyHubCard(topic);
+    return legacyCard ? [legacyCard] : [];
   });
   const legacySlugs = new Set(legacyTopics.map((topic) => topic.slug));
   const generatedOnlyCards = articles
@@ -96,7 +98,16 @@ function createGeneratedHubCard(
 
 function createLegacyHubCard(
   topic: AcademyLegacyHubTopic,
-): AcademyHubCardViewModel {
+): AcademyHubCardViewModel | null {
+  if (
+    !topic.title ||
+    !topic.shortDescription ||
+    !topic.focus ||
+    !topic.estimatedReadTime
+  ) {
+    return null;
+  }
+
   return {
     slug: topic.slug,
     title: topic.title,
@@ -104,7 +115,7 @@ function createLegacyHubCard(
     focus: topic.focus,
     order: topic.order,
     estimatedReadTime: topic.estimatedReadTime,
-    hasCalculator: topic.hasCalculator,
+    hasCalculator: topic.hasCalculator ?? false,
     source: "legacy",
   };
 }

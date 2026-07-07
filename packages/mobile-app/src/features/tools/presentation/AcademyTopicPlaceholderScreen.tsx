@@ -16,7 +16,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getAcademyTopicBySlug } from "@/features/tools/data";
+import { getDisplayableAcademyTopicBySlug } from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
@@ -30,7 +30,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
   const router = useRouter();
   const bottomPadding = useNavigationFooterOffset();
   const normalizedSlug = normalizeRouteParam(slugParam);
-  const topic = getAcademyTopicBySlug(normalizedSlug);
+  const topic = getDisplayableAcademyTopicBySlug(normalizedSlug);
 
   if (!topic) {
     return (

@@ -94,6 +94,33 @@ describe("createAcademyHubCards", () => {
     ]);
   });
 
+  it("uses generated article metadata with partial UI-only topic configuration", () => {
+    const cards = createAcademyHubCards(
+      [article],
+      [
+        {
+          slug: "houblons",
+          order: 2,
+          hasCalculator: true,
+          status: "ready",
+        },
+      ],
+    );
+
+    expect(cards).toEqual([
+      {
+        slug: "houblons",
+        title: "Houblons",
+        summary: "Reference guide for hop roles in brewing.",
+        focus: "Ingrédients",
+        order: 2,
+        estimatedReadTime: "6 min",
+        hasCalculator: true,
+        source: "generated",
+      },
+    ]);
+  });
+
   it("appends generated articles that do not have a legacy topic", () => {
     const cards = createAcademyHubCards(
       [

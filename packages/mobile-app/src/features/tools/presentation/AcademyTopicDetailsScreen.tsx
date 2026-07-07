@@ -19,7 +19,10 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getAcademyTopicBySlug } from "@/features/tools/data";
+import {
+  getAcademyTopicBySlug,
+  getDisplayableAcademyTopicBySlug,
+} from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
@@ -33,6 +36,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const bottomPadding = useNavigationFooterOffset();
   const normalizedSlug = normalizeRouteParam(slugParam);
   const topic = getAcademyTopicBySlug(normalizedSlug);
+  const displayableTopic = getDisplayableAcademyTopicBySlug(normalizedSlug);
   const calculatorLabel = "Ouvrir le calculateur";
   const generatedArticle = normalizedSlug
     ? getAcademyArticleBySlug(generatedAcademyRepository, normalizedSlug)
@@ -130,14 +134,14 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
     );
   }
 
-  if (!topic) {
+  if (!displayableTopic) {
     return null;
   }
 
   return (
     <Screen>
       <ListHeader
-        title={topic.title}
+        title={displayableTopic.title}
         subtitle="Fiche thématique"
         action={
           <Pressable onPress={() => router.push("/(app)/academy")}>
@@ -155,16 +159,18 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         <Card style={styles.heroCard}>
           <View style={styles.heroTopRow}>
             <Image
-              source={getAcademyMascotImage(topic.mascotVariant)}
+              source={getAcademyMascotImage(displayableTopic.mascotVariant)}
               style={styles.mascot}
               accessibilityRole="image"
-              accessibilityLabel={topic.mascotAlt}
+              accessibilityLabel={displayableTopic.mascotAlt}
             />
             <View style={styles.heroBody}>
-              <Text style={styles.description}>{topic.shortDescription}</Text>
+              <Text style={styles.description}>
+                {displayableTopic.shortDescription}
+              </Text>
               <View style={styles.badgesRow}>
-                <Badge label={topic.focus} />
-                <Badge label={topic.estimatedReadTime} />
+                <Badge label={displayableTopic.focus} />
+                <Badge label={displayableTopic.estimatedReadTime} />
               </View>
             </View>
           </View>
@@ -184,18 +190,18 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           onPress={() =>
             router.push({
               pathname: "/academy/[slug]/learn",
-              params: { slug: topic.slug },
+              params: { slug: displayableTopic.slug },
             })
           }
         />
 
-        {topic.hasCalculator ? (
+        {displayableTopic.hasCalculator ? (
           <PrimaryButton
             label={calculatorLabel}
             onPress={() =>
               router.push({
                 pathname: "/tools/[slug]/calculator",
-                params: { slug: topic.slug },
+                params: { slug: displayableTopic.slug },
               })
             }
             style={styles.secondaryButtonSpacing}

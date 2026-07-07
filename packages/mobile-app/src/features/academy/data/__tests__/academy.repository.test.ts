@@ -9,6 +9,9 @@ describe("Academy generated repository", () => {
   it("reads pilot generated content through the repository boundary", () => {
     const repository = createAcademyCorpusRepository(academyCorpus);
 
+    expect(repository.getArticleBySlug("introduction")?.metadata.title).toBe(
+      "Introduction au brassage",
+    );
     expect(repository.getArticleBySlug("houblons")?.metadata.title).toBe(
       "Houblons",
     );
@@ -25,7 +28,7 @@ describe("Academy generated repository", () => {
       listPublishedAcademyArticlesUseCase(generatedAcademyRepository).map(
         (article) => article.slug,
       ),
-    ).toEqual(["houblons"]);
+    ).toEqual(["introduction", "houblons"]);
     expect(
       searchAcademy(generatedAcademyRepository, "levures").map(
         (result) => result.id,

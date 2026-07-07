@@ -9,6 +9,46 @@ const mockPush = jest.fn();
 jest.mock("@/features/academy/data", () => {
   const articles = [
     {
+      slug: "introduction",
+      metadata: {
+        title: "Introduction au brassage",
+        summary: "Generated introduction summary.",
+        category: "getting-started",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 8,
+        tags: ["beginner"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [],
+        learningObjectives: ["Understand brewing overview."],
+        prerequisites: [],
+        teaches: ["brewing-overview"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-commencer",
+            title: "Pourquoi commencer par l'introduction",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated introduction article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "houblons",
       metadata: {
         title: "Houblons",
@@ -191,6 +231,14 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated introduction instead of the legacy card content", () => {
+    render(<AcademyTopicDetailsScreen slugParam="introduction" />);
+
+    expect(screen.getByText("Generated introduction summary.")).toBeTruthy();
+    expect(screen.getByText("Generated introduction article.")).toBeTruthy();
+    expect(screen.queryByText("Les 4 ingrédients fondamentaux")).toBeNull();
   });
 
   it("renders a published generated article even without a legacy topic", () => {

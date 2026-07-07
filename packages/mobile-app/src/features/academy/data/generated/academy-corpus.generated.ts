@@ -6,6 +6,190 @@ import { AcademyCorpus } from "../../domain";
 export const academyCorpus: AcademyCorpus = {
   articles: [
     {
+      slug: "introduction",
+      metadata: {
+        title: "Introduction au brassage",
+        summary:
+          "Carte d'ensemble du brassage pour relier ingredients, process, mesures et hygiene.",
+        category: "getting-started",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 8,
+        tags: ["beginner", "process", "hygiene"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["houblons", "levures", "eau"],
+        relatedGlossaryTerms: ["ibu", "profil-mineral"],
+        relatedCalculators: [],
+        learningObjectives: [
+          "Understand the global brewing flow before optimizing details.",
+          "Identify the four fundamental brewing ingredients.",
+          "Recognize the main measurements followed during a batch.",
+        ],
+        prerequisites: [],
+        teaches: [
+          "brewing-overview",
+          "brewing-ingredients",
+          "sanitation-basics",
+        ],
+        sensitive: true,
+        riskTopics: ["sanitation"],
+        sources: [
+          {
+            id: "palmer-2017",
+            kind: "book",
+            title: "How to Brew",
+            authors: ["John J. Palmer"],
+            publisher: "Brewers Publications",
+            url: "https://www.howtobrew.com/",
+            accessedAt: "2026-07-03",
+            year: 2017,
+            notes: "General homebrewing reference for ingredients and process.",
+          },
+        ],
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: ["Migrated from the legacy mobile Academy introduction."],
+        },
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-commencer",
+            title: "Pourquoi commencer par l'introduction",
+            blocks: [
+              {
+                id: "pourquoi-commencer-paragraph-1",
+                type: "paragraph",
+                text: "Cette fiche donne la carte d'ensemble du brassage : les ingredients, les etapes cles et les indicateurs a suivre. L'objectif est d'avoir une base solide avant d'entrer dans les chapitres techniques.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-brassage",
+                type: "definition",
+                term: "Brassage",
+                definition:
+                  "Ensemble des operations qui transforment des ingredients, principalement eau, malt, houblon et levure, en biere fermentee et conditionnee.",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "example-bonne-progression",
+                type: "example",
+                title: "Bonne progression",
+                body: "Avant d'optimiser une recette, commence par comprendre ce que chaque etape change : extraction des sucres, sterilisation, fermentation, puis conditionnement.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "ingredients-fondamentaux",
+            title: "Les 4 ingredients fondamentaux",
+            blocks: [
+              {
+                id: "ingredients-fondamentaux-paragraph-1",
+                type: "paragraph",
+                text: "L'eau donne le volume et influence le pH ainsi que le profil gustatif. Le malt apporte les sucres fermentescibles, la couleur et une partie de la structure. Le houblon equilibre l'amertume et construit l'aromatique. La levure transforme les sucres en alcool, en dioxyde de carbone et en composes aromatiques.",
+                sourceIds: [],
+              },
+              {
+                id: "related-houblons",
+                type: "relatedArticle",
+                articleSlug: "houblons",
+                sectionId: "role-du-houblon",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "related-levures",
+                type: "relatedArticle",
+                articleSlug: "levures",
+                sectionId: "fermentation",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "vue-ensemble-process",
+            title: "Vue d'ensemble du process",
+            blocks: [
+              {
+                id: "vue-ensemble-process-paragraph-1",
+                type: "paragraph",
+                text: "Un brassin suit une logique simple : empater pour convertir l'amidon en sucres, filtrer et rincer pour recuperer ces sucres, faire bouillir pour stabiliser le mout et ajouter le houblon, refroidir, ensemencer la levure, fermenter, puis conditionner.",
+                sourceIds: [],
+              },
+              {
+                id: "example-process",
+                type: "example",
+                title: "Lecture rapide du process",
+                body: "Si une etape semble floue dans l'assistant de brassage, reviens a cette vue d'ensemble pour comprendre son role avant de suivre les details operationnels.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "reperes-brassin",
+            title: "Reperes a suivre sur chaque brassin",
+            blocks: [
+              {
+                id: "reperes-brassin-paragraph-1",
+                type: "paragraph",
+                text: "Les reperes de base sont OG et FG pour suivre la fermentation, ABV pour estimer le taux d'alcool, IBU et EBC pour lire l'equilibre amertume/couleur, et le pH d'empatage pour surveiller l'extraction.",
+                sourceIds: [],
+              },
+              {
+                id: "ibu-reference",
+                type: "glossaryReference",
+                termSlug: "ibu",
+                label: "IBU",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "hygiene",
+            title: "Hygiene : regle non negociable",
+            blocks: [
+              {
+                id: "hygiene-paragraph-1",
+                type: "paragraph",
+                text: "Tout ce qui touche le mout refroidi ou la biere doit etre nettoye puis desinfecte. Une contamination peut ruiner un brassin meme avec une recette parfaitement calculee.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-nettoyer-desinfecter",
+                type: "definition",
+                term: "Nettoyer puis desinfecter",
+                definition:
+                  "Nettoyer retire les salissures visibles et les depots. Desinfecter reduit ensuite la charge microbienne sur un materiel deja propre.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "continuer",
+            title: "Par ou continuer ensuite ?",
+            blocks: [
+              {
+                id: "continuer-paragraph-1",
+                type: "paragraph",
+                text: "Continue avec les fermentescibles pour maitriser OG, FG et ABV, avec l'eau pour stabiliser pH et profil mineral, avec les levures pour fiabiliser la fermentation, puis avec le glossaire pour securiser le vocabulaire technique.",
+                sourceIds: [],
+              },
+              {
+                id: "related-eau",
+                type: "relatedArticle",
+                articleSlug: "eau",
+                sectionId: "profil-mineral",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "houblons",
       metadata: {
         title: "Houblons",

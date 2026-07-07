@@ -52,6 +52,14 @@ const article: AcademyArticle = {
             sourceIds: ["palmer-2017"],
           },
           {
+            id: "tip",
+            type: "callout",
+            tone: "tip",
+            title: "Ajout tardif",
+            body: "Un ajout tardif preserve davantage les aromes.",
+            sourceIds: ["palmer-2017"],
+          },
+          {
             id: "glossary-ibu",
             type: "glossaryReference",
             termSlug: "ibu",
@@ -85,12 +93,25 @@ describe("AcademyArticleRenderer", () => {
 
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.getByText("Comprendre les roles du houblon.")).toBeTruthy();
+    expect(screen.getByText("DÉBUTANT")).toBeTruthy();
+    expect(screen.getByText("INGRÉDIENTS")).toBeTruthy();
+    expect(screen.getByText("6 MIN")).toBeTruthy();
+    expect(screen.getByText("Objectifs pédagogiques")).toBeTruthy();
+    expect(screen.getByText("• Identifier les roles du houblon.")).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
     expect(
       screen.getByText("Le houblon apporte amertume et aromes."),
     ).toBeTruthy();
+    expect(screen.getByText("Conseil")).toBeTruthy();
+    expect(screen.getByText("Ajout tardif")).toBeTruthy();
+    expect(
+      screen.getByText("Un ajout tardif preserve davantage les aromes."),
+    ).toBeTruthy();
     expect(screen.getByText("Sources")).toBeTruthy();
     expect(screen.getByText("How to Brew (2017)")).toBeTruthy();
+    expect(
+      screen.getByText("John J. Palmer · Brewers Publications"),
+    ).toBeTruthy();
   });
 
   it("dispatches semantic block interactions without owning navigation", () => {

@@ -1,8 +1,16 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
-import { AcademyArticle, AcademyContentBlock, AcademySection } from "../domain";
+import {
+  AcademyArticle,
+  AcademyCategory,
+  AcademyContentBlock,
+  AcademyLevel,
+  AcademySection,
+  CalloutTone,
+} from "../domain";
 
 type Props = {
   readonly article: AcademyArticle;
@@ -26,13 +34,33 @@ export function AcademyArticleRenderer({
         <Text style={styles.title}>{article.metadata.title}</Text>
         <Text style={styles.summary}>{article.metadata.summary}</Text>
         <View style={styles.metaRow}>
-          <Text style={styles.meta}>{article.metadata.level}</Text>
-          <Text style={styles.meta}>
-            {article.metadata.estimatedReadTimeMinutes} min
-          </Text>
-          <Text style={styles.meta}>{article.metadata.category}</Text>
+          <Badge
+            label={formatLevelLabel(article.metadata.level)}
+            variant="info"
+          />
+          <Badge
+            label={formatReadTime(article.metadata.estimatedReadTimeMinutes)}
+            variant="neutral"
+          />
+          <Badge
+            label={formatCategoryLabel(article.metadata.category)}
+            variant="neutral"
+          />
         </View>
       </View>
+
+      {article.metadata.learningObjectives.length > 0 ? (
+        <Card style={styles.objectivesCard} variant="subtle">
+          <Text style={styles.cardTitle}>Objectifs pédagogiques</Text>
+          <View style={styles.objectiveList}>
+            {article.metadata.learningObjectives.map((objective) => (
+              <Text key={objective} style={styles.objectiveItem}>
+                {"\u2022"} {objective}
+              </Text>
+            ))}
+          </View>
+        </Card>
+      ) : null}
 
       {article.body.sections.map((section) => (
         <AcademySectionRenderer
@@ -46,12 +74,19 @@ export function AcademyArticleRenderer({
 
       {article.metadata.sources.length > 0 ? (
         <Card style={styles.sourcesCard} variant="subtle">
-          <Text style={styles.sourcesTitle}>Sources</Text>
+          <Text style={styles.cardTitle}>Sources</Text>
           {article.metadata.sources.map((source) => (
-            <Text key={source.id} style={styles.sourceText}>
-              {source.title}
-              {source.year ? ` (${source.year})` : ""}
-            </Text>
+            <View key={source.id} style={styles.sourceItem}>
+              <Text style={styles.sourceTitle}>
+                {source.title}
+                {source.year ? ` (${source.year})` : ""}
+              </Text>
+              <Text style={styles.sourceText}>
+                {[source.authors.join(", "), source.publisher]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </Text>
+            </View>
           ))}
         </Card>
       ) : null}
@@ -176,10 +211,12 @@ function AcademyBlockRenderer({
       );
     case "callout":
       return (
-        <Card style={styles.calloutCard} variant="subtle">
+        <Card style={[styles.calloutCard, getCalloutToneStyle(block.tone)]}>
+          <Text style={styles.calloutTone}>
+            {formatCalloutTone(block.tone)}
+          </Text>
           <Text style={styles.calloutTitle}>{block.title}</Text>
           <Text style={styles.paragraph}>{block.body}</Text>
-          <Text style={styles.meta}>{block.tone}</Text>
         </Card>
       );
     case "diagram":
@@ -270,6 +307,24 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.regular,
     color: colors.neutral.textSecondary,
   },
+  objectivesCard: {
+    gap: spacing.xs,
+  },
+  cardTitle: {
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+    color: colors.neutral.textPrimary,
+  },
+  objectiveList: {
+    gap: spacing.xs,
+  },
+  objectiveItem: {
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.regular,
+    color: colors.neutral.textPrimary,
+  },
   section: {
     gap: spacing.sm,
   },
@@ -344,6 +399,29 @@ const styles = StyleSheet.create({
   },
   calloutCard: {
     gap: spacing.xs,
+    borderLeftWidth: spacing.xxs,
+  },
+  calloutInfo: {
+    borderLeftColor: colors.brand.secondary,
+    backgroundColor: colors.state.infoBackground,
+  },
+  calloutTip: {
+    borderLeftColor: colors.semantic.success,
+    backgroundColor: colors.state.successBackground,
+  },
+  calloutWarning: {
+    borderLeftColor: colors.semantic.warning,
+    backgroundColor: colors.state.warningBackground,
+  },
+  calloutTechnical: {
+    borderLeftColor: colors.brand.primary,
+    backgroundColor: colors.semantic.info,
+  },
+  calloutTone: {
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+    color: colors.brand.secondary,
   },
   calloutTitle: {
     fontSize: typography.size.body,
@@ -393,11 +471,14 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
   },
   sourcesCard: {
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
-  sourcesTitle: {
-    fontSize: typography.size.body,
-    lineHeight: typography.lineHeight.body,
+  sourceItem: {
+    gap: spacing.xxs,
+  },
+  sourceTitle: {
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
   },
@@ -408,3 +489,72 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
   },
 });
+
+function formatLevelLabel(level: AcademyLevel): string {
+  switch (level) {
+    case "beginner":
+      return "Débutant";
+    case "intermediate":
+      return "Intermédiaire";
+    case "advanced":
+      return "Avancé";
+  }
+}
+
+function formatCategoryLabel(category: AcademyCategory): string {
+  switch (category) {
+    case "getting-started":
+      return "Premiers pas";
+    case "ingredients":
+      return "Ingrédients";
+    case "process":
+      return "Process";
+    case "fermentation":
+      return "Fermentation";
+    case "water":
+      return "Eau";
+    case "equipment":
+      return "Matériel";
+    case "beer-styles":
+      return "Styles";
+    case "safety":
+      return "Sécurité";
+    case "troubleshooting":
+      return "Dépannage";
+    case "glossary":
+      return "Glossaire";
+  }
+}
+
+function formatReadTime(minutes: number): string {
+  return `${minutes} min`;
+}
+
+function formatCalloutTone(tone: CalloutTone): string {
+  switch (tone) {
+    case "info":
+      return "À savoir";
+    case "tip":
+      return "Conseil";
+    case "warning":
+      return "Attention";
+    case "safety":
+      return "Sécurité";
+    case "technical":
+      return "Technique";
+  }
+}
+
+function getCalloutToneStyle(tone: CalloutTone) {
+  switch (tone) {
+    case "warning":
+    case "safety":
+      return styles.calloutWarning;
+    case "tip":
+      return styles.calloutTip;
+    case "technical":
+      return styles.calloutTechnical;
+    case "info":
+      return styles.calloutInfo;
+  }
+}

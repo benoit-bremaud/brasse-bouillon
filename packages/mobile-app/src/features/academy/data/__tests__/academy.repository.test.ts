@@ -36,6 +36,7 @@ describe("Academy generated repository", () => {
       "fermentescibles",
       "couleur",
       "carbonatation",
+      "rendement",
       "glossaire",
     ]);
     expect(

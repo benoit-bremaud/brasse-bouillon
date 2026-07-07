@@ -331,6 +331,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "rendement",
+      metadata: {
+        title: "Rendement",
+        summary: "Generated efficiency article summary.",
+        category: "process",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["efficiency"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "rendement",
+            label: "Efficiency calculator",
+            reason: "Estimate brewhouse efficiency.",
+            target: { type: "calculator", slug: "rendement" },
+          },
+        ],
+        learningObjectives: ["Understand brewhouse efficiency."],
+        prerequisites: [],
+        teaches: ["brewhouse-efficiency"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-rendement",
+            title: "Pourquoi le rendement est critique",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated efficiency article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",
@@ -564,6 +611,16 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Pourquoi la couleur est un repere cle"),
     ).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated efficiency article with calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="rendement" />);
+
+    expect(
+      screen.getByText("Generated efficiency article summary."),
+    ).toBeTruthy();
+    expect(screen.getByText("Pourquoi le rendement est critique")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 

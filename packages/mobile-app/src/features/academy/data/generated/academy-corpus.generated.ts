@@ -1252,6 +1252,209 @@ export const academyCorpus: AcademyCorpus = {
       },
     },
     {
+      slug: "rendement",
+      metadata: {
+        title: "Rendement",
+        summary:
+          "Reference guide for brewhouse efficiency, gravity points, process losses, and water planning.",
+        category: "process",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 9,
+        tags: ["efficiency", "gravity", "volumes", "water-plan"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["fermentescibles", "eau"],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "rendement",
+            label: "Efficiency calculator",
+            reason:
+              "Estimate brewhouse efficiency, process losses, and water plan.",
+            target: {
+              type: "calculator",
+              slug: "rendement",
+            },
+          },
+        ],
+        learningObjectives: [
+          "Explain brewhouse efficiency from measured OG, volume, and fermentables.",
+          "Identify where gravity points and volume are lost during the process.",
+          "Use measured history instead of theoretical assumptions.",
+        ],
+        prerequisites: ["malt-basics", "water-profile"],
+        teaches: [
+          "brewhouse-efficiency",
+          "gravity-points",
+          "process-losses",
+          "water-planning",
+        ],
+        sensitive: false,
+        riskTopics: [],
+        sources: [
+          {
+            id: "palmer-2017",
+            kind: "book",
+            title: "How to Brew",
+            authors: ["John J. Palmer"],
+            publisher: "Brewers Publications",
+            url: "https://www.howtobrew.com/",
+            accessedAt: "2026-07-03",
+            year: 2017,
+            notes: "General homebrewing reference for ingredients and process.",
+          },
+        ],
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: [
+            "Migrated from the legacy mobile Academy efficiency topic.",
+            "Aligned with the existing Rendement calculator tabs: efficiency, volumes, and water plan.",
+          ],
+        },
+      },
+      body: {
+        sections: [
+          {
+            id: "role-rendement",
+            title: "Pourquoi le rendement est critique",
+            blocks: [
+              {
+                id: "role-rendement-paragraph-1",
+                type: "paragraph",
+                text: "Le rendement mesure ce que ton installation extrait reellement du potentiel des fermentescibles. Il relie la masse de malt, le potentiel PPG, l'OG mesuree et le volume final. Un rendement mal connu rend les recettes imprevisibles : OG trop basse, ABV plus faible que prevu, ou besoin de malt surestime.",
+                sourceIds: [],
+              },
+              {
+                id: "example-efficiency-impact",
+                type: "example",
+                title: "Impact concret",
+                body: "Si ton rendement reel est 67% mais que ta recette suppose 75%, l'OG obtenue sera plus basse que prevu ou il faudra davantage de malt pour atteindre la meme cible.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "reperes",
+            title: "Reperes rapides",
+            blocks: [
+              {
+                id: "reperes-paragraph-1",
+                type: "paragraph",
+                text: "Les points de densite viennent de l'OG : 1,060 correspond a 60 points. Le PPG exprime le potentiel theorique d'un fermentescible. Les points reels combinent la densite mesuree et le volume obtenu. Les points theoriques viennent du grain bill. Le rendement global compare ces points reels au potentiel total de la recette.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-brewhouse-efficiency",
+                type: "definition",
+                term: "Rendement global",
+                definition:
+                  "Pourcentage du potentiel fermentescible de la recette retrouve dans le volume mesure. Il combine extraction, pertes process et volume final.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "calcul-rendement",
+            title: "Calculer le rendement global",
+            blocks: [
+              {
+                id: "calcul-rendement-paragraph-1",
+                type: "paragraph",
+                text: "Le calculateur existant utilise l'OG mesuree, le volume final et les lignes de fermentescibles avec leur PPG. Les points reels sont normalises depuis OG et volume. Les points theoriques additionnent masse de chaque fermentescible et PPG. Le rendement global est le rapport entre ces deux valeurs.",
+                sourceIds: [],
+              },
+              {
+                id: "efficiency-calculator",
+                type: "calculatorCta",
+                calculatorSlug: "rendement",
+                title: "Calculer rendement, volumes et plan d'eau",
+                description:
+                  "Utiliser le calculateur rendement pour relier OG mesuree, grain bill, pertes process et volumes d'eau.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "plages",
+            title: "Rendements realistes",
+            blocks: [
+              {
+                id: "plages-paragraph-1",
+                type: "paragraph",
+                text: "Les valeurs utiles dependent fortement de l'installation et de la methode. Un BIAB peut souvent se situer autour de 60 a 70%. Une installation amateur trois cuves bien reglee se situe souvent autour de 70 a 78%. Un systeme RIMS ou HERMS amateur peut monter davantage. Le plus important n'est pas d'avoir la valeur la plus haute, mais une valeur stable, mesuree et reutilisable dans les recettes.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "pertes",
+            title: "Ou se perd le rendement",
+            blocks: [
+              {
+                id: "pertes-paragraph-1",
+                type: "paragraph",
+                text: "Le concassage influence fortement l'acces aux sucres. L'empatage peut perdre en efficacite si le pH ou la temperature sortent de la zone utile. La filtration et le rincage sont souvent une grande source de pertes en amateur. Les transferts, le trub, l'evaporation et le refroidissement changent aussi le volume final, donc le rendement global.",
+                sourceIds: [],
+              },
+              {
+                id: "example-process-losses",
+                type: "example",
+                title: "Ne pas isoler un seul chiffre",
+                body: "Deux brassins avec la meme extraction peuvent afficher un rendement global different si les pertes de volume au transfert ou au trub changent.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "volumes-eau",
+            title: "Volumes et plan d'eau",
+            blocks: [
+              {
+                id: "volumes-eau-paragraph-1",
+                type: "paragraph",
+                text: "Le calculateur rendement couvre aussi les volumes process : volume froid cible, evaporation, pertes au trub, retrait au refroidissement, eau d'empatage et eau de rincage. Ces volumes ne sont pas accessoires. Une bonne estimation du volume pre-ebullition et du plan d'eau rend l'OG finale plus previsible.",
+                sourceIds: [],
+              },
+              {
+                id: "related-water",
+                type: "relatedArticle",
+                articleSlug: "eau",
+                sectionId: "profil-mineral",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "methode",
+            title: "Methode de progression",
+            blocks: [
+              {
+                id: "methode-paragraph-1",
+                type: "paragraph",
+                text: "Mesurer OG et volume final a chaque brassin. Calculer le rendement reel et le noter. Modifier une seule variable a la fois : concassage, rincage, ratio d'eau, pH ou pertes process. Re-mesurer au brassin suivant. Quand la valeur se stabilise, recalibrer les recettes sur ton rendement reel plutot que sur une valeur ideale.",
+                sourceIds: [],
+              },
+            ],
+          },
+          {
+            id: "pieges",
+            title: "Pieges frequents a eviter",
+            blocks: [
+              {
+                id: "pieges-paragraph-1",
+                type: "paragraph",
+                text: "Les erreurs les plus courantes sont d'utiliser un rendement theorique jamais verifie, de changer plusieurs parametres en meme temps, de confondre rendement d'extraction et rendement global, ou d'oublier les pertes de volume. Un chiffre de rendement n'est utile que s'il est mesure avec une methode constante.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",

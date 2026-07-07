@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-07
+
+### PR #1358 merged (`1f7bfb2`) — feat(mobile/recipes): local water profile by postal code (water-profile slice 1)
+
+- Branch `feat/water-local-by-postal`, first build increment of the water-profile epic ([ADR-0025](docs/architecture/decisions/0025-water-profile-geolocation-and-caching.md)). On the recipe Water tab: postal code → `geo.api.gouv.fr` (sovereign, keyless) resolves communes → disambiguation picker when several share a code → backend `/water` proxy (existing, JWT-guarded) → `LiveWaterProfilePanel` (5 ions, French hardness °fH, freshness year, one pedagogy sentence, Na flagged "non mesuré", partial-data notice). Location ephemeral — nothing persisted (slice-2 = append-only cache keyed on `code_reseau`). New `domain/water-profile.types.ts`, `data/water-profile.api.ts`, `application/water-profile.use-cases.ts` (incl. current-year → previous-year fallback on 404 for Hub'Eau lag), 2 presentation components; wired into `WaterTab` under the `canCompare` block. Compatibility scoring stays DEFERRED (the existing 6-ion score coerces null/na→0, unsafe for the live nullable 5-ion profile).
+- Verification — emulator (2026-07-07): `59000` → Lille (single commune auto-selected), `/water?codeInsee=59350` fires, loading + error paths render. Happy-path green panel deferred to the final test pass (demo session carries a synthetic token → the guarded `/water` returns 401; backend `/water` Lille already E2E-validated in #1352). 52 water unit tests (mappers, use-cases, panel, component H/S/E). Deferred follow-up: demo-mode shows a raw "Unauthorized" → screen-by-screen UX review.
+- Reviews — two adversarial pre-push reconciliation rounds (year-fallback MUST-fix, `retry:false` simplification, badge-uppercase test assertions); a later review round corrected the no-data message wording. CI green, 0 unresolved threads.
+
 ## 2026-07-06
 
 ### PR #1355 merged (`6d9f0f1`) — docs(water-profile/architecture): ADR-0025 + UML deliverables for local water geolocation

@@ -37,6 +37,7 @@ describe("Academy generated repository", () => {
       "couleur",
       "carbonatation",
       "rendement",
+      "avances",
       "glossaire",
     ]);
     expect(

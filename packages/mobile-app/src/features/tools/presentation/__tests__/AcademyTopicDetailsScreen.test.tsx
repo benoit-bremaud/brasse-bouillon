@@ -378,6 +378,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "avances",
+      metadata: {
+        title: "Calculs avancés",
+        summary: "Generated advanced article summary.",
+        category: "process",
+        level: "advanced",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 11,
+        tags: ["advanced"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "avances",
+            label: "Advanced calculator",
+            reason: "Diagnose advanced metrics.",
+            target: { type: "calculator", slug: "avances" },
+          },
+        ],
+        learningObjectives: ["Understand advanced diagnostics."],
+        prerequisites: [],
+        teaches: ["advanced-diagnostics"],
+        sensitive: true,
+        riskTopics: ["advanced-estimates"],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-avances",
+            title: "Pourquoi ces calculs sont avances",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated advanced article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "glossaire",
       metadata: {
         title: "Glossaire brassicole",
@@ -621,6 +668,16 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getByText("Generated efficiency article summary."),
     ).toBeTruthy();
     expect(screen.getByText("Pourquoi le rendement est critique")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated advanced article with calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="avances" />);
+
+    expect(
+      screen.getByText("Generated advanced article summary."),
+    ).toBeTruthy();
+    expect(screen.getByText("Pourquoi ces calculs sont avances")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 

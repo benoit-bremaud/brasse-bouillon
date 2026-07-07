@@ -143,6 +143,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "eau",
+      metadata: {
+        title: "Eau de brassage",
+        summary: "Generated water article summary.",
+        category: "water",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 10,
+        tags: ["water"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: ["profil-mineral"],
+        relatedCalculators: [
+          {
+            slug: "eau",
+            label: "Water calculator",
+            reason: "Adjust a water profile.",
+            target: { type: "calculator", slug: "eau" },
+          },
+        ],
+        learningObjectives: ["Understand brewing water."],
+        prerequisites: [],
+        teaches: ["water-profile"],
+        sensitive: true,
+        riskTopics: ["chemical-dosage"],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "profil-mineral",
+            title: "Pourquoi l'eau est critique",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated water article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "orphan-malt",
       metadata: {
         title: "Malt generated",
@@ -293,6 +340,14 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
 
     expect(screen.getByText("Generated yeast article summary.")).toBeTruthy();
     expect(screen.getByText("Pourquoi la levure est critique")).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated water article and keeps the calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="eau" />);
+
+    expect(screen.getByText("Generated water article summary.")).toBeTruthy();
+    expect(screen.getByText("Pourquoi l'eau est critique")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });
 

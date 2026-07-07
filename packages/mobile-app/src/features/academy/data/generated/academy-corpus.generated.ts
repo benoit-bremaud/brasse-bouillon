@@ -464,15 +464,16 @@ export const academyCorpus: AcademyCorpus = {
       slug: "eau",
       metadata: {
         title: "Eau de brassage",
-        summary: "Reference guide for the main brewing water concepts.",
+        summary:
+          "Reference guide for mash pH, mineral profile, residual alkalinity, and safe brewing water adjustments.",
         category: "water",
         level: "beginner",
-        status: "draft",
-        version: "0.1.0",
-        estimatedReadTimeMinutes: 7,
-        tags: ["water", "minerals", "mash"],
-        updatedAt: "2026-07-03",
-        relatedArticles: [],
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 10,
+        tags: ["water", "minerals", "mash", "ph"],
+        updatedAt: "2026-07-07",
+        relatedArticles: ["introduction", "houblons"],
         relatedGlossaryTerms: ["profil-mineral"],
         relatedCalculators: [
           {
@@ -488,11 +489,12 @@ export const academyCorpus: AcademyCorpus = {
         learningObjectives: [
           "Understand why water composition matters for brewing.",
           "Identify the main mineral families used in brewing water adjustments.",
+          "Apply a simple and safe method for first water corrections.",
         ],
-        prerequisites: [],
-        teaches: ["water-profile"],
+        prerequisites: ["brewing-overview"],
+        teaches: ["water-profile", "mash-ph", "residual-alkalinity"],
         sensitive: true,
-        riskTopics: ["chemical-dosage"],
+        riskTopics: ["chemical-dosage", "ph-measurement"],
         sources: [
           {
             id: "brun-water-knowledge",
@@ -506,18 +508,23 @@ export const academyCorpus: AcademyCorpus = {
             notes: "Practical brewing water chemistry reference.",
           },
         ],
-        review: null,
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-07",
+          notes: ["Migrated from the legacy mobile Academy water topic."],
+        },
       },
       body: {
         sections: [
           {
             id: "profil-mineral",
-            title: "Profil mineral",
+            title: "Pourquoi l'eau est critique",
             blocks: [
               {
                 id: "profil-mineral-paragraph-1",
                 type: "paragraph",
-                text: "L'eau de brassage contient des ions qui influencent le pH d'empatage, la perception de l'amertume et la rondeur de la biere. Les ajustements chimiques doivent rester progressifs, mesures et sources.",
+                text: "L'eau represente la tres grande majorite du volume final d'une biere. Elle pilote aussi le pH d'empatage, l'extraction des sucres, la perception de l'amertume et l'equilibre entre secheresse houblonnee et rondeur maltee.",
                 sourceIds: [],
               },
               {
@@ -526,6 +533,130 @@ export const academyCorpus: AcademyCorpus = {
                 termSlug: "profil-mineral",
                 label: "Profil mineral",
                 sourceIds: ["brun-water-knowledge"],
+              },
+              {
+                id: "definition-profil-mineral",
+                type: "definition",
+                term: "Profil mineral",
+                definition:
+                  "Composition de l'eau en ions principaux comme calcium, magnesium, sodium, sulfates, chlorures et bicarbonates.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "ions-principaux",
+            title: "Les 6 ions a connaitre",
+            blocks: [
+              {
+                id: "ions-principaux-paragraph-1",
+                type: "paragraph",
+                text: "Les corrections d'eau deviennent plus simples quand on se concentre d'abord sur les ions les plus utiles au brasseur. Le calcium aide le pH, la clarte et la floculation. Le magnesium nourrit la levure mais doit rester modere. Le sodium apporte de la rondeur a petite dose. Les sulfates accentuent la secheresse et la perception de l'amertume. Les chlorures soutiennent la rondeur et l'expression maltee. Les bicarbonates tamponnent le pH et sont souvent trop eleves dans une eau calcaire.",
+                sourceIds: [],
+              },
+              {
+                id: "example-sulfate-chloride",
+                type: "example",
+                title: "Lecture rapide",
+                body: "A valeurs raisonnables, plus de sulfates pousse une IPA vers un profil sec et net ; plus de chlorures soutient une biere plus ronde et maltee.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "ph-empatage",
+            title: "Le pH a chaque etape",
+            blocks: [
+              {
+                id: "ph-empatage-paragraph-1",
+                type: "paragraph",
+                text: "Le repere principal pendant l'empatage reste une zone autour de 5,2 a 5,6. En dehors de cette zone, les enzymes travaillent moins bien et la biere perd en precision. Pour le rincage, rester proche de 5,5 a 5,8 aide a limiter l'extraction de tannins. Un pH trop haut augmente les risques d'astringence ; un pH trop bas peut rendre le profil agressif.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-mash-ph",
+                type: "definition",
+                term: "pH d'empatage",
+                definition:
+                  "Mesure d'acidite de la maische. Elle influence l'activite enzymatique, l'extraction et la nettete aromatique.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "alcalinite-ratio",
+            title: "Alcalinite residuelle et ratio SO4/Cl",
+            blocks: [
+              {
+                id: "alcalinite-ratio-paragraph-1",
+                type: "paragraph",
+                text: "L'alcalinite residuelle resume la capacite de l'eau a resister a l'acidification des malts. Plus elle est elevee, plus le pH a tendance a monter. Repere pratique : RA en ppm environ egale a HCO3 moins Ca divise par 3,5 moins Mg divise par 7.",
+                sourceIds: [],
+              },
+              {
+                id: "alcalinite-ratio-paragraph-2",
+                type: "paragraph",
+                text: "Le ratio sulfates/chlorures donne une intention sensorielle, mais il ne suffit pas seul. Il faut toujours verifier les valeurs absolues en ppm pour eviter une biere au gout mineral, chimique ou metallique.",
+                sourceIds: [],
+              },
+              {
+                id: "example-ra-style",
+                type: "example",
+                title: "Adapter au style",
+                body: "Une eau a RA faible convient mieux aux bieres pales. Une RA plus elevee peut aider certains styles fonces, dont les malts acidifient davantage la maische.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "methode",
+            title: "Methode simple et fiable",
+            blocks: [
+              {
+                id: "methode-paragraph-1",
+                type: "paragraph",
+                text: "Commencer par lire l'analyse d'eau : calcium, magnesium, sodium, sulfates, chlorures et bicarbonates. Choisir ensuite une cible de style, puis reduire en priorite les bicarbonates si l'eau est trop calcaire, souvent par dilution avec de l'eau osmosee. Les sels comme le gypse ou le chlorure de calcium viennent ensuite pour ajuster progressivement le profil. Le pH de maische doit rester le controle principal.",
+                sourceIds: [],
+              },
+              {
+                id: "water-calculator",
+                type: "calculatorCta",
+                calculatorSlug: "eau",
+                title: "Ajuster un profil d'eau",
+                description:
+                  "Utiliser le calculateur eau pour relier analyse de depart, cible de style et additions progressives.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "exemple-ipa",
+            title: "Exemple IPA",
+            blocks: [
+              {
+                id: "exemple-ipa-paragraph-1",
+                type: "paragraph",
+                text: "Avec une eau de depart tres calcaire, il vaut mieux diluer d'abord pour abaisser les bicarbonates, puis remonter les ions utiles au style. Pour une IPA, le gypse peut augmenter calcium et sulfates pour un profil plus sec, tandis que le chlorure de calcium peut garder assez de rondeur. Une cible de ratio SO4/Cl autour de 3:1 a 5:1 peut servir de repere, a condition que les ppm restent raisonnables.",
+                sourceIds: [],
+              },
+              {
+                id: "example-ipa-water",
+                type: "example",
+                title: "Ordre de correction",
+                body: "Diluer d'abord une eau trop bicarbonatee, ajuster ensuite avec les sels, puis verifier le pH mesure plutot que de se fier uniquement au calcul.",
+                sourceIds: ["brun-water-knowledge"],
+              },
+            ],
+          },
+          {
+            id: "pieges",
+            title: "Pieges frequents a eviter",
+            blocks: [
+              {
+                id: "pieges-paragraph-1",
+                type: "paragraph",
+                text: "Les erreurs les plus courantes sont d'ajuster les sels sans mesurer le pH de maische, de se focaliser sur le ratio SO4/Cl sans regarder les ppm reels, de surdoser les sels, d'oublier la dechloration de l'eau du robinet, ou d'utiliser un pH-metre non calibre.",
+                sourceIds: [],
               },
             ],
           },

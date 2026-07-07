@@ -34,6 +34,7 @@ describe("Academy generated repository", () => {
       "levures",
       "eau",
       "fermentescibles",
+      "couleur",
       "carbonatation",
       "glossaire",
     ]);

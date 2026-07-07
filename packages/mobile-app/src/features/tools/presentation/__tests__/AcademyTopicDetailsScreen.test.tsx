@@ -237,6 +237,53 @@ jest.mock("@/features/academy/data", () => {
       },
     },
     {
+      slug: "couleur",
+      metadata: {
+        title: "Couleur",
+        summary: "Generated color article summary.",
+        category: "process",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 8,
+        tags: ["color"],
+        updatedAt: "2026-07-07",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "couleur",
+            label: "Color calculator",
+            reason: "Estimate final color.",
+            target: { type: "calculator", slug: "couleur" },
+          },
+        ],
+        learningObjectives: ["Understand beer color."],
+        prerequisites: [],
+        teaches: ["beer-color"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-couleur",
+            title: "Pourquoi la couleur est un repere cle",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated color article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "carbonatation",
       metadata: {
         title: "Carbonatation",
@@ -506,6 +553,16 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBeTruthy();
     expect(
       screen.getByText("Pourquoi la carbonatation est critique"),
+    ).toBeTruthy();
+    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders the generated color article with calculator route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="couleur" />);
+
+    expect(screen.getByText("Generated color article summary.")).toBeTruthy();
+    expect(
+      screen.getByText("Pourquoi la couleur est un repere cle"),
     ).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
   });

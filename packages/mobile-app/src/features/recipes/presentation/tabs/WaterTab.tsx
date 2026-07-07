@@ -9,6 +9,7 @@ import {
   NonPublicWaterPreference,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import { WATER_METRIC_LABELS } from "@/features/recipes/presentation/recipe-details.utils";
+import { LocalWaterByPostalCode } from "@/features/recipes/presentation/components/LocalWaterByPostalCode";
 import {
   WATER_LOCATION_PROFILES,
   WATER_STYLE_PRESETS,
@@ -189,6 +190,11 @@ export function WaterTab(props: WaterTabProps) {
                 );
               })}
             </View>
+
+            {/* Slice-1 placement: beside the local-water presets, inside the
+                owned-recipe block. Broadening to community recipes is a
+                deliberate follow-up (ADR-0025 leaves the destination open). */}
+            <LocalWaterByPostalCode />
 
             <View style={styles.compatibilityCard}>
               <Text style={styles.compatibilityTitle}>

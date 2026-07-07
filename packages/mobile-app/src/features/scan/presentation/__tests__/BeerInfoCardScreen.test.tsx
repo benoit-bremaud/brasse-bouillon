@@ -536,6 +536,61 @@ describe("BeerInfoCardScreen", () => {
       });
     }
 
+    it("does not launch a second import while one is already pending (concurrent-import guard)", async () => {
+      mockedLookup.mockResolvedValueOnce(buildResult());
+      // A deferred import that never resolves on its own — the first import
+      // stays pending so the guard has something to block against.
+      let resolveImport!: (value: { recipeId: string; name: string }) => void;
+      mockedImport.mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveImport = resolve;
+        }),
+      );
+
+      renderScreen(<BeerInfoCardScreen barcodeParam="5060277380019" />);
+
+      const row = await screen.findByLabelText(/Importer Session IPA Citra/);
+      await act(async () => {
+        fireEvent.press(row);
+      });
+      await confirmImportInDialog(); // fires the (pending) import
+
+      await waitFor(() => expect(mockedImport).toHaveBeenCalledTimes(1));
+      // Wait for the pending-state re-render to LAND before retrying — a single
+      // micro-task flush was racy under CI (the handler could still observe the
+      // stale isPending=false and fire a 2nd import). The row surfaces its busy
+      // state via accessibilityState.disabled, so poll on that: deterministic.
+      await waitFor(() =>
+        expect(
+          screen.getByLabelText(/Importer Session IPA Citra/).props
+            .accessibilityState?.disabled,
+        ).toBe(true),
+      );
+
+      // Second attempt while the first is still pending. Whether the top-of-
+      // handler guard blocks the dialog or the post-confirm `!isPending` re-check
+      // blocks the mutation, the net effect must be the same: no concurrent
+      // import fires.
+      await act(async () => {
+        fireEvent.press(row);
+      });
+      const secondConfirm = screen.queryByLabelText("Importer");
+      if (secondConfirm) {
+        await act(async () => {
+          fireEvent.press(secondConfirm);
+        });
+      }
+      expect(mockedImport).toHaveBeenCalledTimes(1);
+
+      // Let the deferred import settle so no state update leaks past the test.
+      await act(async () => {
+        resolveImport({
+          recipeId: "imported-uuid-1",
+          name: "Session IPA Citra",
+        });
+      });
+    });
+
     it("imports the recipe and navigates to the new detail page on success", async () => {
       mockedLookup.mockResolvedValueOnce(buildResult());
       mockedImport.mockResolvedValueOnce({

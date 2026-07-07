@@ -1,5 +1,15 @@
 export type RecipeVisibility = "private" | "unlisted" | "public";
 
+/** Brewing-difficulty level of a recipe (how hard it is to brew). ADR-0024. */
+export type RecipeDifficultyLevel = "facile" | "intermediaire" | "avance";
+
+/** One stored tap-to-explain line for the difficulty badge (ADR-0024 D4). */
+export type RecipeDifficultyReason = {
+  factor: string;
+  tier: number;
+  sentence: string;
+};
+
 export type RecipeStats = {
   ibu: number;
   abv: number;
@@ -43,6 +53,13 @@ export type Recipe = {
   version: number;
   rootRecipeId: string;
   parentRecipeId?: string | null;
+  // Brewing-difficulty badge (ADR-0024). Optional — absent on recipes fetched
+  // before the feature, and the mobile is a pure consumer (never computes it).
+  // The badge shows `difficultyEffective` (= override ?? computed).
+  difficultyComputed?: RecipeDifficultyLevel;
+  difficultyOverride?: RecipeDifficultyLevel | null;
+  difficultyEffective?: RecipeDifficultyLevel;
+  difficultyReasons?: RecipeDifficultyReason[];
   createdAt: string;
   updatedAt: string;
 };

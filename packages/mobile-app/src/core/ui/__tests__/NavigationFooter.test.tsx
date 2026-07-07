@@ -113,6 +113,25 @@ describe("NavigationFooter", () => {
     expect(screen.queryByLabelText("Outils")).toBeNull();
   });
 
+  // Demo/live parity: the dock is identical in both modes. The old
+  // demo-only "Communauté" placeholder (a soutenance-era teaser) is gone —
+  // the real social feature is deferred to v0.2 for both modes.
+  it("shows the same six items with no demo-only Communauté tab", () => {
+    render(<NavigationFooter />);
+
+    expect(screen.queryByLabelText("Communauté")).toBeNull();
+    for (const label of [
+      "Accueil",
+      "Brassins",
+      "Recettes",
+      "Scan",
+      "Académie",
+      "Profil",
+    ]) {
+      expect(screen.getByLabelText(label)).toBeTruthy();
+    }
+  });
+
   // Issue #613 — Scan is a new permanent tab pointing at the
   // existing /dashboard/scan route. Tapping it must replace into
   // that path.

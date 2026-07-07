@@ -15,7 +15,7 @@
   * `user_needs.md`: Raw user inputs and expectations.
   * `prioritization.md`: MoSCoW prioritization.
   * `project_requirements.md`: Aggregated project requirements.
-  * `user_stories.md`: User stories and scenarios.
+  * `user_stories.md`: User stories and scenarios (superseded — see [`product-backlog/product-backlog.md`](product-backlog/product-backlog.md)).
 
 * **design/**: Style guide, wireframes, and mockups.
 

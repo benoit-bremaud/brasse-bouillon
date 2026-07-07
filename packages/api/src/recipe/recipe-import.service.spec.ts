@@ -10,6 +10,8 @@ import { RecipeFermentableOrmEntity } from './entities/recipe-fermentable.orm.en
 import { RecipeHopAdditionStage } from './domain/enums/recipe-hop-addition-stage.enum';
 import { RecipeHopOrmEntity } from './entities/recipe-hop.orm.entity';
 import { RecipeHopType } from './domain/enums/recipe-hop-type.enum';
+import { RecipeDifficultyLevel } from './domain/enums/recipe-difficulty-level.enum';
+import { RecipeDifficultyService } from './services/recipe-difficulty.service';
 import { RecipeOrmEntity } from './entities/recipe.orm.entity';
 import { RecipeService } from './services/recipe.service';
 import { RecipeStepOrmEntity } from './entities/recipe-step.orm.entity';
@@ -17,6 +19,7 @@ import { RecipeStepType } from './domain/enums/recipe-step-type.enum';
 import { RecipeVisibility } from './domain/enums/recipe-visibility.enum';
 import { RecipeWaterOrmEntity } from './entities/recipe-water.orm.entity';
 import { RecipeYeastOrmEntity } from './entities/recipe-yeast.orm.entity';
+import { RecipeYeastType } from './domain/enums/recipe-yeast-type.enum';
 
 describe('RecipeService.importFromCommunity (Issue #601)', () => {
   let module: TestingModule;
@@ -54,7 +57,7 @@ describe('RecipeService.importFromCommunity (Issue #601)', () => {
           RecipeWaterOrmEntity,
         ]),
       ],
-      providers: [RecipeService],
+      providers: [RecipeService, RecipeDifficultyService],
     }).compile();
 
     service = module.get(RecipeService);
@@ -317,6 +320,58 @@ describe('RecipeService.importFromCommunity (Issue #601)', () => {
 
       expect(steps).toHaveLength(0);
       expect(hops).toHaveLength(0);
+    });
+  });
+
+  describe('difficulty (ADR-0024)', () => {
+    it('recomputes the imported copy from its satellites, not the create-time Facile placeholder', async () => {
+      // A pale lager source (EBC ≤ 10 + lager yeast) scores Avancé (F3). After
+      // the import copies its satellites, the copy must be recomputed to Avancé,
+      // not left at the Facile placeholder the fresh copy is created with.
+      const source = recipeRepo.create({
+        id: 'pale-lager-source',
+        owner_id: SOURCE_OWNER,
+        name: 'Pilsner Source',
+        description: null,
+        visibility: RecipeVisibility.PUBLIC,
+        version: 1,
+        root_recipe_id: 'pale-lager-source',
+        parent_recipe_id: null,
+        batch_size_l: 20,
+        boil_time_min: 60,
+        og_target: 1.05,
+        fg_target: 1.01,
+        abv_estimated: 5,
+        ibu_target: 35,
+        ebc_target: 6,
+        efficiency_target: 75,
+        avg_rating: null,
+        brew_count: 0,
+        last_brewed_at: null,
+        is_official: false,
+      });
+      await recipeRepo.save(source);
+
+      const yeastRepo = module.get<Repository<RecipeYeastOrmEntity>>(
+        getRepositoryToken(RecipeYeastOrmEntity),
+      );
+      await yeastRepo.save(
+        yeastRepo.create({
+          recipe_id: source.id,
+          name: 'W-34/70',
+          type: RecipeYeastType.LAGER,
+          amount_g: 11,
+          temperature_max_c: 12,
+        }),
+      );
+
+      const imported = await service.importFromCommunity(
+        IMPORTING_USER,
+        source.id,
+      );
+
+      const saved = await recipeRepo.findOneByOrFail({ id: imported.id });
+      expect(saved.difficulty_computed).toBe(RecipeDifficultyLevel.AVANCE);
     });
   });
 });

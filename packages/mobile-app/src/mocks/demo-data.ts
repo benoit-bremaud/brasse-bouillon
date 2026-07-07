@@ -3,7 +3,12 @@ import {
   BatchStep,
   BatchSummary,
 } from "@/features/batches/domain/batch.types";
-import { Recipe, RecipeStep } from "@/features/recipes/domain/recipe.types";
+import {
+  Recipe,
+  RecipeDifficultyLevel,
+  RecipeDifficultyReason,
+  RecipeStep,
+} from "@/features/recipes/domain/recipe.types";
 
 import { User } from "@/features/auth/domain/auth.types";
 import { HopProduct } from "@/features/ingredients/domain/hop.types";
@@ -1271,7 +1276,7 @@ export const demoRecipeSteps: RecipeStep[] = [
   },
 ];
 
-export const demoRecipes: Recipe[] = [
+const demoRecipesSeed: Recipe[] = [
   {
     id: "r-demo-1",
     ownerId: demoUsers[0].id,
@@ -2317,7 +2322,131 @@ export const demoRecipes: Recipe[] = [
     createdAt: "2026-04-15T10:00:00.000Z",
     updatedAt: "2026-04-20T10:00:00.000Z",
   },
+  {
+    // A community recipe the demo user does NOT own: no `ownerId`, so
+    // `isOwned = ownerId != null` is false → it shows « Ajouter à mon carnet »,
+    // the lightened Water tab, and the import snackbar. It stays OUT of « Mes
+    // recettes » (listRecipes filters on ownerId) but appears in « Découvrir ».
+    id: "r-demo-community-1",
+    name: "Blonde de la Communauté",
+    description:
+      "Une blonde légère et désaltérante, partagée par la communauté",
+    stats: {
+      ibu: 20,
+      abv: 4.8,
+      og: 1.046,
+      fg: 1.008,
+      volumeLiters: 20,
+      colorEbc: 8,
+    },
+    ingredients: [
+      { ingredientId: "malt-1", amount: 4, unit: "kg", timing: "mash" },
+      { ingredientId: "hop-3", amount: 20, unit: "g", timing: "boil - 60 min" },
+      {
+        ingredientId: "yeast-1",
+        amount: 1,
+        unit: "unit",
+        timing: "fermentation",
+        notes: "Pitch at 18°C",
+      },
+    ],
+    equipment: [
+      { equipmentId: "eq-1", role: "Mash & boil" },
+      { equipmentId: "eq-3", role: "Fermentation" },
+    ],
+    visibility: "public",
+    version: 1,
+    rootRecipeId: "r-demo-community-1",
+    parentRecipeId: null,
+    createdAt: "2026-05-01T10:00:00.000Z",
+    updatedAt: "2026-05-01T10:00:00.000Z",
+  },
 ];
+
+// Pre-computed difficulty for a representative subset of the demo recipes, as
+// the backend would store it (the mobile never computes difficulty — ADR-0024).
+// Covers the three levels + one author override, so the badge + tap-to-explain
+// are demonstrable in demo mode. Recipes not listed here intentionally carry no
+// badge (they stand in for recipes created before the feature).
+const FACILE_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "facile",
+    tier: 0,
+    sentence:
+      "Recette accessible : fermentation haute, densité modérée, pas de technique avancée — idéale pour un premier brassin.",
+  },
+];
+const GRAVITY_MODERATE_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F2",
+    tier: 1,
+    sentence:
+      "bière assez forte : il y a beaucoup de sucres à transformer, la fermentation demande plus d'attention",
+  },
+];
+const LAGER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F1",
+    tier: 1,
+    sentence:
+      "elle fermente au froid (≈10 °C) puis se garde plusieurs semaines : il te faut de quoi refroidir et de la patience",
+  },
+];
+const PALE_LAGER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F3",
+    tier: 2,
+    sentence:
+      "une lager blonde et nette : ni houblon fort ni malt torréfié pour cacher un défaut — la moindre erreur se voit tout de suite",
+  },
+  ...LAGER_REASONS,
+];
+const BIG_BEER_REASONS: RecipeDifficultyReason[] = [
+  {
+    factor: "F2",
+    tier: 2,
+    sentence:
+      "grosse bière : il faut BEAUCOUP de levure au départ (un « pied de levure »), sinon la fermentation risque de s'arrêter avant la fin",
+  },
+];
+
+const DEMO_DIFFICULTY: Record<
+  string,
+  {
+    computed: RecipeDifficultyLevel;
+    override?: RecipeDifficultyLevel;
+    reasons: RecipeDifficultyReason[];
+  }
+> = {
+  "r-demo-community-1": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-1": { computed: "intermediaire", reasons: GRAVITY_MODERATE_REASONS },
+  "r-demo-2": { computed: "avance", reasons: BIG_BEER_REASONS },
+  "r-demo-3": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-5": { computed: "intermediaire", reasons: LAGER_REASONS },
+  // Author override: computed Intermédiaire, the author bumped it to Avancé —
+  // the modal shows « calculé : Intermédiaire ».
+  "r-demo-8": {
+    computed: "intermediaire",
+    override: "avance",
+    reasons: GRAVITY_MODERATE_REASONS,
+  },
+  "r-demo-11": { computed: "facile", reasons: FACILE_REASONS },
+  "r-demo-brewdog-diy-dog": { computed: "avance", reasons: PALE_LAGER_REASONS },
+};
+
+export const demoRecipes: Recipe[] = demoRecipesSeed.map((recipe) => {
+  const difficulty = DEMO_DIFFICULTY[recipe.id];
+  if (!difficulty) {
+    return recipe;
+  }
+  return {
+    ...recipe,
+    difficultyComputed: difficulty.computed,
+    difficultyOverride: difficulty.override ?? null,
+    difficultyEffective: difficulty.override ?? difficulty.computed,
+    difficultyReasons: difficulty.reasons,
+  };
+});
 
 /**
  * Steps for the "La Première du dimanche" fil-rouge batches.

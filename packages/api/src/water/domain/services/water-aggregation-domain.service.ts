@@ -2,6 +2,7 @@ import { WaterConformity } from '../enums/water-conformity.enum';
 import { WaterProfileEntity } from '../entities/water-profile.entity';
 import { WaterProviderKey } from '../enums/water-provider-key.enum';
 import { WaterSample } from '../ports/water-quality-provider.port';
+import { normalizeFrenchLabel } from '../../../common/normalize-french-label';
 
 type MineralKey = 'ca' | 'mg' | 'cl' | 'so4' | 'hco3';
 
@@ -18,25 +19,23 @@ const resolveMineralKey = (normalizedLabel: string): MineralKey | null => {
     return 'so4';
   }
 
-  // Matches both "chlorides" and localized variants sharing the same stem.
-  if (normalizedLabel.includes('chlor')) {
+  // The chloride ion is « Chlorures » (plural). Match on the plural stem so we
+  // don't sweep in « Chlore libre », « Chlorure de vinyl » and the dozens of
+  // chlorinated compounds/pesticides Hub'Eau reports (which would corrupt the
+  // average).
+  if (normalizedLabel.includes('chlorures')) {
     return 'cl';
   }
 
-  // Matches both "total bicarbonates" and localized variants.
-  if (normalizedLabel.includes('bicarbonate')) {
+  // Hub'Eau labels bicarbonate (HCO3) as « Hydrogénocarbonates » — never
+  // "bicarbonate". (« Carbonates » is CO3, a different species, and must NOT
+  // match.)
+  if (normalizedLabel.includes('hydrogenocarbonate')) {
     return 'hco3';
   }
 
   return null;
 };
-
-const normalizeParameterLabel = (value: string): string =>
-  value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
 
 interface AggregateBucket {
   sum: number;
@@ -99,7 +98,7 @@ export class WaterAggregationDomainService {
     const aggregate = createEmptyAggregate();
     for (const sample of samples) {
       const key = resolveMineralKey(
-        normalizeParameterLabel(sample.parameterLabel),
+        normalizeFrenchLabel(sample.parameterLabel),
       );
       if (!key) {
         continue;

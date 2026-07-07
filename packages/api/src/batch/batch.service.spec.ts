@@ -19,11 +19,16 @@ import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
 import { MeasurementType } from './domain/enums/measurement-type.enum';
 import { ObservationOrmEntity } from './entities/observation.orm.entity';
 import { TastingOrmEntity } from './entities/tasting.orm.entity';
+import { RecipeAdditiveOrmEntity } from '../recipe/entities/recipe-additive.orm.entity';
+import { RecipeDifficultyService } from '../recipe/services/recipe-difficulty.service';
+import { RecipeFermentableOrmEntity } from '../recipe/entities/recipe-fermentable.orm.entity';
 import { RecipeHopOrmEntity } from '../recipe/entities/recipe-hop.orm.entity';
 import { RecipeOrmEntity } from '../recipe/entities/recipe.orm.entity';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { RecipeStepOrmEntity } from '../recipe/entities/recipe-step.orm.entity';
 import { RecipeVisibility } from '../recipe/domain/enums/recipe-visibility.enum';
+import { RecipeWaterOrmEntity } from '../recipe/entities/recipe-water.orm.entity';
+import { RecipeYeastOrmEntity } from '../recipe/entities/recipe-yeast.orm.entity';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 
@@ -50,6 +55,10 @@ describe('BatchService', () => {
             RecipeOrmEntity,
             RecipeStepOrmEntity,
             RecipeHopOrmEntity,
+            RecipeFermentableOrmEntity,
+            RecipeYeastOrmEntity,
+            RecipeAdditiveOrmEntity,
+            RecipeWaterOrmEntity,
             BatchOrmEntity,
             BatchStepOrmEntity,
             BatchReminderOrmEntity,
@@ -64,6 +73,10 @@ describe('BatchService', () => {
           RecipeOrmEntity,
           RecipeStepOrmEntity,
           RecipeHopOrmEntity,
+          RecipeFermentableOrmEntity,
+          RecipeYeastOrmEntity,
+          RecipeAdditiveOrmEntity,
+          RecipeWaterOrmEntity,
           BatchOrmEntity,
           BatchStepOrmEntity,
           BatchReminderOrmEntity,
@@ -72,7 +85,7 @@ describe('BatchService', () => {
           TastingOrmEntity,
         ]),
       ],
-      providers: [RecipeService, BatchService],
+      providers: [RecipeService, RecipeDifficultyService, BatchService],
     }).compile();
 
     batchService = module.get(BatchService);

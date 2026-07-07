@@ -34,7 +34,7 @@ describe('WaterAggregationDomainService', () => {
           conformity: 'C',
         },
         {
-          parameterLabel: 'Total bicarbonates',
+          parameterLabel: 'Hydrogénocarbonates',
           numericResult: 141.1,
           conformity: 'C',
         },
@@ -155,12 +155,12 @@ describe('WaterAggregationDomainService', () => {
           conformity: 'C',
         },
         {
-          parameterLabel: 'Chlorides',
+          parameterLabel: 'Chlorures',
           numericResult: 17,
           conformity: 'C',
         },
         {
-          parameterLabel: 'Total bicarbonates',
+          parameterLabel: 'Hydrogénocarbonates',
           numericResult: 122,
           conformity: 'C',
         },
@@ -170,5 +170,40 @@ describe('WaterAggregationDomainService', () => {
     expect(profile.mineralsMgL.mg).toBe(9);
     expect(profile.mineralsMgL.cl).toBe(17);
     expect(profile.mineralsMgL.hco3).toBe(122);
+  });
+
+  it('does not sweep chlorinated compounds into chloride, nor carbonates into bicarbonate', () => {
+    // Hub'Eau reports dozens of chlorine-bearing compounds (« Chlore libre »,
+    // « Chlorure de vinyl monomère », chlorinated pesticides…) and « Carbonates »
+    // (CO3). None of them is the chloride ion (Cl) or bicarbonate (HCO3), so they
+    // must NOT corrupt the aggregated values — only « Chlorures » and
+    // « Hydrogénocarbonates » count.
+    const profile = service.aggregate({
+      provider: WaterProviderKey.HUBEAU,
+      codeInsee: '59350',
+      year: 2024,
+      networkName: 'LILLE',
+      maxSamples: 50,
+      samples: [
+        { parameterLabel: 'Chlore libre', numericResult: 0.3, conformity: 'C' },
+        {
+          parameterLabel: 'Chlorure de vinyl monomère',
+          numericResult: 0.4,
+          conformity: 'C',
+        },
+        { parameterLabel: 'Chloroforme', numericResult: 5, conformity: 'C' },
+        { parameterLabel: 'Carbonates', numericResult: 10, conformity: 'C' },
+        { parameterLabel: 'Chlorures', numericResult: 51, conformity: 'C' },
+        {
+          parameterLabel: 'Hydrogénocarbonates',
+          numericResult: 340,
+          conformity: 'C',
+        },
+      ],
+    });
+
+    // Only the real ions are aggregated — the compounds are ignored.
+    expect(profile.mineralsMgL.cl).toBe(51);
+    expect(profile.mineralsMgL.hco3).toBe(340);
   });
 });

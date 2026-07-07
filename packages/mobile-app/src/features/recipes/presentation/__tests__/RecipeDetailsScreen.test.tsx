@@ -587,25 +587,31 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(screen.getByText("Phases de brassage")).toBeTruthy();
     expect(screen.getByText("Étapes de la recette")).toBeTruthy();
     expect(screen.getByText("Condensé")).toBeTruthy();
-    // The default "phases" view shows French brewing-phase titles.
-    expect(screen.getByText("🪣 EMPÂTAGE")).toBeTruthy();
-
-    // The active mode chip exposes its selected state to screen readers
-    // (#1172, Copilot review).
-    expect(
-      screen.getByTestId("recipe-process-filter-phases").props
-        .accessibilityState.selected,
-    ).toBe(true);
-    expect(
-      screen.getByTestId("recipe-process-filter-recipe").props
-        .accessibilityState.selected,
-    ).toBe(false);
-
-    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+    // The default view is now « Étapes de la recette » (ADR-0024 D5): the
+    // recipe's OWN steps, not the generic brewing-phase glossary.
     expect(screen.getByText("1. Mash")).toBeTruthy();
     expect(screen.getByText("Hold at 67°C")).toBeTruthy();
     // The step-type chip renders the French label, not the raw enum.
     expect(screen.getByText("Empâtage")).toBeTruthy();
+
+    // The active mode chip exposes its selected state to screen readers
+    // (#1172, Copilot review): the recipe view leads by default now.
+    expect(
+      screen.getByTestId("recipe-process-filter-recipe").props
+        .accessibilityState.selected,
+    ).toBe(true);
+    expect(
+      screen.getByTestId("recipe-process-filter-phases").props
+        .accessibilityState.selected,
+    ).toBe(false);
+
+    // The generic brewing-phase glossary stays reachable as a non-default mode.
+    fireEvent.press(screen.getByTestId("recipe-process-filter-phases"));
+    expect(screen.getByText("🪣 EMPÂTAGE")).toBeTruthy();
+    expect(
+      screen.getByTestId("recipe-process-filter-phases").props
+        .accessibilityState.selected,
+    ).toBe(true);
 
     fireEvent.press(screen.getByTestId("recipe-process-filter-compact"));
     expect(screen.getByText("Étapes recette : 1")).toBeTruthy();
@@ -627,7 +633,8 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
 
     await screen.findByTestId("recipe-overview-tab");
     switchToTab("brewing");
-    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+    // « Étapes de la recette » is the default mode now (ADR-0024 D5), so the
+    // empty-state hint shows without switching modes.
 
     expect(
       screen.getByText("Pas d'étapes renseignées pour cette recette."),
@@ -651,7 +658,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
 
     await screen.findByTestId("recipe-overview-tab");
     switchToTab("brewing");
-    fireEvent.press(screen.getByTestId("recipe-process-filter-recipe"));
+    // Recipe steps are the default view now (ADR-0024 D5) — no mode switch.
 
     expect(screen.getByText("1. Empâtage maison")).toBeTruthy();
     expect(screen.getByText("Empâtage")).toBeTruthy();

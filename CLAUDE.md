@@ -101,6 +101,7 @@ Currently accepted ADRs (see each file for the `Status` line and full rationale)
 - [ADR-0018 — Admin/moderation surface: in-app CREATOR moderation, secured at the NestJS API](docs/architecture/decisions/0018-admin-moderation-surface.md)
 - [ADR-0020 — Equipment-driven batch sizing & volume planning (computed in the backend)](docs/architecture/decisions/0020-equipment-driven-volume-planning.md)
 - [ADR-0022 — Public FAQ chatbot: Mistral LLM + self-hosted ALTCHA, EU-sovereign](docs/architecture/decisions/0022-public-faq-chatbot-llm.md)
+- [ADR-0024 — Recipe brewing-difficulty badge: rule-based, max-dominates, backend-computed](docs/architecture/decisions/0024-recipe-difficulty-scoring.md)
 
 When a new ADR is accepted, add its file link here (no dates, no per-ADR summaries — open the file for the live status and content). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
 

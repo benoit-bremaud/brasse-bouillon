@@ -46,6 +46,12 @@ type DtoLike = {
   abv_estimated?: number | null;
   ibu_target?: number | null;
   ebc_target?: number | null;
+  difficulty_computed?: "facile" | "intermediaire" | "avance" | null;
+  difficulty_override?: "facile" | "intermediaire" | "avance" | null;
+  difficulty_effective?: "facile" | "intermediaire" | "avance" | null;
+  difficulty_reasons?:
+    | { factor: string; tier: number; sentence: string }[]
+    | null;
   created_at: string;
   updated_at: string;
 };
@@ -130,6 +136,52 @@ describe("mapRecipe (Issue #779 — catalog API mapper coverage)", () => {
     expect(recipe.ownerId).toBeUndefined();
     expect(recipe.id).toBe("r-1");
     expect(recipe.name).toBe("Recipe");
+  });
+});
+
+describe("mapRecipe — difficulty (ADR-0024)", () => {
+  it("happy: maps the snake_case difficulty fields to camelCase", () => {
+    const recipe = mapRecipe(
+      buildDto({
+        difficulty_computed: "intermediaire",
+        difficulty_override: null,
+        difficulty_effective: "intermediaire",
+        difficulty_reasons: [
+          { factor: "F2", tier: 1, sentence: "bière assez forte" },
+        ],
+      }),
+    );
+
+    expect(recipe.difficultyComputed).toBe("intermediaire");
+    expect(recipe.difficultyOverride).toBeNull();
+    expect(recipe.difficultyEffective).toBe("intermediaire");
+    expect(recipe.difficultyReasons).toEqual([
+      { factor: "F2", tier: 1, sentence: "bière assez forte" },
+    ]);
+  });
+
+  it("edge: carries an author override through (effective = override)", () => {
+    const recipe = mapRecipe(
+      buildDto({
+        difficulty_computed: "intermediaire",
+        difficulty_override: "avance",
+        difficulty_effective: "avance",
+        difficulty_reasons: [],
+      }),
+    );
+
+    expect(recipe.difficultyOverride).toBe("avance");
+    expect(recipe.difficultyEffective).toBe("avance");
+  });
+
+  it("sad: a DTO without difficulty (pre-feature recipe) yields undefined fields", () => {
+    const recipe = mapRecipe(buildDto({}));
+
+    expect(recipe.difficultyComputed).toBeUndefined();
+    expect(recipe.difficultyEffective).toBeUndefined();
+    expect(recipe.difficultyReasons).toBeUndefined();
+    // Override defaults to null (the mapper normalises absent → null).
+    expect(recipe.difficultyOverride).toBeNull();
   });
 });
 

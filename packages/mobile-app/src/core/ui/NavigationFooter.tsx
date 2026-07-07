@@ -9,7 +9,6 @@ import Animated, {
 import { colors, spacing } from "@/core/theme";
 
 import { Ionicons } from "@expo/vector-icons";
-import { dataSource } from "@/core/data/data-source";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function useNavigationFooterOffset() {
@@ -73,31 +72,6 @@ const BASE_NAV_ITEMS: NavItem[] = [
   },
 ];
 
-// Demo-mode-only "Communauté" slot, inserted between Académie and Profil.
-// Surfaces the SocialFeedScreen mockup behind the same dock as the rest
-// of the app so the soutenance live demo can navigate to it without
-// typing a URL. Hidden in live mode so production users never see the
-// community placeholder (the real social feature is deferred to v0.2).
-const COMMUNITY_NAV_ITEM: NavItem = {
-  label: "Communauté",
-  icon: "people-outline",
-  href: "/social",
-  routePrefix: "/social",
-};
-
-function buildNavItems(useDemoData: boolean): NavItem[] {
-  if (!useDemoData) {
-    return BASE_NAV_ITEMS;
-  }
-  // Insert Communauté just before the last slot (Profil) so the
-  // persona-anchor stays at the far right of the dock.
-  const profileSlot = BASE_NAV_ITEMS.at(-1);
-  if (!profileSlot) {
-    return BASE_NAV_ITEMS;
-  }
-  return [...BASE_NAV_ITEMS.slice(0, -1), COMMUNITY_NAV_ITEM, profileSlot];
-}
-
 function isFooterItemActive(pathname: string, routePrefix: string): boolean {
   return pathname === routePrefix || pathname.startsWith(`${routePrefix}/`);
 }
@@ -129,10 +103,8 @@ export function NavigationFooter() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
 
-  // Read the demo flag on each render. It only flips at login (demo
-  // trigger credentials) and logout, both of which remount the app
-  // shell — so a non-reactive read is sufficient here.
-  const navItems = buildNavItems(dataSource.useDemoData);
+  // Same dock in demo and live — the nav must not diverge between modes.
+  const navItems = BASE_NAV_ITEMS;
 
   const activeIndex = findActiveNavIndex(pathname, navItems);
   const hasActiveItem = activeIndex >= 0;

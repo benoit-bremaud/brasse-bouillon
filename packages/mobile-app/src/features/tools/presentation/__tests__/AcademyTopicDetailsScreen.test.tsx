@@ -6,6 +6,109 @@ import { AcademyTopicDetailsScreen } from "../AcademyTopicDetailsScreen";
 
 const mockPush = jest.fn();
 
+jest.mock("@/features/academy/data", () => {
+  const articles = [
+    {
+      slug: "houblons",
+      metadata: {
+        title: "Houblons",
+        summary: "Reference guide for hop roles in brewing.",
+        category: "ingredients",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 6,
+        tags: ["ingredients", "bitterness"],
+        updatedAt: "2026-07-03",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [
+          {
+            slug: "houblons",
+            label: "Hop calculator",
+            reason: "Estimate bitterness.",
+            target: { type: "calculator", slug: "houblons" },
+          },
+        ],
+        learningObjectives: ["Identify hop roles."],
+        prerequisites: [],
+        teaches: ["hop-bitterness"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "role-du-houblon",
+            title: "Role du houblon",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated hop article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      slug: "orphan-malt",
+      metadata: {
+        title: "Malt generated",
+        summary: "Generated article without legacy topic.",
+        category: "ingredients",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 4,
+        tags: ["malt"],
+        updatedAt: "2026-07-03",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [],
+        learningObjectives: ["Understand malt basics."],
+        prerequisites: [],
+        teaches: ["malt-basics"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "malt-basics",
+            title: "Malt basics",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated-only article body.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  return {
+    generatedAcademyRepository: {
+      listArticles: () => articles,
+      getArticleBySlug: (slug: string) =>
+        articles.find((article) => article.slug === slug) ?? null,
+      listGlossaryTerms: () => [],
+      getGlossaryTermBySlug: () => null,
+      listCalculatorSlugs: () => ["houblons"],
+    },
+  };
+});
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
 
@@ -88,5 +191,15 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("renders a published generated article even without a legacy topic", () => {
+    render(<AcademyTopicDetailsScreen slugParam="orphan-malt" />);
+
+    expect(
+      screen.getByText("Generated article without legacy topic."),
+    ).toBeTruthy();
+    expect(screen.getByText("Malt basics")).toBeTruthy();
+    expect(screen.queryByText("Thème introuvable")).toBeNull();
   });
 });

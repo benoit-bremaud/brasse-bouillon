@@ -49,8 +49,13 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
     : null;
   const publishedGeneratedArticle =
     generatedArticle?.metadata.status === "published" ? generatedArticle : null;
+  const generatedArticleCalculatorSlug =
+    publishedGeneratedArticle?.metadata.relatedCalculators[0]?.target.slug ??
+    null;
+  const legacyCalculatorSlug = topic?.hasCalculator ? topic.slug : null;
+  const calculatorSlug = generatedArticleCalculatorSlug ?? legacyCalculatorSlug;
 
-  if (!topic) {
+  if (!topic && !publishedGeneratedArticle) {
     return (
       <Screen>
         <ListHeader
@@ -95,14 +100,14 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
             { paddingBottom: bottomPadding },
           ]}
         >
-          {topic.hasCalculator ? (
+          {calculatorSlug ? (
             <Card style={styles.sectionCard}>
               <PrimaryButton
                 label={calculatorLabel}
                 onPress={() =>
                   router.push({
                     pathname: "/tools/[slug]/calculator",
-                    params: { slug: topic.slug },
+                    params: { slug: calculatorSlug },
                   })
                 }
               />
@@ -133,6 +138,10 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         </ScrollView>
       </Screen>
     );
+  }
+
+  if (!topic) {
+    return null;
   }
 
   return (

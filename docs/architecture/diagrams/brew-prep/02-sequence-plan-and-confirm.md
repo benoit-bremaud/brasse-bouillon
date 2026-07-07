@@ -1,9 +1,17 @@
 # Sequence diagram — brew-prep — Plan volumes from equipment & confirm readiness
 
 > **Feature**: first real-world brew — pre-batch volume planning + readiness gate.
-> **Related ADRs**: ADR-0020 (backend-computed plan, fermenter caps batch), ADR-0002.
+> **Related ADRs**: ADR-0020 (backend-computed plan, fermenter caps batch), ADR-0002, ADR-0026 (supersedes the v1 gate — see banner).
 
 ## Context
+
+> **DEFERRED / future-state flow.** This sequence depicts the full ADR-0020 cascade
+> (equipment → volume plan) **and the original two-checklist gate**, which return
+> once the `VolumePlanner` + method logic are built. **In v1 (ADR-0026)** the launch
+> gate is **ingredient-only** and the equipment leg is an **advisory capacity
+> fit-check** (no "required equipment" item list) — see `02b-sequence-capacity-fit`,
+> `04-class`, and `05-state-readiness`. Read the gate steps below as the target, not
+> as v1 behaviour.
 
 The one non-trivial pre-batch flow: the app derives the **volume plan** from the
 recipe targets + the brewer's equipment **in the backend** (ADR-0020 D3), shows

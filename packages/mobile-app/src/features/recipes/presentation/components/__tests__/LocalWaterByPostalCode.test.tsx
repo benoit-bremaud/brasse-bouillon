@@ -148,7 +148,7 @@ describe("LocalWaterByPostalCode", () => {
 
     expect(
       await screen.findByText(
-        "Pas de données d'eau pour cette commune cette année.",
+        "Pas de données d'eau disponibles pour cette commune.",
       ),
     ).toBeTruthy();
   });

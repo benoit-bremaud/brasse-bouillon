@@ -159,7 +159,7 @@ export function LocalWaterByPostalCode() {
       {effectiveCommune && waterQuery.isError ? (
         <Text testID="water-profile-error" style={styles.error}>
           {isNotFound(waterQuery.error)
-            ? "Pas de données d'eau pour cette commune cette année."
+            ? "Pas de données d'eau disponibles pour cette commune."
             : getErrorMessage(waterQuery.error)}
         </Text>
       ) : null}

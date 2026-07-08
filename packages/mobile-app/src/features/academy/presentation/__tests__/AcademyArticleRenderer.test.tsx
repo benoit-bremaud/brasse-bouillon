@@ -160,6 +160,9 @@ describe("AcademyArticleRenderer", () => {
     render(
       <AcademyArticleRenderer
         article={article}
+        resolveArticleTitle={(slug) =>
+          slug === "levures" ? "Levures et fermentation" : null
+        }
         onGlossaryPress={onGlossaryPress}
         onCalculatorPress={onCalculatorPress}
         onRelatedArticlePress={onRelatedArticlePress}
@@ -168,7 +171,7 @@ describe("AcademyArticleRenderer", () => {
 
     fireEvent.press(screen.getByText("IBU"));
     fireEvent.press(screen.getByText("Calculer une amertume cible"));
-    fireEvent.press(screen.getByText("Lire aussi : Levures"));
+    fireEvent.press(screen.getByText("Lire aussi : Levures et fermentation"));
 
     expect(onGlossaryPress).toHaveBeenCalledWith("ibu");
     expect(onCalculatorPress).toHaveBeenCalledWith("houblons");
@@ -176,5 +179,11 @@ describe("AcademyArticleRenderer", () => {
       "levures",
       "fermentation",
     );
+  });
+
+  it("falls back to a readable related article label when no resolver is provided", () => {
+    render(<AcademyArticleRenderer article={article} />);
+
+    expect(screen.getByText("Lire aussi : Levures")).toBeTruthy();
   });
 });

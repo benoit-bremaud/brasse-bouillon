@@ -5,6 +5,9 @@ import { academyTopics } from "@/features/tools/data/academy.data";
 import { AcademyTopicDetailsScreen } from "../AcademyTopicDetailsScreen";
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockBack = jest.fn();
+const mockCanGoBack = jest.fn(() => true);
 
 jest.mock("@/features/academy/data", () => {
   const articles = [
@@ -518,6 +521,12 @@ jest.mock("@/features/academy/data", () => {
   };
 });
 
+jest.mock("@expo/vector-icons", () => {
+  return {
+    Ionicons: () => null,
+  };
+});
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
 
@@ -525,8 +534,9 @@ jest.mock("expo-router", () => {
     ...actual,
     useRouter: () => ({
       push: mockPush,
-      replace: jest.fn(),
-      back: jest.fn(),
+      replace: mockReplace,
+      back: mockBack,
+      canGoBack: mockCanGoBack,
     }),
   };
 });
@@ -545,6 +555,10 @@ const TOPICS_WITH_CALCULATOR = [
 describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
+    mockBack.mockClear();
+    mockCanGoBack.mockReset();
+    mockCanGoBack.mockReturnValue(true);
   });
 
   it.each(TOPICS_WITH_CALCULATOR)(
@@ -600,6 +614,26 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("uses navigation back from the article header when history exists", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByLabelText("Retour à l'écran précédent"));
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the Academy hub from the article header without history", () => {
+    mockCanGoBack.mockReturnValue(false);
+
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByLabelText("Retour à l'écran précédent"));
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/academy");
   });
 
   it("renders the generated introduction instead of the legacy card content", () => {

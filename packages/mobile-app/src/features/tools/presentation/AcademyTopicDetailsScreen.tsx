@@ -1,13 +1,6 @@
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { getAcademyArticleBySlug } from "@/features/academy/application";
@@ -16,6 +9,7 @@ import { AcademyArticleRenderer } from "@/features/academy/presentation";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
@@ -48,6 +42,14 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
     null;
   const legacyCalculatorSlug = topic?.hasCalculator ? topic.slug : null;
   const calculatorSlug = generatedArticleCalculatorSlug ?? legacyCalculatorSlug;
+  const goBackOrAcademyHome = React.useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/(app)/academy");
+  }, [router]);
 
   if (!topic && !publishedGeneratedArticle) {
     return (
@@ -56,9 +58,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           title="Académie brassicole"
           subtitle="Thème introuvable"
           action={
-            <Pressable onPress={() => router.push("/(app)/academy")}>
-              <Text style={styles.backLink}>← Retour</Text>
-            </Pressable>
+            <HeaderBackButton
+              label="Retour"
+              accessibilityLabel="Retour à l'écran précédent"
+              onPress={goBackOrAcademyHome}
+            />
           }
         />
         <EmptyStateCard
@@ -67,7 +71,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           action={
             <PrimaryButton
               label="Retour au catalogue"
-              onPress={() => router.push("/(app)/academy")}
+              onPress={() => router.replace("/(app)/academy")}
             />
           }
         />
@@ -82,9 +86,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
           title={publishedGeneratedArticle.metadata.title}
           subtitle="Article Académie"
           action={
-            <Pressable onPress={() => router.push("/(app)/academy")}>
-              <Text style={styles.backLink}>← Retour</Text>
-            </Pressable>
+            <HeaderBackButton
+              label="Retour"
+              accessibilityLabel="Retour à l'écran précédent"
+              onPress={goBackOrAcademyHome}
+            />
           }
         />
 
@@ -110,6 +116,10 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
 
           <AcademyArticleRenderer
             article={publishedGeneratedArticle}
+            resolveArticleTitle={(slug) =>
+              getAcademyArticleBySlug(generatedAcademyRepository, slug)
+                ?.metadata.title ?? null
+            }
             onCalculatorPress={(slug) =>
               router.push({
                 pathname: "/tools/[slug]/calculator",
@@ -144,9 +154,11 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         title={displayableTopic.title}
         subtitle="Fiche thématique"
         action={
-          <Pressable onPress={() => router.push("/(app)/academy")}>
-            <Text style={styles.backLink}>← Retour</Text>
-          </Pressable>
+          <HeaderBackButton
+            label="Retour"
+            accessibilityLabel="Retour à l'écran précédent"
+            onPress={goBackOrAcademyHome}
+          />
         }
       />
 
@@ -271,11 +283,5 @@ const styles = StyleSheet.create({
   },
   secondaryButtonSpacing: {
     marginTop: spacing.xs,
-  },
-  backLink: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
   },
 });

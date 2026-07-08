@@ -14,6 +14,7 @@ import {
 
 type Props = {
   readonly article: AcademyArticle;
+  readonly resolveArticleTitle?: (slug: string) => string | null;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
   readonly onRelatedArticlePress?: (
@@ -24,6 +25,7 @@ type Props = {
 
 export function AcademyArticleRenderer({
   article,
+  resolveArticleTitle,
   onGlossaryPress,
   onCalculatorPress,
   onRelatedArticlePress,
@@ -84,6 +86,7 @@ export function AcademyArticleRenderer({
           onGlossaryPress={onGlossaryPress}
           onCalculatorPress={onCalculatorPress}
           onRelatedArticlePress={onRelatedArticlePress}
+          resolveArticleTitle={resolveArticleTitle}
         />
       ))}
 
@@ -114,6 +117,7 @@ type SectionRendererProps = {
   readonly section: AcademySection;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
+  readonly resolveArticleTitle?: (slug: string) => string | null;
   readonly onRelatedArticlePress?: (
     articleSlug: string,
     sectionId: string | null,
@@ -125,6 +129,7 @@ function AcademySectionRenderer({
   section,
   onGlossaryPress,
   onCalculatorPress,
+  resolveArticleTitle,
   onRelatedArticlePress,
 }: SectionRendererProps) {
   return (
@@ -141,6 +146,7 @@ function AcademySectionRenderer({
             onGlossaryPress={onGlossaryPress}
             onCalculatorPress={onCalculatorPress}
             onRelatedArticlePress={onRelatedArticlePress}
+            resolveArticleTitle={resolveArticleTitle}
           />
         ))}
       </View>
@@ -152,6 +158,7 @@ type BlockRendererProps = {
   readonly block: AcademyContentBlock;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
+  readonly resolveArticleTitle?: (slug: string) => string | null;
   readonly onRelatedArticlePress?: (
     articleSlug: string,
     sectionId: string | null,
@@ -162,6 +169,7 @@ function AcademyBlockRenderer({
   block,
   onGlossaryPress,
   onCalculatorPress,
+  resolveArticleTitle,
   onRelatedArticlePress,
 }: BlockRendererProps) {
   switch (block.type) {
@@ -299,7 +307,9 @@ function AcademyBlockRenderer({
           style={styles.inlineCta}
         >
           <Text style={styles.inlineCtaText}>
-            Lire aussi : {formatArticleSlugLabel(block.articleSlug)}
+            Lire aussi :{" "}
+            {resolveArticleTitle?.(block.articleSlug) ??
+              formatArticleSlugLabel(block.articleSlug)}
           </Text>
         </Pressable>
       );

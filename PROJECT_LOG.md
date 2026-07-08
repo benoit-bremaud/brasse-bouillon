@@ -5,6 +5,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-08
+
+### PR #1362 merged (`73feaa0`) — feat(api/equipment-fit): advisory capacity fit-check endpoint (ADR-0026)
+
+- Branch `feat/api-equipment-fit`, 1 commit (`098a8e6`). Backend (PR-A) of the brew-prep equipment leg — implements the merged [ADR-0026](docs/architecture/decisions/0026-equipment-capacity-fit-check.md). New `packages/api/src/equipment-fit/` module: pure `computeCapacityFit()` (fermenter usable = `fermenter_volume_l × (1 − HEADSPACE_RATIO 0.10)` vs recipe `batch_size_l` → `FITS`/`TOO_LARGE` strict `>` + `scaleRatio` only when usable > 0; kettle vs approximate pre-boil from optional `recipe_water` → `OK`/`WARNING`, `HARD_STOP` modelled-but-never-emitted; any missing/degenerate input → `NOT_EVALUATED` + per-verdict `reason`), `GET /recipes/:id/equipment-fit?profileId=` (JWT-guarded, `ParseUUIDPipe`, access-checked recipe read via `RecipeService.getReadableById`, profile resolved by explicit id or most-recent), `CapacityFitDto`. No migration (no schema change); launch gate untouched. 31 unit tests (domain/service/controller). Mobile render is follow-up PR-B.
+- Refs #1247, #1248.
+- Reviews — pre-push local Claude reviewer (`pr-pre-reviewer`): 0 Must, 3 Should addressed (`ParseUUIDPipe`, controller spec, `recipe_water` repo-registration comment). GitHub Copilot: 1 finding — `evaluateFermenter` didn't validate `headspaceRatio`; a degenerate ratio could fabricate a `TOO_LARGE` with NaN/Infinity `scaleRatio`. Fixed by guarding the derived `usableL` with `isPositiveFinite` (+ test). CI green, 0 unresolved threads.
+- **Decisions**:
+  - `equipment-fit-headspace-0.10` — the v1 `HEADSPACE_RATIO` default is 0.10 (below the 20–25 % krausen norm) so the shipped guided first brew (`batch_size_l 4.3` in a 5 L demijohn) reads `FITS`; per-style headspace deferred. Recorded in ADR-0026.
+
 ## 2026-07-07
 
 ### PR #1360 merged (`a0dc6dd`) — docs(brew-prep/architecture): ADR-0026 equipment capacity fit-check + brew-prep UML refresh

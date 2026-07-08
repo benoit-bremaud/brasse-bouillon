@@ -101,7 +101,7 @@ jest.mock("@/features/academy/data", () => {
     {
       slug: "levures",
       metadata: {
-        title: "Levures",
+        title: "Levures et fermentation",
         summary: "Generated yeast article summary.",
         category: "fermentation",
         level: "beginner",

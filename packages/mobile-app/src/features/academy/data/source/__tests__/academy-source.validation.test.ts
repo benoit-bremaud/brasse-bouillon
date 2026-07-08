@@ -116,7 +116,7 @@ const levuresArticle: AcademySourceArticle = {
   filePath: "docs/academy/ingredients/levures.md",
   slug: "levures",
   frontMatter: {
-    title: "Levures",
+    title: "Levures et fermentation",
     summary: "Reference guide for fermentation vocabulary.",
     category: "fermentation",
     level: "beginner",

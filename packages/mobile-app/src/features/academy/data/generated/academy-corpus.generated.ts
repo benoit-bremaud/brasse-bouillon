@@ -294,7 +294,7 @@ export const academyCorpus: AcademyCorpus = {
     {
       slug: "levures",
       metadata: {
-        title: "Levures",
+        title: "Levures et fermentation",
         summary:
           "Repère pratique sur la fermentation, le rôle des levures, le taux d'ensemencement et la température.",
         category: "fermentation",

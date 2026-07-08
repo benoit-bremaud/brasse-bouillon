@@ -54,7 +54,7 @@ const draftArticle: AcademyArticle = {
   slug: "levures",
   metadata: {
     ...publishedArticle.metadata,
-    title: "Levures",
+    title: "Levures et fermentation",
     status: "draft",
   },
 };

@@ -93,6 +93,20 @@ jest.mock("@/features/academy/data", () => {
                 text: "Generated hop article.",
                 sourceIds: [],
               },
+              {
+                id: "glossary-ibu",
+                type: "glossaryReference",
+                termSlug: "ibu",
+                label: "IBU",
+                sourceIds: [],
+              },
+              {
+                id: "related-levures",
+                type: "relatedArticle",
+                articleSlug: "levures",
+                sectionId: "fermentation",
+                sourceIds: [],
+              },
             ],
           },
         ],
@@ -614,6 +628,28 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
     expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+  });
+
+  it("navigates from a generated article to a related article", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByText("Lire aussi : Levures et fermentation"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "levures" },
+    });
+  });
+
+  it("navigates from a generated article glossary reference to the glossary", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByText("IBU"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "glossaire" },
+    });
   });
 
   it("uses navigation back from the article header when history exists", () => {

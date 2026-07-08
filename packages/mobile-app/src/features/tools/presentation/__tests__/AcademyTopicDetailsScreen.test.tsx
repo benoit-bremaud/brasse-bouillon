@@ -641,6 +641,38 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     });
   });
 
+  it("navigates from the generated article footer to the Academy hub", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByText("Retour à l'Académie"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/academy");
+  });
+
+  it("navigates from the generated article footer to adjacent articles", () => {
+    render(<AcademyTopicDetailsScreen slugParam="houblons" />);
+
+    fireEvent.press(screen.getByText("Couleur"));
+    fireEvent.press(screen.getByText("Eau de brassage"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "couleur" },
+    });
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "eau" },
+    });
+  });
+
+  it("does not render a previous article footer action for the first generated article", () => {
+    render(<AcademyTopicDetailsScreen slugParam="introduction" />);
+
+    expect(screen.queryByText("Précédent")).toBeNull();
+    expect(screen.getByText("Suivant")).toBeTruthy();
+    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
+  });
+
   it("navigates from a generated article glossary reference to the glossary", () => {
     render(<AcademyTopicDetailsScreen slugParam="houblons" />);
 

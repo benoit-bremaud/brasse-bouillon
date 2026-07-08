@@ -11,6 +11,7 @@ import { BeerContributionModule } from './beer-contribution/beer-contribution.mo
 import { CatalogModule } from './catalog/catalog.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { EquipmentFitModule } from './equipment-fit/equipment-fit.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { FaqBotModule } from './faq-bot/faq-bot.module';
 import { FeedbackModule } from './feedback/feedback.module';
@@ -90,6 +91,8 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
     RecipeModule,
     BatchModule,
     WaterModule,
+    // Advisory equipment capacity fit-check (ADR-0026)
+    EquipmentFitModule,
     LabelModule,
     ScanModule,
 

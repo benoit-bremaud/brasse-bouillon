@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -44,6 +45,7 @@ type Props = {
 
 export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const router = useRouter();
+  const [glossaryQuery, setGlossaryQuery] = React.useState("");
   const bottomPadding = useNavigationFooterOffset();
   const scrollViewRef = React.useRef<ScrollView>(null);
   const articleTopOffsetRef = React.useRef(0);
@@ -70,8 +72,15 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
       : null;
   const glossaryTerms =
     normalizedSlug === "glossaire"
-      ? listAcademyGlossaryTermsUseCase(generatedAcademyRepository)
+      ? listAcademyGlossaryTermsUseCase(
+          generatedAcademyRepository,
+          glossaryQuery,
+        )
       : [];
+  const glossaryTermsTotal =
+    normalizedSlug === "glossaire"
+      ? listAcademyGlossaryTermsUseCase(generatedAcademyRepository).length
+      : 0;
   const generatedArticleCalculatorSlug =
     publishedGeneratedArticle?.metadata.relatedCalculators[0]?.target.slug ??
     null;
@@ -175,9 +184,12 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
             <AcademyHighlightedGlossaryTerm term={highlightedGlossaryTerm} />
           ) : null}
 
-          {glossaryTerms.length > 0 ? (
+          {normalizedSlug === "glossaire" ? (
             <AcademyGlossaryTermsList
               terms={glossaryTerms}
+              totalTermsCount={glossaryTermsTotal}
+              query={glossaryQuery}
+              onQueryChange={setGlossaryQuery}
               selectedTermSlug={highlightedGlossaryTerm?.slug ?? null}
               onTermPress={(termSlug) =>
                 router.push({
@@ -343,60 +355,105 @@ function AcademyHighlightedGlossaryTerm({
 
 type AcademyGlossaryTermsListProps = {
   readonly terms: readonly GlossaryTerm[];
+  readonly totalTermsCount: number;
+  readonly query: string;
+  readonly onQueryChange: (query: string) => void;
   readonly selectedTermSlug: string | null;
   readonly onTermPress: (termSlug: string) => void;
 };
 
 function AcademyGlossaryTermsList({
   terms,
+  totalTermsCount,
+  query,
+  onQueryChange,
   selectedTermSlug,
   onTermPress,
 }: AcademyGlossaryTermsListProps) {
+  const trimmedQuery = query.trim();
+  const countLabel = trimmedQuery
+    ? formatGlossarySearchCount(terms.length)
+    : formatGlossaryTermsCount(totalTermsCount);
+
   return (
     <Card style={styles.glossaryListCard}>
       <View style={styles.glossaryListHeader}>
         <Text style={styles.glossaryListTitle}>Tous les termes</Text>
-        <Text style={styles.glossaryListCount}>
-          {formatGlossaryTermsCount(terms.length)}
-        </Text>
+        <Text style={styles.glossaryListCount}>{countLabel}</Text>
       </View>
-      <View style={styles.glossaryTermsList}>
-        {terms.map((term) => {
-          const selected = term.slug === selectedTermSlug;
 
-          return (
-            <Pressable
-              key={term.slug}
-              accessibilityRole="button"
-              accessibilityLabel={`Consulter le terme ${term.label}`}
-              accessibilityState={{ selected }}
-              onPress={() => onTermPress(term.slug)}
-              style={[
-                styles.glossaryTermItem,
-                selected && styles.glossaryTermItemSelected,
-              ]}
-            >
-              <Text
+      <View style={styles.glossarySearchBox}>
+        <TextInput
+          accessibilityLabel="Rechercher un terme du glossaire"
+          value={query}
+          onChangeText={onQueryChange}
+          placeholder="Rechercher un terme"
+          placeholderTextColor={colors.neutral.muted}
+          style={styles.glossarySearchInput}
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="search"
+          maxLength={80}
+        />
+        {query.length > 0 ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Effacer la recherche du glossaire"
+            onPress={() => onQueryChange("")}
+            style={styles.glossarySearchClearButton}
+          >
+            <Text style={styles.glossarySearchClearText}>Effacer</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {terms.length > 0 ? (
+        <View style={styles.glossaryTermsList}>
+          {terms.map((term) => {
+            const selected = term.slug === selectedTermSlug;
+
+            return (
+              <Pressable
+                key={term.slug}
+                accessibilityRole="button"
+                accessibilityLabel={`Consulter le terme ${term.label}`}
+                accessibilityState={{ selected }}
+                onPress={() => onTermPress(term.slug)}
                 style={[
-                  styles.glossaryTermTitle,
-                  selected && styles.glossaryTermTitleSelected,
+                  styles.glossaryTermItem,
+                  selected && styles.glossaryTermItemSelected,
                 ]}
               >
-                {term.label}
-              </Text>
-              <Text style={styles.glossaryTermSummary}>
-                {term.shortDefinition}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+                <Text
+                  style={[
+                    styles.glossaryTermTitle,
+                    selected && styles.glossaryTermTitleSelected,
+                  ]}
+                >
+                  {term.label}
+                </Text>
+                <Text style={styles.glossaryTermSummary}>
+                  {term.shortDefinition}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : (
+        <Text style={styles.glossaryEmptyText}>
+          Aucun terme ne correspond à cette recherche.
+        </Text>
+      )}
     </Card>
   );
 }
 
 function formatGlossaryTermsCount(count: number): string {
   return count > 1 ? `${count} termes` : `${count} terme`;
+}
+
+function formatGlossarySearchCount(count: number): string {
+  return count === 1 ? `${count} terme trouvé` : `${count} termes trouvés`;
 }
 
 type ArticleNavigationItem = {
@@ -609,6 +666,34 @@ const styles = StyleSheet.create({
   glossaryTermsList: {
     gap: spacing.xs,
   },
+  glossarySearchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    gap: spacing.xs,
+  },
+  glossarySearchInput: {
+    flex: 1,
+    minWidth: 0,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    paddingVertical: 0,
+  },
+  glossarySearchClearButton: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xxs,
+  },
+  glossarySearchClearText: {
+    color: colors.brand.primary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+  },
   glossaryTermItem: {
     borderWidth: 1,
     borderColor: colors.neutral.border,
@@ -633,6 +718,11 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
+  },
+  glossaryEmptyText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
   },
   footerNavigationCard: {
     gap: spacing.sm,

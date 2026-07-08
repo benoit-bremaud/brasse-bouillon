@@ -112,6 +112,16 @@ describe("Academy use cases", () => {
     ]);
   });
 
+  it("filters glossary terms for presentation", () => {
+    expect(listAcademyGlossaryTermsUseCase(repository, "alpha")).toEqual([
+      alphaAcidTerm,
+    ]);
+    expect(listAcademyGlossaryTermsUseCase(repository, "amertume")).toEqual([
+      ibuTerm,
+    ]);
+    expect(listAcademyGlossaryTermsUseCase(repository, "unknown")).toEqual([]);
+  });
+
   it("searches published articles and glossary entries", () => {
     const results = searchAcademy(repository, "amertume");
 

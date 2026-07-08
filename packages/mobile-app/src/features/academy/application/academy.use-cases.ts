@@ -60,10 +60,19 @@ export function getAcademyGlossaryTermBySlug(
 
 export function listAcademyGlossaryTermsUseCase(
   repository: AcademyRepository,
+  query = "",
 ): readonly GlossaryTerm[] {
-  return [...repository.listGlossaryTerms()].sort((left, right) =>
-    left.label.localeCompare(right.label, "fr", { sensitivity: "base" }),
-  );
+  const normalizedQuery = normalizeQueryToken(query);
+
+  return repository
+    .listGlossaryTerms()
+    .filter((term) =>
+      normalizedQuery ? doesGlossaryTermMatch(term, normalizedQuery) : true,
+    )
+    .slice()
+    .sort((left, right) =>
+      left.label.localeCompare(right.label, "fr", { sensitivity: "base" }),
+    );
 }
 
 export function searchAcademy(
@@ -148,15 +157,7 @@ function searchGlossary(
   normalizedQuery: string,
 ): readonly AcademySearchEntry[] {
   return terms
-    .filter((term) =>
-      [
-        term.slug,
-        term.label,
-        term.shortDefinition,
-        term.detailedDefinition,
-        ...term.aliases,
-      ].some((value) => normalizeSearchValue(value).includes(normalizedQuery)),
-    )
+    .filter((term) => doesGlossaryTermMatch(term, normalizedQuery))
     .map((term) => ({
       id: `glossary:${term.slug}`,
       kind: "glossary",
@@ -168,6 +169,19 @@ function searchGlossary(
       },
       keywords: [term.slug, term.label, ...term.aliases],
     }));
+}
+
+function doesGlossaryTermMatch(
+  term: GlossaryTerm,
+  normalizedQuery: string,
+): boolean {
+  return [
+    term.slug,
+    term.label,
+    term.shortDefinition,
+    term.detailedDefinition,
+    ...term.aliases,
+  ].some((value) => normalizeSearchValue(value).includes(normalizedQuery));
 }
 
 function normalizeQueryToken(value: string): string {

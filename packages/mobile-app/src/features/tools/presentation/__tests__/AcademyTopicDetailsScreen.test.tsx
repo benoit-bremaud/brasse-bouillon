@@ -847,6 +847,47 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     });
   });
 
+  it("filters glossary terms from the glossary search input", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Rechercher un terme du glossaire"),
+      "alpha",
+    );
+
+    expect(screen.getByText("1 terme trouvé")).toBeTruthy();
+    expect(screen.getByText("Acide alpha")).toBeTruthy();
+    expect(screen.queryByText("IBU")).toBeNull();
+  });
+
+  it("clears the glossary search input", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Rechercher un terme du glossaire"),
+      "alpha",
+    );
+    fireEvent.press(screen.getByText("Effacer"));
+
+    expect(screen.getByText("2 termes")).toBeTruthy();
+    expect(screen.getByText("Acide alpha")).toBeTruthy();
+    expect(screen.getByText("IBU")).toBeTruthy();
+  });
+
+  it("renders an empty state when the glossary search has no result", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Rechercher un terme du glossaire"),
+      "inconnu",
+    );
+
+    expect(screen.getByText("0 termes trouvés")).toBeTruthy();
+    expect(
+      screen.getByText("Aucun terme ne correspond à cette recherche."),
+    ).toBeTruthy();
+  });
+
   it("renders a published generated article even without a legacy topic", () => {
     render(<AcademyTopicDetailsScreen slugParam="orphan-malt" />);
 

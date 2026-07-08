@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { ScrollView } from "react-native";
 
 import { AcademyHubScreen } from "../AcademyHubScreen";
 import React from "react";
@@ -61,6 +62,16 @@ describe("AcademyHubScreen", () => {
 
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.queryByText("Histoire de la bière")).toBeNull();
+  });
+
+  it("keeps filtered cards pressable while search input is focused", () => {
+    render(<AcademyHubScreen />);
+
+    const scrollViews = screen.UNSAFE_getAllByType(ScrollView);
+
+    expect(scrollViews).toHaveLength(2);
+    expect(scrollViews[0]?.props.keyboardShouldPersistTaps).toBe("handled");
+    expect(scrollViews[1]?.props.keyboardShouldPersistTaps).toBe("handled");
   });
 
   it("filters academy cards by focus chip", () => {

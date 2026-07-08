@@ -77,6 +77,7 @@ export function AcademyHubScreen() {
           styles.content,
           { paddingBottom: bottomPadding },
         ]}
+        keyboardShouldPersistTaps="handled"
       >
         <Card style={styles.summaryCard} variant="subtle">
           <View style={styles.summaryHeader}>
@@ -143,6 +144,7 @@ export function AcademyHubScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterList}
+          keyboardShouldPersistTaps="handled"
         >
           <Pressable
             accessibilityRole="button"

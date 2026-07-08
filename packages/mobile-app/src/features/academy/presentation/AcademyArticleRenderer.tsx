@@ -1,5 +1,11 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  LayoutChangeEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -11,12 +17,15 @@ import {
   AcademySection,
   CalloutTone,
 } from "../domain";
+import React from "react";
 
 type Props = {
   readonly article: AcademyArticle;
   readonly resolveArticleTitle?: (slug: string) => string | null;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
+  readonly onSectionLayout?: (sectionId: string, y: number) => void;
+  readonly onSectionPress?: (sectionId: string) => void;
   readonly onRelatedArticlePress?: (
     articleSlug: string,
     sectionId: string | null,
@@ -28,6 +37,8 @@ export function AcademyArticleRenderer({
   resolveArticleTitle,
   onGlossaryPress,
   onCalculatorPress,
+  onSectionLayout,
+  onSectionPress,
   onRelatedArticlePress,
 }: Props) {
   return (
@@ -69,10 +80,16 @@ export function AcademyArticleRenderer({
           <Text style={styles.cardTitle}>Dans cet article</Text>
           <View style={styles.tocList}>
             {article.body.sections.map((section, index) => (
-              <View key={section.id} style={styles.tocItem}>
+              <Pressable
+                key={section.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Aller à la section ${section.title}`}
+                onPress={() => onSectionPress?.(section.id)}
+                style={styles.tocItem}
+              >
                 <Text style={styles.tocIndex}>{index + 1}</Text>
                 <Text style={styles.tocText}>{section.title}</Text>
-              </View>
+              </Pressable>
             ))}
           </View>
         </Card>
@@ -85,6 +102,7 @@ export function AcademyArticleRenderer({
           section={section}
           onGlossaryPress={onGlossaryPress}
           onCalculatorPress={onCalculatorPress}
+          onSectionLayout={onSectionLayout}
           onRelatedArticlePress={onRelatedArticlePress}
           resolveArticleTitle={resolveArticleTitle}
         />
@@ -117,6 +135,7 @@ type SectionRendererProps = {
   readonly section: AcademySection;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
+  readonly onSectionLayout?: (sectionId: string, y: number) => void;
   readonly resolveArticleTitle?: (slug: string) => string | null;
   readonly onRelatedArticlePress?: (
     articleSlug: string,
@@ -129,11 +148,19 @@ function AcademySectionRenderer({
   section,
   onGlossaryPress,
   onCalculatorPress,
+  onSectionLayout,
   resolveArticleTitle,
   onRelatedArticlePress,
 }: SectionRendererProps) {
+  const handleLayout = React.useCallback(
+    (event: LayoutChangeEvent) => {
+      onSectionLayout?.(section.id, event.nativeEvent.layout.y);
+    },
+    [onSectionLayout, section.id],
+  );
+
   return (
-    <View style={styles.section}>
+    <View onLayout={handleLayout} style={styles.section}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionIndex}>{index + 1}</Text>
         <Text style={styles.sectionTitle}>{section.title}</Text>

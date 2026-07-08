@@ -181,6 +181,23 @@ describe("AcademyArticleRenderer", () => {
     );
   });
 
+  it("dispatches table of contents section selections without owning scroll", () => {
+    const onSectionPress = jest.fn();
+
+    render(
+      <AcademyArticleRenderer
+        article={article}
+        onSectionPress={onSectionPress}
+      />,
+    );
+
+    fireEvent.press(
+      screen.getByLabelText("Aller à la section Aller plus loin"),
+    );
+
+    expect(onSectionPress).toHaveBeenCalledWith("aller-plus-loin");
+  });
+
   it("falls back to a readable related article label when no resolver is provided", () => {
     render(<AcademyArticleRenderer article={article} />);
 

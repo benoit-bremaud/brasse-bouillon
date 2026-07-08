@@ -2,6 +2,7 @@ import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   Image,
+  LayoutChangeEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -40,6 +41,9 @@ type Props = {
 export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const router = useRouter();
   const bottomPadding = useNavigationFooterOffset();
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  const articleTopOffsetRef = React.useRef(0);
+  const sectionOffsetsRef = React.useRef<Record<string, number>>({});
   const normalizedSlug = normalizeRouteParam(slugParam);
   const topic = getAcademyTopicBySlug(normalizedSlug);
   const displayableTopic = getDisplayableAcademyTopicBySlug(normalizedSlug);
@@ -65,6 +69,27 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
 
     router.replace("/(app)/academy");
   }, [router]);
+  const handleSectionLayout = React.useCallback(
+    (sectionId: string, y: number) => {
+      sectionOffsetsRef.current[sectionId] = y;
+    },
+    [],
+  );
+  const handleSectionPress = React.useCallback((sectionId: string) => {
+    const y = sectionOffsetsRef.current[sectionId];
+
+    if (typeof y !== "number") {
+      return;
+    }
+
+    scrollViewRef.current?.scrollTo({
+      y: Math.max(articleTopOffsetRef.current + y - spacing.sm, 0),
+      animated: true,
+    });
+  }, []);
+  const handleArticleLayout = React.useCallback((event: LayoutChangeEvent) => {
+    articleTopOffsetRef.current = event.nativeEvent.layout.y;
+  }, []);
 
   if (!topic && !publishedGeneratedArticle) {
     return (
@@ -110,6 +135,7 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         />
 
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={[
             styles.content,
             { paddingBottom: bottomPadding },
@@ -129,31 +155,35 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
             </Card>
           ) : null}
 
-          <AcademyArticleRenderer
-            article={publishedGeneratedArticle}
-            resolveArticleTitle={(slug) =>
-              getAcademyArticleBySlug(generatedAcademyRepository, slug)
-                ?.metadata.title ?? null
-            }
-            onCalculatorPress={(slug) =>
-              router.push({
-                pathname: "/tools/[slug]/calculator",
-                params: { slug },
-              })
-            }
-            onGlossaryPress={() =>
-              router.push({
-                pathname: "/(app)/academy/[slug]",
-                params: { slug: "glossaire" },
-              })
-            }
-            onRelatedArticlePress={(articleSlug) =>
-              router.push({
-                pathname: "/(app)/academy/[slug]",
-                params: { slug: articleSlug },
-              })
-            }
-          />
+          <View onLayout={handleArticleLayout}>
+            <AcademyArticleRenderer
+              article={publishedGeneratedArticle}
+              resolveArticleTitle={(slug) =>
+                getAcademyArticleBySlug(generatedAcademyRepository, slug)
+                  ?.metadata.title ?? null
+              }
+              onCalculatorPress={(slug) =>
+                router.push({
+                  pathname: "/tools/[slug]/calculator",
+                  params: { slug },
+                })
+              }
+              onGlossaryPress={() =>
+                router.push({
+                  pathname: "/(app)/academy/[slug]",
+                  params: { slug: "glossaire" },
+                })
+              }
+              onRelatedArticlePress={(articleSlug) =>
+                router.push({
+                  pathname: "/(app)/academy/[slug]",
+                  params: { slug: articleSlug },
+                })
+              }
+              onSectionLayout={handleSectionLayout}
+              onSectionPress={handleSectionPress}
+            />
+          </View>
 
           <AcademyArticleFooterNavigation
             previousArticle={publishedArticleNavigation?.previous ?? null}

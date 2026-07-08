@@ -17,12 +17,12 @@ describe("Academy generated repository", () => {
     );
     expect(repository.getGlossaryTermBySlug("ibu")?.label).toBe("IBU");
     expect(repository.listCalculatorSlugs()).toEqual([
-      "houblons",
-      "levures",
-      "eau",
       "fermentescibles",
+      "houblons",
       "couleur",
+      "levures",
       "carbonatation",
+      "eau",
       "rendement",
       "avances",
     ]);

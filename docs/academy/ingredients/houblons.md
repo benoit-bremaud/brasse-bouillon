@@ -19,6 +19,7 @@ related_articles:
   - eau
 related_glossary_terms:
   - ibu
+  - houblon
   - acide-alpha
 related_calculators:
   - slug: houblons

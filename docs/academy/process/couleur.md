@@ -16,7 +16,10 @@ updated_at: 2026-07-07
 related_articles:
   - introduction
   - fermentescibles
-related_glossary_terms: []
+related_glossary_terms:
+  - malt
+  - srm
+  - ebc
 related_calculators:
   - slug: couleur
     label: Color calculator

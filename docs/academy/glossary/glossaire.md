@@ -21,6 +21,14 @@ related_glossary_terms:
   - ibu
   - acide-alpha
   - profil-mineral
+  - malt
+  - mout
+  - densite-initiale
+  - densite-finale
+  - attenuation
+  - srm
+  - ebc
+  - ph
 related_calculators: []
 learning_objectives:
   - Comprendre comment lire une entrée de glossaire brassicole.

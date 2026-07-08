@@ -17,7 +17,12 @@ related_articles:
   - introduction
   - levures
 related_glossary_terms:
-  - ibu
+  - malt
+  - mout
+  - empatage
+  - densite-initiale
+  - densite-finale
+  - attenuation
 related_calculators:
   - slug: fermentescibles
     label: Fermentables calculator

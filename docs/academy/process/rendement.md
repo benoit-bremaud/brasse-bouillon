@@ -16,7 +16,10 @@ updated_at: 2026-07-07
 related_articles:
   - fermentescibles
   - eau
-related_glossary_terms: []
+related_glossary_terms:
+  - malt
+  - densite-initiale
+  - mout
 related_calculators:
   - slug: rendement
     label: Efficiency calculator

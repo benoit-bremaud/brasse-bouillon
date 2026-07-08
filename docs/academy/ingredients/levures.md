@@ -15,7 +15,11 @@ updated_at: 2026-07-07
 related_articles:
   - introduction
   - houblons
-related_glossary_terms: []
+related_glossary_terms:
+  - fermentation
+  - attenuation
+  - mout
+  - densite-initiale
 related_calculators:
   - slug: levures
     label: Yeast calculator

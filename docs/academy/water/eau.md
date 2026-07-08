@@ -18,6 +18,10 @@ related_articles:
   - houblons
 related_glossary_terms:
   - profil-mineral
+  - ph
+  - calcium
+  - sulfate
+  - chlorure
 related_calculators:
   - slug: eau
     label: Water calculator

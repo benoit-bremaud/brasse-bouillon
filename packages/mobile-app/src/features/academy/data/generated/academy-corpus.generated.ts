@@ -203,7 +203,7 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["ingredients", "bitterness", "aroma"],
         updatedAt: "2026-07-08",
         relatedArticles: ["introduction", "fermentescibles", "levures", "eau"],
-        relatedGlossaryTerms: ["ibu", "acide-alpha"],
+        relatedGlossaryTerms: ["ibu", "houblon", "acide-alpha"],
         relatedCalculators: [
           {
             slug: "houblons",
@@ -390,7 +390,12 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["fermentation", "yeast", "temperature"],
         updatedAt: "2026-07-07",
         relatedArticles: ["introduction", "houblons"],
-        relatedGlossaryTerms: [],
+        relatedGlossaryTerms: [
+          "fermentation",
+          "attenuation",
+          "mout",
+          "densite-initiale",
+        ],
         relatedCalculators: [
           {
             slug: "levures",
@@ -560,7 +565,13 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["water", "minerals", "mash", "ph"],
         updatedAt: "2026-07-07",
         relatedArticles: ["introduction", "houblons"],
-        relatedGlossaryTerms: ["profil-mineral"],
+        relatedGlossaryTerms: [
+          "profil-mineral",
+          "ph",
+          "calcium",
+          "sulfate",
+          "chlorure",
+        ],
         relatedCalculators: [
           {
             slug: "eau",
@@ -763,7 +774,14 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["malt", "fermentables", "gravity", "alcohol"],
         updatedAt: "2026-07-07",
         relatedArticles: ["introduction", "levures"],
-        relatedGlossaryTerms: ["ibu"],
+        relatedGlossaryTerms: [
+          "malt",
+          "mout",
+          "empatage",
+          "densite-initiale",
+          "densite-finale",
+          "attenuation",
+        ],
         relatedCalculators: [
           {
             slug: "fermentescibles",
@@ -969,7 +987,7 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["color", "malt", "srm", "ebc"],
         updatedAt: "2026-07-07",
         relatedArticles: ["introduction", "fermentescibles"],
-        relatedGlossaryTerms: [],
+        relatedGlossaryTerms: ["malt", "srm", "ebc"],
         relatedCalculators: [
           {
             slug: "couleur",
@@ -1351,7 +1369,7 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["efficiency", "gravity", "volumes", "water-plan"],
         updatedAt: "2026-07-07",
         relatedArticles: ["fermentescibles", "eau"],
-        relatedGlossaryTerms: [],
+        relatedGlossaryTerms: ["malt", "densite-initiale", "mout"],
         relatedCalculators: [
           {
             slug: "rendement",
@@ -1754,7 +1772,19 @@ export const academyCorpus: AcademyCorpus = {
         tags: ["glossary", "vocabulary", "reference"],
         updatedAt: "2026-07-07",
         relatedArticles: ["introduction", "houblons", "levures", "eau"],
-        relatedGlossaryTerms: ["ibu", "acide-alpha", "profil-mineral"],
+        relatedGlossaryTerms: [
+          "ibu",
+          "acide-alpha",
+          "profil-mineral",
+          "malt",
+          "mout",
+          "densite-initiale",
+          "densite-finale",
+          "attenuation",
+          "srm",
+          "ebc",
+          "ph",
+        ],
         relatedCalculators: [],
         learningObjectives: [
           "Comprendre comment lire une entrée de glossaire brassicole.",
@@ -1919,7 +1949,30 @@ export const academyCorpus: AcademyCorpus = {
         "Estimation de l'amertume utilisee dans les recettes de biere.",
       detailedDefinition:
         "L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.",
-      relatedTerms: ["acide-alpha"],
+      relatedTerms: ["acide-alpha", "houblon"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "houblon",
+      label: "Houblon",
+      aliases: ["hops"],
+      shortDefinition:
+        "Fleur utilisee en brassage pour apporter amertume, aromes et stabilite.",
+      detailedDefinition:
+        "Le houblon apporte des composes amers, des huiles aromatiques et des polyphenols. Son effet depend de la variete, de la quantite et du moment d'ajout.",
+      relatedTerms: ["ibu", "acide-alpha"],
       sources: [
         {
           id: "palmer-2017",
@@ -1942,7 +1995,213 @@ export const academyCorpus: AcademyCorpus = {
         "Compose du houblon qui contribue au potentiel d'amertume.",
       detailedDefinition:
         "Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.",
-      relatedTerms: ["ibu"],
+      relatedTerms: ["ibu", "houblon"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "malt",
+      label: "Malt",
+      aliases: ["malted grain"],
+      shortDefinition:
+        "Cereale germee puis sechee qui fournit amidon, enzymes, couleur et aromes.",
+      detailedDefinition:
+        "Le malt est la base fermentescible de nombreuses bieres. Pendant l'empatage, ses enzymes transforment l'amidon en sucres utilisables par la levure.",
+      relatedTerms: ["empatage", "mout", "ebc"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "mout",
+      label: "Moût",
+      aliases: ["wort"],
+      shortDefinition:
+        "Liquide sucre obtenu apres empatage et filtration, avant fermentation.",
+      detailedDefinition:
+        "Le mout contient les sucres, proteines, mineraux et composes aromatiques extraits des malts. Il devient biere apres fermentation par la levure.",
+      relatedTerms: ["malt", "densite-initiale", "fermentation"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "empatage",
+      label: "Empâtage",
+      aliases: ["mash", "mashing"],
+      shortDefinition:
+        "Etape ou les grains concasses sont melanges a l'eau chaude pour convertir l'amidon en sucres.",
+      detailedDefinition:
+        "L'empatage active les enzymes du malt dans une plage de temperature et de pH controlee. Il influence fermentescibilite, corps, rendement et profil final.",
+      relatedTerms: ["malt", "mout", "ph"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "densite-initiale",
+      label: "Densité initiale",
+      aliases: ["OG", "Original Gravity"],
+      shortDefinition: "Densite du mout avant fermentation.",
+      detailedDefinition:
+        "La densite initiale estime la quantite de sucres disponibles avant fermentation. Elle sert a estimer le potentiel alcool et a comparer la recette au resultat attendu.",
+      relatedTerms: ["mout", "densite-finale", "attenuation"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "densite-finale",
+      label: "Densité finale",
+      aliases: ["FG", "Final Gravity"],
+      shortDefinition:
+        "Densite mesuree lorsque la fermentation est terminee ou stabilisee.",
+      detailedDefinition:
+        "La densite finale indique les sucres et composes restants apres fermentation. Combinee a la densite initiale, elle permet d'estimer attenuation et alcool.",
+      relatedTerms: ["densite-initiale", "attenuation", "fermentation"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "attenuation",
+      label: "Atténuation",
+      aliases: ["attenuation apparente"],
+      shortDefinition:
+        "Baisse relative de densite entre le debut et la fin de fermentation.",
+      detailedDefinition:
+        "L'attenuation apparente estime la part des sucres consommee par la levure. Elle depend de la souche, du mout, de l'empatage et des conditions de fermentation.",
+      relatedTerms: ["densite-initiale", "densite-finale", "fermentation"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "fermentation",
+      label: "Fermentation",
+      aliases: ["primary fermentation"],
+      shortDefinition:
+        "Transformation des sucres du mout en alcool, CO2 et composes aromatiques par la levure.",
+      detailedDefinition:
+        "La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Temperature, levure, oxygene initial et nutriments influencent fortement le resultat.",
+      relatedTerms: ["mout", "attenuation", "densite-finale"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "srm",
+      label: "SRM",
+      aliases: ["Standard Reference Method"],
+      shortDefinition:
+        "Echelle americaine de mesure de la couleur de la biere.",
+      detailedDefinition:
+        "Le SRM exprime la couleur finale de la biere selon une methode standardisee. En brassage amateur, il est souvent estime depuis la charge de malts avec des formules comme Morey.",
+      relatedTerms: ["ebc", "malt"],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference for ingredients and process.",
+        },
+      ],
+    },
+    {
+      slug: "ebc",
+      label: "EBC",
+      aliases: ["European Brewery Convention"],
+      shortDefinition:
+        "Echelle europeenne de mesure de la couleur de la biere et des malts.",
+      detailedDefinition:
+        "L'EBC est utilisee en Europe pour exprimer la couleur. Pour la biere finale, une approximation courante est EBC environ egal a SRM multiplie par 1,97.",
+      relatedTerms: ["srm", "malt"],
       sources: [
         {
           id: "palmer-2017",
@@ -1964,7 +2223,98 @@ export const academyCorpus: AcademyCorpus = {
       shortDefinition: "Composition minérale de l'eau de brassage.",
       detailedDefinition:
         "Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.",
-      relatedTerms: [],
+      relatedTerms: ["calcium", "sulfate", "chlorure", "ph"],
+      sources: [
+        {
+          id: "brun-water-knowledge",
+          kind: "website",
+          title: "Bru'n Water Knowledge",
+          authors: ["Martin Brungard"],
+          publisher: "Bru'n Water",
+          url: "https://www.brunwater.com/water-knowledge",
+          accessedAt: "2026-07-03",
+          year: null,
+          notes: "Practical brewing water chemistry reference.",
+        },
+      ],
+    },
+    {
+      slug: "ph",
+      label: "pH",
+      aliases: ["potentiel hydrogene"],
+      shortDefinition: "Mesure de l'acidite ou de la basicite d'un liquide.",
+      detailedDefinition:
+        "En brassage, le pH influence l'activite enzymatique, l'extraction, la fermentation et la stabilite sensorielle. Le pH d'empatage est un repere important pour la precision du process.",
+      relatedTerms: ["empatage", "profil-mineral", "calcium"],
+      sources: [
+        {
+          id: "brun-water-knowledge",
+          kind: "website",
+          title: "Bru'n Water Knowledge",
+          authors: ["Martin Brungard"],
+          publisher: "Bru'n Water",
+          url: "https://www.brunwater.com/water-knowledge",
+          accessedAt: "2026-07-03",
+          year: null,
+          notes: "Practical brewing water chemistry reference.",
+        },
+      ],
+    },
+    {
+      slug: "calcium",
+      label: "Calcium",
+      aliases: ["Ca", "Ca2+"],
+      shortDefinition:
+        "Ion majeur de l'eau de brassage qui aide le pH, la clarification et la fermentation.",
+      detailedDefinition:
+        "Le calcium contribue a abaisser le pH d'empatage, soutient certaines reactions enzymatiques et favorise la floculation. Il est souvent ajuste avec gypse ou chlorure de calcium.",
+      relatedTerms: ["profil-mineral", "sulfate", "chlorure", "ph"],
+      sources: [
+        {
+          id: "brun-water-knowledge",
+          kind: "website",
+          title: "Bru'n Water Knowledge",
+          authors: ["Martin Brungard"],
+          publisher: "Bru'n Water",
+          url: "https://www.brunwater.com/water-knowledge",
+          accessedAt: "2026-07-03",
+          year: null,
+          notes: "Practical brewing water chemistry reference.",
+        },
+      ],
+    },
+    {
+      slug: "sulfate",
+      label: "Sulfate",
+      aliases: ["SO4", "SO4 2-"],
+      shortDefinition:
+        "Ion de l'eau qui accentue souvent la secheresse et la perception de l'amertume.",
+      detailedDefinition:
+        "Les sulfates peuvent renforcer une impression plus seche et plus nette, notamment dans les bieres houblonnees. Leur effet doit etre evalue avec les chlorures et les valeurs absolues.",
+      relatedTerms: ["profil-mineral", "calcium", "chlorure", "ibu"],
+      sources: [
+        {
+          id: "brun-water-knowledge",
+          kind: "website",
+          title: "Bru'n Water Knowledge",
+          authors: ["Martin Brungard"],
+          publisher: "Bru'n Water",
+          url: "https://www.brunwater.com/water-knowledge",
+          accessedAt: "2026-07-03",
+          year: null,
+          notes: "Practical brewing water chemistry reference.",
+        },
+      ],
+    },
+    {
+      slug: "chlorure",
+      label: "Chlorure",
+      aliases: ["chloride", "Cl"],
+      shortDefinition:
+        "Ion de l'eau qui soutient souvent la rondeur et l'expression maltee.",
+      detailedDefinition:
+        "Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester equilibres avec les sulfates et les concentrations totales.",
+      relatedTerms: ["profil-mineral", "calcium", "sulfate", "malt"],
       sources: [
         {
           id: "brun-water-knowledge",

@@ -523,13 +523,27 @@ jest.mock("@/features/academy/data", () => {
     },
   ];
 
+  const glossaryTerms = [
+    {
+      slug: "ibu",
+      label: "IBU",
+      aliases: ["International Bitterness Units"],
+      shortDefinition: "Estimation de l'amertume d'une bière.",
+      detailedDefinition:
+        "L'IBU estime la concentration de composés amers apportés principalement par le houblon.",
+      relatedTerms: ["acide-alpha"],
+      sources: [],
+    },
+  ];
+
   return {
     generatedAcademyRepository: {
       listArticles: () => articles,
       getArticleBySlug: (slug: string) =>
         articles.find((article) => article.slug === slug) ?? null,
-      listGlossaryTerms: () => [],
-      getGlossaryTermBySlug: () => null,
+      listGlossaryTerms: () => glossaryTerms,
+      getGlossaryTermBySlug: (slug: string) =>
+        glossaryTerms.find((term) => term.slug === slug) ?? null,
       listCalculatorSlugs: () => ["houblons"],
     },
   };
@@ -680,8 +694,23 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/academy/[slug]",
-      params: { slug: "glossaire" },
+      params: { slug: "glossaire", termSlug: "ibu" },
     });
+  });
+
+  it("renders the targeted glossary term when opened from an internal link", () => {
+    render(
+      <AcademyTopicDetailsScreen slugParam="glossaire" termSlugParam="ibu" />,
+    );
+
+    expect(screen.getByText("Terme recherché")).toBeTruthy();
+    expect(screen.getByText("IBU")).toBeTruthy();
+    expect(
+      screen.getByText("Estimation de l'amertume d'une bière."),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("Alias : International Bitterness Units"),
+    ).toBeTruthy();
   });
 
   it("uses navigation back from the article header when history exists", () => {

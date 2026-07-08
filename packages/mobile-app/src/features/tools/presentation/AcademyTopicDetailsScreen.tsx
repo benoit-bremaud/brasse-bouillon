@@ -13,9 +13,11 @@ import {
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import {
   getAcademyArticleBySlug,
+  getAcademyGlossaryTermBySlug,
   listPublishedAcademyArticlesUseCase,
 } from "@/features/academy/application";
 import { generatedAcademyRepository } from "@/features/academy/data";
+import { GlossaryTerm } from "@/features/academy/domain";
 import { AcademyArticleRenderer } from "@/features/academy/presentation";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -36,15 +38,17 @@ import { getAcademyMascotImage } from "./academy-mascot";
 
 type Props = {
   slugParam?: string | string[];
+  termSlugParam?: string | string[];
 };
 
-export function AcademyTopicDetailsScreen({ slugParam }: Props) {
+export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const router = useRouter();
   const bottomPadding = useNavigationFooterOffset();
   const scrollViewRef = React.useRef<ScrollView>(null);
   const articleTopOffsetRef = React.useRef(0);
   const sectionOffsetsRef = React.useRef<Record<string, number>>({});
   const normalizedSlug = normalizeRouteParam(slugParam);
+  const normalizedTermSlug = normalizeRouteParam(termSlugParam);
   const topic = getAcademyTopicBySlug(normalizedSlug);
   const displayableTopic = getDisplayableAcademyTopicBySlug(normalizedSlug);
   const calculatorLabel = "Ouvrir le calculateur";
@@ -56,6 +60,13 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
   const publishedArticleNavigation = normalizedSlug
     ? getPublishedArticleNavigation(normalizedSlug)
     : null;
+  const highlightedGlossaryTerm =
+    normalizedSlug === "glossaire" && normalizedTermSlug
+      ? getAcademyGlossaryTermBySlug(
+          generatedAcademyRepository,
+          normalizedTermSlug,
+        )
+      : null;
   const generatedArticleCalculatorSlug =
     publishedGeneratedArticle?.metadata.relatedCalculators[0]?.target.slug ??
     null;
@@ -155,6 +166,10 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
             </Card>
           ) : null}
 
+          {highlightedGlossaryTerm ? (
+            <AcademyHighlightedGlossaryTerm term={highlightedGlossaryTerm} />
+          ) : null}
+
           <View onLayout={handleArticleLayout}>
             <AcademyArticleRenderer
               article={publishedGeneratedArticle}
@@ -168,10 +183,10 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
                   params: { slug },
                 })
               }
-              onGlossaryPress={() =>
+              onGlossaryPress={(termSlug) =>
                 router.push({
                   pathname: "/(app)/academy/[slug]",
-                  params: { slug: "glossaire" },
+                  params: { slug: "glossaire", termSlug },
                 })
               }
               onRelatedArticlePress={(articleSlug) =>
@@ -278,6 +293,33 @@ export function AcademyTopicDetailsScreen({ slugParam }: Props) {
         ) : null}
       </ScrollView>
     </Screen>
+  );
+}
+
+type AcademyHighlightedGlossaryTermProps = {
+  readonly term: GlossaryTerm;
+};
+
+function AcademyHighlightedGlossaryTerm({
+  term,
+}: AcademyHighlightedGlossaryTermProps) {
+  const aliases =
+    term.aliases.length > 0 ? `Alias : ${term.aliases.join(", ")}` : null;
+
+  return (
+    <Card style={styles.highlightedGlossaryCard} variant="subtle">
+      <Text style={styles.highlightedGlossaryEyebrow}>Terme recherché</Text>
+      <Text style={styles.highlightedGlossaryTitle}>{term.label}</Text>
+      <Text style={styles.highlightedGlossarySummary}>
+        {term.shortDefinition}
+      </Text>
+      <Text style={styles.highlightedGlossaryDetails}>
+        {term.detailedDefinition}
+      </Text>
+      {aliases ? (
+        <Text style={styles.highlightedGlossaryAliases}>{aliases}</Text>
+      ) : null}
+    </Card>
   );
 }
 
@@ -432,6 +474,39 @@ const styles = StyleSheet.create({
   },
   secondaryButtonSpacing: {
     marginTop: spacing.xs,
+  },
+  highlightedGlossaryCard: {
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  highlightedGlossaryEyebrow: {
+    color: colors.brand.primary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+  },
+  highlightedGlossaryTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  highlightedGlossarySummary: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+  highlightedGlossaryDetails: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+  },
+  highlightedGlossaryAliases: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
   },
   footerNavigationCard: {
     gap: spacing.sm,

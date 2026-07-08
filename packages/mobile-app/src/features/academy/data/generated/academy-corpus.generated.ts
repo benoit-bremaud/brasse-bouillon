@@ -1532,19 +1532,19 @@ export const academyCorpus: AcademyCorpus = {
         sections: [
           {
             id: "role-avances",
-            title: "Pourquoi ces calculs sont avances",
+            title: "Pourquoi ces calculs sont avancés",
             blocks: [
               {
                 id: "role-avances-paragraph-1",
                 type: "paragraph",
-                text: "Les calculs avances ne servent pas a brasser une premiere biere. Ils deviennent utiles quand tu veux diagnostiquer un ecart difficile : conversion incomplete, filtration lente, fermentation moins previsible, ou adaptation a l'altitude. Le but n'est pas d'empiler des chiffres, mais de relier un symptome a une cause possible.",
+                text: "Les calculs avancés ne servent pas a brasser une premiere biere. Ils deviennent utiles quand tu veux diagnostiquer un ecart difficile : conversion incomplete, filtration lente, fermentation moins previsible, ou adaptation a l'altitude. Le but n'est pas d'empiler des chiffres, mais de relier un symptome a une cause possible.",
                 sourceIds: [],
               },
               {
                 id: "example-advanced-use",
                 type: "example",
                 title: "Bon usage",
-                body: "Si une recette donne une FG instable et une filtration lente, les indicateurs de mout peuvent aider a orienter l'analyse, mais ils ne remplacent pas les mesures terrain.",
+                body: "Si une recette donne une FG instable et une filtration lente, les indicateurs de moût peuvent aider a orienter l'analyse, mais ils ne remplacent pas les mesures terrain.",
                 sourceIds: ["palmer-2017"],
               },
             ],
@@ -1556,16 +1556,16 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "familles-paragraph-1",
                 type: "paragraph",
-                text: "Le calculateur avance est organise en trois axes. L'onglet Enzymes estime la puissance diastasique totale et moyenne a partir des malts. L'onglet Mout regroupe indice de Kolbach, viscosite estimee et FAN estime. L'onglet Altitude estime le point d'ebullition, la pression atmospherique et l'ajustement pratique d'une cible IBU.",
+                text: "Le calculateur avancé est organise en trois axes. L'onglet Enzymes estime la puissance diastasique totale et moyenne a partir des malts. L'onglet Mout regroupe indice de Kolbach, viscosite estimee et FAN estime. L'onglet Altitude estime le point d'ebullition, la pression atmospherique et l'ajustement pratique d'une cible IBU.",
                 sourceIds: [],
               },
               {
                 id: "advanced-calculator",
                 type: "calculatorCta",
                 calculatorSlug: "avances",
-                title: "Ouvrir les diagnostics avances",
+                title: "Ouvrir les diagnostics avancés",
                 description:
-                  "Utiliser le calculateur avances pour travailler sur enzymes, mout et altitude sans dupliquer les formules.",
+                  "Utiliser le calculateur Calculs avancés pour travailler sur enzymes, moût et altitude sans dupliquer les formules.",
                 sourceIds: ["palmer-2017"],
               },
             ],
@@ -1592,7 +1592,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "mout",
-            title: "Diagnostic du mout",
+            title: "Diagnostic du moût",
             blocks: [
               {
                 id: "mout-paragraph-1",
@@ -1753,7 +1753,7 @@ export const academyCorpus: AcademyCorpus = {
                 id: "reference-profil-mineral",
                 type: "glossaryReference",
                 termSlug: "profil-mineral",
-                label: "Profil mineral",
+                label: "Profil minéral",
                 sourceIds: ["brun-water-knowledge"],
               },
             ],
@@ -1874,11 +1874,11 @@ export const academyCorpus: AcademyCorpus = {
     },
     {
       slug: "profil-mineral",
-      label: "Profil mineral",
+      label: "Profil minéral",
       aliases: ["water profile"],
-      shortDefinition: "Composition minerale de l'eau de brassage.",
+      shortDefinition: "Composition minérale de l'eau de brassage.",
       detailedDefinition:
-        "Le profil mineral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.",
+        "Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.",
       relatedTerms: [],
       sources: [
         {

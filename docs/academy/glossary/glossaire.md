@@ -62,7 +62,7 @@ quoi en faire pendant un brassin.
 
 :::glossaryReference id="reference-ibu" termSlug="ibu" label="IBU" sourceIds="palmer-2017":::
 
-:::glossaryReference id="reference-profil-mineral" termSlug="profil-mineral" label="Profil mineral" sourceIds="brun-water-knowledge":::
+:::glossaryReference id="reference-profil-mineral" termSlug="profil-mineral" label="Profil minéral" sourceIds="brun-water-knowledge":::
 
 ## Familles de termes couvertes {#familles}
 

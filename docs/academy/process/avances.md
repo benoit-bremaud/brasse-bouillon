@@ -52,25 +52,25 @@ review:
     - "Aligned with the existing Advanced calculator tabs: enzymes, wort, and altitude."
 ---
 
-## Pourquoi ces calculs sont avances {#role-avances}
+## Pourquoi ces calculs sont avancés {#role-avances}
 
-Les calculs avances ne servent pas a brasser une premiere biere. Ils deviennent
+Les calculs avancés ne servent pas a brasser une premiere biere. Ils deviennent
 utiles quand tu veux diagnostiquer un ecart difficile : conversion incomplete,
 filtration lente, fermentation moins previsible, ou adaptation a l'altitude. Le
 but n'est pas d'empiler des chiffres, mais de relier un symptome a une cause
 possible.
 
-:::example id="example-advanced-use" title="Bon usage" body="Si une recette donne une FG instable et une filtration lente, les indicateurs de mout peuvent aider a orienter l'analyse, mais ils ne remplacent pas les mesures terrain." sourceIds="palmer-2017":::
+:::example id="example-advanced-use" title="Bon usage" body="Si une recette donne une FG instable et une filtration lente, les indicateurs de moût peuvent aider a orienter l'analyse, mais ils ne remplacent pas les mesures terrain." sourceIds="palmer-2017":::
 
 ## Les trois familles du calculateur {#familles}
 
-Le calculateur avance est organise en trois axes. L'onglet Enzymes estime la
+Le calculateur avancé est organise en trois axes. L'onglet Enzymes estime la
 puissance diastasique totale et moyenne a partir des malts. L'onglet Mout
 regroupe indice de Kolbach, viscosite estimee et FAN estime. L'onglet Altitude
 estime le point d'ebullition, la pression atmospherique et l'ajustement pratique
 d'une cible IBU.
 
-:::calculatorCta id="advanced-calculator" calculatorSlug="avances" title="Ouvrir les diagnostics avances" description="Utiliser le calculateur avances pour travailler sur enzymes, mout et altitude sans dupliquer les formules." sourceIds="palmer-2017":::
+:::calculatorCta id="advanced-calculator" calculatorSlug="avances" title="Ouvrir les diagnostics avancés" description="Utiliser le calculateur Calculs avancés pour travailler sur enzymes, moût et altitude sans dupliquer les formules." sourceIds="palmer-2017":::
 
 ## Puissance diastasique {#enzymes}
 
@@ -82,7 +82,7 @@ les malts speciaux ou torrefies contribuent souvent beaucoup moins.
 
 :::definition id="definition-diastatic-power" term="Puissance diastasique" definition="Indicateur de capacite enzymatique d'un malt ou d'un assemblage de malts a convertir l'amidon pendant l'empatage." sourceIds="palmer-2017":::
 
-## Diagnostic du mout {#mout}
+## Diagnostic du moût {#mout}
 
 L'indice de Kolbach compare l'azote soluble a l'azote total. Les beta-glucanes
 servent d'indicateur de viscosite potentielle. Le FAN estime l'azote assimilable

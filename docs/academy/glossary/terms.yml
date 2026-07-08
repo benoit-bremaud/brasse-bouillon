@@ -21,11 +21,11 @@
     - palmer-2017
 
 - slug: profil-mineral
-  label: Profil mineral
+  label: Profil minéral
   aliases:
     - water profile
-  short_definition: Composition minerale de l'eau de brassage.
-  detailed_definition: Le profil mineral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.
+  short_definition: Composition minérale de l'eau de brassage.
+  detailed_definition: Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.
   related_terms: []
   source_ids:
     - brun-water-knowledge

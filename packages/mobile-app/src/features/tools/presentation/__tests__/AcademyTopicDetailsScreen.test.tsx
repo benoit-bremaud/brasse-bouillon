@@ -721,6 +721,25 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Alias : International Bitterness Units"),
     ).toBeTruthy();
+    expect(screen.getByText("Termes associés")).toBeTruthy();
+    expect(
+      screen.getByLabelText("Consulter le terme associé Acide alpha"),
+    ).toBeTruthy();
+  });
+
+  it("navigates from the highlighted glossary term to a related term", () => {
+    render(
+      <AcademyTopicDetailsScreen slugParam="glossaire" termSlugParam="ibu" />,
+    );
+
+    fireEvent.press(
+      screen.getByLabelText("Consulter le terme associé Acide alpha"),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "glossaire", termSlug: "acide-alpha" },
+    });
   });
 
   it("uses navigation back from the article header when history exists", () => {

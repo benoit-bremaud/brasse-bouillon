@@ -70,6 +70,9 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           normalizedTermSlug,
         )
       : null;
+  const relatedGlossaryTerms = highlightedGlossaryTerm
+    ? getRelatedGlossaryTerms(highlightedGlossaryTerm)
+    : [];
   const glossaryTerms =
     normalizedSlug === "glossaire"
       ? listAcademyGlossaryTermsUseCase(
@@ -181,7 +184,16 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           ) : null}
 
           {highlightedGlossaryTerm ? (
-            <AcademyHighlightedGlossaryTerm term={highlightedGlossaryTerm} />
+            <AcademyHighlightedGlossaryTerm
+              term={highlightedGlossaryTerm}
+              relatedTerms={relatedGlossaryTerms}
+              onRelatedTermPress={(termSlug) =>
+                router.push({
+                  pathname: "/(app)/academy/[slug]",
+                  params: { slug: "glossaire", termSlug },
+                })
+              }
+            />
           ) : null}
 
           {normalizedSlug === "glossaire" ? (
@@ -328,10 +340,14 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
 
 type AcademyHighlightedGlossaryTermProps = {
   readonly term: GlossaryTerm;
+  readonly relatedTerms: readonly GlossaryTerm[];
+  readonly onRelatedTermPress: (termSlug: string) => void;
 };
 
 function AcademyHighlightedGlossaryTerm({
   term,
+  relatedTerms,
+  onRelatedTermPress,
 }: AcademyHighlightedGlossaryTermProps) {
   const aliases =
     term.aliases.length > 0 ? `Alias : ${term.aliases.join(", ")}` : null;
@@ -349,8 +365,36 @@ function AcademyHighlightedGlossaryTerm({
       {aliases ? (
         <Text style={styles.highlightedGlossaryAliases}>{aliases}</Text>
       ) : null}
+      {relatedTerms.length > 0 ? (
+        <View style={styles.relatedGlossarySection}>
+          <Text style={styles.relatedGlossaryTitle}>Termes associés</Text>
+          <View style={styles.relatedGlossaryTerms}>
+            {relatedTerms.map((relatedTerm) => (
+              <Pressable
+                key={relatedTerm.slug}
+                accessibilityRole="button"
+                accessibilityLabel={`Consulter le terme associé ${relatedTerm.label}`}
+                onPress={() => onRelatedTermPress(relatedTerm.slug)}
+                style={styles.relatedGlossaryTerm}
+              >
+                <Text style={styles.relatedGlossaryTermText}>
+                  {relatedTerm.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
     </Card>
   );
+}
+
+function getRelatedGlossaryTerms(term: GlossaryTerm): readonly GlossaryTerm[] {
+  return term.relatedTerms
+    .map((slug) =>
+      getAcademyGlossaryTermBySlug(generatedAcademyRepository, slug),
+    )
+    .filter((relatedTerm): relatedTerm is GlossaryTerm => relatedTerm !== null);
 }
 
 type AcademyGlossaryTermsListProps = {
@@ -640,6 +684,34 @@ const styles = StyleSheet.create({
     color: colors.neutral.muted,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
+  },
+  relatedGlossarySection: {
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  relatedGlossaryTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+  relatedGlossaryTerms: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
+  relatedGlossaryTerm: {
+    borderWidth: 1,
+    borderColor: colors.brand.primary,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  relatedGlossaryTermText: {
+    color: colors.brand.primary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
   },
   glossaryListCard: {
     gap: spacing.sm,

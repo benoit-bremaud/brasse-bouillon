@@ -880,6 +880,20 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     });
   });
 
+  it("clears the glossary search when selecting a filtered term", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    fireEvent.changeText(
+      screen.getByLabelText("Rechercher un terme du glossaire"),
+      "alpha",
+    );
+    fireEvent.press(screen.getByText("Acide alpha"));
+
+    expect(
+      screen.getByLabelText("Rechercher un terme du glossaire").props.value,
+    ).toBe("");
+  });
+
   it("filters glossary terms from the glossary search input", () => {
     render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
 

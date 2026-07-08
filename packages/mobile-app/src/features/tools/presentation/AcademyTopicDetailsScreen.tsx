@@ -118,6 +118,16 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const handleArticleLayout = React.useCallback((event: LayoutChangeEvent) => {
     articleTopOffsetRef.current = event.nativeEvent.layout.y;
   }, []);
+  const openGlossaryTerm = React.useCallback(
+    (termSlug: string) => {
+      setGlossaryQuery("");
+      router.push({
+        pathname: "/(app)/academy/[slug]",
+        params: { slug: "glossaire", termSlug },
+      });
+    },
+    [router],
+  );
 
   if (!topic && !publishedGeneratedArticle) {
     return (
@@ -187,12 +197,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
             <AcademyHighlightedGlossaryTerm
               term={highlightedGlossaryTerm}
               relatedTerms={relatedGlossaryTerms}
-              onRelatedTermPress={(termSlug) =>
-                router.push({
-                  pathname: "/(app)/academy/[slug]",
-                  params: { slug: "glossaire", termSlug },
-                })
-              }
+              onRelatedTermPress={openGlossaryTerm}
             />
           ) : null}
 
@@ -203,12 +208,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
               query={glossaryQuery}
               onQueryChange={setGlossaryQuery}
               selectedTermSlug={highlightedGlossaryTerm?.slug ?? null}
-              onTermPress={(termSlug) =>
-                router.push({
-                  pathname: "/(app)/academy/[slug]",
-                  params: { slug: "glossaire", termSlug },
-                })
-              }
+              onTermPress={openGlossaryTerm}
             />
           ) : null}
 
@@ -225,12 +225,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
                   params: { slug },
                 })
               }
-              onGlossaryPress={(termSlug) =>
-                router.push({
-                  pathname: "/(app)/academy/[slug]",
-                  params: { slug: "glossaire", termSlug },
-                })
-              }
+              onGlossaryPress={(termSlug) => openGlossaryTerm(termSlug)}
               onRelatedArticlePress={(articleSlug) =>
                 router.push({
                   pathname: "/(app)/academy/[slug]",
@@ -365,26 +360,6 @@ function AcademyHighlightedGlossaryTerm({
       {aliases ? (
         <Text style={styles.highlightedGlossaryAliases}>{aliases}</Text>
       ) : null}
-      {term.sources.length > 0 ? (
-        <View style={styles.glossarySourcesSection}>
-          <Text style={styles.glossarySourcesTitle}>Sources</Text>
-          <View style={styles.glossarySourcesList}>
-            {term.sources.map((source) => (
-              <View key={source.id} style={styles.glossarySourceItem}>
-                <Text style={styles.glossarySourceTitle}>
-                  {source.title}
-                  {source.year ? ` (${source.year})` : ""}
-                </Text>
-                <Text style={styles.glossarySourceMeta}>
-                  {[source.authors.join(", "), source.publisher]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      ) : null}
       {relatedTerms.length > 0 ? (
         <View style={styles.relatedGlossarySection}>
           <Text style={styles.relatedGlossaryTitle}>Termes associés</Text>
@@ -401,6 +376,26 @@ function AcademyHighlightedGlossaryTerm({
                   {relatedTerm.label}
                 </Text>
               </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
+      {term.sources.length > 0 ? (
+        <View style={styles.glossarySourcesSection}>
+          <Text style={styles.glossarySourcesTitle}>Sources</Text>
+          <View style={styles.glossarySourcesList}>
+            {term.sources.map((source) => (
+              <View key={source.id} style={styles.glossarySourceItem}>
+                <Text style={styles.glossarySourceTitle}>
+                  {source.title}
+                  {source.year ? ` (${source.year})` : ""}
+                </Text>
+                <Text style={styles.glossarySourceMeta}>
+                  {[source.authors.join(", "), source.publisher]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Text>
+              </View>
             ))}
           </View>
         </View>

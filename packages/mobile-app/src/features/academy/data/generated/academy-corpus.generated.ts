@@ -194,15 +194,15 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Houblons",
         summary:
-          "Repère pratique sur le rôle du houblon dans l'amertume, l'aromatique et l'équilibre d'une bière.",
+          "Repère pratique sur le rôle du houblon dans l'amertume, l'aromatique, le moment des ajouts et l'équilibre d'une bière.",
         category: "ingredients",
         level: "beginner",
         status: "published",
         version: "1.0.0",
-        estimatedReadTimeMinutes: 6,
+        estimatedReadTimeMinutes: 9,
         tags: ["ingredients", "bitterness", "aroma"],
-        updatedAt: "2026-07-03",
-        relatedArticles: ["levures"],
+        updatedAt: "2026-07-08",
+        relatedArticles: ["introduction", "fermentescibles", "levures", "eau"],
         relatedGlossaryTerms: ["ibu", "acide-alpha"],
         relatedCalculators: [
           {
@@ -218,9 +218,15 @@ export const academyCorpus: AcademyCorpus = {
         learningObjectives: [
           "Identifier les rôles principaux du houblon dans une bière.",
           "Distinguer les ajouts d'amertume des ajouts aromatiques.",
+          "Comprendre pourquoi les IBU calculés ne résument pas toute l'amertume perçue.",
         ],
-        prerequisites: [],
-        teaches: ["hop-bitterness", "hop-aroma"],
+        prerequisites: ["brewing-overview"],
+        teaches: [
+          "hop-bitterness",
+          "hop-aroma",
+          "hop-timing",
+          "bitterness-balance",
+        ],
         sensitive: false,
         riskTopics: [],
         sources: [
@@ -239,8 +245,10 @@ export const academyCorpus: AcademyCorpus = {
         review: {
           confidenceLevel: "reviewed",
           reviewedBy: "Academy editorial review",
-          reviewedAt: "2026-07-03",
-          notes: ["Initial pilot article review."],
+          reviewedAt: "2026-07-08",
+          notes: [
+            "Expanded from the initial pilot article to align with the migrated Academy content depth.",
+          ],
         },
       },
       body: {
@@ -252,7 +260,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "role-du-houblon-paragraph-1",
                 type: "paragraph",
-                text: "Le houblon apporte principalement de l'amertume, des aromes, des saveurs et une part de stabilite microbiologique. Pour un debutant, la premiere distinction a retenir est simple : plus l'ajout est long pendant l'ebullition, plus il sert l'amertume ; plus il est tardif, plus il preserve les aromes.",
+                text: "Le houblon apporte principalement de l'amertume, des arômes, des saveurs et une part de stabilité microbiologique. Pour un débutant, la première distinction à retenir est simple : plus l'ajout reste longtemps pendant l'ébullition, plus il sert l'amertume ; plus il est tardif, plus il préserve les arômes.",
                 sourceIds: [],
               },
               {
@@ -260,14 +268,14 @@ export const academyCorpus: AcademyCorpus = {
                 type: "definition",
                 term: "Acide alpha",
                 definition:
-                  "Compose du houblon qui se transforme pendant l'ebullition et contribue a l'amertume mesuree en IBU.",
+                  "Composé du houblon qui se transforme pendant l'ébullition et contribue à l'amertume mesurée en IBU.",
                 sourceIds: ["palmer-2017"],
               },
               {
                 id: "example-ajout-tardif",
                 type: "example",
                 title: "Ajout tardif",
-                body: "Un ajout dans les dernieres minutes d'ebullition ou en whirlpool favorisera davantage l'expression aromatique qu'un ajout de debut d'ebullition.",
+                body: "Un ajout dans les dernières minutes d'ébullition ou en whirlpool favorisera davantage l'expression aromatique qu'un ajout de début d'ébullition.",
                 sourceIds: ["palmer-2017"],
               },
               {
@@ -275,6 +283,45 @@ export const academyCorpus: AcademyCorpus = {
                 type: "glossaryReference",
                 termSlug: "ibu",
                 label: "IBU",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "amertume-gout-arome",
+            title: "Amertume, goût et arôme",
+            blocks: [
+              {
+                id: "amertume-gout-arome-paragraph-1",
+                type: "paragraph",
+                text: "L'amertume vient surtout de l'isomérisation des acides alpha pendant l'ébullition. Le goût et l'arôme viennent davantage des huiles essentielles, qui sont plus sensibles à la chaleur et au temps. C'est pour cette raison qu'une recette peut combiner un ajout long pour l'amertume, un ajout court pour le goût, puis un ajout à froid pour le nez.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-ibu",
+                type: "definition",
+                term: "IBU",
+                definition:
+                  "Estimation de l'amertume calculée. Les IBU aident à comparer des recettes, mais ne décrivent pas toujours l'amertume réellement perçue.",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "timing-ajouts",
+            title: "Moment des ajouts",
+            blocks: [
+              {
+                id: "timing-ajouts-paragraph-1",
+                type: "paragraph",
+                text: "Un ajout à 60 minutes sert surtout à construire l'amertume de base. Un ajout entre 15 et 5 minutes apporte encore un peu d'amertume, mais garde plus de saveur. Un whirlpool ou hop stand extrait beaucoup d'aromatique avec une amertume plus douce. Le dry hop se fait après l'ébullition, souvent pendant ou après la fermentation, pour renforcer le nez sans ajouter beaucoup d'IBU calculés.",
+                sourceIds: [],
+              },
+              {
+                id: "example-ipa-timing",
+                type: "example",
+                title: "IPA simple",
+                body: "Une IPA peut utiliser un ajout amérisant en début d'ébullition, un ajout tardif pour le goût, puis un dry hop pour l'intensité aromatique.",
                 sourceIds: ["palmer-2017"],
               },
               {
@@ -285,6 +332,44 @@ export const academyCorpus: AcademyCorpus = {
                 description:
                   "Utiliser le calculateur houblons pour estimer les IBU d'une recette.",
                 sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "equilibre",
+            title: "Équilibre avec le malt et l'eau",
+            blocks: [
+              {
+                id: "equilibre-paragraph-1",
+                type: "paragraph",
+                text: "Une amertume ne se juge jamais seule. Une bière avec une OG élevée, beaucoup de corps ou une finale sucrée peut supporter plus d'IBU qu'une bière légère et sèche. L'eau change aussi la perception : les sulfates renforcent souvent une impression sèche et nette, tandis que les chlorures soutiennent davantage la rondeur.",
+                sourceIds: [],
+              },
+              {
+                id: "related-fermentables",
+                type: "relatedArticle",
+                articleSlug: "fermentescibles",
+                sectionId: "role-du-malt",
+                sourceIds: ["palmer-2017"],
+              },
+              {
+                id: "related-water",
+                type: "relatedArticle",
+                articleSlug: "eau",
+                sectionId: "alcalinite-ratio",
+                sourceIds: ["palmer-2017"],
+              },
+            ],
+          },
+          {
+            id: "pieges",
+            title: "Pièges fréquents à éviter",
+            blocks: [
+              {
+                id: "pieges-paragraph-1",
+                type: "paragraph",
+                text: "Les erreurs courantes sont de confondre IBU calculés et amertume perçue, de mettre tout le houblon au même moment, de surcharger un dry hop sans maîtriser l'oxydation, ou d'augmenter les IBU sans vérifier l'équilibre malté. Le bon réflexe consiste à définir d'abord le rôle de chaque ajout : amerisant, aromatique, whirlpool ou dry hop.",
+                sourceIds: [],
               },
             ],
           },

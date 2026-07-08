@@ -1,7 +1,7 @@
 ---
 slug: couleur
 title: Couleur
-summary: Reference guide for beer color, malt color contribution, MCU, SRM, EBC, and the Morey estimate.
+summary: Repère pratique sur la couleur, l'apport des malts, les MCU, SRM, EBC et l'estimation Morey.
 category: process
 level: beginner
 status: published
@@ -23,9 +23,9 @@ related_calculators:
     reason: Estimate final beer color from malt bill and volume.
     target_slug: couleur
 learning_objectives:
-  - Explain why beer color is a recipe consistency signal.
-  - Distinguish malt color, MCU, SRM, and EBC.
-  - Identify common mistakes when estimating beer color.
+  - Expliquer pourquoi la couleur est un signal de régularité d'une recette.
+  - Distinguer couleur des malts, MCU, SRM et EBC.
+  - Identifier les erreurs fréquentes dans l'estimation de la couleur.
 prerequisites:
   - brewing-overview
   - malt-basics

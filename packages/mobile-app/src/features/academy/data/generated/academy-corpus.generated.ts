@@ -10,7 +10,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Introduction au brassage",
         summary:
-          "Carte d'ensemble du brassage pour relier ingredients, process, mesures et hygiene.",
+          "Carte d'ensemble du brassage pour relier ingrédients, process, mesures et hygiène.",
         category: "getting-started",
         level: "beginner",
         status: "published",
@@ -22,9 +22,9 @@ export const academyCorpus: AcademyCorpus = {
         relatedGlossaryTerms: ["ibu", "profil-mineral"],
         relatedCalculators: [],
         learningObjectives: [
-          "Understand the global brewing flow before optimizing details.",
-          "Identify the four fundamental brewing ingredients.",
-          "Recognize the main measurements followed during a batch.",
+          "Comprendre le déroulé global du brassage avant d'optimiser les détails.",
+          "Identifier les quatre ingrédients fondamentaux d'une bière.",
+          "Reconnaître les principales mesures suivies pendant un brassin.",
         ],
         prerequisites: [],
         teaches: [
@@ -193,7 +193,8 @@ export const academyCorpus: AcademyCorpus = {
       slug: "houblons",
       metadata: {
         title: "Houblons",
-        summary: "Reference guide for hop roles in brewing.",
+        summary:
+          "Repère pratique sur le rôle du houblon dans l'amertume, l'aromatique et l'équilibre d'une bière.",
         category: "ingredients",
         level: "beginner",
         status: "published",
@@ -215,8 +216,8 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Identify the main brewing roles of hops.",
-          "Distinguish bitterness additions from aroma additions.",
+          "Identifier les rôles principaux du houblon dans une bière.",
+          "Distinguer les ajouts d'amertume des ajouts aromatiques.",
         ],
         prerequisites: [],
         teaches: ["hop-bitterness", "hop-aroma"],
@@ -295,7 +296,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Levures",
         summary:
-          "Reference guide for fermentation, yeast roles, pitch rate, and temperature control.",
+          "Repère pratique sur la fermentation, le rôle des levures, le taux d'ensemencement et la température.",
         category: "fermentation",
         level: "beginner",
         status: "published",
@@ -317,9 +318,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Explain what yeast changes during fermentation.",
-          "Identify the main levers of a healthy fermentation.",
-          "Understand why pitch rate and temperature matter.",
+          "Expliquer ce que la levure transforme pendant la fermentation.",
+          "Identifier les principaux leviers d'une fermentation saine.",
+          "Comprendre pourquoi le taux d'ensemencement et la température comptent.",
         ],
         prerequisites: ["brewing-overview"],
         teaches: [
@@ -465,7 +466,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Eau de brassage",
         summary:
-          "Reference guide for mash pH, mineral profile, residual alkalinity, and safe brewing water adjustments.",
+          "Repère pratique sur le pH d'empâtage, le profil minéral, l'alcalinité résiduelle et les ajustements de l'eau.",
         category: "water",
         level: "beginner",
         status: "published",
@@ -487,9 +488,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Understand why water composition matters for brewing.",
-          "Identify the main mineral families used in brewing water adjustments.",
-          "Apply a simple and safe method for first water corrections.",
+          "Comprendre pourquoi la composition de l'eau influence le brassage.",
+          "Identifier les principales familles minérales utilisées pour ajuster l'eau.",
+          "Appliquer une méthode simple et sûre pour les premières corrections d'eau.",
         ],
         prerequisites: ["brewing-overview"],
         teaches: ["water-profile", "mash-ph", "residual-alkalinity"],
@@ -668,7 +669,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Malts et fermentescibles",
         summary:
-          "Reference guide for malt, fermentable sugars, gravity, attenuation, and alcohol calculations.",
+          "Repère pratique sur les malts, les sucres fermentescibles, la densité, l'atténuation et l'alcool.",
         category: "ingredients",
         level: "beginner",
         status: "published",
@@ -690,9 +691,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Explain the role of malt and other fermentables in beer.",
-          "Distinguish original gravity, final gravity, alcohol, and attenuation.",
-          "Understand how fermentables, yeast, and mash profile influence the final beer.",
+          "Expliquer le rôle du malt et des autres fermentescibles dans une bière.",
+          "Distinguer densité initiale, densité finale, alcool et atténuation.",
+          "Comprendre comment fermentescibles, levure et profil d'empâtage influencent la bière finale.",
         ],
         prerequisites: ["brewing-overview"],
         teaches: [
@@ -874,7 +875,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Couleur",
         summary:
-          "Reference guide for beer color, malt color contribution, MCU, SRM, EBC, and the Morey estimate.",
+          "Repère pratique sur la couleur, l'apport des malts, les MCU, SRM, EBC et l'estimation Morey.",
         category: "process",
         level: "beginner",
         status: "published",
@@ -896,9 +897,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Explain why beer color is a recipe consistency signal.",
-          "Distinguish malt color, MCU, SRM, and EBC.",
-          "Identify common mistakes when estimating beer color.",
+          "Expliquer pourquoi la couleur est un signal de régularité d'une recette.",
+          "Distinguer couleur des malts, MCU, SRM et EBC.",
+          "Identifier les erreurs fréquentes dans l'estimation de la couleur.",
         ],
         prerequisites: ["brewing-overview", "malt-basics"],
         teaches: [
@@ -1047,7 +1048,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Carbonatation",
         summary:
-          "Reference guide for carbonation targets, residual CO2, priming sugar, and safe packaging checks.",
+          "Repère pratique sur les objectifs de carbonatation, le CO2 résiduel, le sucre de refermentation et le conditionnement sûr.",
         category: "process",
         level: "beginner",
         status: "published",
@@ -1069,9 +1070,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Choose a carbonation target adapted to a beer style.",
-          "Understand residual CO2 and priming sugar calculations.",
-          "Identify the safety checks required before bottling.",
+          "Choisir une cible de carbonatation adaptée à un style de bière.",
+          "Comprendre le CO2 résiduel et les calculs de sucre de refermentation.",
+          "Identifier les contrôles de sécurité nécessaires avant l'embouteillage.",
         ],
         prerequisites: ["brewing-overview", "fermentation-basics"],
         teaches: ["carbonation-targets", "priming-sugar", "packaging-safety"],
@@ -1256,7 +1257,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Rendement",
         summary:
-          "Reference guide for brewhouse efficiency, gravity points, process losses, and water planning.",
+          "Repère pratique sur le rendement, les points de densité, les pertes de process et le plan d'eau.",
         category: "process",
         level: "beginner",
         status: "published",
@@ -1279,9 +1280,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Explain brewhouse efficiency from measured OG, volume, and fermentables.",
-          "Identify where gravity points and volume are lost during the process.",
-          "Use measured history instead of theoretical assumptions.",
+          "Expliquer le rendement global à partir de l'OG mesurée, du volume et des fermentescibles.",
+          "Identifier où les points de densité et le volume se perdent dans le process.",
+          "Utiliser l'historique mesuré plutôt que des hypothèses théoriques.",
         ],
         prerequisites: ["malt-basics", "water-profile"],
         teaches: [
@@ -1459,7 +1460,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Calculs avancés",
         summary:
-          "Reference guide for advanced brewing diagnostics: diastatic power, wort indicators, and altitude corrections.",
+          "Repère pratique sur les diagnostics avancés : pouvoir diastasique, indicateurs de moût et correction d'altitude.",
         category: "process",
         level: "advanced",
         status: "published",
@@ -1487,9 +1488,9 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         learningObjectives: [
-          "Identify when advanced diagnostics are useful.",
-          "Understand the three calculator areas: enzymes, wort, and altitude.",
-          "Avoid treating advanced estimates as absolute truths.",
+          "Identifier quand les diagnostics avancés sont utiles.",
+          "Comprendre les trois zones du calculateur : enzymes, moût et altitude.",
+          "Éviter de traiter les estimations avancées comme des vérités absolues.",
         ],
         prerequisites: [
           "malt-basics",
@@ -1659,7 +1660,7 @@ export const academyCorpus: AcademyCorpus = {
       metadata: {
         title: "Glossaire brassicole",
         summary:
-          "Reference guide for reading brewing vocabulary, units, acronyms, and common technical confusions.",
+          "Repère pratique pour comprendre le vocabulaire brassicole, les unités, les acronymes et les confusions techniques.",
         category: "glossary",
         level: "beginner",
         status: "published",
@@ -1671,9 +1672,9 @@ export const academyCorpus: AcademyCorpus = {
         relatedGlossaryTerms: ["ibu", "acide-alpha", "profil-mineral"],
         relatedCalculators: [],
         learningObjectives: [
-          "Understand how to read a brewing glossary entry.",
-          "Distinguish measurements, calculated values, and process targets.",
-          "Identify common vocabulary families used across the Academy.",
+          "Comprendre comment lire une entrée de glossaire brassicole.",
+          "Distinguer mesures, valeurs calculées et cibles de process.",
+          "Identifier les familles de vocabulaire fréquentes dans l'Académie.",
         ],
         prerequisites: ["brewing-overview"],
         teaches: ["brewing-vocabulary", "technical-reading"],

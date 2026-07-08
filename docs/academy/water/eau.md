@@ -1,7 +1,7 @@
 ---
 slug: eau
 title: Eau de brassage
-summary: Reference guide for mash pH, mineral profile, residual alkalinity, and safe brewing water adjustments.
+summary: Repère pratique sur le pH d'empâtage, le profil minéral, l'alcalinité résiduelle et les ajustements de l'eau.
 category: water
 level: beginner
 status: published
@@ -24,9 +24,9 @@ related_calculators:
     reason: Adjust a water profile for a recipe.
     target_slug: eau
 learning_objectives:
-  - Understand why water composition matters for brewing.
-  - Identify the main mineral families used in brewing water adjustments.
-  - Apply a simple and safe method for first water corrections.
+  - Comprendre pourquoi la composition de l'eau influence le brassage.
+  - Identifier les principales familles minérales utilisées pour ajuster l'eau.
+  - Appliquer une méthode simple et sûre pour les premières corrections d'eau.
 prerequisites:
   - brewing-overview
 teaches:

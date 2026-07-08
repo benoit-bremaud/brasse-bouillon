@@ -1,7 +1,7 @@
 ---
 slug: rendement
 title: Rendement
-summary: Reference guide for brewhouse efficiency, gravity points, process losses, and water planning.
+summary: Repère pratique sur le rendement, les points de densité, les pertes de process et le plan d'eau.
 category: process
 level: beginner
 status: published
@@ -23,9 +23,9 @@ related_calculators:
     reason: Estimate brewhouse efficiency, process losses, and water plan.
     target_slug: rendement
 learning_objectives:
-  - Explain brewhouse efficiency from measured OG, volume, and fermentables.
-  - Identify where gravity points and volume are lost during the process.
-  - Use measured history instead of theoretical assumptions.
+  - Expliquer le rendement global à partir de l'OG mesurée, du volume et des fermentescibles.
+  - Identifier où les points de densité et le volume se perdent dans le process.
+  - Utiliser l'historique mesuré plutôt que des hypothèses théoriques.
 prerequisites:
   - malt-basics
   - water-profile

@@ -33,6 +33,9 @@ describe("AcademyHubScreen", () => {
     render(<AcademyHubScreen />);
 
     expect(screen.getByText("Académie brassicole")).toBeTruthy();
+    expect(screen.getByText("Référence brassicole structurée")).toBeTruthy();
+    expect(screen.getByText("10 ARTICLES")).toBeTruthy();
+    expect(screen.getByText("8 CALCULATEURS")).toBeTruthy();
     expect(screen.getByText("Histoire de la bière")).toBeTruthy();
     expect(screen.queryByText("Bientôt")).toBeNull();
     expect(screen.queryByText("Prêt")).toBeNull();
@@ -58,6 +61,20 @@ describe("AcademyHubScreen", () => {
 
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.queryByText("Histoire de la bière")).toBeNull();
+  });
+
+  it("filters academy cards by focus chip", () => {
+    render(<AcademyHubScreen />);
+
+    fireEvent.press(screen.getByTestId("academy-filter-Ingrédients"));
+
+    expect(screen.getByText("Houblons")).toBeTruthy();
+    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
+    expect(screen.queryByText("Eau de brassage")).toBeNull();
+
+    fireEvent.press(screen.getByTestId("academy-filter-all"));
+
+    expect(screen.getByText("Eau de brassage")).toBeTruthy();
   });
 
   it("clears the academy search field", () => {

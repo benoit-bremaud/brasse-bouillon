@@ -3,6 +3,8 @@ import {
   AcademyLegacyHubTopic,
   createAcademyHubCards,
   filterAcademyHubCards,
+  filterAcademyHubCardsByFocus,
+  listAcademyHubFocusFilters,
 } from "../academy-hub.presenter";
 
 const article: AcademyArticle = {
@@ -161,5 +163,15 @@ describe("createAcademyHubCards", () => {
       expect.objectContaining({ slug: "introduction" }),
     ]);
     expect(filterAcademyHubCards(cards, "unknown")).toEqual([]);
+  });
+
+  it("lists and applies focus filters from computed hub cards", () => {
+    const cards = createAcademyHubCards([article], legacyTopics);
+
+    expect(listAcademyHubFocusFilters(cards)).toEqual(["Bases", "Ingrédients"]);
+    expect(filterAcademyHubCardsByFocus(cards, "Ingrédients")).toEqual([
+      expect.objectContaining({ slug: "houblons" }),
+    ]);
+    expect(filterAcademyHubCardsByFocus(cards, null)).toBe(cards);
   });
 });

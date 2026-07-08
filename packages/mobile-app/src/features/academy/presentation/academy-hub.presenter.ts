@@ -78,6 +78,23 @@ export function filterAcademyHubCards(
   );
 }
 
+export function listAcademyHubFocusFilters(
+  cards: readonly AcademyHubCardViewModel[],
+): readonly string[] {
+  return Array.from(new Set(cards.map((card) => card.focus)));
+}
+
+export function filterAcademyHubCardsByFocus(
+  cards: readonly AcademyHubCardViewModel[],
+  focus: string | null,
+): readonly AcademyHubCardViewModel[] {
+  if (!focus) {
+    return cards;
+  }
+
+  return cards.filter((card) => card.focus === focus);
+}
+
 function createGeneratedHubCard(
   article: AcademyArticle,
   fallback: AcademyLegacyHubTopic,

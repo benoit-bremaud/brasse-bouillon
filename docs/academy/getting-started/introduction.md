@@ -1,7 +1,7 @@
 ---
 slug: introduction
 title: Introduction au brassage
-summary: Carte d'ensemble du brassage pour relier ingredients, process, mesures et hygiene.
+summary: Carte d'ensemble du brassage pour relier ingrédients, process, mesures et hygiène.
 category: getting-started
 level: beginner
 status: published
@@ -21,9 +21,9 @@ related_glossary_terms:
   - profil-mineral
 related_calculators: []
 learning_objectives:
-  - Understand the global brewing flow before optimizing details.
-  - Identify the four fundamental brewing ingredients.
-  - Recognize the main measurements followed during a batch.
+  - Comprendre le déroulé global du brassage avant d'optimiser les détails.
+  - Identifier les quatre ingrédients fondamentaux d'une bière.
+  - Reconnaître les principales mesures suivies pendant un brassin.
 prerequisites: []
 teaches:
   - brewing-overview

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
+import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
@@ -16,7 +17,9 @@ import { listPublishedAcademyArticlesUseCase } from "@/features/academy/applicat
 import { generatedAcademyRepository } from "@/features/academy/data";
 import {
   createAcademyHubCards,
+  filterAcademyHubCardsByFocus,
   filterAcademyHubCards,
+  listAcademyHubFocusFilters,
 } from "@/features/academy/presentation";
 import { academyTopics } from "@/features/tools/data";
 import { Ionicons } from "@expo/vector-icons";
@@ -41,11 +44,26 @@ export function AcademyHubScreen() {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [selectedFocus, setSelectedFocus] = React.useState<string | null>(null);
   const academyCards = createAcademyHubCards(
     listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
     academyTopics,
   );
-  const filteredAcademyCards = filterAcademyHubCards(academyCards, searchQuery);
+  const focusFilters = listAcademyHubFocusFilters(academyCards);
+  const focusFilteredAcademyCards = filterAcademyHubCardsByFocus(
+    academyCards,
+    selectedFocus,
+  );
+  const filteredAcademyCards = filterAcademyHubCards(
+    focusFilteredAcademyCards,
+    searchQuery,
+  );
+  const publishedArticleCount = academyCards.filter(
+    (card) => card.source === "generated",
+  ).length;
+  const calculatorCount = academyCards.filter(
+    (card) => card.hasCalculator,
+  ).length;
 
   return (
     <Screen>
@@ -60,6 +78,31 @@ export function AcademyHubScreen() {
           { paddingBottom: bottomPadding },
         ]}
       >
+        <Card style={styles.summaryCard} variant="subtle">
+          <View style={styles.summaryHeader}>
+            <View style={styles.summaryIcon}>
+              <Ionicons
+                name="school-outline"
+                size={22}
+                color={colors.brand.secondary}
+              />
+            </View>
+            <View style={styles.summaryBody}>
+              <Text style={styles.summaryTitle}>
+                Référence brassicole structurée
+              </Text>
+              <Text style={styles.summaryText}>
+                Articles sourcés, notions clés et accès direct aux calculateurs
+                associés.
+              </Text>
+            </View>
+          </View>
+          <View style={styles.summaryStats}>
+            <Badge label={`${publishedArticleCount} articles`} variant="info" />
+            <Badge label={`${calculatorCount} calculateurs`} variant="info" />
+          </View>
+        </Card>
+
         <View style={styles.searchContainer}>
           <Ionicons
             name="search-outline"
@@ -95,6 +138,56 @@ export function AcademyHubScreen() {
             </Pressable>
           ) : null}
         </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterList}
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: selectedFocus === null }}
+            accessibilityLabel="Afficher tous les articles Académie"
+            onPress={() => setSelectedFocus(null)}
+            style={[
+              styles.filterChip,
+              selectedFocus === null && styles.filterChipSelected,
+            ]}
+            testID="academy-filter-all"
+          >
+            <Text
+              style={[
+                styles.filterText,
+                selectedFocus === null && styles.filterTextSelected,
+              ]}
+            >
+              Tous
+            </Text>
+          </Pressable>
+          {focusFilters.map((focus) => (
+            <Pressable
+              key={focus}
+              accessibilityRole="button"
+              accessibilityState={{ selected: selectedFocus === focus }}
+              accessibilityLabel={`Filtrer les articles Académie par ${focus}`}
+              onPress={() => setSelectedFocus(focus)}
+              style={[
+                styles.filterChip,
+                selectedFocus === focus && styles.filterChipSelected,
+              ]}
+              testID={`academy-filter-${focus}`}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  selectedFocus === focus && styles.filterTextSelected,
+                ]}
+              >
+                {focus}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
 
         {filteredAcademyCards.length === 0 ? (
           <Card style={styles.emptyCard}>
@@ -165,6 +258,44 @@ export function AcademyHubScreen() {
 
 const styles = StyleSheet.create({
   content: {},
+  summaryCard: {
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    alignItems: "center",
+  },
+  summaryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.state.warningBackground,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  summaryBody: {
+    flex: 1,
+    minWidth: 0,
+  },
+  summaryTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  summaryText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+  },
+  summaryStats: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -175,6 +306,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     marginBottom: spacing.sm,
+  },
+  filterList: {
+    gap: spacing.xs,
+    paddingBottom: spacing.sm,
+  },
+  filterChip: {
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral.white,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.brand.secondary,
+    borderColor: colors.brand.secondary,
+  },
+  filterText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  filterTextSelected: {
+    color: colors.neutral.white,
   },
   searchIcon: {
     marginRight: spacing.xs,

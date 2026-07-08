@@ -1,7 +1,7 @@
 ---
 slug: glossaire
 title: Glossaire brassicole
-summary: Reference guide for reading brewing vocabulary, units, acronyms, and common technical confusions.
+summary: Repère pratique pour comprendre le vocabulaire brassicole, les unités, les acronymes et les confusions techniques.
 category: glossary
 level: beginner
 status: published
@@ -23,9 +23,9 @@ related_glossary_terms:
   - profil-mineral
 related_calculators: []
 learning_objectives:
-  - Understand how to read a brewing glossary entry.
-  - Distinguish measurements, calculated values, and process targets.
-  - Identify common vocabulary families used across the Academy.
+  - Comprendre comment lire une entrée de glossaire brassicole.
+  - Distinguer mesures, valeurs calculées et cibles de process.
+  - Identifier les familles de vocabulaire fréquentes dans l'Académie.
 prerequisites:
   - brewing-overview
 teaches:

@@ -1,7 +1,7 @@
 ---
 slug: carbonatation
 title: Carbonatation
-summary: Reference guide for carbonation targets, residual CO2, priming sugar, and safe packaging checks.
+summary: Repère pratique sur les objectifs de carbonatation, le CO2 résiduel, le sucre de refermentation et le conditionnement sûr.
 category: process
 level: beginner
 status: published
@@ -23,9 +23,9 @@ related_calculators:
     reason: Estimate priming sugar for a target carbonation level.
     target_slug: carbonatation
 learning_objectives:
-  - Choose a carbonation target adapted to a beer style.
-  - Understand residual CO2 and priming sugar calculations.
-  - Identify the safety checks required before bottling.
+  - Choisir une cible de carbonatation adaptée à un style de bière.
+  - Comprendre le CO2 résiduel et les calculs de sucre de refermentation.
+  - Identifier les contrôles de sécurité nécessaires avant l'embouteillage.
 prerequisites:
   - brewing-overview
   - fermentation-basics

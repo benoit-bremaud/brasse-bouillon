@@ -1,7 +1,7 @@
 ---
 slug: houblons
 title: Houblons
-summary: Reference guide for hop roles in brewing.
+summary: Repère pratique sur le rôle du houblon dans l'amertume, l'aromatique et l'équilibre d'une bière.
 category: ingredients
 level: beginner
 status: published
@@ -23,8 +23,8 @@ related_calculators:
     reason: Estimate bitterness from hop additions.
     target_slug: houblons
 learning_objectives:
-  - Identify the main brewing roles of hops.
-  - Distinguish bitterness additions from aroma additions.
+  - Identifier les rôles principaux du houblon dans une bière.
+  - Distinguer les ajouts d'amertume des ajouts aromatiques.
 prerequisites: []
 teaches:
   - hop-bitterness

@@ -1,7 +1,7 @@
 ---
 slug: avances
 title: Calculs avancés
-summary: "Reference guide for advanced brewing diagnostics: diastatic power, wort indicators, and altitude corrections."
+summary: "Repère pratique sur les diagnostics avancés : pouvoir diastasique, indicateurs de moût et correction d'altitude."
 category: process
 level: advanced
 status: published
@@ -25,9 +25,9 @@ related_calculators:
     reason: Diagnose enzymes, wort indicators, and altitude corrections.
     target_slug: avances
 learning_objectives:
-  - Identify when advanced diagnostics are useful.
-  - "Understand the three calculator areas: enzymes, wort, and altitude."
-  - Avoid treating advanced estimates as absolute truths.
+  - Identifier quand les diagnostics avancés sont utiles.
+  - "Comprendre les trois zones du calculateur : enzymes, moût et altitude."
+  - Éviter de traiter les estimations avancées comme des vérités absolues.
 prerequisites:
   - malt-basics
   - brewhouse-efficiency

@@ -1,7 +1,7 @@
 ---
 slug: levures
 title: Levures
-summary: Reference guide for fermentation, yeast roles, pitch rate, and temperature control.
+summary: Repère pratique sur la fermentation, le rôle des levures, le taux d'ensemencement et la température.
 category: fermentation
 level: beginner
 status: published
@@ -22,9 +22,9 @@ related_calculators:
     reason: Estimate pitch rate and fermentation planning.
     target_slug: levures
 learning_objectives:
-  - Explain what yeast changes during fermentation.
-  - Identify the main levers of a healthy fermentation.
-  - Understand why pitch rate and temperature matter.
+  - Expliquer ce que la levure transforme pendant la fermentation.
+  - Identifier les principaux leviers d'une fermentation saine.
+  - Comprendre pourquoi le taux d'ensemencement et la température comptent.
 prerequisites:
   - brewing-overview
 teaches:

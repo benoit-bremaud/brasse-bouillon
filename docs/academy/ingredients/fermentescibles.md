@@ -1,7 +1,7 @@
 ---
 slug: fermentescibles
 title: Malts et fermentescibles
-summary: Reference guide for malt, fermentable sugars, gravity, attenuation, and alcohol calculations.
+summary: Repère pratique sur les malts, les sucres fermentescibles, la densité, l'atténuation et l'alcool.
 category: ingredients
 level: beginner
 status: published
@@ -24,9 +24,9 @@ related_calculators:
     reason: Estimate alcohol, final gravity, and attenuation.
     target_slug: fermentescibles
 learning_objectives:
-  - Explain the role of malt and other fermentables in beer.
-  - Distinguish original gravity, final gravity, alcohol, and attenuation.
-  - Understand how fermentables, yeast, and mash profile influence the final beer.
+  - Expliquer le rôle du malt et des autres fermentescibles dans une bière.
+  - Distinguer densité initiale, densité finale, alcool et atténuation.
+  - Comprendre comment fermentescibles, levure et profil d'empâtage influencent la bière finale.
 prerequisites:
   - brewing-overview
 teaches:

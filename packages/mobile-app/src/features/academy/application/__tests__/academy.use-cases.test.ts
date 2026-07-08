@@ -1,6 +1,7 @@
 import {
   getAcademyArticleBySlug,
   getAcademyGlossaryTermBySlug,
+  listAcademyGlossaryTermsUseCase,
   listPublishedAcademyArticlesUseCase,
   resolveAcademyLinkTarget,
   searchAcademy,
@@ -69,12 +70,22 @@ const ibuTerm: GlossaryTerm = {
   sources: [],
 };
 
+const alphaAcidTerm: GlossaryTerm = {
+  slug: "acide-alpha",
+  label: "Acide alpha",
+  aliases: ["alpha acid"],
+  shortDefinition: "Compose du houblon.",
+  detailedDefinition: "Compose lie au potentiel du houblon.",
+  relatedTerms: ["ibu"],
+  sources: [],
+};
+
 const repository: AcademyRepository = {
   listArticles: () => [publishedArticle, draftArticle],
   getArticleBySlug: (slug) =>
     [publishedArticle, draftArticle].find((article) => article.slug === slug) ??
     null,
-  listGlossaryTerms: () => [ibuTerm],
+  listGlossaryTerms: () => [ibuTerm, alphaAcidTerm],
   getGlossaryTermBySlug: (slug) => (slug === ibuTerm.slug ? ibuTerm : null),
   listCalculatorSlugs: () => ["houblons"],
 };
@@ -92,6 +103,13 @@ describe("Academy use cases", () => {
     );
     expect(getAcademyGlossaryTermBySlug(repository, " ibu ")).toBe(ibuTerm);
     expect(getAcademyArticleBySlug(repository, " ")).toBeNull();
+  });
+
+  it("lists glossary terms alphabetically for presentation", () => {
+    expect(listAcademyGlossaryTermsUseCase(repository)).toEqual([
+      alphaAcidTerm,
+      ibuTerm,
+    ]);
   });
 
   it("searches published articles and glossary entries", () => {

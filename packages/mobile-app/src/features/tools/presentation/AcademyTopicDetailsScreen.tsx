@@ -14,6 +14,7 @@ import { normalizeRouteParam } from "@/core/navigation/route-params";
 import {
   getAcademyArticleBySlug,
   getAcademyGlossaryTermBySlug,
+  listAcademyGlossaryTermsUseCase,
   listPublishedAcademyArticlesUseCase,
 } from "@/features/academy/application";
 import { generatedAcademyRepository } from "@/features/academy/data";
@@ -67,6 +68,10 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           normalizedTermSlug,
         )
       : null;
+  const glossaryTerms =
+    normalizedSlug === "glossaire"
+      ? listAcademyGlossaryTermsUseCase(generatedAcademyRepository)
+      : [];
   const generatedArticleCalculatorSlug =
     publishedGeneratedArticle?.metadata.relatedCalculators[0]?.target.slug ??
     null;
@@ -168,6 +173,19 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
 
           {highlightedGlossaryTerm ? (
             <AcademyHighlightedGlossaryTerm term={highlightedGlossaryTerm} />
+          ) : null}
+
+          {glossaryTerms.length > 0 ? (
+            <AcademyGlossaryTermsList
+              terms={glossaryTerms}
+              selectedTermSlug={highlightedGlossaryTerm?.slug ?? null}
+              onTermPress={(termSlug) =>
+                router.push({
+                  pathname: "/(app)/academy/[slug]",
+                  params: { slug: "glossaire", termSlug },
+                })
+              }
+            />
           ) : null}
 
           <View onLayout={handleArticleLayout}>
@@ -321,6 +339,64 @@ function AcademyHighlightedGlossaryTerm({
       ) : null}
     </Card>
   );
+}
+
+type AcademyGlossaryTermsListProps = {
+  readonly terms: readonly GlossaryTerm[];
+  readonly selectedTermSlug: string | null;
+  readonly onTermPress: (termSlug: string) => void;
+};
+
+function AcademyGlossaryTermsList({
+  terms,
+  selectedTermSlug,
+  onTermPress,
+}: AcademyGlossaryTermsListProps) {
+  return (
+    <Card style={styles.glossaryListCard}>
+      <View style={styles.glossaryListHeader}>
+        <Text style={styles.glossaryListTitle}>Tous les termes</Text>
+        <Text style={styles.glossaryListCount}>
+          {formatGlossaryTermsCount(terms.length)}
+        </Text>
+      </View>
+      <View style={styles.glossaryTermsList}>
+        {terms.map((term) => {
+          const selected = term.slug === selectedTermSlug;
+
+          return (
+            <Pressable
+              key={term.slug}
+              accessibilityRole="button"
+              accessibilityLabel={`Consulter le terme ${term.label}`}
+              accessibilityState={{ selected }}
+              onPress={() => onTermPress(term.slug)}
+              style={[
+                styles.glossaryTermItem,
+                selected && styles.glossaryTermItemSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.glossaryTermTitle,
+                  selected && styles.glossaryTermTitleSelected,
+                ]}
+              >
+                {term.label}
+              </Text>
+              <Text style={styles.glossaryTermSummary}>
+                {term.shortDefinition}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </Card>
+  );
+}
+
+function formatGlossaryTermsCount(count: number): string {
+  return count > 1 ? `${count} termes` : `${count} terme`;
 }
 
 type ArticleNavigationItem = {
@@ -505,6 +581,56 @@ const styles = StyleSheet.create({
   },
   highlightedGlossaryAliases: {
     color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+  },
+  glossaryListCard: {
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  glossaryListHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  glossaryListTitle: {
+    flex: 1,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  glossaryListCount: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+  },
+  glossaryTermsList: {
+    gap: spacing.xs,
+  },
+  glossaryTermItem: {
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    gap: spacing.xxs,
+  },
+  glossaryTermItemSelected: {
+    borderColor: colors.brand.primary,
+    backgroundColor: colors.state.infoBackground,
+  },
+  glossaryTermTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+  glossaryTermTitleSelected: {
+    color: colors.brand.primary,
+  },
+  glossaryTermSummary: {
+    color: colors.neutral.textSecondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
   },

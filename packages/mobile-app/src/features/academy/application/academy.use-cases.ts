@@ -58,6 +58,14 @@ export function getAcademyGlossaryTermBySlug(
   return repository.getGlossaryTermBySlug(normalizedSlug);
 }
 
+export function listAcademyGlossaryTermsUseCase(
+  repository: AcademyRepository,
+): readonly GlossaryTerm[] {
+  return [...repository.listGlossaryTerms()].sort((left, right) =>
+    left.label.localeCompare(right.label, "fr", { sensitivity: "base" }),
+  );
+}
+
 export function searchAcademy(
   repository: AcademyRepository,
   query: string,

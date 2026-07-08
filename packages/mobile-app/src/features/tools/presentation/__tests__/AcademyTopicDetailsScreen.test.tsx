@@ -534,6 +534,16 @@ jest.mock("@/features/academy/data", () => {
       relatedTerms: ["acide-alpha"],
       sources: [],
     },
+    {
+      slug: "acide-alpha",
+      label: "Acide alpha",
+      aliases: ["alpha acid"],
+      shortDefinition: "Composé du houblon lié au potentiel d'amertume.",
+      detailedDefinition:
+        "Les acides alpha s'isomérisent pendant l'ébullition et participent à l'amertume.",
+      relatedTerms: ["ibu"],
+      sources: [],
+    },
   ];
 
   return {
@@ -704,10 +714,10 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     );
 
     expect(screen.getByText("Terme recherché")).toBeTruthy();
-    expect(screen.getByText("IBU")).toBeTruthy();
+    expect(screen.getAllByText("IBU").length).toBeGreaterThan(0);
     expect(
-      screen.getByText("Estimation de l'amertume d'une bière."),
-    ).toBeTruthy();
+      screen.getAllByText("Estimation de l'amertume d'une bière.").length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getByText("Alias : International Bitterness Units"),
     ).toBeTruthy();
@@ -819,7 +829,22 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getByText("Generated glossary article summary."),
     ).toBeTruthy();
     expect(screen.getByText("Pourquoi un glossaire brassicole")).toBeTruthy();
+    expect(screen.getByText("Tous les termes")).toBeTruthy();
+    expect(screen.getByText("2 termes")).toBeTruthy();
+    expect(screen.getByText("Acide alpha")).toBeTruthy();
+    expect(screen.getByText("IBU")).toBeTruthy();
     expect(screen.queryByText("Ouvrir le calculateur")).toBeNull();
+  });
+
+  it("navigates from the glossary terms list to the selected term", () => {
+    render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
+
+    fireEvent.press(screen.getByText("Acide alpha"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]",
+      params: { slug: "glossaire", termSlug: "acide-alpha" },
+    });
   });
 
   it("renders a published generated article even without a legacy topic", () => {

@@ -365,6 +365,26 @@ function AcademyHighlightedGlossaryTerm({
       {aliases ? (
         <Text style={styles.highlightedGlossaryAliases}>{aliases}</Text>
       ) : null}
+      {term.sources.length > 0 ? (
+        <View style={styles.glossarySourcesSection}>
+          <Text style={styles.glossarySourcesTitle}>Sources</Text>
+          <View style={styles.glossarySourcesList}>
+            {term.sources.map((source) => (
+              <View key={source.id} style={styles.glossarySourceItem}>
+                <Text style={styles.glossarySourceTitle}>
+                  {source.title}
+                  {source.year ? ` (${source.year})` : ""}
+                </Text>
+                <Text style={styles.glossarySourceMeta}>
+                  {[source.authors.join(", "), source.publisher]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
       {relatedTerms.length > 0 ? (
         <View style={styles.relatedGlossarySection}>
           <Text style={styles.relatedGlossaryTitle}>Termes associés</Text>
@@ -681,6 +701,35 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.label,
   },
   highlightedGlossaryAliases: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+  },
+  glossarySourcesSection: {
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  glossarySourcesTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.bold,
+  },
+  glossarySourcesList: {
+    gap: spacing.xs,
+  },
+  glossarySourceItem: {
+    borderLeftWidth: spacing.xxs,
+    borderLeftColor: colors.neutral.border,
+    paddingLeft: spacing.xs,
+  },
+  glossarySourceTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+    fontWeight: typography.weight.bold,
+  },
+  glossarySourceMeta: {
     color: colors.neutral.muted,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,

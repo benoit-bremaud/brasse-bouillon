@@ -532,7 +532,19 @@ jest.mock("@/features/academy/data", () => {
       detailedDefinition:
         "L'IBU estime la concentration de composés amers apportés principalement par le houblon.",
       relatedTerms: ["acide-alpha"],
-      sources: [],
+      sources: [
+        {
+          id: "palmer-2017",
+          kind: "book",
+          title: "How to Brew",
+          authors: ["John J. Palmer"],
+          publisher: "Brewers Publications",
+          url: "https://www.howtobrew.com/",
+          accessedAt: "2026-07-03",
+          year: 2017,
+          notes: "General homebrewing reference.",
+        },
+      ],
     },
     {
       slug: "acide-alpha",
@@ -721,6 +733,8 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Alias : International Bitterness Units"),
     ).toBeTruthy();
+    expect(screen.getByText("Sources")).toBeTruthy();
+    expect(screen.getByText("How to Brew (2017)")).toBeTruthy();
     expect(screen.getByText("Termes associés")).toBeTruthy();
     expect(
       screen.getByLabelText("Consulter le terme associé Acide alpha"),

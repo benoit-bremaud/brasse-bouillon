@@ -62,9 +62,24 @@ export function AcademyArticleRenderer({
         </Card>
       ) : null}
 
-      {article.body.sections.map((section) => (
+      {article.body.sections.length > 1 ? (
+        <Card style={styles.tocCard}>
+          <Text style={styles.cardTitle}>Dans cet article</Text>
+          <View style={styles.tocList}>
+            {article.body.sections.map((section, index) => (
+              <View key={section.id} style={styles.tocItem}>
+                <Text style={styles.tocIndex}>{index + 1}</Text>
+                <Text style={styles.tocText}>{section.title}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
+
+      {article.body.sections.map((section, index) => (
         <AcademySectionRenderer
           key={section.id}
+          index={index}
           section={section}
           onGlossaryPress={onGlossaryPress}
           onCalculatorPress={onCalculatorPress}
@@ -95,6 +110,7 @@ export function AcademyArticleRenderer({
 }
 
 type SectionRendererProps = {
+  readonly index: number;
   readonly section: AcademySection;
   readonly onGlossaryPress?: (slug: string) => void;
   readonly onCalculatorPress?: (slug: string) => void;
@@ -105,6 +121,7 @@ type SectionRendererProps = {
 };
 
 function AcademySectionRenderer({
+  index,
   section,
   onGlossaryPress,
   onCalculatorPress,
@@ -112,7 +129,10 @@ function AcademySectionRenderer({
 }: SectionRendererProps) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{section.title}</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionIndex}>{index + 1}</Text>
+        <Text style={styles.sectionTitle}>{section.title}</Text>
+      </View>
       <View style={styles.blocks}>
         {section.blocks.map((block) => (
           <AcademyBlockRenderer
@@ -279,7 +299,7 @@ function AcademyBlockRenderer({
           style={styles.inlineCta}
         >
           <Text style={styles.inlineCtaText}>
-            Lire aussi: {block.articleSlug}
+            Lire aussi : {formatArticleSlugLabel(block.articleSlug)}
           </Text>
         </Pressable>
       );
@@ -341,10 +361,57 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.regular,
     color: colors.neutral.textPrimary,
   },
+  tocCard: {
+    gap: spacing.sm,
+  },
+  tocList: {
+    gap: spacing.xs,
+  },
+  tocItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  tocIndex: {
+    minWidth: 28,
+    height: 28,
+    borderRadius: radius.full,
+    backgroundColor: colors.state.warningBackground,
+    color: colors.brand.secondary,
+    fontSize: typography.size.caption,
+    lineHeight: 28,
+    fontWeight: typography.weight.bold,
+    textAlign: "center",
+  },
+  tocText: {
+    flex: 1,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
   section: {
     gap: spacing.sm,
   },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    paddingTop: spacing.xs,
+  },
+  sectionIndex: {
+    minWidth: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand.secondary,
+    color: colors.neutral.white,
+    fontSize: typography.size.label,
+    lineHeight: 32,
+    fontWeight: typography.weight.bold,
+    textAlign: "center",
+  },
   sectionTitle: {
+    flex: 1,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
@@ -561,6 +628,13 @@ function formatCategoryLabel(category: AcademyCategory): string {
 
 function formatReadTime(minutes: number): string {
   return `${minutes} min`;
+}
+
+function formatArticleSlugLabel(slug: string): string {
+  return slug
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function formatCalloutTone(tone: CalloutTone): string {

@@ -97,6 +97,18 @@ const article: AcademyArticle = {
           },
         ],
       },
+      {
+        id: "aller-plus-loin",
+        title: "Aller plus loin",
+        blocks: [
+          {
+            id: "next",
+            type: "paragraph",
+            text: "Compare ensuite le houblonnage avec la fermentation.",
+            sourceIds: [],
+          },
+        ],
+      },
     ],
   },
 };
@@ -112,7 +124,9 @@ describe("AcademyArticleRenderer", () => {
     expect(screen.getByText("6 MIN")).toBeTruthy();
     expect(screen.getByText("Objectifs pédagogiques")).toBeTruthy();
     expect(screen.getByText("• Identifier les roles du houblon.")).toBeTruthy();
-    expect(screen.getByText("Role du houblon")).toBeTruthy();
+    expect(screen.getByText("Dans cet article")).toBeTruthy();
+    expect(screen.getAllByText("Role du houblon").length).toBeGreaterThan(1);
+    expect(screen.getAllByText("Aller plus loin").length).toBeGreaterThan(1);
     expect(
       screen.getByText("Le houblon apporte amertume et aromes."),
     ).toBeTruthy();
@@ -154,7 +168,7 @@ describe("AcademyArticleRenderer", () => {
 
     fireEvent.press(screen.getByText("IBU"));
     fireEvent.press(screen.getByText("Calculer une amertume cible"));
-    fireEvent.press(screen.getByText("Lire aussi: levures"));
+    fireEvent.press(screen.getByText("Lire aussi : Levures"));
 
     expect(onGlossaryPress).toHaveBeenCalledWith("ibu");
     expect(onCalculatorPress).toHaveBeenCalledWith("houblons");

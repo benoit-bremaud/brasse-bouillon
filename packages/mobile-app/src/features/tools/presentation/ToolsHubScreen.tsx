@@ -5,6 +5,8 @@ import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { getAcademyArticleBySlug } from "@/features/academy/application";
+import { generatedAcademyRepository } from "@/features/academy/data";
 import { academyTopics } from "@/features/tools/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -31,6 +33,22 @@ export function ToolsHubScreen() {
     .sort(
       (a, b) => (a.calculatorOrder ?? a.order) - (b.calculatorOrder ?? b.order),
     );
+  const calculatorCards = calculatorTopics.map((topic) => {
+    const article = getAcademyArticleBySlug(
+      generatedAcademyRepository,
+      topic.slug,
+    );
+
+    return {
+      slug: topic.slug,
+      title: article?.metadata.title ?? topic.title ?? topic.slug,
+      description:
+        topic.calculatorDescription ??
+        article?.metadata.summary ??
+        topic.shortDescription ??
+        "",
+    };
+  });
 
   return (
     <Screen>
@@ -45,15 +63,15 @@ export function ToolsHubScreen() {
           { paddingBottom: bottomPadding },
         ]}
       >
-        {calculatorTopics.map((topic) => (
+        {calculatorCards.map((card) => (
           <Pressable
-            key={topic.slug}
+            key={card.slug}
             accessibilityRole="button"
-            accessibilityLabel={`Ouvrir le calculateur ${topic.title}`}
+            accessibilityLabel={`Ouvrir le calculateur ${card.title}`}
             onPress={() =>
               router.push({
                 pathname: "/(app)/tools/[slug]/calculator",
-                params: { slug: topic.slug },
+                params: { slug: card.slug },
               })
             }
             style={({ pressed }) => [
@@ -65,16 +83,14 @@ export function ToolsHubScreen() {
               <View style={styles.cardRow}>
                 <View style={styles.itemIcon}>
                   <Ionicons
-                    name={CALCULATOR_ICONS[topic.slug] ?? "calculator-outline"}
+                    name={CALCULATOR_ICONS[card.slug] ?? "calculator-outline"}
                     size={24}
                     color={colors.brand.secondary}
                   />
                 </View>
                 <View style={styles.cardInfo}>
-                  <Text style={styles.cardTitle}>{topic.title}</Text>
-                  <Text style={styles.cardMeta}>
-                    {topic.calculatorDescription ?? topic.shortDescription}
-                  </Text>
+                  <Text style={styles.cardTitle}>{card.title}</Text>
+                  <Text style={styles.cardMeta}>{card.description}</Text>
                 </View>
                 <Ionicons
                   name="chevron-forward"

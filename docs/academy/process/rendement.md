@@ -56,7 +56,7 @@ trop basse, ABV plus faible que prevu, ou besoin de malt surestime.
 
 :::example id="example-efficiency-impact" title="Impact concret" body="Si ton rendement reel est 67% mais que ta recette suppose 75%, l'OG obtenue sera plus basse que prevu ou il faudra davantage de malt pour atteindre la meme cible." sourceIds="palmer-2017":::
 
-## Reperes rapides {#reperes}
+## Repères rapides {#reperes}
 
 Les points de densite viennent de l'OG : 1,060 correspond a 60 points. Le PPG
 exprime le potentiel theorique d'un fermentescible. Les points reels combinent
@@ -75,7 +75,7 @@ PPG. Le rendement global est le rapport entre ces deux valeurs.
 
 :::calculatorCta id="efficiency-calculator" calculatorSlug="rendement" title="Calculer rendement, volumes et plan d'eau" description="Utiliser le calculateur rendement pour relier OG mesuree, grain bill, pertes process et volumes d'eau." sourceIds="palmer-2017":::
 
-## Rendements realistes {#plages}
+## Rendements réalistes {#plages}
 
 Les valeurs utiles dependent fortement de l'installation et de la methode. Un
 BIAB peut souvent se situer autour de 60 a 70%. Une installation amateur trois
@@ -83,7 +83,7 @@ cuves bien reglee se situe souvent autour de 70 a 78%. Un systeme RIMS ou HERMS
 amateur peut monter davantage. Le plus important n'est pas d'avoir la valeur la
 plus haute, mais une valeur stable, mesuree et reutilisable dans les recettes.
 
-## Ou se perd le rendement {#pertes}
+## Où se perd le rendement {#pertes}
 
 Le concassage influence fortement l'acces aux sucres. L'empatage peut perdre en
 efficacite si le pH ou la temperature sortent de la zone utile. La filtration et
@@ -102,7 +102,7 @@ pre-ebullition et du plan d'eau rend l'OG finale plus previsible.
 
 :::relatedArticle id="related-water" articleSlug="eau" sectionId="profil-mineral" sourceIds="palmer-2017":::
 
-## Methode de progression {#methode}
+## Méthode de progression {#methode}
 
 Mesurer OG et volume final a chaque brassin. Calculer le rendement reel et le
 noter. Modifier une seule variable a la fois : concassage, rincage, ratio
@@ -110,7 +110,7 @@ d'eau, pH ou pertes process. Re-mesurer au brassin suivant. Quand la valeur se
 stabilise, recalibrer les recettes sur ton rendement reel plutot que sur une
 valeur ideale.
 
-## Pieges frequents a eviter {#pieges}
+## Pièges fréquents à éviter {#pieges}
 
 Les erreurs les plus courantes sont d'utiliser un rendement theorique jamais
 verifie, de changer plusieurs parametres en meme temps, de confondre rendement

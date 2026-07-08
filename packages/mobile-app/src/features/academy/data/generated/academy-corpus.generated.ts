@@ -85,7 +85,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "ingredients-fondamentaux",
-            title: "Les 4 ingredients fondamentaux",
+            title: "Les 4 ingrédients fondamentaux",
             blocks: [
               {
                 id: "ingredients-fondamentaux-paragraph-1",
@@ -130,7 +130,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes-brassin",
-            title: "Reperes a suivre sur chaque brassin",
+            title: "Repères à suivre sur chaque brassin",
             blocks: [
               {
                 id: "reperes-brassin-paragraph-1",
@@ -149,7 +149,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "hygiene",
-            title: "Hygiene : regle non negociable",
+            title: "Hygiène : règle non négociable",
             blocks: [
               {
                 id: "hygiene-paragraph-1",
@@ -169,12 +169,12 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "continuer",
-            title: "Par ou continuer ensuite ?",
+            title: "Par où continuer ensuite ?",
             blocks: [
               {
                 id: "continuer-paragraph-1",
                 type: "paragraph",
-                text: "Continue avec les fermentescibles pour maitriser OG, FG et ABV, avec l'eau pour stabiliser pH et profil mineral, avec les levures pour fiabiliser la fermentation, puis avec le glossaire pour securiser le vocabulaire technique.",
+                text: "Continue avec les fermentescibles pour maitriser OG, FG et ABV, avec l'eau pour stabiliser pH et profil minéral, avec les levures pour fiabiliser la fermentation, puis avec le glossaire pour securiser le vocabulaire technique.",
                 sourceIds: [],
               },
               {
@@ -247,7 +247,7 @@ export const academyCorpus: AcademyCorpus = {
         sections: [
           {
             id: "role-du-houblon",
-            title: "Role du houblon",
+            title: "Rôle du houblon",
             blocks: [
               {
                 id: "role-du-houblon-paragraph-1",
@@ -381,7 +381,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "piliers-fermentation",
-            title: "Les 4 piliers d'une fermentation reussie",
+            title: "Les 4 piliers d'une fermentation réussie",
             blocks: [
               {
                 id: "piliers-fermentation-paragraph-1",
@@ -401,16 +401,16 @@ export const academyCorpus: AcademyCorpus = {
                 id: "yeast-calculator",
                 type: "calculatorCta",
                 calculatorSlug: "levures",
-                title: "Estimer la quantite de levure",
+                title: "Estimer la quantité de levure",
                 description:
-                  "Utiliser le calculateur levures pour relier volume, densite initiale et besoin en cellules.",
+                  "Utiliser le calculateur levures pour relier volume, densité initiale et besoin en cellules.",
                 sourceIds: ["palmer-2017"],
               },
             ],
           },
           {
             id: "reperes-rapides",
-            title: "Reperes rapides",
+            title: "Repères rapides",
             blocks: [
               {
                 id: "reperes-rapides-paragraph-1",
@@ -429,7 +429,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "temperature",
-            title: "Temperature et impact aromatique",
+            title: "Température et impact aromatique",
             blocks: [
               {
                 id: "temperature-paragraph-1",
@@ -441,7 +441,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pieges",
-            title: "Pieges frequents a eviter",
+            title: "Pièges fréquents à éviter",
             blocks: [
               {
                 id: "pieges-paragraph-1",
@@ -532,13 +532,13 @@ export const academyCorpus: AcademyCorpus = {
                 id: "water-profile-reference",
                 type: "glossaryReference",
                 termSlug: "profil-mineral",
-                label: "Profil mineral",
+                label: "Profil minéral",
                 sourceIds: ["brun-water-knowledge"],
               },
               {
                 id: "definition-profil-mineral",
                 type: "definition",
-                term: "Profil mineral",
+                term: "Profil minéral",
                 definition:
                   "Composition de l'eau en ions principaux comme calcium, magnesium, sodium, sulfates, chlorures et bicarbonates.",
                 sourceIds: ["brun-water-knowledge"],
@@ -547,7 +547,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "ions-principaux",
-            title: "Les 6 ions a connaitre",
+            title: "Les 6 ions à connaître",
             blocks: [
               {
                 id: "ions-principaux-paragraph-1",
@@ -566,7 +566,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "ph-empatage",
-            title: "Le pH a chaque etape",
+            title: "Le pH à chaque étape",
             blocks: [
               {
                 id: "ph-empatage-paragraph-1",
@@ -586,7 +586,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "alcalinite-ratio",
-            title: "Alcalinite residuelle et ratio SO4/Cl",
+            title: "Alcalinité résiduelle et ratio SO4/Cl",
             blocks: [
               {
                 id: "alcalinite-ratio-paragraph-1",
@@ -611,7 +611,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "methode",
-            title: "Methode simple et fiable",
+            title: "Méthode simple et fiable",
             blocks: [
               {
                 id: "methode-paragraph-1",
@@ -651,7 +651,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pieges",
-            title: "Pieges frequents a eviter",
+            title: "Pièges fréquents à éviter",
             blocks: [
               {
                 id: "pieges-paragraph-1",
@@ -758,7 +758,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes",
-            title: "Reperes rapides",
+            title: "Repères rapides",
             blocks: [
               {
                 id: "reperes-paragraph-1",
@@ -809,16 +809,16 @@ export const academyCorpus: AcademyCorpus = {
                 id: "fermentables-calculator",
                 type: "calculatorCta",
                 calculatorSlug: "fermentescibles",
-                title: "Estimer alcool et attenuation",
+                title: "Estimer alcool et atténuation",
                 description:
-                  "Utiliser le calculateur fermentescibles pour relier OG, FG, attenuation et ABV.",
+                  "Utiliser le calculateur fermentescibles pour relier OG, FG, atténuation et ABV.",
                 sourceIds: ["palmer-2017"],
               },
             ],
           },
           {
             id: "attenuation",
-            title: "Estimer la FG avec l'attenuation",
+            title: "Estimer la FG avec l'atténuation",
             blocks: [
               {
                 id: "attenuation-paragraph-1",
@@ -838,7 +838,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "plages",
-            title: "Plages utiles pour se reperer",
+            title: "Plages utiles pour se repérer",
             blocks: [
               {
                 id: "plages-paragraph-1",
@@ -850,7 +850,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pieges",
-            title: "Pieges frequents a eviter",
+            title: "Pièges fréquents à éviter",
             blocks: [
               {
                 id: "pieges-paragraph-1",
@@ -933,7 +933,7 @@ export const academyCorpus: AcademyCorpus = {
         sections: [
           {
             id: "role-couleur",
-            title: "Pourquoi la couleur est un repere cle",
+            title: "Pourquoi la couleur est un repère clé",
             blocks: [
               {
                 id: "role-couleur-paragraph-1",
@@ -958,7 +958,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes",
-            title: "Reperes rapides",
+            title: "Repères rapides",
             blocks: [
               {
                 id: "reperes-paragraph-1",
@@ -1030,7 +1030,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pieges",
-            title: "Pieges frequents a eviter",
+            title: "Pièges fréquents à éviter",
             blocks: [
               {
                 id: "pieges-paragraph-1",
@@ -1124,7 +1124,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes",
-            title: "Reperes rapides",
+            title: "Repères rapides",
             blocks: [
               {
                 id: "reperes-paragraph-1",
@@ -1158,14 +1158,14 @@ export const academyCorpus: AcademyCorpus = {
                 calculatorSlug: "carbonatation",
                 title: "Calculer le sucre de priming",
                 description:
-                  "Utiliser le calculateur carbonatation pour relier volume, temperature, cible CO2 et type de sucre.",
+                  "Utiliser le calculateur carbonatation pour relier volume, température, cible CO2 et type de sucre.",
                 sourceIds: ["palmer-2017"],
               },
             ],
           },
           {
             id: "co2-residuel",
-            title: "CO2 residuel et temperature",
+            title: "CO2 résiduel et température",
             blocks: [
               {
                 id: "co2-residuel-paragraph-1",
@@ -1220,7 +1220,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "securite",
-            title: "Pieges et securite",
+            title: "Pièges et sécurité",
             blocks: [
               {
                 id: "securite-paragraph-1",
@@ -1339,7 +1339,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes",
-            title: "Reperes rapides",
+            title: "Repères rapides",
             blocks: [
               {
                 id: "reperes-paragraph-1",
@@ -1380,7 +1380,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "plages",
-            title: "Rendements realistes",
+            title: "Rendements réalistes",
             blocks: [
               {
                 id: "plages-paragraph-1",
@@ -1392,7 +1392,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pertes",
-            title: "Ou se perd le rendement",
+            title: "Où se perd le rendement",
             blocks: [
               {
                 id: "pertes-paragraph-1",
@@ -1430,7 +1430,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "methode",
-            title: "Methode de progression",
+            title: "Méthode de progression",
             blocks: [
               {
                 id: "methode-paragraph-1",
@@ -1442,7 +1442,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "pieges",
-            title: "Pieges frequents a eviter",
+            title: "Pièges fréquents à éviter",
             blocks: [
               {
                 id: "pieges-paragraph-1",
@@ -1734,7 +1734,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "lire-entree",
-            title: "Comment lire une entree",
+            title: "Comment lire une entrée",
             blocks: [
               {
                 id: "lire-entree-paragraph-1",
@@ -1780,7 +1780,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "reperes",
-            title: "Reperes incontournables",
+            title: "Repères incontournables",
             blocks: [
               {
                 id: "reperes-paragraph-1",
@@ -1799,7 +1799,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "confusions",
-            title: "Confusions frequentes",
+            title: "Confusions fréquentes",
             blocks: [
               {
                 id: "confusions-paragraph-1",
@@ -1811,7 +1811,7 @@ export const academyCorpus: AcademyCorpus = {
           },
           {
             id: "methode",
-            title: "Methode d'apprentissage rapide",
+            title: "Méthode d'apprentissage rapide",
             blocks: [
               {
                 id: "methode-paragraph-1",
@@ -1931,12 +1931,12 @@ export const academyCorpus: AcademyCorpus = {
     },
   ],
   calculatorSlugs: [
-    "houblons",
-    "levures",
-    "eau",
     "fermentescibles",
+    "houblons",
     "couleur",
+    "levures",
     "carbonatation",
+    "eau",
     "rendement",
     "avances",
   ],

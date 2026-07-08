@@ -53,11 +53,11 @@ L'eau represente la tres grande majorite du volume final d'une biere. Elle
 pilote aussi le pH d'empatage, l'extraction des sucres, la perception de
 l'amertume et l'equilibre entre secheresse houblonnee et rondeur maltee.
 
-:::glossaryReference id="water-profile-reference" termSlug="profil-mineral" label="Profil mineral" sourceIds="brun-water-knowledge":::
+:::glossaryReference id="water-profile-reference" termSlug="profil-mineral" label="Profil minéral" sourceIds="brun-water-knowledge":::
 
-:::definition id="definition-profil-mineral" term="Profil mineral" definition="Composition de l'eau en ions principaux comme calcium, magnesium, sodium, sulfates, chlorures et bicarbonates." sourceIds="brun-water-knowledge":::
+:::definition id="definition-profil-mineral" term="Profil minéral" definition="Composition de l'eau en ions principaux comme calcium, magnesium, sodium, sulfates, chlorures et bicarbonates." sourceIds="brun-water-knowledge":::
 
-## Les 6 ions a connaitre {#ions-principaux}
+## Les 6 ions à connaître {#ions-principaux}
 
 Les corrections d'eau deviennent plus simples quand on se concentre d'abord sur
 les ions les plus utiles au brasseur. Le calcium aide le pH, la clarte et la
@@ -69,7 +69,7 @@ eau calcaire.
 
 :::example id="example-sulfate-chloride" title="Lecture rapide" body="A valeurs raisonnables, plus de sulfates pousse une IPA vers un profil sec et net ; plus de chlorures soutient une biere plus ronde et maltee." sourceIds="brun-water-knowledge":::
 
-## Le pH a chaque etape {#ph-empatage}
+## Le pH à chaque étape {#ph-empatage}
 
 Le repere principal pendant l'empatage reste une zone autour de 5,2 a 5,6.
 En dehors de cette zone, les enzymes travaillent moins bien et la biere perd en
@@ -79,7 +79,7 @@ un pH trop bas peut rendre le profil agressif.
 
 :::definition id="definition-mash-ph" term="pH d'empatage" definition="Mesure d'acidite de la maische. Elle influence l'activite enzymatique, l'extraction et la nettete aromatique." sourceIds="brun-water-knowledge":::
 
-## Alcalinite residuelle et ratio SO4/Cl {#alcalinite-ratio}
+## Alcalinité résiduelle et ratio SO4/Cl {#alcalinite-ratio}
 
 L'alcalinite residuelle resume la capacite de l'eau a resister a
 l'acidification des malts. Plus elle est elevee, plus le pH a tendance a
@@ -92,7 +92,7 @@ biere au gout mineral, chimique ou metallique.
 
 :::example id="example-ra-style" title="Adapter au style" body="Une eau a RA faible convient mieux aux bieres pales. Une RA plus elevee peut aider certains styles fonces, dont les malts acidifient davantage la maische." sourceIds="brun-water-knowledge":::
 
-## Methode simple et fiable {#methode}
+## Méthode simple et fiable {#methode}
 
 Commencer par lire l'analyse d'eau : calcium, magnesium, sodium, sulfates,
 chlorures et bicarbonates. Choisir ensuite une cible de style, puis reduire en
@@ -114,7 +114,7 @@ raisonnables.
 
 :::example id="example-ipa-water" title="Ordre de correction" body="Diluer d'abord une eau trop bicarbonatee, ajuster ensuite avec les sels, puis verifier le pH mesure plutot que de se fier uniquement au calcul." sourceIds="brun-water-knowledge":::
 
-## Pieges frequents a eviter {#pieges}
+## Pièges fréquents à éviter {#pieges}
 
 Les erreurs les plus courantes sont d'ajuster les sels sans mesurer le pH de
 maische, de se focaliser sur le ratio SO4/Cl sans regarder les ppm reels, de

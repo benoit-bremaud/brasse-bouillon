@@ -60,7 +60,7 @@ repere principal pour comprendre la structure d'une biere.
 
 :::example id="example-malt-role" title="Lecture simple" body="Augmenter la charge de malt augmente souvent l'OG et donc le potentiel alcool, mais le type de malt et le profil d'empatage influencent aussi le corps et la FG." sourceIds="palmer-2017":::
 
-## Reperes rapides {#reperes}
+## Repères rapides {#reperes}
 
 OG signifie Original Gravity : c'est la densite du mout avant fermentation. FG
 signifie Final Gravity : c'est la densite apres fermentation. ABV exprime le
@@ -87,9 +87,9 @@ multiplie par 131,25. Elle transforme un ecart de densite en estimation du
 pourcentage d'alcool. Ce n'est pas une loi physique parfaite, mais c'est un
 repere fiable pour le brassage amateur.
 
-:::calculatorCta id="fermentables-calculator" calculatorSlug="fermentescibles" title="Estimer alcool et attenuation" description="Utiliser le calculateur fermentescibles pour relier OG, FG, attenuation et ABV." sourceIds="palmer-2017":::
+:::calculatorCta id="fermentables-calculator" calculatorSlug="fermentescibles" title="Estimer alcool et atténuation" description="Utiliser le calculateur fermentescibles pour relier OG, FG, atténuation et ABV." sourceIds="palmer-2017":::
 
-## Estimer la FG avec l'attenuation {#attenuation}
+## Estimer la FG avec l'atténuation {#attenuation}
 
 L'attenuation annoncee par une levure aide a prevoir une FG realiste avant le
 brassage. Une Ale se situe souvent autour de 70 a 85% d'attenuation apparente,
@@ -99,7 +99,7 @@ sucres residuels.
 
 :::definition id="definition-attenuation" term="Attenuation apparente" definition="Pourcentage de baisse de densite observe entre OG et FG. Elle estime la part des sucres consommee pendant la fermentation." sourceIds="palmer-2017":::
 
-## Plages utiles pour se reperer {#plages}
+## Plages utiles pour se repérer {#plages}
 
 Une OG autour de 1,044 a 1,050 correspond souvent a des bieres legeres. Une OG
 autour de 1,055 a 1,070 correspond a de nombreuses IPA et bieres plus fortes.
@@ -107,7 +107,7 @@ Une FG autour de 1,008 a 1,012 donne souvent une finale seche ; une FG au-dessus
 de 1,015 donne souvent plus de douceur et de corps. En brassage maison, beaucoup
 de recettes courantes se situent entre 4% et 7% ABV.
 
-## Pieges frequents a eviter {#pieges}
+## Pièges fréquents à éviter {#pieges}
 
 Les erreurs les plus courantes sont de lire la densite sans corriger la
 temperature de mesure, de melanger SG, degres Plato et points sans conversion,

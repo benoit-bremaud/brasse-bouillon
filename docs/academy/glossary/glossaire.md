@@ -53,7 +53,7 @@ relier chaque terme a une action concrete.
 
 :::example id="example-vocabulary-decision" title="Vocabulaire utile" body="IBU aide a raisonner l'amertume calculee, mais ne remplace pas la degustation. Le mot est utile seulement si on sait aussi ce qu'il mesure et ce qu'il ne mesure pas." sourceIds="palmer-2017":::
 
-## Comment lire une entree {#lire-entree}
+## Comment lire une entrée {#lire-entree}
 
 Une bonne entree de glossaire doit donner une definition simple, l'unite
 associee quand elle existe, l'impact pratique sur le process, puis la confusion
@@ -74,7 +74,7 @@ rate, floculation, repos diacetyle et nutriments de levure.
 
 :::definition id="definition-mesure-cible" term="Mesure, calcul et cible" definition="Une mesure vient d'un instrument, un calcul derive une valeur, et une cible represente l'objectif process choisi pour une recette." sourceIds="palmer-2017":::
 
-## Reperes incontournables {#reperes}
+## Repères incontournables {#reperes}
 
 Les premiers reperes a maitriser sont OG pour la densite initiale, FG pour la
 densite finale, ABV pour l'alcool, IBU pour l'amertume calculee, EBC ou SRM
@@ -84,7 +84,7 @@ l'eau, et volumes CO2 pour la carbonatation.
 
 :::glossaryReference id="reference-acide-alpha" termSlug="acide-alpha" label="Acide alpha" sourceIds="palmer-2017":::
 
-## Confusions frequentes {#confusions}
+## Confusions fréquentes {#confusions}
 
 Les confusions les plus courantes sont de melanger OG et FG avec ABV, de
 confondre EBC du malt et couleur finale de la biere, de prendre les IBU
@@ -92,7 +92,7 @@ theoriques pour l'amertume reellement percue, de melanger SG, points et degres
 Plato sans conversion, ou de comparer un pH mesure a chaud avec une cible
 prevue a temperature de lecture.
 
-## Methode d'apprentissage rapide {#methode}
+## Méthode d'apprentissage rapide {#methode}
 
 Commencer par memoriser les reperes essentiels, puis associer chaque terme a
 une decision concrete : corriger une recette, choisir une levure, ajuster l'eau

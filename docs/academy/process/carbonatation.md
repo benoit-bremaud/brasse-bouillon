@@ -58,7 +58,7 @@ de surpression.
 
 :::example id="example-carbonation-style" title="Lecture sensorielle" body="Une Bitter anglaise reste souvent peu petillante et douce au service, alors qu'une Saison ou une Weizen peut demander une carbonatation nettement plus elevee avec un contenant adapte." sourceIds="palmer-2017":::
 
-## Reperes rapides {#reperes}
+## Repères rapides {#reperes}
 
 Un volume de CO2 signifie un litre de CO2 dissous dans un litre de biere. La
 biere contient deja du CO2 residuel apres fermentation, et cette quantite depend
@@ -77,9 +77,9 @@ sucre en grammes environ egal a CO2 cible moins CO2 residuel, multiplie par le
 volume en litres, puis par 4,0. Pour du saccharose, la quantite est legerement
 plus faible, avec un coefficient pratique autour de 3,8.
 
-:::calculatorCta id="carbonation-calculator" calculatorSlug="carbonatation" title="Calculer le sucre de priming" description="Utiliser le calculateur carbonatation pour relier volume, temperature, cible CO2 et type de sucre." sourceIds="palmer-2017":::
+:::calculatorCta id="carbonation-calculator" calculatorSlug="carbonatation" title="Calculer le sucre de priming" description="Utiliser le calculateur carbonatation pour relier volume, température, cible CO2 et type de sucre." sourceIds="palmer-2017":::
 
-## CO2 residuel et temperature {#co2-residuel}
+## CO2 résiduel et température {#co2-residuel}
 
 Le CO2 residuel doit etre estime avec la temperature la plus haute atteinte par
 la biere avant conditionnement, pas seulement la temperature du jour de mise en
@@ -113,7 +113,7 @@ depend de la temperature de service et de la pression appliquee. En bouteille,
 l'homogeneisation du sirop de sucre est essentielle pour eviter des bouteilles
 sous-carbonatees et d'autres sur-carbonatees.
 
-## Pieges et securite {#securite}
+## Pièges et sécurité {#securite}
 
 Ne jamais embouteiller une biere dont la FG n'est pas stable. Une fermentation
 encore active peut creer une surpression dangereuse. Les autres erreurs

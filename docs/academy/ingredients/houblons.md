@@ -41,7 +41,7 @@ review:
     - Initial pilot article review.
 ---
 
-## Role du houblon {#role-du-houblon}
+## Rôle du houblon {#role-du-houblon}
 
 Le houblon apporte principalement de l'amertume, des aromes, des saveurs et une
 part de stabilite microbiologique. Pour un debutant, la premiere distinction a

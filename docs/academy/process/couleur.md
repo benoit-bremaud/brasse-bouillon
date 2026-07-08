@@ -45,7 +45,7 @@ review:
     - Migrated from the legacy mobile Academy color topic.
 ---
 
-## Pourquoi la couleur est un repere cle {#role-couleur}
+## Pourquoi la couleur est un repère clé {#role-couleur}
 
 La couleur n'est pas seulement esthetique. Elle annonce souvent une partie du
 profil attendu : biere pale et legere, ambrage caramelise, ou expression
@@ -59,7 +59,7 @@ fermentation ou le process changent.
 
 :::example id="example-style-color" title="Lecture rapide" body="Une Pilsner tres claire attend un profil net et leger ; une Stout noire annonce souvent des malts torrefies et une perception plus intense." sourceIds="palmer-2017":::
 
-## Reperes rapides {#reperes}
+## Repères rapides {#reperes}
 
 La couleur de la biere depend surtout des malts et du volume final. Le MCU est
 une unite intermediaire calculee depuis les malts. Le SRM est l'echelle souvent
@@ -94,7 +94,7 @@ paille ou dore clair jusqu'a 6, dore jusqu'a 10, ambre clair jusqu'a 15, ambre
 jusqu'a 22, brun clair jusqu'a 30, brun jusqu'a 35, puis tres fonce ou noir.
 L'equivalent EBC est obtenu ensuite par conversion depuis le SRM.
 
-## Pieges frequents a eviter {#pieges}
+## Pièges fréquents à éviter {#pieges}
 
 Les erreurs les plus courantes sont de confondre l'EBC du malt avec l'EBC final
 de la biere, d'oublier l'impact du volume final, de croire que MCU et SRM sont

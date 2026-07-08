@@ -1830,9 +1830,10 @@ export const academyCorpus: AcademyCorpus = {
       slug: "ibu",
       label: "IBU",
       aliases: ["International Bitterness Units"],
-      shortDefinition: "Bitterness estimate used for beer recipes.",
+      shortDefinition:
+        "Estimation de l'amertume utilisee dans les recettes de biere.",
       detailedDefinition:
-        "IBU estimates the concentration of bittering compounds contributed mostly by hops after boiling.",
+        "L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.",
       relatedTerms: ["acide-alpha"],
       sources: [
         {
@@ -1852,9 +1853,10 @@ export const academyCorpus: AcademyCorpus = {
       slug: "acide-alpha",
       label: "Acide alpha",
       aliases: ["alpha acid"],
-      shortDefinition: "Hop resin contributing to beer bitterness.",
+      shortDefinition:
+        "Compose du houblon qui contribue au potentiel d'amertume.",
       detailedDefinition:
-        "Alpha acids are hop compounds that isomerize during boiling and contribute bitterness.",
+        "Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.",
       relatedTerms: ["ibu"],
       sources: [
         {
@@ -1874,9 +1876,9 @@ export const academyCorpus: AcademyCorpus = {
       slug: "profil-mineral",
       label: "Profil mineral",
       aliases: ["water profile"],
-      shortDefinition: "Mineral composition of brewing water.",
+      shortDefinition: "Composition minerale de l'eau de brassage.",
       detailedDefinition:
-        "A mineral profile summarizes ions such as calcium, sulfate, chloride, sodium, magnesium, and bicarbonate.",
+        "Le profil mineral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.",
       relatedTerms: [],
       sources: [
         {

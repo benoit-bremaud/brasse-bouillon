@@ -23,8 +23,8 @@ const glossaryYaml = `
   label: IBU
   aliases:
     - International Bitterness Units
-  short_definition: Bitterness estimate used for beer recipes.
-  detailed_definition: IBU expresses the estimated concentration of bittering compounds from hops in beer.
+  short_definition: Estimation de l'amertume utilisee dans les recettes de biere.
+  detailed_definition: L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.
   related_terms: []
   source_ids:
     - palmer-2017

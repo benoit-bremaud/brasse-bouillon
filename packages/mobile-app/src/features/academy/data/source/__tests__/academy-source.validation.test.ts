@@ -35,9 +35,10 @@ const glossaryTerms = [
     slug: "ibu",
     label: "IBU",
     aliases: ["International Bitterness Units"],
-    short_definition: "Bitterness estimate used for beer recipes.",
+    short_definition:
+      "Estimation de l'amertume utilisee dans les recettes de biere.",
     detailed_definition:
-      "IBU expresses the estimated concentration of bittering compounds from hops in beer.",
+      "L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.",
     related_terms: ["acide-alpha"],
     source_ids: ["palmer-2017"],
   },
@@ -45,9 +46,10 @@ const glossaryTerms = [
     slug: "acide-alpha",
     label: "Acide alpha",
     aliases: ["alpha acid"],
-    short_definition: "Hop resin contributing to beer bitterness.",
+    short_definition:
+      "Compose du houblon qui contribue au potentiel d'amertume.",
     detailed_definition:
-      "Alpha acids are hop compounds that isomerize during boiling and contribute bitterness.",
+      "Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.",
     related_terms: ["ibu"],
     source_ids: ["palmer-2017"],
   },

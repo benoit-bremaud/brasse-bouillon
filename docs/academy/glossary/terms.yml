@@ -2,8 +2,8 @@
   label: IBU
   aliases:
     - International Bitterness Units
-  short_definition: Bitterness estimate used for beer recipes.
-  detailed_definition: IBU estimates the concentration of bittering compounds contributed mostly by hops after boiling.
+  short_definition: Estimation de l'amertume utilisee dans les recettes de biere.
+  detailed_definition: L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.
   related_terms:
     - acide-alpha
   source_ids:
@@ -13,8 +13,8 @@
   label: Acide alpha
   aliases:
     - alpha acid
-  short_definition: Hop resin contributing to beer bitterness.
-  detailed_definition: Alpha acids are hop compounds that isomerize during boiling and contribute bitterness.
+  short_definition: Compose du houblon qui contribue au potentiel d'amertume.
+  detailed_definition: Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.
   related_terms:
     - ibu
   source_ids:
@@ -24,8 +24,8 @@
   label: Profil mineral
   aliases:
     - water profile
-  short_definition: Mineral composition of brewing water.
-  detailed_definition: A mineral profile summarizes ions such as calcium, sulfate, chloride, sodium, magnesium, and bicarbonate.
+  short_definition: Composition minerale de l'eau de brassage.
+  detailed_definition: Le profil mineral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.
   related_terms: []
   source_ids:
     - brun-water-knowledge

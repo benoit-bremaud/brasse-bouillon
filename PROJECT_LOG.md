@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-09
 
+### PR #1376 merged (`c8049bc`) — feat(mobile/recipes): dated water freshness pastille (water-profile PR-B)
+
+- Branch `feat/mobile-water-freshness`, 1 commit (`9281021`). Mobile PR-B of the water-profile epic — the dated freshness pastille on the recipe Water tab, consuming the additive `freshnessDate` from slice-2 #1374. `LiveWaterProfilePanel` renders green « Récent » (< 6 mo) / orange « À confirmer » (6–24 mo) / grey « Ancien » (> 24 mo) + « Dernière analyse : JJ/MM/AAAA », falling back to the year-granular line when no date. Pure `describeWaterFreshness(date, now)` in the use-case (now injected, testable); `LiveWaterProfile` + the DTO mapper gain the field. Full mobile suite green (1376 tests). **The water leg is now complete end-to-end** (slice-1 #1358, slice-2 backend #1374, this pastille).
+- Refs #1374, #1355.
+- Reviews — pre-push `pr-pre-reviewer` (0 Must, 1 Should): a future `freshnessDate` no longer renders a reassuring « Récent » (ADR-0025 anti-anomaly), with a test. A follow-up automated review: boundary alignment — exactly 24 months is now orange (was grey), matching the documented 6–24 / > 24 rule; both sides of the boundary tested. CI green, 2 threads resolved.
+
 ### PR #1374 merged (`7b91011`) — feat(api/water): append-only cache + conditional sync for /water (water-profile slice 2)
 
 - Branch `feat/api-water-cache`, 1 commit (`d71f494`). Backend slice-2 of the water-profile epic ([ADR-0025](docs/architecture/decisions/0025-water-profile-geolocation-and-caching.md) § Slice-2), on top of slice-1 #1358. `GET /water` is now cache-backed: new append-only `water_measurements` table (migration `1809`) keyed uniquely on `(code_reseau, code_parametre, date_prelevement, code_prelevement)`; `WaterMeasurementCacheService` (append idempotent via `INSERT OR IGNORE`, max-date, bounded newest-N read); `WaterService` gains a conditional sync (cheap `size=1` `sort=desc` date-check gate → full fetch + append only when Hub'Eau is newer) with a DB fallback on any Hub'Eau outage; the DTO gains an additive `freshnessDate` (`max(date_prelevement)`). Endpoint contract otherwise unchanged (mobile unaffected; the dated-pastille render is a follow-up PR-B). 69 water unit tests; migration validated end-to-end. Public ARS/Hub'Eau data, not PII. ADR-0025 promoted `Proposed` → `Accepted` + added to the CLAUDE.md index in this same docs PR.

@@ -1,0 +1,22 @@
+Self-hosted webfonts — provenance & licensing
+==============================================
+
+The .woff2 files in this directory were fetched from the Google Fonts API
+(latin + latin-ext subsets only) and are served locally so no visitor IP is
+sent to Google (RGPD). To regenerate, run `python scripts/fetch_fonts.py` from
+the package root — it fetches these exact specs with a browser User-Agent and
+keeps only the `latin` / `latin-ext` subsets:
+
+  Inter:    https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap
+  Fraunces: https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap
+
+Families / weights shipped:
+  - Inter    — 400, 500, 600, 700, 800  (normal)
+  - Fraunces — 500, 700, 900            (normal)
+  Each in `latin` and `latin-ext` subsets.
+
+Licences (both permit self-hosting and redistribution):
+  - Inter — SIL Open Font License 1.1 — https://github.com/rsms/inter/blob/master/LICENSE.txt
+  - Fraunces — SIL Open Font License 1.1 — https://github.com/undercasetype/Fraunces/blob/master/OFL.txt
+
+The @font-face rules that reference these files live in ../fonts.css.

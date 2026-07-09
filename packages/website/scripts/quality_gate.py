@@ -30,6 +30,7 @@ REQUIRED_FILES = [
     "README.md",
     "CONTRIBUTING.md",
     "favicon.ico",
+    "fonts.css",
     "sitemap.xml",
     "robots.txt",
     "feedback-widget.js",
@@ -324,6 +325,23 @@ def check_clean_seo_urls(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_no_external_fonts(root: Path = ROOT) -> list[str]:
+    """Fonts are self-hosted (RGPD: no visitor IP sent to Google before
+    consent). No HTML page or CSS file may reference the Google Fonts CDN —
+    guards against re-introducing the external font dependency (via a page
+    <link>, or a CSS `@import`/`url()`) removed in the self-host change."""
+    pattern = re.compile(r"fonts\.(?:googleapis|gstatic)\.com", flags=REGEX_FLAGS)
+    errors: list[str] = []
+    files = sorted(root.glob("*.html")) + sorted(root.glob("*.css"))
+    for path in files:
+        if pattern.search(path.read_text(encoding="utf-8")):
+            errors.append(
+                f"{path.name}: référence à Google Fonts (fonts.googleapis/gstatic.com) "
+                "— les polices doivent être auto-hébergées (/fonts.css)"
+            )
+    return errors
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -333,6 +351,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
     errors.extend(check_clean_seo_urls(root))
+    errors.extend(check_no_external_fonts(root))
     return errors
 
 

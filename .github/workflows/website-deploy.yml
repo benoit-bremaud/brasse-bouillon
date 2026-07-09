@@ -74,6 +74,15 @@ jobs:
           if [ -d "$src/screenshots" ]; then
             cp -R "$src/screenshots" _site/screenshots
           fi
+          # Self-hosted webfonts (.woff2). Not matched by the extension globs
+          # above, so the fonts/ directory is staged explicitly — without it
+          # /fonts/*.woff2 would 404 and pages fall back to system fonts.
+          if [ -d "$src/fonts" ]; then
+            cp -R "$src/fonts" _site/fonts
+            # Provenance/licence note is repo-only — keep it out of the
+            # deployed payload so /fonts/* is exclusively immutable .woff2.
+            rm -f _site/fonts/_source.txt
+          fi
 
           # Public docs explicitly linked from the homepage. ROADMAP.md
           # is reachable via `<a href="docs/ROADMAP.md">` on both

@@ -46,6 +46,14 @@ export class WaterProfileDto {
   @ApiPropertyOptional({ nullable: true, example: 55.9 })
   hardnessFrench: number | null;
 
+  @ApiPropertyOptional({
+    nullable: true,
+    example: '2024-03-15',
+    description:
+      'Most recent sampling date (max date_prelevement, YYYY-MM-DD) — honest data currency, never the fetch date. Present whenever a profile is returned; null only if no returned sample carries a date.',
+  })
+  freshnessDate: string | null;
+
   static fromEntity(entity: WaterProfileEntity): WaterProfileDto {
     const dto = new WaterProfileDto();
     dto.provider = entity.provider;
@@ -62,6 +70,7 @@ export class WaterProfileDto {
       hco3: entity.mineralsMgL.hco3,
     };
     dto.hardnessFrench = entity.hardnessFrench;
+    dto.freshnessDate = entity.freshnessDate;
     return dto;
   }
 }

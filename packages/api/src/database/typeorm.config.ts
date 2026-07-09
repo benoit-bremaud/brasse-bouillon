@@ -37,6 +37,7 @@ import { StyleOrmEntity } from '../catalog/style/entities/style.orm.entity';
 import { TastingOrmEntity } from '../batch/entities/tasting.orm.entity';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { WaterMeasurementOrmEntity } from '../water/entities/water-measurement.orm.entity';
 import { WaterOrmEntity } from '../catalog/water/entities/water.orm.entity';
 import { YeastDistributorOrmEntity } from '../catalog/yeast/entities/yeast-distributor.orm.entity';
 import { YeastOrmEntity } from '../catalog/yeast/entities/yeast.orm.entity';
@@ -73,6 +74,7 @@ export const ormEntities = [
   MashProfileOrmEntity,
   MashStepOrmEntity,
   WaterOrmEntity,
+  WaterMeasurementOrmEntity,
   EquipmentTemplateOrmEntity,
   MiscTemplateOrmEntity,
   ProducerOrmEntity,

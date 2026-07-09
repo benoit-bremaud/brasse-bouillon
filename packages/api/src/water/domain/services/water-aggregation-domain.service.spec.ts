@@ -1,6 +1,17 @@
 import { WaterAggregationDomainService } from './water-aggregation-domain.service';
 import { WaterConformity } from '../enums/water-conformity.enum';
 import { WaterProviderKey } from '../enums/water-provider-key.enum';
+import type { WaterSample } from '../ports/water-quality-provider.port';
+
+const sample = (overrides: Partial<WaterSample> = {}): WaterSample => ({
+  parameterLabel: 'Calcium',
+  numericResult: 50,
+  conformity: 'C',
+  parameterCode: '1374',
+  datePrelevement: '2024-03-15',
+  codePrelevement: 'P-1',
+  ...overrides,
+});
 
 describe('WaterAggregationDomainService', () => {
   const service = new WaterAggregationDomainService();
@@ -13,31 +24,19 @@ describe('WaterAggregationDomainService', () => {
       networkName: 'NANTES SUD',
       maxSamples: 50,
       samples: [
-        {
+        sample({
           parameterLabel: 'Calcium',
           numericResult: 50,
           conformity: 'c',
-        },
-        {
+        }),
+        sample({
           parameterLabel: 'Calcium',
           numericResult: 54,
           conformity: 'c',
-        },
-        {
-          parameterLabel: 'Magnesium',
-          numericResult: 8,
-          conformity: 'C',
-        },
-        {
-          parameterLabel: 'Sulfates',
-          numericResult: 27.2,
-          conformity: 'C',
-        },
-        {
-          parameterLabel: 'Hydrogénocarbonates',
-          numericResult: 141.1,
-          conformity: 'C',
-        },
+        }),
+        sample({ parameterLabel: 'Magnesium', numericResult: 8 }),
+        sample({ parameterLabel: 'Sulfates', numericResult: 27.2 }),
+        sample({ parameterLabel: 'Hydrogénocarbonates', numericResult: 141.1 }),
       ],
     });
 
@@ -65,16 +64,16 @@ describe('WaterAggregationDomainService', () => {
       networkName: null,
       maxSamples: 10,
       samples: [
-        {
+        sample({
           parameterLabel: 'Unknown',
           numericResult: 50,
           conformity: 'X',
-        },
-        {
+        }),
+        sample({
           parameterLabel: 'Calcium',
           numericResult: null,
           conformity: null,
-        },
+        }),
       ],
     });
 
@@ -95,16 +94,8 @@ describe('WaterAggregationDomainService', () => {
       networkName: 'MARSEILLE',
       maxSamples: 1,
       samples: [
-        {
-          parameterLabel: 'Calcium',
-          numericResult: 10,
-          conformity: 'C',
-        },
-        {
-          parameterLabel: 'Calcium',
-          numericResult: 100,
-          conformity: 'C',
-        },
+        sample({ parameterLabel: 'Calcium', numericResult: 10 }),
+        sample({ parameterLabel: 'Calcium', numericResult: 100 }),
       ],
     });
 
@@ -120,21 +111,21 @@ describe('WaterAggregationDomainService', () => {
       networkName: 'BORDEAUX',
       maxSamples: 10,
       samples: [
-        {
+        sample({
           parameterLabel: 'Calcium',
           numericResult: 40,
           conformity: 'C',
-        },
-        {
+        }),
+        sample({
           parameterLabel: 'Magnesium',
           numericResult: 6,
           conformity: 'D',
-        },
-        {
+        }),
+        sample({
           parameterLabel: 'Sulfates',
           numericResult: 20,
           conformity: 'N',
-        },
+        }),
       ],
     });
 
@@ -149,21 +140,9 @@ describe('WaterAggregationDomainService', () => {
       networkName: 'QUIMPER',
       maxSamples: 10,
       samples: [
-        {
-          parameterLabel: 'Magnesium',
-          numericResult: 9,
-          conformity: 'C',
-        },
-        {
-          parameterLabel: 'Chlorures',
-          numericResult: 17,
-          conformity: 'C',
-        },
-        {
-          parameterLabel: 'Hydrogénocarbonates',
-          numericResult: 122,
-          conformity: 'C',
-        },
+        sample({ parameterLabel: 'Magnesium', numericResult: 9 }),
+        sample({ parameterLabel: 'Chlorures', numericResult: 17 }),
+        sample({ parameterLabel: 'Hydrogénocarbonates', numericResult: 122 }),
       ],
     });
 
@@ -185,25 +164,57 @@ describe('WaterAggregationDomainService', () => {
       networkName: 'LILLE',
       maxSamples: 50,
       samples: [
-        { parameterLabel: 'Chlore libre', numericResult: 0.3, conformity: 'C' },
-        {
+        sample({ parameterLabel: 'Chlore libre', numericResult: 0.3 }),
+        sample({
           parameterLabel: 'Chlorure de vinyl monomère',
           numericResult: 0.4,
-          conformity: 'C',
-        },
-        { parameterLabel: 'Chloroforme', numericResult: 5, conformity: 'C' },
-        { parameterLabel: 'Carbonates', numericResult: 10, conformity: 'C' },
-        { parameterLabel: 'Chlorures', numericResult: 51, conformity: 'C' },
-        {
-          parameterLabel: 'Hydrogénocarbonates',
-          numericResult: 340,
-          conformity: 'C',
-        },
+        }),
+        sample({ parameterLabel: 'Chloroforme', numericResult: 5 }),
+        sample({ parameterLabel: 'Carbonates', numericResult: 10 }),
+        sample({ parameterLabel: 'Chlorures', numericResult: 51 }),
+        sample({ parameterLabel: 'Hydrogénocarbonates', numericResult: 340 }),
       ],
     });
 
     // Only the real ions are aggregated — the compounds are ignored.
     expect(profile.mineralsMgL.cl).toBe(51);
     expect(profile.mineralsMgL.hco3).toBe(340);
+  });
+
+  it('exposes the most recent sampling date as the freshness signal (over the full set)', () => {
+    const profile = service.aggregate({
+      provider: WaterProviderKey.HUBEAU,
+      codeInsee: '59350',
+      year: 2024,
+      networkName: 'LILLE',
+      maxSamples: 1, // freshness must consider all samples, not just the capped slice
+      samples: [
+        sample({ numericResult: 50, datePrelevement: '2024-02-01' }),
+        sample({ numericResult: 52, datePrelevement: '2024-11-20' }),
+        sample({ numericResult: 48, datePrelevement: '2024-06-10' }),
+      ],
+    });
+
+    expect(profile.freshnessDate).toBe('2024-11-20');
+  });
+
+  it('returns a null freshness date when no sample carries one', () => {
+    const profile = service.aggregate({
+      provider: WaterProviderKey.HUBEAU,
+      codeInsee: '59350',
+      year: 2024,
+      networkName: 'LILLE',
+      maxSamples: 50,
+      samples: [
+        sample({ datePrelevement: null }),
+        sample({
+          parameterLabel: 'Magnesium',
+          numericResult: 8,
+          datePrelevement: null,
+        }),
+      ],
+    });
+
+    expect(profile.freshnessDate).toBeNull();
   });
 });

@@ -15,6 +15,9 @@ const baseProfile: LiveWaterProfile = {
   conformity: "C",
   mineralsMgL: { ca: 116.7, mg: 21.2, cl: 50.2, so4: 98.9, hco3: 322.5 },
   hardnessFrench: 125.4,
+  // Null by default so the existing assertions exercise the year-line fallback;
+  // the dated-pastille branch has its own test below.
+  freshnessDate: null,
 };
 
 const withProfile = (patch: Partial<LiveWaterProfile>) => ({
@@ -105,5 +108,29 @@ describe("LiveWaterProfilePanel", () => {
       <LiveWaterProfilePanel profile={withProfile({ networkName: null })} />,
     );
     expect(screen.getByText("Réseau d'eau local")).toBeTruthy();
+  });
+
+  it("renders the dated freshness pastille when a freshnessDate is present", () => {
+    render(
+      <LiveWaterProfilePanel
+        profile={withProfile({ freshnessDate: "2024-03-15" })}
+      />,
+    );
+
+    expect(screen.getByTestId("water-freshness")).toBeTruthy();
+    expect(screen.getByText(/Dernière analyse : 15\/03\/2024/)).toBeTruthy();
+    // The year-granular fallback is replaced by the dated line.
+    expect(screen.queryByTestId("water-freshness-fallback")).toBeNull();
+    expect(screen.queryByText(/Analyses 2024/)).toBeNull();
+  });
+
+  it("falls back to the year-granular freshness line when no date is available", () => {
+    render(
+      <LiveWaterProfilePanel profile={withProfile({ freshnessDate: null })} />,
+    );
+
+    expect(screen.getByTestId("water-freshness-fallback")).toBeTruthy();
+    expect(screen.getByText(/Analyses 2024/)).toBeTruthy();
+    expect(screen.queryByTestId("water-freshness")).toBeNull();
   });
 });

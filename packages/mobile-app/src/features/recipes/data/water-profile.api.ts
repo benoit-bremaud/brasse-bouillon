@@ -63,6 +63,9 @@ interface WaterProfileDto {
   readonly conformity: string;
   readonly mineralsMgL: WaterMineralsMgLDto | null;
   readonly hardnessFrench: number | null;
+  // Added by slice-2 (ADR-0025). Optional here so a pre-slice-2 backend still
+  // maps cleanly to a null freshness date.
+  readonly freshnessDate?: string | null;
 }
 
 const CONFORMITY_VALUES: readonly WaterConformity[] = [
@@ -97,6 +100,7 @@ export function mapWaterProfile(dto: WaterProfileDto): LiveWaterProfile {
       hco3: minerals?.hco3 ?? null,
     },
     hardnessFrench: dto.hardnessFrench,
+    freshnessDate: dto.freshnessDate ?? null,
   };
 }
 

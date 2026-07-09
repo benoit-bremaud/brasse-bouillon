@@ -47,4 +47,49 @@ describe("AcademyTopicPlaceholderScreen", () => {
       params: { slug: "histoire" },
     });
   });
+
+  it("sad: renders the empty state and returns to the hub for an unknown topic", () => {
+    render(
+      <AcademyTopicPlaceholderScreen slugParam="__unknown__" mode="learn" />,
+    );
+
+    expect(screen.getByText("Impossible d'ouvrir cette page")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Retour à l'académie"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/academy");
+  });
+
+  it("edge: uses navigation back from the header when history exists", () => {
+    mockCanGoBack.mockReturnValue(true);
+
+    render(<AcademyTopicPlaceholderScreen slugParam="histoire" mode="learn" />);
+
+    fireEvent.press(screen.getByLabelText("Retour à l'écran précédent"));
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it("edge: falls back to the academy hub from the header without history", () => {
+    mockCanGoBack.mockReturnValue(false);
+
+    render(<AcademyTopicPlaceholderScreen slugParam="histoire" mode="learn" />);
+
+    fireEvent.press(screen.getByLabelText("Retour à l'écran précédent"));
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/academy");
+  });
+
+  it("edge: renders the calculator placeholder variant for mode=calculator", () => {
+    render(
+      <AcademyTopicPlaceholderScreen slugParam="histoire" mode="calculator" />,
+    );
+
+    expect(
+      screen.getByText("Le calculateur thématique arrive bientôt."),
+    ).toBeTruthy();
+    expect(screen.getByText("Calculateur")).toBeTruthy();
+  });
 });

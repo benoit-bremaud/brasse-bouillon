@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -50,12 +50,21 @@ export function CapacityFitPanel({ recipeId }: Props) {
     isLoading,
     isError,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["equipment-fit", recipeId],
     queryFn: ({ signal }) => loadEquipmentFit(recipeId, undefined, signal),
     enabled: recipeId.trim().length > 0,
     retry: false,
   });
+
+  // Re-check on focus so a fit computed while "no equipment" is refreshed after
+  // the user declares their equipment via the CTA and returns (ADR-0026).
+  useFocusEffect(
+    useCallback(() => {
+      void refetch();
+    }, [refetch]),
+  );
 
   return (
     <Card testID="capacity-fit-panel" style={styles.card}>

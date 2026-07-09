@@ -1,3 +1,4 @@
+import { dataSource } from "@/core/data/data-source";
 import { getEquipmentFit } from "@/features/recipes/data/equipment-fit.api";
 import type {
   CapacityFit,
@@ -5,12 +6,32 @@ import type {
   KettleReason,
 } from "@/features/recipes/domain/equipment-fit.types";
 
+/**
+ * Curated demo fit — a positive FITS/OK verdict. In demo mode the whole brew-prep
+ * flow is served locally, so we never call the live JWT-guarded endpoint (which
+ * the demo session cannot reach).
+ */
+const DEMO_FIT: CapacityFit = {
+  fermenter: "FITS",
+  fermenterReason: null,
+  kettle: "OK",
+  kettleReason: null,
+  fermenterUsableL: 4.5,
+  recipeVolumeL: 4.3,
+  preBoilL: 5,
+  kettleCapacityL: 10,
+  scaleRatio: null,
+};
+
 /** Load the advisory capacity fit-check for a recipe (ADR-0026). */
 export function loadEquipmentFit(
   recipeId: string,
   profileId?: string,
   signal?: AbortSignal,
 ): Promise<CapacityFit> {
+  if (dataSource.useDemoData) {
+    return Promise.resolve(DEMO_FIT);
+  }
   return getEquipmentFit(recipeId, profileId, signal);
 }
 

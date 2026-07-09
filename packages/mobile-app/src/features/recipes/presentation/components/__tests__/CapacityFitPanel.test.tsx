@@ -14,6 +14,7 @@ import type { CapacityFit } from "@/features/recipes/domain/equipment-fit.types"
 const mockPush = jest.fn();
 jest.mock("expo-router", () => ({
   useRouter: () => ({ push: mockPush }),
+  useFocusEffect: jest.fn(),
 }));
 
 jest.mock("@/features/recipes/application/equipment-fit.use-cases", () => ({

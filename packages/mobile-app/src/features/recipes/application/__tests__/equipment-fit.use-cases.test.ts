@@ -1,3 +1,4 @@
+import { dataSource } from "@/core/data/data-source";
 import { getEquipmentFit } from "@/features/recipes/data/equipment-fit.api";
 import {
   describeFit,
@@ -36,6 +37,18 @@ describe("loadEquipmentFit", () => {
     await loadEquipmentFit("recipe-1", "profile-9", signal);
 
     expect(mockGet).toHaveBeenCalledWith("recipe-1", "profile-9", signal);
+  });
+
+  it("returns a curated demo fit without hitting the API in demo mode", async () => {
+    dataSource.useDemoData = true;
+    try {
+      const result = await loadEquipmentFit("recipe-1");
+      expect(mockGet).not.toHaveBeenCalled();
+      expect(result.fermenter).toBe("FITS");
+      expect(result.kettle).toBe("OK");
+    } finally {
+      dataSource.useDemoData = false;
+    }
   });
 });
 

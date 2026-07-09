@@ -1,7 +1,7 @@
 # ADR-0025 — Local water profile: postal-code geolocation, live proxy first, append-only cache second
 
-**Status**  Proposed
-**Date**  2026-07-06
+**Status**  Accepted
+**Date**    2026-07-06 (accepted 2026-07-09, both slices shipped: slice-1 #1358, slice-2 #1374)
 **Owners**  @benoit-bremaud
 
 ---

@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-09
 
+### PR #1374 merged (`7b91011`) — feat(api/water): append-only cache + conditional sync for /water (water-profile slice 2)
+
+- Branch `feat/api-water-cache`, 1 commit (`d71f494`). Backend slice-2 of the water-profile epic ([ADR-0025](docs/architecture/decisions/0025-water-profile-geolocation-and-caching.md) § Slice-2), on top of slice-1 #1358. `GET /water` is now cache-backed: new append-only `water_measurements` table (migration `1809`) keyed uniquely on `(code_reseau, code_parametre, date_prelevement, code_prelevement)`; `WaterMeasurementCacheService` (append idempotent via `INSERT OR IGNORE`, max-date, bounded newest-N read); `WaterService` gains a conditional sync (cheap `size=1` `sort=desc` date-check gate → full fetch + append only when Hub'Eau is newer) with a DB fallback on any Hub'Eau outage; the DTO gains an additive `freshnessDate` (`max(date_prelevement)`). Endpoint contract otherwise unchanged (mobile unaffected; the dated-pastille render is a follow-up PR-B). 69 water unit tests; migration validated end-to-end. Public ARS/Hub'Eau data, not PII. ADR-0025 promoted `Proposed` → `Accepted` + added to the CLAUDE.md index in this same docs PR.
+- Refs #1358, #1355.
+- Reviews — pre-push adversarial multi-lens review: 1 MUST fixed (the full fetch was `size=100` unsorted vs the `sort=desc` gate → an arbitrary subset on a busy réseau that could gate off future syncs on an incomplete set; fixed with `sort=desc`) + 5 Should (bounded read, honest docs, test gaps). A follow-up automated review (fixed in `d71f494`): an empty-cache Hub'Eau outage now surfaces `502` not `404`; stale DTO description; `as string` casts replaced by a type guard. CI green, 3 threads resolved.
+- **Decisions**:
+  - `water-slice2-most-recent-bounded` — slice-2 aggregates the most-recent, bounded window of samples (DB read `sort=desc` + `limit`), a deterministic improvement over slice-1's arbitrary Hub'Eau-order page. Recorded in ADR-0025.
+
 ### PR #1366 merged (`b22477c`) — docs(adr): promote ADR-0026 to Accepted + CLAUDE.md index
 
 - Branch `docs/adr-0026-accepted`, 2 commits (`26c0b98`, `f5288e9`). Closes out the equipment fit-check leg (built end-to-end by #1362 + #1364): [ADR-0026](docs/architecture/decisions/0026-equipment-capacity-fit-check.md) `Proposed` → `Accepted` and added to the root [CLAUDE.md](CLAUDE.md) accepted-ADR index. Review also corrected [ADR-0022](docs/architecture/decisions/0022-public-faq-chatbot-llm.md) (FAQ chatbot), which was still `Proposed` while listed in that index though its decision shipped in #1293 → set to `Accepted`; verified the other 13 indexed ADRs are all Accepted. ADR-0026 header spacing realigned to the `README.md` template.

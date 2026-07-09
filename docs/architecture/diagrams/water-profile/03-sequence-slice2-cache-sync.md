@@ -53,6 +53,12 @@ sequenceDiagram
 - **Same key as slice 1**: slice 2 keeps `code_reseau` (the dominant network), so the aggregation
   semantics are unchanged; it only **adds** `code_prelevement` to the fetched `fields` (the live
   path does not request it) to key the append-only rows.
+- **Deterministic bounded read** (implemented in #1374): the full fetch and the DB read both order
+  by `date_prelevement DESC` — the fetch aligns with the `size=1` date-check gate (so the fetched
+  window always includes the max date the gate compares against, never an arbitrary page), and the
+  read returns the **most-recent, bounded** window. This aggregates the freshest samples
+  deterministically — an improvement over slice 1's arbitrary Hub'Eau-order page — and keeps
+  `sampleCount` stable as the append-only history accretes.
 - **Two-step sync is deliberate**: the size=1 date-check is cheap and gates the expensive full
   fetch — most lookups do **no** heavy call. Reduces Hub'Eau load and our latency.
 - **Append-only** (unique key `réseau + paramètre + date_prelevement + code_prelevement`) means

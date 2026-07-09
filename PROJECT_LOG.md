@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-09
+
+### PR #1364 merged (`df42a92`) — feat(mobile/recipes): render the equipment capacity fit-check (ADR-0026, PR-B)
+
+- Branch `feat/mobile-equipment-fit`, 2 commits (`30ec85a`, `1836c10`). Mobile (PR-B) of the brew-prep equipment leg — renders the [ADR-0026](docs/architecture/decisions/0026-equipment-capacity-fit-check.md) advisory fit-check on `BrewPrepScreen`. New self-fetching `CapacityFitPanel` (react-query) placed above the ingredient checklist: two legs (fermenteur / bouilloire), each a verdict badge + advisory copy; when no equipment is declared it shows a just-in-time "declare my equipment" CTA → `/equipment`. Pure `describeFit()` display mapper (verdict/reason → badge tone + message; explicit `HARD_STOP` copy though the backend never emits it in v1); defensive `mapCapacityFit()` (unknown verdict → `NOT_EVALUATED`, non-finite → null, reason dropped unless `NOT_EVALUATED`). Launch gate untouched (ingredients-only). New `domain/equipment-fit.types.ts`, `data/equipment-fit.api.ts`, `application/equipment-fit.use-cases.ts`, `presentation/components/CapacityFitPanel.tsx`; 3 new unit-test suites (23 tests across api / use-cases / panel, H/S/E) plus a composition assertion on the existing `BrewPrepScreen` suite.
+- Refs #1247, #1248.
+- Reviews — pre-push local review + automated review rounds. First round (5 findings, all fixed): drop a reason on an evaluated verdict, `showProfileCta` requires both legs `NO_PROFILE`, type-safe `Record<FermenterReason | KettleReason, string>`, `litres(null)` keeps the unit (`"? L"`), test `gcTime` `Number.POSITIVE_INFINITY`. Follow-up round (2 findings, fixed in `1836c10`): demo prep no longer calls the live JWT-guarded endpoint (`loadEquipmentFit` short-circuits to a curated demo fit); the panel refetches on screen focus (`useFocusEffect`) so the verdict refreshes after the user declares equipment and returns. `BrewPrepScreen` unit test now mocks the panel as a collaborator and asserts it is composed in. CI green, 7 threads all resolved.
+
 ## 2026-07-08
 
 ### PR #1362 merged (`73feaa0`) — feat(api/equipment-fit): advisory capacity fit-check endpoint (ADR-0026)

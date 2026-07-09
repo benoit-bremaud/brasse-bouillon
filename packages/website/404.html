@@ -10,13 +10,16 @@
        reached at 200; no canonical because the requested URL varies. -->
   <meta name="robots" content="noindex,follow">
 
-  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.ico" sizes="any">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="site.css?v=20260526-3">
+  <!-- Root-absolute asset URLs: this page is served for ANY unmatched
+       route (e.g. /foo/bar/), so relative URLs would resolve against the
+       requested path and 404. Assets must be pinned to the site root. -->
+  <link rel="stylesheet" href="/site.css?v=20260526-3">
 
   <!-- Page-specific layout only; all colours/typography come from the
        site.css design tokens (no hardcoded values). -->
@@ -78,7 +81,7 @@
 <body>
   <main class="error-page">
     <div class="error-card">
-      <img class="error-logo" src="logo-hero.webp" width="96" height="96" alt="Mascotte Brasse-Bouillon">
+      <img class="error-logo" src="/logo-hero.webp" width="96" height="96" alt="Mascotte Brasse-Bouillon">
       <p class="error-code">404</p>
       <h1 class="error-title">Cette page est introuvable</h1>
       <p class="error-text">

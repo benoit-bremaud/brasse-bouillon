@@ -194,6 +194,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
         />
 
         <ScrollView
+          key={`${normalizedSlug ?? "unknown"}:${normalizedTermSlug ?? ""}`}
           ref={scrollViewRef}
           contentContainerStyle={[
             styles.content,

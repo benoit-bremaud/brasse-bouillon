@@ -758,7 +758,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Alias : International Bitterness Units"),
     ).toBeTruthy();
-    expect(screen.getByText("Sources")).toBeTruthy();
+    expect(screen.getByText("Sources du terme")).toBeTruthy();
     expect(screen.getByText("How to Brew (2017)")).toBeTruthy();
     expect(screen.getByText("Termes associés")).toBeTruthy();
     expect(

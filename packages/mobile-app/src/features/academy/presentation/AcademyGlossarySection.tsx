@@ -53,7 +53,7 @@ export function AcademyHighlightedGlossaryTerm({
       ) : null}
       {term.sources.length > 0 ? (
         <View style={styles.glossarySourcesSection}>
-          <Text style={styles.glossarySourcesTitle}>Sources</Text>
+          <Text style={styles.glossarySourcesTitle}>Sources du terme</Text>
           <View style={styles.glossarySourcesList}>
             {term.sources.map((source) => (
               <View key={source.id} style={styles.glossarySourceItem}>

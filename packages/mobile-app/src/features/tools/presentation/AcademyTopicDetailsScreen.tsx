@@ -50,6 +50,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const router = useRouter();
   const [glossaryQuery, setGlossaryQuery] = React.useState("");
   const bottomPadding = useNavigationFooterOffset();
+  const screenBottomPadding = bottomPadding + spacing.xl;
   const scrollViewRef = React.useRef<ScrollView>(null);
   const articleTopOffsetRef = React.useRef(0);
   const sectionOffsetsRef = React.useRef<Record<string, number>>({});
@@ -57,7 +58,6 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const normalizedTermSlug = normalizeRouteParam(termSlugParam);
   const topic = getAcademyTopicBySlug(normalizedSlug);
   const displayableTopic = getDisplayableAcademyTopicBySlug(normalizedSlug);
-  const calculatorLabel = "Ouvrir le calculateur";
   const generatedArticle = normalizedSlug
     ? getAcademyArticleBySlug(generatedAcademyRepository, normalizedSlug)
     : null;
@@ -92,6 +92,9 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
     null;
   const legacyCalculatorSlug = topic?.hasCalculator ? topic.slug : null;
   const calculatorSlug = generatedArticleCalculatorSlug ?? legacyCalculatorSlug;
+  const calculatorLabel = calculatorSlug
+    ? `Ouvrir le calculateur ${formatCalculatorSlugLabel(calculatorSlug)}`
+    : "Ouvrir le calculateur";
   const goBackOrAcademyHome = React.useCallback(() => {
     if (router.canGoBack()) {
       router.back();
@@ -164,8 +167,8 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
     return (
       <Screen>
         <ListHeader
-          title={publishedGeneratedArticle.metadata.title}
-          subtitle="Article Académie"
+          title="Académie brassicole"
+          subtitle="Article de référence"
           action={
             <HeaderBackButton
               label="Retour"
@@ -179,7 +182,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           ref={scrollViewRef}
           contentContainerStyle={[
             styles.content,
-            { paddingBottom: bottomPadding },
+            { paddingBottom: screenBottomPadding },
           ]}
         >
           {calculatorSlug ? (
@@ -277,7 +280,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: bottomPadding },
+          { paddingBottom: screenBottomPadding },
         ]}
       >
         <Card style={styles.heroCard}>
@@ -333,6 +336,17 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
         ) : null}
       </ScrollView>
     </Screen>
+  );
+}
+
+function formatCalculatorSlugLabel(slug: string): string {
+  return (
+    getAcademyArticleBySlug(generatedAcademyRepository, slug)?.metadata.title ??
+    getAcademyTopicBySlug(slug)?.title ??
+    slug
+      .split("-")
+      .filter((part) => part.length > 0)
+      .join(" ")
   );
 }
 

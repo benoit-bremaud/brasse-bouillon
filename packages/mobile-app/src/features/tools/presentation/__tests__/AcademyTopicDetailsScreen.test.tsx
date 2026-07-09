@@ -602,6 +602,20 @@ const TOPICS_WITH_CALCULATOR = [
   "avances",
 ] as const;
 
+const CALCULATOR_LABEL_BY_TOPIC: Record<
+  (typeof TOPICS_WITH_CALCULATOR)[number],
+  string
+> = {
+  fermentescibles: "Ouvrir le calculateur Malts et fermentescibles",
+  couleur: "Ouvrir le calculateur Couleur",
+  houblons: "Ouvrir le calculateur Houblons",
+  eau: "Ouvrir le calculateur Eau de brassage",
+  rendement: "Ouvrir le calculateur Rendement",
+  levures: "Ouvrir le calculateur Levures et fermentation",
+  carbonatation: "Ouvrir le calculateur Carbonatation",
+  avances: "Ouvrir le calculateur Calculs avancés",
+};
+
 describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
   beforeEach(() => {
     mockPush.mockClear();
@@ -612,11 +626,11 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
   });
 
   it.each(TOPICS_WITH_CALCULATOR)(
-    'happy: %s topic shows "Ouvrir le calculateur" and navigates to its calculator',
+    "happy: %s topic shows the calculator CTA and navigates to its calculator",
     (slug) => {
       render(<AcademyTopicDetailsScreen slugParam={slug} />);
 
-      const button = screen.getByText("Ouvrir le calculateur");
+      const button = screen.getByText(CALCULATOR_LABEL_BY_TOPIC[slug]);
       fireEvent.press(button);
 
       expect(mockPush).toHaveBeenCalledWith({
@@ -641,7 +655,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       const { unmount } = render(
         <AcademyTopicDetailsScreen slugParam={slug} />,
       );
-      expect(screen.queryByText("Ouvrir le calculateur")).toBeNull();
+      expect(screen.queryByText(/^Ouvrir le calculateur/)).toBeNull();
       unmount();
     }
   });
@@ -663,7 +677,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getByText("Reference guide for hop roles in brewing."),
     ).toBeTruthy();
     expect(screen.getByText("Role du houblon")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.houblons)).toBeTruthy();
   });
 
   it("navigates from a generated article to a related article", () => {
@@ -725,7 +739,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       <AcademyTopicDetailsScreen slugParam="glossaire" termSlugParam="ibu" />,
     );
 
-    expect(screen.getByText("Terme recherché")).toBeTruthy();
+    expect(screen.getByText("Terme sélectionné")).toBeTruthy();
     expect(screen.getAllByText("IBU").length).toBeGreaterThan(0);
     expect(
       screen.getAllByText("Estimation de l'amertume d'une bière.").length,
@@ -789,7 +803,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
 
     expect(screen.getByText("Generated yeast article summary.")).toBeTruthy();
     expect(screen.getByText("Pourquoi la levure est critique")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.levures)).toBeTruthy();
   });
 
   it("renders the generated water article and keeps the calculator route", () => {
@@ -797,7 +811,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
 
     expect(screen.getByText("Generated water article summary.")).toBeTruthy();
     expect(screen.getByText("Pourquoi l'eau est critique")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.eau)).toBeTruthy();
   });
 
   it("renders the generated malt and fermentables article with calculator route", () => {
@@ -810,7 +824,9 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getAllByText("Malts et fermentescibles").length,
     ).toBeGreaterThan(0);
     expect(screen.getByText("Pourquoi le malt est central")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(
+      screen.getByText(CALCULATOR_LABEL_BY_TOPIC.fermentescibles),
+    ).toBeTruthy();
   });
 
   it("renders the generated carbonation article with calculator route", () => {
@@ -822,7 +838,9 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Pourquoi la carbonatation est critique"),
     ).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(
+      screen.getByText(CALCULATOR_LABEL_BY_TOPIC.carbonatation),
+    ).toBeTruthy();
   });
 
   it("renders the generated color article with calculator route", () => {
@@ -832,7 +850,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Pourquoi la couleur est un repere cle"),
     ).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.couleur)).toBeTruthy();
   });
 
   it("renders the generated efficiency article with calculator route", () => {
@@ -842,7 +860,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getByText("Generated efficiency article summary."),
     ).toBeTruthy();
     expect(screen.getByText("Pourquoi le rendement est critique")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.rendement)).toBeTruthy();
   });
 
   it("renders the generated advanced article with calculator route", () => {
@@ -852,7 +870,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       screen.getByText("Generated advanced article summary."),
     ).toBeTruthy();
     expect(screen.getByText("Pourquoi ces calculs sont avances")).toBeTruthy();
-    expect(screen.getByText("Ouvrir le calculateur")).toBeTruthy();
+    expect(screen.getByText(CALCULATOR_LABEL_BY_TOPIC.avances)).toBeTruthy();
   });
 
   it("renders the generated glossary article without a calculator route", () => {
@@ -866,7 +884,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(screen.getByText("2 termes")).toBeTruthy();
     expect(screen.getByText("Acide alpha")).toBeTruthy();
     expect(screen.getByText("IBU")).toBeTruthy();
-    expect(screen.queryByText("Ouvrir le calculateur")).toBeNull();
+    expect(screen.queryByText(/^Ouvrir le calculateur/)).toBeNull();
   });
 
   it("navigates from the glossary terms list to the selected term", () => {

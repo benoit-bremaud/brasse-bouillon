@@ -342,6 +342,23 @@ def check_no_external_fonts(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_no_stale_host(root: Path = ROOT) -> list[str]:
+    """The site is hosted on Cloudflare Pages (ADR-0014), not GitHub Pages.
+    The legally-required hosting disclosure in the mentions légales must name
+    the real host — guards against re-introducing the stale "GitHub Pages"
+    host anywhere in the HTML (a factual/legal inaccuracy fixed in the legal
+    pages overhaul)."""
+    pattern = re.compile(r"GitHub\s+Pages", flags=REGEX_FLAGS)
+    errors: list[str] = []
+    for path in sorted(root.glob("*.html")):
+        if pattern.search(path.read_text(encoding="utf-8")):
+            errors.append(
+                f"{path.name}: mention « GitHub Pages » — l'hébergeur est "
+                "Cloudflare Pages (ADR-0014) ; corriger la disclosure d'hébergement"
+            )
+    return errors
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -352,6 +369,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_robots_policy(root))
     errors.extend(check_clean_seo_urls(root))
     errors.extend(check_no_external_fonts(root))
+    errors.extend(check_no_stale_host(root))
     return errors
 
 

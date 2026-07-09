@@ -2,7 +2,12 @@ import { AcademyTopicDetailsRouteScreen } from "@/features/tools/presentation/ac
 import { useLocalSearchParams } from "expo-router";
 
 export default function AcademyTopicDetailsRoute() {
-  const { slug } = useLocalSearchParams<{ slug?: string | string[] }>();
+  const { slug, termSlug } = useLocalSearchParams<{
+    slug?: string | string[];
+    termSlug?: string | string[];
+  }>();
 
-  return <AcademyTopicDetailsRouteScreen slugParam={slug} />;
+  return (
+    <AcademyTopicDetailsRouteScreen slugParam={slug} termSlugParam={termSlug} />
+  );
 }

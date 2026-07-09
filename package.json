@@ -17,5 +17,8 @@
     "test:all": "npm -w packages/mobile-app test && npm -w packages/api test",
     "lint:all": "npm -w packages/mobile-app run lint && npm -w packages/api run lint:check",
     "typecheck:all": "npm -w packages/mobile-app run typecheck && npm -w packages/api run build"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.0"
   }
 }

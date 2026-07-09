@@ -1,10 +1,26 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
+import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { listPublishedAcademyArticlesUseCase } from "@/features/academy/application";
+import { generatedAcademyRepository } from "@/features/academy/data";
+import {
+  createAcademyHubCards,
+  filterAcademyHubCardsByFocus,
+  filterAcademyHubCards,
+  listAcademyHubFocusFilters,
+} from "@/features/academy/presentation";
 import { academyTopics } from "@/features/tools/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -27,6 +43,27 @@ const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export function AcademyHubScreen() {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [selectedFocus, setSelectedFocus] = React.useState<string | null>(null);
+  const academyCards = createAcademyHubCards(
+    listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
+    academyTopics,
+  );
+  const focusFilters = listAcademyHubFocusFilters(academyCards);
+  const focusFilteredAcademyCards = filterAcademyHubCardsByFocus(
+    academyCards,
+    selectedFocus,
+  );
+  const filteredAcademyCards = filterAcademyHubCards(
+    focusFilteredAcademyCards,
+    searchQuery,
+  );
+  const publishedArticleCount = academyCards.filter(
+    (card) => card.source === "generated",
+  ).length;
+  const calculatorCount = academyCards.filter(
+    (card) => card.hasCalculator,
+  ).length;
 
   return (
     <Screen>
@@ -40,22 +77,144 @@ export function AcademyHubScreen() {
           styles.content,
           { paddingBottom: bottomPadding },
         ]}
+        keyboardShouldPersistTaps="handled"
       >
-        {academyTopics.map((topic) => {
+        <Card style={styles.summaryCard} variant="subtle">
+          <View style={styles.summaryHeader}>
+            <View style={styles.summaryIcon}>
+              <Ionicons
+                name="school-outline"
+                size={22}
+                color={colors.brand.secondary}
+              />
+            </View>
+            <View style={styles.summaryBody}>
+              <Text style={styles.summaryTitle}>
+                Référence brassicole structurée
+              </Text>
+              <Text style={styles.summaryText}>
+                Articles sourcés, notions clés et accès direct aux calculateurs
+                associés.
+              </Text>
+            </View>
+          </View>
+          <View style={styles.summaryStats}>
+            <Badge label={`${publishedArticleCount} articles`} variant="info" />
+            <Badge label={`${calculatorCount} calculateurs`} variant="info" />
+          </View>
+        </Card>
+
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search-outline"
+            size={18}
+            color={colors.neutral.muted}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            accessibilityLabel="Rechercher dans l'Académie brassicole"
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={80}
+            onChangeText={setSearchQuery}
+            placeholder="Rechercher un article, un thème, une notion"
+            placeholderTextColor={colors.neutral.muted}
+            returnKeyType="search"
+            style={styles.searchInput}
+            testID="academy-search-input"
+            value={searchQuery}
+          />
+          {searchQuery.length > 0 ? (
+            <Pressable
+              accessibilityLabel="Effacer la recherche Académie"
+              accessibilityRole="button"
+              onPress={() => setSearchQuery("")}
+              testID="academy-search-clear"
+            >
+              <Ionicons
+                name="close-circle"
+                size={18}
+                color={colors.neutral.muted}
+              />
+            </Pressable>
+          ) : null}
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterList}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: selectedFocus === null }}
+            accessibilityLabel="Afficher tous les articles Académie"
+            onPress={() => setSelectedFocus(null)}
+            style={[
+              styles.filterChip,
+              selectedFocus === null && styles.filterChipSelected,
+            ]}
+            testID="academy-filter-all"
+          >
+            <Text
+              style={[
+                styles.filterText,
+                selectedFocus === null && styles.filterTextSelected,
+              ]}
+            >
+              Tous
+            </Text>
+          </Pressable>
+          {focusFilters.map((focus) => (
+            <Pressable
+              key={focus}
+              accessibilityRole="button"
+              accessibilityState={{ selected: selectedFocus === focus }}
+              accessibilityLabel={`Filtrer les articles Académie par ${focus}`}
+              onPress={() => setSelectedFocus(focus)}
+              style={[
+                styles.filterChip,
+                selectedFocus === focus && styles.filterChipSelected,
+              ]}
+              testID={`academy-filter-${focus}`}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  selectedFocus === focus && styles.filterTextSelected,
+                ]}
+              >
+                {focus}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {filteredAcademyCards.length === 0 ? (
+          <Card style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Aucun résultat</Text>
+            <Text style={styles.emptyText}>
+              Essaie avec un autre ingrédient, calculateur ou terme brassicole.
+            </Text>
+          </Card>
+        ) : null}
+
+        {filteredAcademyCards.map((card) => {
           const iconColor =
-            topic.slug === "glossaire"
+            card.slug === "glossaire"
               ? colors.semantic.warning
               : colors.brand.primary;
 
           return (
             <Pressable
-              key={topic.slug}
+              key={card.slug}
               accessibilityRole="button"
-              accessibilityLabel={`Ouvrir le thème ${topic.title}`}
+              accessibilityLabel={`Ouvrir le thème ${card.title}`}
               onPress={() =>
                 router.push({
                   pathname: "/(app)/academy/[slug]",
-                  params: { slug: topic.slug },
+                  params: { slug: card.slug },
                 })
               }
               style={({ pressed }) => [
@@ -72,15 +231,16 @@ export function AcademyHubScreen() {
                     ]}
                   >
                     <Ionicons
-                      name={ACADEMY_ICONS[topic.slug] ?? "book-outline"}
+                      name={ACADEMY_ICONS[card.slug] ?? "book-outline"}
                       size={24}
                       color={iconColor}
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <Text style={styles.cardTitle}>{topic.title}</Text>
-                    <Text style={styles.cardMeta}>
-                      {topic.shortDescription}
+                    <Text style={styles.cardTitle}>{card.title}</Text>
+                    <Text style={styles.cardMeta}>{card.summary}</Text>
+                    <Text style={styles.cardContext}>
+                      {card.focus} · {card.estimatedReadTime}
                     </Text>
                   </View>
                   <Ionicons
@@ -100,6 +260,105 @@ export function AcademyHubScreen() {
 
 const styles = StyleSheet.create({
   content: {},
+  summaryCard: {
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    alignItems: "center",
+  },
+  summaryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.state.warningBackground,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  summaryBody: {
+    flex: 1,
+    minWidth: 0,
+  },
+  summaryTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  summaryText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+  },
+  summaryStats: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.neutral.white,
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  filterList: {
+    gap: spacing.xs,
+    paddingBottom: spacing.sm,
+  },
+  filterChip: {
+    borderWidth: 1,
+    borderColor: colors.neutral.border,
+    borderRadius: radius.full,
+    backgroundColor: colors.neutral.white,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.brand.secondary,
+    borderColor: colors.brand.secondary,
+  },
+  filterText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    fontWeight: typography.weight.medium,
+  },
+  filterTextSelected: {
+    color: colors.neutral.white,
+  },
+  searchIcon: {
+    marginRight: spacing.xs,
+  },
+  searchInput: {
+    flex: 1,
+    minWidth: 0,
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    paddingVertical: 0,
+  },
+  emptyCard: {
+    padding: spacing.md,
+  },
+  emptyTitle: {
+    color: colors.neutral.textPrimary,
+    fontSize: typography.size.body,
+    lineHeight: typography.lineHeight.body,
+    fontWeight: typography.weight.bold,
+  },
+  emptyText: {
+    color: colors.neutral.textSecondary,
+    fontSize: typography.size.label,
+    lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+  },
   cardPressable: {
     borderRadius: radius.lg,
     marginBottom: spacing.sm,
@@ -138,6 +397,12 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.label,
     lineHeight: typography.lineHeight.label,
+    marginTop: spacing.xxs,
+  },
+  cardContext: {
+    color: colors.neutral.muted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
     marginTop: spacing.xxs,
   },
 });

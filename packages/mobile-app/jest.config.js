@@ -3,6 +3,7 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^yaml$": "<rootDir>/../../node_modules/yaml/dist/index.js",
   },
   transformIgnorePatterns: [
     "node_modules/(?!((jest-)?react-native|@react-native|expo(nent)?|@expo(nent)?/.*|@expo/.*|expo-router|@react-navigation/.*))",

@@ -1,0 +1,225 @@
+- slug: ibu
+  label: IBU
+  aliases:
+    - International Bitterness Units
+  short_definition: Estimation de l'amertume utilisee dans les recettes de biere.
+  detailed_definition: L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.
+  related_terms:
+    - acide-alpha
+    - houblon
+  source_ids:
+    - palmer-2017
+
+- slug: houblon
+  label: Houblon
+  aliases:
+    - hops
+  short_definition: Fleur utilisee en brassage pour apporter amertume, aromes et stabilite.
+  detailed_definition: Le houblon apporte des composes amers, des huiles aromatiques et des polyphenols. Son effet depend de la variete, de la quantite et du moment d'ajout.
+  related_terms:
+    - ibu
+    - acide-alpha
+  source_ids:
+    - palmer-2017
+
+- slug: acide-alpha
+  label: Acide alpha
+  aliases:
+    - alpha acid
+  short_definition: Compose du houblon qui contribue au potentiel d'amertume.
+  detailed_definition: Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.
+  related_terms:
+    - ibu
+    - houblon
+  source_ids:
+    - palmer-2017
+
+- slug: malt
+  label: Malt
+  aliases:
+    - malted grain
+  short_definition: Cereale germee puis sechee qui fournit amidon, enzymes, couleur et aromes.
+  detailed_definition: Le malt est la base fermentescible de nombreuses bieres. Pendant l'empatage, ses enzymes transforment l'amidon en sucres utilisables par la levure.
+  related_terms:
+    - empatage
+    - mout
+    - ebc
+  source_ids:
+    - palmer-2017
+
+- slug: mout
+  label: Moût
+  aliases:
+    - wort
+  short_definition: Liquide sucre obtenu apres empatage et filtration, avant fermentation.
+  detailed_definition: Le mout contient les sucres, proteines, mineraux et composes aromatiques extraits des malts. Il devient biere apres fermentation par la levure.
+  related_terms:
+    - malt
+    - densite-initiale
+    - fermentation
+  source_ids:
+    - palmer-2017
+
+- slug: empatage
+  label: Empâtage
+  aliases:
+    - mash
+    - mashing
+  short_definition: Etape ou les grains concasses sont melanges a l'eau chaude pour convertir l'amidon en sucres.
+  detailed_definition: L'empatage active les enzymes du malt dans une plage de temperature et de pH controlee. Il influence fermentescibilite, corps, rendement et profil final.
+  related_terms:
+    - malt
+    - mout
+    - ph
+  source_ids:
+    - palmer-2017
+
+- slug: densite-initiale
+  label: Densité initiale
+  aliases:
+    - OG
+    - Original Gravity
+  short_definition: Densite du mout avant fermentation.
+  detailed_definition: La densite initiale estime la quantite de sucres disponibles avant fermentation. Elle sert a estimer le potentiel alcool et a comparer la recette au resultat attendu.
+  related_terms:
+    - mout
+    - densite-finale
+    - attenuation
+  source_ids:
+    - palmer-2017
+
+- slug: densite-finale
+  label: Densité finale
+  aliases:
+    - FG
+    - Final Gravity
+  short_definition: Densite mesuree lorsque la fermentation est terminee ou stabilisee.
+  detailed_definition: La densite finale indique les sucres et composes restants apres fermentation. Combinee a la densite initiale, elle permet d'estimer attenuation et alcool.
+  related_terms:
+    - densite-initiale
+    - attenuation
+    - fermentation
+  source_ids:
+    - palmer-2017
+
+- slug: attenuation
+  label: Atténuation
+  aliases:
+    - attenuation apparente
+  short_definition: Baisse relative de densite entre le debut et la fin de fermentation.
+  detailed_definition: L'attenuation apparente estime la part des sucres consommee par la levure. Elle depend de la souche, du mout, de l'empatage et des conditions de fermentation.
+  related_terms:
+    - densite-initiale
+    - densite-finale
+    - fermentation
+  source_ids:
+    - palmer-2017
+
+- slug: fermentation
+  label: Fermentation
+  aliases:
+    - primary fermentation
+  short_definition: Transformation des sucres du mout en alcool, CO2 et composes aromatiques par la levure.
+  detailed_definition: La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Temperature, levure, oxygene initial et nutriments influencent fortement le resultat.
+  related_terms:
+    - mout
+    - attenuation
+    - densite-finale
+  source_ids:
+    - palmer-2017
+
+- slug: srm
+  label: SRM
+  aliases:
+    - Standard Reference Method
+  short_definition: Echelle americaine de mesure de la couleur de la biere.
+  detailed_definition: Le SRM exprime la couleur finale de la biere selon une methode standardisee. En brassage amateur, il est souvent estime depuis la charge de malts avec des formules comme Morey.
+  related_terms:
+    - ebc
+    - malt
+  source_ids:
+    - palmer-2017
+
+- slug: ebc
+  label: EBC
+  aliases:
+    - European Brewery Convention
+  short_definition: Echelle europeenne de mesure de la couleur de la biere et des malts.
+  detailed_definition: L'EBC est utilisee en Europe pour exprimer la couleur. Pour la biere finale, une approximation courante est EBC environ egal a SRM multiplie par 1,97.
+  related_terms:
+    - srm
+    - malt
+  source_ids:
+    - palmer-2017
+
+- slug: profil-mineral
+  label: Profil minéral
+  aliases:
+    - water profile
+  short_definition: Composition minérale de l'eau de brassage.
+  detailed_definition: Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.
+  related_terms:
+    - calcium
+    - sulfate
+    - chlorure
+    - ph
+  source_ids:
+    - brun-water-knowledge
+
+- slug: ph
+  label: pH
+  aliases:
+    - potentiel hydrogene
+  short_definition: Mesure de l'acidite ou de la basicite d'un liquide.
+  detailed_definition: En brassage, le pH influence l'activite enzymatique, l'extraction, la fermentation et la stabilite sensorielle. Le pH d'empatage est un repere important pour la precision du process.
+  related_terms:
+    - empatage
+    - profil-mineral
+    - calcium
+  source_ids:
+    - brun-water-knowledge
+
+- slug: calcium
+  label: Calcium
+  aliases:
+    - Ca
+    - Ca2+
+  short_definition: Ion majeur de l'eau de brassage qui aide le pH, la clarification et la fermentation.
+  detailed_definition: Le calcium contribue a abaisser le pH d'empatage, soutient certaines reactions enzymatiques et favorise la floculation. Il est souvent ajuste avec gypse ou chlorure de calcium.
+  related_terms:
+    - profil-mineral
+    - sulfate
+    - chlorure
+    - ph
+  source_ids:
+    - brun-water-knowledge
+
+- slug: sulfate
+  label: Sulfate
+  aliases:
+    - SO4
+    - SO4 2-
+  short_definition: Ion de l'eau qui accentue souvent la secheresse et la perception de l'amertume.
+  detailed_definition: Les sulfates peuvent renforcer une impression plus seche et plus nette, notamment dans les bieres houblonnees. Leur effet doit etre evalue avec les chlorures et les valeurs absolues.
+  related_terms:
+    - profil-mineral
+    - calcium
+    - chlorure
+    - ibu
+  source_ids:
+    - brun-water-knowledge
+
+- slug: chlorure
+  label: Chlorure
+  aliases:
+    - chloride
+    - Cl
+  short_definition: Ion de l'eau qui soutient souvent la rondeur et l'expression maltee.
+  detailed_definition: Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester equilibres avec les sulfates et les concentrations totales.
+  related_terms:
+    - profil-mineral
+    - calcium
+    - sulfate
+    - malt
+  source_ids:
+    - brun-water-knowledge

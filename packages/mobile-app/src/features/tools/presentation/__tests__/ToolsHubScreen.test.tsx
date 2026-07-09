@@ -32,16 +32,16 @@ describe("ToolsHubScreen", () => {
     render(<ToolsHubScreen />);
 
     expect(screen.getByText("Calculateurs")).toBeTruthy();
-    expect(screen.getByText("Alcool & Densité")).toBeTruthy();
+    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
     expect(screen.getByText("Couleur")).toBeTruthy();
-    expect(screen.getByText("Le Puits 💧")).toBeTruthy();
+    expect(screen.getByText("Eau de brassage")).toBeTruthy();
   });
 
   it("opens a calculator card action", () => {
     render(<ToolsHubScreen />);
 
     const cardAction = screen.getByLabelText(
-      "Ouvrir le calculateur Alcool & Densité",
+      "Ouvrir le calculateur Malts et fermentescibles",
     );
 
     fireEvent.press(cardAction);

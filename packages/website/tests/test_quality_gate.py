@@ -17,6 +17,7 @@ def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
+    _write_file(base, "fonts.css", "/* self-hosted fonts */\n")
     _write_file(base, "feedback-widget.js", "// feedback widget loader\n")
     _write_file(base, "chat-widget.js", "// chat widget loader\n")
     widget_tag = '<script type="module" src="feedback-widget.js"></script>'
@@ -176,6 +177,36 @@ class QualityGateTests(unittest.TestCase):
                     for err in errors
                 )
             )
+
+    def test_detects_external_google_fonts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            legal_path = root / "legal.html"
+            legal_path.write_text(
+                legal_path.read_text(encoding="utf-8").replace(
+                    "</head>",
+                    '<link rel="stylesheet" '
+                    'href="https://fonts.googleapis.com/css2?family=Inter"></head>',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(any("Google Fonts" in err for err in errors))
+
+    def test_detects_external_google_fonts_in_css(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            fonts_css = root / "fonts.css"
+            fonts_css.write_text(
+                "@import url('https://fonts.googleapis.com/css2?family=Inter');\n",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(any("Google Fonts" in err for err in errors))
 
     def test_detects_canonical_pointing_to_html(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

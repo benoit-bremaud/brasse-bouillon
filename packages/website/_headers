@@ -16,11 +16,17 @@
 #     *.brasse-bouillon.com subdomain audit first (includeSubDomains asserts
 #     every subdomain is HTTPS-only; preload is hard to reverse). Apex-only now.
 #   - Content-Security-Policy (issue #1032): needs origin enumeration (staging
-#     feedback/chat widgets on *.workers.dev + staging-api, Formspree, Google
-#     Fonts) and a Report-Only rollout before enforcement, or it would break
-#     staging. Prerequisite: move the inline <script>/onclick out of index.html.
+#     feedback/chat widgets on *.workers.dev + staging-api, Formspree; fonts
+#     are self-hosted) and a Report-Only rollout before enforcement, or it
+#     would break staging. Prerequisite: move the inline <script>/onclick out
+#     of index.html.
 /*
   Strict-Transport-Security: max-age=31536000
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), payment=()
   Cross-Origin-Opener-Policy: same-origin
+
+# Self-hosted fonts are immutable (weight/subset encoded in the filename) —
+# cache them for a year.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

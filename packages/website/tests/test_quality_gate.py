@@ -89,6 +89,20 @@ def _create_valid_fixture(base: Path) -> None:
 
     _write_file(
         base,
+        "404.html",
+        """<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>404</title>
+  <meta name="robots" content="noindex,follow">
+</head>
+<body></body>
+</html>
+""",
+    )
+
+    _write_file(
+        base,
         "sitemap.xml",
         """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -141,6 +155,24 @@ class QualityGateTests(unittest.TestCase):
 
             errors = quality_gate.collect_errors(root)
             self.assertTrue(any("meta robots noindex,follow" in err for err in errors))
+
+    def test_detects_404_missing_noindex(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            not_found_path = root / "404.html"
+            not_found_path.write_text(
+                not_found_path.read_text(encoding="utf-8").replace(
+                    '<meta name="robots" content="noindex,follow">',
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("meta robots noindex manquant dans 404.html" in err for err in errors)
+            )
 
     def test_detects_disallowed_software_application_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -221,6 +221,28 @@ class QualityGateTests(unittest.TestCase):
                 )
             )
 
+    def test_detects_canonical_html_href_before_rel(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            legal_path = root / "legal.html"
+            legal_path.write_text(
+                legal_path.read_text(encoding="utf-8").replace(
+                    "</head>",
+                    '<link href="https://brasse-bouillon.com/legal.html" '
+                    'rel="canonical"></head>',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any(
+                    "canonical/hreflang pointe vers une URL .html" in err
+                    for err in errors
+                )
+            )
+
     def test_detects_disallowed_software_application_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

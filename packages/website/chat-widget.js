@@ -24,17 +24,25 @@ const WIDGET_HOSTS = [
   '127.0.0.1',
 ];
 
+/** The single live NestJS API on Fly (the faq-bot module is part of it). */
+const LIVE_API_ORIGIN = 'https://brasse-bouillon-api.fly.dev';
+
 /**
  * NestJS `faq-bot` API origin per host. Localhost points at the dev API (PORT=3000).
- * The staging origin is a deploy-time placeholder — it must point at the deployed STAGING
- * faq-bot API, never at production, so staging never exercises the prod API. Set the real
- * origin (or inject it at deploy) once the backend is deployed with the ALTCHA/Mistral keys.
+ *
+ * Activation topology (ADR-0022, Option A): rather than standing up a separate staging API,
+ * the staging site canaries directly against the single live API, with exposure gated by the
+ * server-side `FAQ_BOT_ENABLED` kill-switch. Until the bot is enabled the live API answers
+ * `/ask` with 503 (or 400 when the anti-bot handshake cannot complete), so the widget shows
+ * "unavailable" and nothing is exercised. The production hosts are wired here too but stay OUT
+ * of `WIDGET_HOSTS` until the go-live flip, so the launcher still never mounts on prod in v1.
  */
 const API_BASE_BY_HOST = {
   localhost: 'http://localhost:3000',
   '127.0.0.1': 'http://localhost:3000',
-  // TODO(deploy): set to the deployed STAGING faq-bot API origin (must NOT be the prod API).
-  'staging.brasse-bouillon-website.pages.dev': 'https://staging-api.brasse-bouillon.com',
+  'staging.brasse-bouillon-website.pages.dev': LIVE_API_ORIGIN,
+  'brasse-bouillon.com': LIVE_API_ORIGIN,
+  'www.brasse-bouillon.com': LIVE_API_ORIGIN,
 };
 
 /** Upper bound for the proof-of-work search (must be >= the server's maxnumber). */
@@ -328,11 +336,18 @@ function mountChatWidget() {
     }
   };
 
-  const errorFor = (status) => {
+  const errorFor = (status, hadProof) => {
     if (status === 429) {
       return t.errorRate;
     }
     if (status === 503) {
+      return t.errorUnavailable;
+    }
+    // #1314: a 400 with no anti-bot proof attached means the ALTCHA challenge round-trip
+    // failed (endpoint down / unsolvable) and the guard rejected the unproven request. That
+    // is an availability problem, not a malformed question — surface "unavailable", not the
+    // generic "try again in a moment". (In dev the guard bypasses, so this path never hits.)
+    if (status === 400 && !hadProof) {
       return t.errorUnavailable;
     }
     return t.errorGeneric;
@@ -370,7 +385,7 @@ function mountChatWidget() {
       });
 
       if (!res.ok) {
-        pending.textContent = errorFor(res.status);
+        pending.textContent = errorFor(res.status, Boolean(altcha));
         pending.classList.remove('bb-chat__msg--pending');
         pending.classList.add('bb-chat__msg--error');
         return;
@@ -418,6 +433,9 @@ function mountChatWidget() {
   });
 }
 
+// Mount only on the allow-listed hosts. The production hosts are intentionally absent from
+// WIDGET_HOSTS (even though API_BASE_BY_HOST pre-wires them), so the launcher never appears on
+// brasse-bouillon.com until the go-live flip (ADR-0022 activation addendum, Option A).
 if (WIDGET_HOSTS.includes(window.location.hostname)) {
   mountChatWidget();
 }

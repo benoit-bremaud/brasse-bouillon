@@ -1,0 +1,32 @@
+- id: palmer-2017
+  kind: book
+  title: How to Brew
+  authors:
+    - John J. Palmer
+  publisher: Brewers Publications
+  url: https://www.howtobrew.com/
+  accessed_at: 2026-07-03
+  year: 2017
+  notes: General homebrewing reference for ingredients and process.
+
+- id: bjcp-2021
+  kind: standard
+  title: BJCP Beer Style Guidelines
+  authors:
+    - Beer Judge Certification Program
+  publisher: BJCP
+  url: https://www.bjcp.org/bjcp-style-guidelines/
+  accessed_at: 2026-07-03
+  year: 2021
+  notes: Style and sensory reference.
+
+- id: brun-water-knowledge
+  kind: website
+  title: Bru'n Water Knowledge
+  authors:
+    - Martin Brungard
+  publisher: Bru'n Water
+  url: https://www.brunwater.com/water-knowledge
+  accessed_at: 2026-07-03
+  year: null
+  notes: Practical brewing water chemistry reference.

@@ -27,6 +27,11 @@ type AcademyTopicCalculatorScreenProps = {
   slugParam?: RouteParamValue;
 };
 
+type AcademyTopicDetailsRouteScreenProps = {
+  slugParam?: RouteParamValue;
+  termSlugParam?: RouteParamValue;
+};
+
 const CALCULATOR_BY_SLUG = {
   fermentescibles: FermentesciblesCalculatorScreen,
   couleur: CouleurCalculatorScreen,
@@ -46,10 +51,14 @@ function isCalculatorSlug(
 
 export function AcademyTopicDetailsRouteScreen({
   slugParam,
-}: {
-  slugParam?: RouteParamValue;
-}) {
-  return <AcademyTopicDetailsScreen slugParam={slugParam} />;
+  termSlugParam,
+}: AcademyTopicDetailsRouteScreenProps) {
+  return (
+    <AcademyTopicDetailsScreen
+      slugParam={slugParam}
+      termSlugParam={termSlugParam}
+    />
+  );
 }
 
 export function AcademyTopicLearnRouteScreen({

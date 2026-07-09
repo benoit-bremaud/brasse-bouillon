@@ -9,17 +9,24 @@ export type AcademyMascotVariant =
 
 export type AcademyTopic = {
   slug: string;
-  title: string;
-  shortDescription: string;
+  title?: string;
+  shortDescription?: string;
   calculatorDescription?: string;
   calculatorOrder?: number;
-  focus: string;
+  focus?: string;
   order: number;
-  estimatedReadTime: string;
-  hasCalculator: boolean;
+  estimatedReadTime?: string;
+  hasCalculator?: boolean;
   status: AcademyTopicStatus;
   mascotVariant: AcademyMascotVariant;
   mascotAlt: string;
+};
+
+export type DisplayableAcademyTopic = AcademyTopic & {
+  title: string;
+  shortDescription: string;
+  focus: string;
+  estimatedReadTime: string;
 };
 
 export type CalculatorSlug =

@@ -34,6 +34,55 @@ docs/academy/
     references.yml
 ```
 
+## Legacy Migration Inventory
+
+This inventory tracks the remaining front-side Academy content that must move
+toward the generated knowledge base, then later toward a backend-driven source.
+It is based on `packages/mobile-app/src/features/tools/data/academy.data.ts`.
+
+The target rule is:
+
+- article/reference content moves out of React screens and legacy topic data;
+- calculator UI and calculation engines stay in the mobile tool feature until a
+  separate backend contract is designed for calculators;
+- navigation labels, icons, and routing stay in the front end;
+- generated Academy content becomes the primary read source for migrated
+  topics;
+- legacy topic metadata is only a temporary bridge for unmigrated topics and
+  calculator routing.
+
+| Topic slug        | Current legacy role                | Generated source status                                           | Migration priority  | Target treatment                                                                            |
+| ----------------- | ---------------------------------- | ----------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| `houblons`        | Topic metadata + calculator bridge | Published pilot article in `docs/academy/ingredients/houblons.md` | Done for article V1 | Keep calculator route in tools; continue enriching article content from generated source.   |
+| `levures`         | Topic metadata + calculator bridge | Draft source in `docs/academy/ingredients/levures.md`             | High                | Promote article after review/sourcing; keep calculator route in tools.                      |
+| `eau`             | Topic metadata + calculator bridge | Draft source in `docs/academy/water/eau.md`                       | High                | Promote only after sensitive chemical-dosage review; keep calculator route in tools.        |
+| `introduction`    | Coming-soon topic metadata         | Not migrated                                                      | High                | Create a beginner reference article that anchors the Academy learning map.                  |
+| `fermentescibles` | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create density/alcohol article; keep calculator route in tools.                             |
+| `carbonatation`   | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create packaging/carbonation article with safety review.                                    |
+| `couleur`         | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create color/SRM/EBC article; keep calculator route in tools.                               |
+| `rendement`       | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create process efficiency article; keep calculator route in tools.                          |
+| `histoire`        | Coming-soon topic metadata         | Not migrated                                                      | Low                 | Create cultural/history article after core brewing references.                              |
+| `avances`         | Topic metadata + calculator bridge | Not migrated                                                      | Low                 | Split into several advanced reference articles instead of one broad article if scope grows. |
+| `glossaire`       | Coming-soon topic metadata         | Partial registry in `docs/academy/glossary/terms.yml`             | High                | Replace placeholder with generated glossary browsing/search once enough terms exist.        |
+
+Recommended migration order:
+
+1. `introduction`, because it frames the Academy as a reference base for novice
+   users.
+2. `levures`, because a draft already exists and it is central to brewing
+   comprehension.
+3. `eau`, because a draft exists but requires stricter review and sourcing.
+4. `glossaire`, because it supports both article reading and future chatbot
+   retrieval.
+5. Calculator-backed references: `fermentescibles`, `carbonatation`, `couleur`,
+   `rendement`.
+6. Lower-priority reference expansion: `histoire`, then `avances`.
+
+The migration is complete only when the Academy hub and details screens no
+longer need legacy article descriptions for migrated topics. Legacy calculator
+metadata can remain until calculator discovery has its own backend-driven
+contract.
+
 ## Validation Phases
 
 ### Phase 1 - File Discovery

@@ -1,22 +1,16 @@
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { getAcademyTopicBySlug } from "@/features/tools/data";
+import { getDisplayableAcademyTopicBySlug } from "@/features/tools/data";
 import { useRouter } from "expo-router";
 import React from "react";
 import { getAcademyMascotImage } from "./academy-mascot";
@@ -30,7 +24,15 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
   const router = useRouter();
   const bottomPadding = useNavigationFooterOffset();
   const normalizedSlug = normalizeRouteParam(slugParam);
-  const topic = getAcademyTopicBySlug(normalizedSlug);
+  const topic = getDisplayableAcademyTopicBySlug(normalizedSlug);
+  const goBackOrAcademyHome = React.useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/(app)/academy");
+  }, [router]);
 
   if (!topic) {
     return (
@@ -39,9 +41,11 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           title="Académie brassicole"
           subtitle="Page introuvable"
           action={
-            <Pressable onPress={() => router.push("/(app)/academy")}>
-              <Text style={styles.backLink}>← Retour</Text>
-            </Pressable>
+            <HeaderBackButton
+              label="Retour"
+              accessibilityLabel="Retour à l'écran précédent"
+              onPress={goBackOrAcademyHome}
+            />
           }
         />
         <EmptyStateCard
@@ -50,7 +54,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           action={
             <PrimaryButton
               label="Retour à l'académie"
-              onPress={() => router.push("/(app)/academy")}
+              onPress={() => router.replace("/(app)/academy")}
             />
           }
         />
@@ -70,16 +74,11 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
         title={topic.title}
         subtitle={title}
         action={
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/academy/[slug]",
-                params: { slug: topic.slug },
-              })
-            }
-          >
-            <Text style={styles.backLink}>← Retour</Text>
-          </Pressable>
+          <HeaderBackButton
+            label="Retour"
+            accessibilityLabel="Retour à l'écran précédent"
+            onPress={goBackOrAcademyHome}
+          />
         }
       />
 
@@ -175,11 +174,5 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginTop: spacing.sm,
-  },
-  backLink: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.caption,
-    fontWeight: typography.weight.medium,
   },
 });

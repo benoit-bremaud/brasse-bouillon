@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-09
 
+### Prod deploy `brasse-bouillon-api` — water-profile slice 2 + accumulated backend live (migrations 1808/1809)
+
+- `flyctl deploy` of `main` to Fly (app `brasse-bouillon-api`, region `cdg`; build context = monorepo root, `--config packages/api/fly.toml --dockerfile packages/api/Dockerfile --local-only`). Brought the backend accumulated since the 2026-07-03 deploy (which reached migration `1807`) to prod: recipe brewing-difficulty (#1342) + water-profile slice 2 (#1374). Migrations `1808` (recipe difficulty columns) + `1809` (`water_measurements` table) applied at boot on the `bb_data` volume (`migrationsRun: true`); `/health` 200; `water_measurements` confirmed present in the prod DB. The #1350 difficulty-backfill CLI has not been run yet (pre-1808 rows stay placeholders until recomputed).
+- Preflight de-risk before the deploy: the production Docker image was built and booted locally first — full migration chain + `/health` + the `/water` and `/recipes/:id/equipment-fit` routes verified.
+- Live re-test on the Android emulator (Expo Go against the live API, authenticated session): recipe difficulty badges + « Pourquoi ce niveau ? » modal (1808), brew-day step timer (F1), and the water freshness pastille (#1376) rendering green « Récent » / « Dernière analyse : 15/04/2026 » for the LILLE network — confirming slice-2 `freshnessDate` end-to-end in prod. Follow-up: rebuild the EAS preview APK for an on-device novice re-test.
+
 ### PR #1376 merged (`c8049bc`) — feat(mobile/recipes): dated water freshness pastille (water-profile PR-B)
 
 - Branch `feat/mobile-water-freshness`, 1 commit (`9281021`). Mobile PR-B of the water-profile epic — the dated freshness pastille on the recipe Water tab, consuming the additive `freshnessDate` from slice-2 #1374. `LiveWaterProfilePanel` renders green « Récent » (< 6 mo) / orange « À confirmer » (6–24 mo) / grey « Ancien » (> 24 mo) + « Dernière analyse : JJ/MM/AAAA », falling back to the year-granular line when no date. Pure `describeWaterFreshness(date, now)` in the use-case (now injected, testable); `LiveWaterProfile` + the DTO mapper gain the field. Full mobile suite green (1376 tests). **The water leg is now complete end-to-end** (slice-1 #1358, slice-2 backend #1374, this pastille).

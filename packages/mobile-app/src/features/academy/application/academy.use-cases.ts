@@ -71,7 +71,7 @@ export function listAcademyGlossaryTermsUseCase(
     )
     .slice()
     .sort((left, right) =>
-      left.label.localeCompare(right.label, "fr", { sensitivity: "base" }),
+      compareGlossaryTermsForPresentation(left, right, normalizedQuery),
     );
 }
 
@@ -181,7 +181,67 @@ function doesGlossaryTermMatch(
     term.shortDefinition,
     term.detailedDefinition,
     ...term.aliases,
+    ...term.relatedTerms,
   ].some((value) => normalizeSearchValue(value).includes(normalizedQuery));
+}
+
+function compareGlossaryTermsForPresentation(
+  left: GlossaryTerm,
+  right: GlossaryTerm,
+  normalizedQuery: string,
+): number {
+  if (normalizedQuery) {
+    const leftScore = getGlossaryTermMatchScore(left, normalizedQuery);
+    const rightScore = getGlossaryTermMatchScore(right, normalizedQuery);
+
+    if (leftScore !== rightScore) {
+      return leftScore - rightScore;
+    }
+  }
+
+  return left.label.localeCompare(right.label, "fr", { sensitivity: "base" });
+}
+
+function getGlossaryTermMatchScore(
+  term: GlossaryTerm,
+  normalizedQuery: string,
+): number {
+  const slug = normalizeSearchValue(term.slug);
+  const label = normalizeSearchValue(term.label);
+  const aliases = term.aliases.map(normalizeSearchValue);
+  const definitions = [
+    normalizeSearchValue(term.shortDefinition),
+    normalizeSearchValue(term.detailedDefinition),
+  ];
+  const relatedTerms = term.relatedTerms.map(normalizeSearchValue);
+
+  if (slug === normalizedQuery || label === normalizedQuery) {
+    return 0;
+  }
+
+  if (
+    slug.startsWith(normalizedQuery) ||
+    label.startsWith(normalizedQuery) ||
+    aliases.some((alias) => alias === normalizedQuery)
+  ) {
+    return 1;
+  }
+
+  if (aliases.some((alias) => alias.includes(normalizedQuery))) {
+    return 2;
+  }
+
+  if (definitions.some((definition) => definition.includes(normalizedQuery))) {
+    return 3;
+  }
+
+  if (
+    relatedTerms.some((relatedTerm) => relatedTerm.includes(normalizedQuery))
+  ) {
+    return 4;
+  }
+
+  return 5;
 }
 
 function normalizeQueryToken(value: string): string {

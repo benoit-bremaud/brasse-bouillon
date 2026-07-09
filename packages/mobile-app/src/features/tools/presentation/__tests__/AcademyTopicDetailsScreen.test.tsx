@@ -912,7 +912,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     ).toBe("");
   });
 
-  it("filters glossary terms from the glossary search input", () => {
+  it("ranks direct glossary search matches before related matches", () => {
     render(<AcademyTopicDetailsScreen slugParam="glossaire" />);
 
     fireEvent.changeText(
@@ -920,9 +920,11 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       "alpha",
     );
 
-    expect(screen.getByText("1 terme trouvé")).toBeTruthy();
-    expect(screen.getByText("Acide alpha")).toBeTruthy();
-    expect(screen.queryByText("IBU")).toBeNull();
+    expect(screen.getByText("2 termes trouvés")).toBeTruthy();
+    expect(screen.getAllByLabelText(/Consulter le terme/)).toEqual([
+      screen.getByLabelText("Consulter le terme Acide alpha"),
+      screen.getByLabelText("Consulter le terme IBU"),
+    ]);
   });
 
   it("clears the glossary search input", () => {

@@ -122,6 +122,13 @@ describe("Academy use cases", () => {
     expect(listAcademyGlossaryTermsUseCase(repository, "unknown")).toEqual([]);
   });
 
+  it("prioritizes exact glossary matches before secondary definition matches", () => {
+    expect(listAcademyGlossaryTermsUseCase(repository, "ibu")).toEqual([
+      ibuTerm,
+      alphaAcidTerm,
+    ]);
+  });
+
   it("searches published articles and glossary entries", () => {
     const results = searchAcademy(repository, "amertume");
 

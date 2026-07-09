@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-09
 
+### PR #1366 merged (`b22477c`) — docs(adr): promote ADR-0026 to Accepted + CLAUDE.md index
+
+- Branch `docs/adr-0026-accepted`, 2 commits (`26c0b98`, `f5288e9`). Closes out the equipment fit-check leg (built end-to-end by #1362 + #1364): [ADR-0026](docs/architecture/decisions/0026-equipment-capacity-fit-check.md) `Proposed` → `Accepted` and added to the root [CLAUDE.md](CLAUDE.md) accepted-ADR index. Review also corrected [ADR-0022](docs/architecture/decisions/0022-public-faq-chatbot-llm.md) (FAQ chatbot), which was still `Proposed` while listed in that index though its decision shipped in #1293 → set to `Accepted`; verified the other 13 indexed ADRs are all Accepted. ADR-0026 header spacing realigned to the `README.md` template.
+- Reviews — automated review (2 findings, both fixed in `f5288e9`): template header alignment + the stale ADR-0022 status. CI green, threads resolved.
+
 ### PR #1364 merged (`df42a92`) — feat(mobile/recipes): render the equipment capacity fit-check (ADR-0026, PR-B)
 
 - Branch `feat/mobile-equipment-fit`, 2 commits (`30ec85a`, `1836c10`). Mobile (PR-B) of the brew-prep equipment leg — renders the [ADR-0026](docs/architecture/decisions/0026-equipment-capacity-fit-check.md) advisory fit-check on `BrewPrepScreen`. New self-fetching `CapacityFitPanel` (react-query) placed above the ingredient checklist: two legs (fermenteur / bouilloire), each a verdict badge + advisory copy; when no equipment is declared it shows a just-in-time "declare my equipment" CTA → `/equipment`. Pure `describeFit()` display mapper (verdict/reason → badge tone + message; explicit `HARD_STOP` copy though the backend never emits it in v1); defensive `mapCapacityFit()` (unknown verdict → `NOT_EVALUATED`, non-finite → null, reason dropped unless `NOT_EVALUATED`). Launch gate untouched (ingredients-only). New `domain/equipment-fit.types.ts`, `data/equipment-fit.api.ts`, `application/equipment-fit.use-cases.ts`, `presentation/components/CapacityFitPanel.tsx`; 3 new unit-test suites (23 tests across api / use-cases / panel, H/S/E) plus a composition assertion on the existing `BrewPrepScreen` suite.

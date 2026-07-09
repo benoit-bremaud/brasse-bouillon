@@ -51,6 +51,7 @@ const profile: LiveWaterProfile = {
   conformity: "C",
   mineralsMgL: { ca: 116.7, mg: 21.2, cl: 50.2, so4: 98.9, hco3: 322.5 },
   hardnessFrench: 125.4,
+  freshnessDate: null,
 };
 
 function renderComponent() {

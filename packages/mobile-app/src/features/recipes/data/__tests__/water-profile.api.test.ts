@@ -64,6 +64,7 @@ describe("water-profile.api", () => {
         conformity: "N",
         mineralsMgL: { ca: 116.7, mg: 21.2, cl: 50.2, so4: 98.9, hco3: 322.5 },
         hardnessFrench: 125.4,
+        freshnessDate: "2024-03-15",
       });
 
       expect(profile).toEqual({
@@ -74,7 +75,22 @@ describe("water-profile.api", () => {
         conformity: "N",
         mineralsMgL: { ca: 116.7, mg: 21.2, cl: 50.2, so4: 98.9, hco3: 322.5 },
         hardnessFrench: 125.4,
+        freshnessDate: "2024-03-15",
       });
+    });
+
+    it("defaults a missing freshnessDate to null (pre-slice-2 backend)", () => {
+      const profile = mapWaterProfile({
+        codeInsee: "59350",
+        year: 2024,
+        networkName: "LILLE",
+        sampleCount: 100,
+        conformity: "C",
+        mineralsMgL: { ca: 116.7, mg: 21.2, cl: 50.2, so4: 98.9, hco3: 322.5 },
+        hardnessFrench: 125.4,
+      });
+
+      expect(profile.freshnessDate).toBeNull();
     });
 
     it("tolerates a null minerals block and null values (partial data)", () => {

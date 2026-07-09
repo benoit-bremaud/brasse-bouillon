@@ -37,4 +37,11 @@ export interface LiveWaterProfile {
   readonly conformity: WaterConformity;
   readonly mineralsMgL: LiveWaterMinerals;
   readonly hardnessFrench: number | null;
+  /**
+   * Most recent sampling date `YYYY-MM-DD` (max date_prelevement) — the honest
+   * data currency (ADR-0025 slice 2), never the fetch date. Null when the
+   * backend returns none (e.g. a pre-slice-2 response) → the panel falls back to
+   * the year-granular freshness line.
+   */
+  readonly freshnessDate: string | null;
 }

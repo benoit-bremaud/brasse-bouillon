@@ -5,6 +5,7 @@ import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
+import { describeWaterFreshness } from "@/features/recipes/application/water-profile.use-cases";
 import type {
   LiveWaterMinerals,
   LiveWaterProfile,
@@ -71,6 +72,7 @@ export function LiveWaterProfilePanel({ profile }: Props) {
     ION_ORDER.some((ion) => minerals[ion] === null) ||
     profile.hardnessFrench === null;
   const pedagogy = hardnessSentence(profile.hardnessFrench);
+  const freshness = describeWaterFreshness(profile.freshnessDate, new Date());
 
   return (
     <Card variant="subtle" style={styles.card} testID="water-profile-panel">
@@ -120,9 +122,22 @@ export function LiveWaterProfilePanel({ profile }: Props) {
         </Text>
       ) : null}
 
-      <Text style={styles.source}>
-        Analyses {profile.year} — source ARS via Hub'Eau.
-      </Text>
+      {freshness ? (
+        <View style={styles.freshnessRow} testID="water-freshness">
+          <Badge
+            label={freshness.label}
+            variant={freshness.tone}
+            accessibilityLabel={`Fraîcheur des analyses : ${freshness.label}, dernière analyse le ${freshness.dateLabel}`}
+          />
+          <Text style={styles.source}>
+            Dernière analyse : {freshness.dateLabel} — source ARS via Hub'Eau.
+          </Text>
+        </View>
+      ) : (
+        <Text style={styles.source} testID="water-freshness-fallback">
+          Analyses {profile.year} — source ARS via Hub'Eau.
+        </Text>
+      )}
     </Card>
   );
 }
@@ -186,6 +201,13 @@ const styles = StyleSheet.create({
   source: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
+    marginTop: spacing.xxs,
+  },
+  freshnessRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: spacing.xs,
     marginTop: spacing.xxs,
   },
 });

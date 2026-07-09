@@ -1,0 +1,26 @@
+# Cloudflare Pages — response headers for every route.
+#
+# Security hardening from the 2026-07-09 audit (defense-in-depth for a
+# static marketing site: no auth, no cookies, no server-side code).
+#
+# Only the headers NOT already emitted by the Cloudflare edge are set here,
+# to avoid duplicate header lines. As of 2026-07-09, live responses (prod,
+# www, staging) carry `X-Content-Type-Options: nosniff` and `Referrer-Policy`
+# from the edge, and NO HSTS at all — verified with `curl -sSI`. (The
+# 2026-05-21 audit doc docs/audit-report/findings.md predates this edge
+# behavior and is stale; re-verify live before assuming an upstream header
+# exists.)
+#
+# Deliberately deferred, each to its own careful step:
+#   - HSTS `includeSubDomains` + `preload` (issue #1033): needs a full
+#     *.brasse-bouillon.com subdomain audit first (includeSubDomains asserts
+#     every subdomain is HTTPS-only; preload is hard to reverse). Apex-only now.
+#   - Content-Security-Policy (issue #1032): needs origin enumeration (staging
+#     feedback/chat widgets on *.workers.dev + staging-api, Formspree, Google
+#     Fonts) and a Report-Only rollout before enforcement, or it would break
+#     staging. Prerequisite: move the inline <script>/onclick out of index.html.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin

@@ -298,6 +298,28 @@ def check_robots_policy(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_clean_seo_urls(root: Path = ROOT) -> list[str]:
+    """`rel="canonical"` and `rel="alternate"` (hreflang) targets must be the
+    clean, non-redirecting URLs Cloudflare Pages serves — never the `.html`
+    form, which 308-redirects to the clean URL and weakens/splits the SEO
+    signal. Guards against re-introducing the canonical-to-redirect defect
+    fixed in the clean-URL sweep."""
+    pattern = re.compile(
+        r'<link\s+rel="(?:canonical|alternate)"[^>]*href="[^"]*\.html"',
+        flags=REGEX_FLAGS,
+    )
+    errors: list[str] = []
+    # Flat layout: every HTML page lives at the package root (no nested dirs
+    # today), so a non-recursive glob covers the whole site.
+    for path in sorted(root.glob("*.html")):
+        if pattern.search(path.read_text(encoding="utf-8")):
+            errors.append(
+                f"{path.name}: canonical/hreflang pointe vers une URL .html "
+                "(doit être l'URL propre sans extension)"
+            )
+    return errors
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -306,6 +328,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_chat_widget(root))
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
+    errors.extend(check_clean_seo_urls(root))
     return errors
 
 

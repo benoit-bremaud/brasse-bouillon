@@ -40,6 +40,20 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
   updateBatchPrepChecklist: jest.fn(),
 }));
 
+// The capacity fit-check panel is a self-fetching collaborator with its own
+// unit test; mock it to a marker so the screen test stays isolated (no async
+// query settling after assertions) while still proving the panel is composed in.
+jest.mock("@/features/recipes/presentation/components/CapacityFitPanel", () => {
+  const ReactActual = jest.requireActual("react");
+  const { View } = jest.requireActual("react-native");
+  return {
+    CapacityFitPanel: ({ recipeId }: { recipeId: string }) =>
+      ReactActual.createElement(View, {
+        testID: `capacity-fit-panel-mock-${recipeId}`,
+      }),
+  };
+});
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
   return {
@@ -169,6 +183,8 @@ describe("BrewPrepScreen — pre-launch gate on the draft batch", () => {
     expect(screen.getByTestId(CASCADE_ROW)).toBeTruthy();
     expect(screen.getByTestId(PILSNER_MISSING)).toBeTruthy();
     expect(screen.getByTestId(CASCADE_MISSING)).toBeTruthy();
+    // The advisory capacity fit-check panel is composed into the screen (ADR-0026).
+    expect(screen.getByTestId("capacity-fit-panel-mock-r1")).toBeTruthy();
 
     // Gate closed: pressing the disabled CTA must not open the dialog.
     fireEvent.press(screen.getByText("Lancer le brassage"));

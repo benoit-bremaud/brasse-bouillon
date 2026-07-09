@@ -66,13 +66,19 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
     : null;
   const publishedGeneratedArticle =
     generatedArticle?.metadata.status === "published" ? generatedArticle : null;
-  const academyCards = createAcademyHubCards(
-    listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
-    academyTopics,
-  );
-  const publishedArticleNavigation = normalizedSlug
-    ? getPublishedAcademyArticleNavigation(normalizedSlug, academyCards)
-    : null;
+  const publishedArticleNavigation = React.useMemo(() => {
+    if (!normalizedSlug) {
+      return null;
+    }
+
+    return getPublishedAcademyArticleNavigation(
+      normalizedSlug,
+      createAcademyHubCards(
+        listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
+        academyTopics,
+      ),
+    );
+  }, [normalizedSlug]);
   const highlightedGlossaryTerm =
     normalizedSlug === "glossaire" && normalizedTermSlug
       ? getAcademyGlossaryTermBySlug(

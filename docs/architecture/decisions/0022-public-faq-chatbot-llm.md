@@ -1,7 +1,7 @@
 # ADR-0022 — Public project FAQ chatbot on the website, backed by Mistral (EU/RGPD)
 
-**Status**  Proposed
-**Date**    2026-07-01
+**Status**  Accepted
+**Date**    2026-07-01 (accepted 2026-07-09; decision adopted and shipped in #1293)
 **Owners**  @benoit-bremaud
 
 ---

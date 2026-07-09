@@ -1,7 +1,7 @@
 # ADR-0026 — Equipment capacity fit-check: advisory pre-batch readiness, backend-computed
 
-**Status**  Proposed
-**Date**  2026-07-07
+**Status**  Accepted
+**Date**    2026-07-07 (accepted 2026-07-09, on the equipment fit-check leg landing: backend #1362 + mobile #1364)
 **Owners**  @benoit-bremaud
 
 ---

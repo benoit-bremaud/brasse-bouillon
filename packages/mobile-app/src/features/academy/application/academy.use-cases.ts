@@ -63,6 +63,7 @@ export function listAcademyGlossaryTermsUseCase(
   query = "",
 ): readonly GlossaryTerm[] {
   const normalizedQuery = normalizeQueryToken(query);
+  const matchScoreBySlug = new Map<string, number>();
 
   return repository
     .listGlossaryTerms()
@@ -71,7 +72,12 @@ export function listAcademyGlossaryTermsUseCase(
     )
     .slice()
     .sort((left, right) =>
-      compareGlossaryTermsForPresentation(left, right, normalizedQuery),
+      compareGlossaryTermsForPresentation(
+        left,
+        right,
+        normalizedQuery,
+        matchScoreBySlug,
+      ),
     );
 }
 
@@ -189,10 +195,19 @@ function compareGlossaryTermsForPresentation(
   left: GlossaryTerm,
   right: GlossaryTerm,
   normalizedQuery: string,
+  matchScoreBySlug: Map<string, number>,
 ): number {
   if (normalizedQuery) {
-    const leftScore = getGlossaryTermMatchScore(left, normalizedQuery);
-    const rightScore = getGlossaryTermMatchScore(right, normalizedQuery);
+    const leftScore = getCachedGlossaryTermMatchScore(
+      left,
+      normalizedQuery,
+      matchScoreBySlug,
+    );
+    const rightScore = getCachedGlossaryTermMatchScore(
+      right,
+      normalizedQuery,
+      matchScoreBySlug,
+    );
 
     if (leftScore !== rightScore) {
       return leftScore - rightScore;
@@ -200,6 +215,22 @@ function compareGlossaryTermsForPresentation(
   }
 
   return left.label.localeCompare(right.label, "fr", { sensitivity: "base" });
+}
+
+function getCachedGlossaryTermMatchScore(
+  term: GlossaryTerm,
+  normalizedQuery: string,
+  matchScoreBySlug: Map<string, number>,
+): number {
+  const cachedScore = matchScoreBySlug.get(term.slug);
+
+  if (typeof cachedScore === "number") {
+    return cachedScore;
+  }
+
+  const score = getGlossaryTermMatchScore(term, normalizedQuery);
+  matchScoreBySlug.set(term.slug, score);
+  return score;
 }
 
 function getGlossaryTermMatchScore(

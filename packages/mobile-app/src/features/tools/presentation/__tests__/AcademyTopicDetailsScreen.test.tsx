@@ -921,10 +921,11 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     );
 
     expect(screen.getByText("2 termes trouvés")).toBeTruthy();
-    expect(screen.getAllByLabelText(/Consulter le terme/)).toEqual([
-      screen.getByLabelText("Consulter le terme Acide alpha"),
-      screen.getByLabelText("Consulter le terme IBU"),
-    ]);
+    expect(
+      screen
+        .getAllByLabelText(/^Consulter le terme (Acide alpha|IBU)$/)
+        .map((termAction) => termAction.props.accessibilityLabel),
+    ).toEqual(["Consulter le terme Acide alpha", "Consulter le terme IBU"]);
   });
 
   it("clears the glossary search input", () => {

@@ -331,7 +331,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           label="En savoir plus"
           onPress={() =>
             router.push({
-              pathname: "/academy/[slug]/learn",
+              pathname: "/(app)/academy/[slug]/learn",
               params: { slug: displayableTopic.slug },
             })
           }

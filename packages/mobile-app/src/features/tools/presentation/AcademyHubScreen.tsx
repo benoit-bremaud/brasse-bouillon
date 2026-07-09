@@ -205,6 +205,10 @@ export function AcademyHubScreen() {
             card.slug === "glossaire"
               ? colors.semantic.warning
               : colors.brand.primary;
+          const iconBackgroundStyle =
+            card.slug === "glossaire"
+              ? styles.itemIconWarning
+              : styles.itemIconPrimary;
 
           return (
             <Pressable
@@ -224,12 +228,7 @@ export function AcademyHubScreen() {
             >
               <Card style={styles.card}>
                 <View style={styles.cardRow}>
-                  <View
-                    style={[
-                      styles.itemIcon,
-                      { backgroundColor: iconColor + "25" },
-                    ]}
-                  >
+                  <View style={[styles.itemIcon, iconBackgroundStyle]}>
                     <Ionicons
                       name={ACADEMY_ICONS[card.slug] ?? "book-outline"}
                       size={24}
@@ -381,6 +380,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     justifyContent: "center",
     alignItems: "center",
+  },
+  itemIconPrimary: {
+    backgroundColor: colors.state.infoBackground,
+  },
+  itemIconWarning: {
+    backgroundColor: colors.state.warningBackground,
   },
   cardInfo: {
     flex: 1,

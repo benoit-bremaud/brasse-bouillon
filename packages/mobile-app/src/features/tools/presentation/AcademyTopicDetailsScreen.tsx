@@ -18,12 +18,15 @@ import {
   listPublishedAcademyArticlesUseCase,
 } from "@/features/academy/application";
 import { generatedAcademyRepository } from "@/features/academy/data";
-import { GlossaryTerm } from "@/features/academy/domain";
 import {
   AcademyArticleRenderer,
   AcademyGlossaryTermsList,
   AcademyHighlightedGlossaryTerm,
   createAcademyHubCards,
+  formatAcademyCalculatorButtonLabel,
+  getPublishedAcademyArticleNavigation,
+  listRelatedAcademyGlossaryTerms,
+  resolveAcademyCalculatorSlug,
 } from "@/features/academy/presentation";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -63,9 +66,19 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
     : null;
   const publishedGeneratedArticle =
     generatedArticle?.metadata.status === "published" ? generatedArticle : null;
-  const publishedArticleNavigation = normalizedSlug
-    ? getPublishedArticleNavigation(normalizedSlug)
-    : null;
+  const publishedArticleNavigation = React.useMemo(() => {
+    if (!normalizedSlug) {
+      return null;
+    }
+
+    return getPublishedAcademyArticleNavigation(
+      normalizedSlug,
+      createAcademyHubCards(
+        listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
+        academyTopics,
+      ),
+    );
+  }, [normalizedSlug]);
   const highlightedGlossaryTerm =
     normalizedSlug === "glossaire" && normalizedTermSlug
       ? getAcademyGlossaryTermBySlug(
@@ -74,7 +87,9 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
         )
       : null;
   const relatedGlossaryTerms = highlightedGlossaryTerm
-    ? getRelatedGlossaryTerms(highlightedGlossaryTerm)
+    ? listRelatedAcademyGlossaryTerms(highlightedGlossaryTerm, (slug) =>
+        getAcademyGlossaryTermBySlug(generatedAcademyRepository, slug),
+      )
     : [];
   const glossaryTerms =
     normalizedSlug === "glossaire"
@@ -87,14 +102,14 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
     normalizedSlug === "glossaire"
       ? listAcademyGlossaryTermsUseCase(generatedAcademyRepository).length
       : 0;
-  const generatedArticleCalculatorSlug =
-    publishedGeneratedArticle?.metadata.relatedCalculators[0]?.target.slug ??
-    null;
-  const legacyCalculatorSlug = topic?.hasCalculator ? topic.slug : null;
-  const calculatorSlug = generatedArticleCalculatorSlug ?? legacyCalculatorSlug;
-  const calculatorLabel = calculatorSlug
-    ? `Ouvrir le calculateur ${formatCalculatorSlugLabel(calculatorSlug)}`
-    : "Ouvrir le calculateur";
+  const calculatorSlug = resolveAcademyCalculatorSlug(
+    publishedGeneratedArticle,
+    topic,
+  );
+  const calculatorLabel = formatAcademyCalculatorButtonLabel(
+    calculatorSlug,
+    resolveCalculatorLabel,
+  );
   const goBackOrAcademyHome = React.useCallback(() => {
     if (router.canGoBack()) {
       router.back();
@@ -339,55 +354,17 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   );
 }
 
-function formatCalculatorSlugLabel(slug: string): string {
-  return (
-    getAcademyArticleBySlug(generatedAcademyRepository, slug)?.metadata.title ??
-    getAcademyTopicBySlug(slug)?.title ??
-    slug
-      .split("-")
-      .filter((part) => part.length > 0)
-      .join(" ")
-  );
-}
-
-function getRelatedGlossaryTerms(term: GlossaryTerm): readonly GlossaryTerm[] {
-  return term.relatedTerms
-    .map((slug) =>
-      getAcademyGlossaryTermBySlug(generatedAcademyRepository, slug),
-    )
-    .filter((relatedTerm): relatedTerm is GlossaryTerm => relatedTerm !== null);
-}
-
 type ArticleNavigationItem = {
   readonly slug: string;
   readonly title: string;
 };
 
-type PublishedArticleNavigation = {
-  readonly previous: ArticleNavigationItem | null;
-  readonly next: ArticleNavigationItem | null;
-};
-
-function getPublishedArticleNavigation(
-  currentSlug: string,
-): PublishedArticleNavigation {
-  const cards = createAcademyHubCards(
-    listPublishedAcademyArticlesUseCase(generatedAcademyRepository),
-    academyTopics,
-  ).filter((card) => card.source === "generated");
-  const currentIndex = cards.findIndex((card) => card.slug === currentSlug);
-
-  if (currentIndex < 0) {
-    return { previous: null, next: null };
-  }
-
-  const previous = cards[currentIndex - 1] ?? null;
-  const next = cards[currentIndex + 1] ?? null;
-
-  return {
-    previous: previous ? { slug: previous.slug, title: previous.title } : null,
-    next: next ? { slug: next.slug, title: next.title } : null,
-  };
+function resolveCalculatorLabel(slug: string): string | null {
+  return (
+    getAcademyArticleBySlug(generatedAcademyRepository, slug)?.metadata.title ??
+    getAcademyTopicBySlug(slug)?.title ??
+    null
+  );
 }
 
 type AcademyArticleFooterNavigationProps = {

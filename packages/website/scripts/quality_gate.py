@@ -18,6 +18,7 @@ HOMEPAGE_URL = "https://brasse-bouillon.com/"
 REQUIRED_FILES = [
     "index.html",
     "index-en.html",
+    "404.html",
     "legal.html",
     "legal-en.html",
     "privacy.html",
@@ -101,6 +102,19 @@ HTML_RULES = {
             r"<link\s+rel=\"canonical\"\s+href=\""
             r"https://brasse-bouillon\.com/\"",
             "canonical EN vers https://brasse-bouillon.com/ manquante",
+        ),
+    ],
+    # The catch-all error page (Cloudflare Pages serves it with a real HTTP
+    # 404 for unmatched routes). It is a single locale-agnostic file — no
+    # `-en.html` twin — so only the structural invariants are enforced: it
+    # must stay noindex and never be indexed as home-page duplicate content.
+    "404.html": [
+        (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
+        (r"<html\s+lang=\"fr\"", 'balise <html lang="fr"> manquante'),
+        (r"<title>.+</title>", "balise <title> manquante"),
+        (
+            r"<meta\s+name=\"robots\"\s+content=\"noindex",
+            "meta robots noindex manquant dans 404.html",
         ),
     ],
 }

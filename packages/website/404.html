@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable (404) — Brasse-Bouillon</title>
+  <meta name="description" content="La page demandée est introuvable. Revenez à l’accueil de Brasse-Bouillon.">
+  <!-- Cloudflare Pages serves this file with a real HTTP 404 for any
+       unmatched route. noindex keeps it out of the index if it is ever
+       reached at 200; no canonical because the requested URL varies. -->
+  <meta name="robots" content="noindex,follow">
+
+  <link rel="icon" href="favicon.ico" sizes="any">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="site.css?v=20260526-3">
+
+  <!-- Page-specific layout only; all colours/typography come from the
+       site.css design tokens (no hardcoded values). -->
+  <style>
+    .error-page {
+      min-height: 82vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+      text-align: center;
+    }
+    .error-card { max-width: 34rem; }
+    .error-logo { width: 96px; height: auto; margin: 0 auto 24px; display: block; }
+    .error-code {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 18vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--copper);
+      margin: 0;
+    }
+    .error-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      color: var(--ink);
+      margin: 8px 0 12px;
+    }
+    .error-text {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 0 auto 28px;
+      max-width: 28rem;
+    }
+    .error-home {
+      display: inline-block;
+      background: var(--copper-deep);
+      color: var(--foam);
+      font-family: var(--font-body);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s var(--ease-out-soft), background 0.2s;
+    }
+    .error-home:hover { background: var(--ink-soft); transform: translateY(-2px); }
+    .error-home:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    .error-sub { margin: 20px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .error-sub a { color: var(--copper-deep); }
+    .error-foot { margin-top: 40px; color: var(--muted); font-size: 0.9rem; }
+    @media (prefers-reduced-motion: reduce) {
+      .error-home { transition: none; }
+      .error-home:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="error-page">
+    <div class="error-card">
+      <img class="error-logo" src="logo-hero.webp" width="96" height="96" alt="Mascotte Brasse-Bouillon">
+      <p class="error-code">404</p>
+      <h1 class="error-title">Cette page est introuvable</h1>
+      <p class="error-text">
+        Le lien est peut-être cassé, ou la page a été déplacée.
+        Rien de perdu : revenons à l’accueil pour reprendre le fil.
+      </p>
+      <a class="error-home" href="/">Retour à l’accueil</a>
+      <p class="error-sub" lang="en">Page not found. <a href="/">Back to the home page</a>.</p>
+      <p class="error-foot">Brasse-Bouillon — l’application des brasseurs amateurs.</p>
+    </div>
+  </main>
+</body>
+</html>

@@ -10,6 +10,7 @@ import { useConfirm } from "@/core/ui/confirm-provider";
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { ChecklistRow } from "@/core/ui/ChecklistRow";
+import { CapacityFitPanel } from "@/features/recipes/presentation/components/CapacityFitPanel";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
@@ -275,6 +276,9 @@ export function BrewPrepScreen({ recipeId }: Props) {
             title="Préparer mon brassin"
             subtitle="Mise en place : coche ce que tu as. Le brassage se lance une fois la liste complète."
           />
+
+          {/* Capacity fit-check first (ADR-0026): advisory, never blocks the launch. */}
+          <CapacityFitPanel recipeId={recipeId} />
 
           {hasItems ? (
             <Card style={styles.listCard}>

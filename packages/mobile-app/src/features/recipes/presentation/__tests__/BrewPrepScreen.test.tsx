@@ -40,6 +40,15 @@ jest.mock("@/features/batches/application/batches.use-cases", () => ({
   updateBatchPrepChecklist: jest.fn(),
 }));
 
+// The capacity fit-check panel self-fetches; mock its use-case so the screen
+// tests never fire a real HTTP call (test isolation).
+jest.mock("@/features/recipes/application/equipment-fit.use-cases", () => ({
+  ...jest.requireActual(
+    "@/features/recipes/application/equipment-fit.use-cases",
+  ),
+  loadEquipmentFit: jest.fn().mockResolvedValue(null),
+}));
+
 jest.mock("expo-router", () => {
   const actual = jest.requireActual("expo-router");
   return {

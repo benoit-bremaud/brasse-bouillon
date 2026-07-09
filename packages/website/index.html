@@ -52,15 +52,9 @@
     "url": "https://brasse-bouillon.com/",
     "logo": "https://brasse-bouillon.com/logo.png",
     "description": "Projet d’application mobile de brassage amateur pour créer des recettes de bière, calculer IBU/ABV et suivre la fermentation.",
-    "email": "contact@brasse-bouillon.com",
     "founder": {
       "@type": "Person",
       "name": "Benoît Bremaud"
-    },
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "email": "contact@brasse-bouillon.com",
-      "contactType": "customer service"
     },
     "knowsAbout": [
       "Brassage amateur",
@@ -334,7 +328,7 @@
               <span>Partager ton avis</span>
               <svg class="btn-chevron" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <a class="btn btn-ghost" href="mailto:contact@brasse-bouillon.com">Nous écrire</a>
+            <button class="btn btn-ghost" type="button" aria-controls="questionnaireFormFr" onclick="toggleQuestionnaire('fr')">Nous écrire</button>
           </div>
         </form>
         <p id="newsletterStatusFr" class="form-status" role="status" aria-live="polite"></p>
@@ -497,7 +491,7 @@
       <footer class="footer">
         <div class="footer-brand">
           <span class="footer-mark">B·B</span>
-          <p>Brasse-Bouillon, l’app du brasseur amateur curieux. Contact : <strong>contact@brasse-bouillon.com</strong></p>
+          <p>Brasse-Bouillon, l’app du brasseur amateur curieux. Contact : via le <a href="/#participerFr">formulaire du site</a>.</p>
         </div>
         <div class="footer-links">
           <a href="/legal">Mentions légales</a>

@@ -208,6 +208,22 @@ class QualityGateTests(unittest.TestCase):
             errors = quality_gate.collect_errors(root)
             self.assertTrue(any("Google Fonts" in err for err in errors))
 
+    def test_detects_stale_github_pages_host(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            legal_path = root / "legal.html"
+            legal_path.write_text(
+                legal_path.read_text(encoding="utf-8").replace(
+                    "</body>",
+                    "<p>Le site est hébergé par GitHub Pages.</p></body>",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(any("GitHub Pages" in err for err in errors))
+
     def test_detects_canonical_pointing_to_html(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

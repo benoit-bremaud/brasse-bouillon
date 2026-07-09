@@ -18,6 +18,11 @@ export interface WaterProfileEntityProps {
   readonly conformity: WaterConformity;
   readonly mineralsMgL: WaterMineralsMgL;
   readonly hardnessFrench: number | null;
+  /**
+   * Honest data currency — `max(date_prelevement)` of the aggregated samples
+   * (`YYYY-MM-DD`), or null when unknown. Never the fetch date (ADR-0025).
+   */
+  readonly freshnessDate: string | null;
 }
 
 export class WaterProfileEntity {
@@ -29,6 +34,7 @@ export class WaterProfileEntity {
   readonly conformity: WaterConformity;
   readonly mineralsMgL: WaterMineralsMgL;
   readonly hardnessFrench: number | null;
+  readonly freshnessDate: string | null;
 
   constructor(props: WaterProfileEntityProps) {
     this.provider = props.provider;
@@ -39,5 +45,6 @@ export class WaterProfileEntity {
     this.conformity = props.conformity;
     this.mineralsMgL = props.mineralsMgL;
     this.hardnessFrench = props.hardnessFrench;
+    this.freshnessDate = props.freshnessDate;
   }
 }

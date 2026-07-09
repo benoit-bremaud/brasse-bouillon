@@ -234,24 +234,37 @@ describe('HubeauWaterQualityProvider', () => {
         Promise.resolve({
           data: [
             {
+              code_parametre: '1374',
               libelle_parametre: 'Calcium',
               resultat_numerique: '42,5',
               conformite_limites_pc_prelevement: 'C',
+              date_prelevement: '2024-03-15',
+              code_prelevement: 'P-1',
             },
             {
+              code_parametre: '1372',
               libelle_parametre: 'Magnésium',
               resultat_numerique: 9,
               conformite_limites_pc_prelevement: null,
+              // A time component must be trimmed to the YYYY-MM-DD date part.
+              date_prelevement: '2024-06-20T09:30:00',
+              code_prelevement: 'P-2',
             },
             {
+              code_parametre: '1337',
               libelle_parametre: '',
               resultat_numerique: 10,
               conformite_limites_pc_prelevement: 'C',
+              date_prelevement: '2024-07-01',
+              code_prelevement: 'P-X',
             },
             {
+              code_parametre: '1337',
               libelle_parametre: 'Chlorures',
               resultat_numerique: 'not-a-number',
               conformite_limites_pc_prelevement: 'N',
+              date_prelevement: '2024-09-01',
+              code_prelevement: 'P-3',
             },
           ],
         }),
@@ -278,15 +291,77 @@ describe('HubeauWaterQualityProvider', () => {
     expect(requestUrl).toContain(
       'code_parametre=1374%2C1372%2C1338%2C1337%2C1327',
     );
+    // Slice-2 additionally requests the cache-key + freshness fields.
+    expect(requestUrl).toContain('code_parametre%2Clibelle_parametre');
+    expect(requestUrl).toContain('date_prelevement%2Ccode_prelevement');
     expect(requestUrl).toContain('date_min_prelevement=2024-01-01');
     expect(requestUrl).toContain('date_max_prelevement=2024-12-31');
+    // Newest-first, aligned with the date-check gate so the fetched window
+    // always includes the max date the gate compares against.
+    expect(requestUrl).toContain('sort=desc');
     expect(requestUrl).toContain('size=3');
 
     expect(samples).toEqual([
-      { parameterLabel: 'Calcium', numericResult: 42.5, conformity: 'C' },
-      { parameterLabel: 'Magnésium', numericResult: 9, conformity: null },
-      { parameterLabel: 'Chlorures', numericResult: null, conformity: 'N' },
+      {
+        parameterLabel: 'Calcium',
+        numericResult: 42.5,
+        conformity: 'C',
+        parameterCode: '1374',
+        datePrelevement: '2024-03-15',
+        codePrelevement: 'P-1',
+      },
+      {
+        parameterLabel: 'Magnésium',
+        numericResult: 9,
+        conformity: null,
+        parameterCode: '1372',
+        datePrelevement: '2024-06-20',
+        codePrelevement: 'P-2',
+      },
+      {
+        parameterLabel: 'Chlorures',
+        numericResult: null,
+        conformity: 'N',
+        parameterCode: '1337',
+        datePrelevement: '2024-09-01',
+        codePrelevement: 'P-3',
+      },
     ]);
+  });
+
+  it('date-check: returns the latest sampling date (size=1, sort desc)', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () =>
+        Promise.resolve({ data: [{ date_prelevement: '2024-11-02' }] }),
+      ),
+    );
+
+    const latest = await provider.getNetworkLatestSampleDate({
+      networkCode: 'R-2',
+      year: 2024,
+    });
+
+    const requestUrl = fetchMock.mock.calls[0]?.[0];
+    expect(typeof requestUrl).toBe('string');
+    if (typeof requestUrl !== 'string') {
+      throw new Error('Expected fetch URL to be a string');
+    }
+    expect(requestUrl).toContain('/resultats_dis?');
+    expect(requestUrl).toContain('code_reseau=R-2');
+    expect(requestUrl).toContain('sort=desc');
+    expect(requestUrl).toContain('size=1');
+    expect(requestUrl).toContain('fields=date_prelevement');
+    expect(latest).toBe('2024-11-02');
+  });
+
+  it('date-check: returns null when the network has no sample for the window', async () => {
+    fetchMock.mockResolvedValue(
+      buildResponse(200, () => Promise.resolve({ data: [] })),
+    );
+
+    await expect(
+      provider.getNetworkLatestSampleDate({ networkCode: 'R-2', year: 2024 }),
+    ).resolves.toBeNull();
   });
 
   it('should throw BadGatewayException on non-ok responses', async () => {

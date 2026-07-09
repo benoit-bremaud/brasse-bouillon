@@ -135,7 +135,25 @@ export class WaterAggregationDomainService {
         hco3,
       },
       hardnessFrench: this.computeHardnessFrench(ca, mg),
+      freshnessDate: this.computeFreshnessDate(input.samples),
     });
+  }
+
+  /**
+   * The most recent `YYYY-MM-DD` sampling date across all samples (honest data
+   * currency, ADR-0025), or null when none carries one — e.g. slice-1's live
+   * path, which does not request `date_prelevement`. Computed over the full
+   * sample set (not the capped slice) so it never understates the currency.
+   */
+  private computeFreshnessDate(samples: WaterSample[]): string | null {
+    let latest: string | null = null;
+    for (const sample of samples) {
+      const date = sample.datePrelevement;
+      if (date !== null && (latest === null || date > latest)) {
+        latest = date;
+      }
+    }
+    return latest;
   }
 
   private computeAverage(bucket: AggregateBucket): number | null {

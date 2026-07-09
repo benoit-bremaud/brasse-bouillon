@@ -31,14 +31,28 @@ interface HubEauCommuneUdiResponse {
 // `resultats_dis` renamed `nom_parametre`→`libelle_parametre`; the old
 // `conclusion_conformite_prelevement_pc` short code now lives in
 // `conformite_limites_pc_prelevement` (the physico-chemical limits verdict).
+// Slice 2 additionally requests `code_parametre`, `date_prelevement` and
+// `code_prelevement` to key the append-only cache and expose freshness.
 interface HubEauResultatsRecord {
   readonly libelle_parametre: string;
   readonly resultat_numerique: number | string | null;
   readonly conformite_limites_pc_prelevement: string | null;
+  readonly code_parametre: string | null;
+  readonly date_prelevement: string | null;
+  readonly code_prelevement: string | null;
 }
 
 interface HubEauResultatsResponse {
   readonly data: HubEauResultatsRecord[];
+}
+
+// Slim projection for the cheap conditional-sync date-check (only the date).
+interface HubEauSampleDateRecord {
+  readonly date_prelevement: string | null;
+}
+
+interface HubEauSampleDateResponse {
+  readonly data: HubEauSampleDateRecord[];
 }
 
 /**
@@ -160,9 +174,16 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
         code_reseau: input.networkCode,
         code_parametre: ION_PARAMETER_CODES.join(','),
         fields:
-          'libelle_parametre,resultat_numerique,conformite_limites_pc_prelevement',
+          'code_parametre,libelle_parametre,resultat_numerique,conformite_limites_pc_prelevement,date_prelevement,code_prelevement',
         date_min_prelevement: `${input.year}-01-01`,
         date_max_prelevement: `${input.year}-12-31`,
+        // Newest-first — same order as the size=1 date-check gate. A busy réseau
+        // can hold far more than `size` ion rows in a year; without this the
+        // capped page is an arbitrary subset that may never include the max
+        // date, so the sync gate would never close (re-fetch every request) or
+        // close on an incomplete set. Sorting desc guarantees the fetched window
+        // includes the newest rows the gate compares against.
+        sort: 'desc',
         size: String(input.size),
       },
       this.waterConfig.hubeauTimeoutMs,
@@ -178,7 +199,32 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
         parameterLabel: row.libelle_parametre,
         numericResult: this.toNullableNumber(row.resultat_numerique),
         conformity: row.conformite_limites_pc_prelevement,
+        parameterCode: this.toNullableString(row.code_parametre),
+        datePrelevement: this.toDateOnly(row.date_prelevement),
+        codePrelevement: this.toNullableString(row.code_prelevement),
       }));
+  }
+
+  async getNetworkLatestSampleDate(input: {
+    networkCode: string;
+    year: number;
+  }): Promise<string | null> {
+    const response = await this.fetchHubEau<HubEauSampleDateResponse>(
+      `${this.waterConfig.hubeauBaseUrl}/resultats_dis`,
+      {
+        code_reseau: input.networkCode,
+        code_parametre: ION_PARAMETER_CODES.join(','),
+        fields: 'date_prelevement',
+        date_min_prelevement: `${input.year}-01-01`,
+        date_max_prelevement: `${input.year}-12-31`,
+        sort: 'desc',
+        size: '1',
+      },
+      this.waterConfig.hubeauTimeoutMs,
+    );
+
+    const [latest] = response.data;
+    return latest ? this.toDateOnly(latest.date_prelevement) : null;
   }
 
   private async fetchHubEau<T>(
@@ -238,6 +284,27 @@ export class HubeauWaterQualityProvider implements WaterQualityProviderPort {
 
     const parsed = Number(normalized);
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private toNullableString(value: string | null): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : null;
+  }
+
+  /**
+   * Coerces a Hub'Eau `date_prelevement` to a `YYYY-MM-DD` string. Keeps only
+   * the date part (some rows carry a time) and returns null on anything that is
+   * not an ISO date, so the append-only key and `max()` freshness stay sortable.
+   */
+  private toDateOnly(value: string | null): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const match = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim());
+    return match ? match[1] : null;
   }
 
   private isTimeoutError(error: unknown): boolean {

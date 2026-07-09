@@ -1,4 +1,8 @@
 import { AcademyArticle } from "../domain";
+import {
+  formatAcademyCategoryLabel,
+  formatAcademyReadTime,
+} from "./academy-display-formatters";
 
 export interface AcademyLegacyHubTopic {
   readonly slug: string;
@@ -46,9 +50,9 @@ export function createAcademyHubCards(
         slug: article.slug,
         title: article.metadata.title,
         shortDescription: article.metadata.summary,
-        focus: createCategoryLabel(article.metadata.category),
+        focus: formatAcademyCategoryLabel(article.metadata.category),
         order: legacyTopics.length + index,
-        estimatedReadTime: formatReadTime(
+        estimatedReadTime: formatAcademyReadTime(
           article.metadata.estimatedReadTimeMinutes,
         ),
         hasCalculator: article.metadata.relatedCalculators.length > 0,
@@ -103,9 +107,9 @@ function createGeneratedHubCard(
     slug: article.slug,
     title: article.metadata.title,
     summary: article.metadata.summary,
-    focus: createCategoryLabel(article.metadata.category) || fallback.focus,
+    focus: formatAcademyCategoryLabel(article.metadata.category),
     order: fallback.order,
-    estimatedReadTime: formatReadTime(
+    estimatedReadTime: formatAcademyReadTime(
       article.metadata.estimatedReadTimeMinutes,
     ),
     hasCalculator: article.metadata.relatedCalculators.length > 0,
@@ -135,35 +139,6 @@ function createLegacyHubCard(
     hasCalculator: topic.hasCalculator ?? false,
     source: "legacy",
   };
-}
-
-function formatReadTime(minutes: number): string {
-  return `${minutes} min`;
-}
-
-function createCategoryLabel(category: AcademyArticle["metadata"]["category"]) {
-  switch (category) {
-    case "getting-started":
-      return "Premiers pas";
-    case "ingredients":
-      return "Ingrédients";
-    case "process":
-      return "Process";
-    case "fermentation":
-      return "Fermentation";
-    case "water":
-      return "Eau";
-    case "equipment":
-      return "Matériel";
-    case "beer-styles":
-      return "Styles";
-    case "safety":
-      return "Sécurité";
-    case "troubleshooting":
-      return "Dépannage";
-    case "glossary":
-      return "Glossaire";
-  }
 }
 
 function normalizeSearchValue(value: string): string {

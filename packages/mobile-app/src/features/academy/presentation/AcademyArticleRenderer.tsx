@@ -11,12 +11,15 @@ import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import {
   AcademyArticle,
-  AcademyCategory,
   AcademyContentBlock,
-  AcademyLevel,
   AcademySection,
   CalloutTone,
 } from "../domain";
+import {
+  formatAcademyCategoryLabel,
+  formatAcademyLevelLabel,
+  formatAcademyReadTime,
+} from "./academy-display-formatters";
 import React from "react";
 
 type Props = {
@@ -48,15 +51,17 @@ export function AcademyArticleRenderer({
         <Text style={styles.summary}>{article.metadata.summary}</Text>
         <View style={styles.metaRow}>
           <Badge
-            label={formatLevelLabel(article.metadata.level)}
+            label={formatAcademyLevelLabel(article.metadata.level)}
             variant="info"
           />
           <Badge
-            label={formatReadTime(article.metadata.estimatedReadTimeMinutes)}
+            label={formatAcademyReadTime(
+              article.metadata.estimatedReadTimeMinutes,
+            )}
             variant="neutral"
           />
           <Badge
-            label={formatCategoryLabel(article.metadata.category)}
+            label={formatAcademyCategoryLabel(article.metadata.category)}
             variant="neutral"
           />
         </View>
@@ -626,46 +631,6 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
   },
 });
-
-function formatLevelLabel(level: AcademyLevel): string {
-  switch (level) {
-    case "beginner":
-      return "Débutant";
-    case "intermediate":
-      return "Intermédiaire";
-    case "advanced":
-      return "Avancé";
-  }
-}
-
-function formatCategoryLabel(category: AcademyCategory): string {
-  switch (category) {
-    case "getting-started":
-      return "Premiers pas";
-    case "ingredients":
-      return "Ingrédients";
-    case "process":
-      return "Process";
-    case "fermentation":
-      return "Fermentation";
-    case "water":
-      return "Eau";
-    case "equipment":
-      return "Matériel";
-    case "beer-styles":
-      return "Styles";
-    case "safety":
-      return "Sécurité";
-    case "troubleshooting":
-      return "Dépannage";
-    case "glossary":
-      return "Glossaire";
-  }
-}
-
-function formatReadTime(minutes: number): string {
-  return `${minutes} min`;
-}
 
 function formatArticleSlugLabel(slug: string): string {
   return slug

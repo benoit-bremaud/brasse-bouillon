@@ -60,7 +60,10 @@ jobs:
           done
 
           # Required scalar files — fail loudly if any go missing.
-          for required in favicon.ico sitemap.xml robots.txt; do
+          # `_headers` has no extension, so it is not matched by the glob
+          # copies above and must be staged explicitly (Cloudflare Pages
+          # reads it from the deployment root to set response headers).
+          for required in favicon.ico sitemap.xml robots.txt _headers; do
             cp "$src/$required" _site/
           done
 

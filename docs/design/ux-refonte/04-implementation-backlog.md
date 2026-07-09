@@ -76,6 +76,9 @@ then the consolidations. Each step leaves the app shippable.
 - Each R-chunk updates the relevant UML diagram first (per [03](03-uml-refresh-plan.md)).
 - Each R-chunk adds tests (happy/sad/edge) and reconciles its user stories.
 - Harmonisation rules ([02](02-target-ia.md)) become a review checklist.
+- Global scroll invariant: explicit navigation to a new page starts at the top
+  of that page; intentional back navigation may restore the previous scroll
+  position when it helps the user resume context.
 
 ## Out of scope of #1082 (tracked elsewhere)
 

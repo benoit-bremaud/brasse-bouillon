@@ -20,7 +20,7 @@ export function AcademyHighlightedGlossaryTerm({
 
   return (
     <Card style={styles.highlightedGlossaryCard} variant="subtle">
-      <Text style={styles.highlightedGlossaryEyebrow}>Terme recherché</Text>
+      <Text style={styles.highlightedGlossaryEyebrow}>Terme sélectionné</Text>
       <Text style={styles.highlightedGlossaryTitle}>{term.label}</Text>
       <Text style={styles.highlightedGlossarySummary}>
         {term.shortDefinition}

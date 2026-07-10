@@ -637,7 +637,7 @@
       "srcHash": "0ac9672b9f5c0fbc15aa2f47f39ddeed24796ec8"
     },
     "footer.brand": {
-      "en": "Brasse-Bouillon, the app for curious homebrewers. Get in touch via the <a href=\"/#participerFr\">site form</a>.",
+      "en": "Brasse-Bouillon, the app for curious homebrewers. Get in touch via the <a href=\"/en#participerEn\">site form</a>.",
       "srcHash": "53b7f3f0cbe7fcf85847edf344064a01037507e9"
     },
     "footer.legal": {

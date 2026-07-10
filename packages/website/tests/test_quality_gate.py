@@ -14,10 +14,27 @@ def _write_file(base: Path, rel_path: str, content: str) -> None:
     target.write_text(content, encoding="utf-8")
 
 
+def _png_header_bytes(width: int, height: int) -> bytes:
+    """Minimal 24-byte PNG head (signature + IHDR length/type/width/height) —
+    enough for the header-only dimension check, no image body needed."""
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + (13).to_bytes(4, "big")
+        + b"IHDR"
+        + width.to_bytes(4, "big")
+        + height.to_bytes(4, "big")
+    )
+
+
+def _write_og_image(base: Path, width: int = 1200, height: int = 630) -> None:
+    (base / "og-image.png").write_bytes(_png_header_bytes(width, height))
+
+
 def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
     _write_file(base, "favicon.ico", "ico")
+    _write_og_image(base)
     _write_file(base, "fonts.css", "/* self-hosted fonts */\n")
     _write_file(base, "feedback-widget.js", "// feedback widget loader\n")
     _write_file(base, "chat-widget.js", "// chat widget loader\n")
@@ -560,6 +577,28 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
             )
             self.assertTrue(any("ratingValue non autorisé" in err for err in errors))
             self.assertTrue(any("ratingCount non autorisé" in err for err in errors))
+
+    def test_detects_wrong_og_image_dimensions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            _write_og_image(root, width=600, height=600)
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("og-image.png: dimensions 600×600" in err for err in errors)
+            )
+
+    def test_detects_non_png_og_image(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            (root / "og-image.png").write_bytes(b"not a png at all, just junk bytes")
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("og-image.png: en-tête PNG invalide" in err for err in errors)
+            )
 
 
 class I18nGateTests(unittest.TestCase):

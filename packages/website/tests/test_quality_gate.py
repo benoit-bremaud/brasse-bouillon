@@ -70,13 +70,13 @@ def _create_valid_fixture(base: Path) -> None:
 
     _write_file(
         base,
-        "index-en.html",
+        "en.html",
         """<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>EN</title>
   <meta name="robots" content="noindex,follow">
-  <link rel="canonical" href="https://brasse-bouillon.com/">
+  <link rel="canonical" href="https://brasse-bouillon.com/en">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
@@ -87,6 +87,8 @@ def _create_valid_fixture(base: Path) -> None:
 </html>
 """,
     )
+
+    _write_file(base, "_redirects", "/index-en /en 301\n")
 
     _write_file(
         base,
@@ -144,7 +146,7 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            en_path = root / "index-en.html"
+            en_path = root / "en.html"
             en_content = en_path.read_text(encoding="utf-8")
             en_path.write_text(
                 en_content.replace(
@@ -328,7 +330,7 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            en_path = root / "index-en.html"
+            en_path = root / "en.html"
             en_path.write_text(
                 en_path.read_text(encoding="utf-8").replace(
                     '<script type="module" src="chat-widget.js"></script>',

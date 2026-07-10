@@ -357,7 +357,26 @@ class QualityGateTests(unittest.TestCase):
                 any("bouton burger .nav-toggle manquant" in err for err in errors)
             )
 
-    def test_detects_sitemap_not_fr_only(self) -> None:
+    def test_detects_sitemap_disallowed_url(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            # A noindex EN page (and a `.html` form) must never be listed.
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal-en</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(any("URL non autorisée" in err for err in errors))
+
+    def test_sitemap_allows_home_and_fr_legal_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
@@ -366,15 +385,53 @@ class QualityGateTests(unittest.TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
-  <url><loc>https://brasse-bouillon.com/index-en.html</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
-            errors = quality_gate.collect_errors(root)
-            expected = "sitemap.xml: doit contenir uniquement"
-            self.assertTrue(any(expected in err for err in errors))
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertEqual(errors, [])
+
+    def test_detects_sitemap_missing_home(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(any("d'accueil" in err for err in errors))
+
+    def test_detects_sitemap_duplicate_url(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(any("en double" in err for err in errors))
 
     def test_detects_missing_robots_directive(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

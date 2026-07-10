@@ -1,0 +1,684 @@
+{
+  "_comment": "English catalog for the generated en.html (ADR-0027). Edit the 'en' values; run `python scripts/build_i18n.py --update-hashes` to refresh srcHash, then `python scripts/build_i18n.py` to regenerate en.html. Do NOT edit en.html by hand.",
+  "idStems": [
+    "mainContent",
+    "journey",
+    "scan",
+    "participer",
+    "newsletterForm",
+    "newsletterStatus",
+    "newsletterEmail",
+    "questionnaireForm",
+    "questionnaireStatus",
+    "questionnaireToggle",
+    "qAgacement",
+    "qContact"
+  ],
+  "head": {
+    "title": "Brasse-Bouillon — Homebrewing app (beer recipes, IBU/ABV, fermentation tracking)",
+    "description": "Brasse-Bouillon is the homebrewing app to build beer recipes, calculate IBU/ABV, track fermentation and nail every batch step by step.",
+    "ogTitle": "Brasse-Bouillon | Homebrewing companion app",
+    "ogDescription": "Build beer recipes, calculate IBU/ABV and track fermentation with a step-by-step brewing guide.",
+    "twitterTitle": "Brasse-Bouillon | Homebrewing companion app",
+    "twitterDescription": "The homebrewer’s companion: beer recipes, IBU/ABV calculators, fermentation tracking and a step-by-step guide.",
+    "ogImageAlt": "Brasse-Bouillon, homebrewing mobile app",
+    "orgDescription": "A homebrewing mobile-app project to build beer recipes, calculate IBU/ABV and track fermentation.",
+    "keywords": "homebrewing app, home brewing, beer recipe, IBU calculator, ABV calculator, fermentation tracking, brewing guide, brew log, homebrew",
+    "knowsAbout": [
+      "Homebrewing",
+      "Beer recipes",
+      "IBU calculation",
+      "ABV calculation",
+      "Fermentation tracking"
+    ]
+  },
+  "insertions": {
+    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first — an English version is on the way. This site is already in English so you can follow along today."
+  },
+  "strings": {
+    "skip.link": {
+      "en": "Skip to main content",
+      "srcHash": "e97ff563f6a94bda8a6dc2b947edf8b51ac5ba09"
+    },
+    "nav.toggle": {
+      "en": "Open menu",
+      "srcHash": "43c7e150dbdd14eb4355d7667582af163ecdebef"
+    },
+    "nav.journey": {
+      "en": "How it works",
+      "srcHash": "8272f7dd21c03744072a71507d0ec8cab3320e4d"
+    },
+    "nav.app": {
+      "en": "The app",
+      "srcHash": "4526810b473fe44dd886b4f9d00c8f30335ff3e2"
+    },
+    "nav.faq": {
+      "en": "FAQ",
+      "srcHash": "03688ba6aa340b87549088aa5739944cb6b1dc73"
+    },
+    "nav.cta": {
+      "en": "Join the waitlist",
+      "srcHash": "9c2b4ba2ab2b045e352a40d41d60375bdb35a6dd"
+    },
+    "hero.pill": {
+      "en": "2026 beta · Limited spots",
+      "srcHash": "b3f4ee4814f50f7c157aee10b3957f5c1d924b6d"
+    },
+    "hero.title": {
+      "en": "Brew your first beer <em>without fear of messing it up.</em>",
+      "srcHash": "840ffe7d5114a8b1d80f9ab6183b4f3ae3c24d51"
+    },
+    "hero.intro": {
+      "en": "From the recipe you pick to your first sip, the app tells you what to do, when, and why. No jargon, no mental math, no nasty surprises.",
+      "srcHash": "4bb792cabb23a13e89efa786f4399d613be230b9"
+    },
+    "hero.cta.primary": {
+      "en": "Join the waitlist",
+      "srcHash": "9c2b4ba2ab2b045e352a40d41d60375bdb35a6dd"
+    },
+    "hero.cta.secondary": {
+      "en": "See how it goes",
+      "srcHash": "e844e5f38501cd4ed4974931b7c9afa7d76ca4d0"
+    },
+    "hero.mascot": {
+      "en": "Brasse-Bouillon official mascot",
+      "srcHash": "f5918f508f71f1965082c01739f4cc72af11f96d"
+    },
+    "journey.eyebrow": {
+      "en": "The journey",
+      "srcHash": "b9d81891c45c73ec3273ed76ad3fad006ecc7960"
+    },
+    "journey.title": {
+      "en": "From recipe to <em>first pour</em>",
+      "srcHash": "350295349876d5fa05be97100d5307aabd72777f"
+    },
+    "journey.intro": {
+      "en": "Four steps, a copilot at every moment. You’re never left alone in front of the kettle.",
+      "srcHash": "bac252e2ef02f310edd52db277a2fe73f04afa58"
+    },
+    "journey.1.img": {
+      "en": "App recipe catalog: a list of public recipes with their IBU, ABV and volume figures",
+      "srcHash": "6528264a06d5fe4a6a4edd77003d98422d2722a9"
+    },
+    "journey.1.title": {
+      "en": "Pick your recipe",
+      "srcHash": "3b59041f30967e4ff04d828315b2aed6249c7465"
+    },
+    "journey.1.body": {
+      "en": "Compare the community’s clone recipes — rated and battle-tested — and adopt the one that tempts you. No jargon.",
+      "srcHash": "ed856fa092db692ce1fde534f663a30e8756f457"
+    },
+    "journey.2.img": {
+      "en": "Brew-day control screen during the mash at 67°C, with a timer and steps",
+      "srcHash": "42023a79006945cc4f71bc26a4da3cd953a550ca"
+    },
+    "journey.2.title": {
+      "en": "Brew step by step",
+      "srcHash": "0168728f5bf92604842c6149856fcf9834c64821"
+    },
+    "journey.2.body": {
+      "en": "Timers, temperatures and the why behind every move: the app guides you through mash, boil and chill.",
+      "srcHash": "e7ae56a565b4b98eb0b861371631f0fb34383c4d"
+    },
+    "journey.3.img": {
+      "en": "Fermentation screen with a day 5 of 14 progress bar and the current gravity",
+      "srcHash": "6c868c8f256f30b860b60354473810c8cad90329"
+    },
+    "journey.3.title": {
+      "en": "Track fermentation",
+      "srcHash": "830a6feb28eacf6816a88a35e44d132e731d1b9f"
+    },
+    "journey.3.body": {
+      "en": "Days, gravity, temperature. One glance and you know where you stand.",
+      "srcHash": "39ecfd8acf3dbe5a111b40167c6d6f6e05737de9"
+    },
+    "journey.4.img": {
+      "en": "‘Batch complete’ celebration screen with the bottle and a custom label",
+      "srcHash": "ede4db4df83e2931aa99a93302ec9999223b18e5"
+    },
+    "journey.4.title": {
+      "en": "Bottle it, savor it",
+      "srcHash": "ebd1cb34b4754f03653d6f2e6ac604c7428bae04"
+    },
+    "journey.4.body": {
+      "en": "Slap on your label, share with friends, and enjoy your first creation.",
+      "srcHash": "7bfc60d8fc55433b4e0ceaf18627f85bb343faea"
+    },
+    "marquee.mash": {
+      "en": "Mash",
+      "srcHash": "12112f845750940f58b967209dd0f57f3137e1bf"
+    },
+    "marquee.hop": {
+      "en": "Hopping",
+      "srcHash": "32402c86ee196550c48eb36c554e6a85a382b3e3"
+    },
+    "marquee.ibu": {
+      "en": "IBU 22",
+      "srcHash": "41a9e391e0bf75cd91a0cbd0c2c4e6d702fdead2"
+    },
+    "marquee.abv": {
+      "en": "ABV 4.8 %",
+      "srcHash": "3828d0c1fc75cdbb1b92283bf5b83ab2d8a66f2e"
+    },
+    "marquee.ebc": {
+      "en": "EBC 8",
+      "srcHash": "242f955e85c4c79a4f5c94872c578654fe9eb270"
+    },
+    "marquee.ferment": {
+      "en": "Fermentation",
+      "srcHash": "cf8d24ae9a38e454a94096ec314246b46971923a"
+    },
+    "marquee.coldcrash": {
+      "en": "Cold crash",
+      "srcHash": "35b36a1b820403e00bedbc5bd57601bfb7575781"
+    },
+    "marquee.condition": {
+      "en": "Bottle conditioning",
+      "srcHash": "ead90749d5e63528bbfb6012b303b852b431c44d"
+    },
+    "marquee.bottle": {
+      "en": "Bottling",
+      "srcHash": "7796b1decf4efe1d682100b224b2e88757d00145"
+    },
+    "features.eyebrow": {
+      "en": "Three tools, one copilot",
+      "srcHash": "e7e14ee261ea81c8cff9ee170aa6ffb6c6c29287"
+    },
+    "features.title": {
+      "en": "The <em>essentials</em>, and nothing but",
+      "srcHash": "7cfe10f1a00aa3edb6135521c3a2eca62f3fcc94"
+    },
+    "features.intro": {
+      "en": "No feature bloat. Three pillars, built to save you time and help you level up.",
+      "srcHash": "05f2253af8ff659fe60ee98cede15c53700faf9b"
+    },
+    "features.1.img": {
+      "en": "Recipe Studio screen with Ingredients tabs and live calculations",
+      "srcHash": "7d32aa98e1c5088b777b434dfbf2b2e1bd908c01"
+    },
+    "features.1.title": {
+      "en": "Recipe studio",
+      "srcHash": "d422901e89b4ee40ede6a66c3e36493b958b10fd"
+    },
+    "features.1.body": {
+      "en": "Create, clone and tweak your recipes in a few taps. Version and compare without losing the thread.",
+      "srcHash": "8404f8abde036ddcc6dd6aacd99dba862e7ef757"
+    },
+    "features.2.img": {
+      "en": "Hop calculator screen with Quick, Reverse and BU:GU tabs and interactive sliders",
+      "srcHash": "87a7484842ad76ecce845fb7be8dd7c12dfc161b"
+    },
+    "features.2.title": {
+      "en": "Brewing calculators",
+      "srcHash": "685b231279bd01c446d5cb6860c0fdb84a6c6473"
+    },
+    "features.2.body": {
+      "en": "IBU, ABV, color, volumes, efficiency. Every number in one place, and reliable.",
+      "srcHash": "da9339d475905b61e29d8d3e22ca0a4ccc907a5a"
+    },
+    "features.3.img": {
+      "en": "Real-time brew control screen with a step timeline and statuses",
+      "srcHash": "bb2c6c45c640614bdd8dd5f67c87febba503b164"
+    },
+    "features.3.title": {
+      "en": "Guided brew control",
+      "srcHash": "23a1d154b09e1a4b11a99d9e32ee60d2c12d54eb"
+    },
+    "features.3.body": {
+      "en": "A clear timeline, useful reminders, critical checkpoints. You know what to do, when, and why.",
+      "srcHash": "6b4a40eeb97a178abf768cffe08d0e2742ab1b04"
+    },
+    "scan.eyebrow": {
+      "en": "Recognition",
+      "srcHash": "c39abf968438238b9d5e3c1cfcdac492c27a3f17"
+    },
+    "scan.title": {
+      "en": "Loved a beer?&nbsp;<em>Scan it.</em>",
+      "srcHash": "fe435adcf423205b4cb3fa54f4ab9851819645b4"
+    },
+    "scan.intro": {
+      "en": "Scan the label of a store-bought beer&nbsp;: Brasse-Bouillon identifies it, then suggests equivalent recipes rated by the community — ready to brew.",
+      "srcHash": "171a89e1a2fbf0c4c4bdf6154245b641b7a91171"
+    },
+    "scan.1.img": {
+      "en": "Recognized-beer screen showing La Chouffe with its style, color and bitterness",
+      "srcHash": "d7d0b61345c97e1d6e0fae54ff9b85de218f7ef0"
+    },
+    "scan.1.title": {
+      "en": "Instant recognition",
+      "srcHash": "ae73a623563782b1d4a1177340b2223b59111b84"
+    },
+    "scan.1.body": {
+      "en": "Style, color, bitterness, ABV&nbsp;: the full profile the moment the beer is identified.",
+      "srcHash": "d87610128317b988a2d70b0242b0d879b0a5befa"
+    },
+    "scan.2.img": {
+      "en": "Equivalent community-rated recipes, each with an Import button",
+      "srcHash": "c1a8b772cfc7f4aef28ca049e5cf5f8d70e37f9c"
+    },
+    "scan.2.title": {
+      "en": "Community recipes",
+      "srcHash": "911d4e163b5812334da9727d10e08a595e2f029d"
+    },
+    "scan.2.body": {
+      "en": "Clones rated and proven by other brewers — import them into your notebook in one tap.",
+      "srcHash": "387a9bca79722b8251bed972f95e2700201e49ca"
+    },
+    "faq.eyebrow": {
+      "en": "Frequently asked",
+      "srcHash": "16664684bf730f9eab647d82781e59a3e7e93706"
+    },
+    "faq.title": {
+      "en": "The <em>doubts</em> before you dive in",
+      "srcHash": "46e20938b1b1ec576558595b55e1d6860c1c29be"
+    },
+    "faq.q1.summary": {
+      "en": "Do I need to be handy to brew my own beer?",
+      "srcHash": "19f164c5b9254752d7eb17b5f181207d061f79a4"
+    },
+    "faq.q1.answer": {
+      "en": "Not at all. A pot, a fermenter, some bottles — and the app telling you what to do at every step. If you can cook pasta, you can brew a beer.",
+      "srcHash": "6ae50d4e84a1d7efbda08422530c86dcbe0d398c"
+    },
+    "faq.q2.summary": {
+      "en": "How much does it cost to get started?",
+      "srcHash": "8096f00f68bbd57dbe236430647008def460b4fe"
+    },
+    "faq.q2.answer": {
+      "en": "Roughly €60–120 for a complete starter kit. You’ll reuse it for 5–6 batches, and the gear pays for itself fast compared with buying good craft beer.",
+      "srcHash": "c162fe38065d03546edb5676dda6f5ca6f3eb0d4"
+    },
+    "faq.q3.summary": {
+      "en": "How long does a batch take (the first time)?",
+      "srcHash": "9ce10650827d4d31df87db93d145a81ebfd3e430"
+    },
+    "faq.q3.answer": {
+      "en": "Half a day for the brew session (4–5h), then 2 to 3 weeks of fermentation where you’ve got almost nothing to do. The app reminds you of the critical checkpoints.",
+      "srcHash": "15d8a979d57a32d84996ddad793d8c29f2e6db09"
+    },
+    "faq.q4.summary": {
+      "en": "And if I botch my first batch?",
+      "srcHash": "4651d4798bb65222ec6a683fddbb4a16a114e10f"
+    },
+    "faq.q4.answer": {
+      "en": "It happens, and it’s almost always drinkable. The app walks back through each step to help you understand what happened — and your next batch comes out better.",
+      "srcHash": "d64a6327c29556ba44907fced3634c46370b1c13"
+    },
+    "faq.q5.summary": {
+      "en": "When will the app be available?",
+      "srcHash": "63b9f9c257bb169a18b6b6f198109ff754e94b09"
+    },
+    "faq.q5.answer": {
+      "en": "A rolling beta through 2026. Waitlist signups get first access.",
+      "srcHash": "2f180197e73a4850828312ee7f0cfe8b32665c1d"
+    },
+    "participate.eyebrow": {
+      "en": "Get involved",
+      "srcHash": "5495fd738f39a7939da746d54aa05c748672a2f4"
+    },
+    "participate.title": {
+      "en": "Join the <em>first batch</em>",
+      "srcHash": "efd7959fd473bf049e4a66bc0d9c82e0903207b9"
+    },
+    "participate.intro": {
+      "en": "Drop your email to get into the beta loop. You can also share your take or write to us directly.",
+      "srcHash": "1a5d66381bd682b6d5fe032f6f332872f9d3e090"
+    },
+    "newsletter.subject": {
+      "en": "Brasse-Bouillon newsletter signup (EN)",
+      "srcHash": "ab998aaf84f400c6fa14d5602c5046bdd3eb106e"
+    },
+    "newsletter.message": {
+      "en": "New newsletter signup via the site (EN)",
+      "srcHash": "fd27916b15fc12708bff860d6cc5cdb7cdefeac2"
+    },
+    "newsletter.emailLabel": {
+      "en": "Email address for the waitlist",
+      "srcHash": "367d40a1317c7929001cd477fc69534a01302670"
+    },
+    "newsletter.emailPlaceholder": {
+      "en": "you@email.com",
+      "srcHash": "f542c88681b5e35b51f7e7c4cdc6233c59f979cd"
+    },
+    "newsletter.consent": {
+      "en": "I agree to receive Brasse-Bouillon updates and I can unsubscribe at any time.",
+      "srcHash": "730b844235e62de63eda481aefcd4bfd5e8ab998"
+    },
+    "newsletter.consentNote": {
+      "en": "By subscribing, you agree to our <a href=\"/terms-en\" target=\"_blank\" rel=\"noopener noreferrer\">terms</a>, our <a href=\"/privacy-en\" target=\"_blank\" rel=\"noopener noreferrer\">privacy policy</a> and our <a href=\"/cookies-en\" target=\"_blank\" rel=\"noopener noreferrer\">cookie policy</a>.",
+      "srcHash": "effe1d4f66eda1570ada3a96d4c7c55c9eb7331c"
+    },
+    "newsletter.submit": {
+      "en": "Join the waitlist",
+      "srcHash": "9c2b4ba2ab2b045e352a40d41d60375bdb35a6dd"
+    },
+    "newsletter.toggleShare": {
+      "en": "Share your take",
+      "srcHash": "f1d566ccff9acabc30d3ef4fc2979e0deff3969a"
+    },
+    "newsletter.toggleWrite": {
+      "en": "Write to us",
+      "srcHash": "331994f845eae6bd8a74e0e8722577ff748baa95"
+    },
+    "questionnaire.subject": {
+      "en": "New response - Brasse-Bouillon brewer survey (EN)",
+      "srcHash": "54e887a915075bddb8ebfb14eeebc0f4bb88d413"
+    },
+    "questionnaire.lead": {
+      "en": "3 to 5 minutes to help us build the right app. Your answers directly steer what we develop. Everything is anonymous; contact details are only asked at the end, and they’re optional.",
+      "srcHash": "79cc92846ae5a2c25c72434099390c8be45c8dc7"
+    },
+    "q.seniority.legend": {
+      "en": "How long have you been brewing?",
+      "srcHash": "935b80dc24b6e18e961114d2fedf5bd13deccc50"
+    },
+    "q.seniority.opt1": {
+      "en": "Less than 6 months",
+      "srcHash": "f9ad60b40c070fdbacda97bcd0f72d1736d55ca7"
+    },
+    "q.seniority.opt2": {
+      "en": "6 months to 2 years",
+      "srcHash": "923aea9ac226ff98c86b878bca539c18c446f939"
+    },
+    "q.seniority.opt3": {
+      "en": "2 to 5 years",
+      "srcHash": "e83c96eb4e70516f5bc44a5d88c6bf8461f9d67e"
+    },
+    "q.seniority.opt4": {
+      "en": "5 years or more",
+      "srcHash": "22f215542bdf293cb1fe1aca81b59e5877de9457"
+    },
+    "q.frequency.legend": {
+      "en": "Roughly how many batches a year?",
+      "srcHash": "770366f0d642f6a9243fe4a6d567192ae081d062"
+    },
+    "q.frequency.opt1": {
+      "en": "0 to 2",
+      "srcHash": "e9f72e0bb1afe7f58ceb5574b30812ce42fc5220"
+    },
+    "q.frequency.opt2": {
+      "en": "3 to 6",
+      "srcHash": "03ca13371fd39afa34f0b6999cf49f5c53524dd6"
+    },
+    "q.frequency.opt3": {
+      "en": "7 to 12",
+      "srcHash": "c5c8dcfd391fa5e3a9bf063028ca746392c48feb"
+    },
+    "q.frequency.opt4": {
+      "en": "12 and up",
+      "srcHash": "d1ee7e5429da416a269efde899dc759116047fb4"
+    },
+    "q.location.legend": {
+      "en": "Where do you brew?",
+      "srcHash": "bbd5b025c89263984c879367947c7e49ddf6168c"
+    },
+    "q.location.france": {
+      "en": "France",
+      "srcHash": "e3772ac4b4db87b4a8dbfa59ef43cd1a8ad29515"
+    },
+    "q.location.belgium": {
+      "en": "Belgium",
+      "srcHash": "db1c7ecc46bf2db67333cbeeaff8a278bb13a7a3"
+    },
+    "q.location.switzerland": {
+      "en": "Switzerland",
+      "srcHash": "86dec5974370775ff04a2c8f32728bfc364bcd81"
+    },
+    "q.location.quebec": {
+      "en": "Québec",
+      "srcHash": "4ccda3047a3496cd76655a8dcdf0dd6626106c95"
+    },
+    "q.location.other": {
+      "en": "Other",
+      "srcHash": "43dacf9e4764b7999fad66aa3d0569507d8eed96"
+    },
+    "q.storage.legend": {
+      "en": "Where do your recipes and brew notes live today? <span class=\"legend-hint\">(multiple answers)</span>",
+      "srcHash": "7b4b797ce56ce6d5e8b30544ff6f6d0ac418ecb8"
+    },
+    "q.storage.head": {
+      "en": "In my head",
+      "srcHash": "4925eaf858b0290957e34798a9f1ff3558113be6"
+    },
+    "q.storage.paper": {
+      "en": "Paper / notebook",
+      "srcHash": "f5e016c8554ec9c543ce0441dd23f9f9671fb292"
+    },
+    "q.storage.spreadsheet": {
+      "en": "Spreadsheet (Excel, Sheets)",
+      "srcHash": "33dbe5415792136f2fbc4c7cc95e4fc317afb47e"
+    },
+    "q.storage.app": {
+      "en": "An app",
+      "srcHash": "1ba161c040a9d899c1b7dc08bfc3056d3f8e022d"
+    },
+    "q.storage.forum": {
+      "en": "On a forum",
+      "srcHash": "6d6092590a11a1434f1ab169d59fb3bf73af3c85"
+    },
+    "q.storage.other": {
+      "en": "Other",
+      "srcHash": "43dacf9e4764b7999fad66aa3d0569507d8eed96"
+    },
+    "q.tools.legend": {
+      "en": "Which tool(s) or app do you use? <span class=\"legend-hint\">(multiple answers)</span>",
+      "srcHash": "1d112aff3f51013973d0d0e4a48abd2c1b164614"
+    },
+    "q.tools.brewfather": {
+      "en": "Brewfather",
+      "srcHash": "9ebeff092f906bce0ba44413180fe03cbbc79056"
+    },
+    "q.tools.beersmith": {
+      "en": "BeerSmith",
+      "srcHash": "35d074f3c20ac8bf4bb3d95ff9c2c624d01f7b24"
+    },
+    "q.tools.littlebock": {
+      "en": "Little Bock",
+      "srcHash": "94ae13b09ae1a298f40792a05d916a81752b5059"
+    },
+    "q.tools.brewersfriend": {
+      "en": "Brewer’s Friend",
+      "srcHash": "b041dd18bef326aab1eae2093b1753f2d243f2ca"
+    },
+    "q.tools.none": {
+      "en": "None",
+      "srcHash": "b2ed82f1bf1c30916cde300ded82176c2ff0300a"
+    },
+    "q.tools.other": {
+      "en": "Other",
+      "srcHash": "43dacf9e4764b7999fad66aa3d0569507d8eed96"
+    },
+    "q.annoyance.label": {
+      "en": "What annoys you most about how you manage your recipes / batches?",
+      "srcHash": "b57459044639bb398f811daaf6af17952b993dfc"
+    },
+    "q.annoyance.placeholder": {
+      "en": "In a few words…",
+      "srcHash": "1bc70ec5810453443619d04673ebcabe9fe3eb46"
+    },
+    "q.difficulty.legend": {
+      "en": "Do you ever botch a batch, or get lost during the process?",
+      "srcHash": "0b630c15f1e5124f5ecf294a0e186b997b7f3d2c"
+    },
+    "q.difficulty.often": {
+      "en": "Often",
+      "srcHash": "7c6a583bd8e5515c27ae3b15f42459d97b29ef4b"
+    },
+    "q.difficulty.sometimes": {
+      "en": "Sometimes",
+      "srcHash": "6f92740979d2aa05c16c8d61bb41b0fe18f238b7"
+    },
+    "q.difficulty.rarely": {
+      "en": "Rarely",
+      "srcHash": "c436eb3a600179e4d4cf8d026ca9ca12bc1fb161"
+    },
+    "q.difficulty.never": {
+      "en": "Never",
+      "srcHash": "f405e1be2c0b39dd84a89bb2a9a858adbb585f9f"
+    },
+    "q.clone.legend": {
+      "en": "Have you ever tried to reproduce (clone) a specific commercial beer?",
+      "srcHash": "ab6824ba75d68bcb95bdf7c467ba3b04570597e7"
+    },
+    "q.clone.success": {
+      "en": "Yes, nailed it",
+      "srcHash": "0a491d951d17588264cf45cc529f719b8d3b0b2a"
+    },
+    "q.clone.disappointed": {
+      "en": "Yes, but disappointed with the result",
+      "srcHash": "3efd410ef843336bf07086852b9470ae3dc5f51d"
+    },
+    "q.clone.wouldlike": {
+      "en": "Never tried, but I’d like to",
+      "srcHash": "e8e8bcdd6a5f32e5cf32eb570b2e9e29d93eab05"
+    },
+    "q.clone.notinterested": {
+      "en": "Not interested",
+      "srcHash": "0a0bcaf791840984d3a6acb296b9af2b54647c3d"
+    },
+    "q.share.legend": {
+      "en": "Do you share your recipes with other brewers?",
+      "srcHash": "2ca8eda751534ac7d8ccfb82f285bc912e3df376"
+    },
+    "q.share.often": {
+      "en": "Often",
+      "srcHash": "7c6a583bd8e5515c27ae3b15f42459d97b29ef4b"
+    },
+    "q.share.sometimes": {
+      "en": "Sometimes",
+      "srcHash": "6f92740979d2aa05c16c8d61bb41b0fe18f238b7"
+    },
+    "q.share.openTo": {
+      "en": "No, but I’d be open to it",
+      "srcHash": "f767ecbd520dcdf4ea614be92e48075630adef87"
+    },
+    "q.share.keep": {
+      "en": "No, I’d rather keep them",
+      "srcHash": "c5b7500fba8ad0877e2f9bd249af42af596be9d0"
+    },
+    "q.attribution.legend": {
+      "en": "If you share a recipe, does being credited as the author matter to you?",
+      "srcHash": "4db9f2eb8356f2f0c895e3ac487fefba14f6f9ad"
+    },
+    "q.attribution.alot": {
+      "en": "A lot",
+      "srcHash": "32bb785fd7cf4cc160317cd3368c43d83cc05ead"
+    },
+    "q.attribution.abit": {
+      "en": "A little",
+      "srcHash": "800909c5058d7e725618e8ecd04e8b5689d44600"
+    },
+    "q.attribution.notatall": {
+      "en": "Not at all",
+      "srcHash": "0232abe4ee4782331b5ae4df757dbd9fbc0d3237"
+    },
+    "q.attribution.dontshare": {
+      "en": "I don’t share",
+      "srcHash": "fc2b50cfb6d55cf04968eb6b21d6ac71367e221c"
+    },
+    "q.trigger.legend": {
+      "en": "What would make you try a new brewing app? <span class=\"legend-hint\">(multiple answers)</span>",
+      "srcHash": "661f6da654acb8827a5422f2455b88970ab3c2e9"
+    },
+    "q.trigger.simplicity": {
+      "en": "Simplicity",
+      "srcHash": "4bf122c99353235f2c28a4ed4868102c9df097ea"
+    },
+    "q.trigger.free": {
+      "en": "Free",
+      "srcHash": "705667eefc65c731914f6d072c0839aff6d55eff"
+    },
+    "q.trigger.guided": {
+      "en": "Step-by-step guidance",
+      "srcHash": "f183b53c0a3be2521b5ada23ce1ca0337a48c009"
+    },
+    "q.trigger.community": {
+      "en": "A community",
+      "srcHash": "5f7cf7e91cbcd56ffec56a746420c1dbd9ac92c6"
+    },
+    "q.trigger.import": {
+      "en": "Being able to import my recipes",
+      "srcHash": "56a85bcef17c2ed099955dcccfa8703b5b7a114d"
+    },
+    "q.trigger.other": {
+      "en": "Other",
+      "srcHash": "43dacf9e4764b7999fad66aa3d0569507d8eed96"
+    },
+    "q.interview.legend": {
+      "en": "Would you be up for a 15-min chat to tell me more?",
+      "srcHash": "23aaba3c9cc9e351faece69744e6f78f0c911f42"
+    },
+    "q.interview.yes": {
+      "en": "Yes",
+      "srcHash": "eaa02f3f3362312d6dbb10211af6bc4ead72b2e6"
+    },
+    "q.interview.no": {
+      "en": "No",
+      "srcHash": "a7219939014149708b957f943d0493603bb64bad"
+    },
+    "q.contact.label": {
+      "en": "If so, your email or handle <span class=\"legend-hint\">(optional — never shared)</span>",
+      "srcHash": "8f8dab87ed48691eebcad6e987e89b86fa1a3daf"
+    },
+    "q.contact.placeholder": {
+      "en": "you@email.com or @handle",
+      "srcHash": "a8ea12cacf84cc69e555c8925915ab7386f04301"
+    },
+    "q.rgpd.consent": {
+      "en": "I agree that my answers may be used as part of developing Brasse-Bouillon.",
+      "srcHash": "ead482e49a66638bad969136a9859ee9eec9c3ff"
+    },
+    "q.consentNote": {
+      "en": "See our <a href=\"/privacy-en\" target=\"_blank\" rel=\"noopener noreferrer\">privacy policy</a> and our <a href=\"/terms-en\" target=\"_blank\" rel=\"noopener noreferrer\">terms</a>.",
+      "srcHash": "a97701603263530928151f55dc704447a332e7c5"
+    },
+    "q.submit": {
+      "en": "Send my answers",
+      "srcHash": "0ac9672b9f5c0fbc15aa2f47f39ddeed24796ec8"
+    },
+    "footer.brand": {
+      "en": "Brasse-Bouillon, the app for curious homebrewers. Get in touch via the <a href=\"/#participerFr\">site form</a>.",
+      "srcHash": "53b7f3f0cbe7fcf85847edf344064a01037507e9"
+    },
+    "footer.legal": {
+      "en": "Legal notice",
+      "srcHash": "414291e05e85537f2cf315589bea0b768e9e2b95"
+    },
+    "footer.legal.href": {
+      "en": "/legal-en",
+      "srcHash": "89a0fb8d144ee4fdb98ce72bc643434349a2a01a"
+    },
+    "footer.privacy": {
+      "en": "Privacy",
+      "srcHash": "893146766d122f40da95ae28603c72b0572e0f29"
+    },
+    "footer.privacy.href": {
+      "en": "/privacy-en",
+      "srcHash": "746697eb77efc71ea5ae64449705d85a0e0e49e2"
+    },
+    "footer.cookies": {
+      "en": "Cookies",
+      "srcHash": "524cf50b5df5f29161c0600989922de48abede70"
+    },
+    "footer.cookies.href": {
+      "en": "/cookies-en",
+      "srcHash": "f0459ea7d133cba829b434b9e0e20902057426d3"
+    },
+    "footer.terms": {
+      "en": "Terms of use",
+      "srcHash": "9074eac79986de81f4a83f5ef44d10dd4a98b0cd"
+    },
+    "footer.terms.href": {
+      "en": "/terms-en",
+      "srcHash": "1da22e510fdefd10b66784b28a1511a388a5334c"
+    },
+    "responsibility.label": {
+      "en": "Legal notice",
+      "srcHash": "5ef11504ac5ec84c2909dff790429796c101586b"
+    },
+    "responsibility.text": {
+      "en": "Alcohol abuse is dangerous for your health. Drink responsibly. Brasse-Bouillon is for adults and promotes responsible consumption.",
+      "srcHash": "a9ce288849cf3d454896216feeadea78cc89d619"
+    }
+  }
+}

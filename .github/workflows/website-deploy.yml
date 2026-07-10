@@ -60,10 +60,11 @@ jobs:
           done
 
           # Required scalar files — fail loudly if any go missing.
-          # `_headers` has no extension, so it is not matched by the glob
-          # copies above and must be staged explicitly (Cloudflare Pages
-          # reads it from the deployment root to set response headers).
-          for required in favicon.ico sitemap.xml robots.txt _headers; do
+          # `_headers` and `_redirects` have no extension, so they are not
+          # matched by the glob copies above and must be staged explicitly
+          # (Cloudflare Pages reads them from the deployment root to set
+          # response headers and URL redirects — ADR-0027 D2).
+          for required in favicon.ico sitemap.xml robots.txt _headers _redirects; do
             cp "$src/$required" _site/
           done
 

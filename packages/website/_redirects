@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects (ADR-0027 D2).
+# The English home is served at the promoted URL /en (from en.html). The old
+# /index-en URL — and any legacy /index-en.html link — 301 to it.
+/index-en       /en   301
+/index-en.html  /en   301

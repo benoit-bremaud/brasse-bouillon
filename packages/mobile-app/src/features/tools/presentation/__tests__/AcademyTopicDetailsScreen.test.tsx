@@ -660,6 +660,17 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     }
   });
 
+  it("navigates from a legacy topic to its placeholder article route", () => {
+    render(<AcademyTopicDetailsScreen slugParam="histoire" />);
+
+    fireEvent.press(screen.getByText("En savoir plus"));
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/academy/[slug]/learn",
+      params: { slug: "histoire" },
+    });
+  });
+
   it("edge: every topic with hasCalculator=true is wired to a working calculator route", () => {
     const wired = academyTopics.filter((t) => t.hasCalculator);
     expect(wired.map((t) => t.slug).sort()).toEqual(
@@ -747,7 +758,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     expect(
       screen.getByText("Alias : International Bitterness Units"),
     ).toBeTruthy();
-    expect(screen.getByText("Sources")).toBeTruthy();
+    expect(screen.getByText("Sources du terme")).toBeTruthy();
     expect(screen.getByText("How to Brew (2017)")).toBeTruthy();
     expect(screen.getByText("Termes associés")).toBeTruthy();
     expect(

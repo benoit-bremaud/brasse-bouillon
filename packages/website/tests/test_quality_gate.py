@@ -362,19 +362,22 @@ class QualityGateTests(unittest.TestCase):
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             sitemap_path = root / "sitemap.xml"
-            # A noindex EN page (and a `.html` form) must never be listed.
+            # A noindex EN page and a `.html` form must never be listed.
             sitemap_path.write_text(
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
   <url><loc>https://brasse-bouillon.com/legal-en</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal.html</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
-            errors = quality_gate.collect_errors(root)
-            self.assertTrue(any("URL non autorisée" in err for err in errors))
+            errors = quality_gate.check_sitemap_policy(root)
+            disallowed = [err for err in errors if "URL non autorisée" in err]
+            self.assertTrue(any("legal-en" in err for err in disallowed))
+            self.assertTrue(any("legal.html" in err for err in disallowed))
 
     def test_sitemap_allows_home_and_fr_legal_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

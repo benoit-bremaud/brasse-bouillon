@@ -182,6 +182,7 @@ const WIDGET_STYLES = `
 .bb-chat__msg--error { background: var(--color-accent-soft); color: var(--color-error); }
 .bb-chat__msg--pending { opacity: 0.7; font-style: italic; }
 .bb-chat__chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
+.bb-chat__chips[hidden] { display: none; }
 .bb-chat__chip { padding: 7px 12px; cursor: pointer; font: inherit; font-size: 0.85rem;
   color: var(--copper-deep); background: transparent;
   border: 1px solid var(--line); border-radius: var(--radius-xl);
@@ -361,6 +362,9 @@ function mountChatWidget() {
     busy = true;
     submit.disabled = true;
     input.value = '';
+    // Suggestion chips are conversation starters: hide them once the first question is
+    // sent so the freed space (~25% of the panel) goes to reading the bot's answers.
+    chips.hidden = true;
     addMessage('user', trimmed);
     const pending = addMessage('bot', t.thinking, 'pending');
 

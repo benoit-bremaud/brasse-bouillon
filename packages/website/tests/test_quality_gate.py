@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import tempfile
 import unittest
 
-from scripts import quality_gate
+from scripts import build_i18n, quality_gate
 
 
 def _write_file(base: Path, rel_path: str, content: str) -> None:
@@ -70,13 +71,13 @@ def _create_valid_fixture(base: Path) -> None:
 
     _write_file(
         base,
-        "index-en.html",
+        "en.html",
         """<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>EN</title>
   <meta name="robots" content="noindex,follow">
-  <link rel="canonical" href="https://brasse-bouillon.com/">
+  <link rel="canonical" href="https://brasse-bouillon.com/en">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
@@ -87,6 +88,8 @@ def _create_valid_fixture(base: Path) -> None:
 </html>
 """,
     )
+
+    _write_file(base, "_redirects", "/index-en /en 301\n")
 
     _write_file(
         base,
@@ -156,7 +159,7 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            en_path = root / "index-en.html"
+            en_path = root / "en.html"
             en_content = en_path.read_text(encoding="utf-8")
             en_path.write_text(
                 en_content.replace(
@@ -340,7 +343,7 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            en_path = root / "index-en.html"
+            en_path = root / "en.html"
             en_path.write_text(
                 en_path.read_text(encoding="utf-8").replace(
                     '<script type="module" src="chat-widget.js"></script>',
@@ -557,6 +560,59 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
             )
             self.assertTrue(any("ratingValue non autorisé" in err for err in errors))
             self.assertTrue(any("ratingCount non autorisé" in err for err in errors))
+
+
+class I18nGateTests(unittest.TestCase):
+    """Cover check_i18n_home_generated at the gate layer (the generator internals
+    are covered separately in test_build_i18n)."""
+
+    @staticmethod
+    def _build_tree(root: Path, source: str, catalog: dict) -> None:
+        # The guard only checks that scripts/build_i18n.py exists; generation
+        # itself uses the imported real module against files under `root`.
+        _write_file(root, "scripts/build_i18n.py", "# marker\n")
+        _write_file(root, "index.html", source)
+        _write_file(root, "i18n/home.en.json", json.dumps(catalog))
+        _write_file(root, "en.html", build_i18n.generate(source, catalog))
+
+    def test_passes_when_en_html_in_sync(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            self.assertEqual(quality_gate.check_i18n_home_generated(root), [])
+
+    def test_fails_on_src_hash_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            # FR source changes without its EN translation/hash being updated.
+            _write_file(root, "index.html", '<p data-i18n="k">Salut</p>\n')
+            errors = quality_gate.check_i18n_home_generated(root)
+            self.assertTrue(any("i18n" in err for err in errors))
+
+    def test_fails_when_en_html_stale(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            _write_file(root, "en.html", "<p>stale hand edit</p>\n")
+            errors = quality_gate.check_i18n_home_generated(root)
+            self.assertTrue(any("périmé" in err for err in errors))
+
+    def test_skips_without_i18n_toolchain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            self.assertEqual(quality_gate.check_i18n_home_generated(Path(tmp_dir)), [])
 
 
 if __name__ == "__main__":

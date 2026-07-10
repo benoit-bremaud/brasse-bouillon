@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import Counter
 from pathlib import Path
+import json
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -29,7 +30,7 @@ SITEMAP_URLS = [
 
 REQUIRED_FILES = [
     "index.html",
-    "index-en.html",
+    "en.html",
     "404.html",
     "legal.html",
     "legal-en.html",
@@ -45,6 +46,7 @@ REQUIRED_FILES = [
     "fonts.css",
     "sitemap.xml",
     "robots.txt",
+    "_redirects",
     "feedback-widget.js",
     "chat-widget.js",
 ]
@@ -54,7 +56,7 @@ REQUIRED_FILES = [
 # page during a future edit.
 WIDGET_HTML_FILES = [
     "index.html",
-    "index-en.html",
+    "en.html",
     "legal.html",
     "legal-en.html",
     "privacy.html",
@@ -70,7 +72,7 @@ WIDGET_LOADER = "feedback-widget.js"
 # project). Guard both so the loader is never dropped from one language variant.
 CHAT_WIDGET_HTML_FILES = [
     "index.html",
-    "index-en.html",
+    "en.html",
 ]
 CHAT_WIDGET_LOADER = "chat-widget.js"
 
@@ -102,19 +104,23 @@ HTML_RULES = {
             'attribut aria-controls="headerNav" manquant sur le bouton burger',
         ),
     ],
-    "index-en.html": [
+    "en.html": [
         (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
         (r"<html\s+lang=\"en\"", 'balise <html lang="en"> manquante'),
         (r"<title>.+</title>", "balise <title> manquante"),
         (r"id=\"mainContentEn\"", "ancre principale #mainContentEn manquante"),
+        # S1 ships en.html "dark": noindex is required now; S2 removes this rule
+        # when it flips the page to indexable (ADR-0027 D5 clause 1).
         (
             r"<meta\s+name=\"robots\"\s+content=\"noindex,\s*follow\"\s*/?>",
-            "meta robots noindex,follow manquant dans index-en.html",
+            "meta robots noindex,follow manquant dans en.html",
         ),
+        # The EN home is self-canonical to /en (not the FR master). This is the
+        # SEO defect the epic corrects; the generator must never emit canonical=/.
         (
             r"<link\s+rel=\"canonical\"\s+href=\""
-            r"https://brasse-bouillon\.com/\"",
-            "canonical EN vers https://brasse-bouillon.com/ manquante",
+            r"https://brasse-bouillon\.com/en\"",
+            "canonical EN vers https://brasse-bouillon.com/en manquante",
         ),
     ],
     # The catch-all error page (Cloudflare Pages serves it with a real HTTP
@@ -156,27 +162,27 @@ DISALLOWED_HTML_PATTERNS = {
             "champ ratingCount non autorisé dans index.html",
         ),
     ],
-    "index-en.html": [
+    "en.html": [
         (
             r'"@type"\s*:\s*"SoftwareApplication"',
-            "schema SoftwareApplication non autorisé dans index-en.html "
+            "schema SoftwareApplication non autorisé dans en.html "
             "(à déplacer vers app.html)",
         ),
         (
             r'"@type"\s*:\s*"Review"',
-            "schema Review non autorisé dans index-en.html",
+            "schema Review non autorisé dans en.html",
         ),
         (
             r'"aggregateRating"\s*:',
-            "champ aggregateRating non autorisé dans index-en.html",
+            "champ aggregateRating non autorisé dans en.html",
         ),
         (
             r'"ratingValue"\s*:',
-            "champ ratingValue non autorisé dans index-en.html",
+            "champ ratingValue non autorisé dans en.html",
         ),
         (
             r'"ratingCount"\s*:',
-            "champ ratingCount non autorisé dans index-en.html",
+            "champ ratingCount non autorisé dans en.html",
         ),
     ],
 }
@@ -388,6 +394,42 @@ def check_no_stale_host(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
+    """The English home is generated from index.html + i18n/home.en.json by
+    scripts/build_i18n.py (ADR-0027). This runs the generator in-process and
+    checks that en.html is up to date and that no French source drifted from
+    its translation — covering key parity, srcHash freshness and the
+    regeneration diff in one shot. Skipped for trees without the i18n toolchain
+    (e.g. minimal test fixtures)."""
+    catalog_path = root / "i18n" / "home.en.json"
+    build_script = root / "scripts" / "build_i18n.py"
+    if not (catalog_path.exists() and build_script.exists()):
+        return []
+
+    try:
+        from scripts import build_i18n  # pytest / package context
+    except ImportError:  # direct `python3 scripts/quality_gate.py` run
+        import build_i18n  # type: ignore[no-redef]
+
+    try:
+        source = (root / "index.html").read_text(encoding="utf-8")
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        generated = build_i18n.generate(source, catalog, check_hashes=True)
+    except (build_i18n.BuildError, OSError, json.JSONDecodeError) as exc:
+        # Unreadable index.html / malformed catalog must surface as a normal
+        # gate failure, not an unhandled crash (parity with check_sitemap_policy).
+        return [f"i18n (en.html): {exc}"]
+
+    output_path = root / "en.html"
+    current = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
+    if current != generated:
+        return [
+            "en.html est périmé — lancer `python scripts/build_i18n.py` "
+            "puis committer le résultat"
+        ]
+    return []
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -399,6 +441,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_clean_seo_urls(root))
     errors.extend(check_no_external_fonts(root))
     errors.extend(check_no_stale_host(root))
+    errors.extend(check_i18n_home_generated(root))
     return errors
 
 

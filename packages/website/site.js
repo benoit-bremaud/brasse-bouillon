@@ -1,6 +1,78 @@
 (function (global) {
   'use strict';
 
+  // Formspree endpoints — shared by both languages (the hidden `lang` field is
+  // the discriminator, ADR-0027 D3), so they are language-neutral constants.
+  const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
+  const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
+
+  // Per-language UI string catalogs. Kept here (not inline in the page) so the
+  // home's bootstrap <script> stays language-neutral and build_i18n.py only has
+  // to swap the `'fr'` argument to `'en'` for en.html (ADR-0027 D1.3 / D3).
+  const MENU_LABELS = {
+    fr: { open: 'Ouvrir le menu', close: 'Fermer le menu' },
+    en: { open: 'Open menu', close: 'Close menu' }
+  };
+
+  const FORM_MESSAGES = {
+    fr: {
+      questionnaire: {
+        endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
+        sending: 'Envoi en cours…',
+        success: 'Merci ! Ton retour a bien été envoyé.',
+        http400: 'Certaines informations semblent invalides. Vérifie le formulaire puis réessaie.',
+        http429: 'Trop de demandes. Attends un peu avant de réessayer.',
+        http5xx: 'Erreur du serveur. Réessaie dans quelques minutes ou contacte le support.',
+        httpGeneric: 'Impossible d’envoyer pour le moment. Réessaie dans quelques minutes.',
+        offline: 'Tu sembles hors ligne. Vérifie ta connexion Internet puis réessaie.',
+        aborted: 'La requête a été interrompue. Réessaie l’envoi du formulaire.',
+        networkOrCors: 'Impossible de contacter le serveur (problème réseau ou CORS). Réessaie dans quelques instants.',
+        unexpected: 'Une erreur est survenue lors de l’envoi. Réessaie dans quelques instants.'
+      },
+      newsletter: {
+        endpointMissing: 'Endpoint newsletter non configuré.',
+        sending: 'Inscription en cours…',
+        success: 'Super ! Ton inscription à la waitlist est confirmée.',
+        http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
+        http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
+        http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
+        httpGeneric: 'Impossible d’enregistrer l’inscription pour le moment. Réessaie dans quelques minutes.',
+        offline: 'Tu sembles hors ligne. Vérifie ta connexion puis réessaie.',
+        aborted: 'La requête a été interrompue. Réessaie l’inscription.',
+        networkOrCors: 'Impossible de contacter le service (réseau/CORS). Réessaie bientôt.',
+        unexpected: 'Une erreur inattendue est survenue. Réessaie dans quelques instants.'
+      }
+    },
+    en: {
+      questionnaire: {
+        endpointMissing: 'Questionnaire Formspree endpoint is not configured.',
+        sending: 'Sending…',
+        success: 'Thanks! Your feedback has been sent.',
+        http400: 'Some answers look invalid. Check the form and try again.',
+        http429: 'Too many requests. Give it a moment before trying again.',
+        http5xx: 'Server error. Try again in a few minutes or contact support.',
+        httpGeneric: 'Couldn’t send right now. Try again in a few minutes.',
+        offline: 'You seem to be offline. Check your connection and try again.',
+        aborted: 'The request was interrupted. Send the form again.',
+        networkOrCors: 'Couldn’t reach the server (network or CORS issue). Try again in a moment.',
+        unexpected: 'Something went wrong while sending. Try again in a moment.'
+      },
+      newsletter: {
+        endpointMissing: 'Newsletter endpoint is not configured.',
+        sending: 'Signing you up…',
+        success: 'You’re in! Your waitlist spot is confirmed.',
+        http400: 'That email looks invalid or incomplete. Check it and try again.',
+        http429: 'Too many attempts. Please wait a moment before trying again.',
+        http5xx: 'The service is temporarily unavailable. Try again a bit later.',
+        httpGeneric: 'Couldn’t save your signup right now. Try again in a few minutes.',
+        offline: 'You seem to be offline. Check your connection and try again.',
+        aborted: 'The request was interrupted. Sign up again.',
+        networkOrCors: 'Couldn’t reach the service (network/CORS). Try again soon.',
+        unexpected: 'An unexpected error occurred. Try again in a moment.'
+      }
+    }
+  };
+
   function toggleQuestionnaire(options) {
     const { lang } = options;
     const formId = `questionnaireForm${lang === 'fr' ? 'Fr' : 'En'}`;
@@ -63,14 +135,19 @@
       formId,
       statusId,
       endpoint,
-      messages,
       checkboxLimits = [],
       requiredCheckboxGroups = []
     } = options;
 
+    // Messages come from the per-language catalog by `lang` + `kind`; an explicit
+    // `messages` object still overrides it (kept for flexibility / tests).
+    const lang = options.lang === 'en' ? 'en' : 'fr';
+    const messages =
+      options.messages || (FORM_MESSAGES[lang] && FORM_MESSAGES[lang][options.kind]);
+
     const form = document.getElementById(formId);
     const status = document.getElementById(statusId);
-    if (!form || !status) return;
+    if (!form || !status || !messages) return;
 
     const submitBtn = form.querySelector('button[type="submit"]');
 
@@ -132,7 +209,8 @@
   function setupMenu(options = {}) {
     const navId = options.navId || 'headerNav';
     const toggleId = options.toggleId || 'navToggle';
-    const labels = options.labels || { open: 'Ouvrir le menu', close: 'Fermer le menu' };
+    const lang = options.lang === 'en' ? 'en' : 'fr';
+    const labels = options.labels || MENU_LABELS[lang];
 
     const nav = document.getElementById(navId);
     const toggle = document.getElementById(toggleId);
@@ -366,6 +444,37 @@
     scheduleNext();
   }
 
+  /**
+   * One-call bootstrap for a home page (FR `index.html` or the generated EN
+   * `en.html`). Wires the mobile menu and both Formspree forms for the given
+   * language, pulling every UI string from the catalogs above. The page's
+   * inline <script> only needs `BBShared.initHome({ lang: 'fr' })`; build_i18n.py
+   * swaps the `'fr'` literal to `'en'` (and the `…Fr` DOM ids to `…En`) when it
+   * generates `en.html`, so the bootstrap itself carries no translatable text.
+   */
+  function initHome(options) {
+    const lang = options && options.lang === 'en' ? 'en' : 'fr';
+    const suffix = lang === 'en' ? 'En' : 'Fr';
+
+    setupMenu({ lang });
+
+    setupQuestionnaire({
+      formId: `questionnaireForm${suffix}`,
+      statusId: `questionnaireStatus${suffix}`,
+      endpoint: QUESTIONNAIRE_ENDPOINT,
+      lang,
+      kind: 'questionnaire'
+    });
+
+    setupQuestionnaire({
+      formId: `newsletterForm${suffix}`,
+      statusId: `newsletterStatus${suffix}`,
+      endpoint: NEWSLETTER_ENDPOINT,
+      lang,
+      kind: 'newsletter'
+    });
+  }
+
   function onReady(fn) {
     if (document.readyState !== 'loading') {
       fn();
@@ -392,6 +501,7 @@
   }
 
   global.BBShared = {
+    initHome,
     toggleQuestionnaire,
     setupQuestionnaire,
     setupMenu,

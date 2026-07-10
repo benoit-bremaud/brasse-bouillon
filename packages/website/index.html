@@ -101,13 +101,13 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#mainContentFr">Aller au contenu principal</a>
+  <a class="skip-link" href="#mainContentFr" data-i18n="skip.link">Aller au contenu principal</a>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
   <div class="bubbles" aria-hidden="true"></div>
 
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="header-logo">
+      <a href="/" class="header-logo" data-i18n-attrs="href:nav.logo.href">
         <img src="logo-hero.webp" alt="" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
@@ -118,14 +118,19 @@
         aria-expanded="false"
         aria-controls="headerNav"
         aria-label="Ouvrir le menu"
+        data-i18n-attrs="aria-label:nav.toggle"
       >
         <span class="nav-toggle__bars" aria-hidden="true"></span>
       </button>
       <nav class="header-nav" id="headerNav">
-        <a href="#journeyFr">Parcours</a>
-        <a href="#features">L’app</a>
-        <a href="#faq">FAQ</a>
-        <a href="#participerFr" class="header-cta">Rejoindre la waitlist</a>
+        <div class="lang-switch" role="group" aria-label="Langue / Language">
+          <a class="lang-switch__link" href="/" lang="fr" aria-current="page" data-lang-link="fr">FR</a>
+          <a class="lang-switch__link" href="/en" lang="en" data-lang-link="en">EN</a>
+        </div>
+        <a href="#journeyFr" data-i18n="nav.journey">Parcours</a>
+        <a href="#features" data-i18n="nav.app">L’app</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+        <a href="#participerFr" class="header-cta" data-i18n="nav.cta">Rejoindre la waitlist</a>
       </nav>
     </div>
   </header>
@@ -136,208 +141,209 @@
         <div class="hero-embers" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span><span></span>
         </div>
-        <span class="pill">Bêta 2026 · Places limitées</span>
-        <h1>
+        <span class="pill" data-i18n="hero.pill">Bêta 2026 · Places limitées</span>
+        <h1 data-i18n="hero.title">
           Brasse ta première bière <em>sans peur de rater.</em>
         </h1>
-        <p class="intro">
+        <p class="intro" data-i18n="hero.intro">
           De la recette choisie à la première gorgée, l’app te dit quoi faire, quand, et pourquoi.
           Sans jargon, sans calcul de tête, sans surprise.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#participerFr">Rejoindre la waitlist</a>
-          <a class="btn btn-ghost" href="#journeyFr">Voir comment ça se passe</a>
+          <a class="btn btn-primary" href="#participerFr" data-i18n="hero.cta.primary">Rejoindre la waitlist</a>
+          <a class="btn btn-ghost" href="#journeyFr" data-i18n="hero.cta.secondary">Voir comment ça se passe</a>
         </div>
+        <p class="hero-honesty" data-i18n-en-only="hero.honesty"></p>
         <div class="hero-mascot">
-          <img class="logo" src="logo-hero.webp" alt="Mascotte officielle Brasse-Bouillon" loading="eager" width="180" height="180">
+          <img class="logo" src="logo-hero.webp" alt="Mascotte officielle Brasse-Bouillon" loading="eager" width="180" height="180" data-i18n-attrs="alt:hero.mascot">
         </div>
       </section>
 
       <section class="section-block" id="journeyFr">
-        <p class="section-eyebrow">Le parcours</p>
-        <h2 class="section-title">De la recette à la <em>dégustation</em></h2>
-        <p class="section-intro">Quatre étapes, un copilote à chaque moment. Tu n’es jamais seul devant tes cuves.</p>
+        <p class="section-eyebrow" data-i18n="journey.eyebrow">Le parcours</p>
+        <h2 class="section-title" data-i18n="journey.title">De la recette à la <em>dégustation</em></h2>
+        <p class="section-intro" data-i18n="journey.intro">Quatre étapes, un copilote à chaque moment. Tu n’es jamais seul devant tes cuves.</p>
         <ol class="journey-grid">
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">01</span>
             <div class="journey-screenshot">
-              <img src="screenshots/journey-1-catalog.webp?v=20260526" alt="Catalogue de recettes de l’app : liste de recettes publiques avec leurs indicateurs IBU, ABV et volume" loading="lazy" width="320" height="640">
+              <img src="screenshots/journey-1-catalog.webp?v=20260526" alt="Catalogue de recettes de l’app : liste de recettes publiques avec leurs indicateurs IBU, ABV et volume" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.1.img">
             </div>
-            <h3>Choisis ta recette</h3>
-            <p>Compare les recettes-clones de la communauté, notées et éprouvées, et adopte celle qui te tente. Sans jargon.</p>
+            <h3 data-i18n="journey.1.title">Choisis ta recette</h3>
+            <p data-i18n="journey.1.body">Compare les recettes-clones de la communauté, notées et éprouvées, et adopte celle qui te tente. Sans jargon.</p>
           </li>
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">02</span>
             <div class="journey-screenshot">
-              <img src="screenshots/journey-2-brewing.webp?v=20260526" alt="Capture de l’écran de pilotage du brassin pendant l’empâtage à 67°C, avec timer et étapes" loading="lazy" width="320" height="640">
+              <img src="screenshots/journey-2-brewing.webp?v=20260526" alt="Capture de l’écran de pilotage du brassin pendant l’empâtage à 67°C, avec timer et étapes" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.2.img">
             </div>
-            <h3>Brasse pas à pas</h3>
-            <p>Minuteurs, températures et le pourquoi de chaque geste : l’app te guide à chaque étape — empâtage, ébullition, refroidissement.</p>
+            <h3 data-i18n="journey.2.title">Brasse pas à pas</h3>
+            <p data-i18n="journey.2.body">Minuteurs, températures et le pourquoi de chaque geste : l’app te guide à chaque étape — empâtage, ébullition, refroidissement.</p>
           </li>
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">03</span>
             <div class="journey-screenshot">
-              <img src="screenshots/journey-3-fermenting.webp?v=20260526" alt="Capture de l’écran de fermentation avec la barre de progression jour 5 sur 14 et la densité actuelle" loading="lazy" width="320" height="640">
+              <img src="screenshots/journey-3-fermenting.webp?v=20260526" alt="Capture de l’écran de fermentation avec la barre de progression jour 5 sur 14 et la densité actuelle" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.3.img">
             </div>
-            <h3>Suis la fermentation</h3>
-            <p>Jours, densité, température. Un coup d’œil et tu sais où tu en es.</p>
+            <h3 data-i18n="journey.3.title">Suis la fermentation</h3>
+            <p data-i18n="journey.3.body">Jours, densité, température. Un coup d’œil et tu sais où tu en es.</p>
           </li>
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">04</span>
             <div class="journey-screenshot">
-              <img src="screenshots/journey-4-deguste.webp?v=20260526" alt="Capture de l’écran de célébration « brassin terminé » avec la bouteille et l’étiquette personnalisée" loading="lazy" width="320" height="640">
+              <img src="screenshots/journey-4-deguste.webp?v=20260526" alt="Capture de l’écran de célébration « brassin terminé » avec la bouteille et l’étiquette personnalisée" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.4.img">
             </div>
-            <h3>Mets en bouteille, savoure</h3>
-            <p>Colle ton étiquette, partage avec tes amis, savoure ta première création.</p>
+            <h3 data-i18n="journey.4.title">Mets en bouteille, savoure</h3>
+            <p data-i18n="journey.4.body">Colle ton étiquette, partage avec tes amis, savoure ta première création.</p>
           </li>
         </ol>
       </section>
 
       <div class="marquee" aria-hidden="true">
         <div class="marquee-track">
-          <span>Empâtage</span><span aria-hidden="true">·</span>
-          <span>Houblonnage</span><span aria-hidden="true">·</span>
-          <span>IBU 22</span><span aria-hidden="true">·</span>
-          <span>ABV 4.8 %</span><span aria-hidden="true">·</span>
-          <span>EBC 8</span><span aria-hidden="true">·</span>
-          <span>Fermentation</span><span aria-hidden="true">·</span>
-          <span>Cold crash</span><span aria-hidden="true">·</span>
-          <span>Refermentation</span><span aria-hidden="true">·</span>
-          <span>Mise en bouteille</span><span aria-hidden="true">·</span>
-          <span>Empâtage</span><span aria-hidden="true">·</span>
-          <span>Houblonnage</span><span aria-hidden="true">·</span>
-          <span>IBU 22</span><span aria-hidden="true">·</span>
-          <span>ABV 4.8 %</span><span aria-hidden="true">·</span>
-          <span>EBC 8</span><span aria-hidden="true">·</span>
-          <span>Fermentation</span><span aria-hidden="true">·</span>
-          <span>Cold crash</span><span aria-hidden="true">·</span>
-          <span>Refermentation</span><span aria-hidden="true">·</span>
-          <span>Mise en bouteille</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.mash">Empâtage</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.hop">Houblonnage</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ibu">IBU 22</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.abv">ABV 4.8 %</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ebc">EBC 8</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ferment">Fermentation</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.coldcrash">Cold crash</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.condition">Refermentation</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.bottle">Mise en bouteille</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.mash">Empâtage</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.hop">Houblonnage</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ibu">IBU 22</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.abv">ABV 4.8 %</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ebc">EBC 8</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.ferment">Fermentation</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.coldcrash">Cold crash</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.condition">Refermentation</span><span aria-hidden="true">·</span>
+          <span data-i18n="marquee.bottle">Mise en bouteille</span><span aria-hidden="true">·</span>
         </div>
       </div>
 
       <section class="section-block" id="features">
-        <p class="section-eyebrow">Trois outils, un copilote</p>
-        <h2 class="section-title">L’<em>essentiel</em>, rien que l’essentiel</h2>
-        <p class="section-intro">Pas de bardage de fonctionnalités. Trois piliers, pensés pour te faire gagner du temps et progresser.</p>
+        <p class="section-eyebrow" data-i18n="features.eyebrow">Trois outils, un copilote</p>
+        <h2 class="section-title" data-i18n="features.title">L’<em>essentiel</em>, rien que l’essentiel</h2>
+        <p class="section-intro" data-i18n="features.intro">Pas de bardage de fonctionnalités. Trois piliers, pensés pour te faire gagner du temps et progresser.</p>
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-studio-recipes.webp?v=20260526" alt="Capture de l’écran Studio de recettes avec onglets Ingrédients et calculs en direct" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-studio-recipes.webp?v=20260526" alt="Capture de l’écran Studio de recettes avec onglets Ingrédients et calculs en direct" loading="lazy" width="280" height="560" data-i18n-attrs="alt:features.1.img">
             </div>
-            <h3>Studio de recettes</h3>
-            <p>Crée, duplique, ajuste tes recettes en quelques taps. Versionne et compare sans te perdre.</p>
+            <h3 data-i18n="features.1.title">Studio de recettes</h3>
+            <p data-i18n="features.1.body">Crée, duplique, ajuste tes recettes en quelques taps. Versionne et compare sans te perdre.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-calculs-hops.webp?v=20260526" alt="Capture de l’écran Calcul houblons avec onglets Rapide, Inversé et BU:GU et sliders interactifs" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-calculs-hops.webp?v=20260526" alt="Capture de l’écran Calcul houblons avec onglets Rapide, Inversé et BU:GU et sliders interactifs" loading="lazy" width="280" height="560" data-i18n-attrs="alt:features.2.img">
             </div>
-            <h3>Calculs brassage</h3>
-            <p>IBU, ABV, couleur, volumes, rendements. Tous les indicateurs au même endroit, fiables.</p>
+            <h3 data-i18n="features.2.title">Calculs brassage</h3>
+            <p data-i18n="features.2.body">IBU, ABV, couleur, volumes, rendements. Tous les indicateurs au même endroit, fiables.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-pilotage-batches.webp?v=20260526" alt="Capture de l’écran Pilotage temps réel avec timeline des étapes et statuts" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-pilotage-batches.webp?v=20260526" alt="Capture de l’écran Pilotage temps réel avec timeline des étapes et statuts" loading="lazy" width="280" height="560" data-i18n-attrs="alt:features.3.img">
             </div>
-            <h3>Pilotage guidé</h3>
-            <p>Timeline claire, rappels utiles, checkpoints critiques. Tu sais quoi faire, quand, pourquoi.</p>
+            <h3 data-i18n="features.3.title">Pilotage guidé</h3>
+            <p data-i18n="features.3.body">Timeline claire, rappels utiles, checkpoints critiques. Tu sais quoi faire, quand, pourquoi.</p>
           </article>
         </div>
       </section>
 
       <section class="section-block" id="scanFr">
-        <p class="section-eyebrow">La reconnaissance</p>
-        <h2 class="section-title">Une bière t’a plu&nbsp;? <em>Scanne-la.</em></h2>
-        <p class="section-intro">Scanne l’étiquette d’une bière du commerce&nbsp;: Brasse-Bouillon l’identifie, puis te propose des recettes équivalentes notées par la communauté — prêtes à brasser.</p>
+        <p class="section-eyebrow" data-i18n="scan.eyebrow">La reconnaissance</p>
+        <h2 class="section-title" data-i18n="scan.title">Une bière t’a plu&nbsp;? <em>Scanne-la.</em></h2>
+        <p class="section-intro" data-i18n="scan.intro">Scanne l’étiquette d’une bière du commerce&nbsp;: Brasse-Bouillon l’identifie, puis te propose des recettes équivalentes notées par la communauté — prêtes à brasser.</p>
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-scan-recognition.webp?v=20260526" alt="Capture de l’écran Bière reconnue affichant La Chouffe avec son style, sa couleur et son amertume" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-scan-recognition.webp?v=20260526" alt="Capture de l’écran Bière reconnue affichant La Chouffe avec son style, sa couleur et son amertume" loading="lazy" width="280" height="560" data-i18n-attrs="alt:scan.1.img">
             </div>
-            <h3>Reconnaissance instantanée</h3>
-            <p>Style, couleur, amertume, taux d’alcool&nbsp;: la fiche complète dès que la bière est identifiée.</p>
+            <h3 data-i18n="scan.1.title">Reconnaissance instantanée</h3>
+            <p data-i18n="scan.1.body">Style, couleur, amertume, taux d’alcool&nbsp;: la fiche complète dès que la bière est identifiée.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-scan-matches.webp?v=20260526" alt="Capture de l’écran des recettes équivalentes notées par la communauté, chacune avec un bouton Importer" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-scan-matches.webp?v=20260526" alt="Capture de l’écran des recettes équivalentes notées par la communauté, chacune avec un bouton Importer" loading="lazy" width="280" height="560" data-i18n-attrs="alt:scan.2.img">
             </div>
-            <h3>Recettes de la communauté</h3>
-            <p>Des clones notés et éprouvés par d’autres brasseurs — importe-les dans ton carnet en un tap.</p>
+            <h3 data-i18n="scan.2.title">Recettes de la communauté</h3>
+            <p data-i18n="scan.2.body">Des clones notés et éprouvés par d’autres brasseurs — importe-les dans ton carnet en un tap.</p>
           </article>
         </div>
       </section>
 
       <section class="section-block" id="academieFr">
-        <p class="section-eyebrow">La pédagogie</p>
-        <h2 class="section-title">Comprends ce que tu <em>brasses</em></h2>
-        <p class="section-intro">Pas seulement comment, mais pourquoi. L’Académie réunit des articles sourcés et un glossaire du brassage — des ingrédients à la fermentation, du premier brassin au réglage fin.</p>
+        <p class="section-eyebrow" data-i18n="academie.eyebrow">La pédagogie</p>
+        <h2 class="section-title" data-i18n="academie.title">Comprends ce que tu <em>brasses</em></h2>
+        <p class="section-intro" data-i18n="academie.intro">Pas seulement comment, mais pourquoi. L’Académie réunit des articles sourcés et un glossaire du brassage — des ingrédients à la fermentation, du premier brassin au réglage fin.</p>
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-academie.webp?v=20260710" alt="Capture de l’écran d’accueil de l’Académie brassicole : carte de synthèse (10 articles, 8 calculateurs), barre de recherche, filtres par thème et liste d’articles (histoire de la bière, introduction au brassage, malts et fermentescibles)" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-academie.webp?v=20260710" alt="Capture de l’écran d’accueil de l’Académie brassicole : carte de synthèse (10 articles, 8 calculateurs), barre de recherche, filtres par thème et liste d’articles (histoire de la bière, introduction au brassage, malts et fermentescibles)" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.1.img">
             </div>
-            <h3>Des repères, pas du jargon</h3>
-            <p>Ingrédients, couleur, alcool, fermentation&nbsp;: des articles clairs, classés par thème, pour apprendre à ton rythme.</p>
+            <h3 data-i18n="academie.1.title">Des repères, pas du jargon</h3>
+            <p data-i18n="academie.1.body">Ingrédients, couleur, alcool, fermentation&nbsp;: des articles clairs, classés par thème, pour apprendre à ton rythme.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
-              <img src="screenshots/feature-academie-glossaire.webp?v=20260710" alt="Capture de l’écran d’un terme du glossaire, l’IBU, avec sa définition détaillée et sa source bibliographique" loading="lazy" width="280" height="560">
+              <img src="screenshots/feature-academie-glossaire.webp?v=20260710" alt="Capture de l’écran d’un terme du glossaire, l’IBU, avec sa définition détaillée et sa source bibliographique" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.2.img">
             </div>
-            <h3>Un glossaire sourcé</h3>
-            <p>IBU, densité, atténuation… chaque terme défini simplement, sources à l’appui — livres et standards du brassage.</p>
+            <h3 data-i18n="academie.2.title">Un glossaire sourcé</h3>
+            <p data-i18n="academie.2.body">IBU, densité, atténuation… chaque terme défini simplement, sources à l’appui — livres et standards du brassage.</p>
           </article>
         </div>
       </section>
 
       <section class="section-block" id="faqSection">
-        <p class="section-eyebrow">Questions fréquentes</p>
-        <h2 class="section-title" id="faq">Les <em>doutes</em> avant de se lancer</h2>
+        <p class="section-eyebrow" data-i18n="faq.eyebrow">Questions fréquentes</p>
+        <h2 class="section-title" id="faq" data-i18n="faq.title">Les <em>doutes</em> avant de se lancer</h2>
         <div class="faq-grid">
           <details class="faq-item">
-            <summary>Faut-il être bricoleur pour brasser sa bière ?</summary>
-            <p>Pas du tout. Une casserole, un fermenteur, des bouteilles — et l’app qui te dit quoi faire à chaque étape. Si tu sais cuisiner des pâtes, tu sais brasser une bière.</p>
+            <summary data-i18n="faq.q1.summary">Faut-il être bricoleur pour brasser sa bière ?</summary>
+            <p data-i18n="faq.q1.answer">Pas du tout. Une casserole, un fermenteur, des bouteilles — et l’app qui te dit quoi faire à chaque étape. Si tu sais cuisiner des pâtes, tu sais brasser une bière.</p>
           </details>
           <details class="faq-item">
-            <summary>Combien ça coûte de se lancer ?</summary>
-            <p>Entre 60 et 120 € pour un kit débutant complet. Tu refais 5-6 brassins avec, et le matos est largement amorti par rapport au prix d’une bonne bière artisanale.</p>
+            <summary data-i18n="faq.q2.summary">Combien ça coûte de se lancer ?</summary>
+            <p data-i18n="faq.q2.answer">Entre 60 et 120 € pour un kit débutant complet. Tu refais 5-6 brassins avec, et le matos est largement amorti par rapport au prix d’une bonne bière artisanale.</p>
           </details>
           <details class="faq-item">
-            <summary>Combien de temps dure un brassin (la première fois) ?</summary>
-            <p>Une demi-journée pour la session de brassage (4-5h), puis 2 à 3 semaines de fermentation où tu n’as quasiment rien à faire. L’app te rappelle les checkpoints critiques.</p>
+            <summary data-i18n="faq.q3.summary">Combien de temps dure un brassin (la première fois) ?</summary>
+            <p data-i18n="faq.q3.answer">Une demi-journée pour la session de brassage (4-5h), puis 2 à 3 semaines de fermentation où tu n’as quasiment rien à faire. L’app te rappelle les checkpoints critiques.</p>
           </details>
           <details class="faq-item">
-            <summary>Et si je rate mon premier brassin ?</summary>
-            <p>Ça arrive, et c’est presque toujours buvable. L’app post-mortem chaque étape pour t’aider à comprendre ce qui s’est passé — et le brassin suivant repart meilleur.</p>
+            <summary data-i18n="faq.q4.summary">Et si je rate mon premier brassin ?</summary>
+            <p data-i18n="faq.q4.answer">Ça arrive, et c’est presque toujours buvable. L’app post-mortem chaque étape pour t’aider à comprendre ce qui s’est passé — et le brassin suivant repart meilleur.</p>
           </details>
           <details class="faq-item">
-            <summary>Quand l’app sera disponible ?</summary>
-            <p>Bêta progressive en 2026. Les inscrits à la waitlist passent en priorité.</p>
+            <summary data-i18n="faq.q5.summary">Quand l’app sera disponible ?</summary>
+            <p data-i18n="faq.q5.answer">Bêta progressive en 2026. Les inscrits à la waitlist passent en priorité.</p>
           </details>
         </div>
       </section>
 
       <section class="section-block participate" id="participerFr">
-        <p class="section-eyebrow">Participer</p>
-        <h2 class="section-title">Rejoins la <em>première fournée</em></h2>
-        <p class="section-intro">
+        <p class="section-eyebrow" data-i18n="participate.eyebrow">Participer</p>
+        <h2 class="section-title" data-i18n="participate.title">Rejoins la <em>première fournée</em></h2>
+        <p class="section-intro" data-i18n="participate.intro">
           Laisse ton email pour entrer dans la boucle bêta. Tu peux aussi partager ton avis ou nous écrire en direct.
         </p>
 
         <form id="newsletterFormFr" class="contact-form" aria-describedby="newsletterStatusFr">
-          <input type="hidden" name="_subject" value="Inscription newsletter Brasse-Bouillon (FR)">
+          <input type="hidden" name="_subject" value="Inscription newsletter Brasse-Bouillon (FR)" data-i18n-attrs="value:newsletter.subject">
           <input type="hidden" name="lang" value="fr">
           <input type="hidden" name="source" value="newsletter">
-          <input type="hidden" name="message" value="Nouvelle inscription newsletter via le site (FR)">
+          <input type="hidden" name="message" value="Nouvelle inscription newsletter via le site (FR)" data-i18n-attrs="value:newsletter.message">
           <input class="honeypot" type="text" name="_gotcha">
 
-          <label class="sr-only" for="newsletterEmailFr">Adresse email pour la waitlist</label>
-          <input id="newsletterEmailFr" type="email" name="email" placeholder="ton@email.fr" required>
+          <label class="sr-only" for="newsletterEmailFr" data-i18n="newsletter.emailLabel">Adresse email pour la waitlist</label>
+          <input id="newsletterEmailFr" type="email" name="email" placeholder="ton@email.fr" required data-i18n-attrs="placeholder:newsletter.emailPlaceholder">
 
           <label class="consent">
             <input type="checkbox" name="newsletter_consent" value="accepted" required>
-            J’accepte de recevoir les nouvelles de Brasse-Bouillon et je peux me désinscrire à tout moment.
+            <span data-i18n="newsletter.consent">J’accepte de recevoir les nouvelles de Brasse-Bouillon et je peux me désinscrire à tout moment.</span>
           </label>
-          <p class="consent-note">
+          <p class="consent-note" data-i18n="newsletter.consentNote">
             En t’abonnant, tu acceptes nos
             <a href="/terms" target="_blank" rel="noopener noreferrer">conditions</a>,
             notre <a href="/privacy" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>
@@ -345,165 +351,165 @@
           </p>
 
           <div class="actions actions-compact">
-            <button class="btn btn-primary" type="submit">Rejoindre la waitlist</button>
+            <button class="btn btn-primary" type="submit" data-i18n="newsletter.submit">Rejoindre la waitlist</button>
             <button class="btn btn-ghost btn-toggle" id="questionnaireToggleFr" type="button" aria-expanded="false" aria-controls="questionnaireFormFr" onclick="toggleQuestionnaire('fr')">
-              <span>Partager ton avis</span>
+              <span data-i18n="newsletter.toggleShare">Partager ton avis</span>
               <svg class="btn-chevron" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button class="btn btn-ghost" type="button" onclick="toggleQuestionnaire('fr')">Nous écrire</button>
+            <button class="btn btn-ghost" type="button" onclick="toggleQuestionnaire('fr')" data-i18n="newsletter.toggleWrite">Nous écrire</button>
           </div>
         </form>
         <p id="newsletterStatusFr" class="form-status" role="status" aria-live="polite"></p>
 
         <form id="questionnaireFormFr" class="questionnaire-form" data-open="false" inert>
           <div class="questionnaire-inner">
-            <input type="hidden" name="_subject" value="Nouvelle réponse - Sondage brasseurs Brasse-Bouillon (FR)">
+            <input type="hidden" name="_subject" value="Nouvelle réponse - Sondage brasseurs Brasse-Bouillon (FR)" data-i18n-attrs="value:questionnaire.subject">
             <input type="hidden" name="lang" value="fr">
             <input class="honeypot" type="text" name="_gotcha">
 
-            <p class="questionnaire-lead">
+            <p class="questionnaire-lead" data-i18n="questionnaire.lead">
               3 à 5 minutes pour nous aider à construire la bonne app. Tes réponses orientent directement ce
               qu’on développe. Tout est anonyme ; un contact n’est demandé qu’à la fin, en option.
             </p>
 
             <div class="questionnaire-grid">
               <fieldset class="form-field-full">
-                <legend>Depuis combien de temps brasses-tu ?</legend>
+                <legend data-i18n="q.seniority.legend">Depuis combien de temps brasses-tu ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="anciennete" value="Moins de 6 mois" required>Moins de 6 mois</label>
-                  <label><input type="radio" name="anciennete" value="6 mois - 2 ans">6 mois à 2 ans</label>
-                  <label><input type="radio" name="anciennete" value="2 - 5 ans">2 à 5 ans</label>
-                  <label><input type="radio" name="anciennete" value="5 ans et +">5 ans et plus</label>
+                  <label><input type="radio" name="anciennete" value="Moins de 6 mois" required><span data-i18n="q.seniority.opt1">Moins de 6 mois</span></label>
+                  <label><input type="radio" name="anciennete" value="6 mois - 2 ans"><span data-i18n="q.seniority.opt2">6 mois à 2 ans</span></label>
+                  <label><input type="radio" name="anciennete" value="2 - 5 ans"><span data-i18n="q.seniority.opt3">2 à 5 ans</span></label>
+                  <label><input type="radio" name="anciennete" value="5 ans et +"><span data-i18n="q.seniority.opt4">5 ans et plus</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Combien de brassins par an, environ ?</legend>
+                <legend data-i18n="q.frequency.legend">Combien de brassins par an, environ ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="frequence" value="0-2" required>0 à 2</label>
-                  <label><input type="radio" name="frequence" value="3-6">3 à 6</label>
-                  <label><input type="radio" name="frequence" value="7-12">7 à 12</label>
-                  <label><input type="radio" name="frequence" value="12+">12 et plus</label>
+                  <label><input type="radio" name="frequence" value="0-2" required><span data-i18n="q.frequency.opt1">0 à 2</span></label>
+                  <label><input type="radio" name="frequence" value="3-6"><span data-i18n="q.frequency.opt2">3 à 6</span></label>
+                  <label><input type="radio" name="frequence" value="7-12"><span data-i18n="q.frequency.opt3">7 à 12</span></label>
+                  <label><input type="radio" name="frequence" value="12+"><span data-i18n="q.frequency.opt4">12 et plus</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Tu brasses où ?</legend>
+                <legend data-i18n="q.location.legend">Tu brasses où ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="lieu" value="France">France</label>
-                  <label><input type="radio" name="lieu" value="Belgique">Belgique</label>
-                  <label><input type="radio" name="lieu" value="Suisse">Suisse</label>
-                  <label><input type="radio" name="lieu" value="Québec">Québec</label>
-                  <label><input type="radio" name="lieu" value="Autre">Autre</label>
+                  <label><input type="radio" name="lieu" value="France"><span data-i18n="q.location.france">France</span></label>
+                  <label><input type="radio" name="lieu" value="Belgique"><span data-i18n="q.location.belgium">Belgique</span></label>
+                  <label><input type="radio" name="lieu" value="Suisse"><span data-i18n="q.location.switzerland">Suisse</span></label>
+                  <label><input type="radio" name="lieu" value="Québec"><span data-i18n="q.location.quebec">Québec</span></label>
+                  <label><input type="radio" name="lieu" value="Autre"><span data-i18n="q.location.other">Autre</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Où vivent tes recettes et tes notes de brassin aujourd’hui ? <span class="legend-hint">(plusieurs réponses)</span></legend>
+                <legend data-i18n="q.storage.legend">Où vivent tes recettes et tes notes de brassin aujourd’hui ? <span class="legend-hint">(plusieurs réponses)</span></legend>
                 <div class="chip-list chip-list-multi">
-                  <label><input type="checkbox" name="stockage[]" value="Dans ma tête">Dans ma tête</label>
-                  <label><input type="checkbox" name="stockage[]" value="Papier / carnet">Papier / carnet</label>
-                  <label><input type="checkbox" name="stockage[]" value="Tableur">Tableur (Excel, Sheets)</label>
-                  <label><input type="checkbox" name="stockage[]" value="Une application">Une application</label>
-                  <label><input type="checkbox" name="stockage[]" value="Sur un forum">Sur un forum</label>
-                  <label><input type="checkbox" name="stockage[]" value="Autre">Autre</label>
+                  <label><input type="checkbox" name="stockage[]" value="Dans ma tête"><span data-i18n="q.storage.head">Dans ma tête</span></label>
+                  <label><input type="checkbox" name="stockage[]" value="Papier / carnet"><span data-i18n="q.storage.paper">Papier / carnet</span></label>
+                  <label><input type="checkbox" name="stockage[]" value="Tableur"><span data-i18n="q.storage.spreadsheet">Tableur (Excel, Sheets)</span></label>
+                  <label><input type="checkbox" name="stockage[]" value="Une application"><span data-i18n="q.storage.app">Une application</span></label>
+                  <label><input type="checkbox" name="stockage[]" value="Sur un forum"><span data-i18n="q.storage.forum">Sur un forum</span></label>
+                  <label><input type="checkbox" name="stockage[]" value="Autre"><span data-i18n="q.storage.other">Autre</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Quel(s) outil(s) ou app utilises-tu ? <span class="legend-hint">(plusieurs réponses)</span></legend>
+                <legend data-i18n="q.tools.legend">Quel(s) outil(s) ou app utilises-tu ? <span class="legend-hint">(plusieurs réponses)</span></legend>
                 <div class="chip-list chip-list-multi">
-                  <label><input type="checkbox" name="outils[]" value="Brewfather">Brewfather</label>
-                  <label><input type="checkbox" name="outils[]" value="BeerSmith">BeerSmith</label>
-                  <label><input type="checkbox" name="outils[]" value="Little Bock">Little Bock</label>
-                  <label><input type="checkbox" name="outils[]" value="Brewer's Friend">Brewer’s Friend</label>
-                  <label><input type="checkbox" name="outils[]" value="Aucun">Aucun</label>
-                  <label><input type="checkbox" name="outils[]" value="Autre">Autre</label>
+                  <label><input type="checkbox" name="outils[]" value="Brewfather"><span data-i18n="q.tools.brewfather">Brewfather</span></label>
+                  <label><input type="checkbox" name="outils[]" value="BeerSmith"><span data-i18n="q.tools.beersmith">BeerSmith</span></label>
+                  <label><input type="checkbox" name="outils[]" value="Little Bock"><span data-i18n="q.tools.littlebock">Little Bock</span></label>
+                  <label><input type="checkbox" name="outils[]" value="Brewer's Friend"><span data-i18n="q.tools.brewersfriend">Brewer’s Friend</span></label>
+                  <label><input type="checkbox" name="outils[]" value="Aucun"><span data-i18n="q.tools.none">Aucun</span></label>
+                  <label><input type="checkbox" name="outils[]" value="Autre"><span data-i18n="q.tools.other">Autre</span></label>
                 </div>
               </fieldset>
 
               <div class="form-field form-field-full">
-                <label for="qAgacementFr">Qu’est-ce qui t’agace le plus dans ta façon de gérer tes recettes / brassins ?</label>
-                <textarea id="qAgacementFr" class="textarea-compact" name="agacement" rows="2" placeholder="En quelques mots…"></textarea>
+                <label for="qAgacementFr" data-i18n="q.annoyance.label">Qu’est-ce qui t’agace le plus dans ta façon de gérer tes recettes / brassins ?</label>
+                <textarea id="qAgacementFr" class="textarea-compact" name="agacement" rows="2" placeholder="En quelques mots…" data-i18n-attrs="placeholder:q.annoyance.placeholder"></textarea>
               </div>
 
               <fieldset class="form-field-full">
-                <legend>T’arrive-t-il de rater un brassin, ou d’être perdu pendant le processus ?</legend>
+                <legend data-i18n="q.difficulty.legend">T’arrive-t-il de rater un brassin, ou d’être perdu pendant le processus ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="difficulte" value="Souvent">Souvent</label>
-                  <label><input type="radio" name="difficulte" value="Parfois">Parfois</label>
-                  <label><input type="radio" name="difficulte" value="Rarement">Rarement</label>
-                  <label><input type="radio" name="difficulte" value="Jamais">Jamais</label>
+                  <label><input type="radio" name="difficulte" value="Souvent"><span data-i18n="q.difficulty.often">Souvent</span></label>
+                  <label><input type="radio" name="difficulte" value="Parfois"><span data-i18n="q.difficulty.sometimes">Parfois</span></label>
+                  <label><input type="radio" name="difficulte" value="Rarement"><span data-i18n="q.difficulty.rarely">Rarement</span></label>
+                  <label><input type="radio" name="difficulte" value="Jamais"><span data-i18n="q.difficulty.never">Jamais</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>As-tu déjà essayé de reproduire (cloner) une bière commerciale précise ?</legend>
+                <legend data-i18n="q.clone.legend">As-tu déjà essayé de reproduire (cloner) une bière commerciale précise ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="clone" value="Oui, réussi">Oui, réussi</label>
-                  <label><input type="radio" name="clone" value="Oui, mais déçu">Oui, mais déçu du résultat</label>
-                  <label><input type="radio" name="clone" value="Jamais, mais j'aimerais">Jamais essayé, mais j’aimerais</label>
-                  <label><input type="radio" name="clone" value="Pas intéressé">Pas intéressé</label>
+                  <label><input type="radio" name="clone" value="Oui, réussi"><span data-i18n="q.clone.success">Oui, réussi</span></label>
+                  <label><input type="radio" name="clone" value="Oui, mais déçu"><span data-i18n="q.clone.disappointed">Oui, mais déçu du résultat</span></label>
+                  <label><input type="radio" name="clone" value="Jamais, mais j'aimerais"><span data-i18n="q.clone.wouldlike">Jamais essayé, mais j’aimerais</span></label>
+                  <label><input type="radio" name="clone" value="Pas intéressé"><span data-i18n="q.clone.notinterested">Pas intéressé</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Partages-tu tes recettes avec d’autres brasseurs ?</legend>
+                <legend data-i18n="q.share.legend">Partages-tu tes recettes avec d’autres brasseurs ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="partage" value="Souvent">Souvent</label>
-                  <label><input type="radio" name="partage" value="Parfois">Parfois</label>
-                  <label><input type="radio" name="partage" value="Non, mais ouvert">Non, mais je serais ouvert</label>
-                  <label><input type="radio" name="partage" value="Non, je garde">Non, je préfère les garder</label>
+                  <label><input type="radio" name="partage" value="Souvent"><span data-i18n="q.share.often">Souvent</span></label>
+                  <label><input type="radio" name="partage" value="Parfois"><span data-i18n="q.share.sometimes">Parfois</span></label>
+                  <label><input type="radio" name="partage" value="Non, mais ouvert"><span data-i18n="q.share.openTo">Non, mais je serais ouvert</span></label>
+                  <label><input type="radio" name="partage" value="Non, je garde"><span data-i18n="q.share.keep">Non, je préfère les garder</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Si tu partages une recette, être crédité comme auteur, ça compte pour toi ?</legend>
+                <legend data-i18n="q.attribution.legend">Si tu partages une recette, être crédité comme auteur, ça compte pour toi ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="attribution" value="Beaucoup">Beaucoup</label>
-                  <label><input type="radio" name="attribution" value="Un peu">Un peu</label>
-                  <label><input type="radio" name="attribution" value="Pas du tout">Pas du tout</label>
-                  <label><input type="radio" name="attribution" value="Je ne partage pas">Je ne partage pas</label>
+                  <label><input type="radio" name="attribution" value="Beaucoup"><span data-i18n="q.attribution.alot">Beaucoup</span></label>
+                  <label><input type="radio" name="attribution" value="Un peu"><span data-i18n="q.attribution.abit">Un peu</span></label>
+                  <label><input type="radio" name="attribution" value="Pas du tout"><span data-i18n="q.attribution.notatall">Pas du tout</span></label>
+                  <label><input type="radio" name="attribution" value="Je ne partage pas"><span data-i18n="q.attribution.dontshare">Je ne partage pas</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Qu’est-ce qui te ferait essayer une nouvelle app de brassage ? <span class="legend-hint">(plusieurs réponses)</span></legend>
+                <legend data-i18n="q.trigger.legend">Qu’est-ce qui te ferait essayer une nouvelle app de brassage ? <span class="legend-hint">(plusieurs réponses)</span></legend>
                 <div class="chip-list chip-list-multi">
-                  <label><input type="checkbox" name="declencheur[]" value="La simplicité">La simplicité</label>
-                  <label><input type="checkbox" name="declencheur[]" value="Gratuit">Gratuit</label>
-                  <label><input type="checkbox" name="declencheur[]" value="Suivi guidé pas-à-pas">Un suivi guidé pas-à-pas</label>
-                  <label><input type="checkbox" name="declencheur[]" value="Une communauté">Une communauté</label>
-                  <label><input type="checkbox" name="declencheur[]" value="Importer mes recettes">Pouvoir importer mes recettes</label>
-                  <label><input type="checkbox" name="declencheur[]" value="Autre">Autre</label>
+                  <label><input type="checkbox" name="declencheur[]" value="La simplicité"><span data-i18n="q.trigger.simplicity">La simplicité</span></label>
+                  <label><input type="checkbox" name="declencheur[]" value="Gratuit"><span data-i18n="q.trigger.free">Gratuit</span></label>
+                  <label><input type="checkbox" name="declencheur[]" value="Suivi guidé pas-à-pas"><span data-i18n="q.trigger.guided">Un suivi guidé pas-à-pas</span></label>
+                  <label><input type="checkbox" name="declencheur[]" value="Une communauté"><span data-i18n="q.trigger.community">Une communauté</span></label>
+                  <label><input type="checkbox" name="declencheur[]" value="Importer mes recettes"><span data-i18n="q.trigger.import">Pouvoir importer mes recettes</span></label>
+                  <label><input type="checkbox" name="declencheur[]" value="Autre"><span data-i18n="q.trigger.other">Autre</span></label>
                 </div>
               </fieldset>
 
               <fieldset class="form-field-full">
-                <legend>Serais-tu d’accord pour un échange de 15 min, pour m’en dire plus ?</legend>
+                <legend data-i18n="q.interview.legend">Serais-tu d’accord pour un échange de 15 min, pour m’en dire plus ?</legend>
                 <div class="chip-list">
-                  <label><input type="radio" name="entretien" value="Oui">Oui</label>
-                  <label><input type="radio" name="entretien" value="Non">Non</label>
+                  <label><input type="radio" name="entretien" value="Oui"><span data-i18n="q.interview.yes">Oui</span></label>
+                  <label><input type="radio" name="entretien" value="Non"><span data-i18n="q.interview.no">Non</span></label>
                 </div>
               </fieldset>
 
               <div class="form-field form-field-full">
-                <label for="qContactFr">Si oui, ton email ou pseudo <span class="legend-hint">(optionnel — jamais partagé)</span></label>
-                <input id="qContactFr" type="text" name="contact" placeholder="ton@email.fr ou @pseudo">
+                <label for="qContactFr" data-i18n="q.contact.label">Si oui, ton email ou pseudo <span class="legend-hint">(optionnel — jamais partagé)</span></label>
+                <input id="qContactFr" type="text" name="contact" placeholder="ton@email.fr ou @pseudo" data-i18n-attrs="placeholder:q.contact.placeholder">
               </div>
             </div>
 
             <label class="consent">
               <input type="checkbox" name="rgpd" value="accepted" required>
-              J’accepte que mes réponses soient utilisées dans le cadre du développement de Brasse-Bouillon.
+              <span data-i18n="q.rgpd.consent">J’accepte que mes réponses soient utilisées dans le cadre du développement de Brasse-Bouillon.</span>
             </label>
-            <p class="consent-note">
+            <p class="consent-note" data-i18n="q.consentNote">
               Voir notre <a href="/privacy" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>
               et nos <a href="/terms" target="_blank" rel="noopener noreferrer">conditions</a>.
             </p>
 
             <div class="actions actions-compact">
-              <button class="btn btn-primary" type="submit">Envoyer mes réponses</button>
+              <button class="btn btn-primary" type="submit" data-i18n="q.submit">Envoyer mes réponses</button>
             </div>
           </div>
         </form>
@@ -513,83 +519,39 @@
       <footer class="footer">
         <div class="footer-brand">
           <span class="footer-mark">B·B</span>
-          <p>Brasse-Bouillon, l’app du brasseur amateur curieux. Contact : via le <a href="/#participerFr">formulaire du site</a>.</p>
+          <p data-i18n="footer.brand">Brasse-Bouillon, l’app du brasseur amateur curieux. Contact : via le <a href="/#participerFr">formulaire du site</a>.</p>
         </div>
         <div class="footer-links">
-          <a href="/legal">Mentions légales</a>
-          <a href="/privacy">Confidentialité</a>
-          <a href="/cookies">Cookies</a>
-          <a href="/terms">Conditions d’utilisation</a>
+          <a href="/legal" data-i18n="footer.legal" data-i18n-attrs="href:footer.legal.href">Mentions légales</a>
+          <a href="/privacy" data-i18n="footer.privacy" data-i18n-attrs="href:footer.privacy.href">Confidentialité</a>
+          <a href="/cookies" data-i18n="footer.cookies" data-i18n-attrs="href:footer.cookies.href">Cookies</a>
+          <a href="/terms" data-i18n="footer.terms" data-i18n-attrs="href:footer.terms.href">Conditions d’utilisation</a>
+        </div>
+        <div class="lang-switch footer-lang" role="group" aria-label="Langue / Language">
+          <a class="lang-switch__link" href="/" lang="fr" aria-current="page" data-lang-link="fr">FR</a>
+          <a class="lang-switch__link" href="/en" lang="en" data-lang-link="en">EN</a>
         </div>
       </footer>
     </div>
   </main>
 
-  <aside class="responsibility-band" aria-label="Avertissement légal">
+  <aside class="responsibility-band" aria-label="Avertissement légal" data-i18n-attrs="aria-label:responsibility.label">
     <div class="responsibility-band__inner">
       <span class="responsibility-band__badge" aria-hidden="true">18+</span>
-      <p>
+      <p data-i18n="responsibility.text">
         L’abus d’alcool est dangereux pour la santé. À consommer avec modération.
         Brasse-Bouillon s’adresse aux adultes et promeut une consommation responsable.
       </p>
     </div>
   </aside>
 
-  <script src="site.js?v=20260523-2"></script>
+  <script src="site.js?v=20260710"></script>
   <script>
-    const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
-    const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
-
-    const TOGGLE_LABELS = {
-      fr: { open: 'Partager ton avis', close: 'Fermer le questionnaire' }
-    };
-
-    function toggleQuestionnaire(lang) {
-      BBShared.toggleQuestionnaire({ lang, labels: TOGGLE_LABELS });
-    }
-
-    BBShared.setupMenu({
-      labels: { open: 'Ouvrir le menu', close: 'Fermer le menu' }
-    });
-
-    BBShared.setupQuestionnaire({
-      formId: 'questionnaireFormFr',
-      statusId: 'questionnaireStatusFr',
-      endpoint: QUESTIONNAIRE_ENDPOINT,
-      checkboxLimits: [],
-      messages: {
-        endpointMissing: 'Endpoint Formspree du questionnaire non configuré.',
-        sending: 'Envoi en cours…',
-        success: 'Merci ! Ton retour a bien été envoyé.',
-        http400: 'Certaines informations semblent invalides. Vérifie le formulaire puis réessaie.',
-        http429: 'Trop de demandes. Attends un peu avant de réessayer.',
-        http5xx: 'Erreur du serveur. Réessaie dans quelques minutes ou contacte le support.',
-        httpGeneric: 'Impossible d’envoyer pour le moment. Réessaie dans quelques minutes.',
-        offline: 'Tu sembles hors ligne. Vérifie ta connexion Internet puis réessaie.',
-        aborted: 'La requête a été interrompue. Réessaie l’envoi du formulaire.',
-        networkOrCors: 'Impossible de contacter le serveur (problème réseau ou CORS). Réessaie dans quelques instants.',
-        unexpected: 'Une erreur est survenue lors de l’envoi. Réessaie dans quelques instants.'
-      }
-    });
-
-    BBShared.setupQuestionnaire({
-      formId: 'newsletterFormFr',
-      statusId: 'newsletterStatusFr',
-      endpoint: NEWSLETTER_ENDPOINT,
-      messages: {
-        endpointMissing: 'Endpoint newsletter non configuré.',
-        sending: 'Inscription en cours…',
-        success: 'Super ! Ton inscription à la waitlist est confirmée.',
-        http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
-        http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
-        http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
-        httpGeneric: 'Impossible d’enregistrer l’inscription pour le moment. Réessaie dans quelques minutes.',
-        offline: 'Tu sembles hors ligne. Vérifie ta connexion puis réessaie.',
-        aborted: 'La requête a été interrompue. Réessaie l’inscription.',
-        networkOrCors: 'Impossible de contacter le service (réseau/CORS). Réessaie bientôt.',
-        unexpected: 'Une erreur inattendue est survenue. Réessaie dans quelques instants.'
-      }
-    });
+    // Language-neutral home bootstrap. All UI strings live in site.js catalogs;
+    // build_i18n.py swaps the 'fr' argument to 'en' when it generates en.html
+    // (ADR-0027 D1.3). Keep this block free of any translatable text.
+    function toggleQuestionnaire(lang) { BBShared.toggleQuestionnaire({ lang }); }
+    BBShared.initHome({ lang: 'fr' });
   </script>
   <!-- Feedback widget — local loader; the Cloudflare Worker widget mounts on staging/localhost only, inert in production -->
   <script type="module" src="feedback-widget.js?v=20260601"></script>

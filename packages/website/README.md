@@ -26,8 +26,9 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 
 ## 📁 Current structure
 
-- `index.html`: FR page
-- `index-en.html`: EN page
+- `index.html`: FR home (single authored source; annotated with `data-i18n`)
+- `en.html`: EN home served at `/en` — **generated** from `index.html` +
+  `i18n/home.en.json` by `scripts/build_i18n.py`; do not edit by hand (ADR-0027)
 - `chat-widget.js`: self-hosted public FAQ chat widget — a floating bubble that answers
   visitors about the project only (not brewing help). First-party call to the NestJS
   `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking, and it
@@ -91,7 +92,7 @@ verify the widget manually with the API running (`npm run dev:api`) and the site
 - [ ] **Malformed / error response** — a non-OK or empty-`data` response falls back to the generic error message, never a blank/`undefined` bubble.
 - [ ] **A11y** — full keyboard path (Tab/Enter/Escape), visible focus, screen reader announces the answer (`aria-live`), and `prefers-reduced-motion` disables transitions.
 - [ ] **RGPD** — no network call fires on page load (only on ask); no cookies/localStorage set.
-- [ ] **Bilingual** — chrome is French on `index.html`, English on `index-en.html`.
+- [ ] **Bilingual** — chrome is French on `index.html`, English on the generated `en.html` (served at `/en`).
 
 ---
 

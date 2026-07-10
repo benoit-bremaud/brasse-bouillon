@@ -348,7 +348,9 @@
       width: 54px;
       height: 54px;
       border-radius: 50%;
-      background: var(--copper);
+      /* copper-deep (not copper) so the foam "18+" clears WCAG AA:
+         foam-on-copper is 3.2:1, foam-on-copper-deep is 6.07:1. */
+      background: var(--copper-deep);
       color: var(--foam);
       font-family: var(--font-display);
       font-weight: 700;

@@ -7,6 +7,11 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-10
 
+### PR #1391 merged (`155f44c`) — fix(review): pin --output-last-message to exec level in codex-review.sh
+
+- Branch `claude/kind-napier-bd7802`, 1 commit. Fixes `scripts/codex-review.sh` failing with `unexpected argument '--output-last-message'` (version-skew, not credits): the flag is `exec`-level, so it now precedes the `review` subcommand. `--base`/`--out` contract for the `pre-push-review` skill unchanged; `--help` made drift-proof. Rationale + verification in #1391. Config `review_model`/`model` = `gpt-5.5` confirmed already correct.
+- Reviews — pre-push ritual: 0 Must, 2 Should fixed pre-push; Copilot 0 findings; CI green.
+
 ### PR #1385 merged (`682ca1f`) — fix(academy): align navigation onto the (app) route group + article scroll reset
 
 - Branch `fix/academy-route-groups`, 3 commits. Two stray mobile Academy navigation calls still using the un-grouped form moved to the `(app)` route group — « En savoir plus » → `/(app)/academy/[slug]/learn`, « Retour à la fiche thématique » → `/(app)/academy/[slug]` — aligning with the 40+ other call sites. Plus two UX fixes: the article `ScrollView` remounts on `slug`/`termSlug` change (via `key`) so opening another article or glossary term starts at the top (was preserving the previous scroll offset); the highlighted glossary-term sources heading now reads « Sources du terme » (was the ambiguous « Sources »). New `AcademyTopicPlaceholderScreen.test.tsx` covers happy + sad (unknown topic) + edge (header back history/fallback, calculator-mode variant); 46 targeted tests green, `ci:check` green.

@@ -7,6 +7,28 @@ import unittest
 from scripts import quality_gate
 
 
+# A sitemap that satisfies check_sitemap_policy: exactly the indexable clean
+# URLs (home + the four French legal pages), in arbitrary order.
+VALID_SITEMAP = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
+</urlset>
+"""
+
+# The minimal Open Graph + Twitter Card block satisfying check_open_graph_meta.
+SOCIAL_META = (
+    '<meta property="og:title" content="t">'
+    '<meta property="og:description" content="d">'
+    '<meta property="og:image" content="https://brasse-bouillon.com/og-image.png">'
+    '<meta name="twitter:card" content="summary_large_image">'
+    '<meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">'
+)
+
+
 def _write_file(base: Path, rel_path: str, content: str) -> None:
     target = base / rel_path
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -23,7 +45,8 @@ def _create_valid_fixture(base: Path) -> None:
     widget_tag = '<script type="module" src="feedback-widget.js"></script>'
     legal_html_template = (
         '<!DOCTYPE html><html lang="{lang}"><head>'
-        f"<title>{{title}}</title></head><body>{widget_tag}</body></html>"
+        f"<title>{{title}}</title>{SOCIAL_META}</head>"
+        f"<body>{widget_tag}</body></html>"
     )
     legal_pages = [
         ("legal.html", "fr", "legal"),
@@ -49,6 +72,11 @@ def _create_valid_fixture(base: Path) -> None:
 <html lang="fr">
 <head>
   <title>FR</title>
+  <meta property="og:title" content="t">
+  <meta property="og:description" content="d">
+  <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
@@ -76,6 +104,11 @@ def _create_valid_fixture(base: Path) -> None:
 <head>
   <title>EN</title>
   <meta name="robots" content="noindex,follow">
+  <meta property="og:title" content="t">
+  <meta property="og:description" content="d">
+  <meta property="og:image" content="https://brasse-bouillon.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://brasse-bouillon.com/og-image.png">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
@@ -102,17 +135,7 @@ def _create_valid_fixture(base: Path) -> None:
 """,
     )
 
-    _write_file(
-        base,
-        "sitemap.xml",
-        """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://brasse-bouillon.com/</loc>
-  </url>
-</urlset>
-""",
-    )
+    _write_file(base, "sitemap.xml", VALID_SITEMAP)
 
     _write_file(
         base,
@@ -357,24 +380,97 @@ class QualityGateTests(unittest.TestCase):
                 any("bouton burger .nav-toggle manquant" in err for err in errors)
             )
 
-    def test_detects_sitemap_not_fr_only(self) -> None:
+    def test_detects_forbidden_url_in_sitemap(self) -> None:
+        """A noindex twin (or any non-indexable URL) must never be advertised."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             sitemap_path = root / "sitemap.xml"
             sitemap_path.write_text(
-                """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://brasse-bouillon.com/</loc></url>
-  <url><loc>https://brasse-bouillon.com/index-en.html</loc></url>
-</urlset>
-""",
+                VALID_SITEMAP.replace(
+                    "</urlset>",
+                    "  <url><loc>https://brasse-bouillon.com/legal-en</loc></url>\n"
+                    "</urlset>",
+                ),
                 encoding="utf-8",
             )
 
             errors = quality_gate.collect_errors(root)
-            expected = "sitemap.xml: doit contenir uniquement"
-            self.assertTrue(any(expected in err for err in errors))
+            self.assertTrue(
+                any(
+                    "doit lister exactement les URL indexables" in err
+                    and "interdites: https://brasse-bouillon.com/legal-en" in err
+                    for err in errors
+                )
+            )
+
+    def test_detects_missing_url_in_sitemap(self) -> None:
+        """Dropping an indexable page from the sitemap is flagged."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            sitemap_path.write_text(
+                VALID_SITEMAP.replace(
+                    "  <url><loc>https://brasse-bouillon.com/terms</loc></url>\n",
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any(
+                    "manquantes: https://brasse-bouillon.com/terms" in err
+                    for err in errors
+                )
+            )
+
+    def test_detects_duplicate_url_in_sitemap(self) -> None:
+        """A duplicated URL is flagged even when the set of URLs is otherwise valid."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            sitemap_path.write_text(
+                VALID_SITEMAP.replace(
+                    "</urlset>",
+                    "  <url><loc>https://brasse-bouillon.com/legal</loc></url>\n"
+                    "</urlset>",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any(
+                    "dupliquées: https://brasse-bouillon.com/legal" in err
+                    for err in errors
+                )
+            )
+
+    def test_detects_missing_open_graph_meta(self) -> None:
+        """Dropping the social meta block from a page is flagged."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            legal_path = root / "legal.html"
+            legal_path.write_text(
+                legal_path.read_text(encoding="utf-8").replace(
+                    '<meta property="og:image" '
+                    'content="https://brasse-bouillon.com/og-image.png">',
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any(
+                    "legal.html: balise sociale og:image manquante" in err
+                    for err in errors
+                )
+            )
 
     def test_detects_missing_robots_directive(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -15,6 +15,18 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 
+# The sitemap must advertise EXACTLY these indexable, clean (extension-less)
+# URLs: the home page plus the four French legal pages. The English legal twins
+# and the `-en` stub are `noindex`, and any `.html` URL 308-redirects to its
+# clean form, so none of them may ever appear in the sitemap.
+SITEMAP_URLS = [
+    HOMEPAGE_URL,
+    f"{HOMEPAGE_URL}legal",
+    f"{HOMEPAGE_URL}privacy",
+    f"{HOMEPAGE_URL}cookies",
+    f"{HOMEPAGE_URL}terms",
+]
+
 REQUIRED_FILES = [
     "index.html",
     "index-en.html",
@@ -61,6 +73,32 @@ CHAT_WIDGET_HTML_FILES = [
     "index-en.html",
 ]
 CHAT_WIDGET_LOADER = "chat-widget.js"
+
+# Every public page must expose Open Graph + Twitter Card meta so a shared link
+# unfurls with a title, description and image. Guards against a future edit
+# silently dropping the social block from a page (added when the legal pages and
+# the `-en` stub gained OG/Twitter tags).
+OG_HTML_FILES = [
+    "index.html",
+    "index-en.html",
+    "legal.html",
+    "legal-en.html",
+    "privacy.html",
+    "privacy-en.html",
+    "cookies.html",
+    "cookies-en.html",
+    "terms.html",
+    "terms-en.html",
+]
+# (needle, human label). The needle is an attribute substring, so it matches
+# regardless of the other attributes' order on the tag.
+REQUIRED_SOCIAL_META = [
+    ('property="og:title"', "og:title"),
+    ('property="og:description"', "og:description"),
+    ('property="og:image"', "og:image"),
+    ('name="twitter:card"', "twitter:card"),
+    ('name="twitter:image"', "twitter:image"),
+]
 
 HTML_RULES = {
     "index.html": [
@@ -248,12 +286,32 @@ def check_chat_widget(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_open_graph_meta(root: Path = ROOT) -> list[str]:
+    """Every page in ``OG_HTML_FILES`` must carry the required Open Graph and
+    Twitter Card meta (``REQUIRED_SOCIAL_META``) so shared links unfurl with a
+    title, description and image. Guards against a future edit dropping the
+    social block from a page."""
+    errors: list[str] = []
+    for rel_path in OG_HTML_FILES:
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+        content = full_path.read_text(encoding="utf-8")
+        for needle, label in REQUIRED_SOCIAL_META:
+            if needle not in content:
+                errors.append(f"{rel_path}: balise sociale {label} manquante")
+    return errors
+
+
 def check_sitemap_policy(root: Path = ROOT) -> list[str]:
+    """The sitemap must advertise EXACTLY the indexable clean URLs (``SITEMAP_URLS``)
+    — nothing missing, nothing extra, no duplicate. This blocks re-adding a
+    `noindex` twin/stub or a `.html` (308-redirecting) URL, which would send
+    crawlers a contradictory signal. Order-independent (sitemap order is
+    irrelevant to search engines)."""
     sitemap_path = root / "sitemap.xml"
     if not sitemap_path.exists():
         return []
-
-    errors: list[str] = []
 
     try:
         xml_root = ET.parse(sitemap_path).getroot()
@@ -266,13 +324,25 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
         if (loc.text or "").strip()
     ]
 
-    if loc_values != [HOMEPAGE_URL]:
-        found = ", ".join(loc_values) if loc_values else "aucune URL"
-        errors.append(
-            f"sitemap.xml: doit contenir uniquement {HOMEPAGE_URL} (trouvé: {found})"
-        )
+    if sorted(loc_values) == sorted(SITEMAP_URLS):
+        return []
 
-    return errors
+    seen = set(loc_values)
+    expected = set(SITEMAP_URLS)
+    missing = [url for url in SITEMAP_URLS if url not in seen]
+    forbidden = sorted(url for url in seen if url not in expected)
+    duplicates = sorted({url for url in loc_values if loc_values.count(url) > 1})
+
+    problems: list[str] = []
+    if missing:
+        problems.append("manquantes: " + ", ".join(missing))
+    if forbidden:
+        problems.append("interdites: " + ", ".join(forbidden))
+    if duplicates:
+        problems.append("dupliquées: " + ", ".join(duplicates))
+
+    detail = " ; ".join(problems) if problems else "contenu inattendu"
+    return [f"sitemap.xml: doit lister exactement les URL indexables ({detail})"]
 
 
 def check_robots_policy(root: Path = ROOT) -> list[str]:
@@ -365,6 +435,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_html_files(root))
     errors.extend(check_feedback_widget(root))
     errors.extend(check_chat_widget(root))
+    errors.extend(check_open_graph_meta(root))
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
     errors.extend(check_clean_seo_urls(root))

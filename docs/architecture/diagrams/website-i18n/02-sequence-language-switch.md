@@ -51,8 +51,15 @@ sequenceDiagram
 
 - **No automatic redirect on any path** — detection only ever *suggests*
   (ADR-0027 D4 clause 3): crawler-safe, cache-safe, user-agency-safe.
-- The toggle is a plain `<a href>`; JS only adds persistence — the whole flow
-  degrades gracefully with JS disabled (banner simply never appears).
+- The toggle is a plain `<a href>` in the **top-right of the header**, labelled
+  by **autonym** (`Français` / `English`, or a compact `FR / EN`) — **no flags**
+  (ADR-0027 D4 clauses 1-2; "flags are not languages", NN/G). It targets the
+  translated equivalent of the current page. JS only adds persistence — the whole
+  flow degrades gracefully with JS disabled (banner simply never appears).
+- Detection reads `navigator.languages` (ordered BCP 47 list, matched by lookup
+  with `en-US` → `en` fallback), a *hint* only — it drives the banner, never an
+  automatic switch (ADR-0027 D4 clause 4; Google discourages language
+  auto-redirect).
 - `bb-lang` is the **first persistent storage on the site**: the same slice
   (S3) must update `cookies.html` + `cookies-en.html` disclosure (D4 clause 4).
   Reviewers should block any version of this flow that lands without the

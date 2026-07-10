@@ -157,25 +157,54 @@ DOM ids). The `_gotcha` honeypot is replicated. *Rejected alternative*: dedicate
 EN endpoints — splits submissions, burns Formspree free-tier form quota, and adds
 nothing the `lang` field doesn't already provide.
 
-### D4 — Language switcher: visible toggle, suggestion banner, no auto-redirect
+### D4 — Language switcher: top-right autonym toggle, suggestion banner, no auto-redirect
 
-1. A visible **FR/EN toggle** (plain `<a>` links `/` ↔ `/en`) in the header nav
-   and footer of both homes — same pattern as the legal pages' `.lang-switch`.
-   Works without JavaScript (progressive enhancement).
-2. A **one-time suggestion banner** on the two homes only: shown when
-   `navigator.language` prefers the other language and no choice is stored.
-3. Any explicit action (toggle click, banner accept or dismiss) stores the
+Grounded in the `i18n` skill (Google Search Central, W3C, Nielsen Norman Group,
+MDN). Clauses:
+
+1. A visible language switcher in the **top-right of the header** (the
+   conventional, expected placement — NN/G) on both homes, mirrored in the
+   footer. It is a pair of plain `<a>` links `/` ↔ `/en` — same mechanics as the
+   legal pages' `.lang-switch` — so it works with **JavaScript disabled**
+   (progressive enhancement). The switcher points at the **translated equivalent
+   of the current page**, never the homepage.
+2. **Labels are autonyms** — `Français` / `English` (a short `FR / EN` toggle is
+   the compact variant), each language named in its own language. The active
+   language is visually marked. **No flags** — a flag denotes a country, not a
+   language ("flags are not languages", NN/G): English is not the US or UK flag,
+   French is not only France's. This is an explicit rejection of the
+   flag-toggle idea.
+3. A **one-time, dismissible suggestion banner** on the two homes only: on first
+   visit, if `navigator.languages` prefers the other language and no choice is
+   stored, it offers the twin ("This page is available in English →" / the FR
+   mirror). It **suggests**, it does not switch. Detection matches
+   `navigator.languages` by BCP 47 lookup (fall back `en-US` → `en`).
+4. Any explicit action (toggle click, banner accept or dismiss) stores the
    choice in `localStorage` key **`bb-lang`**; a stored choice suppresses the
-   banner permanently. **No automatic redirect, ever** — redirecting by
-   `Accept-Language`/`navigator.language` risks cloaking-style SEO issues
-   (crawlers mostly present `en-US`) and violates the project's
-   "advisory, never coercive" design philosophy (educated default + override).
-4. **Privacy disclosure**: `bb-lang` is a functional, user-initiated preference —
-   exempt from prior consent (CNIL functional-storage exemption) but it **must be
-   disclosed**. `cookies.html` + `cookies-en.html` gain a "Local storage" section
-   (key, purpose, lifetime, why no consent banner is required) in the same PR
-   that introduces the storage. The pages' "no tracking / no analytics" claims
-   remain true and untouched.
+   banner permanently. **No automatic redirect or auto-swap, ever.** Rationale
+   (Google *Managing Multi-Regional and Multilingual Sites*): "Avoid
+   automatically redirecting users … These redirections could prevent users
+   (and search engines) from viewing all the versions of your site." Googlebot
+   crawls from the US **without** an `Accept-Language` header, so a
+   language/geo redirect can leave the localized version un-crawled and
+   un-indexed. It also violates the project's advisory-never-coercive philosophy
+   (educated default + override). The site is static on Cloudflare Pages: it
+   cannot read `Accept-Language` at all without an edge worker — deliberately not
+   added.
+5. **Privacy disclosure**: `bb-lang` is a functional, user-initiated preference —
+   exempt from prior consent (CNIL functional-storage exemption; aligns with
+   WP29 Opinion 04/2012) but it **must be disclosed**. `cookies.html` +
+   `cookies-en.html` gain a "Local storage" section (key, purpose, lifetime, why
+   no consent banner is required) in the **same PR** that introduces the storage.
+   The pages' "no tracking / no analytics" claims remain true and untouched.
+
+*Rejected alternatives:* **flags as language labels** (country ≠ language, NN/G);
+**auto-display/redirect by browser language** (Google discourages it; un-crawled
+localized pages; needs an edge worker this site deliberately avoids);
+**English-by-default with a FR opt-out** (buries the current primary — French —
+audience, inverts `x-default`, and contradicts the FR-first project identity per
+`feedback_ui_french_only`; English visitors are already served by the
+suggestion banner + a shareable `/en` URL without demoting French).
 
 ### D5 — SEO switch (reverses the SEO_RUNBOOK de-index decision)
 

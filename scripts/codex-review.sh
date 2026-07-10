@@ -9,10 +9,18 @@
 # reports are reconciled before any push.
 #
 # It wraps `codex exec review` (custom-prompt target), which reviews without
-# mutating the working tree. Since codex-cli 0.142, `--base` and a custom
-# PROMPT are mutually exclusive review targets, so the base-diff scope is
-# injected into the prompt instead of passed as a flag. It replays the same
-# checklist as the `pr-pre-reviewer` agent so both judge against the same rules.
+# mutating the working tree. `--base <branch>` and a custom PROMPT are mutually
+# exclusive review targets (clap rejects the combination), so the base-diff
+# scope is injected into the prompt instead of passed as a flag. It replays the
+# same checklist as the `pr-pre-reviewer` agent so both judge against the same
+# rules.
+#
+# Interface note (codex-cli 0.144.1): `--output-last-message <file>` is an
+# `exec`-level option and belongs before the `review` subcommand — it is the
+# canonical spot for a whole-run output flag. Older CLIs (0.87.x) parsed it ONLY
+# at exec level and rejected it after `review` with "unexpected argument
+# '--output-last-message'"; 0.144.1 accepts it in both positions, so this
+# placement is the one that works across the versions we've run.
 #
 # Cost note: each run consumes the OpenAI/ChatGPT quota tied to your Codex
 # CLI auth — a quota SEPARATE from GitHub Copilot premium requests.
@@ -40,7 +48,9 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -h|--help)
-      sed -n '2,25p' "$0"
+      # Print the whole leading comment header (skip the shebang), stopping at
+      # the first non-comment line. Marker-free so it survives header edits.
+      awk 'NR==1 { next } /^#/ { print; next } { exit }' "$0"
       exit 0
       ;;
     *)
@@ -118,10 +128,10 @@ PROMPT
 # The heredoc is quoted so its backticks stay literal; inject the runtime base.
 INSTRUCTIONS="${INSTRUCTIONS//__BASE__/$BASE}"
 
-# codex-cli rejects `--base` alongside a custom prompt, so the diff scope
-# rides in the prompt itself. Resolve the base ref here (prefer the
-# remote-tracking ref when present) so Codex receives ONE concrete range
-# instead of a fallback rule it could misapply.
+# `--base` cannot ride alongside a custom prompt, so the diff scope goes into
+# the prompt itself. Resolve the base ref here (prefer the remote-tracking ref
+# when present) so Codex receives ONE concrete range against the latest fetched
+# remote base instead of a fallback rule it could misapply.
 if git rev-parse --verify --quiet "refs/remotes/origin/${BASE}" >/dev/null; then
   DIFF_BASE="origin/${BASE}"
 else
@@ -131,10 +141,11 @@ printf -v INSTRUCTIONS '%s\n%s' \
   "Review the diff ${DIFF_BASE}...HEAD." \
   "$INSTRUCTIONS"
 
-echo "Running Codex review of '$CURRENT_BRANCH' against '$BASE'..." >&2
+echo "Running Codex review of '$CURRENT_BRANCH' against '$DIFF_BASE'..." >&2
 
+# `--output-last-message` is an `exec`-level flag → it precedes `review`.
 if [[ -n "$OUT" ]]; then
-  codex exec review --output-last-message "$OUT" "$INSTRUCTIONS"
+  codex exec --output-last-message "$OUT" review "$INSTRUCTIONS"
   echo "Report written to: $OUT" >&2
   cat "$OUT"
 else

@@ -207,7 +207,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
                 label={calculatorLabel}
                 onPress={() =>
                   router.push({
-                    pathname: "/tools/[slug]/calculator",
+                    pathname: "/(app)/tools/[slug]/calculator",
                     params: { slug: calculatorSlug },
                   })
                 }
@@ -243,7 +243,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
               }
               onCalculatorPress={(slug) =>
                 router.push({
-                  pathname: "/tools/[slug]/calculator",
+                  pathname: "/(app)/tools/[slug]/calculator",
                   params: { slug },
                 })
               }
@@ -343,7 +343,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
             label={calculatorLabel}
             onPress={() =>
               router.push({
-                pathname: "/tools/[slug]/calculator",
+                pathname: "/(app)/tools/[slug]/calculator",
                 params: { slug: displayableTopic.slug },
               })
             }

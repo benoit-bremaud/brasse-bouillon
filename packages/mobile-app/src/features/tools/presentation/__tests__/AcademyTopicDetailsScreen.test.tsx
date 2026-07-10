@@ -634,7 +634,7 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
       fireEvent.press(button);
 
       expect(mockPush).toHaveBeenCalledWith({
-        pathname: "/tools/[slug]/calculator",
+        pathname: "/(app)/tools/[slug]/calculator",
         params: { slug },
       });
     },

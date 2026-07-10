@@ -183,6 +183,38 @@ invisible proof-of-work step (no user interaction in the common case).
 
 ---
 
+## Activation addendum (2026-07-09) — Option A rollout & budget backstop
+
+Recorded when activating the shipped module (#1293). Refines, does not overturn, the
+Locked v1 parameters above.
+
+**Rollout topology — "Option A" (single API + kill-switch).** Rather than standing up a
+separate staging faq-bot API (the earlier `staging-api.brasse-bouillon.com` placeholder, now
+dropped), the website **staging** host canaries directly against the single live API
+(`brasse-bouillon-api.fly.dev`), with exposure gated by the server-side `FAQ_BOT_ENABLED`
+kill-switch. This reverses the widget's original "staging must not point at the prod API" note.
+Rationale: the faq-bot module is isolated and additive, protected by ALTCHA + throttle + budget
+cap + kill-switch, and "one live API for all consumers" is already the monorepo precedent
+(ADR-0002; `eas.json` points the mobile preview builds at the same instance). The production
+hosts are pre-wired in `API_BASE_BY_HOST` but kept **out of `WIDGET_HOSTS`** until the go-live
+flip, so the launcher still never mounts on production before then. Residual risk (operational,
+not code): staging-canary traffic shares the single monthly budget cap.
+
+**Budget backstop.** The authoritative monthly ceiling is a **hard spending limit set
+Mistral-console-side** (workspace-level — a genuine hard stop that suspends API access at the
+cap), because the in-memory `FaqBotMetrics` counter resets on Fly scale-to-zero and so cannot
+guarantee a monthly cap under sporadic traffic. The in-memory gate stays as a secondary
+fast-fail; counter persistence remains v2.
+
+**Widget availability UX (#1314).** The widget maps an HTTP `400` on `/ask` with **no anti-bot
+proof attached** to the "unavailable" message (not the generic retry message), because
+`BotCheckGuard` runs before the `ValidationPipe`, so such a 400 can only mean the ALTCHA
+handshake could not complete (challenge endpoint down / unsolvable) — an availability problem,
+not a malformed question. Any change to that guard/pipe order must preserve this contract or
+update the widget.
+
+---
+
 ## References
 
 - ADR-0001 (build for today) · ADR-0002 (proxy) · ADR-0003 / ADR-0012 (RGPD) · ADR-0019 (tests).

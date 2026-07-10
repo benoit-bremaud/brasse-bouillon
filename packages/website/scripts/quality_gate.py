@@ -6,6 +6,7 @@ This script is intentionally dependency-free so it can run locally and in CI.
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 import re
 import sys
@@ -327,11 +328,11 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
     if sorted(loc_values) == sorted(SITEMAP_URLS):
         return []
 
-    seen = set(loc_values)
+    counts = Counter(loc_values)
     expected = set(SITEMAP_URLS)
-    missing = [url for url in SITEMAP_URLS if url not in seen]
-    forbidden = sorted(url for url in seen if url not in expected)
-    duplicates = sorted({url for url in loc_values if loc_values.count(url) > 1})
+    missing = [url for url in SITEMAP_URLS if url not in counts]
+    forbidden = sorted(url for url in counts if url not in expected)
+    duplicates = sorted(url for url, count in counts.items() if count > 1)
 
     problems: list[str] = []
     if missing:

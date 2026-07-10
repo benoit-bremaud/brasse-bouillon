@@ -237,6 +237,34 @@
 
     .nav-toggle:hover { background: rgba(58, 40, 24, 0.06); }
 
+    /* ---- Language switcher (ADR-0027 D4) — compact FR/EN, autonyms, no flags.
+       Active language is marked with aria-current (set per page by build_i18n). */
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .lang-switch__link {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* The pill links opt out of the animated nav underline. */
+    .header-nav .lang-switch .lang-switch__link::after { content: none; }
+
+    .lang-switch__link[aria-current="page"] {
+      background: var(--ink);
+      color: var(--foam);
+      cursor: default;
+    }
+
     .nav-toggle__bars,
     .nav-toggle__bars::before,
     .nav-toggle__bars::after {

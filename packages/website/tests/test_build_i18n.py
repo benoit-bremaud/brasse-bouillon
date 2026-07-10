@@ -61,6 +61,16 @@ class GenerateTests(unittest.TestCase):
         self.assertIn("BBShared.initHome({ lang: 'en' })", out)
         self.assertIn("toggleQuestionnaire('en')", out)
 
+    def test_lang_switcher_active_marker_moves_to_en(self) -> None:
+        source = (
+            '<a href="/" aria-current="page" data-lang-link="fr">FR</a>'
+            '<a href="/en" data-lang-link="en">EN</a>'
+        )
+        out = build_i18n.generate(source, _catalog({}), check_hashes=False)
+        # The EN link gains the active marker; the FR link loses it.
+        self.assertIn('aria-current="page" data-lang-link="en"', out)
+        self.assertNotIn('aria-current="page" data-lang-link="fr"', out)
+
     def test_missing_catalog_key_raises(self) -> None:
         source = '<p data-i18n="absent">x</p>'
         with self.assertRaises(build_i18n.BuildError):

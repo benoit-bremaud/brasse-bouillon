@@ -475,6 +475,16 @@ def _transform_body_structure(html: str, catalog: dict) -> str:
     html = html.replace(
         "BBShared.initHome({ lang: 'fr' })", "BBShared.initHome({ lang: 'en' })"
     )
+
+    # Language switcher: the active-language marker moves from the FR link to the
+    # EN link (ADR-0027 D4). The pair of <a> links is otherwise identical on both
+    # pages (autonyms, fixed hrefs), so only aria-current changes.
+    html = html.replace(
+        ' aria-current="page" data-lang-link="fr"', ' data-lang-link="fr"'
+    )
+    html = html.replace(
+        ' data-lang-link="en"', ' aria-current="page" data-lang-link="en"'
+    )
     return html
 
 

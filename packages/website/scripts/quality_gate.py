@@ -415,7 +415,9 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
         source = (root / "index.html").read_text(encoding="utf-8")
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
         generated = build_i18n.generate(source, catalog, check_hashes=True)
-    except build_i18n.BuildError as exc:
+    except (build_i18n.BuildError, OSError, json.JSONDecodeError) as exc:
+        # Unreadable index.html / malformed catalog must surface as a normal
+        # gate failure, not an unhandled crash (parity with check_sitemap_policy).
         return [f"i18n (en.html): {exc}"]
 
     output_path = root / "en.html"

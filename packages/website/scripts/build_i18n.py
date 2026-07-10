@@ -399,17 +399,22 @@ def _transform_head(html: str, catalog: dict) -> str:
                 pattern, lambda m, v=value: m.group(1) + v + m.group(2), html, count=1
             )
 
-    # Insert robots noindex (S1 ships dark) + og:locale after the canonical link.
-    inserts = (
-        '  <meta name="robots" content="noindex,follow">\n'
-        '  <meta property="og:locale" content="en_US">\n'
-        '  <meta property="og:locale:alternate" content="fr_FR">\n'
-    )
-    html = html.replace(
-        f'<link rel="canonical" href="{CANONICAL_EN}">\n',
-        f'<link rel="canonical" href="{CANONICAL_EN}">\n{inserts}',
-        1,
-    )
+    # Insert robots noindex (S1 ships dark) + og:locale right after the canonical
+    # link. Regex-anchored (tolerant of trailing whitespace / `/>`) and idempotent
+    # — skipped if the robots meta is already present, so re-running on generated
+    # output never duplicates the block.
+    if not re.search(r'<meta\s+name="robots"', html):
+        block = (
+            '\n  <meta name="robots" content="noindex,follow">'
+            '\n  <meta property="og:locale" content="en_US">'
+            '\n  <meta property="og:locale:alternate" content="fr_FR">'
+        )
+        html = re.sub(
+            r'(<link rel="canonical" href="[^"]*">)',
+            lambda m: m.group(1) + block,
+            html,
+            count=1,
+        )
 
     html = _rebuild_org_schema(html, catalog)
     html = _rebuild_faq_schema(html, catalog)

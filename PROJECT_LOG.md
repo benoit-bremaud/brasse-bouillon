@@ -13,11 +13,29 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - Preflight de-risk before the deploy: the production Docker image was built and booted locally first — full migration chain + `/health` + the `/water` and `/recipes/:id/equipment-fit` routes verified.
 - Live re-test on the Android emulator (Expo Go against the live API, authenticated session): recipe difficulty badges + « Pourquoi ce niveau ? » modal (1808), brew-day step timer (F1), and the water freshness pastille (#1376) rendering green « Récent » / « Dernière analyse : 15/04/2026 » for the LILLE network — confirming slice-2 `freshnessDate` end-to-end in prod. Follow-up: rebuild the EAS preview APK for an on-device novice re-test.
 
+### PR #1379 merged (`e59303e`) — fix(website): legal pages compliance — real host, drop false claims (LCEN/RGPD)
+
+- Branch `fix/website-legal-pages-compliance`, 2 commits (`e4ec47e`, `8485a30`). Rewrites all 8 legal pages (FR + EN twins) against LCEN art. 1-1 (loi SREN 2024) + RGPD art. 13: hosting disclosure corrected GitHub Pages → Cloudflare Pages (Cloudflare Portugal, Unipessoal, Lda. block), directeur de la publication added, false "audience-measurement cookies opt-in" claim removed (no such cookies exist — it contradicted the cookies/privacy pages), the inactive « Signaler » widget data flows (Cloudflare Workers + localStorage) removed from privacy/cookies (the widget is host-gated off in production), sub-processors + transfer safeguards fixed (Formspree → SCC art. 46; Cloudflare → EU-US DPF adequacy), CNIL complaint right made explicit, dates harmonised to 2026-07-09, contact routed to the site form. Homepages cleaned of the dead `contact@` mailbox (mailto CTAs, footer, JSON-LD `email`/`contactPoint`) — « Nous écrire » now opens the questionnaire.
+- Refs #1044. New quality-gate guard `check_no_stale_host` (forbids "GitHub Pages" in any HTML) + test; 17 gate tests green.
+- Reviews — two-lens pre-push (standards/ADR + adversarial legal-accuracy): 0 Must Have, 0 factual error (host block exact, DPF/SCC attribution verified, all art. 13 elements present, FR/EN parity clean). One Copilot a11y finding (unsynced `aria-controls` on the secondary « Nous écrire » button) fixed in `8485a30`. CI green; verified in prod post-deploy.
+
+### PR #1378 merged (`c003d8e`) — feat(website): self-host Inter & Fraunces fonts (drop Google Fonts CDN)
+
+- Branch `feat/website-self-host-fonts`, 1 commit (`12f86b7`). Removes the Google Fonts CDN dependency: 16 local `.woff2` files (Inter 400/500/600/700/800, Fraunces 500/700/900 — latin + latin-ext) served from `/fonts/` + a `fonts.css` linked by all 11 pages; the deploy workflow stages `fonts/` into `_site/`; `_headers` caches `/fonts/*` as immutable (1 y). RGPD driver: visitor IP is no longer sent to Google pre-consent — removes Google as a data sub-processor and unblocks accurate legal pages; also drops a render-blocking third-party request. Refs #1035. Regeneration script `scripts/fetch_fonts.py` (re-running it reproduced byte-identical files).
+- Quality gate: `check_no_external_fonts` forbids re-introducing the CDN in any HTML or CSS (+ tests); `fonts.css` added to `REQUIRED_FILES`.
+- Reviews — two-lens pre-push (standards + consistency): consistency verdict clean (11/11 pages switched, 16/16 woff2 referenced↔present, no weight missing vs the old CDN request). Copilot: 4 findings fixed in the squashed commit (gate scans CSS too, `_source.txt` kept out of the deploy payload, fetch script added). CI green; verified in prod: zero Google requests, 16/16 woff2 served.
+
 ### PR #1376 merged (`c8049bc`) — feat(mobile/recipes): dated water freshness pastille (water-profile PR-B)
 
 - Branch `feat/mobile-water-freshness`, 1 commit (`9281021`). Mobile PR-B of the water-profile epic — the dated freshness pastille on the recipe Water tab, consuming the additive `freshnessDate` from slice-2 #1374. `LiveWaterProfilePanel` renders green « Récent » (< 6 mo) / orange « À confirmer » (6–24 mo) / grey « Ancien » (> 24 mo) + « Dernière analyse : JJ/MM/AAAA », falling back to the year-granular line when no date. Pure `describeWaterFreshness(date, now)` in the use-case (now injected, testable); `LiveWaterProfile` + the DTO mapper gain the field. Full mobile suite green (1376 tests). **The water leg is now complete end-to-end** (slice-1 #1358, slice-2 backend #1374, this pastille).
 - Refs #1374, #1355.
 - Reviews — pre-push `pr-pre-reviewer` (0 Must, 1 Should): a future `freshnessDate` no longer renders a reassuring « Récent » (ADR-0025 anti-anomaly), with a test. A follow-up automated review: boundary alignment — exactly 24 months is now orange (was grey), matching the documented 6–24 / > 24 rule; both sides of the boundary tested. CI green, 2 threads resolved.
+
+### PR #1373 merged (`79dda0c`) — fix(website): point canonical/hreflang/links at clean URLs; noindex EN legal
+
+- Branch `fix/website-clean-urls`, 2 commits (`5f0ea26`, `830fac9`). Clean-URL SEO sweep (Lot 4 of the 2026-07-09 website audit): every self-canonical, hreflang alternate and internal link now targets the clean URLs Cloudflare Pages serves — the `.html` forms 308-redirect, so canonicals previously pointed at redirecting URLs. `noindex,follow` added to the 4 EN legal pages (consistent with the noindexed EN coming-soon home). New quality-gate guard `check_clean_seo_urls` forbids a canonical/hreflang target ending in `.html`.
+- Refs #1045 (partial — the canonical/hreflang half; OG/social tags are a later lot).
+- Reviews — two-lens pre-push (standards/ADR + adversarial sweep-correctness: self-canonicals, hreflang reciprocity, no residual `.html` links, no over-replacement — all verified). Copilot: the guard was attribute-order dependent (`rel`-before-`href` only) → made order-independent + covering test in `830fac9`. CI green (one CodeQL infra failure re-run to green); verified in prod post-deploy.
 
 ### PR #1374 merged (`7b91011`) — feat(api/water): append-only cache + conditional sync for /water (water-profile slice 2)
 
@@ -26,6 +44,19 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - Reviews — pre-push adversarial multi-lens review: 1 MUST fixed (the full fetch was `size=100` unsorted vs the `sort=desc` gate → an arbitrary subset on a busy réseau that could gate off future syncs on an incomplete set; fixed with `sort=desc`) + 5 Should (bounded read, honest docs, test gaps). A follow-up automated review (fixed in `d71f494`): an empty-cache Hub'Eau outage now surfaces `502` not `404`; stale DTO description; `as string` casts replaced by a type guard. CI green, 3 threads resolved.
 - **Decisions**:
   - `water-slice2-most-recent-bounded` — slice-2 aggregates the most-recent, bounded window of samples (DB read `sort=desc` + `limit`), a deterministic improvement over slice-1's arbitrary Hub'Eau-order page. Recorded in ADR-0025.
+
+### PR #1370 merged (`dbb704e`) — feat(website): add security response headers via Cloudflare Pages _headers
+
+- Branch `feat/website-security-headers`, 3 commits (`5ead41b`, `f090f94`, `c3254c3`). Lot 3 of the website audit: new `packages/website/_headers` serving `Strict-Transport-Security` (1 y, apex-only), `X-Frame-Options: DENY`, `Permissions-Policy` (camera/microphone/geolocation/usb/payment all denied) and `Cross-Origin-Opener-Policy: same-origin` on `/*`; the deploy workflow stages the file into `_site/` in the fail-loud required-files loop.
+- Refs #1032, #1033 (partial): CSP and HSTS `includeSubDomains`/`preload` deliberately deferred pending an origin/subdomain audit — rationale documented in-file.
+- Reviews — two-lens pre-push (standards/ADR + adversarial deploy-risk: all four headers verified inert against actual code paths — no iframes/popups/gated features; no duplication with the two edge-emitted headers). CI green; verified in prod post-deploy: 4 headers served exactly once each.
+
+### PR #1367 merged (`a8b9e28`) — fix(website): serve a real 404 page for unknown routes
+
+- Branch `fix/website-404-page`, 2 commits (`7bc7db6`, `6993eec`). Lot 2 of the website audit: root `404.html` that Cloudflare Pages serves with a genuine HTTP 404 for unmatched routes — previously every unknown path returned 200 with a byte-identical copy of the home page (site-wide soft-404 polluting the index). Single locale-agnostic FR page with an EN fallback line, `noindex`, root-absolute asset URLs so styling resolves on any path, on-brand (mascot + « Retour à l'accueil »).
+- Refs #1043.
+- Quality gate: `404.html` added to `REQUIRED_FILES` + structural rules (doctype, lang, noindex).
+- Reviews — pre-push `pr-pre-reviewer` (0 Must Have). CI green; verified in prod post-deploy: unknown paths return a styled 404.
 
 ### PR #1366 merged (`b22477c`) — docs(adr): promote ADR-0026 to Accepted + CLAUDE.md index
 

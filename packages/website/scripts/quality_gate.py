@@ -266,11 +266,29 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
         if (loc.text or "").strip()
     ]
 
-    if loc_values != [HOMEPAGE_URL]:
-        found = ", ".join(loc_values) if loc_values else "aucune URL"
-        errors.append(
-            f"sitemap.xml: doit contenir uniquement {HOMEPAGE_URL} (trouvé: {found})"
-        )
+    # Indexable URLs allowed in the sitemap: the home + the FR legal pages, as
+    # the clean URLs Cloudflare Pages serves. The EN legal pages are noindex and
+    # MUST NOT appear here; nor may the `.html` forms (they 308-redirect).
+    allowed = {
+        HOMEPAGE_URL,
+        f"{HOMEPAGE_URL}legal",
+        f"{HOMEPAGE_URL}privacy",
+        f"{HOMEPAGE_URL}cookies",
+        f"{HOMEPAGE_URL}terms",
+    }
+
+    if HOMEPAGE_URL not in loc_values:
+        errors.append(f"sitemap.xml: l'URL d'accueil {HOMEPAGE_URL} est manquante")
+
+    for loc in loc_values:
+        if loc not in allowed:
+            errors.append(
+                f"sitemap.xml: URL non autorisée « {loc} » — seules l'accueil et "
+                "les pages légales FR (URLs propres, indexables) sont admises"
+            )
+
+    for loc in sorted({loc for loc in loc_values if loc_values.count(loc) > 1}):
+        errors.append(f"sitemap.xml: URL en double « {loc} »")
 
     return errors
 

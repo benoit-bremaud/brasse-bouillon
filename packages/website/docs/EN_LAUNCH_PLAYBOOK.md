@@ -83,8 +83,8 @@ Technical — **must be true before any link is posted** (all land in slice S1):
       text; if it does, ship a localized EN card image (else the EN card shows
       French).
 - [ ] Both forms accept EN submissions (`lang=en`) with EN success/error
-      messages (the message tables are inline in `index.html`, localized by the
-      generator — not in `site.js`).
+      messages (the message tables are moved into `site.js`/the catalog in S1,
+      so EN strings come from the catalog like any other text).
 - [ ] The "app is French-first" honesty line is visible in or immediately
       below the hero section.
 - [ ] EN legal pages linked in the EN footer (already true today).

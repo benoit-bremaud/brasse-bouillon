@@ -1,7 +1,7 @@
 # ADR-0027 — Website Internationalization Strategy (Bilingual FR+EN Marketing Site)
 
-**Status**  Proposed
-**Date**    2026-07-10
+**Status**  Accepted
+**Date**    2026-07-10 (accepted 2026-07-10, after a 6-reviewer adversarial conception review folded in)
 **Owners**  @benoit-bremaud
 
 ---
@@ -127,11 +127,12 @@ Score rationale:
    hreflang, OG/Twitter **including `og:locale=en_US` + `og:locale:alternate`**,
    `lang` attributes, hidden form `lang` field. It also localizes the **bottom
    inline `<script>` block**: the `…Fr` → `…En` DOM id suffixes expected by
-   `BBShared`, the form **message/error tables**, `TOGGLE_LABELS.en`, and the
-   inline `onclick('fr' → 'en')` calls (the message tables are **not** in
-   `site.js` — they are inline in `index.html`, so the generator must swap them;
-   the alternative of moving them into the catalog / `site.js` to keep the inline
-   script language-neutral is the implementer's call in S1, and is preferred).
+   `BBShared`, `TOGGLE_LABELS.en`, and the inline `onclick('fr' → 'en')` calls.
+   **Decided (S1):** the form **message/error tables** are **moved out of the
+   inline `<script>` into `site.js` / the catalog** so the page's inline bootstrap
+   is language-neutral — the generator swaps DOM-id suffixes and the `onclick`
+   language argument, but does **not** rewrite JS string literals (a regex over
+   JS is fragile). This is a small one-time refactor of the existing FR home.
    The **FAQPage JSON-LD is derived from the same catalog keys as the visible
    `<details>` FAQ** — a single EN source, never a separately authored head
    entry — so the structured data cannot drift from the visible copy. The
@@ -204,9 +205,10 @@ recursive gate globs, `_site/` subfolder staging, and 4 legal-URL redirects on a
 The EN home posts to the **same** Formspree endpoints (`mqaqqvab` newsletter,
 `xeellqan` questionnaire) with the existing hidden `lang` field set to `en` —
 the discriminator is already in place on the FR forms. The form **status/error
-message tables live inline in `index.html`'s bottom `<script>`** (not in
-`site.js`, which only holds the `BBShared` `fr`/`en` DOM-id parameter); the
-generator localizes them per D1 clause 3. The `_gotcha` honeypot (present on the
+message tables currently live inline in `index.html`'s bottom `<script>`**; S1
+moves them into `site.js` / the catalog (D1 clause 3 decision) so they are
+localized like any other string, keeping the inline bootstrap language-neutral.
+The `_gotcha` honeypot (present on the
 questionnaire form) is preserved. The RGPD **consent-checkbox label and the
 consent note are `data-i18n` keys** (translated to EN), and the consent-note
 legal links are rewritten to the `-en` pages (D1 clause 3) so an EN submitter

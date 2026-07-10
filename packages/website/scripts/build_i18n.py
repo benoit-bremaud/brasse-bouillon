@@ -216,8 +216,14 @@ def _fr_source(source: str, op: _TextOp) -> str:
     return source[op.start : op.end]
 
 
+# Attributes are whitespace-separated inside a tag, so anchor on the leading
+# whitespace rather than a bare \b — otherwise `value` would false-match inside
+# a hypothetical `data-value="…"` on the same tag.
+_ATTR_RE = r'\s{name}="([^"]*)"'
+
+
 def _fr_attr_value(tag_text: str, attr: str) -> str:
-    match = re.search(rf'\b{re.escape(attr)}="([^"]*)"', tag_text)
+    match = re.search(_ATTR_RE.format(name=re.escape(attr)), tag_text)
     if not match:
         raise BuildError(f"attribute '{attr}' not found on tag: {tag_text[:60]}…")
     return match.group(1)
@@ -259,7 +265,7 @@ def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
             if check_hashes and entry.get("srcHash") != sha1(fr):
                 hash_errors.append(key)
             new_tag = re.sub(
-                rf'(\b{re.escape(attr)}=")[^"]*(")',
+                rf'(\s{re.escape(attr)}=")[^"]*(")',
                 lambda m, v=entry["en"]: m.group(1) + v + m.group(2),
                 new_tag,
                 count=1,
@@ -283,8 +289,23 @@ def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
 
 
 def _apply_ops(source: str, ops: list[tuple[int, int, str]]) -> str:
+    # Guard the core invariant: replacement ranges must not overlap, otherwise a
+    # back-to-front splice would corrupt an enclosing op (e.g. a translatable
+    # attribute on an element nested inside a translatable text element). This
+    # keeps the "never silently drop/garble content" promise honest.
+    ordered = sorted(ops, key=lambda op: op[0])
+    for (_prev_start, prev_end, _), (next_start, _next_end, _r) in zip(
+        ordered, ordered[1:]
+    ):
+        if prev_end > next_start:
+            raise BuildError(
+                "overlapping i18n replacement ranges "
+                f"(one op ends at {prev_end}, the next starts at {next_start}); "
+                "a data-i18n-attrs element nested inside a data-i18n element is "
+                "not supported"
+            )
     # Apply from the last offset backwards so earlier offsets stay valid.
-    for start, end, replacement in sorted(ops, key=lambda o: o[0], reverse=True):
+    for start, end, replacement in reversed(ordered):
         source = source[:start] + replacement + source[end:]
     return source
 

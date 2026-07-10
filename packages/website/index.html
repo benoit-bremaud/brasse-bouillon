@@ -107,7 +107,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="header-logo">
+      <a href="/" class="header-logo" data-i18n-attrs="href:nav.logo.href">
         <img src="logo-hero.webp" alt="" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
@@ -273,6 +273,28 @@
         </div>
       </section>
 
+      <section class="section-block" id="academieFr">
+        <p class="section-eyebrow" data-i18n="academie.eyebrow">La pédagogie</p>
+        <h2 class="section-title" data-i18n="academie.title">Comprends ce que tu <em>brasses</em></h2>
+        <p class="section-intro" data-i18n="academie.intro">Pas seulement comment, mais pourquoi. L’Académie réunit des articles sourcés et un glossaire du brassage — des ingrédients à la fermentation, du premier brassin au réglage fin.</p>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-screenshot">
+              <img src="screenshots/feature-academie.webp?v=20260710" alt="Capture de l’écran d’accueil de l’Académie brassicole : carte de synthèse (10 articles, 8 calculateurs), barre de recherche, filtres par thème et liste d’articles (histoire de la bière, introduction au brassage, malts et fermentescibles)" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.1.img">
+            </div>
+            <h3 data-i18n="academie.1.title">Des repères, pas du jargon</h3>
+            <p data-i18n="academie.1.body">Ingrédients, couleur, alcool, fermentation&nbsp;: des articles clairs, classés par thème, pour apprendre à ton rythme.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-screenshot">
+              <img src="screenshots/feature-academie-glossaire.webp?v=20260710" alt="Capture de l’écran d’un terme du glossaire, l’IBU, avec sa définition détaillée et sa source bibliographique" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.2.img">
+            </div>
+            <h3 data-i18n="academie.2.title">Un glossaire sourcé</h3>
+            <p data-i18n="academie.2.body">IBU, densité, atténuation… chaque terme défini simplement, sources à l’appui — livres et standards du brassage.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="section-block" id="faqSection">
         <p class="section-eyebrow" data-i18n="faq.eyebrow">Questions fréquentes</p>
         <h2 class="section-title" id="faq" data-i18n="faq.title">Les <em>doutes</em> avant de se lancer</h2>
@@ -312,6 +334,7 @@
           <input type="hidden" name="lang" value="fr">
           <input type="hidden" name="source" value="newsletter">
           <input type="hidden" name="message" value="Nouvelle inscription newsletter via le site (FR)" data-i18n-attrs="value:newsletter.message">
+          <input class="honeypot" type="text" name="_gotcha">
 
           <label class="sr-only" for="newsletterEmailFr" data-i18n="newsletter.emailLabel">Adresse email pour la waitlist</label>
           <input id="newsletterEmailFr" type="email" name="email" placeholder="ton@email.fr" required data-i18n-attrs="placeholder:newsletter.emailPlaceholder">
@@ -504,6 +527,10 @@
           <a href="/cookies" data-i18n="footer.cookies" data-i18n-attrs="href:footer.cookies.href">Cookies</a>
           <a href="/terms" data-i18n="footer.terms" data-i18n-attrs="href:footer.terms.href">Conditions d’utilisation</a>
         </div>
+        <div class="lang-switch footer-lang" role="group" aria-label="Langue / Language">
+          <a class="lang-switch__link" href="/" lang="fr" aria-current="page" data-lang-link="fr">FR</a>
+          <a class="lang-switch__link" href="/en" lang="en" data-lang-link="en">EN</a>
+        </div>
       </footer>
     </div>
   </main>
@@ -526,7 +553,7 @@
     function toggleQuestionnaire(lang) { BBShared.toggleQuestionnaire({ lang }); }
     BBShared.initHome({ lang: 'fr' });
   </script>
-  <!-- Feedback widget — local loader; mounts the Cloudflare Worker widget on prod only -->
+  <!-- Feedback widget — local loader; the Cloudflare Worker widget mounts on staging/localhost only, inert in production -->
   <script type="module" src="feedback-widget.js?v=20260601"></script>
   <!-- FAQ chat widget — self-hosted; mounts on staging/localhost only (ADR-0022) -->
   <script type="module" src="chat-widget.js?v=20260709"></script>

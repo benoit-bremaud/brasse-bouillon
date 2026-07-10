@@ -120,7 +120,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           label="Retour à la fiche thématique"
           onPress={() =>
             router.push({
-              pathname: "/academy/[slug]",
+              pathname: "/(app)/academy/[slug]",
               params: { slug: topic.slug },
             })
           }

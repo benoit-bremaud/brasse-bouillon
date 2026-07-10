@@ -5,6 +5,24 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-10
+
+### PR #1391 merged (`155f44c`) — fix(review): pin --output-last-message to exec level in codex-review.sh
+
+- Branch `claude/kind-napier-bd7802`, 1 commit. Fixes `scripts/codex-review.sh` failing with `unexpected argument '--output-last-message'` (version-skew, not credits): the flag is `exec`-level, so it now precedes the `review` subcommand. `--base`/`--out` contract for the `pre-push-review` skill unchanged; `--help` made drift-proof. Rationale + verification in #1391. Config `review_model`/`model` = `gpt-5.5` confirmed already correct.
+- Reviews — pre-push ritual: 0 Must, 2 Should fixed pre-push; Copilot 0 findings; CI green.
+
+### PR #1385 merged (`682ca1f`) — fix(academy): align navigation onto the (app) route group + article scroll reset
+
+- Branch `fix/academy-route-groups`, 3 commits. Two stray mobile Academy navigation calls still using the un-grouped form moved to the `(app)` route group — « En savoir plus » → `/(app)/academy/[slug]/learn`, « Retour à la fiche thématique » → `/(app)/academy/[slug]` — aligning with the 40+ other call sites. Plus two UX fixes: the article `ScrollView` remounts on `slug`/`termSlug` change (via `key`) so opening another article or glossary term starts at the top (was preserving the previous scroll offset); the highlighted glossary-term sources heading now reads « Sources du terme » (was the ambiguous « Sources »). New `AcademyTopicPlaceholderScreen.test.tsx` covers happy + sad (unknown topic) + edge (header back history/fallback, calculator-mode variant); 46 targeted tests green, `ci:check` green.
+- Branch was reconstructed in-session (the original `/tmp` clone from the prior session was unreachable from the sandbox), verified byte-identical to the intended diff before push.
+- Reviews — pre-push (`pr-pre-reviewer` + manual): 0 Must Have; 1 Should implemented (the placeholder H/S/E tests); 1 Should → fast-follow #1386. Copilot clean (0 comments); Codex absent (out of credits). **Live emulator pass** (Expo Go, demo mode, Pixel): the four Academy nav paths, the top-of-page scroll-reset invariant (article → related article, term → related term), and the « Sources du terme » heading all verified, 0 navigation errors. Finding: Expo Router elides route-group segments from the URL, so the un-grouped form also resolves at runtime — this is a consistency/convention alignment (plus two real scroll/heading UX fixes), not a broken-navigation fix.
+
+### PR #1386 merged (`6583016`) — fix(tools): use app route group for calculator navigation
+
+- Branch `fix/tools-route-groups`, 1 commit. Fast-follow from #1385's pre-push review: the three calculator-CTA `router.push` calls in `AcademyTopicDetailsScreen` now use `/(app)/tools/[slug]/calculator` (was the un-grouped form), matching every other call site; the calculator-CTA test assertion updated to match. 12 tools presentation suites / 169 tests green, `ci:check` green.
+- Reviews — Copilot clean (0 comments); Codex absent. Live emulator pass: the calculator CTA navigates correctly to the Fermentescibles calculator. Consistency alignment with no behavior change (the un-grouped form also resolved at runtime).
+
 ## 2026-07-09
 
 ### Prod deploy `brasse-bouillon-api` — water-profile slice 2 + accumulated backend live (migrations 1808/1809)

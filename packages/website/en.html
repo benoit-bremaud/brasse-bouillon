@@ -124,7 +124,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="header-logo">
+      <a href="/en" class="header-logo" data-i18n-attrs="href:nav.logo.href">
         <img src="logo-hero.webp" alt="" width="50" height="50">
         <span>Brasse-Bouillon</span>
       </a>
@@ -285,6 +285,28 @@
         </div>
       </section>
 
+      <section class="section-block" id="academieEn">
+        <p class="section-eyebrow" data-i18n="academie.eyebrow">Learn as you brew</p>
+        <h2 class="section-title" data-i18n="academie.title">Understand what you <em>brew</em></h2>
+        <p class="section-intro" data-i18n="academie.intro">Not just how, but why. The Academy gathers sourced articles and a brewing glossary — from ingredients to fermentation, from your first batch to fine-tuning.</p>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-screenshot">
+              <img src="screenshots/feature-academie.webp?v=20260710" alt="Brewing Academy home screen: a summary card (10 articles, 8 calculators), a search bar, theme filters and an article list (history of beer, introduction to brewing, malts and fermentables)" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.1.img">
+            </div>
+            <h3 data-i18n="academie.1.title">Landmarks, not jargon</h3>
+            <p data-i18n="academie.1.body">Ingredients, color, alcohol, fermentation: clear articles, sorted by theme, to learn at your own pace.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-screenshot">
+              <img src="screenshots/feature-academie-glossaire.webp?v=20260710" alt="Glossary term screen for IBU, with its detailed definition and its bibliographic source" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.2.img">
+            </div>
+            <h3 data-i18n="academie.2.title">A sourced glossary</h3>
+            <p data-i18n="academie.2.body">IBU, gravity, attenuation… every term defined simply, with sources — brewing books and standards.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="section-block" id="faqSection">
         <p class="section-eyebrow" data-i18n="faq.eyebrow">Frequently asked</p>
         <h2 class="section-title" id="faq" data-i18n="faq.title">The <em>doubts</em> before you dive in</h2>
@@ -322,6 +344,7 @@
           <input type="hidden" name="lang" value="en">
           <input type="hidden" name="source" value="newsletter">
           <input type="hidden" name="message" value="New newsletter signup via the site (EN)" data-i18n-attrs="value:newsletter.message">
+          <input class="honeypot" type="text" name="_gotcha">
 
           <label class="sr-only" for="newsletterEmailEn" data-i18n="newsletter.emailLabel">Email address for the waitlist</label>
           <input id="newsletterEmailEn" type="email" name="email" placeholder="you@email.com" required data-i18n-attrs="placeholder:newsletter.emailPlaceholder">
@@ -503,6 +526,10 @@
           <a href="/cookies-en" data-i18n="footer.cookies" data-i18n-attrs="href:footer.cookies.href">Cookies</a>
           <a href="/terms-en" data-i18n="footer.terms" data-i18n-attrs="href:footer.terms.href">Terms of use</a>
         </div>
+        <div class="lang-switch footer-lang" role="group" aria-label="Langue / Language">
+          <a class="lang-switch__link" href="/" lang="fr" data-lang-link="fr">FR</a>
+          <a class="lang-switch__link" href="/en" lang="en" aria-current="page" data-lang-link="en">EN</a>
+        </div>
       </footer>
     </div>
   </main>
@@ -522,7 +549,7 @@
     function toggleQuestionnaire(lang) { BBShared.toggleQuestionnaire({ lang }); }
     BBShared.initHome({ lang: 'en' });
   </script>
-  <!-- Feedback widget — local loader; mounts the Cloudflare Worker widget on prod only -->
+  <!-- Feedback widget — local loader; the Cloudflare Worker widget mounts on staging/localhost only, inert in production -->
   <script type="module" src="feedback-widget.js?v=20260601"></script>
   <!-- FAQ chat widget — self-hosted; mounts on staging/localhost only (ADR-0022) -->
   <script type="module" src="chat-widget.js?v=20260709"></script>

@@ -265,6 +265,12 @@
       cursor: default;
     }
 
+    .footer-lang { margin-top: 4px; }
+
+    /* The EN-only honesty line renders as an empty <p> on the FR home
+       (data-i18n-en-only); collapse it so it leaves no gap there. */
+    .hero-honesty:empty { display: none; }
+
     .nav-toggle__bars,
     .nav-toggle__bars::before,
     .nav-toggle__bars::after {
@@ -376,7 +382,9 @@
       width: 54px;
       height: 54px;
       border-radius: 50%;
-      background: var(--copper);
+      /* copper-deep (not copper) so the foam "18+" clears WCAG AA:
+         foam-on-copper is 3.2:1, foam-on-copper-deep is 6.07:1. */
+      background: var(--copper-deep);
       color: var(--foam);
       font-family: var(--font-display);
       font-weight: 700;

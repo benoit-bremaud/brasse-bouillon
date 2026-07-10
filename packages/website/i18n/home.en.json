@@ -4,6 +4,7 @@
     "mainContent",
     "journey",
     "scan",
+    "academie",
     "participer",
     "newsletterForm",
     "newsletterStatus",
@@ -36,6 +37,10 @@
     "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first — an English version is on the way. This site is already in English so you can follow along today."
   },
   "strings": {
+    "nav.logo.href": {
+      "en": "/en",
+      "srcHash": "42099b4af021e53fd8fd4e056c2568d7c2e3ffa8"
+    },
     "skip.link": {
       "en": "Skip to main content",
       "srcHash": "e97ff563f6a94bda8a6dc2b947edf8b51ac5ba09"
@@ -263,6 +268,42 @@
     "scan.2.body": {
       "en": "Clones rated and proven by other brewers — import them into your notebook in one tap.",
       "srcHash": "387a9bca79722b8251bed972f95e2700201e49ca"
+    },
+    "academie.eyebrow": {
+      "en": "Learn as you brew",
+      "srcHash": "851ab2fe53e95230dd9f77b2f49b2151c8afe89f"
+    },
+    "academie.title": {
+      "en": "Understand what you <em>brew</em>",
+      "srcHash": "67d13aaa496fb3e7e7241c633ab17a4606d7f87d"
+    },
+    "academie.intro": {
+      "en": "Not just how, but why. The Academy gathers sourced articles and a brewing glossary — from ingredients to fermentation, from your first batch to fine-tuning.",
+      "srcHash": "c79e0ee1ae56f304e63322e4c097f2e8600468ab"
+    },
+    "academie.1.img": {
+      "en": "Brewing Academy home screen: a summary card (10 articles, 8 calculators), a search bar, theme filters and an article list (history of beer, introduction to brewing, malts and fermentables)",
+      "srcHash": "48482e0dd80bbda7ebee9932a298e79855f0773e"
+    },
+    "academie.1.title": {
+      "en": "Landmarks, not jargon",
+      "srcHash": "4dcdf1b35677dde49d849ac4705dccc1b66e7164"
+    },
+    "academie.1.body": {
+      "en": "Ingredients, color, alcohol, fermentation: clear articles, sorted by theme, to learn at your own pace.",
+      "srcHash": "347699e8e0de111e4f9a506bfe17841351309c32"
+    },
+    "academie.2.img": {
+      "en": "Glossary term screen for IBU, with its detailed definition and its bibliographic source",
+      "srcHash": "8b76cab8f6fe70f038488d0bbbf1f4c9aa091b84"
+    },
+    "academie.2.title": {
+      "en": "A sourced glossary",
+      "srcHash": "ebce85a58dd8052ed90bb56ed9bb57caaeb0f76b"
+    },
+    "academie.2.body": {
+      "en": "IBU, gravity, attenuation… every term defined simply, with sources — brewing books and standards.",
+      "srcHash": "42da8b9496fedf53538c007542e57b42059ae6db"
     },
     "faq.eyebrow": {
       "en": "Frequently asked",

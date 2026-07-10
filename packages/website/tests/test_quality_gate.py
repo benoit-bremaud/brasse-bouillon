@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import tempfile
 import unittest
 
-from scripts import quality_gate
+from scripts import build_i18n, quality_gate
 
 
 def _write_file(base: Path, rel_path: str, content: str) -> None:
@@ -111,6 +112,18 @@ def _create_valid_fixture(base: Path) -> None:
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://brasse-bouillon.com/</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/legal</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/privacy</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/cookies</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/terms</loc>
   </url>
 </urlset>
 """,
@@ -369,6 +382,10 @@ class QualityGateTests(unittest.TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
   <url><loc>https://brasse-bouillon.com/legal-en</loc></url>
   <url><loc>https://brasse-bouillon.com/legal.html</loc></url>
 </urlset>
@@ -377,9 +394,9 @@ class QualityGateTests(unittest.TestCase):
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            disallowed = [err for err in errors if "URL non autorisée" in err]
-            self.assertTrue(any("legal-en" in err for err in disallowed))
-            self.assertTrue(any("legal.html" in err for err in disallowed))
+            forbidden = [err for err in errors if "interdites" in err]
+            self.assertTrue(any("legal-en" in err for err in forbidden))
+            self.assertTrue(any("legal.html" in err for err in forbidden))
 
     def test_sitemap_allows_home_and_fr_legal_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -407,19 +424,51 @@ class QualityGateTests(unittest.TestCase):
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             sitemap_path = root / "sitemap.xml"
+            # Everything but the home page → the home URL is reported missing.
             sitemap_path.write_text(
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            self.assertTrue(any("d'accueil" in err for err in errors))
+            self.assertTrue(
+                any("manquantes: https://brasse-bouillon.com/" in err for err in errors)
+            )
 
-    def test_detects_sitemap_duplicate_url(self) -> None:
+    def test_detects_sitemap_missing_legal_page(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            # /terms omitted → the exact-set policy flags it missing. The former
+            # "allowed subset" gate would have wrongly passed this sitemap.
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(
+                any("manquantes" in err and "terms" in err for err in errors)
+            )
+
+    def test_detects_sitemap_renamed_page(self) -> None:
+        # A renamed/typo'd legal page is missing AND forbidden at once — the
+        # realistic mistake the exact-set policy exists to catch.
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
@@ -429,14 +478,49 @@ class QualityGateTests(unittest.TestCase):
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
   <url><loc>https://brasse-bouillon.com/legal</loc></url>
-  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms-en</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            self.assertTrue(any("en double" in err for err in errors))
+            self.assertTrue(
+                any(
+                    "manquantes" in err
+                    and "https://brasse-bouillon.com/terms" in err
+                    and "interdites" in err
+                    and "terms-en" in err
+                    for err in errors
+                )
+            )
+
+    def test_detects_sitemap_duplicate_url(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            # Full valid set, but /legal is listed twice.
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(
+                any("dupliquées" in err and "legal" in err for err in errors)
+            )
 
     def test_detects_missing_robots_directive(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -476,6 +560,59 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
             )
             self.assertTrue(any("ratingValue non autorisé" in err for err in errors))
             self.assertTrue(any("ratingCount non autorisé" in err for err in errors))
+
+
+class I18nGateTests(unittest.TestCase):
+    """Cover check_i18n_home_generated at the gate layer (the generator internals
+    are covered separately in test_build_i18n)."""
+
+    @staticmethod
+    def _build_tree(root: Path, source: str, catalog: dict) -> None:
+        # The guard only checks that scripts/build_i18n.py exists; generation
+        # itself uses the imported real module against files under `root`.
+        _write_file(root, "scripts/build_i18n.py", "# marker\n")
+        _write_file(root, "index.html", source)
+        _write_file(root, "i18n/home.en.json", json.dumps(catalog))
+        _write_file(root, "en.html", build_i18n.generate(source, catalog))
+
+    def test_passes_when_en_html_in_sync(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            self.assertEqual(quality_gate.check_i18n_home_generated(root), [])
+
+    def test_fails_on_src_hash_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            # FR source changes without its EN translation/hash being updated.
+            _write_file(root, "index.html", '<p data-i18n="k">Salut</p>\n')
+            errors = quality_gate.check_i18n_home_generated(root)
+            self.assertTrue(any("i18n" in err for err in errors))
+
+    def test_fails_when_en_html_stale(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source = '<p data-i18n="k">Bonjour</p>\n'
+            catalog = {
+                "strings": {"k": {"en": "Hi", "srcHash": build_i18n.sha1("Bonjour")}}
+            }
+            self._build_tree(root, source, catalog)
+            _write_file(root, "en.html", "<p>stale hand edit</p>\n")
+            errors = quality_gate.check_i18n_home_generated(root)
+            self.assertTrue(any("périmé" in err for err in errors))
+
+    def test_skips_without_i18n_toolchain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            self.assertEqual(quality_gate.check_i18n_home_generated(Path(tmp_dir)), [])
 
 
 if __name__ == "__main__":

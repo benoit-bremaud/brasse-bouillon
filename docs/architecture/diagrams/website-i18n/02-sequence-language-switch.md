@@ -2,7 +2,7 @@
 
 > **Feature**: website i18n epic (bilingual FR+EN marketing site)
 > **Related ADRs**: ADR-0027 (D4 — switcher, no auto-redirect, disclosed persistence)
-> **Decisions captured**: D4 clauses 1–4
+> **Decisions captured**: D4 clauses 1–5
 
 ## Context
 
@@ -25,7 +25,7 @@ sequenceDiagram
   P->>JS: init(pageLang="fr")
   JS->>LS: read "bb-lang"
   LS-->>JS: null
-  alt navigator.language prefers the other language
+  alt navigator.languages prefers the other language
     JS->>P: show suggestion banner ("This page exists in English")
     alt visitor accepts
       V->>JS: click "View in English"
@@ -43,14 +43,15 @@ sequenceDiagram
     V->>P: click FR/EN toggle link
     P->>JS: click handler (enhancement only)
     JS->>LS: write bb-lang=target
-    P->>P: plain <a> navigation to the twin URL
+    P->>P: plain anchor-tag navigation to the twin URL
   end
 ```
 
 ## Notes
 
 - **No automatic redirect on any path** — detection only ever *suggests*
-  (ADR-0027 D4 clause 3): crawler-safe, cache-safe, user-agency-safe.
+  (ADR-0027 D4 clause 4; the banner itself is clause 3): crawler-safe,
+  cache-safe, user-agency-safe.
 - The toggle is a plain `<a href>` in the **top-right of the header**, labelled
   by **autonym** (`Français` / `English`, or a compact `FR / EN`) — **no flags**
   (ADR-0027 D4 clauses 1-2; "flags are not languages", NN/G). It targets the
@@ -61,7 +62,7 @@ sequenceDiagram
   automatic switch (ADR-0027 D4 clause 4; Google discourages language
   auto-redirect).
 - `bb-lang` is the **first persistent storage on the site**: the same slice
-  (S3) must update `cookies.html` + `cookies-en.html` disclosure (D4 clause 4).
+  (S3) must update `cookies.html` + `cookies-en.html` disclosure (D4 clause 5).
   Reviewers should block any version of this flow that lands without the
   disclosure.
 - A stored choice never triggers navigation by itself; it only suppresses the

@@ -77,9 +77,14 @@ Technical — **must be true before any link is posted** (all land in slice S1):
 
 - [ ] `https://brasse-bouillon.com/en` live, full feature parity with FR
       (hero, journey, pillars, scan, FAQ, forms), final URL (no later rename).
-- [ ] EN OG/Twitter meta present — the Reddit link card is built from it.
+- [ ] EN OG/Twitter meta present, incl. `og:locale=en_US` — the Reddit link
+      card is built from it.
+- [ ] `og:image`: verify the shared `og-image.png` carries no baked-in French
+      text; if it does, ship a localized EN card image (else the EN card shows
+      French).
 - [ ] Both forms accept EN submissions (`lang=en`) with EN success/error
-      messages in `site.js`.
+      messages (the message tables are inline in `index.html`, localized by the
+      generator — not in `site.js`).
 - [ ] The "app is French-first" honesty line is visible in or immediately
       below the hero section.
 - [ ] EN legal pages linked in the EN footer (already true today).

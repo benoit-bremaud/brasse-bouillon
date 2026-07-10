@@ -32,7 +32,7 @@ flowchart LR
     CF["Cloudflare Pages<br/>brasse-bouillon.com"]
   end
   V(("Visitors FR/EN"))
-  FS(["Formspree (US, CCT)"])
+  FS(["Formspree (US, SCC)"])
   LS[("localStorage<br/>bb-lang")]
 
   M -->|"edits FR copy"| FR
@@ -59,11 +59,12 @@ flowchart LR
 - The generator runs at **authoring time**, never at deploy time — `en.html` is
   committed, so `website-deploy.yml` stays a dumb copy (`_redirects` added to its
   fail-loud copy list, ADR-0027 D2 clause 2).
-- CI is the drift guard: stale `en.html`, missing/orphaned catalog keys, or a
-  stale legal stamp all fail the PR (D1 clause 4–5).
+- CI is the drift guard: stale `en.html`, missing/orphaned catalog keys, a
+  changed FR source whose EN value + `srcHash` were not updated, or a stale legal
+  stamp all fail the PR (D1 clause 4–5).
 - **PII edges**: only the existing Formspree submissions carry PII (email,
   contact field, questionnaire answers) — unchanged by this epic, EN adds
   `lang=en` only. `bb-lang` is a non-PII functional preference that never leaves
-  the browser; it must be disclosed on the cookies pages (D4 clause 4).
+  the browser; it must be disclosed on the cookies pages (D4 clause 5).
 - Legal twins deliberately bypass the generator: stable, jurisdiction-specific
   prose (guarded by stamp, not templated).

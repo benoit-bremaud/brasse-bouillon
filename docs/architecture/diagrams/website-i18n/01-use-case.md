@@ -47,17 +47,19 @@ flowchart LR
 ## Notes
 
 - **Textual specs (Cockburn-lite).**
-  - **UC2 — Switch the site language** (planned, slice S3): precondition —
-    visitor is on a page that has a twin. Main: 1. visitor clicks the FR/EN
-    toggle; 2. browser navigates to the twin URL; 3. choice stored (`bb-lang`).
-    Extensions: 1a. first visit, browser language differs from page language and
-    no stored choice → a suggestion banner offers the twin (accept = navigate +
-    store; dismiss = store current language, never nag again). Realized by
-    `02-sequence-language-switch.md`.
+  - **UC2 — Switch the site language** (plain autonym toggle ships in **S1**;
+    banner + `bb-lang` persistence in **S3**): precondition — visitor is on a
+    page that has a twin. Main: 1. visitor clicks the FR/EN autonym toggle
+    (top-right); 2. browser navigates to the twin URL (translated equivalent).
+    Extensions: 1a. first visit, browser language (`navigator.languages`)
+    differs from page language and no stored choice → a suggestion banner offers
+    the twin (accept = navigate + store `bb-lang`; dismiss = store current
+    language, never nag again). Realized by `02-sequence-language-switch.md`.
   - **UC5 — Publish a home copy change in both languages** (planned, slice S1):
     main: 1. maintainer edits `index.html` (FR source); 2. updates the flagged
     keys in `i18n/home.en.json`; 3. runs `build_i18n.py`; 4. commits — CI fails
-    on any missing/orphaned key or stale `en.html`. Realized by
+    on any missing/orphaned key, a changed FR source whose EN value + `srcHash`
+    were not updated, or a stale `en.html`. Realized by
     `03-data-flow-content-pipeline.md`.
   - **UC6 — Update a legal page pair** (planned, slice S4): main: edit FR page,
     re-review + edit EN twin, refresh the freshness stamp; CI fails when the FR

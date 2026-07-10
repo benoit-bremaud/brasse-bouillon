@@ -6,6 +6,7 @@ This script is intentionally dependency-free so it can run locally and in CI.
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 import re
 import sys
@@ -14,6 +15,17 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
+
+# URLs: the home page plus the four French legal pages. The English legal twins
+# and the `-en` stub are `noindex`, and any `.html` URL 308-redirects to its
+# clean form, so none of them may ever appear in the sitemap.
+SITEMAP_URLS = [
+    HOMEPAGE_URL,
+    f"{HOMEPAGE_URL}legal",
+    f"{HOMEPAGE_URL}privacy",
+    f"{HOMEPAGE_URL}cookies",
+    f"{HOMEPAGE_URL}terms",
+]
 
 REQUIRED_FILES = [
     "index.html",
@@ -249,11 +261,14 @@ def check_chat_widget(root: Path = ROOT) -> list[str]:
 
 
 def check_sitemap_policy(root: Path = ROOT) -> list[str]:
+    """The sitemap must advertise EXACTLY the indexable clean URLs (`SITEMAP_URLS`)
+    — nothing missing, nothing extra, no duplicate. This blocks re-adding a
+    `noindex` twin/stub or a `.html` (308-redirecting) URL, which would send
+    crawlers a contradictory signal. Order-independent (sitemap order is
+    irrelevant to search engines)."""
     sitemap_path = root / "sitemap.xml"
     if not sitemap_path.exists():
         return []
-
-    errors: list[str] = []
 
     try:
         xml_root = ET.parse(sitemap_path).getroot()
@@ -266,31 +281,27 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
         if (loc.text or "").strip()
     ]
 
-    # Indexable URLs allowed in the sitemap: the home + the FR legal pages, as
-    # the clean URLs Cloudflare Pages serves. The EN legal pages are noindex and
-    # MUST NOT appear here; nor may the `.html` forms (they 308-redirect).
-    allowed = {
-        HOMEPAGE_URL,
-        f"{HOMEPAGE_URL}legal",
-        f"{HOMEPAGE_URL}privacy",
-        f"{HOMEPAGE_URL}cookies",
-        f"{HOMEPAGE_URL}terms",
-    }
+    if sorted(loc_values) == sorted(SITEMAP_URLS):
+        return []
 
-    if HOMEPAGE_URL not in loc_values:
-        errors.append(f"sitemap.xml: l'URL d'accueil {HOMEPAGE_URL} est manquante")
+    counts = Counter(loc_values)
+    expected = set(SITEMAP_URLS)
+    missing = [url for url in SITEMAP_URLS if url not in counts]
+    forbidden = sorted(url for url in counts if url not in expected)
+    duplicates = sorted(url for url, count in counts.items() if count > 1)
 
-    for loc in loc_values:
-        if loc not in allowed:
-            errors.append(
-                f"sitemap.xml: URL non autorisée « {loc} » — seules l'accueil et "
-                "les pages légales FR (URLs propres, indexables) sont admises"
-            )
+    # At least one category is always non-empty here: the early return above
+    # already handled the exact-match case.
+    problems: list[str] = []
+    if missing:
+        problems.append("manquantes: " + ", ".join(missing))
+    if forbidden:
+        problems.append("interdites: " + ", ".join(forbidden))
+    if duplicates:
+        problems.append("dupliquées: " + ", ".join(duplicates))
 
-    for loc in sorted({loc for loc in loc_values if loc_values.count(loc) > 1}):
-        errors.append(f"sitemap.xml: URL en double « {loc} »")
-
-    return errors
+    detail = " ; ".join(problems)
+    return [f"sitemap.xml: doit lister exactement les URL indexables ({detail})"]
 
 
 def check_robots_policy(root: Path = ROOT) -> list[str]:

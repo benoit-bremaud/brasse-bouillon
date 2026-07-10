@@ -110,6 +110,18 @@ def _create_valid_fixture(base: Path) -> None:
   <url>
     <loc>https://brasse-bouillon.com/</loc>
   </url>
+  <url>
+    <loc>https://brasse-bouillon.com/legal</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/privacy</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/cookies</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/terms</loc>
+  </url>
 </urlset>
 """,
     )
@@ -367,6 +379,10 @@ class QualityGateTests(unittest.TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
   <url><loc>https://brasse-bouillon.com/legal-en</loc></url>
   <url><loc>https://brasse-bouillon.com/legal.html</loc></url>
 </urlset>
@@ -375,9 +391,9 @@ class QualityGateTests(unittest.TestCase):
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            disallowed = [err for err in errors if "URL non autorisée" in err]
-            self.assertTrue(any("legal-en" in err for err in disallowed))
-            self.assertTrue(any("legal.html" in err for err in disallowed))
+            forbidden = [err for err in errors if "interdites" in err]
+            self.assertTrue(any("legal-en" in err for err in forbidden))
+            self.assertTrue(any("legal.html" in err for err in forbidden))
 
     def test_sitemap_allows_home_and_fr_legal_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -405,19 +421,51 @@ class QualityGateTests(unittest.TestCase):
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             sitemap_path = root / "sitemap.xml"
+            # Everything but the home page → the home URL is reported missing.
             sitemap_path.write_text(
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            self.assertTrue(any("d'accueil" in err for err in errors))
+            self.assertTrue(
+                any("manquantes: https://brasse-bouillon.com/" in err for err in errors)
+            )
 
-    def test_detects_sitemap_duplicate_url(self) -> None:
+    def test_detects_sitemap_missing_legal_page(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            # /terms omitted → the exact-set policy flags it missing. The former
+            # "allowed subset" gate would have wrongly passed this sitemap.
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(
+                any("manquantes" in err and "terms" in err for err in errors)
+            )
+
+    def test_detects_sitemap_renamed_page(self) -> None:
+        # A renamed/typo'd legal page is missing AND forbidden at once — the
+        # realistic mistake the exact-set policy exists to catch.
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
@@ -427,14 +475,49 @@ class QualityGateTests(unittest.TestCase):
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
   <url><loc>https://brasse-bouillon.com/legal</loc></url>
-  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms-en</loc></url>
 </urlset>
 """,
                 encoding="utf-8",
             )
 
             errors = quality_gate.check_sitemap_policy(root)
-            self.assertTrue(any("en double" in err for err in errors))
+            self.assertTrue(
+                any(
+                    "manquantes" in err
+                    and "https://brasse-bouillon.com/terms" in err
+                    and "interdites" in err
+                    and "terms-en" in err
+                    for err in errors
+                )
+            )
+
+    def test_detects_sitemap_duplicate_url(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            # Full valid set, but /legal is listed twice.
+            sitemap_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/legal</loc></url>
+  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
+  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
+  <url><loc>https://brasse-bouillon.com/terms</loc></url>
+</urlset>
+""",
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+            self.assertTrue(
+                any("dupliquées" in err and "legal" in err for err in errors)
+            )
 
     def test_detects_missing_robots_directive(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -7,10 +7,31 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-10
 
+### PR #1394 merged (`801049c`) — feat(website): real English home at /en (i18n epic S1)
+
+- Branch `feat/website-i18n-s1-en-home`, 6 commits. Slice S1 of ADR-0027: a real, promotable English marketing home at `/en`, **generated** from the single authored FR `index.html` (build-less per ADR-0014). Ships **dark** — `noindex`, self-canonical `/en`, no hreflang yet (deferred to S2 by design so the cluster never points at a noindex page). `scripts/build_i18n.py` (stdlib) splices a committed, byte-stable `en.html` from `data-i18n`-annotated source + `i18n/home.en.json` (transcreation for r/Homebrewing; survey option *values* kept FR so responses aggregate; `lang=en`), rebuilding the FAQPage/Organization JSON-LD from the same catalog keys; a per-entry `srcHash` drift guard fails CI when FR changes without its EN update. Full parity incl. the Académie section (#1388), FR/EN header+footer switcher (autonym, no flags, plain `<a>`, `aria-current`), `_redirects` `/index-en`→`/en` (301). Quality gate rekeyed `index-en.html` → `en.html` + new in-process `check_i18n_home_generated()` (key parity + srcHash + regen-diff). Refs #1075.
+- Reviews — pre-push (`pr-pre-reviewer` + Codex): all Must + Should addressed in-branch (EN logo/footer links, footer switcher, generator overlap guard, gate tests, stale README). S2 (SEO switch: de-noindex, reciprocal hreflang, `/en` in sitemap) follows. CI green.
+
+### PR #1388 merged (`98430bf`) — feat(website): add Académie brassicole feature section (FR)
+
+- Branch `feat/website-academy-section`, 1 commit. New dedicated `#academieFr` section on the FR home, placed after the Scan block (kept out of the "trois piliers" tools block — the Academy is *learning*, a distinct category, so that copy stays true). Two `feature-card`s reusing the existing phone-frame pattern (zero CSS/JS change → no cache-bust): the Academy hub (synthesis card 10 articles / 8 calculateurs, search, theme filters, article list) and a glossary term detail (IBU) showing its bibliographic source — the pedagogical differentiator vs tool-only competitors. Copy grounded in what ships (10 sourced articles, 17-term sourced glossary); no over-promise (no progression/quiz/chatbot claims). EN twin left as the deliberate coming-soon stub (feature sections are FR-only until the i18n epic #1383).
+- Both screenshots captured from the same current app state on the `bb_pixel_academy` emulator (720×1527) so the two cards share an identical bottom-nav bar; the prior `feature-academie.webp` (#1122) was stale (older 7-icon nav + older hub) and was replaced.
+- Reviews — pre-push ritual (Claude `pr-pre-reviewer` + Codex CLI): 0 Must Have; alt-text completeness + copy-redundancy fixes applied; the EN-twin sync finding reconciled as intentional. Copilot 0 comments; CI green.
+
+### PR #1393 merged (`152b470`) — refactor(website): exact-set sitemap policy + O(n) duplicate check
+
+- Branch `chore/website-sitemap-gate-hardening`, 1 commit. Salvages the unique content of the closed/superseded #1387: `check_sitemap_policy` now enforces the sitemap advertises **exactly** the indexable clean URLs (`SITEMAP_URLS`) — a *missing* legal page is now caught (the prior allowlist only flagged extras + a missing home); duplicate detection moves O(n²) `list.count()` → linear `collections.Counter` (Copilot note on #1387). Lot 5 itself shipped via #1384.
+- Reviews — pre-push; `ruff` clean, 22 gate tests green (happy/sad/edge: missing legal page, renamed = missing+forbidden, duplicate), gate passes on the live site, no behaviour change to other checks. CI green.
+
 ### PR #1391 merged (`155f44c`) — fix(review): pin --output-last-message to exec level in codex-review.sh
 
 - Branch `claude/kind-napier-bd7802`, 1 commit. Fixes `scripts/codex-review.sh` failing with `unexpected argument '--output-last-message'` (version-skew, not credits): the flag is `exec`-level, so it now precedes the `review` subcommand. `--base`/`--out` contract for the `pre-push-review` skill unchanged; `--help` made drift-proof. Rationale + verification in #1391. Config `review_model`/`model` = `gpt-5.5` confirmed already correct.
 - Reviews — pre-push ritual: 0 Must, 2 Should fixed pre-push; Copilot 0 findings; CI green.
+
+### PR #1389 merged (`b0b43f2`) — fix(website): newsletter honeypot, badge contrast (AA), honest widget comment (Lot 6)
+
+- Branch `fix/website-hygiene`, 1 commit. Lot 6 (last site-side lot of the 2026-07-09 audit): the newsletter form gains the Formspree `_gotcha` honeypot the questionnaire already had (Refs #1036); the "18+" responsibility-band badge `--copper` → `--copper-deep` (foam text 3.2:1 → 6.07:1, fixes the sole Lighthouse A11y contrast failure); the feedback-widget loader comment corrected on all 10 pages (claimed "mounts on prod only" — the opposite of its staging/localhost gating); `site.css?v=20260710` cache-bust on index/index-en/404.
+- Reviews — pre-push: 0 Must, 1 Should (a missed 404 cache-bust) fixed pre-push; gate + 20 tests green; badge computed color (`rgb(141,74,19)`, 6.07:1) + honeypot hidden state verified in preview. CI green. After this, audit Lots 2–6 are complete; remaining Lot 1 DNS (user) + deferred og-image 1200×630 (design).
 
 ### PR #1385 merged (`682ca1f`) — fix(academy): align navigation onto the (app) route group + article scroll reset
 
@@ -22,6 +43,21 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 - Branch `fix/tools-route-groups`, 1 commit. Fast-follow from #1385's pre-push review: the three calculator-CTA `router.push` calls in `AcademyTopicDetailsScreen` now use `/(app)/tools/[slug]/calculator` (was the un-grouped form), matching every other call site; the calculator-CTA test assertion updated to match. 12 tools presentation suites / 169 tests green, `ci:check` green.
 - Reviews — Copilot clean (0 comments); Codex absent. Live emulator pass: the calculator CTA navigates correctly to the Fermentescibles calculator. Consistency alignment with no behavior change (the un-grouped form also resolved at runtime).
+
+### PR #1383 merged (`2184856`) — docs(website/architecture): website i18n epic conception (ADR-0027, UML, EN launch playbook)
+
+- Branch `docs/website-i18n-conception`, 4 commits. Conception-only (no implementation) for making the marketing site genuinely bilingual FR+EN (Reddit / international outreach). ADR-0027 (Proposed): D1 hybrid content (EN home *generated* from the annotated FR source + `i18n/home.en.json` + stdlib `build_i18n.py`, output committed so deploy stays build-less; legal pages hand-maintained twins with a CI freshness stamp), D2 EN home at `/en` (301 from `/index-en`), D3 reuse Formspree with `lang=en`, D4 visible FR/EN switcher + no auto-redirect + `bb-lang` localStorage disclosed on the cookies pages, D5 de-noindex EN + reciprocal hreflang. UML (use-case / sequence / data-flow) under `docs/architecture/diagrams/website-i18n/`; EN launch playbook (transcreation voice, honesty rules, Reddit checklist). Refs #1075.
+- Validated with Benoît 2026-07-10 (hybrid, `/en`, Reddit after S1+S2). Slices S1–S4 follow. CI green.
+
+### PR #1381 merged (`f738b2b`) — fix(website): faq-bot widget 400-vs-503 UX (#1314) + wire live API origin
+
+- Branch `claude/zealous-tu-65a33b`, 2 commits. Last-mile activation prep for the public FAQ chatbot (ADR-0022) — the widget stays gated **off** production. `errorFor(status, hadProof)` maps an HTTP 400 on `/ask` with no anti-bot proof to the "unavailable" message (was the generic retry) — Closes #1314; local dev path unaffected. Option A topology: single live API + `FAQ_BOT_ENABLED` kill-switch; staging + (inert, pre-wired) prod hosts point at `brasse-bouillon-api.fly.dev`, prod stays out of `WIDGET_HOSTS` until go-live. `chat-widget.js?v=20260709` FR+EN; ADR-0022 activation addendum.
+- Activates nothing on its own (needs Fly secrets `MISTRAL_API_KEY` / `ALTCHA_HMAC_KEY` + `FAQ_BOT_ENABLED=true`, separate operator steps). Prompt eval 13/13; gate + `node --check` green. CI green.
+
+### PR #1384 merged (`803693a`) — fix(website): sitemap legal pages, social meta, drop 197KB SVG favicon (Lot 5)
+
+- Branch `fix/website-sitemap-social`, 3 commits. Lot 5 of the 2026-07-09 audit: the sitemap adds the 4 FR legal pages (clean URLs) + `lastmod` 2026-07-10 (EN legal stay out — `noindex`), `check_sitemap_policy` relaxed home-only → allowlist rejecting EN / `.html` / unknown / duplicate; OG + Twitter Card meta added to the 8 legal pages + `index-en` (`summary` card, `og:url == canonical`); favicon drops the **197 KB** `logo-icon.svg` `<link>` from all 11 pages (`favicon.ico` 2.8 KB + apple-touch-icon cover browsers). Refs #1038, #1039.
+- Reviews — two-lens pre-push (parity + adversarial SEO): 0 Must / 0 Should; FR/EN parity, no double OG, sitemap↔noindex consistency verified; gate + 20 tests green. Deferred: og-image as a real 1200×630 asset (design), prune the orphaned `logo-icon.svg`. CI green.
 
 ## 2026-07-09
 

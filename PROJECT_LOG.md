@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1431 merged (`205dc3e`) — docs(website): freeze the r/Homebrewing launch post + account runway plan
+
+- Branch `docs/website-reddit-launch-post`, 5 commits (`399d569`, `9c3fdb6`, `75aeb58`, `9a73835`, `2f4d7c9`). Playbook §8: the maintainer-validated launch post (3 title options, body, the two prepared replies, mod pre-message) + the account runway plan (existing personal account, aged/low-karma; handle deliberately NOT recorded — the account↔project link is made at posting time; runway = r/Homebrewing participation + the real first-brew post, then the launch post referencing it).
+- Constraints baked in: no "build in public" claim, no beta-tester recruiting (app UI French-only), no "free" claim (pricing undecided; §6 example aligned), waitlist as only CTA.
+- Three reviewers fact-checked the draft against the repo: pre-push ritual caught the demo-only fermentation card over-claim (live = manual measurement logging); Codex caught that recipe write CRUD (#410–#420) is entirely open → the recipe studio is pitched as the beta's headline feature, not shipped, and the scan claim was corrected to barcode (label OCR = epic #751, v0.2); Copilot polished the opener + identity wording. Every present-tense claim in the frozen draft now maps to shipped code.
+
+
 ### PR #1423 merged (`c813529`) — feat(website): add "buy me a beer" Ko-fi donation link (ADR-0028)
 
 - Branch `feat/website-donation-link` (squash-merged; `origin/main` integrated mid-flight to absorb the #1428 SEO-switch conflicts, `en.html` regenerated not hand-edited). New **ADR-0028** (Accepted): Ko-fi one-off tip, **plain outbound link only** (no widget/iframe), chosen over Liberapay/Tipeee/Buy-Me-a-Coffee/Stripe-link via a weighted decision matrix on official July-2026 sources (guest one-off checkout, 0 % platform fee, direct PayPal payout, no SIREN needed). Sovereignty deviation (Ko-fi = UK) recorded + bounded with re-evaluation triggers (clause 6). Refs #1075.

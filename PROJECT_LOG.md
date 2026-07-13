@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1423 merged (`c813529`) — feat(website): add "buy me a beer" Ko-fi donation link (ADR-0028)
+
+- Branch `feat/website-donation-link` (squash-merged; `origin/main` integrated mid-flight to absorb the #1428 SEO-switch conflicts, `en.html` regenerated not hand-edited). New **ADR-0028** (Accepted): Ko-fi one-off tip, **plain outbound link only** (no widget/iframe), chosen over Liberapay/Tipeee/Buy-Me-a-Coffee/Stripe-link via a weighted decision matrix on official July-2026 sources (guest one-off checkout, 0 % platform fee, direct PayPal payout, no SIREN needed). Sovereignty deviation (Ko-fi = UK) recorded + bounded with re-evaluation triggers (clause 6). Refs #1075.
+- CTA in two home placements via the ADR-0027 i18n pipeline: a support line at the end of the Participate section (below the waitlist form, so it never competes with the primary CTA) + a footer brand line (`participate.support` / `footer.donate`; `en.html` regenerated). `.support-note` uses `--ink-soft` for AA contrast (9.17:1) on the Participate gradient corner; cache-bust `site.css?v=20260713c` on index/en/404.
+- ADR-0028 clause 2 is CI-enforced: `quality_gate.py` `DISALLOWED_HTML_PATTERNS` now bans a Ko-fi `script`/`iframe` on both homes, with a fixture test (47 → 50 unit tests). Privacy posture unchanged (a plain outbound link processes no visitor data — no subprocessor/cookie-policy change). Ko-fi account: handle `brassebouillon`, Contributor OFF (0 %), EUR, PayPal payout.
+- Reviews — pre-push ritual (pr-pre-reviewer + Codex CLI): 0 Must Have; both Should Have implemented (CI-enforced clause 2, AA-contrast token). Copilot 10/10 files, 0 comments. CI green; live prod FR+EN verified (`ko-fi.com/brassebouillon`).
+
 ### PR #1428 merged (`1cfe565`) — feat(website): flip the i18n S2 SEO switch — EN pages indexable (ADR-0027 D5)
 
 - Branch `feat/website-i18n-s2-seo-switch`, 4 commits (`966411c`, `fc6271e`, `cc2558b`, `c3e20e6`). Slice S2 of ADR-0027 — the site is now **Reddit-ready SEO-side**. Refs #1075.

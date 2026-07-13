@@ -34,7 +34,8 @@
     ]
   },
   "insertions": {
-    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first — an English version is on the way. This site is already in English so you can follow along today."
+    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first — an English version is on the way. This site is already in English so you can follow along today.",
+    "journey.screensNote": "Screenshots throughout this page show the app’s French interface — the English app UI is in the works."
   },
   "strings": {
     "nav.logo.href": {

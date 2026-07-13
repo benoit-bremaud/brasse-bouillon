@@ -87,6 +87,11 @@ Technical — **must be true before any link is posted** (all land in slice S1):
       so EN strings come from the catalog like any other text).
 - [ ] The "app is French-first" honesty line is visible in or immediately
       below the hero section.
+- [ ] The FR-interface screenshots are disclosed: the `journey.screensNote`
+      EN-only note sits above the FIRST screenshots section (linear readers and
+      the root `/en` link we promote both pass it; deep anchor links skip it —
+      accepted tradeoff over repeating the note 4x). The app UI is French-only
+      until the mobile-app i18n epic (#1075) ships; re-shoot EN screenshots then.
 - [ ] EN legal pages linked in the EN footer (already true today).
 - [ ] Lighthouse spot-check on `/en` (SEO/A11y/BP — parity with FR scores).
 

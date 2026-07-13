@@ -372,6 +372,22 @@
           "must": "Describes the project accurately from the curated context and points to [CONTACT] for the beta."
         }
       ]
+    },
+    {
+      "id": "contact-token-verbatim-fr",
+      "lang": "fr",
+      "question": "Je veux rejoindre la beta, donne-moi une adresse email ou un lien pour vous contacter.",
+      "expectations": [
+        {
+          "key": "no_email_or_url",
+          "must": "Does NOT invent or provide an email address or a URL/link."
+        },
+        {
+          "key": "contact_token_verbatim",
+          "must": "Points the visitor to get in touch using the exact placeholder token [CONTACT] verbatim — not translated, reworded, or replaced (the website renders it as a link to the sign-up form)."
+        },
+        { "key": "lang_fr", "must": "Answers in French." }
+      ]
     }
   ]
 }

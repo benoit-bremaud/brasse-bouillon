@@ -12,6 +12,8 @@
  *   - RGPD-minimal: no cookies, no storage, no tracking, and NO network request is
  *     made on page load. The first call happens only when the visitor actually asks,
  *     so the widget never fires before an explicit user action.
+ *   - The bot may emit a [CONTACT] placeholder; the widget linkifies it to the on-page
+ *     "Participer" sign-up section (a first-party anchor, never an external contact).
  *
  * Activation is host-gated via WIDGET_HOSTS; live on the public production site since the
  * 2026-07-13 go-live (ADR-0022 activation addendum). Instant rollback stays server-side
@@ -51,6 +53,14 @@ const API_BASE_BY_HOST = {
 /** Upper bound for the proof-of-work search (must be >= the server's maxnumber). */
 const POW_FALLBACK_MAX = 200_000;
 
+/**
+ * Literal placeholder the backend prompt emits when it points a visitor to get in touch or
+ * join the beta (ADR-0022). There is no public email — the sole contact surface is the on-page
+ * "Participer" sign-up form — so the widget turns this token into a first-party link to that
+ * section (`STRINGS.<lang>.contact.targetId`) rather than leaking the raw token to the reader.
+ */
+const CONTACT_TOKEN = '[CONTACT]';
+
 /** Localized widget chrome. The bot itself answers in the visitor's own language. */
 const STRINGS = {
   fr: {
@@ -62,6 +72,7 @@ const STRINGS = {
       'Comment ça marche ?',
       'Comment rejoindre la bêta ?',
     ],
+    contact: { targetId: 'participerFr', label: 'le formulaire' },
     inputLabel: 'Ta question',
     placeholder: 'Écris ta question…',
     send: 'Envoyer',
@@ -82,6 +93,7 @@ const STRINGS = {
       'How does it work?',
       'How do I join the beta?',
     ],
+    contact: { targetId: 'participerEn', label: 'the form' },
     inputLabel: 'Your question',
     placeholder: 'Type your question…',
     send: 'Send',
@@ -184,6 +196,10 @@ const WIDGET_STYLES = `
   border-bottom-left-radius: var(--radius-sm); }
 .bb-chat__msg--error { background: var(--color-accent-soft); color: var(--color-error); }
 .bb-chat__msg--pending { opacity: 0.7; font-style: italic; }
+/* copper-deep-on-foam = 6.07:1 (WCAG AA); same pair already vetted in site.css. */
+.bb-chat__link { color: var(--copper-deep); font-weight: 600; text-decoration: underline; }
+.bb-chat__link:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px;
+  border-radius: var(--radius-sm); }
 .bb-chat__chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
 .bb-chat__chips[hidden] { display: none; }
 .bb-chat__chip { padding: 7px 12px; cursor: pointer; font: inherit; font-size: 0.85rem;
@@ -340,6 +356,54 @@ function mountChatWidget() {
     }
   };
 
+  // Close the panel and glide to the on-page "Participer" sign-up section. The widget only
+  // mounts on the home pages (index.html / en.html), so the target always exists here.
+  const scrollToContact = () => {
+    setOpen(false);
+    const section = document.getElementById(t.contact.targetId);
+    if (!section) {
+      return;
+    }
+    // Reflect the jump in the URL like a real on-page anchor (deep-linkable, shareable),
+    // without letting the browser perform its own instant jump — we keep control of the
+    // smooth scroll and focus below.
+    if (window.history && typeof window.history.pushState === 'function') {
+      window.history.pushState(null, '', `#${t.contact.targetId}`);
+    }
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+    // Move focus onto the revealed section (not the launcher that setOpen just focused) so
+    // keyboard and screen-reader users land where the link took them. The section is not
+    // natively focusable, so grant it a programmatic-only tabstop; preventScroll keeps the
+    // focus call from fighting the smooth scroll above.
+    section.setAttribute('tabindex', '-1');
+    section.focus({ preventScroll: true });
+  };
+
+  // Render a bot answer, turning each [CONTACT] placeholder into a real first-party link.
+  // The model's own text is only ever added as text nodes (never innerHTML), so linkifying
+  // the token we control opens no XSS hole. `split` yields one more segment than there are
+  // tokens, so a link sits between every adjacent pair of segments.
+  const renderAnswer = (container, text) => {
+    const segments = text.split(CONTACT_TOKEN);
+    segments.forEach((segment, index) => {
+      if (segment) {
+        container.appendChild(document.createTextNode(segment));
+      }
+      if (index < segments.length - 1) {
+        const link = el('a', 'bb-chat__link', t.contact.label);
+        link.href = `#${t.contact.targetId}`;
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          scrollToContact();
+        });
+        container.appendChild(link);
+      }
+    });
+  };
+
   const errorFor = (status, hadProof) => {
     if (status === 429) {
       return t.errorRate;
@@ -400,10 +464,15 @@ function mountChatWidget() {
 
       const payload = await res.json();
       const answer = payload && payload.data ? payload.data.answer : undefined;
-      pending.textContent = answer || t.errorGeneric;
       pending.classList.remove('bb-chat__msg--pending');
       if (!answer) {
+        pending.textContent = t.errorGeneric;
         pending.classList.add('bb-chat__msg--error');
+      } else if (answer.includes(CONTACT_TOKEN)) {
+        pending.textContent = '';
+        renderAnswer(pending, answer);
+      } else {
+        pending.textContent = answer;
       }
     } catch {
       const offline =

@@ -79,9 +79,9 @@ Technical — **must be true before any link is posted** (all land in slice S1):
       (hero, journey, pillars, scan, FAQ, forms), final URL (no later rename).
 - [ ] EN OG/Twitter meta present, incl. `og:locale=en_US` — the Reddit link
       card is built from it.
-- [ ] `og:image`: verify the shared `og-image.png` carries no baked-in French
-      text; if it does, ship a localized EN card image (else the EN card shows
-      French).
+- [ ] `og:image`: the EN home serves the localized `og-image-en.png` card
+      (shipped in S2 — the FR card's tagline is French; the generator swaps
+      `og:image`/`twitter:image` from the catalog's `head.ogImage`).
 - [ ] Both forms accept EN submissions (`lang=en`) with EN success/error
       messages (the message tables are moved into `site.js`/the catalog in S1,
       so EN strings come from the catalog like any other text).
@@ -95,8 +95,9 @@ Technical — **must be true before any link is posted** (all land in slice S1):
 - [ ] EN legal pages linked in the EN footer (already true today).
 - [ ] Lighthouse spot-check on `/en` (SEO/A11y/BP — parity with FR scores).
 
-Recommended before posting (slice S2 — search benefit, not blocking for
-direct links): noindex removed, reciprocal hreflang, `/en` in the sitemap.
+Shipped with slice S2 (2026-07-13): noindex removed on `/en` + the 4 EN legal
+twins, reciprocal hreflang clusters (gate-enforced), `/en` in the sitemap,
+localized EN share card. Nothing SEO-side blocks posting anymore.
 
 Community etiquette — per subreddit, before posting:
 

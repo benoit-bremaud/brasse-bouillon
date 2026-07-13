@@ -23,6 +23,7 @@
     "twitterTitle": "Brasse-Bouillon | Homebrewing companion app",
     "twitterDescription": "The homebrewer’s companion: beer recipes, IBU/ABV calculators, fermentation tracking and a step-by-step guide.",
     "ogImageAlt": "Brasse-Bouillon, homebrewing mobile app",
+    "ogImage": "https://brasse-bouillon.com/og-image-en.png?v=20260713",
     "orgDescription": "A homebrewing mobile-app project to build beer recipes, calculate IBU/ABV and track fermentation.",
     "keywords": "homebrewing app, home brewing, beer recipe, IBU calculator, ABV calculator, fermentation tracking, brewing guide, brew log, homebrew",
     "knowsAbout": [

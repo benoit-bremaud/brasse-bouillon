@@ -351,11 +351,9 @@ def _transform_head(html: str, catalog: dict) -> str:
 
     html = html.replace('<html lang="fr"', '<html lang="en"', 1)
 
-    # Drop the FR hreflang alternates: S1 ships en.html noindex, so the cluster
-    # is deliberately deferred to S2 (never point hreflang at a noindex page).
-    html = re.sub(
-        r'\n\s*<link rel="alternate" hreflang="[^"]*" href="[^"]*">', "", html
-    )
+    # The hreflang cluster (fr / en / x-default) is copied verbatim from the FR
+    # source: a cluster is identical on every page of the pair by design (S2 —
+    # the S1 ship-dark strip is gone, en.html is indexable).
 
     replacements = [
         (r"(<title>).*?(</title>)", head.get("title")),
@@ -395,6 +393,9 @@ def _transform_head(html: str, catalog: dict) -> str:
         ),
         r'(<meta property="og:image:alt" content=")[^"]*(">)': head.get("ogImageAlt"),
         r'(<meta name="twitter:image:alt" content=")[^"]*(">)': head.get("ogImageAlt"),
+        # Localized share card (the FR card has a French tagline baked in).
+        r'(<meta property="og:image" content=")[^"]*(">)': head.get("ogImage"),
+        r'(<meta name="twitter:image" content=")[^"]*(">)': head.get("ogImage"),
     }
     for pattern, value in url_meta.items():
         if value is not None:
@@ -416,16 +417,9 @@ def _transform_head(html: str, catalog: dict) -> str:
         1,
     )
 
-    # Insert robots noindex (S1 ships dark) right after the canonical link.
-    # Idempotent — skipped if the robots meta is already present, so re-running
-    # on generated output never duplicates the block.
-    if not re.search(r'<meta\s+name="robots"', html):
-        html = re.sub(
-            r'(<link rel="canonical" href="[^"]*">)',
-            lambda m: m.group(1) + '\n  <meta name="robots" content="noindex,follow">',
-            html,
-            count=1,
-        )
+    # S2 (ADR-0027 D5): en.html is indexable — no robots meta is inserted (the
+    # S1 ship-dark noindex insertion was removed here; the gate now FORBIDS a
+    # noindex on the EN pages so the SEO switch cannot silently regress).
 
     html = _rebuild_org_schema(html, catalog)
     html = _rebuild_faq_schema(html, catalog)

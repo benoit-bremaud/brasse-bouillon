@@ -28,6 +28,7 @@ def _png_header_bytes(width: int, height: int) -> bytes:
 
 def _write_og_image(base: Path, width: int = 1200, height: int = 630) -> None:
     (base / "og-image.png").write_bytes(_png_header_bytes(width, height))
+    (base / "og-image-en.png").write_bytes(_png_header_bytes(width, height))
 
 
 def _create_valid_fixture(base: Path) -> None:
@@ -41,23 +42,27 @@ def _create_valid_fixture(base: Path) -> None:
     widget_tag = '<script type="module" src="feedback-widget.js"></script>'
     legal_html_template = (
         '<!DOCTYPE html><html lang="{lang}"><head>'
-        f"<title>{{title}}</title></head><body>{widget_tag}</body></html>"
+        "<title>{title}</title>"
+        '<link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/{stem}">'
+        '<link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/{stem}-en">'
+        '<link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/{stem}">'
+        f"</head><body>{widget_tag}</body></html>"
     )
     legal_pages = [
-        ("legal.html", "fr", "legal"),
-        ("legal-en.html", "en", "legal-en"),
-        ("privacy.html", "fr", "privacy"),
-        ("privacy-en.html", "en", "privacy-en"),
-        ("cookies.html", "fr", "cookies"),
-        ("cookies-en.html", "en", "cookies-en"),
-        ("terms.html", "fr", "terms"),
-        ("terms-en.html", "en", "terms-en"),
+        ("legal.html", "fr", "legal", "legal"),
+        ("legal-en.html", "en", "legal-en", "legal"),
+        ("privacy.html", "fr", "privacy", "privacy"),
+        ("privacy-en.html", "en", "privacy-en", "privacy"),
+        ("cookies.html", "fr", "cookies", "cookies"),
+        ("cookies-en.html", "en", "cookies-en", "cookies"),
+        ("terms.html", "fr", "terms", "terms"),
+        ("terms-en.html", "en", "terms-en", "terms"),
     ]
-    for rel_path, lang, title in legal_pages:
+    for rel_path, lang, title, stem in legal_pages:
         _write_file(
             base,
             rel_path,
-            legal_html_template.format(lang=lang, title=title),
+            legal_html_template.format(lang=lang, title=title, stem=stem),
         )
 
     _write_file(
@@ -68,6 +73,9 @@ def _create_valid_fixture(base: Path) -> None:
 <head>
   <title>FR</title>
   <link rel="canonical" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">
+  <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
@@ -93,8 +101,10 @@ def _create_valid_fixture(base: Path) -> None:
 <html lang="en">
 <head>
   <title>EN</title>
-  <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://brasse-bouillon.com/en">
+  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
+  <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">
+  <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
@@ -129,6 +139,9 @@ def _create_valid_fixture(base: Path) -> None:
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://brasse-bouillon.com/</loc>
+  </url>
+  <url>
+    <loc>https://brasse-bouillon.com/en</loc>
   </url>
   <url>
     <loc>https://brasse-bouillon.com/legal</loc>
@@ -172,22 +185,73 @@ class QualityGateTests(unittest.TestCase):
             errors = quality_gate.collect_errors(root)
             self.assertIn("Fichier requis manquant: terms-en.html", errors)
 
-    def test_detects_en_page_missing_noindex(self) -> None:
+    def test_detects_en_page_noindex_reintroduced(self) -> None:
+        # S2 flipped the SEO switch: a noindex sneaking back onto an EN page
+        # would silently de-index it again — the gate must refuse it.
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            en_path = root / "en.html"
-            en_content = en_path.read_text(encoding="utf-8")
-            en_path.write_text(
-                en_content.replace(
-                    '<meta name="robots" content="noindex,follow">',
-                    '<meta name="robots" content="index,follow">',
+            for rel_path in ("en.html", "legal-en.html"):
+                path = root / rel_path
+                content = path.read_text(encoding="utf-8")
+                path.write_text(
+                    content.replace(
+                        "</title>",
+                        '</title><meta name="robots" content="noindex,follow">',
+                        1,
+                    ),
+                    encoding="utf-8",
+                )
+
+            errors = quality_gate.collect_errors(root)
+            self.assertTrue(
+                any("noindex interdit dans en.html" in err for err in errors)
+            )
+            self.assertTrue(
+                any("noindex interdit dans legal-en.html" in err for err in errors)
+            )
+
+    def test_hreflang_reciprocity_detects_missing_return_link(self) -> None:
+        # Sad path: the FR home loses its `en` alternate — the cluster is no
+        # longer reciprocal and BOTH sides must be reported against spec.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                content.replace(
+                    '  <link rel="alternate" hreflang="en" '
+                    'href="https://brasse-bouillon.com/en">\n',
+                    "",
+                    1,
                 ),
                 encoding="utf-8",
             )
 
-            errors = quality_gate.collect_errors(root)
-            self.assertTrue(any("meta robots noindex,follow" in err for err in errors))
+            errors = quality_gate.check_hreflang_reciprocity(root)
+            self.assertTrue(any("index.html" in err for err in errors))
+            self.assertEqual(len(errors), 1)
+
+    def test_hreflang_reciprocity_detects_missing_x_default(self) -> None:
+        # Edge: a legal pair without x-default is an incomplete cluster.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            legal_path = root / "legal-en.html"
+            content = legal_path.read_text(encoding="utf-8")
+            legal_path.write_text(
+                content.replace(
+                    '<link rel="alternate" hreflang="x-default" '
+                    'href="https://brasse-bouillon.com/legal">',
+                    "",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_hreflang_reciprocity(root)
+            self.assertTrue(any("legal-en.html" in err for err in errors))
 
     def test_detects_404_missing_noindex(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -424,6 +488,7 @@ class QualityGateTests(unittest.TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://brasse-bouillon.com/</loc></url>
+  <url><loc>https://brasse-bouillon.com/en</loc></url>
   <url><loc>https://brasse-bouillon.com/legal</loc></url>
   <url><loc>https://brasse-bouillon.com/privacy</loc></url>
   <url><loc>https://brasse-bouillon.com/cookies</loc></url>

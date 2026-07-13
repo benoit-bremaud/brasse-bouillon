@@ -127,24 +127,33 @@ Community etiquette — per subreddit, before posting:
 ## 8. Launch post — frozen draft (2026-07-13)
 
 Validated with the maintainer on 2026-07-13. Constraints baked in: **no
-"build in public" claim** (the repo is heading private), **no beta-tester
+"build in public" claim** (maintainer decision), **no beta-tester
 recruiting** (the app UI is French-only; recruiting anglophone testers would
 either frustrate them or create delivery pressure on the EN UI), recipe
 studio/management leads the feature list, waitlist is the only CTA.
 
-### 8.1 Account runway (blocking — no Reddit account exists yet)
+### 8.1 Account runway
 
-A fresh account posting a project link gets auto-removed (AutoMod age/karma
-filters) and reads as astroturfing. Sequence:
+The post goes out from the maintainer's **existing personal account** — the
+right kind: r/Homebrewing culture trusts people, not brand accounts, and a
+fresh or brand-named account posting a project link gets auto-removed
+(AutoMod age/karma filters) or read as astroturfing. The handle is
+deliberately NOT recorded here: posting will publicly link it to the project
+(and, via the site's legal pages, to the maintainer's real name) — that
+linkage is made at posting time, not before.
 
-1. **Create the account now** — a personal, brewer-flavored handle, NOT the
-   brand name (a "BrasseBouillon" account kills the peer-to-peer voice, and
-   handles cannot be renamed). Enable 2FA.
-2. **Participate genuinely for 2–4 weeks** — nothing to fake: ask real
-   first-batch questions in the Daily Q&A (water profile, hop schedule,
-   kettle sizing), then post the actual first 4 L blonde brew day as a
-   genuine "first all-grain batch" post. That content is beloved there and
-   builds history without any growth-hacking.
+Before the launch post:
+
+1. **Check the account clears the bar**: reasonable age and karma (young or
+   near-zero-karma accounts trip AutoMod), and a quick self-review of the
+   public history — everything visible there gets associated with the
+   project the moment the post lands.
+2. **Build r/Homebrewing-specific history (~2–4 weeks, less if the account
+   is already seasoned)** — nothing to fake: ask real first-batch questions
+   in the Daily Q&A (water profile, hop schedule, kettle sizing), then post
+   the actual first 4 L blonde brew day as a genuine "first all-grain batch"
+   post. That content is beloved there and builds subreddit trust without
+   any growth-hacking.
 3. **Then post the launch draft below**, ideally referencing the brew post:
    "I posted my first batch here a few weeks ago — this is the app I built
    alongside it."

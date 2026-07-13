@@ -123,3 +123,103 @@ Community etiquette — per subreddit, before posting:
 - New home sections (e.g. the Académie section designed in parallel) are
   authored FR-first with `data-i18n` keys; their EN transcreation is written in
   the same PR, reviewed against the §2 calibration set.
+
+## 8. Launch post — frozen draft (2026-07-13)
+
+Validated with the maintainer on 2026-07-13. Constraints baked in: **no
+"build in public" claim** (the repo is heading private), **no beta-tester
+recruiting** (the app UI is French-only; recruiting anglophone testers would
+either frustrate them or create delivery pressure on the EN UI), recipe
+studio/management leads the feature list, waitlist is the only CTA.
+
+### 8.1 Account runway (blocking — no Reddit account exists yet)
+
+A fresh account posting a project link gets auto-removed (AutoMod age/karma
+filters) and reads as astroturfing. Sequence:
+
+1. **Create the account now** — a personal, brewer-flavored handle, NOT the
+   brand name (a "BrasseBouillon" account kills the peer-to-peer voice, and
+   handles cannot be renamed). Enable 2FA.
+2. **Participate genuinely for 2–4 weeks** — nothing to fake: ask real
+   first-batch questions in the Daily Q&A (water profile, hop schedule,
+   kettle sizing), then post the actual first 4 L blonde brew day as a
+   genuine "first all-grain batch" post. That content is beloved there and
+   builds history without any growth-hacking.
+3. **Then post the launch draft below**, ideally referencing the brew post:
+   "I posted my first batch here a few weeks ago — this is the app I built
+   alongside it."
+
+### 8.2 Title options
+
+- A. I'm a French homebrewer + developer building a companion app that walks
+  you through your first batch — honest feedback welcome
+- B. Building an app so first-timers can brew without the fear of screwing it
+  up — what do you wish had guided YOUR first batch? *(preferred: asks the
+  community a real question)*
+- C. My first all-grain batch scared me into building a brewing companion app
+  — roast my feature list
+
+### 8.3 Body (frozen)
+
+> Hey r/Homebrewing,
+>
+> French homebrewer here, career-changer into software. When I planned my
+> first real all-grain batch (a modest 4 L blonde), I realized what I
+> actually wanted didn't exist: not another calculator, but something that
+> tells a beginner what to do, when, and — the part that matters — **why**,
+> at every step from recipe to first pour.
+>
+> So I've been building it for the past year, alongside the batch itself.
+> It's called **Brasse-Bouillon** — roughly "brew-broth", a French nod to
+> homebrew kettles. What it does today:
+>
+> - **Recipe studio + your own notebook**: build and tweak recipes with the
+>   numbers recalculating live as you touch the grain bill or hop schedule
+>   (IBU, ABV, color) — including a reverse hop calculator (target IBU → your
+>   additions) and BU:GU balance. Batches scale to YOUR actual kettle and
+>   fermenter, not a generic 5 gal assumption. Keep recipes private or share
+>   them.
+> - **Community clone recipes**: pick a rated, battle-tested recipe instead
+>   of improvising your first batch — or import one into your notebook and
+>   make it yours. Scan a commercial beer's label and it suggests equivalent
+>   community recipes.
+> - **Brew-day guidance**: mash/boil/chill steps with timers, target temps,
+>   and the reasoning behind each move — no jargon walls, no mental math.
+> - **Fermentation tracking**: days, gravity, temperature — one glance and
+>   you know where you stand.
+> - **A brewing academy**: sourced articles + glossary, because the goal is
+>   that you eventually don't need the app at all.
+>
+> Full honesty, because you'd find out in one tap anyway: it's
+> **pre-release** (waitlist only), the app UI ships **in French first**
+> (English UI is on the roadmap — the website is already fully in English so
+> you can follow along), and it's a **solo project**.
+>
+> What I'd love from you: what do you wish had guided your first batch? What
+> almost made you quit? I'd rather build that than another feature nobody
+> needs.
+>
+> Site (English): https://brasse-bouillon.com/en
+
+### 8.4 Prepared replies (the two inevitable questions, §6)
+
+**"Where's the app? / Can I try it?"**
+
+> Not yet — progressive beta in 2026, waitlist first. I'd rather ship
+> something that actually survives contact with a first-time brewer than
+> rush it. The site has the full feature tour with real screenshots (French
+> UI for now — that's what ships first).
+
+**"Why French?"**
+
+> Because I built it alongside my own first real batch, in my own language,
+> and I'd rather nail the guidance in one language than be mediocre in two.
+> English UI is on the roadmap; the site is already fully English so
+> English-speaking brewers aren't locked out in the meantime.
+
+### 8.5 Mod pre-message (optional)
+
+> Hi mods — French homebrewer/dev here. I'd like to post a "building a
+> first-timer companion app, honest feedback welcome" post (pre-release, no
+> sales, waitlist only). Happy to adjust framing to fit the self-promo
+> rules. OK to post?

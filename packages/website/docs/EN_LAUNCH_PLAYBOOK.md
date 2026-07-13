@@ -139,9 +139,9 @@ The post goes out from the maintainer's **existing personal account** — the
 right kind: r/Homebrewing culture trusts people, not brand accounts, and a
 fresh or brand-named account posting a project link gets auto-removed
 (AutoMod age/karma filters) or read as astroturfing. The handle is
-deliberately NOT recorded here: posting will publicly link it to the project
-(and, via the site's legal pages, to the maintainer's real name) — that
-linkage is made at posting time, not before.
+deliberately NOT recorded here: posting is what publicly ties the account to
+the project — that link is made at posting time, by the maintainer, not
+before and not by this repo.
 
 Before the launch post:
 
@@ -173,7 +173,8 @@ Before the launch post:
 
 > Hey r/Homebrewing,
 >
-> French homebrewer here, career-changer into software. When I planned my
+> French homebrewer here — I switched careers into software a few years
+> back. When I planned my
 > first real all-grain batch (a modest 4 L / ~1 gal blonde), I realized what I
 > actually wanted didn't exist: not just another calculator, but something that
 > tells a beginner what to do, when, and — the part that matters — **why**,

@@ -227,7 +227,9 @@ MDN). Clauses:
    plain `<a>` links `/` ↔ `/en` — same mechanics as the legal pages'
    `.lang-switch` — so it works with **JavaScript disabled** (progressive
    enhancement). The switcher points at the **translated equivalent of the
-   current page**, never the homepage. *(Amended 2026-07-13: the original
+   current page** — `/` ↔ `/en` on the homes, `/privacy` ↔ `/privacy-en` on the
+   legal pages — never a reset to the other language's homepage when switching
+   from a deeper page. *(Amended 2026-07-13: the original
    clause also mirrored the switcher in the footer; the mirror was dropped
    after the maintainer's UX review — the header is sticky, so the primary
    switcher is already visible at every scroll position, making the footer

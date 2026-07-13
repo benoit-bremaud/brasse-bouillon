@@ -5,6 +5,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-13
+
+### FAQ chatbot — language lock closed + production go-live (ADR-0022)
+
+- **Language lock, 3 slices, all merged+deployed to Fly**: PR #1414 (`cc5bddf`) hardened the prompt rule (FR/EN scope, EN fallback for other languages, mixed message = word-majority dominant; eval 13→21 cases). PR #1416 (`6c44df1`) founder clause + `founder-who-en` case, after the production canary caught English founder questions answered in French (eval 22). PR #1418 (`d23d342`) few-shot founder example — A/B vs real `mistral-small` (exact prod assembly, temp 0.3, N=6/variant): rule-only 4/6 English, +example 6/6; offline-judge limits + live A/B methodology documented in `evals/AGENT.md`. Final production canary 4/4 English.
+- **Activation completed (Option A, single live API + kill-switch)**: Fly secrets set by the operator (`MISTRAL_API_KEY`, `ALTCHA_HMAC_KEY`, staged via `FAQ_BOT_ENABLED=false` then flipped `true`); ALTCHA challenge live; guardrail smoke green (off-topic / PII / founder / jailbreak). Plan: **free Experiment tier retained** (paid + ~20 EUR hard cap deferred until free-tier limits actually block the bot); **GDPR guards confirmed 2026-07-13** (Mistral console "Data usage for improving our services" disabled; no Labs models). Deploy gotcha recorded: `fly deploy` must run from the monorepo root with `--config packages/api/fly.toml --dockerfile packages/api/Dockerfile` (root build context).
+- **Go-live PR #1420**: production hosts added to `WIDGET_HOSTS` (cache-bust `v=20260713`, `en.html` regenerated); privacy twins list Mistral AI (France, EU) as processor + FAQ purpose + collected-data + no-retention lines; ADR-0022 go-live addendum; README de-staled. Rollback = `FAQ_BOT_ENABLED=false` (server-side, no redeploy). Refs ADR-0022, #1075.
+
 ## 2026-07-10
 
 ### PR #1394 merged (`801049c`) — feat(website): real English home at /en (i18n epic S1)

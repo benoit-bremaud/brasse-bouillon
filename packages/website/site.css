@@ -203,7 +203,9 @@
       transition: transform 0.3s var(--ease-out-soft);
     }
 
-    .header-nav a:not(.header-cta):hover { color: var(--ink); }
+    /* Lang-switch links are excluded: they manage their own hover/active
+       colors (the active pill must keep foam-on-copper-deep on hover too). */
+    .header-nav a:not(.header-cta):not(.lang-switch__link):hover { color: var(--ink); }
     .header-nav a:not(.header-cta):hover::after { transform: scaleX(1); }
 
     .header-nav .header-cta {
@@ -246,6 +248,8 @@
       padding: 3px;
       border: 1px solid var(--line);
       border-radius: 999px;
+      background: color-mix(in srgb, var(--foam) 65%, transparent);
+      box-shadow: var(--shadow-sm);
     }
 
     .lang-switch__link {
@@ -254,19 +258,45 @@
       font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.02em;
+      transition:
+        background-color 0.25s var(--ease-out-soft),
+        color 0.25s var(--ease-out-soft),
+        transform 0.2s var(--ease-out-soft);
     }
 
     /* The pill links opt out of the animated nav underline. */
     .header-nav .lang-switch .lang-switch__link::after { content: none; }
 
+    /* Scoped under .header-nav so this rule beats the generic
+       `.header-nav a:not(.header-cta):hover` in the cascade explicitly. */
+    .header-nav .lang-switch__link:not([aria-current="page"]):hover {
+      background: var(--color-accent-soft);
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .lang-switch__link:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+
     .lang-switch__link[aria-current="page"] {
-      background: var(--ink);
+      /* copper-deep, not copper: foam-on-copper is 3.2:1 (fails AA for this
+         12.8px label); foam-on-copper-deep is 6.07:1 — same precedent as the
+         responsibility badge. */
+      background: var(--copper-deep);
       color: var(--foam);
       cursor: default;
     }
 
     /* The EN-only honesty line renders as an empty <p> on the FR home
-       (data-i18n-en-only); collapse it so it leaves no gap there. */
+       (data-i18n-en-only); collapse it so it leaves no gap there. The
+       max-width keeps the text clear of the absolutely-positioned hero
+       mascot at wide viewports (same guard as .intro's 44ch). */
+    .hero-honesty {
+      max-width: 58ch;
+    }
+
     .hero-honesty:empty { display: none; }
 
     .nav-toggle__bars,

@@ -12,5 +12,9 @@ export function loadFaqBotPrompts(): FaqBotPrompts {
   return {
     system: readFileSync(join(__dirname, 'system-prompt.md'), 'utf8'),
     context: readFileSync(join(__dirname, 'context.md'), 'utf8'),
+    languageDirective: readFileSync(
+      join(__dirname, 'language-directive.md'),
+      'utf8',
+    ),
   };
 }

@@ -25,6 +25,8 @@ describe('FaqBotModule (wiring)', () => {
     const prompts = moduleRef.get<FaqBotPrompts>(FAQ_BOT_PROMPTS);
     expect(prompts.system.length).toBeGreaterThan(0);
     expect(prompts.context.length).toBeGreaterThan(0);
+    // Trimmed, to match the runtime contract (`assembleUserTurn` trims the asset).
+    expect(prompts.languageDirective.trim().length).toBeGreaterThan(0);
 
     await moduleRef.close();
   });

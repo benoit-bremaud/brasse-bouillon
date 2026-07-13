@@ -142,30 +142,48 @@ class GenerateTests(unittest.TestCase):
 
     def test_transform_head_applies_the_seo_swaps(self) -> None:
         # The head transform carries the SEO-critical rewrites of the whole
-        # feature: canonical → /en, robots noindex insertion (S1 ships dark),
-        # og:locale mirroring, FR hreflang removal, title/description swap,
-        # lang attribute, generated-file marker.
+        # feature: canonical → /en, og:locale mirroring, localized og:image,
+        # hreflang cluster copied verbatim (S2 — indexable, NO robots meta),
+        # title/description swap, lang attribute, generated-file marker.
         source = (
             '<html lang="fr"><head>\n'
             "  <title>Titre FR</title>\n"
             '  <meta name="description" content="Desc FR">\n'
             '  <link rel="canonical" href="https://brasse-bouillon.com/">\n'
             '  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">\n'
+            '  <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">\n'
+            '  <link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/">\n'
             '  <meta property="og:url" content="https://brasse-bouillon.com/">\n'
+            '  <meta property="og:image" content="https://brasse-bouillon.com/og-image.png?v=1">\n'
             '  <meta property="og:locale" content="fr_FR">\n'
             '  <meta property="og:locale:alternate" content="en_US">\n'
             "</head><body></body></html>"
         )
-        catalog = _catalog({}, head={"title": "Title EN", "description": "Desc EN"})
+        catalog = _catalog(
+            {},
+            head={
+                "title": "Title EN",
+                "description": "Desc EN",
+                "ogImage": "https://brasse-bouillon.com/og-image-en.png?v=2",
+            },
+        )
         out = build_i18n.generate(source, catalog, check_hashes=False)
         self.assertIn('<html lang="en">', out)
         self.assertIn("<title>Title EN</title>", out)
         self.assertIn('content="Desc EN"', out)
         self.assertIn('rel="canonical" href="https://brasse-bouillon.com/en"', out)
-        self.assertEqual(out.count('name="robots" content="noindex,follow"'), 1)
+        # S2: en.html is indexable — the generator must NOT emit a robots meta.
+        self.assertNotIn('name="robots"', out)
+        # The full hreflang cluster survives byte-for-byte (identical on both
+        # pages of the pair by design).
+        self.assertIn('hreflang="fr" href="https://brasse-bouillon.com/"', out)
+        self.assertIn('hreflang="en" href="https://brasse-bouillon.com/en"', out)
+        self.assertIn('hreflang="x-default" href="https://brasse-bouillon.com/"', out)
+        self.assertIn(
+            'og:image" content="https://brasse-bouillon.com/og-image-en.png?v=2"', out
+        )
         self.assertIn('og:locale" content="en_US"', out)
         self.assertIn('og:locale:alternate" content="fr_FR"', out)
-        self.assertNotIn("hreflang=", out)
         self.assertEqual(out.count("GENERATED FILE"), 1)
 
     def test_unknown_cli_mode_fails_without_writing(self) -> None:

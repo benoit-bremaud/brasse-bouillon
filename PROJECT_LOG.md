@@ -7,10 +7,57 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1428 merged (`1cfe565`) — feat(website): flip the i18n S2 SEO switch — EN pages indexable (ADR-0027 D5)
+
+- Branch `feat/website-i18n-s2-seo-switch`, 4 commits (`966411c`, `fc6271e`, `cc2558b`, `c3e20e6`). Slice S2 of ADR-0027 — the site is now **Reddit-ready SEO-side**. Refs #1075.
+- De-noindex: `en.html` (the generator no longer inserts the S1 ship-dark robots meta) + the 4 EN legal twins; the gate now FORBIDS a noindex on all five EN pages (order/quote-agnostic lookahead pattern per Codex review) so the switch cannot silently regress.
+- Reciprocal hreflang: `index.html` gains the missing `hreflang="en"` return tag, all 8 legal pages gain `x-default` → FR clean URL, `en.html` carries the cluster verbatim; new gate check `check_hreflang_reciprocity` (completeness + reciprocity + duplicate-declaration detection on the 5 pairs). Latent gate bug fixed in passing: `check_html_files` never scanned files that only had DISALLOWED patterns.
+- Sitemap: `/en` added (exact-set `SITEMAP_URLS`); EN legal twins deliberately excluded (secondary pages, hreflang-paired); Lot 5 rationale comment updated.
+- Localized EN share card `og-image-en.png` (the FR card's tagline is French): mascot/gradient/wordmark byte-identical to the FR master, EN tagline in the same copper-deep DejaVu Bold; `scripts/generate_og_card.py` helper pins the composition (byte-identical reproduction verified, `OG_CARD_FONT` override); generator swaps `og:image`/`twitter:image` from the catalog; gate dimension check covers both cards. Closes the deferral recorded on #1413.
+- `SEO_RUNBOOK.md` rewritten: 2026-07-13 reversal of the EN de-index decision recorded; stale GA4 section dropped (analytics removed in #817, privacy pages promise none).
+- Tests 46 → 49 (reciprocity happy/sad/edge incl. duplicates, noindex-reintroduced guard variants, head-transform S2 expectations).
+- Reviews — pre-push: 0 Must Have; Copilot 2 inline + Codex 1 inline P2, all fixed in-branch with inline replies. CI green. Operator follow-up: GSC re-submit `sitemap.xml` + URL-inspect `/` and `/en` (runbook §3).
+
+
+### PR #1421 merged (`39033fc`) — style(website): plain hyphens across public copy + restyled language toggle
+
+- Branch `fix/website-copy-polish`, 2 commits (`ed495b5`, `502a83f`).
+- 71 em/en-dash → plain-hyphen replacements across all public site text (both homes incl. titles/JSON-LD/labels, 8 legal twins, 404, EN catalog, the 2 chat-widget notices); code comments and internal docs deliberately excluded; catalog `srcHash` refreshed, `en.html` regenerated.
+- Language toggle restyled — the flag request was declined per ADR-0027 D4 clause 2 (flags ≠ languages; emoji flags render as bare letters on Windows): active = solid `--copper-deep` (6.07:1 AA, badge precedent), accent-soft hover with lift, `color-mix` foam backdrop, `:focus-visible` outline; lang links excluded from the generic nav hover rule (Codex P2: the cascade flipped the active pill to ink-on-copper-deep on hover).
+- Hero EN honesty note: hard break after the dash + `max-width: 58ch` — the note had no width limit and its right third ran under the absolutely-positioned mascot at wide viewports.
+- Pre-existing FR drift fixed: visible FAQ Q4 said "L'app post-mortem chaque étape" (ungrammatical) vs the FR JSON-LD "fait le point sur chaque étape" — aligned on the latter (the gate only guards the EN side).
+- Reviews — pre-push ritual: 3 Must fixed before push (AA contrast on the active pill, hardcoded rgba, Q4 drift); Copilot 14/14 files 0 comments; Codex 1 P2, fixed + replied. CI green.
+
+### PR #1419 merged (`40b73c7`) — refactor(website): drop the redundant footer language switcher
+
+- Branch `refactor/website-drop-footer-lang-switch`, 2 commits (`a77c0e2`, `90b804a`).
+- Maintainer UX review: the header is sticky, so the primary FR/EN switcher is always visible — the S1 footer mirror was redundant (and duplicated an identically-labelled `role="group"` landmark). Removed; no cache-bust (the dead CSS rule only matched markup deleted in the same commit).
+- ADR-0027 D4 clause 1 amended in the same PR (header `Amended 2026-07-13` line per the ADR-0021 precedent); the translated-equivalent rule rescoped with inline examples after Copilot flagged the "never the homepage" phrasing as contradictory.
+- Reviews — pre-push: 0 Must; Copilot 1 comment, fixed + replied. CI green.
+
+### PR #1417 merged (`691166c`) — fix(website): disclose the FR-interface screenshots on the EN home
+
+- Branch `fix/website-en-screens-note`, 1 commit (`ce1d63b`).
+- The EN home shows 11 French-UI app screenshots with no explanation at the point of dissonance (the app is French-only until the mobile i18n epic). Adds an EN-only note above the first screenshots section via `data-i18n-en-only` (empty + hidden on FR); mocked-up English screens rejected per the playbook honesty rules; EN re-shoot deferred to the app i18n epic. Single-note placement documented as an accepted tradeoff in `EN_LAUNCH_PLAYBOOK.md`.
+- Reviews — pre-push: 0 Must, Shoulds applied (404 cache-bust, playbook wording); Copilot 6/6 files 0 comments. CI green.
+
+### PR #1415 merged (`a52d091`) — chore(website): post-S1 quality hardening (CI tests, og:locale, dead code, docs)
+
+- Branch `chore/website-post-s1-hardening`, 6 commits (`ee2aa2b`, `b236e1e`, `3fa08c3`, `bb97f66`, `bd212bf`, `6a41d8a`).
+- Implements the confirmed findings of a multi-lens quality audit of the merged S1 (#1394): the `website:` CI job now runs the 44-test unit suites (previously gate-only — a generator regression could merge green); `og:locale` pair declared on both homes, mirrored `en_US`/`fr_FR` by the generator (ADR-0027 D5.4 gap); dead `site.js` override params removed + JSDoc on the exported API; `build_i18n.py` hardening (unknown CLI mode exits 2, public-API docstrings, `sha1(usedforsecurity=False)`, dataclasses/`pairwise`, redundant `handle_startendtag` removed); near-tautological idempotence test replaced by byte-verbatim + determinism assertions plus head-transform/overlap/CLI coverage (38 → 44 tests); README/package CLAUDE.md/GOVERNANCE purged of stale GitHub-Pages/CNAME claims (ADR-0014: Cloudflare Pages via wrangler).
+- Reviews — pre-push: 0 Must (the reviewer flagged the concurrent #1413 merge on the same files → rebased before push); Copilot 12/13 files 0 comments. CI green.
+
+### PR #1413 merged (`0833968`) — feat(website): real mascot og-image (1200×630) + dimension gate
+
+- Branch `feat/website-og-image-mascot`, 2 commits (`60ea712`, `6c2e1e0`).
+- Closes the deferred og-image item of the 2026-07 audit: real cut-out mascot card at the 1.91:1 social ratio, `og:image:width/height` meta + cache-bust across the 11 public pages (`en.html` regenerated); dependency-free `check_og_image_dimensions` gate check (PNG IHDR read) + 2 tests. Localized EN card deferred to i18n S2 (EN pages still noindex).
+- Reviews — Copilot nits fixed pre-merge. CI green.
+
 ### FAQ chatbot — language lock closed + production go-live (ADR-0022)
 
 - **Language lock, 3 slices, all merged+deployed to Fly**: PR #1414 (`cc5bddf`) hardened the prompt rule (FR/EN scope, EN fallback for other languages, mixed message = word-majority dominant; eval 13→21 cases). PR #1416 (`6c44df1`) founder clause + `founder-who-en` case, after the production canary caught English founder questions answered in French (eval 22). PR #1418 (`d23d342`) few-shot founder example — A/B vs real `mistral-small` (exact prod assembly, temp 0.3, N=6/variant): rule-only 4/6 English, +example 6/6; offline-judge limits + live A/B methodology documented in `evals/AGENT.md`. Final production canary 4/4 English.
 - **Activation completed (Option A, single live API + kill-switch)**: Fly secrets set by the operator (`MISTRAL_API_KEY`, `ALTCHA_HMAC_KEY`, staged via `FAQ_BOT_ENABLED=false` then flipped `true`); ALTCHA challenge live; guardrail smoke green (off-topic / PII / founder / jailbreak). Plan: **free Experiment tier retained** (paid + ~20 EUR hard cap deferred until free-tier limits actually block the bot); **GDPR guards confirmed 2026-07-13** (Mistral console "Data usage for improving our services" disabled; no Labs models). Deploy gotcha recorded: `fly deploy` must run from the monorepo root with `--config packages/api/fly.toml --dockerfile packages/api/Dockerfile` (root build context).
+- **Post-go-live hotfix PR #1424 — user-turn language enforcement**: first real visitor got a French answer to an English "What is Brasse-Bouillon?"; broad canary = 4/5 happy-path EN flips. Bench vs real `mistral-small` (12 EN + 4 FR runs/candidate): system-prompt rules 0/12 EN even as a final reminder; directive appended to the user turn after the question 12/12 + FR 4/4; risk bench (mixed/ES/jailbreak, 14 runs) = no regression, 0 echoes, 0 leaks. Directive versioned prompt-as-spec (`prompts/language-directive.md` + `FaqBotPrompts.languageDirective`); third ADR-0022 addendum; eval 22/22 (+`no_directive_echo`); unit 46/46. Lesson recorded (AGENT.md): system-prompt language rules are documentation, enforcement lives adjacent to the question.
 - **Go-live PR #1420**: production hosts added to `WIDGET_HOSTS` (cache-bust `v=20260713`, `en.html` regenerated); privacy twins list Mistral AI (France, EU) as processor + FAQ purpose + collected-data + no-retention lines; ADR-0022 go-live addendum; README de-staled. Rollback = `FAQ_BOT_ENABLED=false` (server-side, no redeploy). Refs ADR-0022, #1075.
 
 ## 2026-07-10

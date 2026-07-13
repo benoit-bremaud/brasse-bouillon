@@ -48,6 +48,8 @@ const PROMPTS: FaqBotPrompts = {
   system:
     'You are the Brasse-Bouillon FAQ chatbot. Stay on the project. Tutoie.',
   context: 'Brasse-Bouillon is a homebrewing companion app.',
+  languageDirective:
+    '(Reply in the language of the visitor question above — mirror it: English question => English reply, French question => French reply; mixed languages => its dominant language; any other language => English.)',
 };
 
 function makeConfig(overrides: Partial<FaqBotConfig> = {}): FaqBotConfig {
@@ -93,6 +95,18 @@ describe('FaqBotService', () => {
       expect(llm.lastRequest?.maxTokens).toBe(400);
       expect(metrics.snapshot().answers).toBe(1);
       expect(metrics.snapshot().promptTokens).toBe(120);
+    });
+
+    it('appends the language directive right after the visitor question (user-turn language lock)', async () => {
+      const service = build();
+
+      await service.ask('What is Brasse-Bouillon?');
+
+      // The directive must sit AFTER the question — adjacency is what makes the small
+      // model obey it (A/B bench 2026-07-13: system-prompt-only rules scored 0/12 EN).
+      expect(llm.lastRequest?.user).toMatch(
+        /Visitor question:\nWhat is Brasse-Bouillon\?\n\n\(Reply in the language of the visitor question above/,
+      );
     });
   });
 

@@ -86,8 +86,12 @@ export class FaqBotService {
     }
   }
 
-  /** Curated project facts + the visitor question, one-shot (no history in v1). */
+  /**
+   * Curated project facts + the visitor question, one-shot (no history in v1). The language
+   * directive goes LAST, adjacent to the question — the only placement the small model
+   * reliably obeys (see `FaqBotPrompts.languageDirective` for the A/B evidence).
+   */
   private assembleUserTurn(question: string): string {
-    return `Project facts:\n${this.prompts.context}\n\n---\n\nVisitor question:\n${question}`;
+    return `Project facts:\n${this.prompts.context}\n\n---\n\nVisitor question:\n${question}\n\n${this.prompts.languageDirective.trim()}`;
   }
 }

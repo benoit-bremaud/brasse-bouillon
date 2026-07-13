@@ -234,6 +234,25 @@ The go-live flip is done: the production hosts (`brasse-bouillon.com` and
 
 Rollback stays server-side and instant: `FAQ_BOT_ENABLED=false` (no website redeploy).
 
+## Activation addendum — user-turn language enforcement (2026-07-13, post-go-live)
+
+The first real visitor exposed a third language-lock finding: happy-path English questions
+were still answered in French (4/5 on a broad prod canary) — the #1414/#1418 hardening had
+only anchored the topics its few-shot examples covered. A 3-candidate bench against the real
+`mistral-small` (12 EN + 4 FR runs each) showed the system-prompt language rule — even
+repeated as a final reminder — scores **0/12** on English questions, while a one-line
+directive appended to the **user turn right after the question** scores **12/12** (French
+control 4/4). A follow-up risk bench (14 runs/variant) confirmed no regression on the
+mixed-language, non-FR/EN-fallback and anti-jailbreak guardrails (14/14, zero directive
+echoes, zero leaks).
+
+Consequence for clause 3 (prompt-as-spec): **the system-prompt language rule is
+documentation; enforcement lives in the user turn.** The directive text stays versioned
+under `prompts/` (`language-directive.md`, loaded like the other prompt sources) and is
+appended by the service (`assembleUserTurn()`), so the prompt-as-spec principle is preserved
+while the placement follows the empirically proven mechanism. The eval judge applies the
+full runtime assembly (see `evals/AGENT.md`).
+
 ---
 
 ## References

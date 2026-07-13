@@ -25,6 +25,7 @@ describe('FaqBotModule (wiring)', () => {
     const prompts = moduleRef.get<FaqBotPrompts>(FAQ_BOT_PROMPTS);
     expect(prompts.system.length).toBeGreaterThan(0);
     expect(prompts.context.length).toBeGreaterThan(0);
+    expect(prompts.languageDirective.length).toBeGreaterThan(0);
 
     await moduleRef.close();
   });

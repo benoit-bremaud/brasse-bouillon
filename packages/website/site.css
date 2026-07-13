@@ -265,8 +265,6 @@
       cursor: default;
     }
 
-    .footer-lang { margin-top: 4px; }
-
     /* The EN-only honesty line renders as an empty <p> on the FR home
        (data-i18n-en-only); collapse it so it leaves no gap there. */
     .hero-honesty:empty { display: none; }

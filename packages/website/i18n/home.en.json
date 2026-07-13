@@ -16,7 +16,7 @@
     "qContact"
   ],
   "head": {
-    "title": "Brasse-Bouillon — Homebrewing app (beer recipes, IBU/ABV, fermentation tracking)",
+    "title": "Brasse-Bouillon - Homebrewing app (beer recipes, IBU/ABV, fermentation tracking)",
     "description": "Brasse-Bouillon is the homebrewing app to build beer recipes, calculate IBU/ABV, track fermentation and nail every batch step by step.",
     "ogTitle": "Brasse-Bouillon | Homebrewing companion app",
     "ogDescription": "Build beer recipes, calculate IBU/ABV and track fermentation with a step-by-step brewing guide.",
@@ -34,8 +34,8 @@
     ]
   },
   "insertions": {
-    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first — an English version is on the way. This site is already in English so you can follow along today.",
-    "journey.screensNote": "Screenshots throughout this page show the app’s French interface — the English app UI is in the works."
+    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first -<br>an English version is on the way. This site is already in English so you can follow along today.",
+    "journey.screensNote": "Screenshots throughout this page show the app’s French interface - the English app UI is in the works."
   },
   "strings": {
     "nav.logo.href": {
@@ -111,7 +111,7 @@
       "srcHash": "3b59041f30967e4ff04d828315b2aed6249c7465"
     },
     "journey.1.body": {
-      "en": "Compare the community’s clone recipes — rated and battle-tested — and adopt the one that tempts you. No jargon.",
+      "en": "Compare the community’s clone recipes - rated and battle-tested - and adopt the one that tempts you. No jargon.",
       "srcHash": "ed856fa092db692ce1fde534f663a30e8756f457"
     },
     "journey.2.img": {
@@ -124,7 +124,7 @@
     },
     "journey.2.body": {
       "en": "Timers, temperatures and the why behind every move: the app guides you through mash, boil and chill.",
-      "srcHash": "e7ae56a565b4b98eb0b861371631f0fb34383c4d"
+      "srcHash": "5cb1bc1497381bb08208545c0938f6702343893b"
     },
     "journey.3.img": {
       "en": "Fermentation screen with a day 5 of 14 progress bar and the current gravity",
@@ -243,8 +243,8 @@
       "srcHash": "fe435adcf423205b4cb3fa54f4ab9851819645b4"
     },
     "scan.intro": {
-      "en": "Scan the label of a store-bought beer&nbsp;: Brasse-Bouillon identifies it, then suggests equivalent recipes rated by the community — ready to brew.",
-      "srcHash": "171a89e1a2fbf0c4c4bdf6154245b641b7a91171"
+      "en": "Scan the label of a store-bought beer&nbsp;: Brasse-Bouillon identifies it, then suggests equivalent recipes rated by the community - ready to brew.",
+      "srcHash": "b3344a9b87e28f2ea039dc42ca6f5ebc5e326b69"
     },
     "scan.1.img": {
       "en": "Recognized-beer screen showing La Chouffe with its style, color and bitterness",
@@ -267,8 +267,8 @@
       "srcHash": "911d4e163b5812334da9727d10e08a595e2f029d"
     },
     "scan.2.body": {
-      "en": "Clones rated and proven by other brewers — import them into your notebook in one tap.",
-      "srcHash": "387a9bca79722b8251bed972f95e2700201e49ca"
+      "en": "Clones rated and proven by other brewers - import them into your notebook in one tap.",
+      "srcHash": "45abfee356bc85b9c838e925dd107f69920d3d5d"
     },
     "academie.eyebrow": {
       "en": "Learn as you brew",
@@ -279,8 +279,8 @@
       "srcHash": "67d13aaa496fb3e7e7241c633ab17a4606d7f87d"
     },
     "academie.intro": {
-      "en": "Not just how, but why. The Academy gathers sourced articles and a brewing glossary — from ingredients to fermentation, from your first batch to fine-tuning.",
-      "srcHash": "c79e0ee1ae56f304e63322e4c097f2e8600468ab"
+      "en": "Not just how, but why. The Academy gathers sourced articles and a brewing glossary - from ingredients to fermentation, from your first batch to fine-tuning.",
+      "srcHash": "be60d1528faa386fc4e11803e0a0a06de6a0869b"
     },
     "academie.1.img": {
       "en": "Brewing Academy home screen: a summary card (10 articles, 8 calculators), a search bar, theme filters and an article list (history of beer, introduction to brewing, malts and fermentables)",
@@ -303,8 +303,8 @@
       "srcHash": "ebce85a58dd8052ed90bb56ed9bb57caaeb0f76b"
     },
     "academie.2.body": {
-      "en": "IBU, gravity, attenuation… every term defined simply, with sources — brewing books and standards.",
-      "srcHash": "42da8b9496fedf53538c007542e57b42059ae6db"
+      "en": "IBU, gravity, attenuation… every term defined simply, with sources - brewing books and standards.",
+      "srcHash": "876360bef8b8877fc273db60188cb1e33842baf1"
     },
     "faq.eyebrow": {
       "en": "Frequently asked",
@@ -319,15 +319,15 @@
       "srcHash": "19f164c5b9254752d7eb17b5f181207d061f79a4"
     },
     "faq.q1.answer": {
-      "en": "Not at all. A pot, a fermenter, some bottles — and the app telling you what to do at every step. If you can cook pasta, you can brew a beer.",
-      "srcHash": "6ae50d4e84a1d7efbda08422530c86dcbe0d398c"
+      "en": "Not at all. A pot, a fermenter, some bottles - and the app telling you what to do at every step. If you can cook pasta, you can brew a beer.",
+      "srcHash": "550113e2d148206c339b25fb5182af64e05f9479"
     },
     "faq.q2.summary": {
       "en": "How much does it cost to get started?",
       "srcHash": "8096f00f68bbd57dbe236430647008def460b4fe"
     },
     "faq.q2.answer": {
-      "en": "Roughly €60–120 for a complete starter kit. You’ll reuse it for 5–6 batches, and the gear pays for itself fast compared with buying good craft beer.",
+      "en": "Roughly €60-120 for a complete starter kit. You’ll reuse it for 5-6 batches, and the gear pays for itself fast compared with buying good craft beer.",
       "srcHash": "c162fe38065d03546edb5676dda6f5ca6f3eb0d4"
     },
     "faq.q3.summary": {
@@ -335,7 +335,7 @@
       "srcHash": "9ce10650827d4d31df87db93d145a81ebfd3e430"
     },
     "faq.q3.answer": {
-      "en": "Half a day for the brew session (4–5h), then 2 to 3 weeks of fermentation where you’ve got almost nothing to do. The app reminds you of the critical checkpoints.",
+      "en": "Half a day for the brew session (4-5h), then 2 to 3 weeks of fermentation where you’ve got almost nothing to do. The app reminds you of the critical checkpoints.",
       "srcHash": "15d8a979d57a32d84996ddad793d8c29f2e6db09"
     },
     "faq.q4.summary": {
@@ -343,8 +343,8 @@
       "srcHash": "4651d4798bb65222ec6a683fddbb4a16a114e10f"
     },
     "faq.q4.answer": {
-      "en": "It happens, and it’s almost always drinkable. The app walks back through each step to help you understand what happened — and your next batch comes out better.",
-      "srcHash": "d64a6327c29556ba44907fced3634c46370b1c13"
+      "en": "It happens, and it’s almost always drinkable. The app walks back through each step to help you understand what happened - and your next batch comes out better.",
+      "srcHash": "ae6ca65a650453ee485b88501e21480748e5bcb3"
     },
     "faq.q5.summary": {
       "en": "When will the app be available?",
@@ -659,8 +659,8 @@
       "srcHash": "a7219939014149708b957f943d0493603bb64bad"
     },
     "q.contact.label": {
-      "en": "If so, your email or handle <span class=\"legend-hint\">(optional — never shared)</span>",
-      "srcHash": "8f8dab87ed48691eebcad6e987e89b86fa1a3daf"
+      "en": "If so, your email or handle <span class=\"legend-hint\">(optional - never shared)</span>",
+      "srcHash": "4cbe9525fae0e0b98a6ad9cda027b68d24307dfa"
     },
     "q.contact.placeholder": {
       "en": "you@email.com or @handle",

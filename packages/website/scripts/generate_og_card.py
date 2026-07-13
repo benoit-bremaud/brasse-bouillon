@@ -16,6 +16,7 @@ regenerate en.html (`python3 scripts/build_i18n.py`).
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont

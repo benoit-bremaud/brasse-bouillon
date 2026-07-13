@@ -7,6 +7,40 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1421 merged (`39033fc`) — style(website): plain hyphens across public copy + restyled language toggle
+
+- Branch `fix/website-copy-polish`, 2 commits (`ed495b5`, `502a83f`).
+- 71 em/en-dash → plain-hyphen replacements across all public site text (both homes incl. titles/JSON-LD/labels, 8 legal twins, 404, EN catalog, the 2 chat-widget notices); code comments and internal docs deliberately excluded; catalog `srcHash` refreshed, `en.html` regenerated.
+- Language toggle restyled — the flag request was declined per ADR-0027 D4 clause 2 (flags ≠ languages; emoji flags render as bare letters on Windows): active = solid `--copper-deep` (6.07:1 AA, badge precedent), accent-soft hover with lift, `color-mix` foam backdrop, `:focus-visible` outline; lang links excluded from the generic nav hover rule (Codex P2: the cascade flipped the active pill to ink-on-copper-deep on hover).
+- Hero EN honesty note: hard break after the dash + `max-width: 58ch` — the note had no width limit and its right third ran under the absolutely-positioned mascot at wide viewports.
+- Pre-existing FR drift fixed: visible FAQ Q4 said "L'app post-mortem chaque étape" (ungrammatical) vs the FR JSON-LD "fait le point sur chaque étape" — aligned on the latter (the gate only guards the EN side).
+- Reviews — pre-push ritual: 3 Must fixed before push (AA contrast on the active pill, hardcoded rgba, Q4 drift); Copilot 14/14 files 0 comments; Codex 1 P2, fixed + replied. CI green.
+
+### PR #1419 merged (`40b73c7`) — refactor(website): drop the redundant footer language switcher
+
+- Branch `refactor/website-drop-footer-lang-switch`, 2 commits (`a77c0e2`, `90b804a`).
+- Maintainer UX review: the header is sticky, so the primary FR/EN switcher is always visible — the S1 footer mirror was redundant (and duplicated an identically-labelled `role="group"` landmark). Removed; no cache-bust (the dead CSS rule only matched markup deleted in the same commit).
+- ADR-0027 D4 clause 1 amended in the same PR (header `Amended 2026-07-13` line per the ADR-0021 precedent); the translated-equivalent rule rescoped with inline examples after Copilot flagged the "never the homepage" phrasing as contradictory.
+- Reviews — pre-push: 0 Must; Copilot 1 comment, fixed + replied. CI green.
+
+### PR #1417 merged (`691166c`) — fix(website): disclose the FR-interface screenshots on the EN home
+
+- Branch `fix/website-en-screens-note`, 1 commit (`ce1d63b`).
+- The EN home shows 11 French-UI app screenshots with no explanation at the point of dissonance (the app is French-only until the mobile i18n epic). Adds an EN-only note above the first screenshots section via `data-i18n-en-only` (empty + hidden on FR); mocked-up English screens rejected per the playbook honesty rules; EN re-shoot deferred to the app i18n epic. Single-note placement documented as an accepted tradeoff in `EN_LAUNCH_PLAYBOOK.md`.
+- Reviews — pre-push: 0 Must, Shoulds applied (404 cache-bust, playbook wording); Copilot 6/6 files 0 comments. CI green.
+
+### PR #1415 merged (`a52d091`) — chore(website): post-S1 quality hardening (CI tests, og:locale, dead code, docs)
+
+- Branch `chore/website-post-s1-hardening`, 6 commits (`ee2aa2b`, `b236e1e`, `3fa08c3`, `bb97f66`, `bd212bf`, `6a41d8a`).
+- Implements the confirmed findings of a multi-lens quality audit of the merged S1 (#1394): the `website:` CI job now runs the 44-test unit suites (previously gate-only — a generator regression could merge green); `og:locale` pair declared on both homes, mirrored `en_US`/`fr_FR` by the generator (ADR-0027 D5.4 gap); dead `site.js` override params removed + JSDoc on the exported API; `build_i18n.py` hardening (unknown CLI mode exits 2, public-API docstrings, `sha1(usedforsecurity=False)`, dataclasses/`pairwise`, redundant `handle_startendtag` removed); near-tautological idempotence test replaced by byte-verbatim + determinism assertions plus head-transform/overlap/CLI coverage (38 → 44 tests); README/package CLAUDE.md/GOVERNANCE purged of stale GitHub-Pages/CNAME claims (ADR-0014: Cloudflare Pages via wrangler).
+- Reviews — pre-push: 0 Must (the reviewer flagged the concurrent #1413 merge on the same files → rebased before push); Copilot 12/13 files 0 comments. CI green.
+
+### PR #1413 merged (`0833968`) — feat(website): real mascot og-image (1200×630) + dimension gate
+
+- Branch `feat/website-og-image-mascot`, 2 commits (`60ea712`, `6c2e1e0`).
+- Closes the deferred og-image item of the 2026-07 audit: real cut-out mascot card at the 1.91:1 social ratio, `og:image:width/height` meta + cache-bust across the 11 public pages (`en.html` regenerated); dependency-free `check_og_image_dimensions` gate check (PNG IHDR read) + 2 tests. Localized EN card deferred to i18n S2 (EN pages still noindex).
+- Reviews — Copilot nits fixed pre-merge. CI green.
+
 ### FAQ chatbot — language lock closed + production go-live (ADR-0022)
 
 - **Language lock, 3 slices, all merged+deployed to Fly**: PR #1414 (`cc5bddf`) hardened the prompt rule (FR/EN scope, EN fallback for other languages, mixed message = word-majority dominant; eval 13→21 cases). PR #1416 (`6c44df1`) founder clause + `founder-who-en` case, after the production canary caught English founder questions answered in French (eval 22). PR #1418 (`d23d342`) few-shot founder example — A/B vs real `mistral-small` (exact prod assembly, temp 0.3, N=6/variant): rule-only 4/6 English, +example 6/6; offline-judge limits + live A/B methodology documented in `evals/AGENT.md`. Final production canary 4/4 English.

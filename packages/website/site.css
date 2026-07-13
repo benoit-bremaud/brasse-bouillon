@@ -952,6 +952,23 @@
       line-height: 1.65;
     }
 
+    /* EN-only screenshots disclosure (data-i18n-en-only): the FR page renders
+       the element empty, so hide it entirely there to leave no stray gap. */
+    .screens-note {
+      /* -32px collapses with .section-intro's 48px bottom margin -> net 16px gap */
+      margin: -32px auto 48px;
+      max-width: 54ch;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .screens-note:empty {
+      display: none;
+    }
+
     /* ========================================================================
        Journey — big numerals + animated connector
        ====================================================================== */

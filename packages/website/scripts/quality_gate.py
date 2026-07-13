@@ -535,7 +535,18 @@ def check_hreflang_reciprocity(root: Path = ROOT) -> list[str]:
             full_path = root / rel_path
             if not full_path.exists():
                 continue
-            found = dict(link_re.findall(full_path.read_text(encoding="utf-8")))
+            pairs = link_re.findall(full_path.read_text(encoding="utf-8"))
+            # A dict() would silently keep only the LAST duplicate, letting a
+            # malformed double declaration pass — surface it explicitly.
+            langs = [lang for lang, _href in pairs]
+            duplicates = sorted({lang for lang in langs if langs.count(lang) > 1})
+            if duplicates:
+                errors.append(
+                    f"{rel_path}: déclaration(s) hreflang dupliquée(s): "
+                    f"{', '.join(duplicates)}"
+                )
+                continue
+            found = dict(pairs)
             if found != expected:
                 errors.append(
                     f"{rel_path}: cluster hreflang incomplet ou non réciproque — "

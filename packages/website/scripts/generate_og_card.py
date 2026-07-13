@@ -31,13 +31,24 @@ TAGLINE_INK = (141, 74, 19)
 TAGLINE_ZONE = (500, 310, 975, 425)  # x0, y0, x1, y1
 X_LEFT, Y1_TOP, Y2_TOP = 517, 321, 381
 TITLE_RIGHT_EDGE = 1131  # the underlined wordmark's right edge — do not outrun
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+# DejaVu Sans Bold matches the FR master's tagline. Overridable for non-Linux
+# hosts (`OG_CARD_FONT=/path/to/DejaVuSans-Bold.ttf`), but byte-identical
+# reproduction of the committed card requires the same font file.
+FONT_PATH = os.environ.get(
+    "OG_CARD_FONT", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+)
 
 LINE1 = "The curious homebrewer's"
 LINE2 = "companion app"
 
 
 def main() -> int:
+    if not Path(FONT_PATH).exists():
+        raise SystemExit(
+            f"generate_og_card: font not found: {FONT_PATH} "
+            "(point OG_CARD_FONT at a DejaVuSans-Bold.ttf)"
+        )
+
     img = Image.open(SRC).convert("RGB")
     px = img.load()
 

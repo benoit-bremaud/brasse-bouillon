@@ -235,6 +235,32 @@ class QualityGateTests(unittest.TestCase):
             self.assertTrue(any("index.html" in err for err in errors))
             self.assertEqual(len(errors), 1)
 
+    def test_hreflang_reciprocity_detects_duplicate_declaration(self) -> None:
+        # Edge: two hreflang="fr" links (one wrong, one right) — a plain dict()
+        # would keep only the last and let the malformed cluster pass.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                content.replace(
+                    '<link rel="alternate" hreflang="fr" '
+                    'href="https://brasse-bouillon.com/">',
+                    '<link rel="alternate" hreflang="fr" '
+                    'href="https://brasse-bouillon.com/wrong">\n'
+                    '  <link rel="alternate" hreflang="fr" '
+                    'href="https://brasse-bouillon.com/">',
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_hreflang_reciprocity(root)
+            self.assertTrue(
+                any("dupliquée" in err and "index.html" in err for err in errors)
+            )
+
     def test_hreflang_reciprocity_detects_missing_x_default(self) -> None:
         # Edge: a legal pair without x-default is an incomplete cluster.
         with tempfile.TemporaryDirectory() as tmp_dir:

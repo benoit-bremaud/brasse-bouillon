@@ -435,6 +435,26 @@ class QualityGateTests(unittest.TestCase):
             expected = "SoftwareApplication non autorisé"
             self.assertTrue(any(expected in err for err in errors))
 
+    def test_detects_disallowed_kofi_embed(self) -> None:
+        kofi_script = (
+            '<script src="https://storage.ko-fi.com/cdn/scripts/'
+            'overlay-widget.js"></script>'
+        )
+        for page in ("index.html", "en.html"):
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                root = Path(tmp_dir)
+                _create_valid_fixture(root)
+                page_path = root / page
+                page_content = page_path.read_text(encoding="utf-8")
+                page_path.write_text(
+                    page_content + "\n" + kofi_script + "\n",
+                    encoding="utf-8",
+                )
+
+                errors = quality_gate.collect_errors(root)
+                expected = f"Ko-fi non autorisé dans {page}"
+                self.assertTrue(any(expected in err for err in errors))
+
     def test_detects_missing_feedback_widget(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

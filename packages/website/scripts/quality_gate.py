@@ -193,6 +193,11 @@ DISALLOWED_HTML_PATTERNS = {
             r'"ratingCount"\s*:',
             "champ ratingCount non autorisé dans index.html",
         ),
+        (
+            r"<(script|iframe)[^>]*ko-fi",
+            "script/iframe Ko-fi non autorisé dans index.html "
+            "(ADR-0028 clause 2 : lien sortant simple uniquement)",
+        ),
     ],
     "en.html": [
         # S2 (ADR-0027 D5): the EN pages are indexed — a reintroduced noindex
@@ -221,6 +226,11 @@ DISALLOWED_HTML_PATTERNS = {
         (
             r'"ratingCount"\s*:',
             "champ ratingCount non autorisé dans en.html",
+        ),
+        (
+            r"<(script|iframe)[^>]*ko-fi",
+            "script/iframe Ko-fi non autorisé dans en.html "
+            "(ADR-0028 clause 2 : lien sortant simple uniquement)",
         ),
     ],
     # Same S2 guard for the four EN legal twins (de-noindexed with the switch).

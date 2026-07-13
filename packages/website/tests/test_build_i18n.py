@@ -28,17 +28,26 @@ class GenerateTests(unittest.TestCase):
         self.assertNotIn("Bonjour", out)
         self.assertIn('alt="Cat"', out)
 
-    def test_generation_is_idempotent(self) -> None:
-        source = '<p data-i18n="k">Salut</p>'
+    def test_untouched_bytes_are_copied_verbatim(self) -> None:
+        # The byte-splice promise: everything outside the annotated span —
+        # including whitespace quirks and unusual formatting the generator
+        # must NOT normalise — survives byte-for-byte.
+        source = '<div   class="x"\t>\n  <p data-i18n="k">Salut</p>  \n</div><!-- z -->'
         catalog = _catalog({"k": {"en": "Hi"}})
-        first = build_i18n.generate(source, catalog, check_hashes=False)
-        second = build_i18n.generate(first, catalog, check_hashes=False)
-        # A second pass over already-translated output leaves it unchanged for
-        # the parts it does not own; the translated span stays translated.
+        out = build_i18n.generate(source, catalog, check_hashes=False)
         self.assertEqual(
-            build_i18n.generate(source, catalog, check_hashes=False), first
+            out, '<div   class="x"\t>\n  <p data-i18n="k">Hi</p>  \n</div><!-- z -->'
         )
-        self.assertIn("Hi", second)
+
+    def test_regeneration_is_deterministic(self) -> None:
+        # Two independent runs over the same inputs must be byte-identical —
+        # the CI regen-diff (`--check`) relies on it (no timestamps, no
+        # ordering drift).
+        source = '<p data-i18n="k">Salut</p><img alt="Chat" data-i18n-attrs="alt:p2">'
+        catalog = _catalog({"k": {"en": "Hi"}, "p2": {"en": "Cat"}})
+        first = build_i18n.generate(source, catalog, check_hashes=False)
+        second = build_i18n.generate(source, catalog, check_hashes=False)
+        self.assertEqual(first, second)
 
     def test_en_only_insertion_fills_empty_element(self) -> None:
         source = '<p data-i18n-en-only="note"></p>'
@@ -70,6 +79,23 @@ class GenerateTests(unittest.TestCase):
         # The EN link gains the active marker; the FR link loses it.
         self.assertIn('aria-current="page" data-lang-link="en"', out)
         self.assertNotIn('aria-current="page" data-lang-link="fr"', out)
+
+    def test_self_closing_tag_attr_translation(self) -> None:
+        # XHTML-style `<img … />` flows through HTMLParser's default
+        # startendtag dispatch; the attribute op must still be collected.
+        source = '<img alt="Chat" data-i18n-attrs="alt:pic" />'
+        catalog = _catalog({"pic": {"en": "Cat"}})
+        out = build_i18n.generate(source, catalog, check_hashes=False)
+        self.assertIn('alt="Cat"', out)
+
+    def test_overlapping_annotations_raise(self) -> None:
+        # A translatable attribute nested inside a translatable text element
+        # would corrupt the enclosing splice — must fail loudly, not garble.
+        source = '<p data-i18n="outer">Un <img alt="x" data-i18n-attrs="alt:inner"></p>'
+        catalog = _catalog({"outer": {"en": "A"}, "inner": {"en": "y"}})
+        with self.assertRaises(build_i18n.BuildError) as ctx:
+            build_i18n.generate(source, catalog, check_hashes=False)
+        self.assertIn("overlapping", str(ctx.exception))
 
     def test_missing_catalog_key_raises(self) -> None:
         source = '<p data-i18n="absent">x</p>'
@@ -107,6 +133,45 @@ class GenerateTests(unittest.TestCase):
         catalog = _catalog({"k": {"en": "Hi"}})
         updated = build_i18n.update_hashes(source, catalog)
         self.assertEqual(updated["strings"]["k"]["srcHash"], build_i18n.sha1("Salut"))
+
+    def test_update_hashes_covers_attribute_ops(self) -> None:
+        source = '<img alt="Chat" data-i18n-attrs="alt:pic">'
+        catalog = _catalog({"pic": {"en": "Cat"}})
+        updated = build_i18n.update_hashes(source, catalog)
+        self.assertEqual(updated["strings"]["pic"]["srcHash"], build_i18n.sha1("Chat"))
+
+    def test_transform_head_applies_the_seo_swaps(self) -> None:
+        # The head transform carries the SEO-critical rewrites of the whole
+        # feature: canonical → /en, robots noindex insertion (S1 ships dark),
+        # og:locale mirroring, FR hreflang removal, title/description swap,
+        # lang attribute, generated-file marker.
+        source = (
+            '<html lang="fr"><head>\n'
+            "  <title>Titre FR</title>\n"
+            '  <meta name="description" content="Desc FR">\n'
+            '  <link rel="canonical" href="https://brasse-bouillon.com/">\n'
+            '  <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">\n'
+            '  <meta property="og:url" content="https://brasse-bouillon.com/">\n'
+            '  <meta property="og:locale" content="fr_FR">\n'
+            '  <meta property="og:locale:alternate" content="en_US">\n'
+            "</head><body></body></html>"
+        )
+        catalog = _catalog({}, head={"title": "Title EN", "description": "Desc EN"})
+        out = build_i18n.generate(source, catalog, check_hashes=False)
+        self.assertIn('<html lang="en">', out)
+        self.assertIn("<title>Title EN</title>", out)
+        self.assertIn('content="Desc EN"', out)
+        self.assertIn('rel="canonical" href="https://brasse-bouillon.com/en"', out)
+        self.assertEqual(out.count('name="robots" content="noindex,follow"'), 1)
+        self.assertIn('og:locale" content="en_US"', out)
+        self.assertIn('og:locale:alternate" content="fr_FR"', out)
+        self.assertNotIn("hreflang=", out)
+        self.assertEqual(out.count("GENERATED FILE"), 1)
+
+    def test_unknown_cli_mode_fails_without_writing(self) -> None:
+        # A typo'd flag must error out (exit 2), not silently fall through to
+        # write mode and rewrite en.html.
+        self.assertEqual(build_i18n.main(["build_i18n.py", "--chek"]), 2)
 
     def test_faq_jsonld_rebuilt_from_visible_keys(self) -> None:
         source = (

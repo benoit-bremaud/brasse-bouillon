@@ -26,3 +26,15 @@ Write `results.json` (git-ignored) conforming to `results.schema.json`:
 The suite is GREEN only when `summary.failed === 0`. A failing case is a **RED**: fix it by
 growing the prompt with the MINIMUM change that makes the bot comply — never by weakening the
 expectation. Then re-judge.
+
+## Limits — the judge is offline; verify language-sensitive tweaks on the live model
+
+This judge simulates the bot from the prompt text; it cannot catch **probabilistic
+instability of the real model**. Observed 2026-07-13 (founder-EN case): judge GREEN, yet prod
+`mistral-small-latest` answered English founder questions in French (0/4 on the prod canary).
+An A/B bench against the real API (exact prod assembly — system prompt verbatim, user turn =
+`Project facts:\n<context>\n\n---\n\nVisitor question:\n<q>`, temperature 0.3, max_tokens 400,
+N=6 runs/variant) showed: abstract rule alone 4/6 English, rule + one concrete few-shot example
+6/6. Lesson: **on a small model a few-shot example beats an abstract rule**. Before any prompt
+tweak in a language- or persona-sensitive area, A/B the candidate against the real model
+(≥6 runs) and canary the live endpoint after deploy — the offline judge alone is not enough.

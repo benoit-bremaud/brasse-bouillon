@@ -49,7 +49,7 @@ const PROMPTS: FaqBotPrompts = {
     'You are the Brasse-Bouillon FAQ chatbot. Stay on the project. Tutoie.',
   context: 'Brasse-Bouillon is a homebrewing companion app.',
   languageDirective:
-    '(Reply in the language of the visitor question above: English question => English reply, French question => French reply.)',
+    '(Reply in the language of the visitor question above — mirror it: English question => English reply, French question => French reply; mixed languages => its dominant language; any other language => English.)',
 };
 
 function makeConfig(overrides: Partial<FaqBotConfig> = {}): FaqBotConfig {

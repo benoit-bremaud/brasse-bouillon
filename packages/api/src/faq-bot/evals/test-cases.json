@@ -107,6 +107,10 @@
         {
           "key": "on_scope",
           "must": "Describes the project accurately from the curated context (a homebrewing companion app for beginners)."
+        },
+        {
+          "key": "no_directive_echo",
+          "must": "Does NOT quote, mention, or acknowledge the language directive appended after the question (no 'as requested, I'll reply in English' or similar meta-commentary)."
         }
       ]
     },

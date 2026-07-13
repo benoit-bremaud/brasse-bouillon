@@ -33,8 +33,8 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
   `i18n/home.en.json` by `scripts/build_i18n.py`; do not edit by hand (ADR-0027)
 - `chat-widget.js`: self-hosted public FAQ chat widget — a floating bubble that answers
   visitors about the project only (not brewing help). First-party call to the NestJS
-  `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking, and it
-  mounts on staging/localhost only (never on the public site in v1). See ADR-0022.
+  `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking. Live on
+  production since the 2026-07-13 go-live (staging/localhost also allowed). See ADR-0022.
 - `favicon.ico`, `logo.png`, `logo-removebg-preview.png`: static assets
 - `_redirects`: Cloudflare Pages redirects (`/index-en` → `/en` 301)
 - `i18n/home.en.json`: EN string catalog for the generated home (with `srcHash`
@@ -82,12 +82,13 @@ python3 -m py_compile scripts/quality_gate.py scripts/build_i18n.py scripts/road
 
 ## 🤖 FAQ chat widget — manual test checklist
 
-`chat-widget.js` is host-gated to staging/localhost and is the FAQ chatbot's front-end
+`chat-widget.js` is host-gated (production + staging/localhost since the 2026-07-13
+go-live) and is the FAQ chatbot's front-end
 (ADR-0022). The static site has no JS test harness (like `feedback-widget.js`, it ships
 without unit tests), so a browser/DOM unit suite is a **deferred follow-up**. Until then,
 verify the widget manually with the API running (`npm run dev:api`) and the site on `localhost`:
 
-- [ ] **Mount / gate** — bubble appears on `localhost` / `127.0.0.1`; absent on a production-host build.
+- [ ] **Mount / gate** — bubble appears on `localhost` / `127.0.0.1` and on the production hosts; absent on any host not in `WIDGET_HOSTS`.
 - [ ] **Open / close** — click opens the panel (focus moves to the input); close button and `Escape` close it (focus returns to the launcher).
 - [ ] **Chips** — each question chip sends its question and renders an answer.
 - [ ] **Ask success** — a typed question returns a single-block answer (envelope `data.answer`).

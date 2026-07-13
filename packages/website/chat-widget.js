@@ -13,12 +13,15 @@
  *     made on page load. The first call happens only when the visitor actually asks,
  *     so the widget never fires before an explicit user action.
  *
- * Activation is host-gated to staging/localhost (same policy as feedback-widget.js):
- * the launcher never appears on the public production site in v1.
+ * Activation is host-gated via WIDGET_HOSTS; live on the public production site since the
+ * 2026-07-13 go-live (ADR-0022 activation addendum). Instant rollback stays server-side
+ * (FAQ_BOT_ENABLED=false) — no website redeploy needed.
  */
 
-/** Hosts where the widget is allowed to mount (staging + local review only). */
+/** Hosts where the widget is allowed to mount (production + staging + local review). */
 const WIDGET_HOSTS = [
+  'brasse-bouillon.com',
+  'www.brasse-bouillon.com',
   'staging.brasse-bouillon-website.pages.dev',
   'localhost',
   '127.0.0.1',
@@ -34,8 +37,8 @@ const LIVE_API_ORIGIN = 'https://brasse-bouillon-api.fly.dev';
  * the staging site canaries directly against the single live API, with exposure gated by the
  * server-side `FAQ_BOT_ENABLED` kill-switch. Until the bot is enabled the live API answers
  * `/ask` with 503 (or 400 when the anti-bot handshake cannot complete), so the widget shows
- * "unavailable" and nothing is exercised. The production hosts are wired here too but stay OUT
- * of `WIDGET_HOSTS` until the go-live flip, so the launcher still never mounts on prod in v1.
+ * "unavailable" and nothing is exercised. Production go-live flipped 2026-07-13 (bot enabled,
+ * language-lock verified by live canary): the production hosts are now in `WIDGET_HOSTS`.
  */
 const API_BASE_BY_HOST = {
   localhost: 'http://localhost:3000',
@@ -437,9 +440,9 @@ function mountChatWidget() {
   });
 }
 
-// Mount only on the allow-listed hosts. The production hosts are intentionally absent from
-// WIDGET_HOSTS (even though API_BASE_BY_HOST pre-wires them), so the launcher never appears on
-// brasse-bouillon.com until the go-live flip (ADR-0022 activation addendum, Option A).
+// Mount only on the allow-listed hosts (production included since the 2026-07-13 go-live —
+// ADR-0022 activation addendum, Option A). Instant rollback stays server-side: disabling
+// FAQ_BOT_ENABLED makes the widget show "unavailable" without any website redeploy.
 if (WIDGET_HOSTS.includes(window.location.hostname)) {
   mountChatWidget();
 }

@@ -212,8 +212,10 @@ class QualityGateTests(unittest.TestCase):
             )
 
     def test_hreflang_reciprocity_detects_missing_return_link(self) -> None:
-        # Sad path: the FR home loses its `en` alternate — the cluster is no
-        # longer reciprocal and BOTH sides must be reported against spec.
+        # Sad path: the FR home loses its `en` alternate. Validation is
+        # per-file against the pair's expected cluster, so only the page whose
+        # own declaration is now incomplete (index.html) is flagged — en.html
+        # still carries a complete cluster of its own and stays green.
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)

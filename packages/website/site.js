@@ -73,6 +73,12 @@
     }
   };
 
+  /**
+   * Toggles the questionnaire form open/closed on a home page. Options:
+   * `{ lang }` ('fr' | 'en') — selects the `questionnaireForm…` /
+   * `questionnaireToggle…` DOM id pair. Invoked by the pages' inline
+   * `onclick` handlers; no-ops when either element is absent.
+   */
   function toggleQuestionnaire(options) {
     const { lang } = options;
     const formId = `questionnaireForm${lang === 'fr' ? 'Fr' : 'En'}`;
@@ -130,6 +136,14 @@
     statusNode.textContent = message;
   }
 
+  /**
+   * Wires one Formspree form (questionnaire or newsletter) on a home page.
+   * Options: `formId` / `statusId` (DOM ids), `endpoint` (Formspree URL),
+   * `lang` ('fr' | 'en', defaults to 'fr'), `kind` ('questionnaire' |
+   * 'newsletter' — selects the FORM_MESSAGES catalog entry), and optional
+   * `checkboxLimits` / `requiredCheckboxGroups` constraint configs.
+   * No-ops when the form, status node, or message catalog is absent.
+   */
   function setupQuestionnaire(options) {
     const {
       formId,
@@ -139,11 +153,9 @@
       requiredCheckboxGroups = []
     } = options;
 
-    // Messages come from the per-language catalog by `lang` + `kind`; an explicit
-    // `messages` object still overrides it (kept for flexibility / tests).
+    // Messages come from the per-language catalog by `lang` + `kind`.
     const lang = options.lang === 'en' ? 'en' : 'fr';
-    const messages =
-      options.messages || (FORM_MESSAGES[lang] && FORM_MESSAGES[lang][options.kind]);
+    const messages = FORM_MESSAGES[lang] && FORM_MESSAGES[lang][options.kind];
 
     const form = document.getElementById(formId);
     const status = document.getElementById(statusId);
@@ -210,7 +222,7 @@
     const navId = options.navId || 'headerNav';
     const toggleId = options.toggleId || 'navToggle';
     const lang = options.lang === 'en' ? 'en' : 'fr';
-    const labels = options.labels || MENU_LABELS[lang];
+    const labels = MENU_LABELS[lang];
 
     const nav = document.getElementById(navId);
     const toggle = document.getElementById(toggleId);

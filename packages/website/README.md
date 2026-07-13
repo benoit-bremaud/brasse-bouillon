@@ -2,7 +2,7 @@
 
 Marketing site package inside the **Brasse-Bouillon** monorepo (imported from the standalone `brasse-bouillon-website` repo on 2026-03-24 via `git subtree`).
 
-This package contains a bilingual static landing page (FR/EN). Quality gates run in the monorepo CI (`website:` job in [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml)); GitHub Pages deployment runs in [`../../.github/workflows/website-deploy.yml`](../../.github/workflows/website-deploy.yml).
+This package contains a bilingual static landing page (FR/EN). Quality gates run in the monorepo CI (`website:` job in [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml)); Cloudflare Pages deployment runs in [`../../.github/workflows/website-deploy.yml`](../../.github/workflows/website-deploy.yml) (ADR-0014).
 
 ---
 
@@ -20,7 +20,9 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 ## 🌐 Production
 
 - Domain: [https://brasse-bouillon.com](https://brasse-bouillon.com)
-- Deployment: GitHub Pages (branch `main`)
+- Deployment: Cloudflare Pages — `website-deploy.yml` publishes `_site/` with
+  `wrangler pages deploy` on every `main` push touching the package (ADR-0014);
+  DNS and the custom domain are managed on Cloudflare
 
 ---
 
@@ -33,13 +35,17 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
   visitors about the project only (not brewing help). First-party call to the NestJS
   `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking, and it
   mounts on staging/localhost only (never on the public site in v1). See ADR-0022.
-- `favicon.ico`, `logo.png`, `logo-removebg-preview.png`, `CNAME`: static assets
+- `favicon.ico`, `logo.png`, `logo-removebg-preview.png`: static assets
+- `_redirects`: Cloudflare Pages redirects (`/index-en` → `/en` 301)
+- `i18n/home.en.json`: EN string catalog for the generated home (with `srcHash`
+  drift guards)
 - `docs/ROADMAP.md`: product roadmap
 - `docs/roadmap-feed.json`: machine-readable roadmap sync feed
 - `docs/GOVERNANCE.md`: backlog conventions, runbook, and repository governance
 - `../../.github/workflows/ci.yml` (`website:` job): quality gate runner on every PR
-- `../../.github/workflows/website-deploy.yml`: GitHub Pages publication pipeline
+- `../../.github/workflows/website-deploy.yml`: Cloudflare Pages publication pipeline
 - `scripts/quality_gate.py`: dependency-free local/CI quality gate
+- `scripts/build_i18n.py`: dependency-free EN home generator (ADR-0027)
 - `scripts/roadmap_sync.py`: roadmap ingest and markdown table sync script
 - `CONTRIBUTING.md`: contribution conventions
 
@@ -59,17 +65,17 @@ The monorepo CI runs `scripts/quality_gate.py` (via the `website:` job in [`ci.y
 
 ### Deployment
 
-Any push to `main` whose diff touches `packages/website/**` (and `workflow_dispatch` for manual reruns) triggers [`website-deploy.yml`](../../.github/workflows/website-deploy.yml), which stages the public files (HTML, CSS, JS, brand assets, favicon, CNAME, sitemap, robots, `seo/`, `screenshots/`) into `_site/` and publishes via `actions/deploy-pages`. The repo's GitHub Pages source must be set to **"GitHub Actions"** in the Settings page for the deploy job to succeed.
+Any push to `main` whose diff touches `packages/website/**` (and `workflow_dispatch` for manual reruns) triggers [`website-deploy.yml`](../../.github/workflows/website-deploy.yml), which stages the public files (HTML, CSS, JS, brand assets, favicon, `_redirects`, sitemap, robots, `seo/`, `screenshots/`) into `_site/` and publishes them to the `brasse-bouillon-website` Cloudflare Pages project via `wrangler pages deploy` (ADR-0014). The `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` repo secrets must be set for the deploy job to succeed.
 
 ---
 
 ## 🧪 Local checks
 
 ```bash
-python3 -m unittest -v tests/test_quality_gate.py
+python3 -m unittest discover -s tests -v   # gate + i18n generator suites
 python3 scripts/quality_gate.py
-python3 -m py_compile scripts/quality_gate.py
-python3 -m py_compile scripts/roadmap_sync.py
+python3 scripts/build_i18n.py --check      # en.html regeneration is clean
+python3 -m py_compile scripts/quality_gate.py scripts/build_i18n.py scripts/roadmap_sync.py
 ```
 
 ---

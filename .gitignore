@@ -71,6 +71,7 @@ expo-env.d.ts
 # Tests & coverage
 # ===========================
 coverage/
+.coverage
 *.lcov
 .nyc_output/
 

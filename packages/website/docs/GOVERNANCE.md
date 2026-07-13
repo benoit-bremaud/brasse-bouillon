@@ -22,15 +22,19 @@ This document defines the operational governance of the website repository.
 6. Merge PR into `develop`.
 7. Comment and close the issue with traceability (PR number + merge commit).
 
-## 2bis) `develop` → `main` promotion and GitHub Pages deployment
+## 2bis) `develop` → `main` promotion and production deployment
 
-1. `develop` is the integration branch; `main` is the production branch deployed by GitHub Pages.
+> Historical note: the `develop` integration branch belonged to the standalone
+> website repo era and no longer exists — PRs now target `main` directly
+> (monorepo workflow). The promotion steps below are kept for traceability.
+
+1. `develop` is the integration branch; `main` is the production branch deployed to Cloudflare Pages (ADR-0014).
 2. At the end of an epic (or when an increment is ready), open a release PR from `develop` to `main`.
 3. Ensure CI is green on the release PR.
 4. Review and approve the release PR with the same standards as PRs to `develop`.
 5. Merge the release PR into `main` with an explicit merge strategy (merge commit recommended for traceability).
 6. Link the release PR to related issues/epics to preserve traceability `issue` → `PR develop` → `PR main`.
-7. GitHub Pages deployment is triggered automatically on push to `main`; then verify production is up to date.
+7. The Cloudflare Pages deployment (`website-deploy.yml`, `wrangler pages deploy`) is triggered automatically on push to `main`; then verify production is up to date.
 
 ---
 

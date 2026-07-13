@@ -26,7 +26,9 @@ import hashlib
 import json
 import re
 import sys
+from dataclasses import dataclass
 from html.parser import HTMLParser
+from itertools import pairwise
 from pathlib import Path
 
 WEBSITE_DIR = Path(__file__).resolve().parent.parent
@@ -53,7 +55,9 @@ class BuildError(Exception):
 
 
 def sha1(text: str) -> str:
-    return hashlib.sha1(text.encode("utf-8")).hexdigest()
+    """Fingerprint a French source string for the srcHash drift guard."""
+    # Non-cryptographic use: a content fingerprint, not a security control.
+    return hashlib.sha1(text.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 # --------------------------------------------------------------------------- #
@@ -61,24 +65,18 @@ def sha1(text: str) -> str:
 # --------------------------------------------------------------------------- #
 
 
+@dataclass(slots=True)
 class _TextOp:
-    __slots__ = ("key", "start", "end")
-
-    def __init__(self, key: str, start: int, end: int) -> None:
-        self.key = key
-        self.start = start
-        self.end = end
+    key: str
+    start: int
+    end: int
 
 
+@dataclass(slots=True)
 class _AttrOp:
-    __slots__ = ("tag_start", "tag_text", "specs")
-
-    def __init__(
-        self, tag_start: int, tag_text: str, specs: list[tuple[str, str]]
-    ) -> None:
-        self.tag_start = tag_start
-        self.tag_text = tag_text
-        self.specs = specs  # list of (attribute-name, catalog-key)
+    tag_start: int
+    tag_text: str
+    specs: list[tuple[str, str]]  # (attribute-name, catalog-key) pairs
 
 
 class _AnnotationParser(HTMLParser):
@@ -133,16 +131,10 @@ class _AnnotationParser(HTMLParser):
         if enonly:
             self.enonly_keys.add(enonly)
 
-    def handle_startendtag(self, tag: str, attrs) -> None:  # noqa: ANN001
-        # e.g. `<img … />`. Same attribute handling, never pushed on the stack.
-        adict = {name: (value or "") for name, value in attrs}
-        if adict.get("data-i18n-attrs"):
-            tag_start = self._abs()
-            tag_text = self.get_starttag_text() or ""
-            specs = _parse_attr_spec(adict["data-i18n-attrs"], adict)
-            for _, key in specs:
-                self.attr_keys.add(key)
-            self.attr_ops.append(_AttrOp(tag_start, tag_text, specs))
+    # XHTML self-closing tags (`<img … />`) need no dedicated handler:
+    # HTMLParser's default handle_startendtag dispatches to handle_starttag
+    # (which collects the attribute ops) then handle_endtag (a no-op for void
+    # tags), so the annotation handling above covers them already.
 
     def handle_endtag(self, tag: str) -> None:
         if tag in VOID_TAGS or not self._stack:
@@ -197,6 +189,13 @@ def _parse_attr_spec(spec: str, adict: dict) -> list[tuple[str, str]]:
 
 
 def load_catalog() -> dict:
+    """Read `i18n/home.en.json`.
+
+    Schema: `strings` maps catalog key → `{"en": <EN HTML fragment>,
+    "srcHash": <sha1 of the FR source>}`; `insertions` maps EN-only keys →
+    fragments (no FR source, so no hash); `idStems` lists the DOM id stems
+    rewritten `…Fr` → `…En`; `head` holds the EN head-override values.
+    """
     if not CATALOG_PATH.exists():
         raise BuildError(f"catalog not found: {CATALOG_PATH}")
     with CATALOG_PATH.open(encoding="utf-8") as handle:
@@ -235,6 +234,15 @@ def _fr_attr_value(tag_text: str, attr: str) -> str:
 
 
 def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
+    """Produce the EN page from the annotated FR `source` and the catalog.
+
+    Deterministic byte-splice: only annotated spans/attributes and the
+    enumerated head/bootstrap transforms change; everything else is copied
+    byte-for-byte (the CI regeneration diff relies on this). Raises
+    `BuildError` on key-parity failure, on any srcHash mismatch (a FR edit
+    whose EN translation was not updated — pass `check_hashes=False` to skip,
+    e.g. for fixtures without hashes), and on overlapping annotation ranges.
+    """
     parser = _AnnotationParser(source)
     parser.feed(source)
     parser.close()
@@ -294,9 +302,7 @@ def _apply_ops(source: str, ops: list[tuple[int, int, str]]) -> str:
     # attribute on an element nested inside a translatable text element). This
     # keeps the "never silently drop/garble content" promise honest.
     ordered = sorted(ops, key=lambda op: op[0])
-    for (_prev_start, prev_end, _), (next_start, _next_end, _r) in zip(
-        ordered, ordered[1:]
-    ):
+    for (_prev_start, prev_end, _), (next_start, _next_end, _r) in pairwise(ordered):
         if prev_end > next_start:
             raise BuildError(
                 "overlapping i18n replacement ranges "
@@ -351,14 +357,11 @@ def _transform_head(html: str, catalog: dict) -> str:
         r'\n\s*<link rel="alternate" hreflang="[^"]*" href="[^"]*">', "", html
     )
 
-    replacements = {
-        "title": (r"(<title>).*?(</title>)", head.get("title")),
-        "description": (
-            r'(<meta name="description" content=").*?(">)',
-            head.get("description"),
-        ),
-    }
-    for _, (pattern, value) in replacements.items():
+    replacements = [
+        (r"(<title>).*?(</title>)", head.get("title")),
+        (r'(<meta name="description" content=").*?(">)', head.get("description")),
+    ]
+    for pattern, value in replacements:
         if value is not None:
             html = re.sub(
                 pattern,
@@ -399,19 +402,27 @@ def _transform_head(html: str, catalog: dict) -> str:
                 pattern, lambda m, v=value: m.group(1) + v + m.group(2), html, count=1
             )
 
-    # Insert robots noindex (S1 ships dark) + og:locale right after the canonical
-    # link. Regex-anchored (tolerant of trailing whitespace / `/>`) and idempotent
-    # — skipped if the robots meta is already present, so re-running on generated
-    # output never duplicates the block.
+    # Mirror the FR page's Open Graph locale pair for the EN page. Ordered so
+    # the freshly written `en_US` og:locale cannot be re-matched: the alternate
+    # swap targets the distinct `og:locale:alternate` property.
+    html = html.replace(
+        '<meta property="og:locale" content="fr_FR">',
+        '<meta property="og:locale" content="en_US">',
+        1,
+    )
+    html = html.replace(
+        '<meta property="og:locale:alternate" content="en_US">',
+        '<meta property="og:locale:alternate" content="fr_FR">',
+        1,
+    )
+
+    # Insert robots noindex (S1 ships dark) right after the canonical link.
+    # Idempotent — skipped if the robots meta is already present, so re-running
+    # on generated output never duplicates the block.
     if not re.search(r'<meta\s+name="robots"', html):
-        block = (
-            '\n  <meta name="robots" content="noindex,follow">'
-            '\n  <meta property="og:locale" content="en_US">'
-            '\n  <meta property="og:locale:alternate" content="fr_FR">'
-        )
         html = re.sub(
             r'(<link rel="canonical" href="[^"]*">)',
-            lambda m: m.group(1) + block,
+            lambda m: m.group(1) + '\n  <meta name="robots" content="noindex,follow">',
             html,
             count=1,
         )
@@ -520,6 +531,12 @@ def _transform_body_structure(html: str, catalog: dict) -> str:
 
 
 def update_hashes(source: str, catalog: dict) -> dict:
+    """Refresh every `srcHash` from the current FR source.
+
+    Mutates `catalog` in place AND returns it (callers may chain either).
+    Covers both text ops and attribute ops. Run after deliberately updating
+    the EN translations for a FR copy change (`--update-hashes`).
+    """
     parser = _AnnotationParser(source)
     parser.feed(source)
     parser.close()
@@ -543,7 +560,18 @@ def update_hashes(source: str, catalog: dict) -> dict:
 
 
 def main(argv: list[str]) -> int:
+    """CLI entry point: `--write` (default), `--check`, or `--update-hashes`."""
     mode = argv[1] if len(argv) > 1 else "--write"
+    if mode not in ("--write", "--check", "--update-hashes"):
+        # Fail loudly on typos: silently falling through to write mode would
+        # rewrite en.html when the author meant e.g. `--chek`.
+        print(
+            f"build_i18n: unknown mode '{mode}' "
+            "(expected --write, --check or --update-hashes)",
+            file=sys.stderr,
+        )
+        return 2
+
     source = INDEX_PATH.read_text(encoding="utf-8")
     catalog = load_catalog()
 

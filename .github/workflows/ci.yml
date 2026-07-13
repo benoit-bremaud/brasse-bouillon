@@ -161,6 +161,16 @@ jobs:
             echo "No quality gate script found — skipping"
           fi
 
+      # The gate only checks structural invariants; the unit suites cover the
+      # i18n generator and the gate logic itself (stdlib unittest — no pip).
+      - name: Run Python unit tests
+        run: |
+          if [ -d tests ]; then
+            python3 -m unittest discover -s tests -v
+          else
+            echo "No tests directory — skipping"
+          fi
+
   # ============================================================================
   # Beer Encyclopedia: ruff lint + compile check + tests + coverage
   # ============================================================================

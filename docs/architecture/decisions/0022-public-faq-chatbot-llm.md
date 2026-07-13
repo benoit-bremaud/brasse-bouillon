@@ -213,6 +213,27 @@ handshake could not complete (challenge endpoint down / unsolvable) — an avail
 not a malformed question. Any change to that guard/pipe order must preserve this contract or
 update the widget.
 
+## Activation addendum — production go-live (2026-07-13)
+
+The go-live flip is done: the production hosts (`brasse-bouillon.com`, `www`) are now in the
+widget's `WIDGET_HOSTS`. Preconditions verified before the flip:
+
+- **Language lock closed on the live model** (#1414, #1416, #1418): refusals and founder
+  answers hold the visitor's language; final production canary 4/4 English. Key finding: the
+  offline eval judge cannot catch live-model stochastic flips — a few-shot example (not an
+  abstract rule) fixed the founder case, and the live A/B methodology is documented in
+  `evals/AGENT.md` (Limits section). Eval baseline: 22/22.
+- **GDPR guards confirmed by the operator (2026-07-13)**: the Mistral console setting
+  "Data usage for improving our services" is disabled and no Labs model is used — API data is
+  therefore not used for training, which the privacy-policy wording relies on.
+- **Plan decision**: stay on Mistral's free Experiment tier for launch-scale traffic; upgrade
+  to pay-as-you-go with a ~20 EUR hard cap only if free-tier rate limits actually block the
+  bot. (The console hard-cap backstop paragraph above applies to the paid tier when adopted.)
+- **Privacy policy updated in the same change**: Mistral AI (France, EU) listed as processor,
+  FAQ-assistant purpose (legitimate interest, no PII), no conversation retention.
+
+Rollback stays server-side and instant: `FAQ_BOT_ENABLED=false` (no website redeploy).
+
 ---
 
 ## References

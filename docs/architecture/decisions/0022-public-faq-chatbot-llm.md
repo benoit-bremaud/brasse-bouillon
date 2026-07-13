@@ -215,8 +215,8 @@ update the widget.
 
 ## Activation addendum — production go-live (2026-07-13)
 
-The go-live flip is done: the production hosts (`brasse-bouillon.com`, `www`) are now in the
-widget's `WIDGET_HOSTS`. Preconditions verified before the flip:
+The go-live flip is done: the production hosts (`brasse-bouillon.com` and
+`www.brasse-bouillon.com`) are now in the widget's `WIDGET_HOSTS`. Preconditions verified before the flip:
 
 - **Language lock closed on the live model** (#1414, #1416, #1418): refusals and founder
   answers hold the visitor's language; final production canary 4/4 English. Key finding: the

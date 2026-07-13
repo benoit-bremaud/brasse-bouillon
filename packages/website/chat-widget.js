@@ -13,8 +13,9 @@
  *     made on page load. The first call happens only when the visitor actually asks,
  *     so the widget never fires before an explicit user action.
  *
- * Activation is host-gated to staging/localhost (same policy as feedback-widget.js):
- * the launcher never appears on the public production site in v1.
+ * Activation is host-gated via WIDGET_HOSTS; live on the public production site since the
+ * 2026-07-13 go-live (ADR-0022 activation addendum). Instant rollback stays server-side
+ * (FAQ_BOT_ENABLED=false) — no website redeploy needed.
  */
 
 /** Hosts where the widget is allowed to mount (production + staging + local review). */

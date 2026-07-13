@@ -85,10 +85,9 @@ jobs:
             rm -f _site/fonts/_source.txt
           fi
 
-          # Public docs explicitly linked from the homepage. ROADMAP.md
-          # is reachable via `<a href="docs/ROADMAP.md">` on both
-          # index.html (line 316) and index-en.html (line 253) — without
-          # this copy the link 404s after deploy. Other docs/ contents
+          # ROADMAP.md was historically linked from the home pages; the pages
+          # no longer link it, but the copy is kept so previously shared
+          # /docs/ROADMAP.md URLs don't 404. Other docs/ contents
           # (GOVERNANCE.md, SEO_RUNBOOK.md, weekly/) stay internal.
           mkdir -p _site/docs
           cp "$src/docs/ROADMAP.md" _site/docs/ROADMAP.md

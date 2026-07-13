@@ -130,8 +130,9 @@ Community etiquette — per subreddit, before posting:
 Validated with the maintainer on 2026-07-13. Constraints baked in: **no
 "build in public" claim** (maintainer decision), **no beta-tester
 recruiting** (the app UI is French-only; recruiting anglophone testers would
-either frustrate them or create delivery pressure on the EN UI), recipe
-studio/management leads the feature list, waitlist is the only CTA.
+either frustrate them or create delivery pressure on the EN UI), recipes
+lead the feature list (catalog live today; the recipe studio is pitched
+as the beta's headline, NOT as shipped), waitlist is the only CTA.
 
 ### 8.1 Account runway
 
@@ -182,25 +183,27 @@ Before the launch post:
 >
 > So I've been building it for the past year and a half, alongside the
 > batch itself. It's called **Brasse-Bouillon** — roughly "brew-broth", a French nod to
-> homebrew kettles. What it does today:
+> homebrew kettles. What's live today:
 >
-> - **Recipe studio + your own notebook**: build and tweak recipes with the
->   numbers recalculating live as you touch the grain bill or hop schedule
->   (IBU, ABV, color) — including a reverse hop calculator (target IBU → your
->   additions) and BU:GU balance. Batches scale to YOUR actual kettle and
->   fermenter, not a generic 5 gal assumption. Keep recipes private or share
->   them.
-> - **Community clone recipes**: pick a rated, battle-tested recipe instead
->   of improvising your first batch — or import one into your notebook and
->   make it yours. Scan a commercial beer's label and it suggests equivalent
->   community recipes.
+> - **Community clone recipes**: browse rated, battle-tested recipes with
+>   their IBU/ABV/volume instead of improvising your first batch — and scan
+>   a commercial beer's barcode to pull up the beer and equivalent community
+>   recipes.
 > - **Brew-day guidance**: mash/boil/chill steps with timers, target temps,
 >   and the reasoning behind each move — no jargon walls, no mental math.
+>   Batches scale to YOUR actual kettle and fermenter, not a generic 5 gal
+>   assumption.
+> - **Brewing calculators**: a hop calculator with quick, reverse (target
+>   IBU → your additions) and BU:GU balance modes.
 > - **Fermentation tracking**: log gravity and temperature day by day so
 >   you actually know where your batch stands (an at-a-glance summary card
 >   is in the works).
 > - **A brewing academy**: sourced articles + glossary, because the goal is
 >   that you eventually don't need the app at all.
+>
+> And the beta's headline feature is the **recipe studio**: build and tweak
+> your own recipes — grain bill, hop schedule — with IBU, ABV and color
+> recalculating live as you type, then keep them private or share them.
 >
 > Full honesty, because you'd find out in one tap anyway: it's
 > **pre-release** (waitlist only), the app UI ships **in French first**

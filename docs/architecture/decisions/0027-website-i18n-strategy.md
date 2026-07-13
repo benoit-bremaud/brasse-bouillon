@@ -2,6 +2,7 @@
 
 **Status**  Accepted
 **Date**    2026-07-10 (accepted 2026-07-10, after a 6-reviewer adversarial conception review folded in)
+**Amended** 2026-07-13 — D4 clause 1: footer switcher mirror dropped (maintainer UX review; sticky header keeps the primary switcher always visible)
 **Owners**  @benoit-bremaud
 
 ---
@@ -222,11 +223,16 @@ Grounded in the `i18n` skill (Google Search Central, W3C, Nielsen Norman Group,
 MDN). Clauses:
 
 1. A visible language switcher in the **top-right of the header** (the
-   conventional, expected placement — NN/G) on both homes, mirrored in the
-   footer. It is a pair of plain `<a>` links `/` ↔ `/en` — same mechanics as the
-   legal pages' `.lang-switch` — so it works with **JavaScript disabled**
-   (progressive enhancement). The switcher points at the **translated equivalent
-   of the current page**, never the homepage.
+   conventional, expected placement — NN/G) on both homes. It is a pair of
+   plain `<a>` links `/` ↔ `/en` — same mechanics as the legal pages'
+   `.lang-switch` — so it works with **JavaScript disabled** (progressive
+   enhancement). The switcher points at the **translated equivalent of the
+   current page**, never the homepage. *(Amended 2026-07-13: the original
+   clause also mirrored the switcher in the footer; the mirror was dropped
+   after the maintainer's UX review — the header is sticky, so the primary
+   switcher is already visible at every scroll position, making the footer
+   copy redundant. On mobile the header switcher sits one tap away behind the
+   burger; the S3 suggestion banner covers first-visit discovery.)*
 2. **Labels are autonyms** — `Français` / `English` (a short `FR / EN` toggle is
    the compact variant), each language named in its own language. The active
    language is visually marked. **No flags** — a flag denotes a country, not a
@@ -361,7 +367,7 @@ suggestion banner + a shareable `/en` URL without demoting French).
 
 | Slice | Content | Ships |
 |---|---|---|
-| **S1 — Real EN home** | D1 mechanism (annotations + attr/EN-only grammar, catalog with `srcHash`, `build_i18n.py`, committed `en.html`), D2 URL (`/en` + `_redirects` incl. `.html`, workflow copy, **5-constant gate rename** + canonical-rule flip to `/en`), D3 forms (`lang=en`, inline-script + consent localization, `-en` legal links), EN OG/Twitter incl. `og:locale`, catalog-derived FAQPage JSON-LD, the **"app ships in French first" honesty line + name gloss** (EN-only inserts), header/footer autonym lang links (D4 clause 1, JS-free), EN legal in-page nav fix (`/en`, `/en#participer`), gate + pytest updates. `noindex` **kept** (ship dark, QA live); `en.html` self-canonical from day one so S2 is a robots-meta flip. | **Unblocks direct-link Reddit posting** |
+| **S1 — Real EN home** | D1 mechanism (annotations + attr/EN-only grammar, catalog with `srcHash`, `build_i18n.py`, committed `en.html`), D2 URL (`/en` + `_redirects` incl. `.html`, workflow copy, **5-constant gate rename** + canonical-rule flip to `/en`), D3 forms (`lang=en`, inline-script + consent localization, `-en` legal links), EN OG/Twitter incl. `og:locale`, catalog-derived FAQPage JSON-LD, the **"app ships in French first" honesty line + name gloss** (EN-only inserts), header autonym lang links (D4 clause 1, JS-free; the footer mirror shipped in S1 was dropped post-S1 — see the clause's 2026-07-13 amendment), EN legal in-page nav fix (`/en`, `/en#participer`), gate + pytest updates. `noindex` **kept** (ship dark, QA live); `en.html` self-canonical from day one so S2 is a robots-meta flip. | **Unblocks direct-link Reddit posting** |
 | **S2 — SEO switch** | D5: de-noindex EN pages, add `hreflang="en"` to the FR home + `x-default` to the 4 legal pairs (reciprocity gate), add `/en` to the merged #1384 sitemap allowlist + `sitemap.xml`, SEO_RUNBOOK reversal. | Search traffic |
 | **S3 — Switcher UX** | D4 clauses 3–5: suggestion banner (`navigator.languages`), `bb-lang` persistence, **cookies-page disclosure (FR+EN)**. (Clause 1–2 — the plain autonym toggle — already shipped in S1. This slice adds the only new privacy-disclosure surface; it is the first to cut if scope tightens.) | Language UX |
 | **S4 — Process hardening** | D1 clause 5 (legal freshness stamps), `packages/website/CLAUDE.md` § Languages rewrite (twin rule → source+catalog rule for home), CONTRIBUTING/README updates. | Anti-drift process |

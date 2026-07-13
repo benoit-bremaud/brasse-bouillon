@@ -17,21 +17,47 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 
-# Open Graph share image. Social platforms crop to the 1.91:1 ratio, so the
-# card must be exactly 1200×630 or it renders letter-boxed / cropped.
+# Open Graph share images (FR + localized EN card). Social platforms crop to
+# the 1.91:1 ratio, so each card must be exactly 1200×630 or it renders
+# letter-boxed / cropped.
 OG_IMAGE = "og-image.png"
+OG_IMAGES = [OG_IMAGE, "og-image-en.png"]
 OG_IMAGE_SIZE = (1200, 630)
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
-# URLs: the home page plus the four French legal pages. The English legal twins
-# and the `-en` stub are `noindex`, and any `.html` URL 308-redirects to its
-# clean form, so none of them may ever appear in the sitemap.
+# URLs: the two landing pages plus the four French legal pages (S2, ADR-0027
+# D5 clause 3). The English legal twins are indexable since S2 but stay OUT of
+# the sitemap deliberately (secondary pages, paired to their FR twin via
+# hreflang); any `.html` URL 308-redirects to its clean form, so neither may
+# ever appear here.
 SITEMAP_URLS = [
     HOMEPAGE_URL,
+    f"{HOMEPAGE_URL}en",
     f"{HOMEPAGE_URL}legal",
     f"{HOMEPAGE_URL}privacy",
     f"{HOMEPAGE_URL}cookies",
     f"{HOMEPAGE_URL}terms",
+]
+
+# hreflang clusters (S2, ADR-0027 D5 clause 2): every FR/EN pair advertises ONE
+# identical cluster — fr → FR page, en → EN page, x-default → FR page — on BOTH
+# pages. Google ignores non-reciprocal or incomplete clusters.
+HREFLANG_PAIRS = [
+    ("index.html", "en.html", HOMEPAGE_URL, f"{HOMEPAGE_URL}en"),
+    ("legal.html", "legal-en.html", f"{HOMEPAGE_URL}legal", f"{HOMEPAGE_URL}legal-en"),
+    (
+        "privacy.html",
+        "privacy-en.html",
+        f"{HOMEPAGE_URL}privacy",
+        f"{HOMEPAGE_URL}privacy-en",
+    ),
+    (
+        "cookies.html",
+        "cookies-en.html",
+        f"{HOMEPAGE_URL}cookies",
+        f"{HOMEPAGE_URL}cookies-en",
+    ),
+    ("terms.html", "terms-en.html", f"{HOMEPAGE_URL}terms", f"{HOMEPAGE_URL}terms-en"),
 ]
 
 REQUIRED_FILES = [
@@ -56,6 +82,7 @@ REQUIRED_FILES = [
     "_redirects",
     "feedback-widget.js",
     "chat-widget.js",
+    "og-image-en.png",
 ]
 
 # Every public HTML page must reference the feedback widget loader (a single
@@ -116,12 +143,6 @@ HTML_RULES = {
         (r"<html\s+lang=\"en\"", 'balise <html lang="en"> manquante'),
         (r"<title>.+</title>", "balise <title> manquante"),
         (r"id=\"mainContentEn\"", "ancre principale #mainContentEn manquante"),
-        # S1 ships en.html "dark": noindex is required now; S2 removes this rule
-        # when it flips the page to indexable (ADR-0027 D5 clause 1).
-        (
-            r"<meta\s+name=\"robots\"\s+content=\"noindex,\s*follow\"\s*/?>",
-            "meta robots noindex,follow manquant dans en.html",
-        ),
         # The EN home is self-canonical to /en (not the FR master). This is the
         # SEO defect the epic corrects; the generator must never emit canonical=/.
         (
@@ -144,6 +165,10 @@ HTML_RULES = {
         ),
     ],
 }
+
+# Any robots meta carrying a noindex, regardless of attribute order or quote
+# style (`<meta content='noindex' name=robots>` must not slip past the guard).
+NOINDEX_META_PATTERN = r"<meta\b(?=[^>]*\brobots\b)(?=[^>]*\bnoindex\b)[^>]*>"
 
 DISALLOWED_HTML_PATTERNS = {
     "index.html": [
@@ -170,6 +195,12 @@ DISALLOWED_HTML_PATTERNS = {
         ),
     ],
     "en.html": [
+        # S2 (ADR-0027 D5): the EN pages are indexed — a reintroduced noindex
+        # would silently undo the SEO switch.
+        (
+            NOINDEX_META_PATTERN,
+            "meta robots noindex interdit dans en.html depuis la bascule SEO S2",
+        ),
         (
             r'"@type"\s*:\s*"SoftwareApplication"',
             "schema SoftwareApplication non autorisé dans en.html "
@@ -192,6 +223,22 @@ DISALLOWED_HTML_PATTERNS = {
             "champ ratingCount non autorisé dans en.html",
         ),
     ],
+    # Same S2 guard for the four EN legal twins (de-noindexed with the switch).
+    **{
+        rel_path: [
+            (
+                NOINDEX_META_PATTERN,
+                f"meta robots noindex interdit dans {rel_path} depuis la "
+                "bascule SEO S2",
+            )
+        ]
+        for rel_path in (
+            "legal-en.html",
+            "privacy-en.html",
+            "cookies-en.html",
+            "terms-en.html",
+        )
+    },
 }
 
 BLOCKED_PATTERNS = [
@@ -221,7 +268,10 @@ def check_required_files(root: Path = ROOT) -> list[str]:
 def check_html_files(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
 
-    for rel_path, rules in HTML_RULES.items():
+    # Union of both rule tables: a file may carry only disallowed patterns
+    # (e.g. the EN legal twins' noindex ban) without any required-pattern rule.
+    for rel_path in sorted(HTML_RULES.keys() | DISALLOWED_HTML_PATTERNS.keys()):
+        rules = HTML_RULES.get(rel_path, [])
         full_path = root / rel_path
         if not full_path.exists():
             continue
@@ -440,32 +490,73 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
 
 
 def check_og_image_dimensions(root: Path = ROOT) -> list[str]:
-    """The Open Graph share image must be exactly 1200×630 (the 1.91:1 ratio
-    social platforms crop to); a wrong-sized image silently renders a cropped
-    or letter-boxed card. The width/height live in the PNG IHDR chunk (bytes
-    16–24), read directly to keep this gate dependency-free (no Pillow)."""
-    path = root / OG_IMAGE
-    if not path.exists():
-        # Presence is already enforced by check_required_files; avoid a
-        # duplicate error here.
-        return []
+    """Every Open Graph share image (FR + localized EN card) must be exactly
+    1200×630 (the 1.91:1 ratio social platforms crop to); a wrong-sized image
+    silently renders a cropped or letter-boxed card. The width/height live in
+    the PNG IHDR chunk (bytes 16–24), read directly to keep this gate
+    dependency-free (no Pillow)."""
+    errors: list[str] = []
+    for rel_path in OG_IMAGES:
+        path = root / rel_path
+        if not path.exists():
+            # Presence is already enforced by check_required_files; avoid a
+            # duplicate error here.
+            continue
 
-    with path.open("rb") as image_file:
-        header = image_file.read(24)
-    if len(header) < 24 or header[:8] != PNG_SIGNATURE or header[12:16] != b"IHDR":
-        return [
-            f"{OG_IMAGE}: en-tête PNG invalide (l'image Open Graph doit être un PNG)"
-        ]
+        with path.open("rb") as image_file:
+            header = image_file.read(24)
+        if len(header) < 24 or header[:8] != PNG_SIGNATURE or header[12:16] != b"IHDR":
+            errors.append(
+                f"{rel_path}: en-tête PNG invalide (l'image Open Graph doit "
+                "être un PNG)"
+            )
+            continue
 
-    width = int.from_bytes(header[16:20], "big")
-    height = int.from_bytes(header[20:24], "big")
-    if (width, height) != OG_IMAGE_SIZE:
-        expected = f"{OG_IMAGE_SIZE[0]}×{OG_IMAGE_SIZE[1]}"
-        return [
-            f"{OG_IMAGE}: dimensions {width}×{height} — l'image Open Graph doit "
-            f"être {expected} (ratio 1.91:1)"
-        ]
-    return []
+        width = int.from_bytes(header[16:20], "big")
+        height = int.from_bytes(header[20:24], "big")
+        if (width, height) != OG_IMAGE_SIZE:
+            expected = f"{OG_IMAGE_SIZE[0]}×{OG_IMAGE_SIZE[1]}"
+            errors.append(
+                f"{rel_path}: dimensions {width}×{height} — l'image Open Graph "
+                f"doit être {expected} (ratio 1.91:1)"
+            )
+    return errors
+
+
+def check_hreflang_reciprocity(root: Path = ROOT) -> list[str]:
+    """Every FR/EN page pair must advertise ONE identical, complete hreflang
+    cluster on BOTH pages: `fr` → the FR page, `en` → the EN page, `x-default`
+    → the FR page (S2, ADR-0027 D5 clause 2). Google ignores clusters that are
+    non-reciprocal, that lack the self-reference, or that diverge between the
+    two pages — so any drift here silently kills the whole cluster."""
+    errors: list[str] = []
+    link_re = re.compile(
+        r'<link\s+rel="alternate"\s+hreflang="([^"]+)"\s+href="([^"]+)"'
+    )
+    for fr_file, en_file, fr_url, en_url in HREFLANG_PAIRS:
+        expected = {"fr": fr_url, "en": en_url, "x-default": fr_url}
+        for rel_path in (fr_file, en_file):
+            full_path = root / rel_path
+            if not full_path.exists():
+                continue
+            pairs = link_re.findall(full_path.read_text(encoding="utf-8"))
+            # A dict() would silently keep only the LAST duplicate, letting a
+            # malformed double declaration pass — surface it explicitly.
+            langs = [lang for lang, _href in pairs]
+            duplicates = sorted({lang for lang in langs if langs.count(lang) > 1})
+            if duplicates:
+                errors.append(
+                    f"{rel_path}: déclaration(s) hreflang dupliquée(s): "
+                    f"{', '.join(duplicates)}"
+                )
+                continue
+            found = dict(pairs)
+            if found != expected:
+                errors.append(
+                    f"{rel_path}: cluster hreflang incomplet ou non réciproque — "
+                    f"attendu {expected}, trouvé {found or '{}'}"
+                )
+    return errors
 
 
 def collect_errors(root: Path = ROOT) -> list[str]:
@@ -480,6 +571,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_no_external_fonts(root))
     errors.extend(check_no_stale_host(root))
     errors.extend(check_og_image_dimensions(root))
+    errors.extend(check_hreflang_reciprocity(root))
     errors.extend(check_i18n_home_generated(root))
     return errors
 

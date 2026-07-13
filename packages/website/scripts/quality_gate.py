@@ -168,6 +168,11 @@ DISALLOWED_HTML_PATTERNS = {
             r'"ratingCount"\s*:',
             "champ ratingCount non autorisé dans index.html",
         ),
+        (
+            r"<(script|iframe)[^>]*ko-fi",
+            "script/iframe Ko-fi non autorisé dans index.html "
+            "(ADR-0028 clause 2 : lien sortant simple uniquement)",
+        ),
     ],
     "en.html": [
         (
@@ -190,6 +195,11 @@ DISALLOWED_HTML_PATTERNS = {
         (
             r'"ratingCount"\s*:',
             "champ ratingCount non autorisé dans en.html",
+        ),
+        (
+            r"<(script|iframe)[^>]*ko-fi",
+            "script/iframe Ko-fi non autorisé dans en.html "
+            "(ADR-0028 clause 2 : lien sortant simple uniquement)",
         ),
     ],
 }

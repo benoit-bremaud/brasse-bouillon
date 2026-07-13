@@ -678,9 +678,17 @@
       "en": "Send my answers",
       "srcHash": "0ac9672b9f5c0fbc15aa2f47f39ddeed24796ec8"
     },
+    "participate.support": {
+      "en": "Enjoying the project? You can also support its development by <a href=\"https://ko-fi.com/brassebouillon\" target=\"_blank\" rel=\"noopener noreferrer\">buying me a beer</a>.",
+      "srcHash": "4a081ad53e4ad14794572266a2380e7706f5d908"
+    },
     "footer.brand": {
       "en": "Brasse-Bouillon, the app for curious homebrewers. Get in touch via the <a href=\"/en#participerEn\">site form</a>.",
       "srcHash": "53b7f3f0cbe7fcf85847edf344064a01037507e9"
+    },
+    "footer.donate": {
+      "en": "Want to support the project? <a href=\"https://ko-fi.com/brassebouillon\" target=\"_blank\" rel=\"noopener noreferrer\">Buy me a beer</a>.",
+      "srcHash": "87a9cd837dcb8bf3114bf0d36f353ea08df22cef"
     },
     "footer.legal": {
       "en": "Legal notice",

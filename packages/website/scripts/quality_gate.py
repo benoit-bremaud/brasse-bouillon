@@ -49,7 +49,7 @@ REQUIRED_FILES = [
     "README.md",
     "CONTRIBUTING.md",
     "favicon.ico",
-    "og-image.png",
+    OG_IMAGE,
     "fonts.css",
     "sitemap.xml",
     "robots.txt",
@@ -448,7 +448,8 @@ def check_og_image_dimensions(root: Path = ROOT) -> list[str]:
         # duplicate error here.
         return []
 
-    header = path.read_bytes()[:24]
+    with path.open("rb") as image_file:
+        header = image_file.read(24)
     if len(header) < 24 or header[:8] != PNG_SIGNATURE or header[12:16] != b"IHDR":
         return [
             f"{OG_IMAGE}: en-tête PNG invalide (l'image Open Graph doit être un PNG)"

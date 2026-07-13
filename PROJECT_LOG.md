@@ -7,6 +7,18 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1428 merged (`1cfe565`) — feat(website): flip the i18n S2 SEO switch — EN pages indexable (ADR-0027 D5)
+
+- Branch `feat/website-i18n-s2-seo-switch`, 4 commits (`966411c`, `fc6271e`, `cc2558b`, `c3e20e6`). Slice S2 of ADR-0027 — the site is now **Reddit-ready SEO-side**. Refs #1075.
+- De-noindex: `en.html` (the generator no longer inserts the S1 ship-dark robots meta) + the 4 EN legal twins; the gate now FORBIDS a noindex on all five EN pages (order/quote-agnostic lookahead pattern per Codex review) so the switch cannot silently regress.
+- Reciprocal hreflang: `index.html` gains the missing `hreflang="en"` return tag, all 8 legal pages gain `x-default` → FR clean URL, `en.html` carries the cluster verbatim; new gate check `check_hreflang_reciprocity` (completeness + reciprocity + duplicate-declaration detection on the 5 pairs). Latent gate bug fixed in passing: `check_html_files` never scanned files that only had DISALLOWED patterns.
+- Sitemap: `/en` added (exact-set `SITEMAP_URLS`); EN legal twins deliberately excluded (secondary pages, hreflang-paired); Lot 5 rationale comment updated.
+- Localized EN share card `og-image-en.png` (the FR card's tagline is French): mascot/gradient/wordmark byte-identical to the FR master, EN tagline in the same copper-deep DejaVu Bold; `scripts/generate_og_card.py` helper pins the composition (byte-identical reproduction verified, `OG_CARD_FONT` override); generator swaps `og:image`/`twitter:image` from the catalog; gate dimension check covers both cards. Closes the deferral recorded on #1413.
+- `SEO_RUNBOOK.md` rewritten: 2026-07-13 reversal of the EN de-index decision recorded; stale GA4 section dropped (analytics removed in #817, privacy pages promise none).
+- Tests 46 → 49 (reciprocity happy/sad/edge incl. duplicates, noindex-reintroduced guard variants, head-transform S2 expectations).
+- Reviews — pre-push: 0 Must Have; Copilot 2 inline + Codex 1 inline P2, all fixed in-branch with inline replies. CI green. Operator follow-up: GSC re-submit `sitemap.xml` + URL-inspect `/` and `/en` (runbook §3).
+
+
 ### PR #1421 merged (`39033fc`) — style(website): plain hyphens across public copy + restyled language toggle
 
 - Branch `fix/website-copy-polish`, 2 commits (`ed495b5`, `502a83f`).

@@ -17,6 +17,12 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 
+# Open Graph share image. Social platforms crop to the 1.91:1 ratio, so the
+# card must be exactly 1200×630 or it renders letter-boxed / cropped.
+OG_IMAGE = "og-image.png"
+OG_IMAGE_SIZE = (1200, 630)
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
 # URLs: the home page plus the four French legal pages. The English legal twins
 # and the `-en` stub are `noindex`, and any `.html` URL 308-redirects to its
 # clean form, so none of them may ever appear in the sitemap.
@@ -43,6 +49,7 @@ REQUIRED_FILES = [
     "README.md",
     "CONTRIBUTING.md",
     "favicon.ico",
+    OG_IMAGE,
     "fonts.css",
     "sitemap.xml",
     "robots.txt",
@@ -430,6 +437,35 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
     return []
 
 
+def check_og_image_dimensions(root: Path = ROOT) -> list[str]:
+    """The Open Graph share image must be exactly 1200×630 (the 1.91:1 ratio
+    social platforms crop to); a wrong-sized image silently renders a cropped
+    or letter-boxed card. The width/height live in the PNG IHDR chunk (bytes
+    16–24), read directly to keep this gate dependency-free (no Pillow)."""
+    path = root / OG_IMAGE
+    if not path.exists():
+        # Presence is already enforced by check_required_files; avoid a
+        # duplicate error here.
+        return []
+
+    with path.open("rb") as image_file:
+        header = image_file.read(24)
+    if len(header) < 24 or header[:8] != PNG_SIGNATURE or header[12:16] != b"IHDR":
+        return [
+            f"{OG_IMAGE}: en-tête PNG invalide (l'image Open Graph doit être un PNG)"
+        ]
+
+    width = int.from_bytes(header[16:20], "big")
+    height = int.from_bytes(header[20:24], "big")
+    if (width, height) != OG_IMAGE_SIZE:
+        expected = f"{OG_IMAGE_SIZE[0]}×{OG_IMAGE_SIZE[1]}"
+        return [
+            f"{OG_IMAGE}: dimensions {width}×{height} — l'image Open Graph doit "
+            f"être {expected} (ratio 1.91:1)"
+        ]
+    return []
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -441,6 +477,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_clean_seo_urls(root))
     errors.extend(check_no_external_fonts(root))
     errors.extend(check_no_stale_host(root))
+    errors.extend(check_og_image_dimensions(root))
     errors.extend(check_i18n_home_generated(root))
     return errors
 

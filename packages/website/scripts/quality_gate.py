@@ -166,6 +166,10 @@ HTML_RULES = {
     ],
 }
 
+# Any robots meta carrying a noindex, regardless of attribute order or quote
+# style (`<meta content='noindex' name=robots>` must not slip past the guard).
+NOINDEX_META_PATTERN = r"<meta\b(?=[^>]*\brobots\b)(?=[^>]*\bnoindex\b)[^>]*>"
+
 DISALLOWED_HTML_PATTERNS = {
     "index.html": [
         (
@@ -194,7 +198,7 @@ DISALLOWED_HTML_PATTERNS = {
         # S2 (ADR-0027 D5): the EN pages are indexed — a reintroduced noindex
         # would silently undo the SEO switch.
         (
-            r'<meta\s+name="robots"[^>]*noindex',
+            NOINDEX_META_PATTERN,
             "meta robots noindex interdit dans en.html depuis la bascule SEO S2",
         ),
         (
@@ -223,7 +227,7 @@ DISALLOWED_HTML_PATTERNS = {
     **{
         rel_path: [
             (
-                r'<meta\s+name="robots"[^>]*noindex',
+                NOINDEX_META_PATTERN,
                 f"meta robots noindex interdit dans {rel_path} depuis la "
                 "bascule SEO S2",
             )

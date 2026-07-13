@@ -191,15 +191,18 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
-            for rel_path in ("en.html", "legal-en.html"):
+            # Two spelling variants: canonical order on en.html, and reversed
+            # attribute order + single quotes on legal-en.html — the guard
+            # must catch both (Codex review on #1428).
+            variants = {
+                "en.html": '<meta name="robots" content="noindex,follow">',
+                "legal-en.html": "<meta content='noindex,follow' name=robots>",
+            }
+            for rel_path, meta in variants.items():
                 path = root / rel_path
                 content = path.read_text(encoding="utf-8")
                 path.write_text(
-                    content.replace(
-                        "</title>",
-                        '</title><meta name="robots" content="noindex,follow">',
-                        1,
-                    ),
+                    content.replace("</title>", "</title>" + meta, 1),
                     encoding="utf-8",
                 )
 

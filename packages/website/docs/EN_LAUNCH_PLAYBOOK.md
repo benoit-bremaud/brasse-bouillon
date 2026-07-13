@@ -105,9 +105,10 @@ Community etiquette — per subreddit, before posting:
       participate-first, roughly 9:1 contribution-to-promo etiquette).
 - [ ] Post from an account with genuine participation history; consider
       messaging the mods first for a "I built a thing" post.
-- [ ] Frame as a builder-journey post ("I'm building a free companion app to
+- [ ] Frame as a builder-journey post ("I'm building a companion app to
       guide first-time brewers — honest feedback welcome"), never a bare link
-      drop.
+      drop. (No "free" claim — pricing is undecided; the §8 frozen draft
+      deliberately avoids it.)
 - [ ] Be upfront: pre-release, French-first UI, solo project.
 - [ ] Prepare the two inevitable answers: "where's the app?" (waitlist,
       pre-release) and "why French?" (built alongside my own first real brew;
@@ -173,13 +174,13 @@ Before the launch post:
 > Hey r/Homebrewing,
 >
 > French homebrewer here, career-changer into software. When I planned my
-> first real all-grain batch (a modest 4 L blonde), I realized what I
-> actually wanted didn't exist: not another calculator, but something that
+> first real all-grain batch (a modest 4 L / ~1 gal blonde), I realized what I
+> actually wanted didn't exist: not just another calculator, but something that
 > tells a beginner what to do, when, and — the part that matters — **why**,
 > at every step from recipe to first pour.
 >
-> So I've been building it for the past year, alongside the batch itself.
-> It's called **Brasse-Bouillon** — roughly "brew-broth", a French nod to
+> So I've been building it for the past year and a half, alongside the
+> batch itself. It's called **Brasse-Bouillon** — roughly "brew-broth", a French nod to
 > homebrew kettles. What it does today:
 >
 > - **Recipe studio + your own notebook**: build and tweak recipes with the
@@ -194,8 +195,9 @@ Before the launch post:
 >   community recipes.
 > - **Brew-day guidance**: mash/boil/chill steps with timers, target temps,
 >   and the reasoning behind each move — no jargon walls, no mental math.
-> - **Fermentation tracking**: days, gravity, temperature — one glance and
->   you know where you stand.
+> - **Fermentation tracking**: log gravity and temperature day by day so
+>   you actually know where your batch stands (an at-a-glance summary card
+>   is in the works).
 > - **A brewing academy**: sourced articles + glossary, because the goal is
 >   that you eventually don't need the app at all.
 >

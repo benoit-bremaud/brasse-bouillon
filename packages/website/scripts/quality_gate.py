@@ -416,6 +416,8 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
     try:
         from scripts import build_i18n  # pytest / package context
     except ImportError:  # direct `python3 scripts/quality_gate.py` run
+        # no-redef is a false positive: exactly one of the two import forms
+        # runs and both bind the same module object.
         import build_i18n  # type: ignore[no-redef]
 
     try:

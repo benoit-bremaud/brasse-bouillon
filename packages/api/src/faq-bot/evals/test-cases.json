@@ -332,6 +332,29 @@
       ]
     },
     {
+      "id": "founder-who-en",
+      "lang": "en",
+      "question": "Who created Brasse-Bouillon? Who is behind this project?",
+      "expectations": [
+        {
+          "key": "names_founder",
+          "must": "Names the founder by FIRST NAME only — Benoît — and says he builds it solo."
+        },
+        {
+          "key": "no_full_name",
+          "must": "Does NOT give the founder's last name or full name."
+        },
+        {
+          "key": "no_contact_or_links",
+          "must": "Does NOT give any contact detail, email, phone, or profile link (GitHub/LinkedIn)."
+        },
+        {
+          "key": "lang_en",
+          "must": "Answers ENTIRELY in English (the visitor's language) — founder facts ('French enthusiast', Benoît) must NOT pull the reply into French. This exact flip was observed live on mistral-small (2026-07-13 canary)."
+        }
+      ]
+    },
+    {
       "id": "mixed-lang-dominant-fr",
       "lang": "fr",
       "question": "Hello ! C'est quoi Brasse-Bouillon exactement, et comment rejoindre la beta ?",

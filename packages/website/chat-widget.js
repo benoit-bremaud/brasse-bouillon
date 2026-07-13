@@ -196,7 +196,7 @@ const WIDGET_STYLES = `
   border-bottom-left-radius: var(--radius-sm); }
 .bb-chat__msg--error { background: var(--color-accent-soft); color: var(--color-error); }
 .bb-chat__msg--pending { opacity: 0.7; font-style: italic; }
-/* foam-on-copper-deep = 6.07:1 (WCAG AA); same pair already vetted in site.css. */
+/* copper-deep-on-foam = 6.07:1 (WCAG AA); same pair already vetted in site.css. */
 .bb-chat__link { color: var(--copper-deep); font-weight: 600; text-decoration: underline; }
 .bb-chat__link:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px;
   border-radius: var(--radius-sm); }
@@ -363,6 +363,12 @@ function mountChatWidget() {
     const section = document.getElementById(t.contact.targetId);
     if (!section) {
       return;
+    }
+    // Reflect the jump in the URL like a real on-page anchor (deep-linkable, shareable),
+    // without letting the browser perform its own instant jump — we keep control of the
+    // smooth scroll and focus below.
+    if (window.history && typeof window.history.pushState === 'function') {
+      window.history.pushState(null, '', `#${t.contact.targetId}`);
     }
     const reduceMotion =
       typeof window.matchMedia === 'function' &&

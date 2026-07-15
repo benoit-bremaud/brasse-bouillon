@@ -284,7 +284,8 @@
     // Bubble count adapts to the device so big screens feel lush while weaker
     // phones stay smooth. Each bubble is a richly-painted, continuously
     // animated element, so we keep the compositor comfortable:
-    //  - scale with viewport area (≈ 1 bubble per 6500 px²),
+    //  - scale with viewport area (≈ 1 bubble per 9000 px²), capped at 100 —
+    //    the cap is the main lever against sustained GPU load on big screens,
     //  - halve it on low-memory / few-core devices,
     //  - drop to a minimum when Data Saver is on,
     //  - (prefers-reduced-motion already disabled the layer above).
@@ -478,12 +479,10 @@
       return;
     }
 
-    // Keyframes that travel across the viewport: pausing one off-screen breaks
-    // the effect (a frozen bubble never rises back into view), so they stay
-    // always-on. NOTE: pausing is element-wide (the CSS sets animation-play-state
-    // on the whole element), so this exclusion only holds while no element mixes a
-    // transiting keyframe with another infinite loop — keep bubbles/embers
-    // single-animation or this guard silently stops sparing them.
+    // Keyframes that travel across the viewport: pausing one off-screen breaks the
+    // effect (a frozen bubble never rises back into view), so their host stays
+    // always-on — enforced per-element below (any transiting animation vetoes its
+    // whole host), not just per-animation.
     const TRANSITING = new Set(['bubble-rise', 'bubble-sway', 'emberRise']);
 
     const observer = new IntersectionObserver(
@@ -496,20 +495,39 @@
       { rootMargin: '200px' }
     );
 
-    const targets = new Set();
-    document.getAnimations().forEach((anim) => {
+    // A ::before/::after animation's target is a CSSPseudoElement (no nodeType);
+    // resolve it to its originating element so the host is what we tag (the CSS
+    // rule pauses the pseudo-element via its ::before/::after variants — this is
+    // what pauses the hero's large floatSlow gradient blobs off-screen).
+    const hostOf = (anim) => {
+      const target = anim.effect && anim.effect.target;
+      if (!target) return null;
+      const host = target.nodeType === 1 ? target : target.element;
+      return host && host.nodeType === 1 ? host : null;
+    };
+
+    const infinite = document.getAnimations().filter((anim) => {
       const timing =
         anim.effect && anim.effect.getTiming ? anim.effect.getTiming() : null;
-      const target = anim.effect && anim.effect.target;
-      if (!target || !timing || timing.iterations !== Infinity) return;
+      return timing && timing.iterations === Infinity;
+    });
+
+    // Pause is element-wide, so any transiting animation vetoes its whole host: if
+    // an element ever carried both a transiting loop (bubble/ember) and another
+    // infinite one, tagging it would freeze the transiting stream too. Collect the
+    // vetoed hosts first, then observe only the non-transiting hosts left clear.
+    const excluded = new Set();
+    infinite.forEach((anim) => {
+      if (!TRANSITING.has(anim.animationName)) return;
+      const host = hostOf(anim);
+      if (host) excluded.add(host);
+    });
+
+    const targets = new Set();
+    infinite.forEach((anim) => {
       if (TRANSITING.has(anim.animationName)) return;
-      // A ::before/::after animation's target is a CSSPseudoElement (no nodeType).
-      // Resolve it to its originating element so the host gets tagged — the CSS
-      // rule then pauses the pseudo-element via its ::before/::after variants (this
-      // is what pauses the hero's large floatSlow gradient blobs off-screen).
-      const host = target.nodeType === 1 ? target : target.element;
-      if (!host || host.nodeType !== 1) return;
-      targets.add(host);
+      const host = hostOf(anim);
+      if (host && !excluded.has(host)) targets.add(host);
     });
     targets.forEach((el) => observer.observe(el));
   }

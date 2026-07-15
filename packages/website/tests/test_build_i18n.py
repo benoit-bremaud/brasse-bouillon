@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
 from scripts import build_i18n
 
@@ -9,6 +11,21 @@ def _catalog(strings: dict, **extra) -> dict:
     catalog: dict = {"strings": strings}
     catalog.update(extra)
     return catalog
+
+
+def _write_legal_twins(base: Path) -> None:
+    """Minimal FR + EN legal twins (all four stems) for the stamp helper."""
+    for stem in build_i18n.LEGAL_STEMS:
+        (base / f"{stem}.html").write_text(
+            f"<!DOCTYPE html><html lang=fr><head><title>{stem} FR</title></head>"
+            "<body></body></html>",
+            encoding="utf-8",
+        )
+        (base / f"{stem}-en.html").write_text(
+            f"<!DOCTYPE html><html lang=en><head><title>{stem} EN</title></head>"
+            "<body></body></html>",
+            encoding="utf-8",
+        )
 
 
 class GenerateTests(unittest.TestCase):
@@ -211,6 +228,54 @@ class GenerateTests(unittest.TestCase):
         out = build_i18n.generate(source, catalog, check_hashes=False)
         self.assertIn('"name": "Q EN"', out)
         self.assertIn('"text": "A EN"', out)
+
+
+class LegalStampTests(unittest.TestCase):
+    def test_stamp_inserts_then_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            _write_legal_twins(base)
+
+            # Returned in LEGAL_STEMS order, one entry per freshly-stamped twin.
+            first = build_i18n.stamp_legal_pages(base)
+            self.assertEqual(first, [f"{s}-en.html" for s in build_i18n.LEGAL_STEMS])
+            # Every EN twin now carries the sha1 of its FR source.
+            for stem in build_i18n.LEGAL_STEMS:
+                en_html = (base / f"{stem}-en.html").read_text(encoding="utf-8")
+                self.assertEqual(
+                    build_i18n.read_legal_stamp(en_html),
+                    build_i18n.fr_legal_hash(base, stem),
+                )
+            # A second run changes nothing.
+            self.assertEqual(build_i18n.stamp_legal_pages(base), [])
+
+    def test_stamp_refreshes_only_the_changed_twin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            _write_legal_twins(base)
+            build_i18n.stamp_legal_pages(base)
+
+            fr = base / "privacy.html"
+            fr.write_text(fr.read_text(encoding="utf-8") + "<!-- edit -->", "utf-8")
+
+            changed = build_i18n.stamp_legal_pages(base)
+            self.assertEqual(changed, ["privacy-en.html"])
+            self.assertEqual(
+                build_i18n.read_legal_stamp(
+                    (base / "privacy-en.html").read_text(encoding="utf-8")
+                ),
+                build_i18n.fr_legal_hash(base, "privacy"),
+            )
+
+    def test_read_legal_stamp_none_when_absent(self) -> None:
+        self.assertIsNone(build_i18n.read_legal_stamp("<head></head>"))
+
+    def test_stamp_raises_on_missing_twin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            (base / "legal.html").write_text("<head></head>", encoding="utf-8")
+            with self.assertRaises(build_i18n.BuildError):
+                build_i18n.stamp_legal_pages(base)
 
 
 if __name__ == "__main__":

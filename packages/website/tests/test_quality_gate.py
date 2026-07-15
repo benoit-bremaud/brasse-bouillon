@@ -169,12 +169,60 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
     )
 
 
+def _stampable_fixture(base: Path) -> None:
+    """Valid fixture + the build_i18n toolchain marker (so `check_legal_freshness`
+    actually runs instead of skipping) + freshly stamped EN legal twins."""
+    _create_valid_fixture(base)
+    _write_file(base, "scripts/build_i18n.py", "# marker\n")
+    build_i18n.stamp_legal_pages(base)
+
+
 class QualityGateTests(unittest.TestCase):
     def test_collect_errors_passes_on_valid_fixture(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             self.assertEqual(quality_gate.collect_errors(root), [])
+
+    def test_legal_freshness_passes_when_stamped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _stampable_fixture(root)
+            self.assertEqual(quality_gate.check_legal_freshness(root), [])
+
+    def test_legal_freshness_detects_stale_stamp(self) -> None:
+        # A FR legal edit without re-stamping the EN twin must fail the gate.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _stampable_fixture(root)
+            fr = root / "legal.html"
+            fr.write_text(fr.read_text(encoding="utf-8") + "<!-- x -->", "utf-8")
+
+            errors = quality_gate.check_legal_freshness(root)
+            self.assertTrue(any("legal-en.html" in e and "périmé" in e for e in errors))
+
+    def test_legal_freshness_detects_missing_stamp(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _stampable_fixture(root)
+            en = root / "cookies-en.html"
+            en.write_text(
+                build_i18n._LEGAL_STAMP_RE.sub("", en.read_text(encoding="utf-8")),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_legal_freshness(root)
+            self.assertTrue(
+                any("cookies-en.html" in e and "manquant" in e for e in errors)
+            )
+
+    def test_legal_freshness_skipped_without_toolchain(self) -> None:
+        # No scripts/build_i18n.py in the tree (unstamped legal pages) -> skip,
+        # matching the home i18n check's toolchain gate.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            self.assertEqual(quality_gate.check_legal_freshness(root), [])
 
     def test_detects_missing_required_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

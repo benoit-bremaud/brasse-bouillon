@@ -493,7 +493,7 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
     current = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
     if current != generated:
         return [
-            "en.html est périmé — lancer `python scripts/build_i18n.py` "
+            "en.html est périmé — lancer `python3 scripts/build_i18n.py` "
             "puis committer le résultat"
         ]
     return []
@@ -521,7 +521,8 @@ def check_legal_freshness(root: Path = ROOT) -> list[str]:
         if not fr_path.exists() or not en_path.exists():
             continue
         stamped = build_i18n.read_legal_stamp(en_path.read_text(encoding="utf-8"))
-        expected = build_i18n.sha1(fr_path.read_text(encoding="utf-8"))
+        # Reuse the generator's helper so the hashing policy stays single-source.
+        expected = build_i18n.fr_legal_hash(root, stem)
         if stamped is None:
             errors.append(
                 f"{stem}-en.html: tampon i18n-src manquant "

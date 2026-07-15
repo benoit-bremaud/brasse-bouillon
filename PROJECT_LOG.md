@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-15
 
+### PR #1439 merged (`0300653`) — feat(website): legal-twin freshness stamps — close i18n S4 (ADR-0027 D1.5)
+
+- Branch `feat/website-i18n-s4-legal-stamps`, 3 commits (`16269936`, `26c89989`, `e341afc9`). **Closes the website i18n epic** (last slice): the generated home has had a `srcHash` drift guard since S1, but the four hand-maintained EN legal twins had none — a FR legal edit that skipped its EN twin passed CI silently. Refs #1075.
+- Each `{stem}-en.html` now embeds `<!-- i18n-src: sha1:<hash of the FR twin> -->` after `<head>`; new gate check `check_legal_freshness` recomputes the FR hash (via the shared `build_i18n.fr_legal_hash`) and fails on a missing/stale stamp; `build_i18n.py --stamp` refreshes the four (insert-then-replace, idempotent, unknown-flag → exit 2). Whole-file hash by design (head metadata is translatable too); documented in code + package CLAUDE.md.
+- Tests 50 → 58 (stamp insert/idempotent/refresh/missing-twin; freshness pass/stale/missing/skip). End-to-end verified: FR edit without re-stamp turns the gate red, `--stamp` turns it green.
+- Reviews — pre-push: 0 Must Have, 2 Should applied (ran `ruff format`, documented the whole-file-hash rationale). Copilot 3 inline (reuse `fr_legal_hash`; harmonize every gate + build_i18n remediation string on `python3`), all fixed + replied. Codex no review. CI green. Epic status: S1+S2+S4 shipped, S3 suggestion-banner deferred by design; no drift hole remains on the site.
+
 ### PR #1436 merged (`2721525`) — perf(website): cut sustained animation load (fewer bubbles + pause off-screen loops)
 
 - Branch `perf/website-animation-load` (squash `8290bd4` + `57c4a39`). Fixes the "home gets laggy the longer you stay" report — measured as GPU thermal throttling from continuous compositing, not a memory leak (heap flat). On desktop the home ran ~484 running animations, ~400 of them from rising bubbles (≈200 bubbles × 2 keyframes each).

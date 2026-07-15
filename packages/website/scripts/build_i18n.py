@@ -9,11 +9,11 @@ re-serialises the document, so everything the annotations do not touch stays
 byte-for-byte identical (a hard requirement for the CI regeneration-diff check).
 
 Usage:
-    python scripts/build_i18n.py              # generate en.html (default)
-    python scripts/build_i18n.py --check      # generate in memory, fail if en.html is stale
-    python scripts/build_i18n.py --update-hashes
+    python3 scripts/build_i18n.py              # generate en.html (default)
+    python3 scripts/build_i18n.py --check      # generate in memory, fail if en.html is stale
+    python3 scripts/build_i18n.py --update-hashes
                                               # rewrite catalog srcHash fields after a FR edit
-    python scripts/build_i18n.py --stamp      # refresh the EN legal twins' i18n-src freshness stamp
+    python3 scripts/build_i18n.py --stamp      # refresh the EN legal twins' i18n-src freshness stamp
 
 The drift guard: each catalog entry stores `srcHash`, the sha1 of the French
 source (element inner HTML or attribute value) it translates. On generate/check,
@@ -59,7 +59,7 @@ VOID_TAGS = frozenset(
 CANONICAL_EN = "https://brasse-bouillon.com/en"
 GENERATED_MARKER = (
     "<!-- GENERATED FILE — edit index.html + i18n/home.en.json instead. "
-    "Regenerate with: python scripts/build_i18n.py -->"
+    "Regenerate with: python3 scripts/build_i18n.py -->"
 )
 
 
@@ -300,7 +300,7 @@ def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
         raise BuildError(
             "French source changed for: "
             f"{keys}\n  → update the EN translation in i18n/home.en.json, then run "
-            "`python scripts/build_i18n.py --update-hashes`."
+            "`python3 scripts/build_i18n.py --update-hashes`."
         )
 
     out = _apply_ops(source, ops)
@@ -661,7 +661,7 @@ def main(argv: list[str]) -> int:
             )
             if current != generated:
                 print(
-                    "en.html is stale — run `python scripts/build_i18n.py` and commit.",
+                    "en.html is stale — run `python3 scripts/build_i18n.py` and commit.",
                     file=sys.stderr,
                 )
                 return 1

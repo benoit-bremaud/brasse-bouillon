@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-13
 
+### PR #1433 merged (`1e2f143`) — fix(faq-bot): [CONTACT] placeholder → real sign-up link
+
+- Branch `fix/faq-bot-contact-link` (squash `bf379c1` + `9bf6903`). `chat-widget.js` linkifies the bot's leaked `[CONTACT]` placeholder into a first-party `<a>` to the on-page Participate section (`#participerFr`/`#participerEn`); click closes/scrolls/focuses + URL-hash; model text stays `createTextNode`-only (no XSS). `system-prompt.md` keep-verbatim rule + eval case `contact-token-verbatim-fr` (23 cases, ADR-0022).
+- Deploy split: widget live via Cloudflare Pages on merge; prompt hardening at next Fly API deploy. Edge: link label follows page language, not answer language (deferred to widget UI-line).
+- Reviews: pre-push (pr-pre-reviewer + Codex) 0 Must Have; Copilot 2 inline fixed in `9bf6903`. CI green.
+
 ### PR #1431 merged (`205dc3e`) — docs(website): freeze the r/Homebrewing launch post + account runway plan
 
 - Branch `docs/website-reddit-launch-post`, 5 commits (`399d569`, `9c3fdb6`, `75aeb58`, `9a73835`, `2f4d7c9`). Playbook §8: the maintainer-validated launch post (3 title options, body, the two prepared replies, mod pre-message) + the account runway plan (existing personal account, aged/low-karma; handle deliberately NOT recorded — the account↔project link is made at posting time; runway = r/Homebrewing participation + the real first-brew post, then the launch post referencing it).

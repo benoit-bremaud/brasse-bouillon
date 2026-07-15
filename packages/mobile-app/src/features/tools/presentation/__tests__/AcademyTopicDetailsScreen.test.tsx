@@ -12,6 +12,46 @@ const mockCanGoBack = jest.fn(() => true);
 jest.mock("@/features/academy/data", () => {
   const articles = [
     {
+      slug: "histoire",
+      metadata: {
+        title: "Histoire de la bière",
+        summary: "Generated history article summary.",
+        category: "history",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 10,
+        tags: ["history"],
+        updatedAt: "2026-07-13",
+        relatedArticles: [],
+        relatedGlossaryTerms: [],
+        relatedCalculators: [],
+        learningObjectives: ["Understand beer history."],
+        prerequisites: [],
+        teaches: ["beer-history"],
+        sensitive: false,
+        riskTopics: [],
+        sources: [],
+        review: null,
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-histoire",
+            title: "Pourquoi l'histoire compte",
+            blocks: [
+              {
+                id: "intro",
+                type: "paragraph",
+                text: "Generated history article.",
+                sourceIds: [],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "introduction",
       metadata: {
         title: "Introduction au brassage",
@@ -660,15 +700,13 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
     }
   });
 
-  it("navigates from a legacy topic to its placeholder article route", () => {
+  it("renders the generated history article instead of the legacy placeholder", () => {
     render(<AcademyTopicDetailsScreen slugParam="histoire" />);
 
-    fireEvent.press(screen.getByText("En savoir plus"));
-
-    expect(mockPush).toHaveBeenCalledWith({
-      pathname: "/(app)/academy/[slug]/learn",
-      params: { slug: "histoire" },
-    });
+    expect(screen.getByText("Generated history article summary.")).toBeTruthy();
+    expect(screen.getByText("Pourquoi l'histoire compte")).toBeTruthy();
+    expect(screen.queryByText("Ce que tu trouveras bientôt")).toBeNull();
+    expect(screen.queryByText("En savoir plus")).toBeNull();
   });
 
   it("edge: every topic with hasCalculator=true is wired to a working calculator route", () => {
@@ -727,11 +765,11 @@ describe("AcademyTopicDetailsScreen — calculator CTA (Issue #616)", () => {
   });
 
   it("does not render a previous article footer action for the first generated article", () => {
-    render(<AcademyTopicDetailsScreen slugParam="introduction" />);
+    render(<AcademyTopicDetailsScreen slugParam="histoire" />);
 
     expect(screen.queryByText("Précédent")).toBeNull();
     expect(screen.getByText("Suivant")).toBeTruthy();
-    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
+    expect(screen.getByText("Introduction au brassage")).toBeTruthy();
   });
 
   it("navigates from a generated article glossary reference to the glossary", () => {

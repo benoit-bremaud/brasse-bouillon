@@ -6,6 +6,379 @@ import { AcademyCorpus } from "../../domain";
 export const academyCorpus: AcademyCorpus = {
   articles: [
     {
+      slug: "histoire",
+      metadata: {
+        title: "Histoire de la bière",
+        summary:
+          "Repère historique pour comprendre comment céréales, fermentation, houblon, levure, styles et science ont façonné la bière moderne.",
+        category: "history",
+        level: "beginner",
+        status: "published",
+        version: "1.0.0",
+        estimatedReadTimeMinutes: 10,
+        tags: ["history", "culture", "fermentation", "styles"],
+        updatedAt: "2026-07-13",
+        relatedArticles: [
+          "introduction",
+          "fermentescibles",
+          "houblons",
+          "levures",
+          "eau",
+        ],
+        relatedGlossaryTerms: [
+          "fermentation",
+          "malt",
+          "mout",
+          "houblon",
+          "cervoise",
+          "gruit",
+          "bappir",
+          "reinheitsgebot",
+          "lager",
+        ],
+        relatedCalculators: [],
+        learningObjectives: [
+          "Comprendre pourquoi la bière moderne ne résulte pas d'une invention unique.",
+          "Identifier les grands tournants historiques qui structurent encore le brassage.",
+          "Relier histoire, ingrédients, styles et maîtrise technique du brasseur.",
+        ],
+        prerequisites: ["brewing-overview"],
+        teaches: [
+          "beer-history-overview",
+          "brewing-culture",
+          "historical-brewing-turning-points",
+        ],
+        sensitive: false,
+        riskTopics: [],
+        sources: [
+          {
+            id: "liu-raqefet-2018",
+            kind: "article",
+            title:
+              "Fermented beverage and food storage in 13,000 y-old stone mortars at Raqefet Cave, Israel: Investigating Natufian ritual feasting",
+            authors: [
+              "Li Liu",
+              "Jiajing Wang",
+              "Danny Rosenberg",
+              "Hao Zhao",
+              "György Lengyel",
+              "Dani Nadel",
+            ],
+            publisher: "Journal of Archaeological Science: Reports",
+            url: "https://www.sciencedirect.com/science/article/pii/S2352409X18303468",
+            accessedAt: "2026-07-13",
+            year: 2018,
+            notes:
+              "Archaeological evidence for early cereal-based fermented beverage residues at Raqefet Cave.",
+          },
+          {
+            id: "etcsl-ninkasi",
+            kind: "website",
+            title: "A hymn to Ninkasi",
+            authors: ["The Electronic Text Corpus of Sumerian Literature"],
+            publisher: "University of Oxford",
+            url: "https://etcsl.orinst.ox.ac.uk/cgi-bin/etcsl.cgi?text=t.4.23.1",
+            accessedAt: "2026-07-13",
+            year: 2006,
+            notes:
+              "Sumerian literary source used as a textual anchor for ancient brewing vocabulary and process imagery.",
+          },
+          {
+            id: "hornsey-2003",
+            kind: "book",
+            title: "A History of Beer and Brewing",
+            authors: ["Ian S. Hornsey"],
+            publisher: "Royal Society of Chemistry",
+            url: null,
+            accessedAt: null,
+            year: 2003,
+            notes:
+              "General reference for historical brewing development, ingredients, and industrialization.",
+          },
+          {
+            id: "wired-reinheitsgebot-2010",
+            kind: "article",
+            title: "April 23, 1516: Bavaria Cracks Down on Beer Brewers",
+            authors: ["Betsy Mason"],
+            publisher: "WIRED",
+            url: "https://www.wired.com/2010/04/0423deutsche-reinheitsgebot-german-beer-purity-law/",
+            accessedAt: "2026-07-13",
+            year: 2010,
+            notes:
+              "Contextual article on the 1516 Bavarian beer regulation and later purity-law framing.",
+          },
+          {
+            id: "bjcp-2021",
+            kind: "standard",
+            title: "BJCP Beer Style Guidelines",
+            authors: ["Beer Judge Certification Program"],
+            publisher: "BJCP",
+            url: "https://www.bjcp.org/bjcp-style-guidelines/",
+            accessedAt: "2026-07-03",
+            year: 2021,
+            notes: "Style and sensory reference.",
+          },
+        ],
+        review: {
+          confidenceLevel: "reviewed",
+          reviewedBy: "Academy editorial review",
+          reviewedAt: "2026-07-13",
+          notes: [
+            "First generated history article replacing the legacy coming-soon topic.",
+            "Historical wording keeps uncertainty explicit where archaeology remains interpretive.",
+          ],
+        },
+      },
+      body: {
+        sections: [
+          {
+            id: "pourquoi-histoire",
+            title: "Pourquoi l'histoire compte",
+            blocks: [
+              {
+                id: "pourquoi-histoire-paragraph-1",
+                type: "paragraph",
+                text: "L'histoire de la bière n'est pas une ligne droite qui partirait d'une recette ancienne pour arriver aux IPA et aux lagers actuelles. C'est plutôt une suite d'adaptations : céréales disponibles, outils de cuisson, règles locales, commerce, conservation, science de la fermentation et attentes des buveurs.",
+                sourceIds: [],
+              },
+              {
+                id: "pourquoi-histoire-paragraph-2",
+                type: "paragraph",
+                text: "Pour un brasseur, cette histoire sert à lire les choix techniques modernes. Le malt n'est pas seulement une source de sucre, le houblon n'a pas toujours été la plante dominante, la levure n'a pas toujours été comprise, et les styles ne sont pas des lois naturelles. Ils sont le résultat de contraintes historiques.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-biere-historique",
+                type: "definition",
+                term: "Bière historique",
+                definition:
+                  "Dans cette fiche, bière désigne largement une boisson fermentée à base de céréales. Les boissons anciennes ne correspondent pas toujours à la bière moderne filtrée, houblonnée et contrôlée.",
+                sourceIds: ["hornsey-2003"],
+              },
+            ],
+          },
+          {
+            id: "avant-recettes",
+            title: "Avant les recettes écrites",
+            blocks: [
+              {
+                id: "avant-recettes-paragraph-1",
+                type: "paragraph",
+                text: "Les plus anciens indices solides d'une boisson fermentée à base de céréales viennent des mortiers de la grotte de Raqefet, dans un contexte natoufien daté d'environ 13 000 ans avant aujourd'hui. Ce n'est pas une recette complète : les chercheurs interprètent des résidus, des amidons modifiés et des traces d'usage comme des indices de fermentation céréalière.",
+                sourceIds: [],
+              },
+              {
+                id: "avant-recettes-paragraph-2",
+                type: "paragraph",
+                text: "Ce point est important : la bière ne commence pas forcément avec une brasserie, un style ou un texte. Elle commence quand des humains comprennent que des céréales trempées, chauffées ou mâchées peuvent donner une boisson nourrissante et fermentée. L'histoire commence donc avec des pratiques, pas avec une marque ou une norme.",
+                sourceIds: [],
+              },
+              {
+                id: "example-raqefet",
+                type: "example",
+                title: "Ce que montre Raqefet",
+                body: "Raqefet ne prouve pas l'existence d'une bière moderne. Le site montre plutôt que des boissons céréalières fermentées pouvaient déjà accompagner des moments sociaux ou rituels très anciens.",
+                sourceIds: ["liu-raqefet-2018"],
+              },
+            ],
+          },
+          {
+            id: "mesopotamie-egypte",
+            title: "Mésopotamie et Égypte",
+            blocks: [
+              {
+                id: "mesopotamie-egypte-paragraph-1",
+                type: "paragraph",
+                text: "La Mésopotamie donne l'un des grands repères écrits de l'histoire brassicole : l'hymne à Ninkasi. Ce texte sumérien ne ressemble pas à une fiche technique moderne, mais il décrit un imaginaire de brassage avec pain de bière, malt, moût, cuve et filtration. Il montre que la bière est déjà un objet culturel, alimentaire et économique.",
+                sourceIds: [],
+              },
+              {
+                id: "mesopotamie-egypte-paragraph-2",
+                type: "paragraph",
+                text: "L'Égypte ancienne confirme la même idée générale : les boissons céréalières fermentées peuvent être quotidiennes, nourrissantes, liées au travail, aux offrandes et aux échanges. Elles restent cependant différentes de nos bières : la filtration, la conservation, le niveau de gaz, l'amertume et la stabilité microbiologique n'ont pas le même sens qu'aujourd'hui.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-bappir",
+                type: "definition",
+                term: "Bappir",
+                definition:
+                  "Pain ou préparation céréalière associée au brassage mésopotamien, souvent évoquée comme support de sucres et d'arômes dans les reconstructions historiques.",
+                sourceIds: ["etcsl-ninkasi", "hornsey-2003"],
+              },
+              {
+                id: "glossary-bappir",
+                type: "glossaryReference",
+                termSlug: "bappir",
+                label: "Bappir",
+                sourceIds: ["etcsl-ninkasi"],
+              },
+            ],
+          },
+          {
+            id: "cervoise-houblon",
+            title: "De la cervoise au houblon",
+            blocks: [
+              {
+                id: "cervoise-houblon-paragraph-1",
+                type: "paragraph",
+                text: "En Europe, le mot cervoise aide à comprendre la période où la bière n'est pas encore définie par le houblon. Des plantes aromatiques, souvent regroupées sous le terme gruit, peuvent apporter amertume, parfum, conservation partielle ou signature locale. La recette dépend alors fortement du territoire et des usages.",
+                sourceIds: [],
+              },
+              {
+                id: "cervoise-houblon-paragraph-2",
+                type: "paragraph",
+                text: "Le houblon change progressivement la grammaire de la bière. Il apporte une amertume plus stable, des composés aromatiques distinctifs et une meilleure tenue dans le temps. Sa diffusion ne se résume pas au goût : elle touche aussi la conservation, le commerce, la fiscalité et la standardisation progressive des recettes.",
+                sourceIds: [],
+              },
+              {
+                id: "glossary-cervoise",
+                type: "glossaryReference",
+                termSlug: "cervoise",
+                label: "Cervoise",
+                sourceIds: ["hornsey-2003"],
+              },
+              {
+                id: "glossary-gruit",
+                type: "glossaryReference",
+                termSlug: "gruit",
+                label: "Gruit",
+                sourceIds: ["hornsey-2003"],
+              },
+              {
+                id: "related-houblons",
+                type: "relatedArticle",
+                articleSlug: "houblons",
+                sectionId: "role-du-houblon",
+                sourceIds: ["hornsey-2003"],
+              },
+            ],
+          },
+          {
+            id: "reglementer-biere",
+            title: "Réglementer la bière",
+            blocks: [
+              {
+                id: "reglementer-biere-paragraph-1",
+                type: "paragraph",
+                text: "La bière devient vite un produit à encadrer : elle engage les céréales, les prix, les taxes, la santé publique, les privilèges de production et la confiance du consommateur. Le Reinheitsgebot bavarois de 1516 est souvent présenté comme une pure loi de qualité. C'est plus utile de le lire comme une réglementation historique située, liée aux matières premières autorisées, aux prix et à l'organisation du marché.",
+                sourceIds: [],
+              },
+              {
+                id: "reglementer-biere-paragraph-2",
+                type: "paragraph",
+                text: "La levure n'y apparaît pas comme ingrédient au sens moderne, car la microbiologie n'existe pas encore. C'est une bonne leçon pour lire les textes anciens : une règle peut avoir un effet durable sans que ses auteurs comprennent toutes les causes biologiques derrière le brassage.",
+                sourceIds: [],
+              },
+              {
+                id: "definition-reinheitsgebot",
+                type: "definition",
+                term: "Reinheitsgebot",
+                definition:
+                  "Réglementation bavaroise de 1516 souvent appelée loi de pureté de la bière. Elle doit être comprise dans son contexte économique, agricole et juridique, pas comme une recette universelle.",
+                sourceIds: ["wired-reinheitsgebot-2010", "hornsey-2003"],
+              },
+              {
+                id: "glossary-reinheitsgebot",
+                type: "glossaryReference",
+                termSlug: "reinheitsgebot",
+                label: "Reinheitsgebot",
+                sourceIds: ["wired-reinheitsgebot-2010"],
+              },
+            ],
+          },
+          {
+            id: "science-industrie",
+            title: "Science et industrie",
+            blocks: [
+              {
+                id: "science-industrie-paragraph-1",
+                type: "paragraph",
+                text: "La bière moderne devient beaucoup plus répétable quand les brasseurs disposent d'outils de mesure, de contrôle thermique et de connaissances microbiologiques. Le thermomètre, le densimètre, les travaux sur la levure, la réfrigération et la pasteurisation déplacent le brassage d'un savoir empirique vers un process contrôlable.",
+                sourceIds: [],
+              },
+              {
+                id: "science-industrie-paragraph-2",
+                type: "paragraph",
+                text: "La lager illustre ce tournant. Elle n'est pas seulement une famille de styles : elle dépend aussi d'une fermentation plus froide, d'une maturation longue, d'une maîtrise de la levure et, plus tard, de capacités industrielles de froid. Ce que l'on appelle aujourd'hui une bière propre, claire et stable est donc très lié à l'histoire technique.",
+                sourceIds: [],
+              },
+              {
+                id: "glossary-lager",
+                type: "glossaryReference",
+                termSlug: "lager",
+                label: "Lager",
+                sourceIds: ["hornsey-2003", "bjcp-2021"],
+              },
+              {
+                id: "related-levures",
+                type: "relatedArticle",
+                articleSlug: "levures",
+                sectionId: "fermentation",
+                sourceIds: ["hornsey-2003"],
+              },
+            ],
+          },
+          {
+            id: "renouveau-artisanal",
+            title: "Renouveau artisanal",
+            blocks: [
+              {
+                id: "renouveau-artisanal-paragraph-1",
+                type: "paragraph",
+                text: "Le renouveau artisanal ne revient pas simplement au passé. Il réouvre plutôt le champ des possibles : styles oubliés, houblonnage expressif, levures spécialisées, malts plus typés, fermentation mixte, bières locales et recettes expérimentales. Les guides de styles modernes aident à nommer ces familles, mais ils ne doivent pas être lus comme des frontières immuables.",
+                sourceIds: [],
+              },
+              {
+                id: "renouveau-artisanal-paragraph-2",
+                type: "paragraph",
+                text: "Pour le brasseur amateur, c'est une liberté utile. On peut brasser une bière historiquement inspirée sans prétendre reproduire exactement une boisson ancienne. La bonne question devient : quel élément historique veut-on explorer, et quel contrôle moderne veut-on garder pour obtenir une bière stable et bonne ?",
+                sourceIds: [],
+              },
+              {
+                id: "related-fermentescibles",
+                type: "relatedArticle",
+                articleSlug: "fermentescibles",
+                sectionId: "role-du-malt",
+                sourceIds: ["hornsey-2003"],
+              },
+            ],
+          },
+          {
+            id: "retenir-brasser",
+            title: "À retenir pour brasser",
+            blocks: [
+              {
+                id: "retenir-brasser-paragraph-1",
+                type: "paragraph",
+                text: "Premier repère : la bière est ancienne, mais la bière moderne est récente. Les outils de mesure, l'hygiène, la levure sélectionnée, le froid et les styles codifiés changent profondément ce qu'un brasseur peut prévoir.",
+                sourceIds: [],
+              },
+              {
+                id: "retenir-brasser-paragraph-2",
+                type: "paragraph",
+                text: "Deuxième repère : les ingrédients sont historiques. Le malt, les plantes aromatiques, le houblon, l'eau et la levure n'ont pas toujours eu le même rôle. Comprendre cette évolution aide à lire une recette comme une série de choix, et pas comme une vérité fixe.",
+                sourceIds: [],
+              },
+              {
+                id: "retenir-brasser-paragraph-3",
+                type: "paragraph",
+                text: "Troisième repère : l'histoire donne de la nuance. Elle permet de respecter les styles sans les figer, de s'inspirer du passé sans l'idéaliser, et de garder le but principal d'un brassin moderne : produire une bière maîtrisée, cohérente et agréable à boire.",
+                sourceIds: [],
+              },
+              {
+                id: "related-introduction",
+                type: "relatedArticle",
+                articleSlug: "introduction",
+                sectionId: "pourquoi-commencer",
+                sourceIds: ["hornsey-2003"],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       slug: "introduction",
       metadata: {
         title: "Introduction au brassage",
@@ -1946,9 +2319,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "IBU",
       aliases: ["International Bitterness Units"],
       shortDefinition:
-        "Estimation de l'amertume utilisee dans les recettes de biere.",
+        "Estimation de l'amertume utilisée dans les recettes de bière.",
       detailedDefinition:
-        "L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.",
+        "L'IBU estime la concentration de composés amers apportés principalement par le houblon après ébullition.",
       relatedTerms: ["acide-alpha", "houblon"],
       sources: [
         {
@@ -1969,9 +2342,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Houblon",
       aliases: ["hops"],
       shortDefinition:
-        "Fleur utilisee en brassage pour apporter amertume, aromes et stabilite.",
+        "Fleur utilisée en brassage pour apporter amertume, arômes et stabilité.",
       detailedDefinition:
-        "Le houblon apporte des composes amers, des huiles aromatiques et des polyphenols. Son effet depend de la variete, de la quantite et du moment d'ajout.",
+        "Le houblon apporte des composés amers, des huiles aromatiques et des polyphénols. Son effet dépend de la variété, de la quantité et du moment d'ajout.",
       relatedTerms: ["ibu", "acide-alpha"],
       sources: [
         {
@@ -1992,9 +2365,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Acide alpha",
       aliases: ["alpha acid"],
       shortDefinition:
-        "Compose du houblon qui contribue au potentiel d'amertume.",
+        "Composé du houblon qui contribue au potentiel d'amertume.",
       detailedDefinition:
-        "Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.",
+        "Les acides alpha sont des composés du houblon qui s'isomérisent pendant l'ébullition et participent à l'amertume.",
       relatedTerms: ["ibu", "houblon"],
       sources: [
         {
@@ -2015,9 +2388,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Malt",
       aliases: ["malted grain"],
       shortDefinition:
-        "Cereale germee puis sechee qui fournit amidon, enzymes, couleur et aromes.",
+        "Céréale germée puis séchée qui fournit amidon, enzymes, couleur et arômes.",
       detailedDefinition:
-        "Le malt est la base fermentescible de nombreuses bieres. Pendant l'empatage, ses enzymes transforment l'amidon en sucres utilisables par la levure.",
+        "Le malt est la base fermentescible de nombreuses bières. Pendant l'empâtage, ses enzymes transforment l'amidon en sucres utilisables par la levure.",
       relatedTerms: ["empatage", "mout", "ebc"],
       sources: [
         {
@@ -2038,9 +2411,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Moût",
       aliases: ["wort"],
       shortDefinition:
-        "Liquide sucre obtenu apres empatage et filtration, avant fermentation.",
+        "Liquide sucré obtenu après empâtage et filtration, avant fermentation.",
       detailedDefinition:
-        "Le mout contient les sucres, proteines, mineraux et composes aromatiques extraits des malts. Il devient biere apres fermentation par la levure.",
+        "Le moût contient les sucres, protéines, minéraux et composés aromatiques extraits des malts. Il devient bière après fermentation par la levure.",
       relatedTerms: ["malt", "densite-initiale", "fermentation"],
       sources: [
         {
@@ -2061,9 +2434,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Empâtage",
       aliases: ["mash", "mashing"],
       shortDefinition:
-        "Etape ou les grains concasses sont melanges a l'eau chaude pour convertir l'amidon en sucres.",
+        "Étape où les grains concassés sont mélangés à l'eau chaude pour convertir l'amidon en sucres.",
       detailedDefinition:
-        "L'empatage active les enzymes du malt dans une plage de temperature et de pH controlee. Il influence fermentescibilite, corps, rendement et profil final.",
+        "L'empâtage active les enzymes du malt dans une plage de température et de pH contrôlée. Il influence fermentescibilité, corps, rendement et profil final.",
       relatedTerms: ["malt", "mout", "ph"],
       sources: [
         {
@@ -2083,9 +2456,9 @@ export const academyCorpus: AcademyCorpus = {
       slug: "densite-initiale",
       label: "Densité initiale",
       aliases: ["OG", "Original Gravity"],
-      shortDefinition: "Densite du mout avant fermentation.",
+      shortDefinition: "Densité du moût avant fermentation.",
       detailedDefinition:
-        "La densite initiale estime la quantite de sucres disponibles avant fermentation. Elle sert a estimer le potentiel alcool et a comparer la recette au resultat attendu.",
+        "La densité initiale estime la quantité de sucres disponibles avant fermentation. Elle sert à estimer le potentiel alcool et à comparer la recette au résultat attendu.",
       relatedTerms: ["mout", "densite-finale", "attenuation"],
       sources: [
         {
@@ -2106,9 +2479,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Densité finale",
       aliases: ["FG", "Final Gravity"],
       shortDefinition:
-        "Densite mesuree lorsque la fermentation est terminee ou stabilisee.",
+        "Densité mesurée lorsque la fermentation est terminée ou stabilisée.",
       detailedDefinition:
-        "La densite finale indique les sucres et composes restants apres fermentation. Combinee a la densite initiale, elle permet d'estimer attenuation et alcool.",
+        "La densité finale indique les sucres et composés restants après fermentation. Combinée à la densité initiale, elle permet d'estimer atténuation et alcool.",
       relatedTerms: ["densite-initiale", "attenuation", "fermentation"],
       sources: [
         {
@@ -2127,11 +2500,11 @@ export const academyCorpus: AcademyCorpus = {
     {
       slug: "attenuation",
       label: "Atténuation",
-      aliases: ["attenuation apparente"],
+      aliases: ["atténuation apparente"],
       shortDefinition:
-        "Baisse relative de densite entre le debut et la fin de fermentation.",
+        "Baisse relative de densité entre le début et la fin de fermentation.",
       detailedDefinition:
-        "L'attenuation apparente estime la part des sucres consommee par la levure. Elle depend de la souche, du mout, de l'empatage et des conditions de fermentation.",
+        "L'atténuation apparente estime la part des sucres consommée par la levure. Elle dépend de la souche, du moût, de l'empâtage et des conditions de fermentation.",
       relatedTerms: ["densite-initiale", "densite-finale", "fermentation"],
       sources: [
         {
@@ -2152,9 +2525,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Fermentation",
       aliases: ["primary fermentation"],
       shortDefinition:
-        "Transformation des sucres du mout en alcool, CO2 et composes aromatiques par la levure.",
+        "Transformation des sucres du moût en alcool, CO2 et composés aromatiques par la levure.",
       detailedDefinition:
-        "La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Temperature, levure, oxygene initial et nutriments influencent fortement le resultat.",
+        "La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Température, levure, oxygène initial et nutriments influencent fortement le résultat.",
       relatedTerms: ["mout", "attenuation", "densite-finale"],
       sources: [
         {
@@ -2175,9 +2548,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "SRM",
       aliases: ["Standard Reference Method"],
       shortDefinition:
-        "Echelle americaine de mesure de la couleur de la biere.",
+        "Échelle américaine de mesure de la couleur de la bière.",
       detailedDefinition:
-        "Le SRM exprime la couleur finale de la biere selon une methode standardisee. En brassage amateur, il est souvent estime depuis la charge de malts avec des formules comme Morey.",
+        "Le SRM exprime la couleur finale de la bière selon une méthode standardisée. En brassage amateur, il est souvent estimé depuis la charge de malts avec des formules comme Morey.",
       relatedTerms: ["ebc", "malt"],
       sources: [
         {
@@ -2198,9 +2571,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "EBC",
       aliases: ["European Brewery Convention"],
       shortDefinition:
-        "Echelle europeenne de mesure de la couleur de la biere et des malts.",
+        "Échelle européenne de mesure de la couleur de la bière et des malts.",
       detailedDefinition:
-        "L'EBC est utilisee en Europe pour exprimer la couleur. Pour la biere finale, une approximation courante est EBC environ egal a SRM multiplie par 1,97.",
+        "L'EBC est utilisée en Europe pour exprimer la couleur. Pour la bière finale, une approximation courante est EBC environ égal à SRM multiplié par 1,97.",
       relatedTerms: ["srm", "malt"],
       sources: [
         {
@@ -2222,7 +2595,7 @@ export const academyCorpus: AcademyCorpus = {
       aliases: ["water profile"],
       shortDefinition: "Composition minérale de l'eau de brassage.",
       detailedDefinition:
-        "Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.",
+        "Le profil minéral résume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnésium et bicarbonates.",
       relatedTerms: ["calcium", "sulfate", "chlorure", "ph"],
       sources: [
         {
@@ -2241,10 +2614,10 @@ export const academyCorpus: AcademyCorpus = {
     {
       slug: "ph",
       label: "pH",
-      aliases: ["potentiel hydrogene"],
-      shortDefinition: "Mesure de l'acidite ou de la basicite d'un liquide.",
+      aliases: ["potentiel hydrogène"],
+      shortDefinition: "Mesure de l'acidité ou de la basicité d'un liquide.",
       detailedDefinition:
-        "En brassage, le pH influence l'activite enzymatique, l'extraction, la fermentation et la stabilite sensorielle. Le pH d'empatage est un repere important pour la precision du process.",
+        "En brassage, le pH influence l'activité enzymatique, l'extraction, la fermentation et la stabilité sensorielle. Le pH d'empâtage est un repère important pour la précision du process.",
       relatedTerms: ["empatage", "profil-mineral", "calcium"],
       sources: [
         {
@@ -2267,7 +2640,7 @@ export const academyCorpus: AcademyCorpus = {
       shortDefinition:
         "Ion majeur de l'eau de brassage qui aide le pH, la clarification et la fermentation.",
       detailedDefinition:
-        "Le calcium contribue a abaisser le pH d'empatage, soutient certaines reactions enzymatiques et favorise la floculation. Il est souvent ajuste avec gypse ou chlorure de calcium.",
+        "Le calcium contribue à abaisser le pH d'empâtage, soutient certaines réactions enzymatiques et favorise la floculation. Il est souvent ajusté avec gypse ou chlorure de calcium.",
       relatedTerms: ["profil-mineral", "sulfate", "chlorure", "ph"],
       sources: [
         {
@@ -2288,9 +2661,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Sulfate",
       aliases: ["SO4", "SO4 2-"],
       shortDefinition:
-        "Ion de l'eau qui accentue souvent la secheresse et la perception de l'amertume.",
+        "Ion de l'eau qui accentue souvent la sécheresse et la perception de l'amertume.",
       detailedDefinition:
-        "Les sulfates peuvent renforcer une impression plus seche et plus nette, notamment dans les bieres houblonnees. Leur effet doit etre evalue avec les chlorures et les valeurs absolues.",
+        "Les sulfates peuvent renforcer une impression plus sèche et plus nette, notamment dans les bières houblonnées. Leur effet doit être évalué avec les chlorures et les valeurs absolues.",
       relatedTerms: ["profil-mineral", "calcium", "chlorure", "ibu"],
       sources: [
         {
@@ -2311,9 +2684,9 @@ export const academyCorpus: AcademyCorpus = {
       label: "Chlorure",
       aliases: ["chloride", "Cl"],
       shortDefinition:
-        "Ion de l'eau qui soutient souvent la rondeur et l'expression maltee.",
+        "Ion de l'eau qui soutient souvent la rondeur et l'expression maltée.",
       detailedDefinition:
-        "Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester equilibres avec les sulfates et les concentrations totales.",
+        "Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester équilibrés avec les sulfates et les concentrations totales.",
       relatedTerms: ["profil-mineral", "calcium", "sulfate", "malt"],
       sources: [
         {
@@ -2326,6 +2699,161 @@ export const academyCorpus: AcademyCorpus = {
           accessedAt: "2026-07-03",
           year: null,
           notes: "Practical brewing water chemistry reference.",
+        },
+      ],
+    },
+    {
+      slug: "cervoise",
+      label: "Cervoise",
+      aliases: ["ale ancienne"],
+      shortDefinition:
+        "Boisson fermentée à base de céréales, souvent citée pour les bières européennes non houblonnées ou peu houblonnées.",
+      detailedDefinition:
+        "La cervoise désigne largement des boissons céréalières fermentées avant la domination du houblon comme marqueur de la bière européenne. Le terme aide à distinguer des pratiques anciennes de la bière moderne standardisée.",
+      relatedTerms: ["gruit", "houblon", "fermentation"],
+      sources: [
+        {
+          id: "hornsey-2003",
+          kind: "book",
+          title: "A History of Beer and Brewing",
+          authors: ["Ian S. Hornsey"],
+          publisher: "Royal Society of Chemistry",
+          url: null,
+          accessedAt: null,
+          year: 2003,
+          notes:
+            "General reference for historical brewing development, ingredients, and industrialization.",
+        },
+      ],
+    },
+    {
+      slug: "gruit",
+      label: "Gruit",
+      aliases: ["grut", "mélange d'herbes"],
+      shortDefinition:
+        "Mélange de plantes aromatiques utilisé avant ou à côté du houblon pour parfumer et équilibrer certaines bières.",
+      detailedDefinition:
+        "Le gruit regroupe des plantes dont la composition variait selon les régions, les droits de production et les usages locaux. Il rappelle que l'amertume et l'aromatique de la bière n'ont pas toujours été dominées par le houblon.",
+      relatedTerms: ["cervoise", "houblon", "fermentation"],
+      sources: [
+        {
+          id: "hornsey-2003",
+          kind: "book",
+          title: "A History of Beer and Brewing",
+          authors: ["Ian S. Hornsey"],
+          publisher: "Royal Society of Chemistry",
+          url: null,
+          accessedAt: null,
+          year: 2003,
+          notes:
+            "General reference for historical brewing development, ingredients, and industrialization.",
+        },
+      ],
+    },
+    {
+      slug: "bappir",
+      label: "Bappir",
+      aliases: ["pain de bière"],
+      shortDefinition:
+        "Préparation céréalière mésopotamienne associée aux descriptions anciennes du brassage.",
+      detailedDefinition:
+        "Le bappir est souvent décrit comme un pain ou une préparation de céréales utilisée dans l'imaginaire et les reconstructions du brassage mésopotamien. Il sert de repère pour comprendre que les procédés anciens ne ressemblent pas toujours à l'empâtage moderne.",
+      relatedTerms: ["malt", "mout", "fermentation"],
+      sources: [
+        {
+          id: "etcsl-ninkasi",
+          kind: "website",
+          title: "A hymn to Ninkasi",
+          authors: ["The Electronic Text Corpus of Sumerian Literature"],
+          publisher: "University of Oxford",
+          url: "https://etcsl.orinst.ox.ac.uk/cgi-bin/etcsl.cgi?text=t.4.23.1",
+          accessedAt: "2026-07-13",
+          year: 2006,
+          notes:
+            "Sumerian literary source used as a textual anchor for ancient brewing vocabulary and process imagery.",
+        },
+        {
+          id: "hornsey-2003",
+          kind: "book",
+          title: "A History of Beer and Brewing",
+          authors: ["Ian S. Hornsey"],
+          publisher: "Royal Society of Chemistry",
+          url: null,
+          accessedAt: null,
+          year: 2003,
+          notes:
+            "General reference for historical brewing development, ingredients, and industrialization.",
+        },
+      ],
+    },
+    {
+      slug: "reinheitsgebot",
+      label: "Reinheitsgebot",
+      aliases: ["loi de pureté", "règlement bavarois de 1516"],
+      shortDefinition:
+        "Réglementation bavaroise de 1516 souvent associée à la composition de la bière.",
+      detailedDefinition:
+        "Le Reinheitsgebot est fréquemment présenté comme une loi de pureté, mais il faut le replacer dans un contexte de prix, de céréales disponibles, de fiscalité et de contrôle du marché. Il ne doit pas être lu comme une recette universelle de la bière.",
+      relatedTerms: ["malt", "houblon", "lager"],
+      sources: [
+        {
+          id: "wired-reinheitsgebot-2010",
+          kind: "article",
+          title: "April 23, 1516: Bavaria Cracks Down on Beer Brewers",
+          authors: ["Betsy Mason"],
+          publisher: "WIRED",
+          url: "https://www.wired.com/2010/04/0423deutsche-reinheitsgebot-german-beer-purity-law/",
+          accessedAt: "2026-07-13",
+          year: 2010,
+          notes:
+            "Contextual article on the 1516 Bavarian beer regulation and later purity-law framing.",
+        },
+        {
+          id: "hornsey-2003",
+          kind: "book",
+          title: "A History of Beer and Brewing",
+          authors: ["Ian S. Hornsey"],
+          publisher: "Royal Society of Chemistry",
+          url: null,
+          accessedAt: null,
+          year: 2003,
+          notes:
+            "General reference for historical brewing development, ingredients, and industrialization.",
+        },
+      ],
+    },
+    {
+      slug: "lager",
+      label: "Lager",
+      aliases: ["bière de fermentation basse"],
+      shortDefinition:
+        "Famille de bières associée à une fermentation plus froide et à une maturation prolongée.",
+      detailedDefinition:
+        "Les lagers reposent sur une fermentation et une garde plus froides que les ales classiques. Leur essor historique est lié à la maîtrise de la levure, du froid, de la maturation et de la stabilité technique.",
+      relatedTerms: ["fermentation", "malt", "reinheitsgebot"],
+      sources: [
+        {
+          id: "hornsey-2003",
+          kind: "book",
+          title: "A History of Beer and Brewing",
+          authors: ["Ian S. Hornsey"],
+          publisher: "Royal Society of Chemistry",
+          url: null,
+          accessedAt: null,
+          year: 2003,
+          notes:
+            "General reference for historical brewing development, ingredients, and industrialization.",
+        },
+        {
+          id: "bjcp-2021",
+          kind: "standard",
+          title: "BJCP Beer Style Guidelines",
+          authors: ["Beer Judge Certification Program"],
+          publisher: "BJCP",
+          url: "https://www.bjcp.org/bjcp-style-guidelines/",
+          accessedAt: "2026-07-03",
+          year: 2021,
+          notes: "Style and sensory reference.",
         },
       ],
     },
@@ -2363,6 +2891,62 @@ export const academyCorpus: AcademyCorpus = {
       accessedAt: "2026-07-03",
       year: null,
       notes: "Practical brewing water chemistry reference.",
+    },
+    {
+      id: "liu-raqefet-2018",
+      kind: "article",
+      title:
+        "Fermented beverage and food storage in 13,000 y-old stone mortars at Raqefet Cave, Israel: Investigating Natufian ritual feasting",
+      authors: [
+        "Li Liu",
+        "Jiajing Wang",
+        "Danny Rosenberg",
+        "Hao Zhao",
+        "György Lengyel",
+        "Dani Nadel",
+      ],
+      publisher: "Journal of Archaeological Science: Reports",
+      url: "https://www.sciencedirect.com/science/article/pii/S2352409X18303468",
+      accessedAt: "2026-07-13",
+      year: 2018,
+      notes:
+        "Archaeological evidence for early cereal-based fermented beverage residues at Raqefet Cave.",
+    },
+    {
+      id: "etcsl-ninkasi",
+      kind: "website",
+      title: "A hymn to Ninkasi",
+      authors: ["The Electronic Text Corpus of Sumerian Literature"],
+      publisher: "University of Oxford",
+      url: "https://etcsl.orinst.ox.ac.uk/cgi-bin/etcsl.cgi?text=t.4.23.1",
+      accessedAt: "2026-07-13",
+      year: 2006,
+      notes:
+        "Sumerian literary source used as a textual anchor for ancient brewing vocabulary and process imagery.",
+    },
+    {
+      id: "hornsey-2003",
+      kind: "book",
+      title: "A History of Beer and Brewing",
+      authors: ["Ian S. Hornsey"],
+      publisher: "Royal Society of Chemistry",
+      url: null,
+      accessedAt: null,
+      year: 2003,
+      notes:
+        "General reference for historical brewing development, ingredients, and industrialization.",
+    },
+    {
+      id: "wired-reinheitsgebot-2010",
+      kind: "article",
+      title: "April 23, 1516: Bavaria Cracks Down on Beer Brewers",
+      authors: ["Betsy Mason"],
+      publisher: "WIRED",
+      url: "https://www.wired.com/2010/04/0423deutsche-reinheitsgebot-german-beer-purity-law/",
+      accessedAt: "2026-07-13",
+      year: 2010,
+      notes:
+        "Contextual article on the 1516 Bavarian beer regulation and later purity-law framing.",
     },
   ],
   calculatorSlugs: [

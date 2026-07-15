@@ -15,6 +15,8 @@ export function formatAcademyCategoryLabel(category: AcademyCategory): string {
   switch (category) {
     case "getting-started":
       return "Premiers pas";
+    case "history":
+      return "Histoire";
     case "ingredients":
       return "Ingrédients";
     case "process":

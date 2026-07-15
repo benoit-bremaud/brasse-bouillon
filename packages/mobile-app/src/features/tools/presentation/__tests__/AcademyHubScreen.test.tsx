@@ -35,14 +35,14 @@ describe("AcademyHubScreen", () => {
 
     expect(screen.getByText("Académie brassicole")).toBeTruthy();
     expect(screen.getByText("Référence brassicole structurée")).toBeTruthy();
-    expect(screen.getByText("10 ARTICLES")).toBeTruthy();
+    expect(screen.getByText("11 ARTICLES")).toBeTruthy();
     expect(screen.getByText("8 CALCULATEURS")).toBeTruthy();
     expect(screen.getByText("Histoire de la bière")).toBeTruthy();
     expect(screen.queryByText("Bientôt")).toBeNull();
     expect(screen.queryByText("Prêt")).toBeNull();
   });
 
-  it("opens coming-soon topic details when pressing its card", () => {
+  it("opens history topic details when pressing its card", () => {
     render(<AcademyHubScreen />);
 
     fireEvent.press(
@@ -58,7 +58,10 @@ describe("AcademyHubScreen", () => {
   it("filters academy cards from the local search field", () => {
     render(<AcademyHubScreen />);
 
-    fireEvent.changeText(screen.getByTestId("academy-search-input"), "houblon");
+    fireEvent.changeText(
+      screen.getByTestId("academy-search-input"),
+      "amertume",
+    );
 
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.queryByText("Histoire de la bière")).toBeNull();

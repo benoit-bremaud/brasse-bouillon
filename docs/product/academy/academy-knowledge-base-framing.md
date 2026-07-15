@@ -203,6 +203,7 @@ related app features act as secondary dimensions.
 Recommended category backbone:
 
 - Getting started.
+- History.
 - Ingredients.
 - Process.
 - Fermentation.

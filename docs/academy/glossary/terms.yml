@@ -2,8 +2,8 @@
   label: IBU
   aliases:
     - International Bitterness Units
-  short_definition: Estimation de l'amertume utilisee dans les recettes de biere.
-  detailed_definition: L'IBU estime la concentration de composes amers apportes principalement par le houblon apres ebullition.
+  short_definition: Estimation de l'amertume utilisée dans les recettes de bière.
+  detailed_definition: L'IBU estime la concentration de composés amers apportés principalement par le houblon après ébullition.
   related_terms:
     - acide-alpha
     - houblon
@@ -14,8 +14,8 @@
   label: Houblon
   aliases:
     - hops
-  short_definition: Fleur utilisee en brassage pour apporter amertume, aromes et stabilite.
-  detailed_definition: Le houblon apporte des composes amers, des huiles aromatiques et des polyphenols. Son effet depend de la variete, de la quantite et du moment d'ajout.
+  short_definition: Fleur utilisée en brassage pour apporter amertume, arômes et stabilité.
+  detailed_definition: Le houblon apporte des composés amers, des huiles aromatiques et des polyphénols. Son effet dépend de la variété, de la quantité et du moment d'ajout.
   related_terms:
     - ibu
     - acide-alpha
@@ -26,8 +26,8 @@
   label: Acide alpha
   aliases:
     - alpha acid
-  short_definition: Compose du houblon qui contribue au potentiel d'amertume.
-  detailed_definition: Les acides alpha sont des composes du houblon qui s'isomerisent pendant l'ebullition et participent a l'amertume.
+  short_definition: Composé du houblon qui contribue au potentiel d'amertume.
+  detailed_definition: Les acides alpha sont des composés du houblon qui s'isomérisent pendant l'ébullition et participent à l'amertume.
   related_terms:
     - ibu
     - houblon
@@ -38,8 +38,8 @@
   label: Malt
   aliases:
     - malted grain
-  short_definition: Cereale germee puis sechee qui fournit amidon, enzymes, couleur et aromes.
-  detailed_definition: Le malt est la base fermentescible de nombreuses bieres. Pendant l'empatage, ses enzymes transforment l'amidon en sucres utilisables par la levure.
+  short_definition: Céréale germée puis séchée qui fournit amidon, enzymes, couleur et arômes.
+  detailed_definition: Le malt est la base fermentescible de nombreuses bières. Pendant l'empâtage, ses enzymes transforment l'amidon en sucres utilisables par la levure.
   related_terms:
     - empatage
     - mout
@@ -51,8 +51,8 @@
   label: Moût
   aliases:
     - wort
-  short_definition: Liquide sucre obtenu apres empatage et filtration, avant fermentation.
-  detailed_definition: Le mout contient les sucres, proteines, mineraux et composes aromatiques extraits des malts. Il devient biere apres fermentation par la levure.
+  short_definition: Liquide sucré obtenu après empâtage et filtration, avant fermentation.
+  detailed_definition: Le moût contient les sucres, protéines, minéraux et composés aromatiques extraits des malts. Il devient bière après fermentation par la levure.
   related_terms:
     - malt
     - densite-initiale
@@ -65,8 +65,8 @@
   aliases:
     - mash
     - mashing
-  short_definition: Etape ou les grains concasses sont melanges a l'eau chaude pour convertir l'amidon en sucres.
-  detailed_definition: L'empatage active les enzymes du malt dans une plage de temperature et de pH controlee. Il influence fermentescibilite, corps, rendement et profil final.
+  short_definition: Étape où les grains concassés sont mélangés à l'eau chaude pour convertir l'amidon en sucres.
+  detailed_definition: L'empâtage active les enzymes du malt dans une plage de température et de pH contrôlée. Il influence fermentescibilité, corps, rendement et profil final.
   related_terms:
     - malt
     - mout
@@ -79,8 +79,8 @@
   aliases:
     - OG
     - Original Gravity
-  short_definition: Densite du mout avant fermentation.
-  detailed_definition: La densite initiale estime la quantite de sucres disponibles avant fermentation. Elle sert a estimer le potentiel alcool et a comparer la recette au resultat attendu.
+  short_definition: Densité du moût avant fermentation.
+  detailed_definition: La densité initiale estime la quantité de sucres disponibles avant fermentation. Elle sert à estimer le potentiel alcool et à comparer la recette au résultat attendu.
   related_terms:
     - mout
     - densite-finale
@@ -93,8 +93,8 @@
   aliases:
     - FG
     - Final Gravity
-  short_definition: Densite mesuree lorsque la fermentation est terminee ou stabilisee.
-  detailed_definition: La densite finale indique les sucres et composes restants apres fermentation. Combinee a la densite initiale, elle permet d'estimer attenuation et alcool.
+  short_definition: Densité mesurée lorsque la fermentation est terminée ou stabilisée.
+  detailed_definition: La densité finale indique les sucres et composés restants après fermentation. Combinée à la densité initiale, elle permet d'estimer atténuation et alcool.
   related_terms:
     - densite-initiale
     - attenuation
@@ -105,9 +105,9 @@
 - slug: attenuation
   label: Atténuation
   aliases:
-    - attenuation apparente
-  short_definition: Baisse relative de densite entre le debut et la fin de fermentation.
-  detailed_definition: L'attenuation apparente estime la part des sucres consommee par la levure. Elle depend de la souche, du mout, de l'empatage et des conditions de fermentation.
+    - atténuation apparente
+  short_definition: Baisse relative de densité entre le début et la fin de fermentation.
+  detailed_definition: L'atténuation apparente estime la part des sucres consommée par la levure. Elle dépend de la souche, du moût, de l'empâtage et des conditions de fermentation.
   related_terms:
     - densite-initiale
     - densite-finale
@@ -119,8 +119,8 @@
   label: Fermentation
   aliases:
     - primary fermentation
-  short_definition: Transformation des sucres du mout en alcool, CO2 et composes aromatiques par la levure.
-  detailed_definition: La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Temperature, levure, oxygene initial et nutriments influencent fortement le resultat.
+  short_definition: Transformation des sucres du moût en alcool, CO2 et composés aromatiques par la levure.
+  detailed_definition: La fermentation convertit les sucres fermentescibles et construit une grande partie du profil final. Température, levure, oxygène initial et nutriments influencent fortement le résultat.
   related_terms:
     - mout
     - attenuation
@@ -132,8 +132,8 @@
   label: SRM
   aliases:
     - Standard Reference Method
-  short_definition: Echelle americaine de mesure de la couleur de la biere.
-  detailed_definition: Le SRM exprime la couleur finale de la biere selon une methode standardisee. En brassage amateur, il est souvent estime depuis la charge de malts avec des formules comme Morey.
+  short_definition: Échelle américaine de mesure de la couleur de la bière.
+  detailed_definition: Le SRM exprime la couleur finale de la bière selon une méthode standardisée. En brassage amateur, il est souvent estimé depuis la charge de malts avec des formules comme Morey.
   related_terms:
     - ebc
     - malt
@@ -144,8 +144,8 @@
   label: EBC
   aliases:
     - European Brewery Convention
-  short_definition: Echelle europeenne de mesure de la couleur de la biere et des malts.
-  detailed_definition: L'EBC est utilisee en Europe pour exprimer la couleur. Pour la biere finale, une approximation courante est EBC environ egal a SRM multiplie par 1,97.
+  short_definition: Échelle européenne de mesure de la couleur de la bière et des malts.
+  detailed_definition: L'EBC est utilisée en Europe pour exprimer la couleur. Pour la bière finale, une approximation courante est EBC environ égal à SRM multiplié par 1,97.
   related_terms:
     - srm
     - malt
@@ -157,7 +157,7 @@
   aliases:
     - water profile
   short_definition: Composition minérale de l'eau de brassage.
-  detailed_definition: Le profil minéral resume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnesium et bicarbonates.
+  detailed_definition: Le profil minéral résume les ions principaux de l'eau, comme calcium, sulfates, chlorures, sodium, magnésium et bicarbonates.
   related_terms:
     - calcium
     - sulfate
@@ -169,9 +169,9 @@
 - slug: ph
   label: pH
   aliases:
-    - potentiel hydrogene
-  short_definition: Mesure de l'acidite ou de la basicite d'un liquide.
-  detailed_definition: En brassage, le pH influence l'activite enzymatique, l'extraction, la fermentation et la stabilite sensorielle. Le pH d'empatage est un repere important pour la precision du process.
+    - potentiel hydrogène
+  short_definition: Mesure de l'acidité ou de la basicité d'un liquide.
+  detailed_definition: En brassage, le pH influence l'activité enzymatique, l'extraction, la fermentation et la stabilité sensorielle. Le pH d'empâtage est un repère important pour la précision du process.
   related_terms:
     - empatage
     - profil-mineral
@@ -185,7 +185,7 @@
     - Ca
     - Ca2+
   short_definition: Ion majeur de l'eau de brassage qui aide le pH, la clarification et la fermentation.
-  detailed_definition: Le calcium contribue a abaisser le pH d'empatage, soutient certaines reactions enzymatiques et favorise la floculation. Il est souvent ajuste avec gypse ou chlorure de calcium.
+  detailed_definition: Le calcium contribue à abaisser le pH d'empâtage, soutient certaines réactions enzymatiques et favorise la floculation. Il est souvent ajusté avec gypse ou chlorure de calcium.
   related_terms:
     - profil-mineral
     - sulfate
@@ -199,8 +199,8 @@
   aliases:
     - SO4
     - SO4 2-
-  short_definition: Ion de l'eau qui accentue souvent la secheresse et la perception de l'amertume.
-  detailed_definition: Les sulfates peuvent renforcer une impression plus seche et plus nette, notamment dans les bieres houblonnees. Leur effet doit etre evalue avec les chlorures et les valeurs absolues.
+  short_definition: Ion de l'eau qui accentue souvent la sécheresse et la perception de l'amertume.
+  detailed_definition: Les sulfates peuvent renforcer une impression plus sèche et plus nette, notamment dans les bières houblonnées. Leur effet doit être évalué avec les chlorures et les valeurs absolues.
   related_terms:
     - profil-mineral
     - calcium
@@ -214,8 +214,8 @@
   aliases:
     - chloride
     - Cl
-  short_definition: Ion de l'eau qui soutient souvent la rondeur et l'expression maltee.
-  detailed_definition: Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester equilibres avec les sulfates et les concentrations totales.
+  short_definition: Ion de l'eau qui soutient souvent la rondeur et l'expression maltée.
+  detailed_definition: Les chlorures peuvent renforcer la perception de corps, de rondeur et de douceur maltée. Ils doivent rester équilibrés avec les sulfates et les concentrations totales.
   related_terms:
     - profil-mineral
     - calcium
@@ -223,3 +223,73 @@
     - malt
   source_ids:
     - brun-water-knowledge
+
+- slug: cervoise
+  label: Cervoise
+  aliases:
+    - ale ancienne
+  short_definition: Boisson fermentée à base de céréales, souvent citée pour les bières européennes non houblonnées ou peu houblonnées.
+  detailed_definition: La cervoise désigne largement des boissons céréalières fermentées avant la domination du houblon comme marqueur de la bière européenne. Le terme aide à distinguer des pratiques anciennes de la bière moderne standardisée.
+  related_terms:
+    - gruit
+    - houblon
+    - fermentation
+  source_ids:
+    - hornsey-2003
+
+- slug: gruit
+  label: Gruit
+  aliases:
+    - grut
+    - mélange d'herbes
+  short_definition: Mélange de plantes aromatiques utilisé avant ou à côté du houblon pour parfumer et équilibrer certaines bières.
+  detailed_definition: Le gruit regroupe des plantes dont la composition variait selon les régions, les droits de production et les usages locaux. Il rappelle que l'amertume et l'aromatique de la bière n'ont pas toujours été dominées par le houblon.
+  related_terms:
+    - cervoise
+    - houblon
+    - fermentation
+  source_ids:
+    - hornsey-2003
+
+- slug: bappir
+  label: Bappir
+  aliases:
+    - pain de bière
+  short_definition: Préparation céréalière mésopotamienne associée aux descriptions anciennes du brassage.
+  detailed_definition: Le bappir est souvent décrit comme un pain ou une préparation de céréales utilisée dans l'imaginaire et les reconstructions du brassage mésopotamien. Il sert de repère pour comprendre que les procédés anciens ne ressemblent pas toujours à l'empâtage moderne.
+  related_terms:
+    - malt
+    - mout
+    - fermentation
+  source_ids:
+    - etcsl-ninkasi
+    - hornsey-2003
+
+- slug: reinheitsgebot
+  label: Reinheitsgebot
+  aliases:
+    - loi de pureté
+    - règlement bavarois de 1516
+  short_definition: Réglementation bavaroise de 1516 souvent associée à la composition de la bière.
+  detailed_definition: Le Reinheitsgebot est fréquemment présenté comme une loi de pureté, mais il faut le replacer dans un contexte de prix, de céréales disponibles, de fiscalité et de contrôle du marché. Il ne doit pas être lu comme une recette universelle de la bière.
+  related_terms:
+    - malt
+    - houblon
+    - lager
+  source_ids:
+    - wired-reinheitsgebot-2010
+    - hornsey-2003
+
+- slug: lager
+  label: Lager
+  aliases:
+    - bière de fermentation basse
+  short_definition: Famille de bières associée à une fermentation plus froide et à une maturation prolongée.
+  detailed_definition: Les lagers reposent sur une fermentation et une garde plus froides que les ales classiques. Leur essor historique est lié à la maîtrise de la levure, du froid, de la maturation et de la stabilité technique.
+  related_terms:
+    - fermentation
+    - malt
+    - reinheitsgebot
+  source_ids:
+    - hornsey-2003
+    - bjcp-2021

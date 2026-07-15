@@ -34,6 +34,7 @@ describe("Academy generated repository", () => {
         (article) => article.slug,
       ),
     ).toEqual([
+      "histoire",
       "introduction",
       "houblons",
       "levures",

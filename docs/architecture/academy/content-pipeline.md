@@ -61,7 +61,7 @@ The target rule is:
 | `carbonatation`   | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create packaging/carbonation article with safety review.                                    |
 | `couleur`         | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create color/SRM/EBC article; keep calculator route in tools.                               |
 | `rendement`       | Topic metadata + calculator bridge | Not migrated                                                      | Medium              | Create process efficiency article; keep calculator route in tools.                          |
-| `histoire`        | Coming-soon topic metadata         | Not migrated                                                      | Low                 | Create cultural/history article after core brewing references.                              |
+| `histoire`        | Topic metadata                     | Published article in `docs/academy/history/histoire.md`           | Done for article V1 | Continue enriching the cultural/history article from generated source.                      |
 | `avances`         | Topic metadata + calculator bridge | Not migrated                                                      | Low                 | Split into several advanced reference articles instead of one broad article if scope grows. |
 | `glossaire`       | Coming-soon topic metadata         | Partial registry in `docs/academy/glossary/terms.yml`             | High                | Replace placeholder with generated glossary browsing/search once enough terms exist.        |
 
@@ -76,7 +76,7 @@ Recommended migration order:
    retrieval.
 5. Calculator-backed references: `fermentescibles`, `carbonatation`, `couleur`,
    `rendement`.
-6. Lower-priority reference expansion: `histoire`, then `avances`.
+6. Lower-priority reference expansion: `avances`.
 
 The migration is complete only when the Academy hub and details screens no
 longer need legacy article descriptions for migrated topics. Legacy calculator

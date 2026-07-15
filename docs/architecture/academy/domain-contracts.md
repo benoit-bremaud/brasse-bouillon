@@ -29,6 +29,7 @@ export type AcademyLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export type AcademyCategory =
   | 'getting-started'
+  | 'history'
   | 'ingredients'
   | 'process'
   | 'fermentation'

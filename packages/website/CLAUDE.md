@@ -42,8 +42,14 @@ packages/website/
   `python3 scripts/build_i18n.py` and commit the regenerated `en.html` in the
   same PR. CI fails on a stale `en.html`, a missing/orphaned catalog key, or a
   FR copy change whose EN translation was not updated (`srcHash` guard).
-- **Legal pages:** hand-maintained `-en.html` twins. Keep them in sync — any FR
-  change requires the EN twin update in the same PR.
+- **Legal pages:** hand-maintained `-en.html` twins (NOT generated). Keep them
+  in sync — any FR change requires the EN twin update in the same PR. This is
+  gate-enforced: each EN twin embeds an `<!-- i18n-src: sha1:… -->` stamp of its
+  FR source; after editing a FR legal page and its EN twin, run
+  `python3 scripts/build_i18n.py --stamp` and commit — a stale stamp fails CI
+  (ADR-0027 D1 clause 5). The stamp hashes the whole FR file, so a sitewide
+  `<head>` sweep (e.g. a cache-bust bump) also needs a `--stamp` re-run — that
+  sweep touches the EN twin in the same PR anyway.
 - **Internal artefacts (commits, PR bodies, comments, docs/, CHANGELOG.md):** English only (memory `feedback_github_artifacts_english_only.md`).
 
 ## Design Tokens

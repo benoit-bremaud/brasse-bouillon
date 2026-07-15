@@ -5,6 +5,8 @@ import {
   normalizeRouteParam,
   type RouteParamValue,
 } from "@/core/navigation/route-params";
+import { getAcademyArticleBySlug } from "@/features/academy/application";
+import { generatedAcademyRepository } from "@/features/academy/data";
 import { AcademyTopicDetailsScreen } from "./AcademyTopicDetailsScreen";
 import { AcademyTopicPlaceholderScreen } from "./AcademyTopicPlaceholderScreen";
 import { AvancesCalculatorScreen } from "./AvancesCalculatorScreen";
@@ -66,6 +68,25 @@ export function AcademyTopicLearnRouteScreen({
 }: {
   slugParam?: RouteParamValue;
 }) {
+  const normalizedSlug = normalizeRouteParam(slugParam);
+  const publishedArticle = normalizedSlug
+    ? getAcademyArticleBySlug(generatedAcademyRepository, normalizedSlug)
+    : null;
+
+  // A published article renders in full at the details route. Redirect the
+  // legacy "learn" deep link there instead of the coming-soon placeholder,
+  // which otherwise leaks for every migrated article (e.g. histoire).
+  if (normalizedSlug && publishedArticle?.metadata.status === "published") {
+    return (
+      <Redirect
+        href={{
+          pathname: "/(app)/academy/[slug]",
+          params: { slug: normalizedSlug },
+        }}
+      />
+    );
+  }
+
   return <AcademyTopicPlaceholderScreen slugParam={slugParam} mode="learn" />;
 }
 

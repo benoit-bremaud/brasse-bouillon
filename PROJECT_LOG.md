@@ -5,6 +5,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-15
+
+### PR #1436 merged (`2721525`) — perf(website): cut sustained animation load (fewer bubbles + pause off-screen loops)
+
+- Branch `perf/website-animation-load` (squash `8290bd4` + `57c4a39`). Fixes the "home gets laggy the longer you stay" report — measured as GPU thermal throttling from continuous compositing, not a memory leak (heap flat). On desktop the home ran ~484 running animations, ~400 of them from rising bubbles (≈200 bubbles × 2 keyframes each).
+- `site.js` `adaptiveBubbleCount`: density `area/6500 → /9000`, floor `70 → 50`, cap `200 → 100` (data-saver `60 → 45`) — the cap is the main lever on big screens (bubbles 199 → 100 at 1440×900).
+- New `setupOffscreenAnimationPausing` (IntersectionObserver, `rootMargin: 200px`): pauses in-place ambient loops whose element leaves the viewport via a `.bb-anim-off` class, resuming on return. Resolves `CSSPseudoElement` targets to their host (pauses the hero's `floatSlow` gradient blobs); pause rule `.bb-anim-off×3` at `(0,3,0)` to outrank later `(0,2,0)` descendant `animation:` selectors. Transiting streams (`bubble-rise`/`bubble-sway`/`emberRise`) excluded per-element (host-veto two-pass). No-op under `prefers-reduced-motion`. Cache-bust `v=20260715`; `en.html` regenerated.
+- Measured (Chrome 1440×900): running animations 484 → ~269 (-44%); hero pseudo blobs + `.hero-mascot .logo` + `.participate .btn-primary` verified paused off-screen; bubbles never wrongly paused.
+- Reviews — pre-push ritual (pr-pre-reviewer + Codex) both caught the same pseudo-element blind spot (Must Have) → fixed + verified; Codex `(0,2,0)` cascade tie → fixed via `(0,3,0)`. Copilot 2 inline (per-element transiting exclusion, stale count comment) fixed in `57c4a39` with inline replies. CI green. Refs #1075.
+
 ## 2026-07-13
 
 ### PR #1433 merged (`1e2f143`) — fix(faq-bot): [CONTACT] placeholder → real sign-up link

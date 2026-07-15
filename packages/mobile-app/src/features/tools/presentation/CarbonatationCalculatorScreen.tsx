@@ -18,6 +18,7 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 
@@ -86,6 +87,7 @@ export function CarbonatationCalculatorScreen() {
       <ListHeader
         title="🍾 Calculs Carbonatation"
         subtitle="Priming · CO₂ résiduel · Pression fût"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>

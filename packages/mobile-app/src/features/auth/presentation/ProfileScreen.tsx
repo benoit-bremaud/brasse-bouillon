@@ -1,5 +1,5 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -9,8 +9,11 @@ import {
   View,
 } from "react-native";
 
+import { useFocusEffect, useRouter } from "expo-router";
+
 import { AboutFooter } from "@/core/ui/AboutFooter";
 import { useAuth } from "@/core/auth/auth-context";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
@@ -18,6 +21,18 @@ import { Ionicons } from "@expo/vector-icons";
 
 export function ProfileScreen() {
   const { session, refreshProfile, logout, isLoading } = useAuth();
+  const router = useRouter();
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  // Re-derive on focus: expo-router's `useRouter()` is a non-reactive
+  // singleton and this tab screen stays mounted, so a bare render-time read
+  // would keep the control hidden if Profile is first opened as a footer tab
+  // (no history) and later reached via a push (history now exists).
+  useFocusEffect(
+    useCallback(() => {
+      setCanGoBack(router.canGoBack());
+    }, [router]),
+  );
   const [localError, setLocalError] = useState<string | null>(null);
   const [localInfo, setLocalInfo] = useState<string | null>(null);
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
@@ -64,6 +79,11 @@ export function ProfileScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
+        {canGoBack ? (
+          <View style={styles.backRow}>
+            <BackHeaderAction fallback="/(app)/dashboard" />
+          </View>
+        ) : null}
         <Card style={styles.headerCard}>
           <View style={styles.avatar}>
             <Ionicons
@@ -197,6 +217,9 @@ const styles = StyleSheet.create({
   content: {
     gap: spacing.sm,
     paddingBottom: spacing.lg,
+  },
+  backRow: {
+    alignItems: "flex-start",
   },
   headerCard: {
     alignItems: "center",

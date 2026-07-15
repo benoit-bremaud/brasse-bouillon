@@ -21,6 +21,7 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import type { IonRange } from "@/features/tools/domain/water-profiles";
@@ -393,6 +394,7 @@ export function EauCalculatorScreen() {
       <ListHeader
         title="Le Puits 💧"
         subtitle="Calculs eau de brassage · profil ionique et alkalinité résiduelle"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       {/* Tabs */}

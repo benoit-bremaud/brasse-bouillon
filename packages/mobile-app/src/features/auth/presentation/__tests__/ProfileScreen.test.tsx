@@ -10,10 +10,38 @@ import React from "react";
 
 const mockRefreshProfile = jest.fn();
 const mockLogout = jest.fn();
+const mockCanGoBack = jest.fn(() => false);
+const mockBack = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
 }));
+
+// Local expo-router mock: the global one (jest.setup) omits `canGoBack`,
+// which ProfileScreen now calls at render to decide whether to show the
+// back control. Mirror the global shape and route back/replace to spies.
+jest.mock("expo-router", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const react = require("react");
+  return {
+    useRouter: () => ({
+      push: jest.fn(),
+      replace: mockReplace,
+      back: mockBack,
+      canGoBack: mockCanGoBack,
+    }),
+    // Run the focus callback via an effect so ProfileScreen re-derives
+    // `canGoBack` on (re)focus, mirroring expo-router's real behavior.
+    useFocusEffect: (callback: () => void | (() => void)) =>
+      react.useEffect(callback, [callback]),
+    useLocalSearchParams: () => ({}),
+    usePathname: () => "/",
+    Redirect: () => null,
+    Stack: ({ children }: { children: React.ReactNode }) => children,
+    Tabs: ({ children }: { children: React.ReactNode }) => children,
+  };
+});
 
 jest.mock("@/core/auth/auth-context", () => ({
   useAuth: () => ({
@@ -40,6 +68,10 @@ describe("ProfileScreen", () => {
   beforeEach(() => {
     mockRefreshProfile.mockReset();
     mockLogout.mockReset();
+    mockCanGoBack.mockReset();
+    mockCanGoBack.mockReturnValue(false);
+    mockBack.mockReset();
+    mockReplace.mockReset();
   });
 
   it("renders profile information", () => {
@@ -120,5 +152,41 @@ describe("ProfileScreen", () => {
     await waitFor(() => {
       expect(mockLogout).toHaveBeenCalledTimes(1);
     });
+  });
+
+  // Issue back-buttons — Profil is reachable both as a footer destination
+  // (no history) and pushed from the dashboard (has history). The back
+  // control must appear only in the pushed case, so a footer-reached tab
+  // root stays consistent with the other roots (no stray back button).
+  it("shows a back control when reached as a pushed screen (has history)", () => {
+    mockCanGoBack.mockReturnValue(true);
+
+    render(<ProfileScreen />);
+
+    expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
+  });
+
+  it("hides the back control when reached as a tab root (no history)", () => {
+    mockCanGoBack.mockReturnValue(false);
+
+    render(<ProfileScreen />);
+
+    expect(screen.queryByLabelText("Retour à l'écran précédent")).toBeNull();
+  });
+
+  // Regression — the screen instance stays mounted across tab switches, so a
+  // bare render-time `canGoBack()` read would leave the control hidden after
+  // history appears. Re-deriving on focus must reveal it on the next focus.
+  it("reveals the back control after gaining history on a later focus", () => {
+    mockCanGoBack.mockReturnValue(false);
+
+    render(<ProfileScreen />);
+
+    expect(screen.queryByLabelText("Retour à l'écran précédent")).toBeNull();
+
+    mockCanGoBack.mockReturnValue(true);
+    screen.rerender(<ProfileScreen />);
+
+    expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
   });
 });

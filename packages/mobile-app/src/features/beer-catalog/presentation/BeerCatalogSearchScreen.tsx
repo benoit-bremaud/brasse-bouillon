@@ -7,6 +7,7 @@ import { getErrorMessage } from "@/core/http/http-error";
 import { spacing } from "@/core/theme";
 import { BeerMugLoader } from "@/core/ui/BeerMugLoader";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
@@ -149,7 +150,10 @@ export function BeerCatalogSearchScreen() {
 
   return (
     <Screen error={settledError} onRetry={handleRefetch}>
-      <ListHeader title={SEARCH_TITLE} />
+      <ListHeader
+        title={SEARCH_TITLE}
+        action={<BackHeaderAction fallback="/(app)/beer-catalog" />}
+      />
       <SearchField value={term} onChangeText={setTerm} />
       {content}
     </Screen>

@@ -13,6 +13,7 @@ const repoRoot = path.resolve(process.cwd(), "../..");
 const academyDocsRoot = path.join(repoRoot, "docs/academy");
 
 const articlePaths = [
+  "history/histoire.md",
   "getting-started/introduction.md",
   "ingredients/houblons.md",
   "ingredients/levures.md",

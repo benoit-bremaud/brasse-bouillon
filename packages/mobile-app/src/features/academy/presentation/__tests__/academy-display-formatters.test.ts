@@ -10,6 +10,7 @@ describe("academy display formatters", () => {
     expect(formatAcademyLevelLabel("intermediate")).toBe("Intermédiaire");
     expect(formatAcademyLevelLabel("advanced")).toBe("Avancé");
     expect(formatAcademyCategoryLabel("getting-started")).toBe("Premiers pas");
+    expect(formatAcademyCategoryLabel("history")).toBe("Histoire");
     expect(formatAcademyCategoryLabel("ingredients")).toBe("Ingrédients");
     expect(formatAcademyCategoryLabel("glossary")).toBe("Glossaire");
     expect(formatAcademyReadTime(6)).toBe("6 min");

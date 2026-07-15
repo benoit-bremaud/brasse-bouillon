@@ -130,24 +130,27 @@ contract.
 
 ### Phase 6 - Generation
 
-Generated outputs:
+Generated output:
 
 ```text
 packages/mobile-app/src/features/academy/data/generated/
-  academy-index.generated.ts
-  articles/
-    houblons.generated.ts
-    levures.generated.ts
-    eau.generated.ts
-  glossary.generated.ts
-  search-index.generated.ts
+  academy-corpus.generated.ts
 ```
 
-Future optional output:
+The generator emits a single `academy-corpus.generated.ts` exporting one
+`academyCorpus: AcademyCorpus` constant with four top-level collections:
 
 ```text
-retrieval-chunks.generated.ts
+academyCorpus
+  articles          // parsed articles: metadata + sectioned content blocks
+  glossaryTerms     // glossary entries: definitions, aliases, related terms
+  sources           // resolved bibliographic references
+  calculatorSlugs   // calculator bridges referenced by articles
 ```
+
+The file carries a `Do not edit manually` header and is regenerated from
+`docs/academy`; a per-article / search-index / retrieval-chunk split remains a
+possible future optimization if the single corpus grows too large.
 
 ## Error Quality
 

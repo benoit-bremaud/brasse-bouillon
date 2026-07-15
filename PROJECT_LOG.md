@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-15
 
+### PR #1437 merged (`aab81f0`) — feat(academy): add "Histoire de la bière" reference article
+
+- Branch `feat/academy-beer-history`, 5 commits (`4e43049`, `9b97eff`, `5735e32`, `200a429`, `59cf739`). Closes #617. New beginner Academy article `docs/academy/history/histoire.md` (8 sections, definition/example blocks, glossary + related-article cross-links) with 5 sources and 5 new history glossary terms (cervoise, gruit, bappir, reinheitsgebot, lager); new `history` `AcademyCategory` wired through domain types, display formatter and hub topic; corpus regenerated.
+- Full French-accent pass over the whole 22-term glossary (`terms.yml`) — it was accent-stripped, clashing with the accented article; guard test `academy-glossary-accents.test.ts` prevents regression.
+- `AcademyTopicLearnRouteScreen` redirects published-article `/learn` deep links to the article route instead of the coming-soon placeholder (general fix, all published articles); doc syncs to `domain-contracts.md` (definition/example blocks) and `content-pipeline.md` (single-file corpus output).
+- Reviews — local multi-agent pre-push review: 0 Must Have, 2 doc-drift Should applied (`200a429`); Codex 1 P2 (learn-route placeholder) fixed in `59cf739` + inline reply; Copilot 15/16 files, 0 comments. CI green (mobile-app jest + coverage ratchet); visual QA in the Android emulator.
+
 ### PR #1439 merged (`0300653`) — feat(website): legal-twin freshness stamps — close i18n S4 (ADR-0027 D1.5)
 
 - Branch `feat/website-i18n-s4-legal-stamps`, 3 commits (`16269936`, `26c89989`, `e341afc9`). **Closes the website i18n epic** (last slice): the generated home has had a `srcHash` drift guard since S1, but the four hand-maintained EN legal twins had none — a FR legal edit that skipped its EN twin passed CI silently. Refs #1075.

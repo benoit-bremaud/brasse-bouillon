@@ -1,5 +1,5 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 
 import { Card } from "@/core/ui/Card";
@@ -10,11 +10,9 @@ import {
   shopCategoryDescriptions,
 } from "@/features/shop/presentation/shop.constants";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 
 export function ShopScreen() {
   const bottomPadding = useNavigationFooterOffset();
-  const router = useRouter();
 
   return (
     <Screen>
@@ -23,19 +21,6 @@ export function ShopScreen() {
           title="Ma Boutique"
           subtitle="Tout pour brasser chez vous"
         />
-        <Pressable
-          onPress={() => router.push("/(app)/academy")}
-          style={styles.academyButton}
-          accessibilityRole="button"
-          accessibilityLabel="Accéder à l'Académie"
-        >
-          <Ionicons
-            name="school-outline"
-            size={18}
-            color={colors.brand.secondary}
-          />
-          <Text style={styles.academyText}>Academy</Text>
-        </Pressable>
       </View>
 
       <ScrollView
@@ -86,26 +71,7 @@ export function ShopScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: spacing.sm,
-  },
-  academyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brand.background,
-    borderWidth: 1,
-    borderColor: colors.brand.secondary,
-  },
-  academyText: {
-    color: colors.brand.secondary,
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.medium,
   },
   content: {
     paddingHorizontal: spacing.sm,

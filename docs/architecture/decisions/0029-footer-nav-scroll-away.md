@@ -18,8 +18,8 @@ A full audit (2026-07-15) traced the founder's two standing complaints — *"the
 the very bottom"* and *"it hides buttons"* — to structural causes, not styling nits:
 
 - **B1 — the pill is out of the layout flow.** Being absolute, it overlays content.
-  Non-occlusion relies on a **manual opt-in repeated in 37 screens** (38 consumers of the
-  offset hook in total, the 38th being the app-level `Snackbar`): each calls
+  Non-occlusion relies on a **manual opt-in repeated in 36 screens** (37 consumers of the
+  offset hook in total, the 37th being the app-level `Snackbar`): each calls
   `useNavigationFooterOffset()` and wires the value as `paddingBottom` on the right container.
   Any missed screen, wrong container, or bottom-anchored control outside the ScrollView is
   silently covered by the pill.
@@ -34,7 +34,7 @@ the very bottom"* and *"it hides buttons"* — to structural causes, not styling
   2026-07-16).
 - **M1 — bottom clearance is not centralized**, although the *top* clearance is (the `Screen`
   primitive applies `brandHeader.contentClearance` and its `SafeAreaView` deliberately excludes
-  the bottom edge). The bottom was left to 38 call sites.
+  the bottom edge). The bottom was left to 37 call sites.
 - **M2/M3 — magic numbers.** The offset hook re-adds the item height (`48`) and a spacing token
   by hand instead of deriving from a shared bar-height constant; `RecipeDetailsScreen`
   additionally hardcodes `+96` for the sticky-CTA height although a token-derived
@@ -61,7 +61,7 @@ on scroll-down, reappears on scroll-up. The conception study lives in
    toggle (jank) and reintroduces a dynamic offset (bug surface).
 4. **Centralized bottom clearance.** The `Screen` primitive reserves the bar's footprint,
    exactly as it already owns the top clearance. `useNavigationFooterOffset` and the
-   **37 per-screen `paddingBottom` call sites are deleted**. `NAV_BAR_HEIGHT`
+   **36 per-screen `paddingBottom` call sites are deleted**. `NAV_BAR_HEIGHT`
    (`core/theme/layout.ts`) is the bar's base **visual** height; the effective footprint is
    computed at runtime as `NAV_BAR_HEIGHT + insets.bottom` and shared by `Screen` (reserved
    clearance), the bar (hide translate distance) and its followers — a bare constant cannot
@@ -101,7 +101,7 @@ twice-confirmed founder decision, and clause 6 (constant clearance invariant) ne
 main correctness risk, leaving animation tuning as its real cost. **B remains the documented
 fallback**: if scroll-away tuning proves janky in practice, freezing the bar visible degrades C
 into B with no structural rework. **A** is rejected outright — it satisfies neither complaint
-and keeps the 38-site coupling.
+and keeps the 37-site coupling.
 
 ### Space model when hidden (weighted decision matrix)
 
@@ -123,7 +123,7 @@ failure mode this redesign eliminates.
 ### Positive
 
 - The root cause of "hidden buttons" is removed structurally: clearance is owned by `Screen`,
-  37 manual paddings and the offset hook disappear, and clause 6 makes occlusion impossible at
+  36 manual paddings and the offset hook disappear, and clause 6 makes occlusion impossible at
   rest by construction.
 - One `NAV_BAR_HEIGHT` source of truth ends the magic-number drift (M2/M3).
 - Snackbar and sticky CTAs follow the same visibility boolean as the bar — the current
@@ -132,7 +132,7 @@ failure mode this redesign eliminates.
 
 ### Negative
 
-- **Migration surface: 37 screens** (plus the Snackbar and sticky CTAs) must swap their manual
+- **Migration surface: 36 screens** (plus the Snackbar and sticky CTAs) must swap their manual
   padding for the `Screen`-owned clearance and wire `onScroll` into the shared hook.
 - Scroll-away needs real tuning (threshold value, spring feel) and new plumbing
   (`useScrollDirection`, `FooterVisibilityContext`) that a static bar would not.
@@ -140,7 +140,7 @@ failure mode this redesign eliminates.
 
 ### Mitigations
 
-- The build PR enumerates all 37 screens as a tracked checklist; the invariant (clause 6) keeps
+- The build PR enumerates all 36 screens as a tracked checklist; the invariant (clause 6) keeps
   every intermediate state safe during migration.
 - Threshold and guards live in **one** hook — tuning is a one-file change.
 - Fallback path documented: pin `visible = true` and C degrades to the static bar B.
@@ -148,7 +148,7 @@ failure mode this redesign eliminates.
 ## Alternatives considered
 
 - **A — keep the floating pill, fix margins/gap only.** Cheapest, but fails the explicit
-  flush-to-bottom requirement and preserves the 38-site manual coupling that produced the bug.
+  flush-to-bottom requirement and preserves the 37-site manual coupling that produced the bug.
 - **B — static flush bar.** The engineering-optimal fix (see caveat above); rejected as the
   end-state by founder decision, retained as the degrade-gracefully fallback.
 - **B2 — reclaim the reserved space by animating padding.** Rejected: reflow jank + dynamic

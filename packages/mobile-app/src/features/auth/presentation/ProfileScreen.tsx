@@ -1,13 +1,6 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useCallback, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useFocusEffect, useRouter } from "expo-router";
 
@@ -17,6 +10,7 @@ import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { Ionicons } from "@expo/vector-icons";
 
 export function ProfileScreen() {
@@ -78,7 +72,7 @@ export function ProfileScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {canGoBack ? (
           <View style={styles.backRow}>
             <BackHeaderAction fallback="/(app)/dashboard" />
@@ -149,7 +143,7 @@ export function ProfileScreen() {
         </Pressable>
 
         <AboutFooter />
-      </ScrollView>
+      </ScreenScrollView>
 
       <Modal
         transparent

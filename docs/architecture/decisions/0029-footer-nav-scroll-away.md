@@ -23,6 +23,18 @@ the very bottom"* and *"it hides buttons"* — to structural causes, not styling
   `useNavigationFooterOffset()` and wires the value as `paddingBottom` on the right container.
   Any missed screen, wrong container, or bottom-anchored control outside the ScrollView is
   silently covered by the pill.
+
+  **Corrected on implementation (2026-07-16).** Those 36 are the screens that *opted in* — not
+  the screens the bar actually covers. A sweep for raw vertical scrollers under the `(app)`
+  layout found **5 more that never opted in at all** and were therefore silently occluded all
+  along: `ScanScreen`, `BeerInfoCardScreen`, `ScanResultScreen`, `PendingScansScreen` (all
+  reserving only `spacing.xl` = 32px against the ~88px the bar needs) and `ProfileScreen`
+  (`spacing.lg` = 24px). This ADR's original inventory counted the opt-ins and mistook them for
+  the population — exactly the failure mode the opt-in model produces. All 5 are migrated in
+  Lot 1, bringing the real total to **41 screens**. Two raw scrollers remain by design:
+  `LabelSelectBatchScreen`'s list (its CTA is the last flex child and its margin already
+  reserves the clearance, so the list never reaches the bar) and `LoginScreen` (under `(auth)`,
+  where no bar is mounted).
 - **B2 — zero-gap geometry.** The offset the hook returns —
   `(insets.bottom > 0 ? insets.bottom : spacing.md) + spacing.xs + 48 + spacing.md`, i.e. 88 px
   with no bottom inset — lands exactly on the pill's top edge, so the hook reserves **no
@@ -60,15 +72,16 @@ on scroll-down, reappears on scroll-up. The conception study lives in
    (reclaiming the residual end-of-list gap) is **rejected**: it reflows content on every
    toggle (jank) and reintroduces a dynamic offset (bug surface).
 4. **Centralized bottom clearance.** `useNavigationFooterOffset` and the **36 per-screen
-   `paddingBottom` call sites are deleted**. `navBar.height` (`core/theme/layout.ts`) is the
+   `paddingBottom` call sites are deleted**, and the 5 screens that never opted in are brought
+   in, so all **41** screens under the bar are protected by construction. `navBar.height` (`core/theme/layout.ts`) is the
    bar's base **visual** height; the effective footprint is computed at runtime by
    `useNavBarClearance()` as `navBar.height + insets.bottom` and shared by the reserving
    primitives, the bar (hide translate distance) and its followers — a bare constant cannot
    serve devices with a non-zero bottom safe-area inset.
 
    **Amended on implementation (2026-07-16).** This clause first said *`Screen` reserves the
-   footprint*, which is not mechanically possible: 36 of the 37 consumers apply the clearance
-   inside `contentContainerStyle` — i.e. **inside the scrolled content** — and `Screen` wraps
+   footprint*, which is not mechanically possible: 33 of the 36 opt-in screens applied the
+   clearance inside `contentContainerStyle` — i.e. **inside the scrolled content** — and `Screen` wraps
    its children without owning their scroll container. Putting the padding on `Screen`'s own
    `View` instead would shrink the scroll viewport so content stops above the bar and never
    passes under it, which would silently void clause 3's translate-only promise (hiding the bar
@@ -133,9 +146,10 @@ failure mode this redesign eliminates.
 
 ### Positive
 
-- The root cause of "hidden buttons" is removed structurally: clearance is owned by `Screen`,
-  36 manual paddings and the offset hook disappear, and clause 6 makes occlusion impossible at
-  rest by construction.
+- The root cause of "hidden buttons" is removed structurally: the clearance is owned by the
+  shared scrollable primitives, 36 manual paddings and the offset hook disappear, 5 silently
+  occluded screens are brought in, and clause 6 makes occlusion impossible at rest by
+  construction.
 - One `NAV_BAR_HEIGHT` source of truth ends the magic-number drift (M2/M3).
 - Snackbar and sticky CTAs follow the same visibility boolean as the bar — the current
   hand-synced clearance stack shrinks.
@@ -143,15 +157,15 @@ failure mode this redesign eliminates.
 
 ### Negative
 
-- **Migration surface: 36 screens** (plus the Snackbar and sticky CTAs) must swap their manual
-  padding for the `Screen`-owned clearance and wire `onScroll` into the shared hook.
+- **Migration surface: 41 screens** (plus the Snackbar and sticky CTAs) must swap their manual
+  padding for the primitive-owned clearance and wire `onScroll` into the shared hook.
 - Scroll-away needs real tuning (threshold value, spring feel) and new plumbing
   (`useScrollDirection`, `FooterVisibilityContext`) that a static bar would not.
 - The dual-nav mount (M4) is consciously kept.
 
 ### Mitigations
 
-- The build PR enumerates all 36 screens as a tracked checklist; the invariant (clause 6) keeps
+- The build PR enumerates all 41 screens as a tracked checklist; the invariant (clause 6) keeps
   every intermediate state safe during migration.
 - Threshold and guards live in **one** hook — tuning is a one-file change.
 - Fallback path documented: pin `visible = true` and C degrades to the static bar B.

@@ -3,7 +3,6 @@ import {
   Alert,
   Linking,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -14,6 +13,7 @@ import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { useConfirm } from "@/core/ui/confirm-provider";
 
 import {
@@ -282,7 +282,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
 
   return (
     <Screen>
-      <ScrollView
+      <ScreenScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -325,7 +325,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
             <BreweryStory brewery={status.result.item.brewery} />
           )}
         />
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

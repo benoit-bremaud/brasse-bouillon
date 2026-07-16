@@ -356,7 +356,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: spacing.md,
-    paddingBottom: spacing.md,
     gap: spacing.md,
   },
   listCard: {

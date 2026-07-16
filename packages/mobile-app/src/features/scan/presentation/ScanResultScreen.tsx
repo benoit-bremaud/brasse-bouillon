@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useMemo, useState } from "react";
 import { colors, radius, spacing, typography } from "@/core/theme";
 
@@ -9,6 +9,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import type { ScanResultDetailsViewModel } from "@/features/scan/domain/scan.types";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { getErrorMessage } from "@/core/http/http-error";
 import { getScanResultDetails } from "@/features/scan/application/scan.use-cases";
 import { useRouter } from "expo-router";
@@ -116,7 +117,7 @@ export function ScanResultScreen({ scanIdParam }: ScanResultScreenProps) {
       error={error}
       onRetry={() => void loadDetails()}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <ListHeader
           title="Scan result"
           subtitle="Product match and recipe equivalents"
@@ -249,15 +250,13 @@ export function ScanResultScreen({ scanIdParam }: ScanResultScreenProps) {
             ) : null}
           </Card>
         ) : null}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingBottom: spacing.xl,
-  },
+  content: {},
   cardSpacing: {
     marginBottom: spacing.sm,
   },

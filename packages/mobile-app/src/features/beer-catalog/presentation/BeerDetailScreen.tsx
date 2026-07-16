@@ -295,9 +295,7 @@ function TapRow({
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: spacing.xxl,
-  },
+  scrollContent: {},
   backRow: {
     flexDirection: "row",
     marginBottom: spacing.sm,

@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -13,6 +14,22 @@ const mockLogout = jest.fn();
 const mockCanGoBack = jest.fn(() => false);
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
+
+// expo-router hands back a module-level singleton from `useRouter()`, so the
+// router identity is stable across renders. The double must be stable too: a
+// fresh object per render would rebuild the focus callback on every render and
+// re-run the focus effect on any rerender — something production never does.
+const mockRouter = {
+  push: mockPush,
+  replace: mockReplace,
+  back: mockBack,
+  canGoBack: mockCanGoBack,
+};
+
+// Latest focus callback registered by the screen, so a test can fire a real
+// focus event instead of leaning on a rerender.
+const mockFocus: { run?: () => void | (() => void) } = {};
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -25,16 +42,13 @@ jest.mock("expo-router", () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const react = require("react");
   return {
-    useRouter: () => ({
-      push: jest.fn(),
-      replace: mockReplace,
-      back: mockBack,
-      canGoBack: mockCanGoBack,
-    }),
-    // Run the focus callback via an effect so ProfileScreen re-derives
-    // `canGoBack` on (re)focus, mirroring expo-router's real behavior.
-    useFocusEffect: (callback: () => void | (() => void)) =>
-      react.useEffect(callback, [callback]),
+    useRouter: () => mockRouter,
+    // Mirror expo-router: run the callback on mount (first focus) and keep a
+    // handle on it so a test can replay it as a later focus event.
+    useFocusEffect: (callback: () => void | (() => void)) => {
+      mockFocus.run = callback;
+      react.useEffect(callback, [callback]);
+    },
     useLocalSearchParams: () => ({}),
     usePathname: () => "/",
     Redirect: () => null,
@@ -184,8 +198,16 @@ describe("ProfileScreen", () => {
 
     expect(screen.queryByLabelText("Retour à l'écran précédent")).toBeNull();
 
+    // The user now reaches Profile again through a push, so history exists.
     mockCanGoBack.mockReturnValue(true);
-    screen.rerender(<ProfileScreen />);
+
+    // Replay the focus callback: an actual focus event is the only thing that
+    // re-derives this in production. A rerender would NOT do — the router is a
+    // stable singleton, so the callback identity never changes and the focus
+    // effect never re-fires on a plain re-render.
+    act(() => {
+      mockFocus.run?.();
+    });
 
     expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
   });

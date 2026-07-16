@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-16
 
+### PR #1449 merged (`6d3e89f`) — fix(shop): drop the Academy shortcut from the shop header
+
+- Branch `fix/shop-header-drop-academy`, 2 commits (`a9f4934`, `431704e`). Removes the "Academy" pill from the shop header, and fixes the design-system section that still prescribed the broken layout behind it. Net -76 LOC over 3 files.
+- The pill had two independent defects. It was an unrelated cross-link — Academy has had its own permanent tab slot since #613, so a second entry point from the shop bought nothing (already flagged by the audit behind #1444). And its layout was broken: it sat as a *sibling* of `<ListHeader>` inside a `flexDirection: row / space-between` wrapper, so the unconstrained `ListHeader` claimed its intrinsic width and pushed the pill past the right screen edge — only the icon rendered on a 1080x2400 device.
+- `ShopScreen.tsx` drops the `Pressable`, its `academyButton`/`academyText` styles and the now-unused `useRouter`/`Pressable` imports; `styles.header` shrinks to a padding-only wrapper, kept so the title stays aligned with `styles.content` (both add `spacing.sm` on top of `Screen`'s own `spacing.md`). Test suite swaps the Academy navigation case for a regression assertion.
+- **Decisions**:
+  - `header-action-uses-listheader-slot` — `design-system.md` §6 documented the sibling-`Pressable` header as the required list-screen template, a pattern left with zero call sites once this shipped, while the real convention (`ListHeader`'s own `action` slot, used by 10+ screens incl. `EquipmentScreen`, `ScanScreen`, `BatchFinishedScreen`) was already documented in §5. §6 contradicted §5 and would have propagated the off-screen-action bug to the next list screen, so it now documents the `action` slot instead. `ShopCategoryScreen` (deleted in #1444) dropped from its consumer list; the `school-outline` icon row repointed away from a header action that no longer exists.
+- Reviews — local pre-push: 0 Must Have; both Should Have items fixed in-branch rather than deferred (the stale design-system pattern in `431704e`, and an over-broad `queryByRole` assertion narrowed to the specific regression). Codex posted no review (usage limit reached, as on #1444); Copilot no comments. CI green (mobile-app jest); visual QA on the Android emulator in demo mode, with the Metro log checked to confirm the bundle came from the branch under test.
+
 ### PR #1448 merged (`2b173d2`) — fix(mobile-app): return to real origin from detail/editor back buttons
 
 - Branch `claude/back-buttons-lot2-origin`, 1 commit (`8cf1df5`). Lot 2 of the back-navigation audit, following #1442. Detail screens forced `router.replace("/hub")`, so a recipe opened from the community catalog went "back" to the Recipes hub, and a label fiche opened from the editor went "back" to the labels home — the real origin was always discarded.

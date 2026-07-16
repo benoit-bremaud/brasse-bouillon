@@ -1,12 +1,6 @@
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { STICKY_CTA_BAR_HEIGHT } from "@/core/ui/sticky-cta-clearance";
 import { BrewStepTimer } from "@/features/batches/presentation/BrewStepTimer";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
@@ -161,7 +155,6 @@ function useFermentationTrackerInfo(batch: Batch | null) {
 }
 
 export function BatchDetailsScreen({ batchId }: Props) {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const handleGoBack = useBackNavigation("/batches");
   const confirm = useConfirm();
@@ -569,12 +562,12 @@ export function BatchDetailsScreen({ batchId }: Props) {
         }
       />
       <View style={styles.body}>
-        <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: bottomPadding },
-          ]}
+        <ScreenScrollView
+          contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          // This screen pins a sticky CTA above the nav bar; the content must
+          // clear both.
+          extraBottomClearance={STICKY_CTA_BAR_HEIGHT}
         >
           {batch ? (
             <Card style={styles.headerCard}>
@@ -838,7 +831,7 @@ export function BatchDetailsScreen({ batchId }: Props) {
               </Text>
             </Pressable>
           ) : null}
-        </ScrollView>
+        </ScreenScrollView>
       </View>
 
       {primaryCta ? (
@@ -846,7 +839,6 @@ export function BatchDetailsScreen({ batchId }: Props) {
           label={primaryCta.label}
           onPress={primaryCta.onPress}
           disabled={primaryCta.disabled}
-          bottomOffset={bottomPadding}
         />
       ) : null}
 

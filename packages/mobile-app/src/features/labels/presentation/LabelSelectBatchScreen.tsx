@@ -20,9 +20,9 @@ import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { useNavigationBarFootprint } from "@/core/ui/use-navigation-bar-footprint";
 import { useRouter } from "expo-router";
 
 const LABELS_HOME_ROUTE = "/(app)/dashboard/labels" as const;
@@ -52,7 +52,10 @@ export function resolveSelectedBatchId(
 
 export function LabelSelectBatchScreen() {
   const router = useRouter();
-  const navigationFooterOffset = useNavigationFooterOffset();
+  // Only for the CTA below the list: it is a sibling of the scroll area, not
+  // scrolled content, so it anchors above the flush nav bar itself (ADR-0029
+  // clause 4, same as the Snackbar) rather than via a shared scroll container.
+  const footprint = useNavigationBarFootprint();
   const [candidates, setCandidates] = useState<LabelBatchCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
@@ -233,7 +236,7 @@ export function LabelSelectBatchScreen() {
         />
       )}
 
-      <View style={{ marginBottom: navigationFooterOffset }}>
+      <View style={{ marginBottom: footprint }}>
         <PrimaryButton
           accessibilityLabel="Créer un brouillon d’étiquette"
           label={isCreating ? "Création..." : "Créer le brouillon"}

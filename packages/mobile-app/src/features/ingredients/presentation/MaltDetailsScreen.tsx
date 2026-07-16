@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, spacing, typography } from "@/core/theme";
 import {
   getMaltDetails,
@@ -10,7 +9,7 @@ import {
   buildRecipeBackNavigationTarget,
   normalizeIngredientReturnContextParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -19,6 +18,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -85,7 +85,6 @@ export function MaltDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,
@@ -208,13 +207,10 @@ export function MaltDetailsScreen({
       }}
     >
       {malt ? (
-        <ScrollView
+        <ScreenScrollView
           testID="malt-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: bottomPadding },
-          ]}
+          contentContainerStyle={styles.content}
         >
           <ListHeader
             title={malt.name}
@@ -278,7 +274,7 @@ export function MaltDetailsScreen({
           ) : null}
 
           <PrimaryButton label="Go back" onPress={handleGoBack} />
-        </ScrollView>
+        </ScreenScrollView>
       ) : null}
     </Screen>
   );

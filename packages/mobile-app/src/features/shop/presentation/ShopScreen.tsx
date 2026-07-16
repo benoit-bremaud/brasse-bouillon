@@ -1,10 +1,10 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { StyleSheet, Text, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   SHOP_CATEGORIES,
   shopCategoryDescriptions,
@@ -12,8 +12,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export function ShopScreen() {
-  const bottomPadding = useNavigationFooterOffset();
-
   return (
     <Screen>
       <View style={styles.header}>
@@ -23,12 +21,7 @@ export function ShopScreen() {
         />
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <Card style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Ionicons
@@ -64,7 +57,7 @@ export function ShopScreen() {
             </View>
           ))}
         </View>
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

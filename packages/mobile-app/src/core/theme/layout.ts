@@ -25,3 +25,21 @@ export const brandHeader = {
    */
   contentClearance: 72 - spacing.xs,
 } as const;
+
+/**
+ * Bottom navigation bar — base **visual** height of the flush edge-to-edge bar
+ * (`NavigationFooter`): the 48 px item touch target plus the bar's own vertical
+ * padding. ADR-0029 clause 4.
+ *
+ * This is deliberately NOT the full footprint. The bar absorbs the bottom
+ * safe-area inset inside itself, so the space it actually occupies — and the
+ * clearance content must reserve, and the distance it translates when hiding —
+ * is `NAV_BAR_HEIGHT + insets.bottom`, computed at runtime via
+ * `useNavigationBarFootprint()`. A bare constant cannot serve devices with a
+ * non-zero bottom inset.
+ *
+ * Single source of truth: the bar (height + translate distance) and the shared
+ * scroll containers (reserved clearance) both derive from this one value, which
+ * ends the magic-number drift the previous hand-rebuilt offset suffered from.
+ */
+export const NAV_BAR_HEIGHT = 48 + spacing.xs * 2;

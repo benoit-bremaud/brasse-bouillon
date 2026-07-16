@@ -14,7 +14,7 @@ import {
 } from "@/features/labels/presentation/label-palette.constants";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
@@ -22,7 +22,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 interface LabelInspirationExample {
   id: string;
@@ -130,7 +130,6 @@ function buildLabelDraftRoute(draftId: string): Href {
 
 export function LabelsScreen() {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const [drafts, setDrafts] = useState<LabelDraft[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
@@ -218,11 +217,8 @@ export function LabelsScreen() {
         subtitle="Conçois et sauvegarde tes étiquettes avant impression"
       />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <Card style={styles.summaryCard}>
@@ -380,7 +376,7 @@ export function LabelsScreen() {
               );
             })
           : null}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

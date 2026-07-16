@@ -5,7 +5,6 @@ import Slider from "@react-native-community/slider";
 
 import { Card } from "@/core/ui/Card";
 import { Ionicons } from "@expo/vector-icons";
-import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   formatQuantity,
@@ -26,8 +25,6 @@ type IngredientsTabProps = Readonly<{
   targetVolumeLiters: number;
   scalingFactor: number;
   onChangeTargetVolume: (volume: number) => void;
-  onAddIngredientToCart: (ingredient: RecipeDetailsIngredientItem) => void;
-  onAddAllIngredientsToCart: () => void;
   onOpenIngredient: (ingredient: {
     id: string;
     category: IngredientCategory;
@@ -55,8 +52,6 @@ export function IngredientsTab(props: IngredientsTabProps) {
     targetVolumeLiters,
     scalingFactor,
     onChangeTargetVolume,
-    onAddIngredientToCart,
-    onAddAllIngredientsToCart,
     onOpenIngredient,
     onOpenShop,
   } = props;
@@ -119,13 +114,6 @@ export function IngredientsTab(props: IngredientsTabProps) {
         </View>
 
         <Card style={styles.ingredientsCard}>
-          <PrimaryButton
-            testID="recipe-add-all-ingredients-button"
-            label="Tout ajouter au panier"
-            onPress={onAddAllIngredientsToCart}
-            disabled={ingredients.length === 0}
-          />
-
           {ingredients.length === 0 ? (
             <Text style={styles.emptyText}>
               Pas d'ingrédient renseigné pour cette recette.
@@ -166,20 +154,6 @@ export function IngredientsTab(props: IngredientsTabProps) {
                         {item.notes ? (
                           <Text style={styles.listItemNotes}>{item.notes}</Text>
                         ) : null}
-                      </Pressable>
-
-                      <Pressable
-                        testID={`recipe-add-ingredient-${item.ingredientId}-${index}`}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Add ${item.name} to local cart`}
-                        style={styles.addActionButton}
-                        onPress={() => onAddIngredientToCart(item)}
-                      >
-                        <Ionicons
-                          name="add-circle-outline"
-                          size={20}
-                          color={colors.brand.secondary}
-                        />
                       </Pressable>
                     </View>
                   );
@@ -306,9 +280,5 @@ const styles = StyleSheet.create({
     color: colors.neutral.textSecondary,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
-  },
-  addActionButton: {
-    marginLeft: spacing.xs,
-    padding: spacing.xxs,
   },
 });

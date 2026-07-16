@@ -1,7 +1,4 @@
-import {
-  RecipeDetailsEquipmentItem,
-  RecipeDetailsIngredientItem,
-} from "@/features/recipes/application/recipes.use-cases";
+import { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 import {
   RECIPE_INGREDIENT_GROUP_LABELS,
   RECIPE_INGREDIENT_GROUP_ORDER,
@@ -9,8 +6,6 @@ import {
 } from "@/features/recipes/presentation/recipe-details.constants";
 
 import type { WaterProfile } from "@/core/brewing-calculations";
-import type { LocalCartItem } from "@/features/shop/domain/cart.types";
-import type { ShopCategory } from "@/features/shop/domain/shop.types";
 
 const WATER_METRICS: (keyof WaterProfile)[] = [
   "ca",
@@ -83,68 +78,6 @@ export function groupIngredientsByType(
   });
 
   return grouped;
-}
-
-export function mapIngredientCategoryToShopCategory(
-  category: RecipeIngredientGroupKey | null | undefined,
-): ShopCategory {
-  if (category === "malt") {
-    return "malts";
-  }
-
-  if (category === "hop") {
-    return "houblons";
-  }
-
-  if (category === "yeast") {
-    return "levures";
-  }
-
-  return "accessoires";
-}
-
-export function toIngredientCartItem(
-  ingredient: RecipeDetailsIngredientItem,
-  scalingFactor: number,
-): LocalCartItem {
-  const scaledAmount = scaleQuantity(ingredient.amount, scalingFactor);
-  const ingredientName = ingredient.name;
-  const ingredientCategory = mapIngredientCategoryToShopCategory(
-    ingredient.category,
-  );
-
-  return {
-    key: `ingredient-${ingredient.ingredientId}-${ingredient.unit}`,
-    source: "ingredient",
-    refId: ingredient.ingredientId,
-    name: ingredientName,
-    category: ingredientCategory,
-    quantity: scaledAmount,
-    unit: ingredient.unit,
-  };
-}
-
-export function buildIngredientCartItems(
-  ingredients: RecipeDetailsIngredientItem[],
-  scalingFactor: number,
-): LocalCartItem[] {
-  return ingredients.map((ingredient) =>
-    toIngredientCartItem(ingredient, scalingFactor),
-  );
-}
-
-export function toEquipmentCartItem(
-  equipment: RecipeDetailsEquipmentItem,
-): LocalCartItem {
-  return {
-    key: `equipment-${equipment.equipmentId}`,
-    source: "equipment",
-    refId: equipment.equipmentId,
-    name: equipment.equipment?.name ?? `Equipment ${equipment.equipmentId}`,
-    category: "materiel",
-    quantity: 1,
-    unit: "unit",
-  };
 }
 
 export function isVolumeCompatible(

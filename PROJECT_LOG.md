@@ -5,6 +5,19 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-16
+
+### PR #1444 merged (`739bbab`) — refactor(shop): collapse to honest coming-soon placeholder
+
+- Branch `refactor/shop-honest-placeholder`, 2 commits (`2e93462`, `738291f`). An audit of the shop feature found it advertised a fake catalog (8 hardcoded products with invented prices, all `inStock: false`, badged "À venir") while shipping a full local-cart layer with zero non-test callers. Shop commerce is explicitly deferred by the ux-refonte backlog, so the section now states what it is. Net -859 LOC (15 files, +78/-937).
+- Collapsed to a single `ShopScreen`: coming-soon message + six non-pressable category preview tiles, no prices. Deleted `ShopCategoryScreen`, the `shop/[category]` route, `mockShopProducts`, `Product`/`PriceUnit`/`getProductPriceUnit`/`DEFAULT_PRICE_UNIT_BY_CATEGORY`, and `isShopCategory`. `ShopCategory` survives as the shop taxonomy, now self-contained in the shop domain.
+- Dead local cart removed end to end: `cart.use-cases.ts` (4 functions, 0 non-test callers) + `cart.types.ts`; the four cart mappers in `recipe-details.utils.ts` (including `toEquipmentCartItem`, itself uncalled); the no-op `void toIngredientCartItem(...)` / `buildIngredientCartItems(...)` handlers in `RecipeDetailsScreen`; and the phantom "Tout ajouter au panier" + per-ingredient add buttons in `IngredientsTab.tsx`. The working "Boutique" CTA is preserved.
+- Convention fixes: sober category labels (`Matériel`/`Accessoires`, emojis dropped) per the educational-vocation rule; category icons typed `keyof typeof Ionicons.glyphMap` (cast removed); demo data no longer hardcoded in the `presentation/` layer, which violated `packages/mobile-app/CLAUDE.md` and bypassed the `dataSource.useDemoData` toggle.
+- **Decisions**:
+  - `shop-honest-placeholder` — assume the coming-soon vitrine and delete the speculative plumbing rather than build the shopping list now; smallest increment consistent with the backlog deferring shop commerce, and conformant with ADR-0001 (the cart layer was premature abstraction). Alternatives rejected for now: the persisted shopping list (#653) and affiliate commerce (#650), which remain the `equipment-shop/` conception target, unimplemented.
+- Reviews — local pre-push review: 0 Must Have (1 import-order Should applied); remaining Shoulds were pre-existing on `main`. Codex posted no review (code-review usage limit reached). Copilot 2 inline (type-only imports for `Ionicons` and `RecipeDetailsIngredientItem`), both fixed in `738291f` with inline replies, threads resolved. CI green (mobile-app jest 208/208); visual QA on the Android emulator in demo mode.
+- Known follow-up, out of scope: the "Academy" shortcut in the shop header is clipped at the right screen edge (pre-existing, header untouched).
+
 ## 2026-07-15
 
 ### PR #1437 merged (`aab81f0`) — feat(academy): add "Histoire de la bière" reference article

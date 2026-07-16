@@ -47,6 +47,8 @@ import { demoRecipes } from "@/mocks/demo-data";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useRouter } from "expo-router";
 
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
+
 const DEMO_FERMENTATION_TARGET_DAYS = 14;
 // Pinned so the demo fermentation always reads exactly "J+5 / J+14" — the
 // state the marketing site showcases. Deriving the day count from a fixed
@@ -161,6 +163,7 @@ function useFermentationTrackerInfo(batch: Batch | null) {
 export function BatchDetailsScreen({ batchId }: Props) {
   const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
+  const handleGoBack = useBackNavigation("/batches");
   const confirm = useConfirm();
   const queryClient = useQueryClient();
   const [mutationError, setMutationError] = React.useState<string | null>(null);
@@ -346,10 +349,6 @@ export function BatchDetailsScreen({ batchId }: Props) {
     // done the physical prep. No confirm — starting is low-stakes.
     setMutationError(null);
     mutateStartCurrentStep();
-  };
-
-  const handleGoBack = () => {
-    router.replace("/batches");
   };
 
   const handleDelete = async () => {

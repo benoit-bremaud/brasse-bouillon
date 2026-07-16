@@ -16,6 +16,8 @@ import React from "react";
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
+const mockBack = jest.fn();
+let mockCanGoBack = true;
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -29,7 +31,8 @@ jest.mock("expo-router", () => {
     useRouter: () => ({
       push: mockPush,
       replace: mockReplace,
-      back: jest.fn(),
+      back: mockBack,
+      canGoBack: () => mockCanGoBack,
     }),
   };
 });
@@ -50,6 +53,8 @@ describe("LabelDetailsScreen", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     mockedGetLabelDraftById.mockReset();
     mockedRemoveLabelDraft.mockReset();
   });
@@ -152,5 +157,34 @@ describe("LabelDetailsScreen", () => {
     });
 
     expect(mockReplace).toHaveBeenCalledWith("/(app)/dashboard/labels");
+  });
+
+  it("navigates back from the header action (pops history, else labels home)", async () => {
+    mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
+
+    render(<LabelDetailsScreen draftIdParam="draft-1" />);
+
+    expect(await screen.findByText("Saison")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à mes étiquettes"));
+
+    // The labels Stack (app/(app)/dashboard/labels/_layout.tsx) makes this
+    // pop to the true origin (e.g. the editor when reached via « Voir la
+    // fiche »); labels home is only the fallback — see useBackNavigation.
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("falls back to labels home when there is no history to pop", async () => {
+    mockCanGoBack = false;
+    mockedGetLabelDraftById.mockResolvedValue(buildLabelDraft());
+
+    render(<LabelDetailsScreen draftIdParam="draft-1" />);
+
+    expect(await screen.findByText("Saison")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à mes étiquettes"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/(app)/dashboard/labels");
+    expect(mockBack).not.toHaveBeenCalled();
   });
 });

@@ -23,6 +23,8 @@ import { LabelDraft } from "@/features/labels/domain/label.types";
 import { buildLabelShareMessage } from "@/features/labels/presentation/label-share";
 import { useRouter } from "expo-router";
 
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
+
 type LabelDetailsScreenProps = {
   draftIdParam?: string | string[];
 };
@@ -41,6 +43,7 @@ function buildLabelEditorRoute(draftId: string) {
 
 export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
   const router = useRouter();
+  const goBack = useBackNavigation(LABELS_HOME_ROUTE);
   const normalizedDraftId = normalizeRouteParam(draftIdParam) ?? "";
 
   const [draft, setDraft] = useState<LabelDraft | null>(null);
@@ -139,7 +142,7 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
             <HeaderBackButton
               label="Étiquettes"
               accessibilityLabel="Retour à mes étiquettes"
-              onPress={() => router.replace(LABELS_HOME_ROUTE)}
+              onPress={goBack}
             />
           }
         />
@@ -164,7 +167,7 @@ export function LabelDetailsScreen({ draftIdParam }: LabelDetailsScreenProps) {
           <HeaderBackButton
             label="Étiquettes"
             accessibilityLabel="Retour à mes étiquettes"
-            onPress={() => router.replace(LABELS_HOME_ROUTE)}
+            onPress={goBack}
           />
         }
       />

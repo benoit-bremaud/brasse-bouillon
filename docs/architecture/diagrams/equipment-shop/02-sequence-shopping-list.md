@@ -35,11 +35,17 @@ sequenceDiagram
 
 ## Notes / suggestions
 
+- **Status — this whole diagram is a design, not a description.** The
+  `cart.use-cases` participant was deleted in #1444: it had zero non-test callers
+  and the recipe-detail "Ajouter au panier" buttons it backed were no-ops that
+  discarded their result. #653 builds this from scratch; `Store` never existed.
 - **Local & persisted**: the list lives client-side (AsyncStorage), survives app
   restarts. No server order. **Suggestion** — one list per user, appended to from
   any recipe or scan (#777), not a per-recipe ephemeral cart.
-- **Grouping**: items group by `ShopCategory` (malts / houblons / levures / materiel / accessoires / kits)
-  so the brewer shops efficiently.
+- **Grouping**: items group by `IngredientCategory` (malt / hop / yeast today,
+  growing as rayons are wired — see [`03-component.md`](03-component.md)) so the
+  brewer shops efficiently. The retired `ShopCategory` enum is not the grouping
+  key: one taxonomy for the whole app ([`04-class.md`](04-class.md)).
 - **Share** is text today (parity with labels share) — a richer export (checklist
   PDF) is a later enhancement.
 - **Demo mode**: the list reads/writes the in-memory demo store.

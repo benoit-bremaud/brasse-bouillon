@@ -66,21 +66,29 @@ flowchart TD
 
 ## Notes / suggestions
 
-- **Retired, not deleted twice**: `/(app)/ingredients/index` redirects to
-  `/(app)/shop` rather than 404-ing, so any existing deep link or muscle memory
+> **Nothing below is built yet.** This diagram is the Lot 1 target; today
+> `/(app)/ingredients/index.tsx` still renders `IngredientsScreen` and the
+> dashboard still lists both doors. The dashed edges mark what Lot 1 changes.
+
+- **Retire, don't delete twice**: `/(app)/ingredients/index` **should redirect**
+  to `/(app)/shop` rather than 404, so any existing deep link or muscle memory
   still lands somewhere sensible. The dashboard's "Ingrédients" entry
-  (`DashboardScreen`, `businessRoute("ingredients", …)`) is removed — that is the
-  "one door" change.
-- **The Shop hub owns no data layer.** It calls
+  (`DashboardScreen`, `businessRoute("ingredients", …)`) **should be removed** —
+  that is the "one door" change.
+- **The Shop hub must own no data layer.** It should call
   `listIngredientCategoriesSummary()` for the live rayons' counts, exactly as the
-  retired `IngredientsScreen` did. No `features/shop/data/`, no second API
-  client, no duplicated types — the whole point of this diagram.
+  `IngredientsScreen` it replaces does today. No `features/shop/data/`, no second
+  API client, no duplicated types — the whole point of this diagram.
 - **Two-speed hub, and the split is about mobile wiring — not missing data.**
   Lot 1 makes three rayons live (Malts / Houblons / Levures) because those are
   the only catalogs the mobile app already consumes. Matériel and Accessoires
   stay inert **for now**, and Kits stays inert **for good** (no source at all).
   A placeholder tile must stay non-pressable — the shop promises nothing it
-  cannot deliver (#1444); `ShopScreen.test.tsx` guards this.
+  cannot deliver (#1444). Today that holds only structurally (the tiles are
+  plain `View`s); the assertion that pins it — "exposes no pressable affordance"
+  in `ShopScreen.test.tsx` — is open in #1453. Lot 1 must **amend** that guard
+  rather than delete it: live rayons become pressable by design, placeholders
+  must not, so the guard narrows to the placeholders instead of vanishing.
 
 - **The backend already serves ten catalogs**, which is more than this feature
   ever used:

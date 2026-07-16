@@ -64,7 +64,9 @@ flowchart LR
   needs a partner + prices, which the project does not have yet.
 - **Retired UC3/UC4** (browse the shop / view a product): merged into the
   ingredients catalog's UC1–UC3. The shop's fake product catalog was deleted in
-  #1444; the Shop hub now routes into the real catalog instead of mirroring it.
+  #1444; Lot 1 will route the Shop hub into the real catalog instead of
+  mirroring it. Today the hub is still a static placeholder — the retirement is
+  a conception decision, not a shipped behaviour.
 - **UC6 cross-domain**: the shopping list is fed from a recipe's ingredients
   (recipes domain) and from a scan's "what to buy" (#777) — it is the connective
   tissue between recipe → purchase. **Suggestion**: a single shopping list,

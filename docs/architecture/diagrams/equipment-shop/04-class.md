@@ -30,11 +30,11 @@ classDiagram
   }
 
   class ShopRayon {
-    +string label
+    +String label
     +IconName icon
-    +string description
-    +IngredientCategory catalogCategory
-    +bool isLive()
+    +String description
+    +IngredientCategory~nullable~ catalogCategory
+    +isLive() bool
   }
 
   class ShoppingList {

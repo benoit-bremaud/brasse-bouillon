@@ -34,18 +34,24 @@ sequenceDiagram
 
   U->>SV: scroll up
   SV->>SD: onScroll(offsetY)
-  SD->>VC: setVisible(true)
-  VC-->>NF: visible = true
-  NF->>NF: translateY to 0
-  VC-->>OV: visible = true
+  SD->>SD: delta vs last, apply threshold
+  alt upward delta past threshold
+    SD->>VC: setVisible(true)
+    VC-->>NF: visible = true
+    NF->>NF: translateY to 0 — spring, or instant if reduced-motion
+    VC-->>OV: visible = true
+  else delta below threshold
+    SD-->>SV: ignore, no toggle
+  end
 
-  Note over SV,VC: reach list top/end or pull-to-refresh also forces setVisible(true)
+  Note over SV,VC: reach list top/end or pull-to-refresh forces setVisible(true), bypassing the threshold
 ```
 
 ## Notes
 
 - **Single boolean, no desync**: the bar, Snackbar and sticky CTA all subscribe to `FooterVisibilityContext.visible`. There is no per-screen offset in this path — the reserved clearance is static in `Screen` and untouched by scroll.
 - **Threshold lives in `useScrollDirection`**, once, not per screen — the anti-flicker rule is defined in one place and every screen inherits it by wiring `onScroll`.
+- **The threshold gates BOTH directions symmetrically** (hide *and* reveal): an un-gated reveal would re-introduce the flicker the threshold exists to prevent, since a hidden bar would pop back on the tiniest upward jitter or bounce. The only reveals that bypass it are the **forced** ones (list top/end, pull-to-refresh, programmatic) — they are state changes, not scroll deltas. Matches `02-state` (`scroll up past threshold` vs the separate forced-reveal transitions).
 - **Wiring cost**: each of the 37 scrollable screens must pass its scroll handler to `useScrollDirection` (one line + the shared `onScroll`). This is the real migration surface — enumerate and track it in the build PR.
 - **Non-scrollable screens** never call `onScroll`, so `visible` stays `true` (bar pinned) — matches the `02-state` self-loop.
 - **Screens that carry a sticky CTA** (today: recipe details, brew-prep, batch details) use the same path: the CTA follows `visible`, so it slides with the bar instead of floating.

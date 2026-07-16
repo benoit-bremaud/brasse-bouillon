@@ -130,32 +130,28 @@ export function IngredientsTab(props: IngredientsTabProps) {
                   );
 
                   return (
-                    <View
+                    <Pressable
                       key={`${item.ingredientId}-${item.timing ?? "no-timing"}-${index}`}
                       style={styles.listItem}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ouvrir la fiche de ${item.name}`}
+                      disabled={!item.ingredient}
+                      onPress={() => {
+                        if (!item.ingredient) {
+                          return;
+                        }
+                        onOpenIngredient(item.ingredient);
+                      }}
                     >
-                      <Pressable
-                        style={styles.listItemMain}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Open ingredient details for ${item.name}`}
-                        disabled={!item.ingredient}
-                        onPress={() => {
-                          if (!item.ingredient) {
-                            return;
-                          }
-                          onOpenIngredient(item.ingredient);
-                        }}
-                      >
-                        <Text style={styles.listItemTitle}>{item.name}</Text>
-                        <Text style={styles.listItemMeta}>
-                          {quantity}
-                          {item.timing ? ` • ${item.timing}` : ""}
-                        </Text>
-                        {item.notes ? (
-                          <Text style={styles.listItemNotes}>{item.notes}</Text>
-                        ) : null}
-                      </Pressable>
-                    </View>
+                      <Text style={styles.listItemTitle}>{item.name}</Text>
+                      <Text style={styles.listItemMeta}>
+                        {quantity}
+                        {item.timing ? ` • ${item.timing}` : ""}
+                      </Text>
+                      {item.notes ? (
+                        <Text style={styles.listItemNotes}>{item.notes}</Text>
+                      ) : null}
+                    </Pressable>
                   );
                 })}
               </View>
@@ -253,15 +249,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxs,
   },
   listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.neutral.border,
-  },
-  listItemMain: {
-    flex: 1,
   },
   listItemTitle: {
     fontWeight: typography.weight.bold,

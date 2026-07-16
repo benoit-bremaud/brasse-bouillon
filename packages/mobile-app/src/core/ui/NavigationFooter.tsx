@@ -125,10 +125,13 @@ export function NavigationFooter() {
   return (
     <View
       // The bar is flush to the bottom edge and absorbs the safe-area inset on
-      // TOP of its own symmetric vertical padding, so its footprint is exactly
+      // TOP of its own symmetric vertical padding, so its footprint is
       // `navBar.height + insets.bottom` — the figure `useNavBarClearance`
       // reserves for content (ADR-0029). The inset must add to the padding, not
       // replace it, or the bar renders shorter than the token claims.
+      // The hairline top border sits on top of that and is deliberately NOT
+      // reserved: it is the sub-pixel separator between content and bar, so
+      // content abutting it is the intended boundary, not occlusion.
       style={[
         styles.container,
         { paddingBottom: navBar.verticalPadding + insets.bottom },

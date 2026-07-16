@@ -1,6 +1,6 @@
 # ADR-0029 — Bottom navigation: flush edge-to-edge scroll-away bar, centralized bottom clearance
 
-**Status**  Proposed
+**Status**  Accepted
 **Date**    2026-07-16 (audit + decisions D1/D2 taken 2026-07-15, branch `claude/mobile-footer-audit-fef293`)
 **Owners**  @benoit-bremaud
 
@@ -59,13 +59,28 @@ on scroll-down, reappears on scroll-up. The conception study lives in
    while the content's bottom clearance stays **constant**. Animating the padding itself
    (reclaiming the residual end-of-list gap) is **rejected**: it reflows content on every
    toggle (jank) and reintroduces a dynamic offset (bug surface).
-4. **Centralized bottom clearance.** The `Screen` primitive reserves the bar's footprint,
-   exactly as it already owns the top clearance. `useNavigationFooterOffset` and the
-   **36 per-screen `paddingBottom` call sites are deleted**. `NAV_BAR_HEIGHT`
+4. **Centralized bottom clearance.** The clearance is owned by shared scroll containers —
+   `ScreenScrollView` / `ScreenFlatList` (`core/ui`) — which every scrollable screen uses in
+   place of a raw `ScrollView` / `FlatList`. They apply the footprint to the scrolled
+   **content** and wire `onScroll` (clause 5) in one swap. `useNavigationFooterOffset` and
+   the **36 per-screen `paddingBottom` call sites are deleted**. `NAV_BAR_HEIGHT`
    (`core/theme/layout.ts`) is the bar's base **visual** height; the effective footprint is
-   computed at runtime as `NAV_BAR_HEIGHT + insets.bottom` and shared by `Screen` (reserved
-   clearance), the bar (hide translate distance) and its followers — a bare constant cannot
-   serve devices with a non-zero bottom safe-area inset.
+   computed at runtime by `useNavigationBarFootprint()` as `NAV_BAR_HEIGHT + insets.bottom`
+   and shared by the containers (reserved clearance), the bar (its own height *and* hide
+   translate distance) and its followers — a bare constant cannot serve devices with a
+   non-zero bottom safe-area inset.
+
+   > **Amended at build time (2026-07-16).** This clause first read "the `Screen` primitive
+   > reserves the bar's footprint". That is not implementable as written without losing D2:
+   > `Screen` wraps a screen, so it can only pad its own container, which stops content from
+   > scrolling *under* the bar — the full-screen feel of B1 — and turns the residual gap into
+   > a permanent one. That is option **A (space always reserved)** of the second matrix,
+   > which this ADR rejected. The clearance must live on the scrolled content's
+   > `contentContainerStyle` (as `02-state` already specified), and only the scroll container
+   > itself can put it there. Shared containers keep the intent — one source, zero per-screen
+   > arithmetic, no opt-in to forget — and shrink the migration to a single swap per screen.
+   > `Screen` keeps the top clearance; the bottom is not symmetric with it because the top
+   > has no scroll-under requirement.
 5. **Single visibility source.** One shared `useScrollDirection` hook (anti-flicker threshold +
    near-top guard, defined once) feeds a `FooterVisibilityContext`. The bar, the app-level
    `Snackbar`, and sticky CTAs all follow that one boolean — they can no longer desync.

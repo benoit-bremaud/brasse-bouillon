@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   Image,
@@ -35,6 +34,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   academyTopics,
   getAcademyTopicBySlug,
@@ -52,8 +52,6 @@ type Props = {
 export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
   const router = useRouter();
   const [glossaryQuery, setGlossaryQuery] = React.useState("");
-  const bottomPadding = useNavigationFooterOffset();
-  const screenBottomPadding = bottomPadding + spacing.xl;
   const scrollViewRef = React.useRef<ScrollView>(null);
   const articleTopOffsetRef = React.useRef(0);
   const sectionOffsetsRef = React.useRef<Record<string, number>>({});
@@ -193,13 +191,10 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
           }
         />
 
-        <ScrollView
+        <ScreenScrollView
           key={`${normalizedSlug ?? "unknown"}:${normalizedTermSlug ?? ""}`}
           ref={scrollViewRef}
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: screenBottomPadding },
-          ]}
+          contentContainerStyle={styles.content}
         >
           {calculatorSlug ? (
             <Card style={styles.sectionCard}>
@@ -270,7 +265,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
               })
             }
           />
-        </ScrollView>
+        </ScreenScrollView>
       </Screen>
     );
   }
@@ -293,12 +288,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
         }
       />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: screenBottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <Card style={styles.heroCard}>
           <View style={styles.heroTopRow}>
             <Image
@@ -350,7 +340,7 @@ export function AcademyTopicDetailsScreen({ slugParam, termSlugParam }: Props) {
             style={styles.secondaryButtonSpacing}
           />
         ) : null}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

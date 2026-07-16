@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,8 +14,9 @@ import { CapacityFitPanel } from "@/features/recipes/presentation/components/Cap
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { STICKY_CTA_BAR_HEIGHT } from "@/core/ui/sticky-cta-clearance";
 import {
   getRecipeDetailsViewModel,
   type RecipeDetailsViewModel,
@@ -57,7 +58,6 @@ export function BrewPrepScreen({ recipeId }: Props) {
   const router = useRouter();
   const confirm = useConfirm();
   const queryClient = useQueryClient();
-  const footerOffset = useNavigationFooterOffset();
   const hasRecipeId = recipeId.trim().length > 0;
 
   const {
@@ -268,9 +268,12 @@ export function BrewPrepScreen({ recipeId }: Props) {
       />
 
       <View style={styles.body}>
-        <ScrollView
+        <ScreenScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          // This screen pins a sticky CTA above the nav bar; the content must
+          // clear both.
+          extraBottomClearance={STICKY_CTA_BAR_HEIGHT}
         >
           <ListHeader
             title="Préparer mon brassin"
@@ -329,7 +332,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
               )}
             </Card>
           ) : null}
-        </ScrollView>
+        </ScreenScrollView>
       </View>
 
       <RecipeStickyCta
@@ -339,7 +342,6 @@ export function BrewPrepScreen({ recipeId }: Props) {
         disabled={
           !complete || isStarting || isSavingChecklist || !viewModel || !draft
         }
-        bottomOffset={footerOffset}
       />
     </Screen>
   );

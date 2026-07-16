@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import { RefreshControl, StyleSheet, View } from "react-native";
 
 import { useRouter, type Href } from "expo-router";
 
@@ -9,8 +9,8 @@ import { BeerMugLoader } from "@/core/ui/BeerMugLoader";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 
 import { toBeerListItemVM } from "@/features/beer-catalog/application/beer-catalog.view-model";
 import {
@@ -38,7 +38,6 @@ import { SearchField } from "@/features/beer-catalog/presentation/components/Sea
  * (`mobile-catalog/07-state-list-screen.md`).
  */
 export function BeerCatalogSearchScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const [term, setTerm] = useState("");
   const debounced = useDebouncedValue(term);
@@ -111,7 +110,7 @@ export function BeerCatalogSearchScreen() {
     );
   } else {
     content = (
-      <FlatList
+      <ScreenFlatList
         testID="beer-catalog-search-list"
         data={rows}
         keyExtractor={(item) => item.id}
@@ -142,7 +141,7 @@ export function BeerCatalogSearchScreen() {
             onRefresh={handleRefetch}
           />
         }
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
       />
     );

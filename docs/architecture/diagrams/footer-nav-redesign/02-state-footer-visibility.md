@@ -1,12 +1,12 @@
 # State diagram — footer-nav-redesign — footer visibility lifecycle
 
 > **Feature**: mobile bottom-nav footer redesign — flush edge-to-edge bar + Revolut scroll-away.
-> **Related ADRs**: ADR-0029 (Proposed) — this machine realizes clauses 2–3 and 6–8.
+> **Related ADRs**: ADR-0029 (Accepted) — this machine realizes clauses 2–3 and 6–8.
 > **Decisions captured**: D1 (scroll-away), D2 (recover space when hidden — B1 translate-only).
 
 ## Context
 
-The `stm` for the shared footer visibility held in `FooterVisibilityContext`. It drives the bar's `translateY` (and the Snackbar / sticky-CTA follow). It deliberately models **visibility only**: the content clearance has no state dimension here — it is **constant across both states** and owned by the `Screen` primitive. That absence is the point, and it is exactly what makes the clause-6 invariant below hold.
+The `stm` for the shared footer visibility held in `FooterVisibilityContext`. It drives the bar's `translateY` (and the Snackbar / sticky-CTA follow). It deliberately models **visibility only**: the content clearance has no state dimension here — it is **constant across both states** and owned by the shared scroll containers (`ScreenScrollView` / `ScreenFlatList`), which apply it to the scrolled content — see ADR-0029 clause 4 and its amendment. That absence is the point, and it is exactly what makes the clause-6 invariant below hold.
 
 Two states only. `Revealed` = bar flush at the bottom (`translateY = 0`). `Hidden` = bar slid off the bottom edge (`translateY = +footprint`, where footprint = `NAV_BAR_HEIGHT + insets.bottom` — ADR-0029 clause 4).
 

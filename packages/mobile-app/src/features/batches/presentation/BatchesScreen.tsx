@@ -1,10 +1,8 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   BatchStatus,
   BatchSummary,
 } from "@/features/batches/domain/batch.types";
 import {
-  FlatList,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -22,6 +20,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import React from "react";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { dataSource } from "@/core/data/data-source";
 import { demoRecipes } from "@/mocks/demo-data";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -65,7 +64,6 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 };
 
 export function BatchesScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: batches = [],
@@ -115,10 +113,10 @@ export function BatchesScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={activeBatches}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }

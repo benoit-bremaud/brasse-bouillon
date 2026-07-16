@@ -9,8 +9,8 @@ import {
   buildRecipeBackNavigationTarget,
   normalizeIngredientReturnContextParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -85,7 +85,6 @@ export function HopDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const normalizedHopId = normalizeRouteParam(hopIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,
@@ -212,13 +211,10 @@ export function HopDetailsScreen({
       }}
     >
       {hop ? (
-        <ScrollView
+        <ScreenScrollView
           testID="hop-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: bottomPadding },
-          ]}
+          contentContainerStyle={styles.content}
         >
           <ListHeader
             title={hop.name}
@@ -282,7 +278,7 @@ export function HopDetailsScreen({
           ) : null}
 
           <PrimaryButton label="Go back" onPress={handleGoBack} />
-        </ScrollView>
+        </ScreenScrollView>
       ) : null}
     </Screen>
   );

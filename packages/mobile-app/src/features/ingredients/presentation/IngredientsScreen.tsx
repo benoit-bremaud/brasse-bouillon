@@ -1,5 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   getIngredientCategoryPageTitle,
@@ -15,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import React from "react";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { getErrorMessage } from "@/core/http/http-error";
 import { ingredientCategoryLabels } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
@@ -22,7 +22,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 export function IngredientsScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: categories = [],
@@ -75,10 +74,10 @@ export function IngredientsScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={categories}
         keyExtractor={(item) => item.category}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => {
           const presentation =
             ingredientCategoryPresentationById[item.category];

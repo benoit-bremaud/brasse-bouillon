@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateIbuTinseth,
   calculateRequiredHopGramsForTargetIbu,
@@ -7,19 +6,13 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useCallback, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   getHopDefaultAa,
   hopCatalog,
@@ -84,7 +77,6 @@ function getBuGuRating(ratio: number): BuGuRating {
 }
 
 export function HoublonsCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
 
   // Rapide tab state
@@ -255,12 +247,7 @@ export function HoublonsCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {/* ─── Onglet Rapide ────────────────────────────────────────── */}
         {activeTab === "rapide" && (
           <>
@@ -611,7 +598,7 @@ export function HoublonsCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

@@ -1,5 +1,4 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
-import { FlatList, RefreshControl, StyleSheet } from "react-native";
+import { RefreshControl, StyleSheet } from "react-native";
 import { spacing } from "@/core/theme";
 
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -10,6 +9,7 @@ import React from "react";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
 import { RecipeCard } from "@/features/recipes/presentation/RecipeCard";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { getErrorMessage } from "@/core/http/http-error";
 import { listPublicRecipes } from "@/features/recipes/application/recipes.use-cases";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +28,6 @@ import { useRouter } from "expo-router";
  * RecipeDetailsScreen.
  */
 export function CatalogScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: recipes = [],
@@ -74,10 +73,10 @@ export function CatalogScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={recipes}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }

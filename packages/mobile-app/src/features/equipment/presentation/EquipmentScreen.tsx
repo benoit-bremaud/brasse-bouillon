@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, spacing, typography } from "@/core/theme";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { listEquipmentProfiles } from "@/features/equipment/application/equipment.use-cases";
 import { EQUIPMENT_SYSTEM_OPTIONS } from "@/features/equipment/domain/equipment-system-options";
 import {
@@ -35,7 +35,6 @@ function systemTypeLabel(systemType: EquipmentSystemType): string {
 
 export function EquipmentScreen() {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
 
   const {
     data: profiles,
@@ -73,13 +72,10 @@ export function EquipmentScreen() {
             onPress={goToWizard}
             style={styles.cta}
           />
-          <FlatList
+          <ScreenFlatList
             data={profiles}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[
-              styles.list,
-              { paddingBottom: bottomPadding },
-            ]}
+            contentContainerStyle={styles.list}
             renderItem={({ item }) => (
               <EquipmentCard
                 profile={item}

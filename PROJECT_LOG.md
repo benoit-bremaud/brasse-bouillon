@@ -7,6 +7,17 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-16
 
+### PR #1457 merged (`188f894`) — fix(mobile-app): cover the 5 screens that never opted into the nav clearance
+
+- Branch `fix/nav-clearance-missing-screens`, 2 commits (`ff46f12`, `a8b2ad5`). Follow-up to #1452.
+- ADR-0029's "36 screens" counted the screens that had **opted into** `useNavigationFooterOffset`, not the screens the bar covers; #1452 migrated those 36 faithfully and inherited the blind spot. A sweep of every raw vertical scroller under `(app)` found 5 that had never called the hook: `ScanScreen`, `ScanResultScreen`, `PendingScansScreen` (reserving `spacing.xl` = 32, occluded), `ProfileScreen` (`spacing.lg` = 24, latent — content too short to scroll), `BeerInfoCardScreen` (`spacing.xxl * 3` = 120, over-reserved, not occluded). All 5 migrated onto `ScreenScrollView`; real population 41.
+- ADR-0029 context, clause 4 and consequences reconciled: the count was an opt-in tally mistaken for the population, and the consequences still described a `Screen`-owned clearance the clause-4 amendment had already dropped.
+- **Decisions**:
+  - `nav-clearance-population-not-opt-ins` — the migration inventory is every scroller the bar covers, not the screens that previously opted in; counting opt-ins is the failure mode the opt-in model produces. Recorded on ADR-0029 context.
+- Excluded by design, verified not assumed: nested scrollers inside an already-reserved container (recipe tabs), modal scrollers, `LoginScreen` (under `(auth)`, no bar), `LabelSelectBatchScreen` (CTA is a sibling below the list and anchors itself).
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex, both clean); 3 Shoulds applied (commit scope `mobile/ui` → `mobile-app` per CONTRIBUTING + #1442/#1448 precedent; the ADR's "~88px" was the old pill-era hook's figure, not the new `NAV_BAR_HEIGHT + insets.bottom` footprint; dead empty `content: {}` style dropped). Copilot 1 inline (ADR consequences contradicting clause 4), fixed in `a8b2ad5` with an inline reply. CI green (mobile-app jest). PR #1454 closed as redundant — a parallel session built the same ADR and landed it first as #1452.
+- Known follow-ups, out of scope: the CI grep guard ADR-0029's own Verification section prescribes (nothing prevents a future screen reintroducing a raw `ScrollView` + hand-rolled padding); the pre-existing nested-`ScrollView` smell in the recipe tabs; the inline style in `LabelSelectBatchScreen`.
+
 ### PR #1456 merged (`8b80d0d`) — docs(conception): retire the shop's duplicate catalog use case
 
 - Branch `docs/shop-catalog-conception`, 3 commits (`931d15a`, `0f60a1f`, `dcc7df7`). Conception only, no code. Follow-up to the audit behind #1444: the app shipped two ingredient catalogs — a real one under `/ingredients` and a fake one under `/shop` — because the conception modelled the same actor goal twice. `ingredients/01-use-case.md` declared UC1–UC3 (browse / filter / datasheet) while `equipment-shop/01-use-case.md` declared UC3 "Browse the shop by category" + UC4 "View a product". Deleting the fake catalog in #1444 fixed the symptom and left the cause standing.

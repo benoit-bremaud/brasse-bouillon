@@ -16,8 +16,8 @@ brewer taps an ingredient in a recipe. Moving those routes under `/shop` would
 break the recipe → ingredient path and its tests, and buy nothing: the goal is
 one *door*, not one *directory*.
 
-So the Shop hub replaces the `/ingredients` **hub** only. Everything below the
-hub is shared.
+So the Shop hub is to replace the `/ingredients` **hub** only. Everything below
+the hub stays shared.
 
 ## Diagram
 

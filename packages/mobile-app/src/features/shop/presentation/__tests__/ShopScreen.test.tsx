@@ -35,34 +35,28 @@ describe("ShopScreen", () => {
     expect(screen.getByText("Tout pour brasser chez vous")).toBeTruthy();
   });
 
-  it("renders all category cards", () => {
+  it("renders all category preview tiles with sober labels", () => {
     render(<ShopScreen />);
 
     expect(screen.getByText("Malts")).toBeTruthy();
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.getByText("Levures")).toBeTruthy();
     expect(screen.getByText("Kits")).toBeTruthy();
-    expect(screen.getByText("L'Office 🍽️")).toBeTruthy();
-    expect(screen.getByText("L'Épicerie 🌶️")).toBeTruthy();
+    expect(screen.getByText("Matériel")).toBeTruthy();
+    expect(screen.getByText("Accessoires")).toBeTruthy();
   });
 
-  it("navigates to category screen when card is pressed", () => {
+  it("renders the honest coming-soon message", () => {
     render(<ShopScreen />);
 
-    const maltsCard = screen.getByLabelText("Ouvrir la catégorie Malts");
-    fireEvent.press(maltsCard);
-
-    expect(mockPush).toHaveBeenCalledWith({
-      pathname: "/(app)/shop/[category]",
-      params: { category: "malts" },
-    });
+    expect(screen.getByText(/La boutique arrive bientôt/)).toBeTruthy();
   });
 
-  it("renders coming soon info card", () => {
+  it("navigates to the Academy from the header shortcut", () => {
     render(<ShopScreen />);
 
-    expect(
-      screen.getByText(/Bientôt disponible : commande en ligne/),
-    ).toBeTruthy();
+    fireEvent.press(screen.getByLabelText("Accéder à l'Académie"));
+
+    expect(mockPush).toHaveBeenCalledWith("/(app)/academy");
   });
 });

@@ -39,10 +39,8 @@ import {
   RecipeProcessDisplayMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import {
-  buildIngredientCartItems,
   calculateScalingFactor,
   calculateWaterCompatibility,
-  toIngredientCartItem,
 } from "@/features/recipes/presentation/recipe-details.utils";
 import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
 import type { WaterStylePresetId } from "@/features/tools/domain/water-profiles";
@@ -54,7 +52,6 @@ import {
   getWaterLocationProfileByName,
   getWaterStylePresetById,
 } from "@/features/tools/data/water-profiles.data";
-import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 
 type Props = Readonly<{
   recipeId: string;
@@ -273,21 +270,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       ? null
       : getErrorMessage(queryError, "Impossible de charger la recette")
     : null;
-
-  // Add-to-cart actions stay wired but no longer accumulate a local
-  // list on the detail screen — the cart preview was retired with the
-  // 5-tab redesign. Each call still produces a `LocalCartItem` so the
-  // forthcoming global cart store (Issue follow-up to #918) can pick
-  // it up without further changes here.
-  const handleAddIngredientToCart = (
-    ingredient: RecipeDetailsIngredientItem,
-  ) => {
-    void toIngredientCartItem(ingredient, scalingFactor);
-  };
-
-  const handleAddAllIngredientsToCart = () => {
-    void buildIngredientCartItems(ingredients, scalingFactor);
-  };
 
   const handleOpenIngredient = (ingredient: {
     id: string;
@@ -544,8 +526,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     targetVolumeLiters={targetVolumeLiters}
                     scalingFactor={scalingFactor}
                     onChangeTargetVolume={setTargetVolumeLiters}
-                    onAddIngredientToCart={handleAddIngredientToCart}
-                    onAddAllIngredientsToCart={handleAddAllIngredientsToCart}
                     onOpenIngredient={handleOpenIngredient}
                     onOpenShop={handleOpenShop}
                   />

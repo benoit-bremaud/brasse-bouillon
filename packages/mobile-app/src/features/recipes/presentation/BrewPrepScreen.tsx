@@ -15,6 +15,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { STICKY_CTA_BAR_HEIGHT } from "@/core/ui/sticky-cta-clearance";
 import { useNavBarClearance } from "@/core/ui/use-nav-bar-clearance";
 import { Screen } from "@/core/ui/Screen";
 import {
@@ -270,6 +271,9 @@ export function BrewPrepScreen({ recipeId }: Props) {
 
       <View style={styles.body}>
         <ScreenScrollView
+          // The sticky CTA is always mounted on this screen, so its content
+          // must clear both bars — same contract as recipe/batch details.
+          extraBottomClearance={STICKY_CTA_BAR_HEIGHT}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >

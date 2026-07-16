@@ -233,6 +233,11 @@ export function LabelSelectBatchScreen() {
         />
       )}
 
+      {/* The CTA is the last flex child, so its own bottom margin is what
+          reserves the nav-bar clearance for this screen — the list above is
+          constrained by it and never reaches the bar, which is why that list
+          deliberately stays a raw FlatList (ADR-0029 clause 4). The margin is
+          per-device, so it cannot live in StyleSheet.create. */}
       <View style={{ marginBottom: navBarClearance }}>
         <PrimaryButton
           accessibilityLabel="Créer un brouillon d’étiquette"

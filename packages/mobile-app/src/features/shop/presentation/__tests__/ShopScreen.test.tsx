@@ -10,16 +10,12 @@ jest.mock("@expo/vector-icons", () => {
 });
 
 describe("ShopScreen", () => {
-  it("renders shop header with title and subtitle", () => {
+  it("renders the coming-soon placeholder with all six category previews", () => {
     render(<ShopScreen />);
 
     expect(screen.getByText("Ma Boutique")).toBeTruthy();
     expect(screen.getByText("Tout pour brasser chez vous")).toBeTruthy();
-  });
-
-  it("renders all category preview tiles with sober labels", () => {
-    render(<ShopScreen />);
-
+    expect(screen.getByText(/La boutique arrive bientôt/)).toBeTruthy();
     expect(screen.getByText("Malts")).toBeTruthy();
     expect(screen.getByText("Houblons")).toBeTruthy();
     expect(screen.getByText("Levures")).toBeTruthy();
@@ -28,17 +24,22 @@ describe("ShopScreen", () => {
     expect(screen.getByText("Accessoires")).toBeTruthy();
   });
 
-  it("renders the honest coming-soon message", () => {
+  // Guards the decision this screen exists to express (#1444): while shop
+  // commerce is deferred, the shop promises nothing it cannot deliver — the
+  // category tiles are previews, not entry points, and there is no cart.
+  // A pressable appearing here means an affordance crept back in, so this
+  // must fail loudly and be re-decided rather than quietly amended.
+  it("exposes no pressable affordance while commerce is deferred", () => {
     render(<ShopScreen />);
 
-    expect(screen.getByText(/La boutique arrive bientôt/)).toBeTruthy();
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
   });
 
-  // The header carries no Academy shortcut: the cross-link was unrelated to
-  // shopping and its pill was clipped off the right screen edge on device.
-  it("offers no Academy shortcut", () => {
+  // The same decision, from the money angle: #1444 deleted a catalog of
+  // invented prices. No price may render until real products exist.
+  it("displays no price", () => {
     render(<ShopScreen />);
 
-    expect(screen.queryByLabelText("Accéder à l'Académie")).toBeNull();
+    expect(screen.queryByText(/€/)).toBeNull();
   });
 });

@@ -1,20 +1,13 @@
-import type {
-  RecipeDetailsEquipmentItem,
-  RecipeDetailsIngredientItem,
-} from "@/features/recipes/application/recipes.use-cases";
+import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 import {
-  buildIngredientCartItems,
   calculateScalingFactor,
   calculateWaterCompatibility,
   formatQuantity,
   getIngredientGroupEntries,
   groupIngredientsByType,
   isVolumeCompatible,
-  mapIngredientCategoryToShopCategory,
   parseTargetVolume,
   scaleQuantity,
-  toEquipmentCartItem,
-  toIngredientCartItem,
 } from "@/features/recipes/presentation/recipe-details.utils";
 
 describe("recipe-details.utils", () => {
@@ -87,19 +80,6 @@ describe("recipe-details.utils", () => {
     },
   ];
 
-  const equipment: RecipeDetailsEquipmentItem = {
-    equipmentId: "eq-1",
-    role: "Mash & boil",
-    notes: null,
-    equipment: {
-      id: "eq-1",
-      name: "Braumeister 20L",
-      type: "all-in-one",
-      volumeLiters: 20,
-      efficiencyPercent: 72,
-    },
-  };
-
   it("parses target volume with dot and comma separators", () => {
     expect(parseTargetVolume("25.5", 20)).toBe(25.5);
     expect(parseTargetVolume("25,5", 20)).toBe(25.5);
@@ -142,46 +122,6 @@ describe("recipe-details.utils", () => {
       { key: "yeast", label: "Yeasts" },
       { key: "other", label: "Others" },
     ]);
-  });
-
-  it("maps ingredient categories to shop categories", () => {
-    expect(mapIngredientCategoryToShopCategory("malt")).toBe("malts");
-    expect(mapIngredientCategoryToShopCategory("hop")).toBe("houblons");
-    expect(mapIngredientCategoryToShopCategory("yeast")).toBe("levures");
-    expect(mapIngredientCategoryToShopCategory(undefined)).toBe("accessoires");
-    expect(mapIngredientCategoryToShopCategory(null)).toBe("accessoires");
-  });
-
-  it("builds ingredient cart items with scaled quantities", () => {
-    const hop = baseIngredients[1];
-    const single = toIngredientCartItem(hop, 2);
-
-    expect(single).toEqual({
-      key: "ingredient-hop-1-g",
-      source: "ingredient",
-      refId: "hop-1",
-      name: "Citra",
-      category: "houblons",
-      quantity: 50,
-      unit: "g",
-    });
-
-    const all = buildIngredientCartItems(baseIngredients, 2);
-    expect(all).toHaveLength(4);
-    expect(all[0].quantity).toBe(10);
-    expect(all[1].quantity).toBe(50);
-  });
-
-  it("builds equipment cart item", () => {
-    expect(toEquipmentCartItem(equipment)).toEqual({
-      key: "equipment-eq-1",
-      source: "equipment",
-      refId: "eq-1",
-      name: "Braumeister 20L",
-      category: "materiel",
-      quantity: 1,
-      unit: "unit",
-    });
   });
 
   it("checks target volume compatibility against equipment capacity", () => {

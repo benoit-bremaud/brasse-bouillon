@@ -3,6 +3,7 @@ import { FlatList, RefreshControl, StyleSheet } from "react-native";
 import { spacing } from "@/core/theme";
 
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import React from "react";
@@ -62,6 +63,7 @@ export function CatalogScreen() {
       <ListHeader
         title="Catalogue de recettes"
         subtitle="Découvre les recettes partagées par la communauté Brasse-Bouillon"
+        action={<BackHeaderAction fallback="/recipes" />}
       />
 
       {showEmptyState ? (

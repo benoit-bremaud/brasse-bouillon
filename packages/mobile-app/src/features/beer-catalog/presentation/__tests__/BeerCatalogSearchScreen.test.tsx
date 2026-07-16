@@ -144,6 +144,12 @@ describe("BeerCatalogSearchScreen (UC2)", () => {
     });
   });
 
+  it("renders a back control in the header", () => {
+    render(<BeerCatalogSearchScreen />);
+
+    expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
+  });
+
   // happy: the query only reaches the hook once the debounce settles —
   // an intermediate keystroke is never propagated.
   it("happy: debounces the term before it reaches the hook", () => {

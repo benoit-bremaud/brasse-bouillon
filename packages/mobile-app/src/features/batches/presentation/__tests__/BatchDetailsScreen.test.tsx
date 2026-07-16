@@ -29,6 +29,8 @@ const TS = "2026-05-01T08:00:00.000Z";
 
 const mockReplace = jest.fn();
 const mockPush = jest.fn();
+const mockBack = jest.fn();
+let mockCanGoBack = true;
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -41,7 +43,8 @@ jest.mock("expo-router", () => {
     useRouter: () => ({
       push: mockPush,
       replace: mockReplace,
-      back: jest.fn(),
+      back: mockBack,
+      canGoBack: () => mockCanGoBack,
     }),
   };
 });
@@ -148,6 +151,8 @@ async function pressDialogButton(label: string) {
 describe("BatchDetailsScreen", () => {
   beforeEach(() => {
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     dataSource.useDemoData = false;
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
       viewModel(mashBatch, "Ma recette test"),
@@ -581,7 +586,24 @@ describe("BatchDetailsScreen", () => {
 
     fireEvent.press(screen.getByLabelText("Retour à la liste des brassins"));
 
+    // Now pops the real history when it exists (returns to the true origin),
+    // falling back to the batches list only when there is none — see
+    // useBackNavigation. The batches Stack keeps the list beneath, so this
+    // still lands on the list in-app.
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("falls back to the batches list when there is no history to pop", async () => {
+    mockCanGoBack = false;
+
+    renderBatchDetailsScreen();
+
+    expect(await screen.findByText("Ma recette test")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Retour à la liste des brassins"));
+
     expect(mockReplace).toHaveBeenCalledWith("/batches");
+    expect(mockBack).not.toHaveBeenCalled();
   });
 });
 
@@ -636,6 +658,8 @@ describe("BatchDetailsScreen — demo-mode fermentation tracker", () => {
 
   beforeEach(() => {
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     dataSource.useDemoData = true;
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
       viewModel(fermentationInProgressBatch, "La Première du dimanche"),
@@ -753,6 +777,8 @@ describe("BatchDetailsScreen — brewing step timer + pedagogical tip (#781)", (
 
   beforeEach(() => {
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     dataSource.useDemoData = true;
     (getBatchDetailsViewModel as jest.Mock).mockResolvedValue(
       viewModel(guidedMashBatch, "La Première du dimanche"),
@@ -1018,6 +1044,8 @@ describe("BatchDetailsScreen — B3 bottling routing + closure view", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     dataSource.useDemoData = false;
     (listBatchMeasurements as jest.Mock).mockResolvedValue([]);
     (getTasting as jest.Mock).mockResolvedValue(null);

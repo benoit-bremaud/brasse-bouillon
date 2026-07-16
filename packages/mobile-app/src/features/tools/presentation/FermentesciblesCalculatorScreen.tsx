@@ -25,6 +25,7 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
@@ -123,6 +124,7 @@ export function FermentesciblesCalculatorScreen() {
       <ListHeader
         title="🍺 Calculs Fermentescibles"
         subtitle="Densité initiale et malts"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       {/* Tabs */}

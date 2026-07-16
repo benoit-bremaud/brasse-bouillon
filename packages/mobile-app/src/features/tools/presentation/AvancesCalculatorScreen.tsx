@@ -24,6 +24,7 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 
@@ -127,6 +128,7 @@ export function AvancesCalculatorScreen() {
       <ListHeader
         title="🧪 Calculs avancés"
         subtitle="Enzymes · Diagnostic moût · Altitude"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>

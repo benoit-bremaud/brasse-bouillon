@@ -7,7 +7,13 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-import { colors, shadows, spacing, typography } from "@/core/theme";
+import {
+  colors,
+  NAV_BAR_HEIGHT,
+  shadows,
+  spacing,
+  typography,
+} from "@/core/theme";
 import { useFooterVisibility } from "@/core/ui/footer-visibility-context";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { useMarkStickyCtaPresent } from "@/core/ui/sticky-cta-clearance";
@@ -44,10 +50,12 @@ export function RecipeStickyCta({
   const translateY = useSharedValue(0);
 
   React.useEffect(() => {
-    // Slide down into the space the bar frees. Without this the reserved
+    // Slide down into the space the bar frees — without this the reserved
     // footprint stays as a dead white block under the button once the bar is
-    // hidden (seen on device).
-    const target = visible ? 0 : footprint;
+    // hidden (seen on device). Reclaim only the bar's VISUAL height: the
+    // safe-area inset does not go away with the bar, so translating by the full
+    // footprint would push the button into the home-indicator area.
+    const target = visible ? 0 : NAV_BAR_HEIGHT;
     translateY.value = prefersReducedMotion
       ? target
       : withSpring(target, { mass: 1, damping: 18, stiffness: 140 });

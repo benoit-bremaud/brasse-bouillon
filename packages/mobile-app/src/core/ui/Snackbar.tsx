@@ -7,7 +7,14 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-import { colors, radius, shadows, spacing, typography } from "@/core/theme";
+import {
+  colors,
+  NAV_BAR_HEIGHT,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from "@/core/theme";
 import { useFooterVisibility } from "@/core/ui/footer-visibility-context";
 import { useNavigationBarFootprint } from "@/core/ui/use-navigation-bar-footprint";
 import { useStickyCtaClearance } from "@/core/ui/sticky-cta-clearance";
@@ -44,9 +51,11 @@ export function Snackbar({
   const translateY = useSharedValue(0);
 
   React.useEffect(() => {
-    // When the bar slides away, its footprint is free — follow it down so the
-    // snackbar keeps hugging the bar instead of leaving a gap.
-    const target = isFooterVisible ? 0 : footprint;
+    // Follow the bar down so the snackbar keeps hugging it instead of leaving a
+    // gap — but reclaim only the bar's VISUAL height, never the safe-area inset.
+    // Translating by the full footprint would eat `insets.bottom` too and drop
+    // the snackbar into the home-indicator area once the bar is hidden.
+    const target = isFooterVisible ? 0 : NAV_BAR_HEIGHT;
     translateY.value = prefersReducedMotion
       ? target
       : withSpring(target, { mass: 1, damping: 18, stiffness: 140 });

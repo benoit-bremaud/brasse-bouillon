@@ -8,6 +8,7 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import * as Haptics from "expo-haptics";
@@ -111,6 +112,7 @@ export function RendementCalculatorScreen() {
       <ListHeader
         title="⚙️ Calculs Rendement"
         subtitle="Efficacité · Volumes · Plan d'eau"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>

@@ -1,5 +1,11 @@
 import React, { useMemo } from "react";
-import { FlatList, Pressable, RefreshControl, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, type Href } from "expo-router";
@@ -7,6 +13,7 @@ import { useRouter, type Href } from "expo-router";
 import { getErrorMessage } from "@/core/http/http-error";
 import { colors, spacing } from "@/core/theme";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
@@ -82,21 +89,24 @@ export function BeerCatalogBrowseScreen() {
         title={BROWSE_TITLE}
         subtitle={BROWSE_SUBTITLE}
         action={
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Rechercher une bière"
-            // Href cast: the `app/(app)/beer-catalog/*` route files land
-            // with the routing slice; typed routes do not know them yet.
-            onPress={() => router.push("/(app)/beer-catalog/search" as Href)}
-            style={styles.searchAction}
-            testID="beer-catalog-search-action"
-          >
-            <Ionicons
-              name="search-outline"
-              size={22}
-              color={colors.brand.primary}
-            />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <BackHeaderAction fallback="/(app)/dashboard" />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Rechercher une bière"
+              // Href cast: the `app/(app)/beer-catalog/*` route files land
+              // with the routing slice; typed routes do not know them yet.
+              onPress={() => router.push("/(app)/beer-catalog/search" as Href)}
+              style={styles.searchAction}
+              testID="beer-catalog-search-action"
+            >
+              <Ionicons
+                name="search-outline"
+                size={22}
+                color={colors.brand.primary}
+              />
+            </Pressable>
+          </View>
         }
       />
 
@@ -143,6 +153,11 @@ export function BeerCatalogBrowseScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   searchAction: {
     padding: spacing.xs,
   },

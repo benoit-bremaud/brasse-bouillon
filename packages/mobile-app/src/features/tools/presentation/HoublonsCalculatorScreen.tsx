@@ -17,6 +17,7 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import {
@@ -208,6 +209,7 @@ export function HoublonsCalculatorScreen() {
       <ListHeader
         title="🌿 Calculs Houblons"
         subtitle="IBU · Tinseth · BU:GU"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       {/* Tabs */}

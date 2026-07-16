@@ -274,4 +274,15 @@ describe("BeerCatalogBrowseScreen (UC1)", () => {
     getBrowseListProps().onEndReached?.({ distanceFromEnd: 0 });
     expect(mockFetchNextPage).toHaveBeenCalledTimes(1);
   });
+
+  // back-buttons: the header composes the new back control with the existing
+  // search action — adding one must not drop the other.
+  it("shows both a back control and the search action in the header", () => {
+    mockedUseBeerCatalogPagination.mockReturnValue(buildPaginationResult({}));
+
+    render(<BeerCatalogBrowseScreen />);
+
+    expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
+    expect(screen.getByLabelText("Rechercher une bière")).toBeTruthy();
+  });
 });

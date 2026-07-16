@@ -23,6 +23,7 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import Slider from "@react-native-community/slider";
@@ -148,7 +149,11 @@ export function CouleurCalculatorScreen() {
 
   return (
     <Screen>
-      <ListHeader title="🎨 Calculs Couleur" subtitle="MCU · SRM · EBC" />
+      <ListHeader
+        title="🎨 Calculs Couleur"
+        subtitle="MCU · SRM · EBC"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
+      />
 
       {/* Tabs */}
       <View style={styles.tabsContainer}>

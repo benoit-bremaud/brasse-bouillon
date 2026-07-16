@@ -1,5 +1,12 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 import { Badge } from "@/core/ui/Badge";
@@ -129,7 +136,10 @@ export function AcademyHubScreen() {
           ) : null}
         </View>
 
-        <ScreenScrollView
+        {/* Raw ScrollView on purpose: this inner filter carousel is horizontal
+            and nested in the page, so it must NOT reserve the nav-bar
+            clearance — only the screen's own vertical scroller does. */}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterList}
@@ -178,7 +188,7 @@ export function AcademyHubScreen() {
               </Text>
             </Pressable>
           ))}
-        </ScreenScrollView>
+        </ScrollView>
 
         {filteredAcademyCards.length === 0 ? (
           <Card style={styles.emptyCard}>

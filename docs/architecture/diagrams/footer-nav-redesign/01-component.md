@@ -48,7 +48,7 @@ flowchart TD
 ## Notes
 
 - **Single source of truth for the bar height** (`NAV_BAR_HEIGHT` in `theme/layout` = base visual height; effective footprint = `NAV_BAR_HEIGHT + insets.bottom`, computed at runtime): both `Screen` (reserved clearance) and `NavigationFooter` (translate distance) derive from the same pair. Kills audit finding **M2** (offset was a hand-rebuilt magic number `48 + spacing.md`) and **M3** (the hardcoded `+96` in `RecipeDetailsScreen`). A bare constant alone would break on devices with a non-zero bottom safe-area inset (ADR-0029 clause 4).
-- **`Screen` owns the bottom clearance** now (it already owns the top clearance via `brandHeader.contentClearance`) — removes the 37-screen opt-in that is the root cause of "ça cache les boutons" (**M1/B1**). `useNavigationFooterOffset` is deleted.
+- **`Screen` owns the bottom clearance** now (it already owns the top clearance via `brandHeader.contentClearance`) — removes the 37-screen opt-in that is the root cause of "it hides buttons" (**M1/B1**). `useNavigationFooterOffset` is deleted.
 - **D2 (recover space when hidden)** is realized via **B1 (translate-only)**: the reserved bottom padding stays **constant**; the full-screen feel comes from the bar sliding off-screen, not from re-laying-out content. B2 (animate padding to 0 to reclaim the end-of-list gap) is **rejected** — ADR-0029, second matrix (jank + dynamic offset risk).
 - **Custom bar kept** (native expo-router `Tabs` bar has no scroll-away) — settled by ADR-0029 clause 9; M4 unification stays out of scope.
 - **Follow-up**: `sticky-cta-clearance` provider shrinks to just the visibility-follow concern once the floating pill is gone.

@@ -23,8 +23,10 @@ the very bottom"* and *"it hides buttons"* — to structural causes, not styling
   `useNavigationFooterOffset()` and wires the value as `paddingBottom` on the right container.
   Any missed screen, wrong container, or bottom-anchored control outside the ScrollView is
   silently covered by the pill.
-- **B2 — zero-gap geometry.** The offset the hook returns (`insets.bottom + 8 + 48 + 16`)
-  lands exactly on the pill's top edge — the hook reserves **no breathing margin of its own**.
+- **B2 — zero-gap geometry.** The offset the hook returns —
+  `(insets.bottom > 0 ? insets.bottom : spacing.md) + spacing.xs + 48 + spacing.md`, i.e. 88 px
+  with no bottom inset — lands exactly on the pill's top edge, so the hook reserves **no
+  breathing margin of its own**.
   Screens that visually clear the pill at list end do so through ad-hoc trailing margins added
   per screen (e.g. the recipes list's discover section carries its own
   `paddingBottom: spacing.lg`) — one more instance of the manual compensation this ADR removes;

@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   calculateMCU,
   calculateRequiredMaltForTargetSRM,
@@ -13,14 +13,7 @@ import {
   getSrmStyleLabel,
 } from "@/features/tools/data/catalogs/srm";
 import React, { useCallback, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
@@ -50,7 +43,6 @@ function getSrmTextColor(srm: number): string {
 }
 
 export function CouleurCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
 
   // Rapide tab state
@@ -198,12 +190,7 @@ export function CouleurCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "rapide" && (
           <>
             {/* Volume */}
@@ -462,7 +449,7 @@ export function CouleurCalculatorScreen() {
             </View>
           </Card>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

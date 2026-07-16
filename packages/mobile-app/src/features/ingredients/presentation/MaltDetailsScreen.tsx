@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { colors, spacing, typography } from "@/core/theme";
 import {
   getMaltDetails,
@@ -10,7 +10,7 @@ import {
   buildRecipeBackNavigationTarget,
   normalizeIngredientReturnContextParams,
 } from "@/features/ingredients/presentation/ingredient-navigation-context";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -85,7 +85,6 @@ export function MaltDetailsScreen({
   returnAttenuationMinParam,
 }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const normalizedMaltId = normalizeRouteParam(maltIdParam);
   const normalizedReturnContext = normalizeIngredientReturnContextParams({
     returnToParam,
@@ -208,13 +207,10 @@ export function MaltDetailsScreen({
       }}
     >
       {malt ? (
-        <ScrollView
+        <ScreenScrollView
           testID="malt-details-scroll"
           style={styles.scroll}
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: bottomPadding },
-          ]}
+          contentContainerStyle={styles.content}
         >
           <ListHeader
             title={malt.name}
@@ -278,7 +274,7 @@ export function MaltDetailsScreen({
           ) : null}
 
           <PrimaryButton label="Go back" onPress={handleGoBack} />
-        </ScrollView>
+        </ScreenScrollView>
       ) : null}
     </Screen>
   );

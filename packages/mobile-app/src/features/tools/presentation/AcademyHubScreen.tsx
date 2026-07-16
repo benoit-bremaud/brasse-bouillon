@@ -1,13 +1,6 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
@@ -41,7 +34,6 @@ const ACADEMY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 export function AcademyHubScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedFocus, setSelectedFocus] = React.useState<string | null>(null);
@@ -72,11 +64,8 @@ export function AcademyHubScreen() {
         subtitle="Base pédagogique, scientifique et historique du brassage"
       />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         <Card style={styles.summaryCard} variant="subtle">
@@ -140,7 +129,7 @@ export function AcademyHubScreen() {
           ) : null}
         </View>
 
-        <ScrollView
+        <ScreenScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterList}
@@ -189,7 +178,7 @@ export function AcademyHubScreen() {
               </Text>
             </Pressable>
           ))}
-        </ScrollView>
+        </ScreenScrollView>
 
         {filteredAcademyCards.length === 0 ? (
           <Card style={styles.emptyCard}>
@@ -252,7 +241,7 @@ export function AcademyHubScreen() {
             </Pressable>
           );
         })}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

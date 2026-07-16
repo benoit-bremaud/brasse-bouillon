@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   calculateBrewhouseEfficiencyPercent,
   calculateTargetPreBoilVolumeLiters,
@@ -13,14 +13,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type TabName = "rendement" | "volumes" | "eau";
 
@@ -32,7 +25,6 @@ type GrainLine = {
 };
 
 export function RendementCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rendement");
 
   const [actualOg, setActualOg] = useState(1.06);
@@ -159,12 +151,7 @@ export function RendementCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "rendement" && (
           <>
             <Card style={styles.card}>
@@ -402,7 +389,7 @@ export function RendementCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

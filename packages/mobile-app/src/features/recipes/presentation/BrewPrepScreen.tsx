@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +14,8 @@ import { CapacityFitPanel } from "@/features/recipes/presentation/components/Cap
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { useNavBarClearance } from "@/core/ui/use-nav-bar-clearance";
 import { Screen } from "@/core/ui/Screen";
 import {
   getRecipeDetailsViewModel,
@@ -57,7 +58,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
   const router = useRouter();
   const confirm = useConfirm();
   const queryClient = useQueryClient();
-  const footerOffset = useNavigationFooterOffset();
+  const navBarClearance = useNavBarClearance();
   const hasRecipeId = recipeId.trim().length > 0;
 
   const {
@@ -268,7 +269,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
       />
 
       <View style={styles.body}>
-        <ScrollView
+        <ScreenScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
@@ -329,7 +330,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
               )}
             </Card>
           ) : null}
-        </ScrollView>
+        </ScreenScrollView>
       </View>
 
       <RecipeStickyCta
@@ -339,7 +340,7 @@ export function BrewPrepScreen({ recipeId }: Props) {
         disabled={
           !complete || isStarting || isSavingChecklist || !viewModel || !draft
         }
-        bottomOffset={footerOffset}
+        bottomOffset={navBarClearance}
       />
     </Screen>
   );

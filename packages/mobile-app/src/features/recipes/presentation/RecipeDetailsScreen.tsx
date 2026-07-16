@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -13,7 +13,9 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { colors, spacing } from "@/core/theme";
 import { getErrorMessage, HttpError } from "@/core/http/http-error";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { STICKY_CTA_BAR_HEIGHT } from "@/core/ui/sticky-cta-clearance";
+import { useNavBarClearance } from "@/core/ui/use-nav-bar-clearance";
 import { useConfirm } from "@/core/ui/confirm-provider";
 import { useSnackbar } from "@/core/ui/snackbar-provider";
 
@@ -114,7 +116,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
   const handleGoBack = useBackNavigation("/recipes");
   const confirm = useConfirm();
   const snackbar = useSnackbar();
-  const bottomPadding = useNavigationFooterOffset();
+  const navBarClearance = useNavBarClearance();
   const queryClient = useQueryClient();
 
   const hasRecipeId = recipeId.trim().length > 0;
@@ -500,11 +502,11 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
         <RecipeDetailSideRail activeTab={activeTab} onChange={setActiveTab} />
 
         <View style={styles.tabContent}>
-          <ScrollView
-            contentContainerStyle={[
-              styles.scrollContent,
-              { paddingBottom: bottomPadding + (showStickyCta ? 96 : 0) },
-            ]}
+          <ScreenScrollView
+            contentContainerStyle={styles.scrollContent}
+            // Derived from the CTA's own tokens, not the former hardcoded 96
+            // (audit finding M3) — the two can no longer drift apart.
+            extraBottomClearance={showStickyCta ? STICKY_CTA_BAR_HEIGHT : 0}
             showsVerticalScrollIndicator={false}
           >
             {recipe ? (
@@ -570,7 +572,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             ) : (
               <Card style={styles.placeholderCard} />
             )}
-          </ScrollView>
+          </ScreenScrollView>
         </View>
       </View>
 
@@ -582,14 +584,14 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             label="Ajouter à mon carnet"
             onPress={() => importMutation.mutate()}
             disabled={importMutation.isPending || !recipe}
-            bottomOffset={bottomPadding}
+            bottomOffset={navBarClearance}
           />
         ) : (
           <RecipeStickyCta
             label={ctaLabel}
             onPress={handlePrepare}
             disabled={ctaDisabled}
-            bottomOffset={bottomPadding}
+            bottomOffset={navBarClearance}
           />
         )
       ) : null}

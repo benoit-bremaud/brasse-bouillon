@@ -1,12 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -16,7 +9,7 @@ import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { Screen } from "@/core/ui/Screen";
 
 import {
@@ -53,7 +46,6 @@ interface FicheRowData {
  */
 export function BreweryDetailScreen({ breweryId }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const { data, isLoading, isError, error, isFetching, refetch } =
     useBrewery(breweryId);
 
@@ -94,11 +86,8 @@ export function BreweryDetailScreen({ breweryId }: Props) {
       error={screenError}
       onRetry={handleRetry}
     >
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.backRow}>
@@ -109,7 +98,7 @@ export function BreweryDetailScreen({ breweryId }: Props) {
           />
         </View>
         {vm === null ? null : <BreweryFiche vm={vm} />}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

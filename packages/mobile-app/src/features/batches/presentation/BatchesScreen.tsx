@@ -1,10 +1,9 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import {
   BatchStatus,
   BatchSummary,
 } from "@/features/batches/domain/batch.types";
 import {
-  FlatList,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -65,7 +64,6 @@ const getStatusVariant = (status: BatchStatus): "success" | "info" => {
 };
 
 export function BatchesScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: batches = [],
@@ -115,10 +113,10 @@ export function BatchesScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={activeBatches}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
@@ -7,7 +7,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 const HERO_BEER = {
   name: "La Première du dimanche",
@@ -32,7 +32,6 @@ const TIMELINE: ReadonlyArray<{ date: string; label: string }> = [
 ];
 
 export function BatchFinishedScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   const handleGoBack = () => {
@@ -53,10 +52,7 @@ export function BatchFinishedScreen() {
         }
       />
 
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: bottomPadding }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.kicker}>
           <Text style={styles.kickerEmoji} accessible={false}>
             🍻
@@ -112,7 +108,7 @@ export function BatchFinishedScreen() {
             Partage ton brassin avec la communauté depuis l’onglet Communauté.
           </Text>
         </View>
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

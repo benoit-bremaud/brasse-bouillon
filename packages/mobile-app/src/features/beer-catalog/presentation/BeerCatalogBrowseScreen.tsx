@@ -1,11 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Pressable, RefreshControl, StyleSheet, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, type Href } from "expo-router";
@@ -15,7 +9,7 @@ import { colors, spacing } from "@/core/theme";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { Screen } from "@/core/ui/Screen";
 
 import { toBeerListItemVM } from "@/features/beer-catalog/application/beer-catalog.view-model";
@@ -37,7 +31,6 @@ import { CatalogListFooter } from "@/features/beer-catalog/presentation/componen
  * All states are derived from the TanStack flags — no hand-written FSM.
  */
 export function BeerCatalogBrowseScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data,
@@ -117,7 +110,7 @@ export function BeerCatalogBrowseScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         testID="beer-catalog-browse-list"
         data={rows}
         keyExtractor={(item) => item.id}
@@ -146,7 +139,7 @@ export function BeerCatalogBrowseScreen() {
             onRefresh={handleRefetch}
           />
         }
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
       />
     </Screen>
   );

@@ -1,4 +1,4 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -11,14 +11,7 @@ import {
   WATER_STYLE_PRESETS,
 } from "@/features/tools/data/water-profiles.data";
 import { useCallback, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
@@ -283,7 +276,6 @@ function calculateSaltCorrections(
 }
 
 export function EauCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("profil");
 
   // Ion values (in ppm)
@@ -440,12 +432,7 @@ export function EauCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {/* ── TAB PROFIL ── */}
         {activeTab === "profil" && (
           <>
@@ -805,7 +792,7 @@ export function EauCalculatorScreen() {
             ))}
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

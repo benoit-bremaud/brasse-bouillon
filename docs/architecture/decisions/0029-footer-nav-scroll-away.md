@@ -59,13 +59,24 @@ on scroll-down, reappears on scroll-up. The conception study lives in
    while the content's bottom clearance stays **constant**. Animating the padding itself
    (reclaiming the residual end-of-list gap) is **rejected**: it reflows content on every
    toggle (jank) and reintroduces a dynamic offset (bug surface).
-4. **Centralized bottom clearance.** The `Screen` primitive reserves the bar's footprint,
-   exactly as it already owns the top clearance. `useNavigationFooterOffset` and the
-   **36 per-screen `paddingBottom` call sites are deleted**. `NAV_BAR_HEIGHT`
-   (`core/theme/layout.ts`) is the bar's base **visual** height; the effective footprint is
-   computed at runtime as `NAV_BAR_HEIGHT + insets.bottom` and shared by `Screen` (reserved
-   clearance), the bar (hide translate distance) and its followers — a bare constant cannot
+4. **Centralized bottom clearance.** `useNavigationFooterOffset` and the **36 per-screen
+   `paddingBottom` call sites are deleted**. `navBar.height` (`core/theme/layout.ts`) is the
+   bar's base **visual** height; the effective footprint is computed at runtime by
+   `useNavBarClearance()` as `navBar.height + insets.bottom` and shared by the reserving
+   primitives, the bar (hide translate distance) and its followers — a bare constant cannot
    serve devices with a non-zero bottom safe-area inset.
+
+   **Amended on implementation (2026-07-16).** This clause first said *`Screen` reserves the
+   footprint*, which is not mechanically possible: 36 of the 37 consumers apply the clearance
+   inside `contentContainerStyle` — i.e. **inside the scrolled content** — and `Screen` wraps
+   its children without owning their scroll container. Putting the padding on `Screen`'s own
+   `View` instead would shrink the scroll viewport so content stops above the bar and never
+   passes under it, which would silently void clause 3's translate-only promise (hiding the bar
+   would reveal an empty strip, not content). The clearance is therefore owned by two shared
+   scrollable primitives, **`ScreenScrollView` / `ScreenFlatList`**, which screens use in place
+   of a raw `ScrollView` / `FlatList`. They append the padding last, so a screen cannot silently
+   override it. Screens stacking extra bottom chrome (a sticky CTA) declare its token-derived
+   height via `extraBottomClearance` rather than re-deriving the total.
 5. **Single visibility source.** One shared `useScrollDirection` hook (anti-flicker threshold +
    near-top guard, defined once) feeds a `FooterVisibilityContext`. The bar, the app-level
    `Snackbar`, and sticky CTAs all follow that one boolean — they can no longer desync.

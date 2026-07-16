@@ -1,5 +1,5 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
-import { FlatList, RefreshControl, StyleSheet } from "react-native";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
+import { RefreshControl, StyleSheet } from "react-native";
 import { spacing } from "@/core/theme";
 
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
@@ -28,7 +28,6 @@ import { useRouter } from "expo-router";
  * RecipeDetailsScreen.
  */
 export function CatalogScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const {
     data: recipes = [],
@@ -74,10 +73,10 @@ export function CatalogScreen() {
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={recipes}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }

@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, RefreshControl, StyleSheet } from "react-native";
+import { RefreshControl, StyleSheet } from "react-native";
 
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
@@ -8,7 +8,7 @@ import {
   listPublicRecipes,
   listRecipes,
 } from "@/features/recipes/application/recipes.use-cases";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
@@ -40,7 +40,6 @@ import type { Recipe } from "@/features/recipes/domain/recipe.types";
  * `ListFooterComponent`.
  */
 export function RecipesScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   const myRecipesQuery = useQuery<Recipe[]>({
@@ -101,14 +100,11 @@ export function RecipesScreen() {
         subtitle="Mon carnet et les recettes de la communauté"
       />
 
-      <FlatList
+      <ScreenFlatList
         testID="recipes-hub-list"
         data={myRecipes}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: bottomPadding },
-        ]}
+        contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={handleRefetch} />
         }

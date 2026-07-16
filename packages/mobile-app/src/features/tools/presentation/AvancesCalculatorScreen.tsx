@@ -1,14 +1,7 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
   calculateAltitudeAdjustedIbuTarget,
@@ -50,7 +43,6 @@ function getConversionReadinessLabel(averagePowerWkPerKg: number) {
 }
 
 export function AvancesCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("enzymes");
   const [malts, setMalts] = useState<MaltLine[]>([
     { id: "1", name: "Pilsner", weightKg: 4, diastaticPowerWk: 250 },
@@ -175,12 +167,7 @@ export function AvancesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "enzymes" && (
           <>
             <Card style={styles.card}>
@@ -405,7 +392,7 @@ export function AvancesCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

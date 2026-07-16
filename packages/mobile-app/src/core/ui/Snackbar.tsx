@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { useNavBarClearance } from "@/core/ui/use-nav-bar-clearance";
 import { useStickyCtaClearance } from "@/core/ui/sticky-cta-clearance";
 
 export type SnackbarProps = Readonly<{
@@ -16,8 +16,8 @@ export type SnackbarProps = Readonly<{
 /**
  * Branded transient snackbar — a bottom bar with an optional single action.
  * App-level, one at a time, driven imperatively through `useSnackbar()` (see
- * `snackbar-provider`). Sits above the floating nav footer so it never hides
- * the primary navigation, and lets touches through everywhere but the bar.
+ * `snackbar-provider`). Sits above the flush nav bar so it never hides the
+ * primary navigation, and lets touches through everywhere but the bar.
  */
 export function Snackbar({
   visible,
@@ -25,7 +25,7 @@ export function Snackbar({
   actionLabel,
   onAction,
 }: SnackbarProps) {
-  const footerOffset = useNavigationFooterOffset();
+  const navBarClearance = useNavBarClearance();
   // Float above a sticky CTA when one is mounted, instead of overlapping it.
   const ctaClearance = useStickyCtaClearance();
   if (!visible) {
@@ -34,7 +34,10 @@ export function Snackbar({
   return (
     <View
       testID="snackbar-overlay"
-      style={[styles.overlay, { paddingBottom: footerOffset + ctaClearance }]}
+      style={[
+        styles.overlay,
+        { paddingBottom: navBarClearance + ctaClearance },
+      ]}
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="alert">

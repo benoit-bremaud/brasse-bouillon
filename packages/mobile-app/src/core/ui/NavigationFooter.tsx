@@ -6,20 +6,10 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { colors, spacing } from "@/core/theme";
+import { colors, navBar, spacing } from "@/core/theme";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-export function useNavigationFooterOffset() {
-  const insets = useSafeAreaInsets();
-  return (
-    (insets.bottom > 0 ? insets.bottom : spacing.md) +
-    spacing.xs +
-    48 +
-    spacing.md
-  );
-}
 
 type NavItem = {
   label: string;
@@ -134,12 +124,10 @@ export function NavigationFooter() {
 
   return (
     <View
-      style={[
-        styles.container,
-        {
-          bottom: (insets.bottom > 0 ? insets.bottom : spacing.md) + spacing.xs,
-        },
-      ]}
+      // The bar is flush to the bottom edge and absorbs the safe-area inset as
+      // its own padding, so its footprint is `navBar.height + insets.bottom` —
+      // the exact figure `useNavBarClearance` reserves for content (ADR-0029).
+      style={[styles.container, { paddingBottom: insets.bottom }]}
       onLayout={(e) => {
         // We calculate available width by removing padding horizontally
         setContainerWidth(e.nativeEvent.layout.width - spacing.xs * 2);
@@ -188,19 +176,21 @@ export function NavigationFooter() {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    left: spacing.lg,
-    right: spacing.lg,
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: "row",
     backgroundColor: colors.neutral.white,
-    borderRadius: 100,
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
+    // A hairline top border replaces the pill's full outline: edge-to-edge, the
+    // only edge that still needs separating from content is the top one.
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.neutral.border,
     paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
+    paddingTop: navBar.verticalPadding,
     shadowColor: colors.neutral.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 8,
   },
   item: {
@@ -208,7 +198,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 100,
-    minHeight: 48,
+    minHeight: navBar.itemMinHeight,
     zIndex: 2, // ensure icon is above the animated background
   },
   itemPressed: {
@@ -216,8 +206,8 @@ const styles = StyleSheet.create({
   },
   activeIndicator: {
     position: "absolute",
-    height: 48,
-    top: spacing.xs,
+    height: navBar.itemMinHeight,
+    top: navBar.verticalPadding,
     left: spacing.xs,
     borderRadius: 100,
     backgroundColor: colors.semantic.success,

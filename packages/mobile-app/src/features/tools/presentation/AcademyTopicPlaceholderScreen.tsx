@@ -1,6 +1,6 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { colors, spacing, typography } from "@/core/theme";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { Badge } from "@/core/ui/Badge";
@@ -22,7 +22,6 @@ type Props = {
 
 export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const normalizedSlug = normalizeRouteParam(slugParam);
   const topic = getDisplayableAcademyTopicBySlug(normalizedSlug);
   const goBackOrAcademyHome = React.useCallback(() => {
@@ -82,12 +81,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
         }
       />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <Card style={styles.heroCard}>
           <View style={styles.heroRow}>
             <Image
@@ -126,7 +120,7 @@ export function AcademyTopicPlaceholderScreen({ slugParam, mode }: Props) {
           }
           style={styles.backButton}
         />
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

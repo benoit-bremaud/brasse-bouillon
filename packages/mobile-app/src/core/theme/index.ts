@@ -1,4 +1,4 @@
-export { brandHeader } from "./layout";
+export { brandHeader, navBar } from "./layout";
 export { colors } from "./colors";
 export { radius } from "./radius";
 export { shadows } from "./shadows";

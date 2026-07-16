@@ -1,15 +1,8 @@
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { Href, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { dataSource } from "@/core/data/data-source";
@@ -344,7 +337,6 @@ function getStatusColors(status: string): {
 }
 
 export function DashboardScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const { session } = useAuth();
 
@@ -600,11 +592,8 @@ export function DashboardScreen() {
 
   return (
     <Screen isLoading={isLoading} error={error} onRetry={handleRetry}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerCard}>
@@ -1052,7 +1041,7 @@ export function DashboardScreen() {
             </View>
           )}
         </Card>
-      </ScrollView>
+      </ScreenScrollView>
 
       <Modal
         transparent

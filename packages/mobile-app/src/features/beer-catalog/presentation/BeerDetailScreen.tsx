@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, type Href } from "expo-router";
@@ -10,7 +10,7 @@ import { Badge } from "@/core/ui/Badge";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { Screen } from "@/core/ui/Screen";
 
 import {
@@ -60,7 +60,6 @@ interface LegalRow {
  */
 export function BeerDetailScreen({ beerId }: Props) {
   const router = useRouter();
-  const bottomPadding = useNavigationFooterOffset();
   const {
     data,
     isLoading,
@@ -119,11 +118,8 @@ export function BeerDetailScreen({ beerId }: Props) {
       error={screenError}
       onRetry={handleRetry}
     >
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.backRow}>
@@ -140,7 +136,7 @@ export function BeerDetailScreen({ beerId }: Props) {
             onNavigate={handleTapRoute}
           />
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

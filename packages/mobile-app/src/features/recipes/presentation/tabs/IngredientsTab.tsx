@@ -134,7 +134,7 @@ export function IngredientsTab(props: IngredientsTabProps) {
                       key={`${item.ingredientId}-${item.timing ?? "no-timing"}-${index}`}
                       style={styles.listItem}
                       accessibilityRole="button"
-                      accessibilityLabel={`Open ingredient details for ${item.name}`}
+                      accessibilityLabel={`Ouvrir la fiche de ${item.name}`}
                       disabled={!item.ingredient}
                       onPress={() => {
                         if (!item.ingredient) {

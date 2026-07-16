@@ -466,7 +466,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     await screen.findByTestId("recipe-overview-tab");
     switchToTab("ingredients");
 
-    fireEvent.press(screen.getByLabelText("Open ingredient details for Citra"));
+    fireEvent.press(screen.getByLabelText("Ouvrir la fiche de Citra"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/[category]/[id]",
@@ -506,9 +506,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     switchToTab("ingredients");
     await screen.findByText("Pale Ale Malt");
 
-    fireEvent.press(
-      screen.getByLabelText("Open ingredient details for Pale Ale Malt"),
-    );
+    fireEvent.press(screen.getByLabelText("Ouvrir la fiche de Pale Ale Malt"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/malts/[id]",

@@ -19,20 +19,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { BarcodeVerificationProgress } from "@/features/scan/presentation/components/BarcodeVerificationProgress";
 import { DemoOverrideMenu } from "@/features/scan/presentation/components/DemoOverrideMenu";
 import { useRouter } from "expo-router";
@@ -546,7 +540,7 @@ export function ScanScreen() {
         void loadConsentSettings();
       }}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <ListHeader
           title="Guided scan flow"
           subtitle="Scan barcode first, then complete bottle capture only when needed."
@@ -867,7 +861,7 @@ export function ScanScreen() {
           style={styles.primaryActionButton}
           onPress={() => setIsResetModalVisible(true)}
         />
-      </ScrollView>
+      </ScreenScrollView>
 
       <Modal
         transparent
@@ -1019,7 +1013,6 @@ export function ScanScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.xl,
     gap: spacing.sm,
   },
   sectionCard: {

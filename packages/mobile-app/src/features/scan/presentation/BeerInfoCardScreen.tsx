@@ -3,7 +3,6 @@ import {
   Alert,
   Linking,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -14,6 +13,7 @@ import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { useConfirm } from "@/core/ui/confirm-provider";
 
 import {
@@ -282,10 +282,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScrollView showsVerticalScrollIndicator={false}>
         <ListHeader
           title="Bière reconnue"
           subtitle={subtitleForSource(status.result.source)}
@@ -325,7 +322,7 @@ export function BeerInfoCardScreen({ barcodeParam }: BeerInfoCardScreenProps) {
             <BreweryStory brewery={status.result.item.brewery} />
           )}
         />
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }
@@ -803,9 +800,6 @@ function BreweryStory({ brewery }: { brewery: string }) {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: spacing.xxl * 3,
-  },
   glanceCard: {
     marginBottom: spacing.md,
     padding: spacing.md,

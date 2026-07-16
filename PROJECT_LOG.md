@@ -7,6 +7,36 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-16
 
+### PR #1449 merged (`6d3e89f`) — fix(shop): drop the Academy shortcut from the shop header
+
+- Branch `fix/shop-header-drop-academy`, 2 commits (`a9f4934`, `431704e`). Removes the "Academy" pill from the shop header, and fixes the design-system section that still prescribed the broken layout behind it. Net -76 LOC over 3 files.
+- The pill had two independent defects. It was an unrelated cross-link — Academy has had its own permanent tab slot since #613, so a second entry point from the shop bought nothing (already flagged by the audit behind #1444). And its layout was broken: it sat as a *sibling* of `<ListHeader>` inside a `flexDirection: row / space-between` wrapper, so the unconstrained `ListHeader` claimed its intrinsic width and pushed the pill past the right screen edge — only the icon rendered on a 1080x2400 device.
+- `ShopScreen.tsx` drops the `Pressable`, its `academyButton`/`academyText` styles and the now-unused `useRouter`/`Pressable` imports; `styles.header` shrinks to a padding-only wrapper, kept so the title stays aligned with `styles.content` (both add `spacing.sm` on top of `Screen`'s own `spacing.md`). Test suite swaps the Academy navigation case for a regression assertion.
+- **Decisions**:
+  - `header-action-uses-listheader-slot` — `design-system.md` §6 documented the sibling-`Pressable` header as the required list-screen template, a pattern left with zero call sites once this shipped, while the real convention (`ListHeader`'s own `action` slot, used by 10+ screens incl. `EquipmentScreen`, `ScanScreen`, `BatchFinishedScreen`) was already documented in §5. §6 contradicted §5 and would have propagated the off-screen-action bug to the next list screen, so it now documents the `action` slot instead. `ShopCategoryScreen` (deleted in #1444) dropped from its consumer list; the `school-outline` icon row repointed away from a header action that no longer exists.
+- Reviews — local pre-push: 0 Must Have; both Should Have items fixed in-branch rather than deferred (the stale design-system pattern in `431704e`, and an over-broad `queryByRole` assertion narrowed to the specific regression). Codex posted no review (usage limit reached, as on #1444); Copilot no comments. CI green (mobile-app jest); visual QA on the Android emulator in demo mode, with the Metro log checked to confirm the bundle came from the branch under test.
+
+### PR #1448 merged (`2b173d2`) — fix(mobile-app): return to real origin from detail/editor back buttons
+
+- Branch `claude/back-buttons-lot2-origin`, 1 commit (`8cf1df5`). Lot 2 of the back-navigation audit, following #1442. Detail screens forced `router.replace("/hub")`, so a recipe opened from the community catalog went "back" to the Recipes hub, and a label fiche opened from the editor went "back" to the labels home — the real origin was always discarded.
+- Batch details, recipe details and the label editor/fiche now use the shared `useBackNavigation` hook, with the hub kept only as the empty-stack fallback. Post-action redirects (delete/cancel/archive → list) intentionally unchanged: the detail no longer exists there, so the list is the correct destination.
+- Added the missing nested Stack layouts `app/(app)/recipes/_layout.tsx` and `app/(app)/dashboard/labels/_layout.tsx`; without them the hook swap alone would have been a regression (see decision below).
+- **Decisions**:
+  - `tab-subtree-needs-nested-stack` — routes hoisted directly onto the Tabs navigator do not pop chronologically: `back()` follows the Tabs `backBehavior` and can land on an unrelated tab (observed on the emulator: catalog → recipe detail → back → batches list). Any tab subtree whose screens need a working back must own a `<Stack>` `_layout`, as `batches/`, `beer-catalog/` and `academy/` already do. Static review had assumed the opposite; only device testing surfaced it.
+  - `batches-cross-tab-returnto-deferred` — a true cross-tab `returnTo` for batch details opened from the dashboard is deferred per ADR-0001: the batches Stack keeps the list beneath, so behavior is unchanged and the "Mes brassins" label stays honest.
+- Supersedes #1445, which GitHub force-closed when #1442's branch was deleted on merge and refused to reopen after the rebase; identical content, no review comments lost.
+- Reviews — local pre-push (Claude + Codex): 0 Must Have, 2 Should applied (import grouping, per-screen edge tests asserting each screen's exact fallback route). CI green (mobile-app, CodeQL, security-audit, dependency review, secret scan); live QA on the Android emulator in demo mode.
+
+### PR #1442 merged (`8906d50`) — fix(mobile-app): add back controls to screens missing them
+
+- Branch `claude/brasse-bouillon-back-buttons-0d038f`, 2 commits (`d76448e`, `bd1fe5c`). Lot 1 of a back-navigation audit covering the whole mobile app (~35 routes, 6 domains). 11 screens shipped with no back affordance at all — a dead end on iOS, where there is no hardware back and the only escape was the footer, which discards the origin.
+- New shared `useBackNavigation(fallback)` hook (`src/core/navigation/`): pops real history when it exists, otherwise falls back to a known parent. Generalizes the `canGoBack()` guard that until now existed only on the two Academy screens. New `BackHeaderAction` wires it to the existing `HeaderBackButton` for the `ListHeader` action slot.
+- Back control added to the 8 tool calculators (`tools/[slug]/calculator`, reachable from 3 origins), beer-catalog browse (composed with the existing search action) and search, the community recipe catalog, and profile (rendered only when pushed).
+- **Decisions**:
+  - `shared-back-navigation` — one hook plus one component instead of per-screen handlers: the app carried three uncoordinated back mechanisms (`back()`, fixed `replace()`, and the guarded pattern on 2 screens only). `replace()` kept as the empty-stack fallback rather than `dismissTo()`, matching the existing Academy precedent.
+  - `profile-back-conditional` — Profile is both a footer destination and a pushed screen; its back control renders only when history exists, re-derived on focus (the instance stays mounted across tab switches), so a footer-reached tab root stays consistent with the other roots.
+- Reviews — local pre-push (Claude + Codex): 0 Must Have, 3 Should applied (focus re-derivation, accessibility label unified on "Retour à l'écran précédent", per-screen smoke tests). Copilot 2 inline on the test double: a non-singleton router mock let the focus regression test pass on a mock artifact rather than on focus semantics; proven by making the double stable (the test turned red), fixed in `bd1fe5c` with inline replies. CI green; live QA on the Android emulator in demo mode.
+
 ### PR #1443 merged (`40e560f`) — docs(footer-nav/architecture): add ADR-0029 and UML spec for scroll-away bottom nav
 
 - Branch `claude/mobile-footer-audit-fef293`, 4 commits (`f9f79e9`, `9750f82`, `7eb7283`, `7dc8a55`). Conception-only; no code.

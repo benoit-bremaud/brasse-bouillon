@@ -23,6 +23,7 @@ import {
   LABEL_TEMPLATE_OPTIONS,
 } from "@/features/labels/presentation/label-template.constants";
 import { Href, useRouter } from "expo-router";
+
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Pressable,
@@ -35,6 +36,7 @@ import {
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
@@ -59,6 +61,7 @@ function toButtonLabel(isSaving: boolean): string {
 
 export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
   const router = useRouter();
+  const goBack = useBackNavigation(LABELS_HOME_ROUTE);
   const navigationFooterOffset = useNavigationFooterOffset();
   const normalizedDraftId = normalizeRouteParam(draftIdParam) ?? "";
 
@@ -186,7 +189,7 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
             <HeaderBackButton
               label="Étiquettes"
               accessibilityLabel="Retour à mes étiquettes"
-              onPress={() => router.replace(LABELS_HOME_ROUTE)}
+              onPress={goBack}
             />
           }
         />
@@ -211,7 +214,7 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           <HeaderBackButton
             label="Étiquettes"
             accessibilityLabel="Retour à mes étiquettes"
-            onPress={() => router.replace(LABELS_HOME_ROUTE)}
+            onPress={goBack}
           />
         }
       />

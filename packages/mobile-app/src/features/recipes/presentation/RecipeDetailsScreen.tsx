@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
+
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
@@ -112,6 +114,7 @@ function isRecipeReferencedByBatch(
  */
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
+  const handleGoBack = useBackNavigation("/recipes");
   const confirm = useConfirm();
   const snackbar = useSnackbar();
   const bottomPadding = useNavigationFooterOffset();
@@ -331,10 +334,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       pathname: "/(app)/recipes/[id]/prepare",
       params: { id: recipeId },
     });
-  };
-
-  const handleGoBack = () => {
-    router.replace("/recipes");
   };
 
   const handleRetry = () => {

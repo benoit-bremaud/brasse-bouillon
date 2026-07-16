@@ -1,9 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 
 import React from "react";
 import { ShopScreen } from "@/features/shop/presentation/ShopScreen";
-
-const mockPush = jest.fn();
 
 jest.mock("@expo/vector-icons", () => {
   return {
@@ -11,23 +9,7 @@ jest.mock("@expo/vector-icons", () => {
   };
 });
 
-jest.mock("expo-router", () => {
-  const actual = jest.requireActual("expo-router");
-  return {
-    ...actual,
-    useRouter: () => ({
-      push: mockPush,
-      replace: jest.fn(),
-      back: jest.fn(),
-    }),
-  };
-});
-
 describe("ShopScreen", () => {
-  beforeEach(() => {
-    mockPush.mockClear();
-  });
-
   it("renders shop header with title and subtitle", () => {
     render(<ShopScreen />);
 
@@ -52,11 +34,11 @@ describe("ShopScreen", () => {
     expect(screen.getByText(/La boutique arrive bientôt/)).toBeTruthy();
   });
 
-  it("navigates to the Academy from the header shortcut", () => {
+  // The header carries no Academy shortcut: the cross-link was unrelated to
+  // shopping and its pill was clipped off the right screen edge on device.
+  it("offers no Academy shortcut", () => {
     render(<ShopScreen />);
 
-    fireEvent.press(screen.getByLabelText("Accéder à l'Académie"));
-
-    expect(mockPush).toHaveBeenCalledWith("/(app)/academy");
+    expect(screen.queryByLabelText("Accéder à l'Académie")).toBeNull();
   });
 });

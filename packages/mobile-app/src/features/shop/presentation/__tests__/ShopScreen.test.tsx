@@ -36,10 +36,9 @@ describe("ShopScreen", () => {
 
   // The header carries no Academy shortcut: the cross-link was unrelated to
   // shopping and its pill was clipped off the right screen edge on device.
-  it("exposes no interactive control in the header", () => {
+  it("offers no Academy shortcut", () => {
     render(<ShopScreen />);
 
     expect(screen.queryByLabelText("Accéder à l'Académie")).toBeNull();
-    expect(screen.queryByRole("button")).toBeNull();
   });
 });

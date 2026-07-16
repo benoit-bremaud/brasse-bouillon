@@ -1,4 +1,4 @@
-import { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
+import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 import {
   RECIPE_INGREDIENT_GROUP_LABELS,
   RECIPE_INGREDIENT_GROUP_ORDER,

@@ -151,9 +151,11 @@ failure mode this redesign eliminates.
 
 ### Positive
 
-- The root cause of "hidden buttons" is removed structurally: clearance is owned by `Screen`,
-  36 manual paddings and the offset hook disappear, and clause 6 makes occlusion impossible at
-  rest by construction.
+- The root cause of "hidden buttons" is removed structurally: the clearance is owned by the
+  shared scroll containers (clause 4), the 36 manual paddings and the offset hook disappear,
+  the 5 screens that had never opted in are brought in, and clause 6 makes occlusion impossible
+  at rest by construction. Crucially the opt-in itself is gone: a screen can no longer be
+  forgotten, which is what let those 5 slip through every earlier count.
 - One `NAV_BAR_HEIGHT` source of truth ends the magic-number drift (M2/M3).
 - Snackbar and sticky CTAs follow the same visibility boolean as the bar — the current
   hand-synced clearance stack shrinks.
@@ -162,7 +164,8 @@ failure mode this redesign eliminates.
 ### Negative
 
 - **Migration surface: 41 screens** (plus the Snackbar and sticky CTAs) must swap their manual
-  padding for the `Screen`-owned clearance and wire `onScroll` into the shared hook.
+  padding for the container-owned clearance; the containers wire `onScroll` themselves, so the
+  swap is the whole migration.
 - Scroll-away needs real tuning (threshold value, spring feel) and new plumbing
   (`useScrollDirection`, `FooterVisibilityContext`) that a static bar would not.
 - The dual-nav mount (M4) is consciously kept.

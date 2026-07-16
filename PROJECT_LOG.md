@@ -5,6 +5,20 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-16
+
+### PR #1443 merged (`40e560f`) — docs(footer-nav/architecture): add ADR-0029 and UML spec for scroll-away bottom nav
+
+- Branch `claude/mobile-footer-audit-fef293`, 4 commits (`f9f79e9`, `9750f82`, `7eb7283`, `7dc8a55`). Conception-only; no code.
+- ADR-0029 (Proposed) + 3 Mermaid diagrams under `docs/architecture/diagrams/footer-nav-redesign/` (component, state, sequence). Status flips to Accepted when the build PR lands, per the ADR-0026 precedent; root `CLAUDE.md` untouched until then.
+- Audit of the current floating-pill footer: bottom clearance is opted into by hand in 36 screens (37 hook consumers with the app-level `Snackbar`), with the returned offset landing exactly on the pill's top edge.
+- **Decisions**:
+  - `footer-nav-scroll-away` — replace the floating pill with a flush edge-to-edge bar that hides on scroll-down and reveals on scroll-up, with the bottom clearance centralized in the `Screen` primitive and one `FooterVisibilityContext` driving the bar, `Snackbar` and sticky CTAs. Recorded on ADR-0029, clauses 1–9.
+  - `footer-nav-translate-only-recovery` — recover the bar's space by translating it off-screen while the content clearance stays constant; animating the padding to reclaim the end-of-list gap is rejected (reflow jank + a dynamic offset, the failure mode being removed). Recorded on ADR-0029, clause 3.
+  - `footer-nav-static-fallback` — the simpler static flush bar wins on a pure-engineering weighting and is kept as the documented fallback: pinning visibility degrades the scroll-away into it with no structural rework. Recorded on ADR-0029, first matrix.
+- Reviews — local pre-push review: 2 Must Have (screen count off by one; a wrong sticky-CTA example), both fixed before push. Codex CLI locally: safe-area split applied (`NAV_BAR_HEIGHT` is the base visual height, the effective footprint adds `insets.bottom`); Codex posted no review on GitHub (code-review usage limit reached). Copilot 1 inline (reveal path not gated by the anti-flicker threshold), fixed in `9750f82` with an inline reply. A final adversarial pass caught 3 more (an English-only breach, an imprecise geometry citation, a self-contradictory context) and one rejected finding (commit scope, kept against six `main` precedents). CI green.
+- Counts re-verified against `main` in `7dc8a55` after #1444 landed mid-review and deleted `ShopCategoryScreen`, one of the hook consumers.
+
 ## 2026-07-15
 
 ### PR #1437 merged (`aab81f0`) — feat(academy): add "Histoire de la bière" reference article

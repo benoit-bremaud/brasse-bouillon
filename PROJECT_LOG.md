@@ -7,6 +7,39 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1469 merged (`2e04b35`) — chore(website): apply ruff format to roadmap_sync and weekly_digest scripts
+
+- Branch `chore/website-ruff-format`, 1 commit (`3619342`).
+- Formatter-only pass over the two pre-existing scripts that `ruff format --check` still flagged (line wrapping + missing trailing newline); AST-verified identical before/after. `ruff check`, the 58-test website unittest suite, and `quality_gate.py` stay green. Website CI runs no ruff step — this clears the local formatter baseline only.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot overview only, no inline comments; Codex posted no review. CI green.
+
+### PR #1467 merged (`eac81af`) — fix(website): close the head-level blind spot in the i18n srcHash drift guard
+
+- Branch `claude/laughing-lamport-3fe93f`, 2 commits (`5f40146`, `a2c3a52`).
+- The `srcHash` drift guard covered `catalog["strings"]` only: editing a FR `<head>` value (title, meta description, keywords, OG/Twitter) regenerated `en.html` with the stale EN override while `build_i18n.py --check` and the quality gate stayed green — contradicting the module docstring's promise. New `headSrcHashes` map in `i18n/home.en.json` fingerprints the FR source of the 8 head keys that mirror a FR head string; a single shared `_GUARDED_HEAD_PATTERNS` table drives both the EN head swap and the guard so they cannot disagree on the FR source; `--update-hashes` refreshes the map. `ogImage` / `orgDescription` / `knowsAbout` documented as unguarded (no 1:1 FR head string). ADR-0027 verification checklist now names the head guard (D1 clause 4(c) enforcement gap closed, decision unchanged).
+- Tests: 9-case `HeadGuardTests` (happy/sad/edge: fresh pass, drifted title/description/keywords fail, missing/orphan/unguardable keys fail, `--update-hashes` restores green); website suite at 69 green. `quality_gate.py` picks the guard up with zero changes (calls `generate(check_hashes=True)` in-process).
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot 1 inline (`python` → `python3` in the catalog `_comment`) fixed in `a2c3a52` with inline reply; Codex posted no review. CI green.
+
+### PR #1461 merged (`12ccc6b`) — feat(shop): make the shop the single door into the ingredient catalog
+
+- Branch `feat/shop-catalog-door`, 2 commits (`8457ef5`, `e415fd2`). Lot 1 of the shop-catalog epic, implementing the conception merged in #1456. The shop stops being a placeholder and opens the catalog that already existed: Malts / Houblons / Levures show their real count from `listIngredientCategoriesSummary()` and route to `/(app)/ingredients/[category]`; Kits / Matériel / Accessoires stay inert.
+- **Reuse, not relocation**: the hub reads the existing use-case and routes into the existing category screens, owning **no `data/` layer** — a second API client would rebuild the duplication #1444 deleted. `RecipeDetailsScreen` deep-links into the datasheets, so those routes are untouched: the goal is one door, not one directory.
+- `/ingredients` hub retired — route redirects instead of 404ing, dashboard entry removed, `IngredientsScreen` + its test deleted (the redirect left them with zero consumers). `ShopCategory` deleted too; `IngredientCategory` is the single taxonomy. New `ShopRayon` model with a nullable `catalogCategory`; placeholders render as plain `View`s, not disabled `Pressable`s, so they are not focusable and cannot gain an `onPress` by accident.
+- Retiring the hub silently broke four back paths that no test caught: `IngredientCategoryScreen`'s button read "Ingrédients" while landing on a screen titled "Ma Boutique", and the three datasheet fallbacks pushed to the dead hub. All now say and go to the shop, without bouncing through the redirect; their tests, which had pinned the old labels, were updated to the new intent.
+- **Decisions**:
+  - `shop-is-the-catalog-door` — one entry point for one actor goal. Two doors (an "Ingrédients" menu entry and a "Boutique" one) for the same goal is what let two catalogs ship, one of them fake. Per #1456, `ingredients/` keeps the use case; the shop is its entry point.
+  - `guard-narrowed-not-dropped` — #1453's "no pressable affordance" assertion tightens to sourceless rayons rather than being deleted: live rayons are pressable by design now, and that re-decision is what the guard existed to force.
+  - `named-gap-over-unfailable-test` — `isRetryingWithError` (missing versus every sibling screen) was restored, but mutation testing proved the obvious regression test for it passes with the guard removed: a first-load failure leaves the query data-less, so `status` returns to `pending` and the loader shows either way. The guard only bites on a populated catalog whose refetch fails, unreachable without a remount. The gap is documented in a comment rather than covered by a test that cannot fail.
+- Reviews — local pre-push: 0 Must Have, 5 Should Have addressed in-branch (retry guard, stale docstring, comment placement, rebase). Copilot 2 inline (type-only imports for `IngredientCategorySummary` / `ShopRayon`, a repeat of its #1444 feedback reintroduced by copying the replaced screen's shape) fixed in `e415fd2` with inline replies, threads resolved. Codex no review. CI green; 353/353 across the touched suites; visual QA on the Android emulator in demo mode.
+- Lot 2 (not started): wire `/catalog/misc-templates` (Accessoires) then `/catalog/equipment-templates` (Matériel) — both served by the backend already, unconsumed mobile-side. Kits has no source anywhere.
+
+### PR #1463 merged (`79711a8`) — docs(claude-tooling): refresh website-audit skill for Cloudflare Pages hosting
+
+- Branch `docs/website-audit-skill-cloudflare-refresh`, 2 commits (`0f57232`, `84ad8a7`).
+- `.claude/skills/website-audit-brasse-bouillon`: the Target section still claimed GitHub Pages hosting with no settable response headers (Cloudflare edge-proxy workaround) — stale since ADR-0014 and PR #1370's `packages/website/_headers`. Rewritten: Cloudflare Pages host, real `website-deploy.yml` triggers (pushes to `main`/`staging` touching `packages/website/**`, plus `workflow_dispatch`), `_headers` mechanism with its edge-emitted vs deliberately-deferred split (#1032 CSP, #1033 HSTS) and the re-verify-live rule. Also fixed: the audit report is tracked on `main` (the `docs/log-website-audit` working branch no longer exists) and the VitePress dev port is the 5173 default, not 5183.
+- `.claude/skills/website-pages-deploy`: HISTORICAL banner + description rewrite, so an agent loading the retired GitHub Pages runbook directly sees it was superseded by ADR-0014 instead of following it.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex); 2 Shoulds applied (the deprecation banner above; commit scope aligned to the `claude-tooling` precedent). On GitHub: Copilot 1 inline (the workflow does not fire on arbitrary refs — the `other refs produce preview deployments` phrasing had been lifted from ADR-0014's own simplification), fixed in `84ad8a7`, replied inline and resolved; Codex posted no review on this docs-only diff.
+
 ### PR #1464 merged (`89aeb254`) — feat(website): SEO/GEO optimization (keyword-first titles, WebSite schema, llms.txt, pages.dev noindex)
 
 - Branch `claude/brasse-bouillon-seo-geo-audit-ed89eb`, 3 commits (`f458dbb5`, `ce45be27`, `2189fa8b`).

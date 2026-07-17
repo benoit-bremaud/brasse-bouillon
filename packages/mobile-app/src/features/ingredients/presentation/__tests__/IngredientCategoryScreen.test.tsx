@@ -149,14 +149,17 @@ describe("IngredientCategoryScreen", () => {
     });
   });
 
-  it("navigates back to ingredients list from header action", async () => {
+  // The catalog's hub is the Shop since the `/ingredients` hub was retired
+  // (`equipment-shop/03-component.md`). Going back must land there directly,
+  // not bounce through the redirect the dead hub route now serves.
+  it("navigates back to the shop from the header action", async () => {
     renderIngredientCategoryScreen({ categoryParam: "malt" });
 
     expect(await screen.findByText("La Malterie 🌾")).toBeTruthy();
 
-    fireEvent.press(screen.getByLabelText("Retour à la liste des ingrédients"));
+    fireEvent.press(screen.getByLabelText("Retour à la boutique"));
 
-    expect(mockReplace).toHaveBeenCalledWith("/ingredients");
+    expect(mockReplace).toHaveBeenCalledWith("/shop");
   });
 
   it("keeps category details route for non-malt ingredients", async () => {

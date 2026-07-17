@@ -33,8 +33,8 @@ import {
 } from "@/features/ingredients/application/yeasts.use-cases";
 
 /**
- * Polymorphic ingredient catalogue use-cases for the
- * `IngredientsScreen` home + `IngredientCategoryScreen` picker.
+ * Polymorphic ingredient catalogue use-cases for the `ShopScreen` hub
+ * (the catalog's single door) + `IngredientCategoryScreen` picker.
  *
  * Live-mode dispatch (Issue #887): every per-category list/details
  * call delegates to the dedicated per-category use-case

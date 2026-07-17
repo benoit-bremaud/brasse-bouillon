@@ -147,14 +147,16 @@ describe("MaltDetailsScreen", () => {
     });
   });
 
-  it("falls back to ingredients root when no return context is provided", async () => {
+  // The catalog's hub is the Shop since the `/ingredients` hub was retired
+  // (`equipment-shop/03-component.md`).
+  it("falls back to the shop when no return context is provided", async () => {
     renderMaltDetailsScreen({ maltIdParam: "malt-1" });
 
     expect(await screen.findByText("Pale Ale Malt")).toBeTruthy();
 
     fireEvent.press(screen.getByText("Go back"));
 
-    expect(mockPush).toHaveBeenCalledWith("/(app)/ingredients");
+    expect(mockPush).toHaveBeenCalledWith("/(app)/shop");
   });
 
   it("navigates back to malt category with preserved filters", async () => {

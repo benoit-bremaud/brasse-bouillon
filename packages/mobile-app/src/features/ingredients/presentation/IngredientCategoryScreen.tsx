@@ -213,7 +213,10 @@ export function IngredientCategoryScreen({
   const categoryPageTitle = getIngredientCategoryPageTitle(category);
 
   const handleGoBack = () => {
-    router.replace("/ingredients");
+    // Straight to the Shop, not via `/ingredients`: that route is now just a
+    // redirect (`equipment-shop/03-component.md`), so going through it would
+    // bounce the brewer through a dead hub to reach the same place.
+    router.replace("/shop");
   };
 
   const navigateToIngredientDetails = (ingredient: IngredientListItem) => {
@@ -267,9 +270,12 @@ export function IngredientCategoryScreen({
         subtitle="Recherche et filtres rapides"
         action={
           <View style={styles.headerActions}>
+            {/* The catalog's hub is the Shop since the `/ingredients` hub was
+                retired (`equipment-shop/03-component.md`); a label reading
+                "Ingrédients" would now announce a screen titled "Ma Boutique". */}
             <HeaderBackButton
-              label="Ingrédients"
-              accessibilityLabel="Retour à la liste des ingrédients"
+              label="Boutique"
+              accessibilityLabel="Retour à la boutique"
               onPress={handleGoBack}
             />
 

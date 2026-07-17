@@ -416,8 +416,8 @@ The list of people to mention should be suggested based on the PR context (scope
 ### 7. Wait for review
 
 - CI must pass (GitHub Actions runs automatically)
-- Every posted review comment is addressed — bot reviewers (Codex, and Copilot on demand) only comment, and `main` is not branch-protected, so a GitHub approval is **not** required; the local pre-push review (all Must-Have items resolved) is the gate
-- Address review comments before merging
+- **Codex has returned a verdict** on the current head commit — a review (findings) or a 👍 (clean). Neither means it has not finished; see § AI reviewers below for how to read and wait for it
+- Every posted review comment is addressed — bot reviewers (Codex, and Copilot on demand) only comment, and `main` has no required-approval or status-check rule (its ruleset only blocks deletion and force-push, see § AI reviewers below), so a GitHub approval is **not** required; the local pre-push review (all Must-Have items resolved) is the gate
 
 #### AI reviewers — defence-in-depth pipeline
 
@@ -438,10 +438,10 @@ gates the push on all Must Have items resolved.
 
 **2. Post-push (GitHub) — Codex (automatic) + Copilot (on-demand):**
 
-| Reviewer | Bot account | Trigger | Status |
+| Reviewer | Bot account | Trigger | Verdict |
 |---|---|---|---|
-| Codex | `chatgpt-codex-connector[bot]` | Automatic on every PR | Comments only — never approves |
-| Copilot | `copilot-pull-request-reviewer[bot]` | **Manual** — add the `needs-copilot` label | On-demand only (premium-request quota) |
+| Codex | `chatgpt-codex-connector[bot]` | Automatic when a PR is **opened**, a draft is **marked ready**, or someone comments `@codex review` — **never on push** | Review if it has findings, **👍 reaction on the PR body if clean** — never approves |
+| Copilot | `copilot-pull-request-reviewer[bot]` | **Manual** — add the `needs-copilot` label | Review comments only (premium-request quota) — never approves |
 
 Codex also runs in the **local pre-push** ritual (`scripts/codex-review.sh`).
 No GitHub bot reviewer can *approve* — they only post comments.
@@ -452,14 +452,54 @@ What this means in practice:
   review on a PR, add the **`needs-copilot`** label — the `Copilot Review`
   workflow then posts `@copilot please review`. Use it sparingly (premium
   requests, ×13 per review).
+- **Automatic Copilot review is controlled by a repository ruleset, not by
+  the workflow.** From 2026-06-05 to 2026-07-17 an active ruleset rule
+  (`copilot_code_review`) kept auto-requesting Copilot on every non-draft
+  PR despite the documented manual-only policy; the rule was removed on
+  2026-07-17. The ruleset, renamed *Protect default branch*, now only
+  protects `main` against deletion and force-push. If Copilot ever starts
+  reviewing unlabeled PRs again, check *Settings → Rules → Rulesets* —
+  editing `copilot-review.yml` will not turn it off.
+- **Codex signals "clean" with a 👍, not with silence.** Its own doc block
+  states the contract: *"If Codex has suggestions, it will comment; otherwise
+  it will react with 👍."* So its verdict is exactly one of two things:
+  **findings** → a review whose body names the commit it read
+  (`**Reviewed commit:** <sha>`); **clean** → a `+1` reaction on the PR body.
+  **Neither present = no verdict yet** — it is still running, or it never ran.
+  Never read that as clean.
+- **Poll both channels — the review list alone cannot tell you.**
+  `pulls/$PR/reviews` returns `[]` both when Codex cleared the PR and when it
+  has not started; those are different states with the same shape:
+
+  ```bash
+  # clean verdict (the channel that is easy to miss)
+  gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/reactions \
+    --jq '[.[] | select(.user.login=="chatgpt-codex-connector[bot]" and .content=="+1") | .created_at] | last // "no clean verdict"'
+  # findings verdict, and the SHA it was made against
+  gh api repos/benoit-bremaud/brasse-bouillon/pulls/$PR/reviews \
+    --jq '.[] | select(.user.login=="chatgpt-codex-connector[bot]") | .submitted_at'
+  ```
+
+- **Bounded wait, then report what actually happened.** Poll for up to ~10
+  minutes after the trigger (observed: 👍 in ~2 min, reviews in 2–7 min).
+  If no verdict lands, Codex did not run — it was down for all of 2026-07-16
+  and #1442–#1459 merged with no Codex pass. That is **not** a clean verdict:
+  merge on the local pre-push review + green CI, and log "no Codex verdict"
+  rather than "Codex clean".
+- **A verdict covers only the commit Codex read, and pushing does not
+  re-trigger it.** After pushing to an open PR, comment `@codex review` to get
+  a fresh pass, and check the new verdict names the current head SHA.
+- **On a PR that already carries a 👍, a clean re-pass has no signal left to
+  send** — GitHub allows one reaction per user, so Codex cannot 👍 twice. "No
+  new review" is then indistinguishable from "the re-run never happened", and
+  inferring clean from it is the same silence-as-authorization mistake this
+  section exists to prevent. That head has **no Codex verdict**: merge on the
+  local pre-push review + CI and log it as such. (A PR whose verdicts so far
+  were all reviews can still be cleared with a 👍 — the reaction is unused.)
 - **Do not** call `gh api ... requested_reviewers -X POST` for `Codex` or
   `Copilot` — the call fails with 422 for GitHub App bot accounts (not all
-  `[bot]` users). Codex reviews automatically; Copilot is triggered via the
+  `[bot]` users). Codex auto-triggers; Copilot is triggered via the
   `needs-copilot` label above.
-- **Do** wait for each review to be **posted** (not just "requested")
-  before considering the PR ready, per the PR review procedure in
-  global `~/.claude/CLAUDE.md`. Verify with:
-  `gh api repos/OWNER/REPO/pulls/PR/reviews --jq '.[].state'`.
 - **Do** address every inline comment per the Must Have / Should
   Have / Nice to Have / Disagree taxonomy, exactly the same way as
   for a human reviewer.

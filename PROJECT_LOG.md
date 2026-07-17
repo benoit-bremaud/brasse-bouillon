@@ -7,6 +7,18 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1475 merged (`fbd1dd4`) — ci(website): add ruff lint and format checks to the website job
+
+- Branch `chore/website-ci-ruff`, 1 commit (`19088f5`).
+- Adds `ruff check scripts tests` + `ruff format --check scripts tests` to the `website:` job (before the gate, fail-fast) plus the matching `packages/website/CLAUDE.md` local-repro update. Supersedes the #1469 entry's "Website CI runs no ruff step" — that baseline is now enforced. `ruff check` was verified green independently (#1469 was a `ruff format` pass only).
+- **Decisions**:
+  - `website-ruff-defaults` — no `pyproject.toml`/repo-root ruff config, so ruff runs on built-in defaults (line-length 88, `E4`/`E7`/`E9`/`F`) and beer-encyclopedia's `.[ml,dev]` install path does not transfer. Aligning on its ruleset (line-length 100 + extended select) reformats all 8 files + raises 6 `I001` — deferred.
+  - `ruff-pinned-exactly` — Dependabot tracks npm only, so nothing auto-bumps Python tooling; pinned `ruff==0.15.8` with a `next-review: 2027-01` marker.
+  - `lint-steps-unguarded` — no `if [ -d ]` guard (unlike the gate/test steps): a missing `scripts/` should fail, not silently pass.
+- `website:` job is path-filtered on `packages/website/**`; the doc change triggered it here, so a workflow-only change to this job won't self-verify on its own PR.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). CI green; `website` job log confirms both checks ran (`All checks passed!`, `8 files already formatted`), gate + 69 tests green.
+- Follow-up: `packages/website/CONTRIBUTING.md` local-commands block separately stale (`py_compile` step CI never runs, unit suite omitted).
+
 ### PR #1470 merged (`c3a9011`) — fix(mobile-app): drop dead Tabs.Screen registrations in (app) layout
 
 - Branch `fix/mobile-tabs-screen-names`, 3 commits (`1aea5c1`, `43b80a7`, `0f2e8be`) plus a `main` sync before merge.

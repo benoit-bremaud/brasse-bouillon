@@ -7,6 +7,19 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1461 merged (`12ccc6b`) — feat(shop): make the shop the single door into the ingredient catalog
+
+- Branch `feat/shop-catalog-door`, 2 commits (`8457ef5`, `e415fd2`). Lot 1 of the shop-catalog epic, implementing the conception merged in #1456. The shop stops being a placeholder and opens the catalog that already existed: Malts / Houblons / Levures show their real count from `listIngredientCategoriesSummary()` and route to `/(app)/ingredients/[category]`; Kits / Matériel / Accessoires stay inert.
+- **Reuse, not relocation**: the hub reads the existing use-case and routes into the existing category screens, owning **no `data/` layer** — a second API client would rebuild the duplication #1444 deleted. `RecipeDetailsScreen` deep-links into the datasheets, so those routes are untouched: the goal is one door, not one directory.
+- `/ingredients` hub retired — route redirects instead of 404ing, dashboard entry removed, `IngredientsScreen` + its test deleted (the redirect left them with zero consumers). `ShopCategory` deleted too; `IngredientCategory` is the single taxonomy. New `ShopRayon` model with a nullable `catalogCategory`; placeholders render as plain `View`s, not disabled `Pressable`s, so they are not focusable and cannot gain an `onPress` by accident.
+- Retiring the hub silently broke four back paths that no test caught: `IngredientCategoryScreen`'s button read "Ingrédients" while landing on a screen titled "Ma Boutique", and the three datasheet fallbacks pushed to the dead hub. All now say and go to the shop, without bouncing through the redirect; their tests, which had pinned the old labels, were updated to the new intent.
+- **Decisions**:
+  - `shop-is-the-catalog-door` — one entry point for one actor goal. Two doors (an "Ingrédients" menu entry and a "Boutique" one) for the same goal is what let two catalogs ship, one of them fake. Per #1456, `ingredients/` keeps the use case; the shop is its entry point.
+  - `guard-narrowed-not-dropped` — #1453's "no pressable affordance" assertion tightens to sourceless rayons rather than being deleted: live rayons are pressable by design now, and that re-decision is what the guard existed to force.
+  - `named-gap-over-unfailable-test` — `isRetryingWithError` (missing versus every sibling screen) was restored, but mutation testing proved the obvious regression test for it passes with the guard removed: a first-load failure leaves the query data-less, so `status` returns to `pending` and the loader shows either way. The guard only bites on a populated catalog whose refetch fails, unreachable without a remount. The gap is documented in a comment rather than covered by a test that cannot fail.
+- Reviews — local pre-push: 0 Must Have, 5 Should Have addressed in-branch (retry guard, stale docstring, comment placement, rebase). Copilot 2 inline (type-only imports for `IngredientCategorySummary` / `ShopRayon`, a repeat of its #1444 feedback reintroduced by copying the replaced screen's shape) fixed in `e415fd2` with inline replies, threads resolved. Codex no review. CI green; 353/353 across the touched suites; visual QA on the Android emulator in demo mode.
+- Lot 2 (not started): wire `/catalog/misc-templates` (Accessoires) then `/catalog/equipment-templates` (Matériel) — both served by the backend already, unconsumed mobile-side. Kits has no source anywhere.
+
 ### PR #1463 merged (`79711a8`) — docs(claude-tooling): refresh website-audit skill for Cloudflare Pages hosting
 
 - Branch `docs/website-audit-skill-cloudflare-refresh`, 2 commits (`0f57232`, `84ad8a7`).

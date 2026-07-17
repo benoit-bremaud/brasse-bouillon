@@ -143,8 +143,11 @@ def normalize_iso_datetime(value: str) -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
 
-    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace(
-        "+00:00", "Z"
+    return (
+        dt.astimezone(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
     )
 
 
@@ -188,10 +191,7 @@ def ensure_allowed_api_url(url: str) -> None:
     if parsed.scheme != "https":
         raise ValueError(f"Unsupported URL scheme for GitHub API call: {parsed.scheme}")
     if parsed.netloc not in ALLOWED_GITHUB_API_HOSTS:
-        raise ValueError(
-            "Unexpected GitHub API host in URL: "
-            f"{parsed.netloc}"
-        )
+        raise ValueError(f"Unexpected GitHub API host in URL: {parsed.netloc}")
     if not parsed.path.startswith("/"):
         raise ValueError("Invalid GitHub API URL path")
 
@@ -210,15 +210,11 @@ def github_get_json(url: str, token: str) -> tuple[Any, dict[str, str]]:
     try:
         with request.urlopen(req, timeout=30) as response:
             payload = json.loads(response.read().decode("utf-8"))
-            response_headers = {
-                key: value for key, value in response.headers.items()
-            }
+            response_headers = {key: value for key, value in response.headers.items()}
             return payload, response_headers
     except error.HTTPError as exc:  # pragma: no cover - network error path
         detail = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(
-            f"GitHub API error {exc.code} for {url}: {detail}"
-        ) from exc
+        raise RuntimeError(f"GitHub API error {exc.code} for {url}: {detail}") from exc
 
 
 def paginated_get(url: str, token: str) -> list[Any]:
@@ -227,7 +223,9 @@ def paginated_get(url: str, token: str) -> list[Any]:
     while next_url:
         payload, headers = github_get_json(next_url, token)
         if not isinstance(payload, list):
-            raise ValueError(f"Expected list payload from GitHub API, got {type(payload)}")
+            raise ValueError(
+                f"Expected list payload from GitHub API, got {type(payload)}"
+            )
         items.extend(payload)
         links = parse_link_header(headers.get("Link", ""))
         next_url = links.get("next", "")
@@ -341,9 +339,13 @@ def collect_pr_records(
 ) -> list[PullRequestRecord]:
     records: list[PullRequestRecord] = []
     for repo in repos:
-        merged_prs = fetch_merged_prs(repo=repo, since_iso=since_iso, token=token, max_prs=max_prs)
+        merged_prs = fetch_merged_prs(
+            repo=repo, since_iso=since_iso, token=token, max_prs=max_prs
+        )
         for merged_pr in merged_prs:
-            files = fetch_pr_files(repo=repo, pr_number=merged_pr["number"], token=token)
+            files = fetch_pr_files(
+                repo=repo, pr_number=merged_pr["number"], token=token
+            )
             user_facing, reason = classify_pr(
                 repo=repo,
                 title=merged_pr["title"],
@@ -424,7 +426,9 @@ def select_highlights(user_facing_prs: list[PullRequestRecord]) -> list[str]:
         )
 
     if not highlights:
-        highlights.append("Multiple user-facing improvements were merged and are ready to communicate.")
+        highlights.append(
+            "Multiple user-facing improvements were merged and are ready to communicate."
+        )
 
     return highlights[:5]
 
@@ -560,9 +564,7 @@ def render_social_drafts_markdown(
             "Plusieurs améliorations user-facing ont été livrées cette semaine."
         ]
     if user_facing and not en_bullets:
-        en_bullets = [
-            "Multiple user-facing improvements were delivered this week"
-        ]
+        en_bullets = ["Multiple user-facing improvements were delivered this week"]
 
     if not user_facing:
         fr_bullets = [
@@ -681,8 +683,16 @@ def main() -> int:
         feed_path = Path(args.feed_path)
         output_dir = Path(args.output_dir)
 
-        since_iso = normalize_iso_datetime(args.since) if args.since else infer_since_from_feed(feed_path)
-        token = args.token or os.environ.get("GH_TOKEN", "") or os.environ.get("GITHUB_TOKEN", "")
+        since_iso = (
+            normalize_iso_datetime(args.since)
+            if args.since
+            else infer_since_from_feed(feed_path)
+        )
+        token = (
+            args.token
+            or os.environ.get("GH_TOKEN", "")
+            or os.environ.get("GITHUB_TOKEN", "")
+        )
         repos = args.repos if args.repos else DEFAULT_REPOS
 
         generated_at = now_iso()

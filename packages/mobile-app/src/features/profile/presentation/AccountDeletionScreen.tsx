@@ -3,7 +3,6 @@ import React, { useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -16,9 +15,9 @@ import { radius, spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 export function AccountDeletionScreen() {
   const router = useRouter();
@@ -26,7 +25,6 @@ export function AccountDeletionScreen() {
     useAuth();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [confirmation, setConfirmation] = useState("");
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,11 +67,8 @@ export function AccountDeletionScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -144,7 +139,7 @@ export function AccountDeletionScreen() {
         ) : errorMessage ? (
           <Text style={styles.error}>{errorMessage}</Text>
         ) : null}
-      </ScrollView>
+      </ScreenScrollView>
 
       <Modal
         transparent

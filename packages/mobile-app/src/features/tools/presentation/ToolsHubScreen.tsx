@@ -1,10 +1,10 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { getAcademyArticleBySlug } from "@/features/academy/application";
 import { generatedAcademyRepository } from "@/features/academy/data";
 import { academyTopics } from "@/features/tools/data";
@@ -24,7 +24,6 @@ const CALCULATOR_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 export function ToolsHubScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
 
   const calculatorTopics = academyTopics
@@ -57,12 +56,7 @@ export function ToolsHubScreen() {
         subtitle="Tes outils de calcul brassicoles"
       />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {calculatorCards.map((card) => (
           <Pressable
             key={card.slug}
@@ -101,7 +95,7 @@ export function ToolsHubScreen() {
             </Card>
           </Pressable>
         ))}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

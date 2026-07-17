@@ -1,4 +1,4 @@
-export { brandHeader } from "./layout";
+export { brandHeader, NAV_BAR_HEIGHT } from "./layout";
 export { colors, getThemeColors } from "./colors";
 export type { ThemeColors } from "./colors";
 export { radius } from "./radius";

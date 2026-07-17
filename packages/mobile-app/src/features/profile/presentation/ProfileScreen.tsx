@@ -1,13 +1,6 @@
 import { useRouter, type Href } from "expo-router";
 import React, { useMemo, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -15,8 +8,8 @@ import { appInfo } from "@/core/config/app-info";
 import { radius, spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { getBrewerStats } from "@/features/profile/application/brewer-stats.use-cases";
 import type { BrewerStats } from "@/features/profile/application/brewer-stats.use-cases";
 import { Ionicons } from "@expo/vector-icons";
@@ -78,7 +71,6 @@ function initialsOf(displayName: string) {
 
 export function ProfileScreen() {
   const router = useRouter();
-  const footerOffset = useNavigationFooterOffset();
   const { session, logout, isLoading } = useAuth();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
@@ -87,16 +79,6 @@ export function ProfileScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stats, setStats] = useState<BrewerStats | null>(null);
   const [isStatsLoading, setIsStatsLoading] = useState(true);
-  const contentContainerStyle = React.useMemo(
-    () =>
-      StyleSheet.create({
-        content: {
-          gap: spacing.lg,
-          paddingBottom: footerOffset,
-        },
-      }).content,
-    [footerOffset],
-  );
   const displayName = displayNameOf(
     session?.user.firstName,
     session?.user.lastName,
@@ -148,8 +130,8 @@ export function ProfileScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={contentContainerStyle}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.intro}>
@@ -342,7 +324,7 @@ export function ProfileScreen() {
             />
           </Card>
         </View>
-      </ScrollView>
+      </ScreenScrollView>
 
       <Modal
         transparent
@@ -402,6 +384,7 @@ export function ProfileScreen() {
 
 function createStyles(themeColors: ThemeColors) {
   return StyleSheet.create({
+    content: { gap: spacing.lg },
     intro: { gap: spacing.xxs },
     eyebrow: {
       color: themeColors.brand.secondary,

@@ -9,15 +9,21 @@ re-serialises the document, so everything the annotations do not touch stays
 byte-for-byte identical (a hard requirement for the CI regeneration-diff check).
 
 Usage:
-    python scripts/build_i18n.py              # generate en.html (default)
-    python scripts/build_i18n.py --check      # generate in memory, fail if en.html is stale
-    python scripts/build_i18n.py --update-hashes
+    python3 scripts/build_i18n.py              # generate en.html (default)
+    python3 scripts/build_i18n.py --check      # generate in memory, fail if en.html is stale
+    python3 scripts/build_i18n.py --update-hashes
                                               # rewrite catalog srcHash fields after a FR edit
+    python3 scripts/build_i18n.py --stamp      # refresh the EN legal twins' i18n-src freshness stamp
 
 The drift guard: each catalog entry stores `srcHash`, the sha1 of the French
 source (element inner HTML or attribute value) it translates. On generate/check,
 a mismatch is a hard error — a FR copy change without its EN update fails CI. The
 author updates the EN value, runs --update-hashes, and commits deliberately.
+
+The legal twins (`legal`, `privacy`, `cookies`, `terms`) are hand-maintained,
+not generated; the same idea guards them via `--stamp`: each EN twin embeds a
+sha1 of its FR source, and the quality gate fails when a FR legal edit skipped
+the EN re-review + re-stamp (ADR-0027 D1 clause 5).
 """
 
 from __future__ import annotations
@@ -36,6 +42,13 @@ INDEX_PATH = WEBSITE_DIR / "index.html"
 CATALOG_PATH = WEBSITE_DIR / "i18n" / "home.en.json"
 OUTPUT_PATH = WEBSITE_DIR / "en.html"
 
+# Hand-maintained legal twins (S4, ADR-0027 D1 clause 5). Unlike the home, they
+# are NOT generated; instead each `{stem}-en.html` embeds a sha1 of its FR
+# source so the gate can flag a FR legal edit that skipped the EN re-review.
+# `--stamp` refreshes the marker once the twin has been re-reviewed.
+LEGAL_STEMS = ("legal", "privacy", "cookies", "terms")
+_LEGAL_STAMP_RE = re.compile(r"<!-- i18n-src: sha1:([0-9a-f]{40}) -->")
+
 # Void elements never hold inner content, so they must not be pushed on the
 # element stack (they have no end tag). They may still carry translatable
 # attributes (img@alt, input@placeholder), handled as attribute ops.
@@ -46,7 +59,7 @@ VOID_TAGS = frozenset(
 CANONICAL_EN = "https://brasse-bouillon.com/en"
 GENERATED_MARKER = (
     "<!-- GENERATED FILE — edit index.html + i18n/home.en.json instead. "
-    "Regenerate with: python scripts/build_i18n.py -->"
+    "Regenerate with: python3 scripts/build_i18n.py -->"
 )
 
 
@@ -287,7 +300,7 @@ def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
         raise BuildError(
             "French source changed for: "
             f"{keys}\n  → update the EN translation in i18n/home.en.json, then run "
-            "`python scripts/build_i18n.py --update-hashes`."
+            "`python3 scripts/build_i18n.py --update-hashes`."
         )
 
     out = _apply_ops(source, ops)
@@ -553,18 +566,79 @@ def update_hashes(source: str, catalog: dict) -> dict:
 # --------------------------------------------------------------------------- #
 
 
+def read_legal_stamp(en_html: str) -> str | None:
+    """Return the sha1 embedded in an EN legal page, or None if unstamped."""
+    match = _LEGAL_STAMP_RE.search(en_html)
+    return match.group(1) if match else None
+
+
+def fr_legal_hash(website_dir: Path, stem: str) -> str:
+    """sha1 of the FR legal source `{stem}.html` (the twin the EN page tracks).
+
+    Hashes the WHOLE file, not just `<body>` prose, on purpose: the `<head>`
+    metadata (title, description, og:*) is itself translatable content that must
+    stay in sync between twins, so a FR head edit should also demand an EN
+    re-review. A sitewide, legal-neutral sweep (e.g. an `og-image` cache-bust)
+    does touch this hash, but such sweeps touch the EN twin in the same PR — so
+    re-running `--stamp` there is a legitimate, one-command acknowledgment, not
+    a false positive.
+    """
+    return sha1((website_dir / f"{stem}.html").read_text(encoding="utf-8"))
+
+
+def stamp_legal_pages(website_dir: Path = WEBSITE_DIR) -> list[str]:
+    """Refresh the `i18n-src` freshness stamp on every EN legal twin.
+
+    Embeds `<!-- i18n-src: sha1:<hash of the FR twin> -->` in each
+    `{stem}-en.html` (inserted right after `<head>` on first run, replaced in
+    place afterwards). Returns the EN files that changed. Run after re-reviewing
+    an EN twin against a FR legal edit; the gate (`check_legal_freshness`) stays
+    red until the stamp matches. Idempotent when everything is already current.
+    """
+    changed: list[str] = []
+    for stem in LEGAL_STEMS:
+        fr_path = website_dir / f"{stem}.html"
+        en_path = website_dir / f"{stem}-en.html"
+        if not fr_path.exists() or not en_path.exists():
+            raise BuildError(f"legal twin missing for stem '{stem}'")
+        marker = f"<!-- i18n-src: sha1:{fr_legal_hash(website_dir, stem)} -->"
+        en_html = en_path.read_text(encoding="utf-8")
+        if _LEGAL_STAMP_RE.search(en_html):
+            new_html = _LEGAL_STAMP_RE.sub(marker, en_html, count=1)
+        elif "<head>" in en_html:
+            new_html = en_html.replace("<head>", f"<head>\n  {marker}", 1)
+        else:
+            raise BuildError(f"{en_path.name}: no <head> to stamp")
+        if new_html != en_html:
+            en_path.write_text(new_html, encoding="utf-8")
+            changed.append(en_path.name)
+    return changed
+
+
 def main(argv: list[str]) -> int:
-    """CLI entry point: `--write` (default), `--check`, or `--update-hashes`."""
+    """CLI: `--write` (default), `--check`, `--update-hashes`, or `--stamp`."""
     mode = argv[1] if len(argv) > 1 else "--write"
-    if mode not in ("--write", "--check", "--update-hashes"):
+    if mode not in ("--write", "--check", "--update-hashes", "--stamp"):
         # Fail loudly on typos: silently falling through to write mode would
         # rewrite en.html when the author meant e.g. `--chek`.
         print(
             f"build_i18n: unknown mode '{mode}' "
-            "(expected --write, --check or --update-hashes)",
+            "(expected --write, --check, --update-hashes or --stamp)",
             file=sys.stderr,
         )
         return 2
+
+    if mode == "--stamp":
+        try:
+            changed = stamp_legal_pages()
+        except BuildError as error:
+            print(f"build_i18n: {error}", file=sys.stderr)
+            return 1
+        if changed:
+            print("Refreshed legal stamps: " + ", ".join(changed))
+        else:
+            print("Legal stamps already up to date.")
+        return 0
 
     source = INDEX_PATH.read_text(encoding="utf-8")
     catalog = load_catalog()
@@ -587,7 +661,7 @@ def main(argv: list[str]) -> int:
             )
             if current != generated:
                 print(
-                    "en.html is stale — run `python scripts/build_i18n.py` and commit.",
+                    "en.html is stale — run `python3 scripts/build_i18n.py` and commit.",
                     file=sys.stderr,
                 )
                 return 1

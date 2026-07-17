@@ -1,20 +1,14 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { listConsentDecisions } from "@/features/consent/application/consent.use-cases";
 import type {
   ConsentAxis,
@@ -83,7 +77,6 @@ export function ConsentHistoryScreen() {
   const router = useRouter();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [decisions, setDecisions] = useState<ConsentDecision[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -121,11 +114,8 @@ export function ConsentHistoryScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <HeaderBackButton
@@ -170,7 +160,7 @@ export function ConsentHistoryScreen() {
             ))}
           </Card>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

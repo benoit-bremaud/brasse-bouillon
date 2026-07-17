@@ -22,6 +22,8 @@ import {
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
+const mockBack = jest.fn();
+let mockCanGoBack = true;
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -65,7 +67,8 @@ jest.mock("expo-router", () => {
     useRouter: () => ({
       push: mockPush,
       replace: mockReplace,
-      back: jest.fn(),
+      back: mockBack,
+      canGoBack: () => mockCanGoBack,
     }),
     usePathname: () => "/(app)/recipes/r1",
   };
@@ -195,6 +198,8 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
+    mockBack.mockReset();
+    mockCanGoBack = true;
     (getRecipeDetailsViewModel as jest.Mock).mockReset();
     (getRecipeDetailsViewModel as jest.Mock).mockResolvedValue(baseViewModel);
     (importRecipeFromCommunity as jest.Mock).mockReset();
@@ -487,7 +492,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     await screen.findByTestId("recipe-overview-tab");
     switchToTab("ingredients");
 
-    fireEvent.press(screen.getByLabelText("Open ingredient details for Citra"));
+    fireEvent.press(screen.getByLabelText("Ouvrir la fiche de Citra"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/[category]/[id]",
@@ -527,9 +532,7 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     switchToTab("ingredients");
     await screen.findByText("Pale Ale Malt");
 
-    fireEvent.press(
-      screen.getByLabelText("Open ingredient details for Pale Ale Malt"),
-    );
+    fireEvent.press(screen.getByLabelText("Ouvrir la fiche de Pale Ale Malt"));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: "/(app)/ingredients/malts/[id]",
@@ -711,7 +714,23 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
 
     fireEvent.press(screen.getByLabelText("Retour à mes recettes"));
 
+    // The recipes Stack (app/(app)/recipes/_layout.tsx) makes this pop to the
+    // true origin (catalog, hub, …); the Recipes hub is only the fallback
+    // when there is nothing to pop — see useBackNavigation.
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("falls back to the Recipes hub when there is no history to pop", async () => {
+    mockCanGoBack = false;
+
+    renderRecipeDetails();
+
+    await screen.findByTestId("recipe-overview-tab");
+
+    fireEvent.press(screen.getByLabelText("Retour à mes recettes"));
+
     expect(mockReplace).toHaveBeenCalledWith("/recipes");
+    expect(mockBack).not.toHaveBeenCalled();
   });
 
   it("shows the not-found state when recipeId is missing", async () => {

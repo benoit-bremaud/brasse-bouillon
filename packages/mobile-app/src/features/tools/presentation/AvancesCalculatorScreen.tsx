@@ -1,14 +1,6 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
   calculateAltitudeAdjustedIbuTarget,
@@ -24,8 +16,10 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type TabName = "enzymes" | "mout" | "altitude";
 
@@ -49,7 +43,6 @@ function getConversionReadinessLabel(averagePowerWkPerKg: number) {
 }
 
 export function AvancesCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("enzymes");
   const [malts, setMalts] = useState<MaltLine[]>([
     { id: "1", name: "Pilsner", weightKg: 4, diastaticPowerWk: 250 },
@@ -127,6 +120,7 @@ export function AvancesCalculatorScreen() {
       <ListHeader
         title="🧪 Calculs avancés"
         subtitle="Enzymes · Diagnostic moût · Altitude"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>
@@ -173,12 +167,7 @@ export function AvancesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "enzymes" && (
           <>
             <Card style={styles.card}>
@@ -403,7 +392,7 @@ export function AvancesCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

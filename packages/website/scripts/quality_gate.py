@@ -493,10 +493,47 @@ def check_i18n_home_generated(root: Path = ROOT) -> list[str]:
     current = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
     if current != generated:
         return [
-            "en.html est périmé — lancer `python scripts/build_i18n.py` "
+            "en.html est périmé — lancer `python3 scripts/build_i18n.py` "
             "puis committer le résultat"
         ]
     return []
+
+
+def check_legal_freshness(root: Path = ROOT) -> list[str]:
+    """Freshness guard for the hand-maintained EN legal twins (S4, ADR-0027 D1
+    clause 5). Each `{stem}-en.html` embeds a sha1 of its FR source; a FR legal
+    edit that skips the EN re-review leaves the stamp stale — a hard failure.
+    The author reviews the EN twin, runs `build_i18n.py --stamp`, and commits.
+    Skipped for trees without the i18n toolchain (minimal test fixtures)."""
+    if not (root / "scripts" / "build_i18n.py").exists():
+        return []
+
+    try:
+        from scripts import build_i18n  # pytest / package context
+    except ImportError:  # direct `python3 scripts/quality_gate.py` run
+        # no-redef: exactly one import form runs; both bind the same module.
+        import build_i18n  # type: ignore[no-redef]
+
+    errors: list[str] = []
+    for stem in build_i18n.LEGAL_STEMS:
+        fr_path = root / f"{stem}.html"
+        en_path = root / f"{stem}-en.html"
+        if not fr_path.exists() or not en_path.exists():
+            continue
+        stamped = build_i18n.read_legal_stamp(en_path.read_text(encoding="utf-8"))
+        # Reuse the generator's helper so the hashing policy stays single-source.
+        expected = build_i18n.fr_legal_hash(root, stem)
+        if stamped is None:
+            errors.append(
+                f"{stem}-en.html: tampon i18n-src manquant "
+                "(lancer `python3 scripts/build_i18n.py --stamp`)"
+            )
+        elif stamped != expected:
+            errors.append(
+                f"{stem}-en.html: tampon i18n-src périmé — {stem}.html a changé "
+                "sans re-relecture EN (lancer `python3 scripts/build_i18n.py --stamp`)"
+            )
+    return errors
 
 
 def check_og_image_dimensions(root: Path = ROOT) -> list[str]:
@@ -582,6 +619,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_no_stale_host(root))
     errors.extend(check_og_image_dimensions(root))
     errors.extend(check_hreflang_reciprocity(root))
+    errors.extend(check_legal_freshness(root))
     errors.extend(check_i18n_home_generated(root))
     return errors
 

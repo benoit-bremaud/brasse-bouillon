@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateOgFromFermentables,
   calculateRequiredMaltKgForTargetOg,
@@ -17,7 +16,6 @@ import React, { useCallback, useState } from "react";
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -25,9 +23,11 @@ import {
 } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import Slider from "@react-native-community/slider";
 import * as Haptics from "expo-haptics";
 
@@ -40,7 +40,6 @@ type RecipeMalt = {
 };
 
 export function FermentesciblesCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rapide");
   const [recipeMalts, setRecipeMalts] = useState<RecipeMalt[]>([
     { id: "1", malt: fermentableMaltCatalog[0], weightKg: 4 },
@@ -123,6 +122,7 @@ export function FermentesciblesCalculatorScreen() {
       <ListHeader
         title="🍺 Calculs Fermentescibles"
         subtitle="Densité initiale et malts"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       {/* Tabs */}
@@ -168,12 +168,7 @@ export function FermentesciblesCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "rapide" && (
           <>
             {/* Paramètres de base */}
@@ -425,7 +420,7 @@ export function FermentesciblesCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -12,24 +11,18 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useCallback, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type TabName = "pitch" | "attenuation" | "packs";
 type FermentationType = "ale" | "lager";
 
 export function LevuresCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("pitch");
   const [fermentationType, setFermentationType] =
     useState<FermentationType>("ale");
@@ -77,6 +70,7 @@ export function LevuresCalculatorScreen() {
       <ListHeader
         title="🧫 Calculs Levures"
         subtitle="Pitch rate · Atténuation · Sachets"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>
@@ -123,12 +117,7 @@ export function LevuresCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "pitch" && (
           <>
             <Card style={styles.card}>
@@ -321,7 +310,7 @@ export function LevuresCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

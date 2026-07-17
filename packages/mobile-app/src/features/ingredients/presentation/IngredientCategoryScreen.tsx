@@ -1,11 +1,4 @@
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import {
   Ingredient,
   IngredientCategory,
@@ -33,7 +26,7 @@ import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { Ionicons } from "@expo/vector-icons";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { getErrorMessage } from "@/core/http/http-error";
 import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
@@ -109,7 +102,6 @@ export function IngredientCategoryScreen({
   alphaMinParam,
   attenuationMinParam,
 }: Props) {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const normalizedCategory = normalizeRouteParam(categoryParam) ?? "";
   const initialFilters = buildIngredientCategoryInitialFilters({
@@ -372,10 +364,10 @@ export function IngredientCategoryScreen({
         />
       ) : null}
 
-      <FlatList
+      <ScreenFlatList
         data={ingredients}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: bottomPadding }]}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <Pressable
             accessibilityRole="button"

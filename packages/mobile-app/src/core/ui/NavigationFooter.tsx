@@ -1,8 +1,9 @@
 import { Href, usePathname, useRouter } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import Animated, {
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
@@ -12,15 +13,8 @@ import type { ThemeColors } from "@/core/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export function useNavigationFooterOffset() {
-  const insets = useSafeAreaInsets();
-  return (
-    (insets.bottom > 0 ? insets.bottom : spacing.md) +
-    spacing.xs +
-    48 +
-    spacing.md
-  );
-}
+import { useFooterVisibility } from "@/core/ui/footer-visibility-context";
+import { useNavigationBarFootprint } from "@/core/ui/use-navigation-bar-footprint";
 
 type NavItem = {
   label: string;
@@ -113,10 +107,29 @@ export function NavigationFooter() {
   const hasActiveItem = activeIndex >= 0;
   const safeActiveIndex = hasActiveItem ? activeIndex : 0;
 
+  const { visible } = useFooterVisibility();
+  const footprint = useNavigationBarFootprint();
+  const prefersReducedMotion = useReducedMotion();
+
   const [containerWidth, setContainerWidth] = useState(0);
   const itemWidth = containerWidth / navItems.length;
 
   const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  // Hide by sliding the bar off the bottom edge; the content's reserved
+  // clearance never changes, so nothing reflows and the clause-6 invariant
+  // holds regardless of where the animation is (ADR-0029 clause 3).
+  useEffect(() => {
+    const target = visible ? 0 : footprint;
+    translateY.value = prefersReducedMotion
+      ? target
+      : withSpring(target, { mass: 1, damping: 18, stiffness: 140 });
+  }, [visible, footprint, prefersReducedMotion, translateY]);
+
+  const animatedBarStyle = useAnimatedStyle(() => {
+    return { transform: [{ translateY: translateY.value }] };
+  });
 
   useEffect(() => {
     if (itemWidth > 0) {
@@ -136,12 +149,19 @@ export function NavigationFooter() {
   });
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
-        {
-          bottom: (insets.bottom > 0 ? insets.bottom : spacing.md) + spacing.xs,
-        },
+        // Height is DERIVED from the shared footprint rather than emerging
+        // from padding + item height: that is what makes `NAV_BAR_HEIGHT` a
+        // real single source (ADR-0029 clause 4). The bar, the clearance the
+        // scroll containers reserve, and the distance it translates by are
+        // then provably the same number — they cannot drift apart, which is
+        // the magic-number bug this redesign exists to end.
+        // The inset is absorbed inside the bar so it sits flush on the edge
+        // while its items stay above the home indicator.
+        { height: footprint, paddingBottom: insets.bottom },
+        animatedBarStyle,
       ]}
       onLayout={(e) => {
         // We calculate available width by removing padding horizontally
@@ -186,27 +206,30 @@ export function NavigationFooter() {
           </Pressable>
         );
       })}
-    </View>
+    </Animated.View>
   );
 }
 
 function createStyles(themeColors: ThemeColors) {
   return StyleSheet.create({
+    // Flush edge-to-edge: anchored on all three edges, no lift, no rounding —
+    // the floating pill this replaces was inset 24px per side and lifted off
+    // the bottom, which is what put it over the content (ADR-0029 clause 1).
     container: {
       position: "absolute",
-      left: spacing.lg,
-      right: spacing.lg,
+      left: 0,
+      right: 0,
+      bottom: 0,
       flexDirection: "row",
       backgroundColor: themeColors.neutral.white,
-      borderRadius: 100,
-      borderWidth: 1,
-      borderColor: themeColors.neutral.border,
+      borderTopWidth: 1,
+      borderTopColor: themeColors.neutral.border,
       paddingHorizontal: spacing.xs,
-      paddingVertical: spacing.xs,
+      paddingTop: spacing.xs,
       shadowColor: themeColors.neutral.shadow,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
       elevation: 8,
     },
     item: {
@@ -215,7 +238,7 @@ function createStyles(themeColors: ThemeColors) {
       justifyContent: "center",
       borderRadius: 100,
       minHeight: 48,
-      zIndex: 2,
+      zIndex: 2, // ensure icon is above the animated background
     },
     itemPressed: {
       opacity: 0.7,

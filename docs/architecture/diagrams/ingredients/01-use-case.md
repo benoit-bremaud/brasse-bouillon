@@ -63,3 +63,14 @@ flowchart LR
   brewer's authoring.
 - **Categories** today: malt / hop / yeast (mobile); the API also has
   fermentable / water / misc / style / equipment catalogs (component/class view).
+- **This domain owns catalog browsing, and it is the only one that does.**
+  `equipment-shop` used to declare its own "Browse the shop by category" +
+  "View a product" — the same actor goal, modelled twice, which is why the app
+  shipped two catalogs (one of them fake, deleted in #1444). Those UCs are
+  retired: the Shop becomes the **entry point** into UC1–UC3. Naming a door is
+  information architecture, not an actor goal. **Target, not current state**: the
+  `/(app)/ingredients` hub should redirect to `/(app)/shop` in Lot 1 — today it
+  still renders `IngredientsScreen` and both doors are listed on the dashboard.
+  See [`../equipment-shop/03-component.md`](../equipment-shop/03-component.md).
+- **UC7 hands off to a shopping list that does not exist yet**: the local cart
+  was deleted in #1444 (zero non-test callers); #653 rebuilds it.

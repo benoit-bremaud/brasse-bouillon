@@ -1,22 +1,21 @@
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { exportPersonalData } from "@/features/profile/application/personal-data-export.use-cases";
 
 export function ExportDataScreen() {
   const router = useRouter();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [isExporting, setIsExporting] = useState(false);
   const [hasExported, setHasExported] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -47,11 +46,8 @@ export function ExportDataScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <HeaderBackButton
@@ -93,7 +89,7 @@ export function ExportDataScreen() {
           }
           onPress={() => void handleExport()}
         />
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

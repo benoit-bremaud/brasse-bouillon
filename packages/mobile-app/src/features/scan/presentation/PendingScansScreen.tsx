@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useMemo, useState } from "react";
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
@@ -13,6 +13,7 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import type { ScanPendingCapture } from "@/features/scan/domain/scan.types";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { getErrorMessage } from "@/core/http/http-error";
 import { useRouter } from "expo-router";
 
@@ -114,7 +115,7 @@ export function PendingScansScreen() {
         void loadPendingCaptures();
       }}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView contentContainerStyle={styles.content}>
         <ListHeader
           title="Pending scans"
           subtitle="Stored locally for later product analysis"
@@ -203,14 +204,13 @@ export function PendingScansScreen() {
             ) : null}
           </Card>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.xl,
     gap: spacing.sm,
   },
   topCard: {

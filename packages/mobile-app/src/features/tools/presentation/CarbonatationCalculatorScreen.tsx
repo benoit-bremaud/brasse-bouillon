@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -8,18 +7,13 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type TabName = "priming" | "pression" | "styles";
 type SugarType = "dextrose" | "sucrose";
@@ -38,7 +32,6 @@ const styleRanges: StyleCo2Range[] = [
 ];
 
 export function CarbonatationCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("priming");
   const [sugarType, setSugarType] = useState<SugarType>("dextrose");
 
@@ -86,6 +79,7 @@ export function CarbonatationCalculatorScreen() {
       <ListHeader
         title="🍾 Calculs Carbonatation"
         subtitle="Priming · CO₂ résiduel · Pression fût"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>
@@ -132,12 +126,7 @@ export function CarbonatationCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "priming" && (
           <>
             <Card style={styles.card}>
@@ -322,7 +311,7 @@ export function CarbonatationCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

@@ -38,6 +38,12 @@ describe("HoublonsCalculatorScreen", () => {
     expect(screen.getByText("BU:GU")).toBeTruthy();
   });
 
+  it("renders a back control in the header", () => {
+    render(<HoublonsCalculatorScreen />);
+
+    expect(screen.getByLabelText("Retour à l'écran précédent")).toBeTruthy();
+  });
+
   describe("Rapide tab", () => {
     it("shows the Rapide tab content by default", () => {
       render(<HoublonsCalculatorScreen />);

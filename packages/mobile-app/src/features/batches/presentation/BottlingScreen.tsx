@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { dataSource } from "@/core/data/data-source";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -10,9 +10,9 @@ import { colors, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   closeBottling,
   getBottlingInfo,
@@ -60,7 +60,6 @@ const BOTTLING_STEPS: ReadonlyArray<string> = [
  * @param props - The identifier of the batch being bottled.
  */
 export function BottlingScreen({ batchId }: Props) {
-  const bottomPadding = useNavigationFooterOffset();
   const router = useRouter();
   const queryClient = useQueryClient();
   const missingBatchId = !batchId;
@@ -125,10 +124,7 @@ export function BottlingScreen({ batchId }: Props) {
         }
       />
 
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: bottomPadding }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScrollView showsVerticalScrollIndicator={false}>
         <Card style={styles.card}>
           <Text style={styles.cardTitle}>Dose de sucre de réamorçage</Text>
           {isLoadingPriming ? (
@@ -226,7 +222,7 @@ export function BottlingScreen({ batchId }: Props) {
             Mode démo : la clôture est simulée.
           </Text>
         ) : null}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

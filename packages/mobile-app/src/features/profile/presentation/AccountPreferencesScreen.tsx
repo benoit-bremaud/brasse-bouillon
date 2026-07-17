@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -15,9 +14,9 @@ import { useAccountPreferences } from "@/core/preferences/account-preferences-co
 import { radius, spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   getAccountPreferences,
   getDefaultAccountPreferences,
@@ -120,7 +119,6 @@ export function AccountPreferencesScreen() {
   const { colors: themeColors, setThemeMode } = useTheme();
   const { setUnitSystem } = useAccountPreferences();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [preferences, setPreferences] = useState<AccountPreferences>(() =>
     getDefaultAccountPreferences(),
   );
@@ -187,11 +185,8 @@ export function AccountPreferencesScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <HeaderBackButton
@@ -288,7 +283,7 @@ export function AccountPreferencesScreen() {
             />
           </View>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

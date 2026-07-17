@@ -3,7 +3,6 @@ import React, { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -15,9 +14,9 @@ import { getErrorMessage } from "@/core/http/http-error";
 import { radius, spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type FieldProps = {
   label: string;
@@ -62,7 +61,6 @@ export function EditProfileScreen() {
   const { session, updateProfile, isLoading } = useAuth();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [firstName, setFirstName] = useState(session?.user.firstName ?? "");
   const [lastName, setLastName] = useState(session?.user.lastName ?? "");
   const [bio, setBio] = useState(session?.user.bio ?? "");
@@ -116,11 +114,8 @@ export function EditProfileScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.keyboardView}
       >
-        <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: bottomPadding },
-          ]}
+        <ScreenScrollView
+          contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -191,7 +186,7 @@ export function EditProfileScreen() {
             label={isLoading || isSaving ? "Enregistrement…" : "Enregistrer"}
             onPress={() => void handleSave()}
           />
-        </ScrollView>
+        </ScreenScrollView>
       </KeyboardAvoidingView>
     </Screen>
   );

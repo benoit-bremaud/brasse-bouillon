@@ -1,13 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { appInfo, getOtaInfo } from "@/core/config/app-info";
 import { getErrorMessage } from "@/core/http/http-error";
@@ -15,8 +8,8 @@ import { spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type MetadataRowProps = {
   label: string;
@@ -57,7 +50,6 @@ export function AboutScreen() {
   const otaInfo = getOtaInfo();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [supportErrorMessage, setSupportErrorMessage] = useState<string | null>(
     null,
@@ -89,11 +81,8 @@ export function AboutScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <HeaderBackButton
@@ -190,7 +179,7 @@ export function AboutScreen() {
             application possible.
           </Text>
         </Card>
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

@@ -284,23 +284,26 @@
     // Bubble count adapts to the device so big screens feel lush while weaker
     // phones stay smooth. Each bubble is a richly-painted, continuously
     // animated element, so we keep the compositor comfortable:
-    //  - scale with viewport area (≈ 1 bubble per 6500 px²),
+    //  - scale with viewport area (≈ 1 bubble per 9000 px²), capped at 100 —
+    //    the cap is the main lever against sustained GPU load on big screens,
     //  - halve it on low-memory / few-core devices,
     //  - drop to a minimum when Data Saver is on,
     //  - (prefers-reduced-motion already disabled the layer above).
     function adaptiveBubbleCount() {
       const area = window.innerWidth * window.innerHeight;
-      let n = Math.round(area / 6500);
-      // Data Saver: a deliberate hard minimum of 60, intentionally below the
-      // normal floor (lightest possible while still hinting the effect).
-      if (navigator.connection?.saveData) return 60;
+      let n = Math.round(area / 9000);
+      // Data Saver: a deliberate hard minimum, below the normal floor (lightest
+      // possible while still hinting the effect).
+      if (navigator.connection?.saveData) return 45;
       const memory = navigator.deviceMemory;
       const cores = navigator.hardwareConcurrency;
       if ((memory && memory <= 4) || (cores && cores <= 4)) n = Math.round(n * 0.5);
-      // Otherwise floor low so small screens really are sparser; cap kept
-      // moderate so big screens stay lush but smooth. Gradient (≈): phone ~70,
-      // tablet ~120, laptop ~160, desktop/ultrawide capped at 200.
-      return Math.max(70, Math.min(n, 200));
+      // Each bubble is a continuously-composited gradient, so the count is kept
+      // deliberately lean: a big screen doesn't need hundreds to read as "fizzy",
+      // and the cap is what spares laptops/desktops from sustained GPU work (and
+      // the thermal throttling it causes) on a long visit. Gradient (≈): phone
+      // ~50, tablet ~85, laptop/desktop capped at 100.
+      return Math.max(50, Math.min(n, 100));
     }
 
     const count = (options && options.count) || adaptiveBubbleCount();
@@ -457,6 +460,79 @@
   }
 
   /**
+   * Pause in-place ambient loops (decorative spins, shimmers, "breathing"
+   * micro-animations) while their element is scrolled out of view, and resume
+   * them when it returns. CSS animations keep compositing off-screen by default,
+   * so on a long visit that motion heats the device and makes it throttle for
+   * nothing. Transiting effects (rising bubbles/embers) are deliberately kept
+   * always-on — freezing one off-screen would strand it and drain the stream —
+   * and one-shot entrance animations are ignored since they finish on their own.
+   * No-op under prefers-reduced-motion or without IntersectionObserver /
+   * getAnimations support.
+   */
+  function setupOffscreenAnimationPausing() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (
+      typeof IntersectionObserver !== 'function' ||
+      typeof document.getAnimations !== 'function'
+    ) {
+      return;
+    }
+
+    // Keyframes that travel across the viewport: pausing one off-screen breaks the
+    // effect (a frozen bubble never rises back into view), so their host stays
+    // always-on — enforced per-element below (any transiting animation vetoes its
+    // whole host), not just per-animation.
+    const TRANSITING = new Set(['bubble-rise', 'bubble-sway', 'emberRise']);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle('bb-anim-off', !entry.isIntersecting);
+        });
+      },
+      // Resume a touch before the element scrolls in so it is never visibly frozen.
+      { rootMargin: '200px' }
+    );
+
+    // A ::before/::after animation's target is a CSSPseudoElement (no nodeType);
+    // resolve it to its originating element so the host is what we tag (the CSS
+    // rule pauses the pseudo-element via its ::before/::after variants — this is
+    // what pauses the hero's large floatSlow gradient blobs off-screen).
+    const hostOf = (anim) => {
+      const target = anim.effect && anim.effect.target;
+      if (!target) return null;
+      const host = target.nodeType === 1 ? target : target.element;
+      return host && host.nodeType === 1 ? host : null;
+    };
+
+    const infinite = document.getAnimations().filter((anim) => {
+      const timing =
+        anim.effect && anim.effect.getTiming ? anim.effect.getTiming() : null;
+      return timing && timing.iterations === Infinity;
+    });
+
+    // Pause is element-wide, so any transiting animation vetoes its whole host: if
+    // an element ever carried both a transiting loop (bubble/ember) and another
+    // infinite one, tagging it would freeze the transiting stream too. Collect the
+    // vetoed hosts first, then observe only the non-transiting hosts left clear.
+    const excluded = new Set();
+    infinite.forEach((anim) => {
+      if (!TRANSITING.has(anim.animationName)) return;
+      const host = hostOf(anim);
+      if (host) excluded.add(host);
+    });
+
+    const targets = new Set();
+    infinite.forEach((anim) => {
+      if (TRANSITING.has(anim.animationName)) return;
+      const host = hostOf(anim);
+      if (host && !excluded.has(host)) targets.add(host);
+    });
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  /**
    * One-call bootstrap for a home page (FR `index.html` or the generated EN
    * `en.html`). Wires the mobile menu and both Formspree forms for the given
    * language, pulling every UI string from the catalogs above. The page's
@@ -505,11 +581,17 @@
     document.documentElement.classList.toggle('anim-paused', document.hidden);
   });
 
-  // Dew density depends on final card sizes — run once layout is settled.
-  if (document.readyState === 'complete') {
+  // Dew density depends on final card sizes — run once layout is settled, then
+  // register the off-screen pauser. The rAF lets the freshly-appended dew/bubble
+  // elements' animations show up in document.getAnimations() before we scan.
+  function setupAmbientAfterLayout() {
     setupDew();
+    requestAnimationFrame(setupOffscreenAnimationPausing);
+  }
+  if (document.readyState === 'complete') {
+    setupAmbientAfterLayout();
   } else {
-    window.addEventListener('load', setupDew);
+    window.addEventListener('load', setupAmbientAfterLayout);
   }
 
   global.BBShared = {

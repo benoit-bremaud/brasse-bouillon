@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -14,9 +13,9 @@ import { getErrorMessage } from "@/core/http/http-error";
 import { radius, spacing, typography, useTheme } from "@/core/theme";
 import type { ThemeColors } from "@/core/theme";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import {
   getDefaultPrivacyPreferences,
   getPrivacySettings,
@@ -73,7 +72,6 @@ export function PrivacyPreferencesScreen() {
   const router = useRouter();
   const { colors: themeColors } = useTheme();
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
-  const bottomPadding = useNavigationFooterOffset();
   const [preferences, setPreferences] = useState<PrivacyPreferences>(() =>
     getDefaultPrivacyPreferences(),
   );
@@ -153,11 +151,8 @@ export function PrivacyPreferencesScreen() {
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -269,7 +264,7 @@ export function PrivacyPreferencesScreen() {
             </Pressable>
           </View>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

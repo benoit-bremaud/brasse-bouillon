@@ -512,6 +512,20 @@
     .anim-paused .bubble,
     .anim-paused .dew-run { animation-play-state: paused; }
 
+    /* Scrolled out of view: site.js (setupOffscreenAnimationPausing) tags each
+       in-place ambient element that leaves the viewport, so the compositor stops
+       animating motion nobody can see — the main cure for slowdown on a long
+       visit. Tripled class reaches specificity (0,3,0) so it outranks even the
+       (0,2,0) descendant `animation:` selectors declared later in this file
+       (e.g. `.hero-mascot .logo`, `.participate .btn-primary`), regardless of
+       source order (same specificity-trick family as `.dew-layer.dew-layer`).
+       The ::before/::after variants pause pseudo-element loops (e.g. the hero's
+       floatSlow blobs) once site.js tags their host. Transiting effects (rising
+       bubbles/embers) are excluded in JS, never tagged here. */
+    .bb-anim-off.bb-anim-off.bb-anim-off,
+    .bb-anim-off.bb-anim-off.bb-anim-off::before,
+    .bb-anim-off.bb-anim-off.bb-anim-off::after { animation-play-state: paused; }
+
     @media (prefers-reduced-motion: reduce) {
       .bubbles { display: none; }
     }

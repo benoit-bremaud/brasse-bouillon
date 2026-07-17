@@ -106,6 +106,7 @@ Currently accepted ADRs (see each file for the `Status` line and full rationale)
 - [ADR-0026 — Equipment capacity fit-check: advisory pre-batch readiness, backend-computed](docs/architecture/decisions/0026-equipment-capacity-fit-check.md)
 - [ADR-0027 — Website internationalization strategy (bilingual FR+EN marketing site)](docs/architecture/decisions/0027-website-i18n-strategy.md)
 - [ADR-0028 — Website donation link: Ko-fi one-off, plain outbound link only](docs/architecture/decisions/0028-website-donation-link-kofi.md)
+- [ADR-0029 — Bottom navigation: flush edge-to-edge scroll-away bar, centralized bottom clearance](docs/architecture/decisions/0029-footer-nav-scroll-away.md)
 
 When a new ADR is accepted, add its file link here (no dates, no per-ADR summaries — open the file for the live status and content). When reviewing a PR, flag any diff that violates these ADRs and cite the ADR number and clause in the review comment.
 

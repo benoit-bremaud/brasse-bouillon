@@ -1,8 +1,22 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
-import { colors, radius, shadows, spacing, typography } from "@/core/theme";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
+import {
+  colors,
+  NAV_BAR_HEIGHT,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from "@/core/theme";
+import { useFooterVisibility } from "@/core/ui/footer-visibility-context";
+import { useNavigationBarFootprint } from "@/core/ui/use-navigation-bar-footprint";
 import { useStickyCtaClearance } from "@/core/ui/sticky-cta-clearance";
 
 export type SnackbarProps = Readonly<{
@@ -16,8 +30,12 @@ export type SnackbarProps = Readonly<{
 /**
  * Branded transient snackbar — a bottom bar with an optional single action.
  * App-level, one at a time, driven imperatively through `useSnackbar()` (see
- * `snackbar-provider`). Sits above the floating nav footer so it never hides
- * the primary navigation, and lets touches through everywhere but the bar.
+ * `snackbar-provider`). Sits above the nav bar so it never hides the primary
+ * navigation, and lets touches through everywhere but the bar.
+ *
+ * Follows `FooterVisibilityContext` rather than tracking the nav bar by hand:
+ * it slides down with the bar and stays anchored just above it (ADR-0029
+ * clause 5). One boolean drives both, so they can no longer desync.
  */
 export function Snackbar({
   visible,
@@ -25,16 +43,39 @@ export function Snackbar({
   actionLabel,
   onAction,
 }: SnackbarProps) {
-  const footerOffset = useNavigationFooterOffset();
+  const footprint = useNavigationBarFootprint();
   // Float above a sticky CTA when one is mounted, instead of overlapping it.
   const ctaClearance = useStickyCtaClearance();
+  const { visible: isFooterVisible } = useFooterVisibility();
+  const prefersReducedMotion = useReducedMotion();
+  const translateY = useSharedValue(0);
+
+  React.useEffect(() => {
+    // Follow the bar down so the snackbar keeps hugging it instead of leaving a
+    // gap — but reclaim only the bar's VISUAL height, never the safe-area inset.
+    // Translating by the full footprint would eat `insets.bottom` too and drop
+    // the snackbar into the home-indicator area once the bar is hidden.
+    const target = isFooterVisible ? 0 : NAV_BAR_HEIGHT;
+    translateY.value = prefersReducedMotion
+      ? target
+      : withSpring(target, { mass: 1, damping: 18, stiffness: 140 });
+  }, [isFooterVisible, footprint, prefersReducedMotion, translateY]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return { transform: [{ translateY: translateY.value }] };
+  });
+
   if (!visible) {
     return null;
   }
   return (
-    <View
+    <Animated.View
       testID="snackbar-overlay"
-      style={[styles.overlay, { paddingBottom: footerOffset + ctaClearance }]}
+      style={[
+        styles.overlay,
+        { paddingBottom: footprint + ctaClearance },
+        animatedStyle,
+      ]}
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="alert">
@@ -52,7 +93,7 @@ export function Snackbar({
           </Pressable>
         ) : null}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

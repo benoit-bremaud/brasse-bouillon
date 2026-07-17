@@ -187,7 +187,7 @@ Main CTA button.
 
 ## 6. Pattern: Écran liste
 
-Used by: `BatchesScreen`, `RecipesScreen`, `IngredientsScreen`, `ShopCategoryScreen`
+Used by: `BatchesScreen`, `RecipesScreen`, `IngredientsScreen`, `EquipmentScreen`
 
 ```tsx
 <Screen
@@ -195,23 +195,22 @@ Used by: `BatchesScreen`, `RecipesScreen`, `IngredientsScreen`, `ShopCategoryScr
   error={error}
   onRetry={fetch}
 >
-  {/* Header */}
-  <View style={styles.header}>
-    <ListHeader title="..." subtitle="..." />
-    <Pressable
-      onPress={navigate}
-      style={styles.actionButton}
-      accessibilityRole="button"
-      accessibilityLabel="..."
-    >
-      <Ionicons
-        name="school-outline"
-        size={18}
-        color={colors.brand.secondary}
-      />
-      <Text style={styles.actionText}>Academy</Text>
-    </Pressable>
-  </View>
+  {/* Header. A header action goes in ListHeader's own `action` slot —
+      never as a sibling of ListHeader, which is unconstrained and will
+      push the action off the right screen edge. */}
+  <ListHeader
+    title="..."
+    subtitle="..."
+    action={
+      <Pressable
+        onPress={navigate}
+        accessibilityRole="button"
+        accessibilityLabel="..."
+      >
+        <Ionicons name="..." size={18} color={colors.brand.secondary} />
+      </Pressable>
+    }
+  />
 
   {/* Empty state */}
   {showEmptyState && (
@@ -263,29 +262,6 @@ Used by: `BatchesScreen`, `RecipesScreen`, `IngredientsScreen`, `ShopCategoryScr
 **Required styles:**
 
 ```ts
-header: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  paddingHorizontal: spacing.sm,
-  paddingBottom: spacing.sm,
-},
-actionButton: {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: spacing.xxs,
-  paddingHorizontal: spacing.sm,
-  paddingVertical: spacing.xs,
-  borderRadius: radius.lg,
-  backgroundColor: colors.brand.background,
-  borderWidth: 1,
-  borderColor: colors.brand.secondary,
-},
-actionText: {
-  color: colors.brand.secondary,
-  fontSize: typography.size.caption,
-  fontWeight: typography.weight.medium,
-},
 list: {
   paddingBottom: spacing.md,
   paddingHorizontal: spacing.sm,
@@ -444,7 +420,7 @@ badgesRow: {
 | Hops               | `leaf-outline`       | Ingredient category icon                           |
 | Yeast              | `flask-outline`      | Ingredient category icon                           |
 | Equipment          | `construct-outline`  | Equipment list item icon                           |
-| Academy            | `school-outline`     | Contextual action button (header)                  |
+| Academy            | `school-outline`     | Academy tab + Academy entry points                 |
 | Shop               | `storefront-outline` | Shop navigation                                    |
 | Navigation forward | `chevron-forward`    | All navigable list items, size: 20, color: `muted` |
 | Navigation back    | `chevron-back`       | Back navigation buttons in header actions          |

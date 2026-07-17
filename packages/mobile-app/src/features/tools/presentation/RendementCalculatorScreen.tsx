@@ -1,4 +1,3 @@
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import {
   calculateBrewhouseEfficiencyPercent,
   calculateTargetPreBoilVolumeLiters,
@@ -8,18 +7,13 @@ import {
 } from "@/core/brewing-calculations";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
+import { BackHeaderAction } from "@/core/ui/BackHeaderAction";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type TabName = "rendement" | "volumes" | "eau";
 
@@ -31,7 +25,6 @@ type GrainLine = {
 };
 
 export function RendementCalculatorScreen() {
-  const bottomPadding = useNavigationFooterOffset();
   const [activeTab, setActiveTab] = useState<TabName>("rendement");
 
   const [actualOg, setActualOg] = useState(1.06);
@@ -111,6 +104,7 @@ export function RendementCalculatorScreen() {
       <ListHeader
         title="⚙️ Calculs Rendement"
         subtitle="Efficacité · Volumes · Plan d'eau"
+        action={<BackHeaderAction fallback="/(app)/academy" />}
       />
 
       <View style={styles.tabsContainer}>
@@ -157,12 +151,7 @@ export function RendementCalculatorScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-        ]}
-      >
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {activeTab === "rendement" && (
           <>
             <Card style={styles.card}>
@@ -400,7 +389,7 @@ export function RendementCalculatorScreen() {
             </Card>
           </>
         )}
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

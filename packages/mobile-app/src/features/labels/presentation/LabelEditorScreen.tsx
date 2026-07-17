@@ -23,25 +23,20 @@ import {
   LABEL_TEMPLATE_OPTIONS,
 } from "@/features/labels/presentation/label-template.constants";
 import { Href, useRouter } from "expo-router";
+
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 
 type LabelEditorScreenProps = {
   draftIdParam?: string | string[];
@@ -59,7 +54,7 @@ function toButtonLabel(isSaving: boolean): string {
 
 export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
   const router = useRouter();
-  const navigationFooterOffset = useNavigationFooterOffset();
+  const goBack = useBackNavigation(LABELS_HOME_ROUTE);
   const normalizedDraftId = normalizeRouteParam(draftIdParam) ?? "";
 
   const [draft, setDraft] = useState<LabelDraft | null>(null);
@@ -186,7 +181,7 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
             <HeaderBackButton
               label="Étiquettes"
               accessibilityLabel="Retour à mes étiquettes"
-              onPress={() => router.replace(LABELS_HOME_ROUTE)}
+              onPress={goBack}
             />
           }
         />
@@ -211,17 +206,14 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
           <HeaderBackButton
             label="Étiquettes"
             accessibilityLabel="Retour à mes étiquettes"
-            onPress={() => router.replace(LABELS_HOME_ROUTE)}
+            onPress={goBack}
           />
         }
       />
 
-      <ScrollView
+      <ScreenScrollView
         style={styles.scrollContainer}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: navigationFooterOffset },
-        ]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -428,7 +420,7 @@ export function LabelEditorScreen({ draftIdParam }: LabelEditorScreenProps) {
             <Text style={styles.secondaryButtonText}>Voir la fiche</Text>
           </Pressable>
         </View>
-      </ScrollView>
+      </ScreenScrollView>
     </Screen>
   );
 }

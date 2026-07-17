@@ -1,17 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+
+import { useBackNavigation } from "@/core/navigation/use-back-navigation";
 
 import { Card } from "@/core/ui/Card";
 import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { HeaderBackButton } from "@/core/ui/HeaderBackButton";
 import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
+import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
+import { STICKY_CTA_BAR_HEIGHT } from "@/core/ui/sticky-cta-clearance";
 import { colors, spacing } from "@/core/theme";
 import { getErrorMessage, HttpError } from "@/core/http/http-error";
-import { useNavigationFooterOffset } from "@/core/ui/NavigationFooter";
 import { useConfirm } from "@/core/ui/confirm-provider";
 import { useSnackbar } from "@/core/ui/snackbar-provider";
 
@@ -39,10 +42,8 @@ import {
   RecipeProcessDisplayMode,
 } from "@/features/recipes/presentation/recipe-details.constants";
 import {
-  buildIngredientCartItems,
   calculateScalingFactor,
   calculateWaterCompatibility,
-  toIngredientCartItem,
 } from "@/features/recipes/presentation/recipe-details.utils";
 import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
 import type { WaterStylePresetId } from "@/features/tools/domain/water-profiles";
@@ -54,7 +55,6 @@ import {
   getWaterLocationProfileByName,
   getWaterStylePresetById,
 } from "@/features/tools/data/water-profiles.data";
-import type { RecipeDetailsIngredientItem } from "@/features/recipes/application/recipes.use-cases";
 
 type Props = Readonly<{
   recipeId: string;
@@ -112,9 +112,9 @@ function isRecipeReferencedByBatch(
  */
 export function RecipeDetailsScreen({ recipeId }: Props) {
   const router = useRouter();
+  const handleGoBack = useBackNavigation("/recipes");
   const confirm = useConfirm();
   const snackbar = useSnackbar();
-  const bottomPadding = useNavigationFooterOffset();
   const queryClient = useQueryClient();
 
   const hasRecipeId = recipeId.trim().length > 0;
@@ -274,21 +274,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       : getErrorMessage(queryError, "Impossible de charger la recette")
     : null;
 
-  // Add-to-cart actions stay wired but no longer accumulate a local
-  // list on the detail screen — the cart preview was retired with the
-  // 5-tab redesign. Each call still produces a `LocalCartItem` so the
-  // forthcoming global cart store (Issue follow-up to #918) can pick
-  // it up without further changes here.
-  const handleAddIngredientToCart = (
-    ingredient: RecipeDetailsIngredientItem,
-  ) => {
-    void toIngredientCartItem(ingredient, scalingFactor);
-  };
-
-  const handleAddAllIngredientsToCart = () => {
-    void buildIngredientCartItems(ingredients, scalingFactor);
-  };
-
   const handleOpenIngredient = (ingredient: {
     id: string;
     category: IngredientCategory;
@@ -331,10 +316,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
       pathname: "/(app)/recipes/[id]/prepare",
       params: { id: recipeId },
     });
-  };
-
-  const handleGoBack = () => {
-    router.replace("/recipes");
   };
 
   const handleRetry = () => {
@@ -519,12 +500,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
         <RecipeDetailSideRail activeTab={activeTab} onChange={setActiveTab} />
 
         <View style={styles.tabContent}>
-          <ScrollView
-            contentContainerStyle={[
-              styles.scrollContent,
-              { paddingBottom: bottomPadding + (showStickyCta ? 96 : 0) },
-            ]}
+          <ScreenScrollView
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            // This screen pins a sticky CTA above the nav bar; the content must
+            // clear both.
+            extraBottomClearance={STICKY_CTA_BAR_HEIGHT}
           >
             {recipe ? (
               <>
@@ -544,8 +525,6 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
                     targetVolumeLiters={targetVolumeLiters}
                     scalingFactor={scalingFactor}
                     onChangeTargetVolume={setTargetVolumeLiters}
-                    onAddIngredientToCart={handleAddIngredientToCart}
-                    onAddAllIngredientsToCart={handleAddAllIngredientsToCart}
                     onOpenIngredient={handleOpenIngredient}
                     onOpenShop={handleOpenShop}
                   />
@@ -591,7 +570,7 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             ) : (
               <Card style={styles.placeholderCard} />
             )}
-          </ScrollView>
+          </ScreenScrollView>
         </View>
       </View>
 
@@ -603,14 +582,12 @@ export function RecipeDetailsScreen({ recipeId }: Props) {
             label="Ajouter à mon carnet"
             onPress={() => importMutation.mutate()}
             disabled={importMutation.isPending || !recipe}
-            bottomOffset={bottomPadding}
           />
         ) : (
           <RecipeStickyCta
             label={ctaLabel}
             onPress={handlePrepare}
             disabled={ctaDisabled}
-            bottomOffset={bottomPadding}
           />
         )
       ) : null}

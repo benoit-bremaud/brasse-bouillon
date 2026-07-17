@@ -30,3 +30,52 @@
   accessed_at: 2026-07-03
   year: null
   notes: Practical brewing water chemistry reference.
+
+- id: liu-raqefet-2018
+  kind: article
+  title: "Fermented beverage and food storage in 13,000 y-old stone mortars at Raqefet Cave, Israel: Investigating Natufian ritual feasting"
+  authors:
+    - Li Liu
+    - Jiajing Wang
+    - Danny Rosenberg
+    - Hao Zhao
+    - György Lengyel
+    - Dani Nadel
+  publisher: "Journal of Archaeological Science: Reports"
+  url: https://www.sciencedirect.com/science/article/pii/S2352409X18303468
+  accessed_at: 2026-07-13
+  year: 2018
+  notes: Archaeological evidence for early cereal-based fermented beverage residues at Raqefet Cave.
+
+- id: etcsl-ninkasi
+  kind: website
+  title: A hymn to Ninkasi
+  authors:
+    - The Electronic Text Corpus of Sumerian Literature
+  publisher: University of Oxford
+  url: https://etcsl.orinst.ox.ac.uk/cgi-bin/etcsl.cgi?text=t.4.23.1
+  accessed_at: 2026-07-13
+  year: 2006
+  notes: Sumerian literary source used as a textual anchor for ancient brewing vocabulary and process imagery.
+
+- id: hornsey-2003
+  kind: book
+  title: A History of Beer and Brewing
+  authors:
+    - Ian S. Hornsey
+  publisher: Royal Society of Chemistry
+  url: null
+  accessed_at: null
+  year: 2003
+  notes: General reference for historical brewing development, ingredients, and industrialization.
+
+- id: wired-reinheitsgebot-2010
+  kind: article
+  title: "April 23, 1516: Bavaria Cracks Down on Beer Brewers"
+  authors:
+    - Betsy Mason
+  publisher: WIRED
+  url: https://www.wired.com/2010/04/0423deutsche-reinheitsgebot-german-beer-purity-law/
+  accessed_at: 2026-07-13
+  year: 2010
+  notes: Contextual article on the 1516 Bavarian beer regulation and later purity-law framing.

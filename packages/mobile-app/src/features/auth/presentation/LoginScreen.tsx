@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- ADR-0029: no nav bar is mounted under (auth), so there is no footprint to reserve.
   ScrollView,
   StyleSheet,
   Text,

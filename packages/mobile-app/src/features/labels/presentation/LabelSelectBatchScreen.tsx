@@ -13,6 +13,7 @@ import {
   LABEL_TEMPLATE_OPTIONS,
 } from "@/features/labels/presentation/label-template.constants";
 import React, { useCallback, useState } from "react";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- ADR-0029: this list DOES scroll (RN gives ScrollView flexGrow:1), but its viewport is bounded above the CTA below it, which carries the footprint as its own margin — so no content ever reaches the bar. Swapping in ScreenFlatList would pad the content by a footprint the viewport already clears. Known gap, tracked: scroll events never reach useScrollDirection, so the bar does not hide here; fixing that means making the CTA absolute like RecipeStickyCta, not suppressing this line.
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getErrorMessage } from "@/core/http/http-error";

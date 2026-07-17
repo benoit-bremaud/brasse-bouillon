@@ -3,7 +3,7 @@ import {
   Image,
   LayoutChangeEvent,
   Pressable,
-  ScrollView,
+  type ScrollView,
   StyleSheet,
   Text,
   View,

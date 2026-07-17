@@ -5,6 +5,20 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-17
+
+### PR #1460 merged (`f568c95`) — chore(mobile-app): make the nav-clearance rule enforceable, not memorable
+
+- Branch `chore/nav-clearance-lint-guard`, 1 commit (`d7cb45c`). Closes the follow-up named in the #1457 entry below.
+- `@typescript-eslint/no-restricted-imports` over the raw-scroller family (`ScrollView`, `FlatList`, `SectionList`, `VirtualizedList`, `VirtualizedSectionList`) from `react-native`, scoped to `src/features/**/presentation/**/*Screen.tsx`. `ci:check` runs lint, so a screen can no longer reintroduce a raw scroller with hand-rolled padding. `allowTypeImports` (per-path — the schema rejects it at top level) lets type-only imports through.
+- Three exceptions, each stating its reason on the offending line: `LoginScreen` (no bar under `(auth)`), `AcademyHubScreen` (horizontal carousel), `LabelSelectBatchScreen` (list scrolls but its viewport is bounded above a CTA carrying the footprint).
+- ADR-0029 Verification section rewritten: it had prescribed a `pr-pre-reviewer` checklist, i.e. a protection with the same weakness as the defect — reliance on someone remembering. Its real limits are recorded (local re-export, non-`*Screen.tsx` files, no-reservation-with-right-container), and one claimed limit removed after testing disproved it (namespace imports ARE caught).
+- **Decisions**:
+  - `nav-clearance-enforced-not-reviewed` — the ADR invariant is enforced mechanically in CI rather than left to a review checklist; exceptions are declared per-line with a reason instead of in an allowlist file, which would rot out of sight. Recorded on ADR-0029 Verification.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex). Codex found the rule covered only the two list components in use; the Claude reviewer proved the glob's tail did not cross directories, so a screen one level deeper bypassed it entirely. Both holes were unreachable from current code — the same latent shape as the 5 screens. On GitHub: Codex 1 inline (LabelSelectBatch's list DOES scroll — RN gives every ScrollView `flexGrow: 1`, disproving two successive rationales written from intuition rather than RN's source), Copilot 2 inline (type-only import, ADR glob drift); all three fixed in `d7cb45c`, replied inline and resolved.
+- Guard verified by exit code and JSON rule counts, not by grepping output: an earlier revision referenced the plugin rule from a block that did not load the plugin, so ESLint exited 2 on every file — a crashed lint reports no violations and reads exactly like a clean one. Probes assert five behaviours (value import, `SectionList`, nested screen, namespace import all fail; type-only import passes; real tree clean), re-run against `main` after merge.
+- Known follow-ups, out of scope: no fixture-based meta-test asserting the rule still fires if `eslint.config.js` is edited; the pre-existing nested-`ScrollView` smell in the recipe tabs; promoting `RecipeStickyCta` to `core/ui` so `LabelSelectBatchScreen` can own its full height and regain scroll-away.
+
 ## 2026-07-16
 
 ### PR #1457 merged (`188f894`) — fix(mobile-app): cover the 5 screens that never opted into the nav clearance

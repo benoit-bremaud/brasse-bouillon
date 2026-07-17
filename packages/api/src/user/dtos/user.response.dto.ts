@@ -76,6 +76,9 @@ export class UserResponseDto {
    */
   last_name: string;
 
+  /** Short personal description shown on the user's profile. */
+  bio: string;
+
   /**
    * User's role for Role-Based Access Control (RBAC)
    *
@@ -100,6 +103,10 @@ export class UserResponseDto {
    * @example true
    */
   is_active: boolean;
+
+  /** Account deletion timestamps, when a grace-period request is pending. */
+  deletion_requested_at?: Date | null;
+  deletion_scheduled_for?: Date | null;
 
   /**
    * Timestamp of user creation

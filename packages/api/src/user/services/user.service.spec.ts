@@ -806,6 +806,22 @@ describe('UserService', () => {
       expect(userRepository.save).toHaveBeenCalled();
     });
 
+    it('should persist a bounded biography as part of a profile update', async () => {
+      // Arrange
+      const bio = 'Je brasse le week-end.';
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+      const saveSpy = jest
+        .spyOn(userRepository, 'save')
+        .mockResolvedValue(mockUser);
+
+      // Act
+      const result = await userService.update(mockUser.id, { bio });
+
+      // Assert
+      expect(result.bio).toBe(bio);
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ bio }));
+    });
+
     /**
      * Test Case 9️⃣: Update non-existent user
      *

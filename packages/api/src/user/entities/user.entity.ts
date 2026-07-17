@@ -106,6 +106,10 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   last_name: string;
 
+  /** Short personal description shown on the user's private profile. */
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  bio: string;
+
   /**
    * User role for Role-Based Access Control (RBAC)
    *
@@ -168,6 +172,14 @@ export class User {
    */
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  /** Timestamp when the user requested account deletion. */
+  @Column({ type: 'datetime', nullable: true })
+  deletion_requested_at?: Date | null;
+
+  /** Timestamp after which the account deletion worker may erase the account. */
+  @Column({ type: 'datetime', nullable: true })
+  deletion_scheduled_for?: Date | null;
 
   /**
    * SHA-256 hash of the password-reset token currently in flight for

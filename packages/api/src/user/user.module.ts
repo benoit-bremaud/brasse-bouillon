@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
+import { AccountDeletionService } from './services/account-deletion.service';
+import { PersonalDataExportService } from './services/personal-data-export.service';
 
 /**
  * User Module
@@ -135,6 +137,8 @@ import { UserService } from './services/user.service';
    */
   providers: [
     UserService, // Core service
+    AccountDeletionService, // Authenticated account data-rights workflow
+    PersonalDataExportService, // Authenticated personal-data export
     PasswordService, // ✅ Password hashing/verification
     IsUniqueEmailConstraint, // Custom validator
     IsUniqueUsernameConstraint, // Custom validator
@@ -164,6 +168,6 @@ import { UserService } from './services/user.service';
    * Note: PasswordService is NOT exported because it's internal to UserModule
    * Custom validators are NOT exported because they're only used here
    */
-  exports: [UserService],
+  exports: [UserService, AccountDeletionService, PersonalDataExportService],
 })
 export class UserModule {}

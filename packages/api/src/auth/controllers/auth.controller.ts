@@ -39,6 +39,13 @@ import { CreateUserDto } from '../../user/dtos/create-user.dto';
 import { UpdateUserDto } from '../../user/dtos/update-user.dto';
 import { UserResponseDto } from '../../user/dtos/user.response.dto';
 import { UserService } from '../../user/services/user.service';
+import { AccountDeletionService } from '../../user/services/account-deletion.service';
+import { PersonalDataExportService } from '../../user/services/personal-data-export.service';
+import { PersonalDataExportDto } from '../../user/dtos/personal-data-export.dto';
+import {
+  AccountDeletionCancellationDto,
+  AccountDeletionScheduleDto,
+} from '../../user/dtos/account-deletion.dto';
 import { User } from '../../user/entities/user.entity';
 
 @ApiTags('Authentication')
@@ -47,6 +54,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly accountDeletionService: AccountDeletionService,
+    private readonly personalDataExportService: PersonalDataExportService,
   ) {}
 
   @Post('login')
@@ -152,8 +161,44 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
   async deleteMe(@CurrentUser() user: User): Promise<{ message: string }> {
-    await this.userService.delete(user.id);
+    await this.accountDeletionService.deleteAccount(user.id);
     return { message: 'User deleted successfully' };
+  }
+
+  @Post('me/deletion')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Schedule current account deletion' })
+  @ApiResponse({ status: 200, type: AccountDeletionScheduleDto })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
+  async requestDeletion(
+    @CurrentUser() user: User,
+  ): Promise<AccountDeletionScheduleDto> {
+    return this.accountDeletionService.requestDeletion(user.id);
+  }
+
+  @Delete('me/deletion')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Cancel pending current account deletion' })
+  @ApiResponse({ status: 200, type: AccountDeletionCancellationDto })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
+  async cancelDeletion(
+    @CurrentUser() user: User,
+  ): Promise<AccountDeletionCancellationDto> {
+    await this.accountDeletionService.cancelDeletion(user.id);
+    return { message: 'Account deletion canceled' };
+  }
+
+  @Get('me/export')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Export current user personal data' })
+  @ApiResponse({ status: 200, type: PersonalDataExportDto })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
+  async exportMe(@CurrentUser() user: User): Promise<PersonalDataExportDto> {
+    return this.personalDataExportService.exportAccount(user.id);
   }
 
   @Post('forgot-password')

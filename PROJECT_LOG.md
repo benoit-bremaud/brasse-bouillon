@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1467 merged (`eac81af`) — fix(website): close the head-level blind spot in the i18n srcHash drift guard
+
+- Branch `claude/laughing-lamport-3fe93f`, 2 commits (`5f40146`, `a2c3a52`).
+- The `srcHash` drift guard covered `catalog["strings"]` only: editing a FR `<head>` value (title, meta description, keywords, OG/Twitter) regenerated `en.html` with the stale EN override while `build_i18n.py --check` and the quality gate stayed green — contradicting the module docstring's promise. New `headSrcHashes` map in `i18n/home.en.json` fingerprints the FR source of the 8 head keys that mirror a FR head string; a single shared `_GUARDED_HEAD_PATTERNS` table drives both the EN head swap and the guard so they cannot disagree on the FR source; `--update-hashes` refreshes the map. `ogImage` / `orgDescription` / `knowsAbout` documented as unguarded (no 1:1 FR head string). ADR-0027 verification checklist now names the head guard (D1 clause 4(c) enforcement gap closed, decision unchanged).
+- Tests: 9-case `HeadGuardTests` (happy/sad/edge: fresh pass, drifted title/description/keywords fail, missing/orphan/unguardable keys fail, `--update-hashes` restores green); website suite at 69 green. `quality_gate.py` picks the guard up with zero changes (calls `generate(check_hashes=True)` in-process).
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot 1 inline (`python` → `python3` in the catalog `_comment`) fixed in `a2c3a52` with inline reply; Codex posted no review. CI green.
+
 ### PR #1461 merged (`12ccc6b`) — feat(shop): make the shop the single door into the ingredient catalog
 
 - Branch `feat/shop-catalog-door`, 2 commits (`8457ef5`, `e415fd2`). Lot 1 of the shop-catalog epic, implementing the conception merged in #1456. The shop stops being a placeholder and opens the catalog that already existed: Malts / Houblons / Levures show their real count from `listIngredientCategoriesSummary()` and route to `/(app)/ingredients/[category]`; Kits / Matériel / Accessoires stay inert.

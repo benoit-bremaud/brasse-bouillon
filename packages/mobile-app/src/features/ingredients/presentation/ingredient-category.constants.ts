@@ -4,12 +4,14 @@ const INGREDIENT_CATEGORY_VALUES: readonly IngredientCategory[] = [
   "malt",
   "hop",
   "yeast",
+  "misc",
 ];
 
 export const ingredientCategoryLabels: Record<IngredientCategory, string> = {
   malt: "Malts",
   hop: "Hops",
   yeast: "Yeasts",
+  misc: "Misc",
 };
 
 export function isIngredientCategory(

@@ -15,6 +15,10 @@ import {
   getYeastDetails,
   listYeasts,
 } from "@/features/ingredients/application/yeasts.use-cases";
+import {
+  listMiscApi,
+  type MiscProduct,
+} from "@/features/ingredients/data/misc.api";
 
 import { HopProduct } from "@/features/ingredients/domain/hop.types";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
@@ -43,6 +47,17 @@ jest.mock("@/features/ingredients/application/yeasts.use-cases", () => ({
   getYeastDetails: jest.fn(),
 }));
 
+// Misc dispatches straight to the api rather than through a per-type
+// use-case (it has no demo-only path or filters of its own), so the boundary
+// mocked here is the data module.
+jest.mock("@/features/ingredients/data/misc.api", () => ({
+  listMiscApi: jest.fn(),
+  getMiscDetailsApi: jest.fn(),
+}));
+
+const mockedListMiscApi = listMiscApi as jest.MockedFunction<
+  typeof listMiscApi
+>;
 const mockedListMalts = listMalts as jest.MockedFunction<typeof listMalts>;
 const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
   typeof getMaltDetails
@@ -125,6 +140,19 @@ function buildYeastProduct(
   };
 }
 
+function buildMiscProduct(overrides: Partial<MiscProduct> = {}): MiscProduct {
+  return {
+    id: "misc-whirlfloc-uuid",
+    slug: "whirlfloc",
+    name: "Whirlfloc",
+    miscType: "fining",
+    useAt: "boil",
+    useFor: "Clarté",
+    timeMin: 15,
+    ...overrides,
+  };
+}
+
 describe("ingredients use-cases", () => {
   beforeEach(() => {
     dataSource.useDemoData = true;
@@ -134,6 +162,8 @@ describe("ingredients use-cases", () => {
     mockedGetHopDetails.mockReset();
     mockedListYeasts.mockReset();
     mockedGetYeastDetails.mockReset();
+    mockedListMiscApi.mockReset();
+    mockedListMiscApi.mockResolvedValue([]);
   });
 
   describe("listIngredientCategoriesSummary", () => {
@@ -150,6 +180,7 @@ describe("ingredients use-cases", () => {
         hop: demoIngredients.filter((item) => item.category === "hop").length,
         yeast: demoIngredients.filter((item) => item.category === "yeast")
           .length,
+        misc: demoIngredients.filter((item) => item.category === "misc").length,
       });
 
       expect(mockedListMalts).not.toHaveBeenCalled();
@@ -169,13 +200,15 @@ describe("ingredients use-cases", () => {
       );
     });
 
-    // Edge case — always returns the 3 expected categories.
-    it("always includes all three categories (malt, hop, yeast)", async () => {
+    // Edge case — every rayon the shop can open must get a count, so the hub
+    // never renders a live rayon with a missing badge.
+    it("always includes every catalog category (malt, hop, yeast, misc)", async () => {
       const summary = await listIngredientCategoriesSummary();
 
       expect(summary.map((item) => item.category).sort()).toEqual([
         "hop",
         "malt",
+        "misc",
         "yeast",
       ]);
     });
@@ -242,16 +275,19 @@ describe("ingredients use-cases", () => {
       ]);
       mockedListHops.mockResolvedValue([buildHopProduct()]);
       mockedListYeasts.mockResolvedValue([buildYeastProduct()]);
+      mockedListMiscApi.mockResolvedValue([buildMiscProduct()]);
 
       const summary = await listIngredientCategoriesSummary();
 
       expect(mockedListMalts).toHaveBeenCalledTimes(1);
       expect(mockedListHops).toHaveBeenCalledTimes(1);
       expect(mockedListYeasts).toHaveBeenCalledTimes(1);
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
       expect(summary).toEqual([
         { category: "malt", count: 2 },
         { category: "hop", count: 1 },
         { category: "yeast", count: 1 },
+        { category: "misc", count: 1 },
       ]);
     });
 

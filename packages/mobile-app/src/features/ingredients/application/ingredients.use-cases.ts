@@ -18,6 +18,11 @@ import {
 } from "@/features/ingredients/domain/yeast.types";
 
 import { dataSource } from "@/core/data/data-source";
+import {
+  getMiscDetailsApi,
+  listMiscApi,
+  type MiscProduct,
+} from "@/features/ingredients/data/misc.api";
 import { demoIngredients, demoMalts } from "@/mocks/demo-data";
 import {
   getHopDetails,
@@ -55,8 +60,20 @@ import {
  * English (codebase stays EN until i18n work begins).
  */
 
+/**
+ * Twin of the guard in `presentation/ingredient-category.constants.ts`, which
+ * this layer must not import (application never depends on presentation) while
+ * `domain/` is types-only by convention. Both lists must grow together: a stale
+ * copy here is invisible to `tsc` — a shorter `readonly IngredientCategory[]`
+ * is still a valid one — so it fails silently, not loudly.
+ */
 function isIngredientCategory(value: string): value is IngredientCategory {
-  const categories: readonly IngredientCategory[] = ["malt", "hop", "yeast"];
+  const categories: readonly IngredientCategory[] = [
+    "malt",
+    "hop",
+    "yeast",
+    "misc",
+  ];
   return categories.includes(value as IngredientCategory);
 }
 
@@ -269,6 +286,23 @@ function yeastToIngredient(yeast: YeastProduct): Ingredient {
   };
 }
 
+/**
+ * Misc is the flattest catalog: no `specGroups` to parse and every field
+ * nullable, so this mapper carries values across rather than deriving them.
+ */
+function miscToIngredient(misc: MiscProduct): Ingredient {
+  return {
+    id: misc.id,
+    name: misc.name,
+    category: "misc",
+    miscType: misc.miscType,
+    useAt: misc.useAt,
+    useFor: misc.useFor,
+    timeMin: misc.timeMin,
+    notes: misc.description,
+  };
+}
+
 function applyFilters(
   items: Ingredient[],
   category: IngredientCategory,
@@ -318,35 +352,58 @@ function getDemoIngredientsByCategory(
   return demoIngredients.filter((item) => item.category === category);
 }
 
+// Both dispatchers below switch exhaustively rather than letting the last
+// category fall out of an implicit `else`. They used to end on yeast, so
+// adding `misc` to IngredientCategory would silently have served yeasts to
+// the Accessoires rayon — green types, wrong data.
 async function listLiveIngredientsByCategory(
   category: IngredientCategory,
 ): Promise<Ingredient[]> {
-  if (category === "malt") {
-    const malts = await listMalts();
-    return malts.map(maltToIngredient);
+  switch (category) {
+    case "malt": {
+      const malts = await listMalts();
+      return malts.map(maltToIngredient);
+    }
+    case "hop": {
+      const hops = await listHops();
+      return hops.map(hopToIngredient);
+    }
+    case "yeast": {
+      const yeasts = await listYeasts();
+      return yeasts.map(yeastToIngredient);
+    }
+    case "misc": {
+      // Straight to the api: misc has no per-type use-case because it has no
+      // dedicated filters and no demo-only path of its own — a pass-through
+      // module would be indirection for its own sake.
+      const miscs = await listMiscApi();
+      return miscs.map(miscToIngredient);
+    }
   }
-  if (category === "hop") {
-    const hops = await listHops();
-    return hops.map(hopToIngredient);
-  }
-  const yeasts = await listYeasts();
-  return yeasts.map(yeastToIngredient);
 }
 
 async function getLiveIngredientDetails(
   category: IngredientCategory,
   ingredientId: string,
 ): Promise<Ingredient | null> {
-  if (category === "malt") {
-    const malt = await getMaltDetails(ingredientId);
-    return malt ? maltToIngredient(malt) : null;
+  switch (category) {
+    case "malt": {
+      const malt = await getMaltDetails(ingredientId);
+      return malt ? maltToIngredient(malt) : null;
+    }
+    case "hop": {
+      const hop = await getHopDetails(ingredientId);
+      return hop ? hopToIngredient(hop) : null;
+    }
+    case "yeast": {
+      const yeast = await getYeastDetails(ingredientId);
+      return yeast ? yeastToIngredient(yeast) : null;
+    }
+    case "misc": {
+      const misc = await getMiscDetailsApi(ingredientId);
+      return misc ? miscToIngredient(misc) : null;
+    }
   }
-  if (category === "hop") {
-    const hop = await getHopDetails(ingredientId);
-    return hop ? hopToIngredient(hop) : null;
-  }
-  const yeast = await getYeastDetails(ingredientId);
-  return yeast ? yeastToIngredient(yeast) : null;
 }
 
 export async function listIngredientCategoriesSummary(): Promise<
@@ -370,6 +427,11 @@ export async function listIngredientCategoriesSummary(): Promise<
         count: demoIngredients.filter((item) => item.category === "yeast")
           .length,
       },
+      {
+        category: "misc",
+        count: demoIngredients.filter((item) => item.category === "misc")
+          .length,
+      },
     ];
   }
 
@@ -377,15 +439,17 @@ export async function listIngredientCategoriesSummary(): Promise<
   // (the same source `listIngredientsByCategory` consumes below),
   // so the Ingredients home counter stays in sync with the list
   // screens.
-  const [malts, hops, yeasts] = await Promise.all([
+  const [malts, hops, yeasts, miscs] = await Promise.all([
     listMalts(),
     listHops(),
     listYeasts(),
+    listMiscApi(),
   ]);
   return [
     { category: "malt", count: malts.length },
     { category: "hop", count: hops.length },
     { category: "yeast", count: yeasts.length },
+    { category: "misc", count: miscs.length },
   ];
 }
 

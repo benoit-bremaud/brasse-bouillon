@@ -3,6 +3,7 @@ import { EmptyStateCard } from "@/core/ui/EmptyStateCard";
 import { Screen } from "@/core/ui/Screen";
 import { HopDetailsScreen } from "@/features/ingredients/presentation/HopDetailsScreen";
 import { MaltDetailsScreen } from "@/features/ingredients/presentation/MaltDetailsScreen";
+import { MiscDetailsScreen } from "@/features/ingredients/presentation/MiscDetailsScreen";
 import { YeastDetailsScreen } from "@/features/ingredients/presentation/YeastDetailsScreen";
 import React from "react";
 
@@ -38,6 +39,8 @@ export function IngredientDetailsScreen({
     normalizedCategory === "hop" || normalizedCategory === "hops";
   const isYeastCategory =
     normalizedCategory === "yeast" || normalizedCategory === "yeasts";
+  const isMiscCategory =
+    normalizedCategory === "misc" || normalizedCategory === "miscs";
 
   if (isMaltCategory) {
     return (
@@ -75,6 +78,22 @@ export function IngredientDetailsScreen({
     return (
       <YeastDetailsScreen
         yeastIdParam={ingredientIdParam}
+        returnToParam={returnToParam}
+        returnRecipeIdParam={returnRecipeIdParam}
+        returnCategoryParam={returnCategoryParam}
+        returnSearchParam={returnSearchParam}
+        returnEbcMinParam={returnEbcMinParam}
+        returnEbcMaxParam={returnEbcMaxParam}
+        returnAlphaMinParam={returnAlphaMinParam}
+        returnAttenuationMinParam={returnAttenuationMinParam}
+      />
+    );
+  }
+
+  if (isMiscCategory) {
+    return (
+      <MiscDetailsScreen
+        miscIdParam={ingredientIdParam}
         returnToParam={returnToParam}
         returnRecipeIdParam={returnRecipeIdParam}
         returnCategoryParam={returnCategoryParam}

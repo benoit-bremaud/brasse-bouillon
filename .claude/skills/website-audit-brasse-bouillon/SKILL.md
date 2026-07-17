@@ -13,9 +13,10 @@ project-open constants. Keep this file to constants and deltas only.
 
 - Domain: `brasse-bouillon.com` (the marketing site). Source: `packages/website` (static HTML/CSS/JS).
 - **Host = Cloudflare Pages** (ADR-0014; project `brasse-bouillon-website`). Deploy pipeline:
-  `.github/workflows/website-deploy.yml` — `wrangler pages deploy` on push to `main`; other refs
-  produce preview deployments. (Skill `website-pages-deploy` documents the pre-ADR-0014 GitHub
-  Pages pipeline — historical only, do not follow it.)
+  `.github/workflows/website-deploy.yml` — `wrangler pages deploy`, auto-triggered on pushes to
+  `main` (production) and `staging` (the long-lived preview environment) touching
+  `packages/website/**`, plus manual `workflow_dispatch`. (Skill `website-pages-deploy` documents
+  the pre-ADR-0014 GitHub Pages pipeline — historical only, do not follow it.)
 - **Response headers ARE settable** via `packages/website/_headers` (shipped in PR #1370). Before
   filing a header finding, read that file's comments: some headers (nosniff, Referrer-Policy) come
   from the Cloudflare edge, and CSP (#1032) + HSTS hardening (#1033) are deliberately deferred with

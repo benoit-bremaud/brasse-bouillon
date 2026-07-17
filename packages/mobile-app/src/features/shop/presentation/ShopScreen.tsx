@@ -7,11 +7,11 @@ import { ListHeader } from "@/core/ui/ListHeader";
 import { Screen } from "@/core/ui/Screen";
 import { ScreenScrollView } from "@/core/ui/ScreenScrollView";
 import { getErrorMessage } from "@/core/http/http-error";
-import { IngredientCategorySummary } from "@/features/ingredients/domain/ingredient.types";
+import type { IngredientCategorySummary } from "@/features/ingredients/domain/ingredient.types";
 import { listIngredientCategoriesSummary } from "@/features/ingredients/application/ingredients.use-cases";
 import {
   SHOP_RAYONS,
-  ShopRayon,
+  type ShopRayon,
   isLiveShopRayon,
 } from "@/features/shop/presentation/shop.constants";
 import { Ionicons } from "@expo/vector-icons";

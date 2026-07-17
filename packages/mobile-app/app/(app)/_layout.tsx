@@ -42,9 +42,11 @@ export default function AppLayout() {
             ),
           }}
         >
-          {/* Only routes with their own _layout can be configured here: route
-              nodes from _layout-less directories are hoisted as "dir/index"
-              and an unmatched name is ignored with a [Layout children] warning. */}
+          {/* A name here must match one of this navigator's route nodes: a
+              child directory owning a _layout, or a hoisted leaf like
+              "dir/index" from a _layout-less directory. Unmatched names are
+              silently dropped with a [Layout children] warning (guarded by
+              app-tabs-screen-names.test.ts). */}
           <Tabs.Screen
             name="recipes"
             options={{

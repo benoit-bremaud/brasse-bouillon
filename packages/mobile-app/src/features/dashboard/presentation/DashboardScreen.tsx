@@ -125,13 +125,10 @@ const MORE_BUSINESS_SECTIONS: MoreSectionItem[] = [
     "construct-outline",
     "/(app)/equipment",
   ),
-  businessRoute(
-    "ingredients",
-    "Ingrédients",
-    "leaf-outline",
-    "/(app)/ingredients",
-  ),
   businessRoute("academy", "Académie", "school-outline", "/(app)/academy"),
+  // No "Ingrédients" entry: the Shop is the single door into the catalog
+  // (`equipment-shop/03-component.md`). Two entries for one goal is what
+  // shipped two catalogs in the first place.
   businessRoute("shop", "Boutique", "cart-outline", "/(app)/shop"),
 ];
 

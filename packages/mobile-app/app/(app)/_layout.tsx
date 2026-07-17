@@ -42,16 +42,9 @@ export default function AppLayout() {
             ),
           }}
         >
-          <Tabs.Screen
-            name="dashboard"
-            options={{
-              title: "Dashboard",
-              headerShown: false,
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="home-outline" size={size} color={color} />
-              ),
-            }}
-          />
+          {/* Only routes with their own _layout can be configured here: route
+              nodes from _layout-less directories are hoisted as "dir/index"
+              and an unmatched name is ignored with a [Layout children] warning. */}
           <Tabs.Screen
             name="recipes"
             options={{
@@ -71,34 +64,6 @@ export default function AppLayout() {
             }}
           />
           <Tabs.Screen
-            name="equipment"
-            options={{
-              title: "Equipment",
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="construct-outline" size={size} color={color} />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="shop"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="ingredients"
-            options={{
-              href: null,
-            }}
-          />
-          <Tabs.Screen
-            name="tools"
-            options={{
-              href: null,
-            }}
-          />
-          <Tabs.Screen
             name="academy"
             options={{
               href: null,
@@ -108,13 +73,6 @@ export default function AppLayout() {
             name="beer-catalog"
             options={{
               href: null,
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              href: null,
-              title: "Profil",
             }}
           />
         </Tabs>

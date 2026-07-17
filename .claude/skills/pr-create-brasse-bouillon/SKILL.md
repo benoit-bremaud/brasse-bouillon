@@ -59,9 +59,9 @@ gh api graphql -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{pro
 
 ## Step 4 — Reviewers
 
-Codex reviews **every PR automatically** on GitHub but **posts a comment
-only when it has findings** — a clean PR gets no Codex comment; never wait
-for one. CodeRabbit was removed 2026-06-24. Do **not** call
+Codex auto-triggers when the PR is **opened** (not on push). Its verdict is
+either a **review** (it has findings) or a **👍 reaction on the PR body**
+(clean) — never silence. CodeRabbit was removed 2026-06-24. Do **not** call
 `requested_reviewers` for `Codex` or `Copilot` (the API returns 422 for
 GitHub App bot accounts).
 
@@ -132,6 +132,6 @@ gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/comments \
 2. Open the PR (step 1).
 3. Apply labels + assignee + project + milestone (steps 2–5) — these can run in parallel.
 4. Post the French FYI comment (step 6).
-5. Check the posted bot reviews before any merge, per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible). Codex posts only when it has findings — a clean PR gets nothing, so never block waiting for it. Copilot posts only if `needs-copilot` was added in step 4. Address whatever comments are actually there. The substantive review is the local pre-push ritual (Claude + Codex) run before pushing.
+5. Wait for Codex's verdict on the head commit before any merge, per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible). The verdict is a **review** (findings) or a **👍 on the PR body** (clean); an empty `pulls/$PR/reviews` proves nothing on its own — poll both channels for up to ~10 min, and if nothing lands, record "no Codex verdict" instead of assuming clean. Copilot posts only if `needs-copilot` was added in step 4. Full protocol + commands: CONTRIBUTING.md § AI reviewers. The substantive review is the local pre-push ritual (Claude + Codex) run before pushing.
 
 Never auto-merge. Never use `--auto` or `--admin`. Per the global merge gate, present a readiness summary in English and wait for explicit textual approval.

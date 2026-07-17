@@ -120,7 +120,9 @@ export function YeastDetailsScreen({
       return;
     }
 
-    router.push("/(app)/ingredients");
+    // Last-resort fallback: the catalog hub is the Shop since the
+    // `/ingredients` hub was retired (`equipment-shop/03-component.md`).
+    router.push("/(app)/shop");
   };
 
   const {

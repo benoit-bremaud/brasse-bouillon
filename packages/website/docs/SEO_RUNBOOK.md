@@ -29,6 +29,18 @@ while the product is still in pre-launch.
 - A `noindex` on any EN page is a **gate failure** since S2 (the switch must
   not silently regress).
 - `robots.txt` is minimal and points to the sitemap.
+  **Caveat — the live robots.txt is NOT the repo file alone.** Cloudflare's
+  "managed robots.txt" zone setting prepends a managed block (Content Signals
+  `ai-train=no` + `Disallow` for GPTBot, ClaudeBot, CCBot, Google-Extended, …),
+  and AI Crawl Control additionally 403-blocks AI user agents at the network
+  level — including search/user-triggered agents such as `OAI-SearchBot`,
+  `Claude-User` and `PerplexityBot` (verified 2026-07-17). Any GEO decision
+  (letting AI answer engines read or cite the site) must be made in the
+  Cloudflare dashboard (AI Crawl Control → Crawlers tab + the managed
+  robots.txt toggle), not in this repo. After changing it, verify with
+  `curl -s -o /dev/null -w "%{http_code}" -A "<bot UA>" https://brasse-bouillon.com/`.
+  Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/)
+  · [AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/).
 - Structured data: **Organization** + **FAQPage** on both homes (FAQPage is
   rebuilt from the same i18n catalog keys as the visible FAQ — no
   SoftwareApplication entity until `app.html` exists).
@@ -44,6 +56,10 @@ while the product is still in pre-launch.
    - `User-agent: *`
    - `Allow: /`
    - `Sitemap: https://brasse-bouillon.com/sitemap.xml`
+
+   The repo file is not the whole story — the edge rewrites it (see the
+   caveat in §1). For any robots/GEO-adjacent change, also run the
+   live `curl -A "<bot UA>"` check described there.
 5. Run local quality checks:
 
 ```bash

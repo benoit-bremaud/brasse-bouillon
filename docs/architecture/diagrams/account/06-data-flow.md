@@ -1,52 +1,78 @@
-# Data-flow diagram — account — PII & RGPD
+# Data-flow diagram — account — PII, consent, export, and deletion
 
-> **Feature**: profile + RGPD export/delete #645 #836.
-> **Related**: ADR/privacy policy; website consent model (parity).
+> **Feature**: Profile + RGPD rights #645/#836.
+> **Policies**: ADR-0003 (consent single source of truth), ADR-0012
+> (anonymize authored public content on deletion).
 
-## Context
-
-Where personal data flows in the account domain, so a privacy review cannot be
-skipped. Every PII-bearing edge is annotated. Covers sign-in, profile edit, and
-the RGPD export/delete rights.
-
-## Diagram
+## Target flow
 
 ```mermaid
 flowchart LR
   User((User))
   App["Mobile app"]
-  API["API — auth/account"]
-  DB[("DB")]
-  Export(["Exported file (user-owned)"])
+  Profile["Profile application boundary"]
+  Scan["Scan consent boundary"]
+  API["API — auth/user/data rights"]
+  DB[("Product DB")]
+  Secure[("Secure session storage")]
+  Local[("Local preference and consent log")]
+  File[("User-owned export file")]
 
-  User -->|"PII: email, password"| App
-  App -->|"PII: email, password (TLS)"| API
-  API -->|"PII: email, hashed password, profile"| DB
-  App -->|"PII: name, username, avatar, prefs"| API
-  User -->|"Request export"| App
-  App -->|"GET /account/export"| API
-  API -->|"PII: full account bundle (response)"| App
-  App -->|"writes export file (local)"| Export
-  Export -.->|"shared via OS by the user"| User
-  User -->|"Request deletion"| App
-  App -->|"DELETE /account"| API
-  API -->|"erase / anonymize PII"| DB
+  User -->|"email/password transiently"| App
+  App -->|"TLS: credentials"| API
+  API -->|"hashed password + identity PII"| DB
+
+  App --> Profile
+  Profile -->|"GET/PATCH /auth/me: identity + bio"| API
+  API -->|"User response DTO, no secrets"| Profile
+
+  Profile -->|"theme, units, notification preferences"| Local
+  Profile -->|"consent command/query"| Scan
+  Scan --> Local
+  Scan -->|"append-only timestamped decisions"| Local
+
+  Profile -->|"GET /auth/me/export"| API
+  API -->|"authenticated JSON bundle"| Profile
+  Profile -->|"write locally, then OS share"| File
+  File -.-> User
+
+  Profile -->|"typed username confirmation"| App
+  App -->|"DELETE /auth/me"| API
+  API -->|"erase PII; anonymize public authored content"| DB
+  API -->|"success"| App
+  App -->|"clear token and local account data"| Secure
+  App -->|"purge preferences and consent cache"| Local
 ```
 
-## Notes / suggestions
+## Endpoint contract status
 
-- **Passwords**: never stored in clear — hashed server-side (annotate the DB edge
-  as `hashed`). The app holds the password only transiently during sign-in.
-- **Export (RGPD art. 20 portability)**: the bundle is PII — it must be delivered
-  over an authenticated channel and is then user-owned (OS share). **Suggestion**:
-  define the export format (JSON?) and whether it includes recipes/batches (likely
-  yes — user content) in the #645 spec; currently unspecified.
-- **Deletion (RGPD art. 17)**: decide **erase vs anonymize** for content the user
-  authored that others may have cloned (public recipes). **Suggestion** —
-  anonymize authored public recipes (keep the lineage, drop the identity) rather
-  than hard-delete, to avoid breaking others' clones; capture this in an ADR.
-- **Consent parity**: the website gates analytics on consent (PR #817 removed
-  GA4). **Suggestion** — the mobile `Consent` model should mirror the website's
-  categories so a user's privacy choices are coherent across surfaces.
-- **No third-party PII egress** in scope: no analytics/marketing SDK receives PII
-  unless consent is granted (and none is wired today).
+| Flow                     | Target contract                 | Current implementation                              | Gate                                      |
+| ------------------------ | ------------------------------- | --------------------------------------------------- | ----------------------------------------- |
+| Read identity            | `GET /auth/me`                  | Available                                           | None                                      |
+| Update identity          | `PATCH /auth/me`                | Available; bio migration pending                    | Add bounded bio field                     |
+| Change password          | `POST /auth/me/change-password` | Available                                           | None                                      |
+| Read export              | `GET /auth/me/export`           | Available; mobile merges local data and shares JSON | Keep schema versioned and exclude secrets |
+| Request deletion         | `POST /auth/me/deletion`        | Available; 30-day pending state                     | Keep expiry worker operational            |
+| Cancel deletion          | `DELETE /auth/me/deletion`      | Available before expiry                             | Reject cancellation after due time        |
+| Execute deletion         | Internal expiry worker          | Available; transactional erasure/anonymization      | Monitor scheduled job                     |
+| Scan consent and history | Existing Scan storage/use cases | Available in the Scan boundary                      | Profile must delegate, not duplicate      |
+
+## Privacy rules
+
+- Passwords are sent only over TLS and are hashed before persistence. They are
+  never part of the export bundle or a response DTO.
+- Identity PII is owned by the API User module. The Profile UI never persists
+  credentials or directly accesses the database.
+- Consent values use one owner. The Profile privacy screen may present and
+  update them through the Scan gateway, while the audit record is appended by
+  the consent boundary.
+- Export is authenticated and user-owned after local creation. The API returns
+  a documented, versioned JSON schema for account and owned aggregate data;
+  mobile adds local preferences and consent history before writing the file.
+- Deletion scheduling is idempotent and cancellable during the 30-day grace
+  period. Final deletion must be atomic and idempotent. Private user-owned data
+  is erased; public authored content with dependent lineage is anonymized as
+  `Auteur supprimé`, per ADR-0012.
+- A failed deletion must leave the authenticated local session intact and show
+  an actionable error. A successful deletion must clear session and local
+  account-scoped caches.

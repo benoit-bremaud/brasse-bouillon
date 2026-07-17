@@ -1,39 +1,51 @@
-# State diagram — account — session lifecycle
+# State diagram — account — session and destructive-flow lifecycle
 
-> **Feature**: auth/session (`core/auth/session.ts`); identifier-first #1081.
+> **Feature**: `core/auth/session.ts`, AuthProvider, Profile account actions.
 
-## Context
-
-The app's authentication state, from anonymous to authenticated, including the
-demo-mode branch and token expiry. Drives the `(auth)` vs `(app)` route guard
-(redirects in `app/(auth)/_layout.tsx` and `app/(app)/_layout.tsx`).
-
-## Diagram
+## Session state
 
 ```mermaid
 stateDiagram-v2
   [*] --> Anonymous
-  Anonymous --> CheckingIdentifier: enter email + Continuer
-  CheckingIdentifier --> EnteringPassword: account exists
-  CheckingIdentifier --> CreatingAccount: new email
-  EnteringPassword --> Authenticated: login ok (token persisted)
-  CreatingAccount --> Authenticated: register ok (token persisted)
-  EnteringPassword --> Anonymous: cancel / wrong password (retry)
-  Anonymous --> DemoMode: demo trigger credentials
-  Authenticated --> Anonymous: sign out (token cleared)
-  Authenticated --> Expired: token expires
-  Expired --> Anonymous: re-auth required
-  DemoMode --> Anonymous: exit demo
+  Anonymous --> Restoring: app bootstrap
+  Restoring --> Anonymous: no token
+  Restoring --> Authenticated: token + current user valid
+  Restoring --> DemoMode: demo token restored
+  Restoring --> Anonymous: token rejected with 401
+  Restoring --> RestoreError: transient restore failure
+  RestoreError --> Anonymous: user retries or continues offline
+
+  Anonymous --> Authenticating: submit credentials
+  Authenticating --> Authenticated: login/register succeeds
+  Authenticating --> Anonymous: credentials rejected
+  Anonymous --> DemoMode: reserved demo credentials
+
+  Authenticated --> RefreshingProfile: profile refresh/update
+  RefreshingProfile --> Authenticated: operation succeeds
+  RefreshingProfile --> Anonymous: 401 / session invalidated
+  RefreshingProfile --> Authenticated: recoverable operation failure
+
+  Authenticated --> SignOutPending: sign out confirmed
+  SignOutPending --> Anonymous: token cleared
+  SignOutPending --> Authenticated: clear failure
+
+  Authenticated --> DeletePending: deletion confirmed
+  DeletePending --> Anonymous: server deletion + local purge succeed
+  DeletePending --> Authenticated: deletion failure
+  DemoMode --> Anonymous: demo sign out
 ```
 
-## Notes / suggestions
+## State rules
 
-- **Route guard**: `Anonymous`/`Expired` → `(auth)/login`; `Authenticated`/
-  `DemoMode` → `(app)`. The guard already exists; this names the states it keys on.
-- **`Expired` is a suggested addition**: today `session.ts` persists a token with
-  no modelled expiry. **Suggestion** — if the API issues short-lived JWTs, add a
-  silent-refresh transition (`Authenticated → Refreshing → Authenticated`) and a
-  fallback to `Expired`; if tokens are long-lived, document that explicitly so the
-  absence of refresh is a decision, not an oversight.
-- **DemoMode** is a parallel, token-less state — it must never hit authenticated
-  API routes (it reads demo data via the data-source toggle).
+- `AuthProvider` exposes `session: null` until bootstrap completes, preventing
+  the app router from rendering an authenticated surface prematurely.
+- A live-session 401 clears the local token and session. Demo mode never calls
+  live authenticated endpoints and is not purged by the live 401 handler.
+- Profile mutation states are local to the relevant screen for button-level
+  duplicate-submit protection; `AuthProvider.isLoading` remains the shared
+  auth-operation state.
+- Delete confirmation is a separate UI state from `DeletePending`. The
+  destructive request cannot start without typed username confirmation.
+- A future refresh-token state is intentionally not modelled: the current API
+  contract exposes access-token persistence plus 401 invalidation only. It must
+  be added as a separate authentication design before implementation.

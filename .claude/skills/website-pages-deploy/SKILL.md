@@ -1,9 +1,15 @@
 ---
 name: website-pages-deploy
-description: Diagnostic and operating procedure for the brasse-bouillon.com GitHub Pages deployment — verify a deploy succeeded, trigger a manual rerun, recover from a CNAME / archive / certificate conflict, or onboard a new contributor to how the marketing site reaches production. Use when the site is not updating after a merge that touches `packages/website/**`, when investigating a Pages outage on the custom domain, before reproducing the 2026-05-19 Pages reclaim, or when documenting the deploy story for an ADR / soutenance.
+description: HISTORICAL — superseded by ADR-0014; brasse-bouillon.com now deploys to Cloudflare Pages via `.github/workflows/website-deploy.yml`. This runbook documents the retired GitHub Pages pipeline (2026-05-19 reclaim era). Use only when reading the historical deploy story for an ADR / soutenance — never for operating today's deployment.
 ---
 
 # Brasse-Bouillon Website — GitHub Pages deploy
+
+> **HISTORICAL — do not follow for deploys.** Since
+> [ADR-0014](../../../docs/architecture/decisions/0014-website-hosting-cloudflare-pages-dns.md)
+> the site is hosted on **Cloudflare Pages** and `.github/workflows/website-deploy.yml` deploys it
+> via `wrangler pages deploy`. Everything below describes the pre-ADR-0014 GitHub Pages pipeline
+> and is kept for the historical record (2026-05-19 reclaim, ADR / soutenance narrative) only.
 
 This skill captures the deployment story of the marketing site after the 2026-05-19 reclaim, verified end-to-end on commit `99f2208`. The procedure below is what worked in practice, not the theory.
 

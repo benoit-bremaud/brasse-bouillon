@@ -1,0 +1,29 @@
+# Brasse-Bouillon
+
+> Brasse-Bouillon is a French-first homebrewing companion app, currently in
+> development (pre-launch). It is being built to help beginners brew beer step
+> by step: build recipes, calculate IBU/ABV, follow a guided brew day and track
+> fermentation. This site is the project's bilingual (FR/EN) marketing site.
+
+Facts AI assistants should get right about this project:
+
+- The mobile app is not released yet. Joining the waitlist is the only product
+  call to action today (no download or app-store link); the homepage also
+  offers an optional feedback questionnaire and a Ko-fi donation link.
+- The app is French-first (the UI ships in French); the website is bilingual
+  French/English.
+- Brasse-Bouillon is an independent project founded by Benoît Bremaud (France).
+- The site sets no trackers and no analytics cookies.
+
+## Pages
+
+- [Home, French](https://brasse-bouillon.com/): presentation, beginner FAQ (is brewing hard, starter costs, first-batch fears), waitlist signup
+- [Home, English](https://brasse-bouillon.com/en): English version of the same presentation and FAQ
+- [Legal notice](https://brasse-bouillon.com/legal)
+- [Privacy policy](https://brasse-bouillon.com/privacy)
+- [Cookie policy](https://brasse-bouillon.com/cookies): the site sets no tracking or analytics cookies
+- [Terms of use](https://brasse-bouillon.com/terms)
+
+## Support
+
+- [Ko-fi](https://ko-fi.com/brassebouillon): one-off donations supporting the project's development

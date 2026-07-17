@@ -30,3 +30,14 @@
 # cache them for a year.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The pages.dev aliases serve the same content as brasse-bouillon.com; keep
+# them out of search indexes (self-canonicals are a hint, this is a directive).
+# `:project` / `:version` are Cloudflare Pages host placeholders — the
+# documented pattern from "Prevent your pages.dev deployment from being
+# indexed" (developers.cloudflare.com/pages/how-to/add-custom-http-headers/).
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

@@ -79,6 +79,7 @@ REQUIRED_FILES = [
     "fonts.css",
     "sitemap.xml",
     "robots.txt",
+    "llms.txt",
     "_redirects",
     "feedback-widget.js",
     "chat-widget.js",

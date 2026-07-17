@@ -104,10 +104,10 @@ and spot-check `https://brasse-bouillon.com/{,en,legal,doesnotexist-xyz}` status
   managed robots.txt; optional `www`→apex 301. Blocking prerequisite for all GEO.
 - **B (USER)**: Google Search Console (runbook §3) + Bing Webmaster Tools (feeds
   ChatGPT Search/Copilot).
-- **C (code)**: implemented on branch `claude/brasse-bouillon-seo-geo-audit-ed89eb`
-  (keyword-first titles, Ko-fi `sameAs`, WebSite JSON-LD, og:site_name,
-  max-image-preview, llms.txt, runbook §1.1, pages.dev noindex) — flip this line
-  to "shipped" with the merge SHA once on `main` and verified live.
+- **C (code)**: **shipped** `89aeb254` (PR #1464, 2026-07-17, verified live) —
+  keyword-first titles, Ko-fi `sameAs`, WebSite JSON-LD, og:site_name,
+  max-image-preview, llms.txt (gate-required + deployed), runbook §1.1,
+  pages.dev noindex.
 - **D (USER)**: execute the frozen Reddit playbook
   (`packages/website/docs/EN_LAUNCH_PLAYBOOK.md`) — Reddit is the top citation
   source for answer engines.

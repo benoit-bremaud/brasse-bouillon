@@ -7,6 +7,17 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1464 merged (`89aeb254`) — feat(website): SEO/GEO optimization (keyword-first titles, WebSite schema, llms.txt, pages.dev noindex)
+
+- Branch `claude/brasse-bouillon-seo-geo-audit-ed89eb`, 3 commits (`f458dbb5`, `ce45be27`, `2189fa8b`).
+- Both homes: keyword-first/brand-last `<title>`, WebSite JSON-LD + `og:site_name` (brand carriers), `max-image-preview:large`, Organization `sameAs` (Ko-fi, ADR-0028). `llms.txt` added to the gate's `REQUIRED_FILES` (+ fixture) and to the deploy whitelist (`website-deploy.yml`); `_headers` noindexes the pages.dev production/preview hosts; sitemap `lastmod` bumped; privacy(-en) em-dash residue from #1421 swept (legal stamps refreshed).
+- New repo skill `.claude/skills/seo-geo-brasse-bouillon` (SEO/GEO overlay: gate invariants, edge caveat, AI-bot taxonomy, standing action plan). SEO_RUNBOOK gains §1.1: the live robots.txt is edge-modified (Cloudflare managed robots.txt + AI Crawl Control per-crawler 403s); probes must use the vendor's full bot UA string — bare tokens return false 200s (observed live).
+- **Decisions**:
+  - `titles-keyword-first-brand-last` — SERP truncation now cuts the brand, not the keywords; the brand stays visible via the WebSite JSON-LD (Google site-name) and `og:site_name`; `og:title`/`twitter:title` stay brand-first for social cards. Recorded in SEO_RUNBOOK §1 and the skill.
+  - `pages-dev-alias-noindexed` — the production pages.dev alias served the full site as an indexable duplicate; host-scoped `X-Robots-Tag: noindex` rules added per the documented Cloudflare pattern.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer ×2 + Codex CLI), then 3 adversarial lenses + a 3-agent verification pass (43 claims fact-checked, 19 findings applied in-branch). On GitHub: Copilot reviewed 13/13 files with no comments; Codex posted no review. Merged under the delegated gate (checks green + comments answered); verified live post-deploy (llms.txt 200, WebSite JSON-LD served, pages.dev noindex header present, apex clean of it).
+- GEO remains gated on the Cloudflare dashboard (AI-crawler unblock) and GSC/Bing setup — user-side, documented in SEO_RUNBOOK §1.1/§3.
+
 ### PR #1460 merged (`f568c95`) — chore(mobile-app): make the nav-clearance rule enforceable, not memorable
 
 - Branch `chore/nav-clearance-lint-guard`, 1 commit (`d7cb45c`). Closes the follow-up named in the #1457 entry below.

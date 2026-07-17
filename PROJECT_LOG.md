@@ -7,6 +7,13 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1463 merged (`79711a8`) — docs(claude-tooling): refresh website-audit skill for Cloudflare Pages hosting
+
+- Branch `docs/website-audit-skill-cloudflare-refresh`, 2 commits (`0f57232`, `84ad8a7`).
+- `.claude/skills/website-audit-brasse-bouillon`: the Target section still claimed GitHub Pages hosting with no settable response headers (Cloudflare edge-proxy workaround) — stale since ADR-0014 and PR #1370's `packages/website/_headers`. Rewritten: Cloudflare Pages host, real `website-deploy.yml` triggers (pushes to `main`/`staging` touching `packages/website/**`, plus `workflow_dispatch`), `_headers` mechanism with its edge-emitted vs deliberately-deferred split (#1032 CSP, #1033 HSTS) and the re-verify-live rule. Also fixed: the audit report is tracked on `main` (the `docs/log-website-audit` working branch no longer exists) and the VitePress dev port is the 5173 default, not 5183.
+- `.claude/skills/website-pages-deploy`: HISTORICAL banner + description rewrite, so an agent loading the retired GitHub Pages runbook directly sees it was superseded by ADR-0014 instead of following it.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex); 2 Shoulds applied (the deprecation banner above; commit scope aligned to the `claude-tooling` precedent). On GitHub: Copilot 1 inline (the workflow does not fire on arbitrary refs — the `other refs produce preview deployments` phrasing had been lifted from ADR-0014's own simplification), fixed in `84ad8a7`, replied inline and resolved; Codex posted no review on this docs-only diff.
+
 ### PR #1464 merged (`89aeb254`) — feat(website): SEO/GEO optimization (keyword-first titles, WebSite schema, llms.txt, pages.dev noindex)
 
 - Branch `claude/brasse-bouillon-seo-geo-audit-ed89eb`, 3 commits (`f458dbb5`, `ce45be27`, `2189fa8b`).

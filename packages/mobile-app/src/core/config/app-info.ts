@@ -1,9 +1,16 @@
 import Constants from "expo-constants";
+import * as Updates from "expo-updates";
 
 export interface AppInfo {
   version: string;
   commit: string;
   buildDate: string;
+}
+
+export interface OtaInfo {
+  channel: string;
+  updateId: string;
+  lastUpdate: string;
 }
 
 const UNKNOWN_VERSION = "0.0.0-unknown";
@@ -42,3 +49,11 @@ export function getAppInfo(): AppInfo {
 }
 
 export const appInfo: AppInfo = getAppInfo();
+
+export function getOtaInfo(): OtaInfo {
+  return {
+    channel: Updates.channel ?? "local",
+    updateId: Updates.updateId ?? "local",
+    lastUpdate: Updates.createdAt?.toISOString() ?? "local",
+  };
+}

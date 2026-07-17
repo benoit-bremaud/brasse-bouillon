@@ -8,9 +8,7 @@ import { Screen } from "@/core/ui/Screen";
 let mockPathname = "/dashboard";
 
 jest.mock("expo-router", () => {
-  const actual = jest.requireActual("expo-router");
   return {
-    ...actual,
     usePathname: () => mockPathname,
   };
 });

@@ -1,13 +1,22 @@
 import { HttpError, getErrorMessage } from "@/core/http/http-error";
 import {
+  ChangePasswordInput,
+  AccountDeletionSchedule,
+  cancelCurrentUserDeletion,
+  deleteCurrentUser,
   SignupInput,
+  UpdateProfileInput,
+  changeCurrentUserPassword,
   getCurrentUser,
   login,
   requestPasswordReset,
+  requestCurrentUserDeletion,
   signup,
+  updateCurrentUser,
 } from "@/features/auth/data/auth.api";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -17,6 +26,9 @@ import React, {
 import { authSession } from "@/core/auth/session";
 import { env } from "@/core/config/env";
 import { dataSource } from "@/core/data/data-source";
+import { purgeAccountPreferences } from "@/features/profile/application/account-preferences.use-cases";
+import { purgeLabelDrafts } from "@/features/labels/application/labels.use-cases";
+import { purgeScanLocalData } from "@/features/scan/application/scan.use-cases";
 import { AuthSession } from "@/features/auth/domain/auth.types";
 import { isDemoTriggerCredentials } from "@/features/auth/domain/demo-trigger-credentials";
 import { demoUsers } from "@/mocks/demo-data";
@@ -28,7 +40,12 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   signup: (input: SignupInput) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
+  requestAccountDeletion: () => Promise<AccountDeletionSchedule>;
+  cancelAccountDeletion: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (input: UpdateProfileInput) => Promise<void>;
+  changePassword: (input: ChangePasswordInput) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   loginWithDemoAccount: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -127,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -155,9 +172,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleSignup = async (input: SignupInput) => {
+  const handleSignup = useCallback(async (input: SignupInput) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -171,9 +188,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleRequestPasswordReset = async (email: string) => {
+  const handleRequestPasswordReset = useCallback(async (email: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -185,9 +202,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleRefreshProfile = async () => {
+  const handleRefreshProfile = useCallback(async () => {
     if (!session?.accessToken) {
       return;
     }
@@ -216,9 +233,84 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session]);
 
-  const handleDemoLogin = async () => {
+  const handleUpdateProfile = useCallback(
+    async (input: UpdateProfileInput) => {
+      if (!session?.accessToken) {
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (
+          dataSource.useDemoData &&
+          session.accessToken === DEMO_ACCESS_TOKEN
+        ) {
+          setSession({
+            accessToken: session.accessToken,
+            user: {
+              ...session.user,
+              ...(input.email !== undefined && { email: input.email }),
+              ...(input.username !== undefined && { username: input.username }),
+              ...(input.firstName !== undefined && {
+                firstName: input.firstName,
+              }),
+              ...(input.lastName !== undefined && { lastName: input.lastName }),
+              ...(input.bio !== undefined && { bio: input.bio }),
+              updatedAt: new Date().toISOString(),
+            },
+          });
+          return;
+        }
+
+        const updatedUser = await updateCurrentUser(input);
+        setSession({ accessToken: session.accessToken, user: updatedUser });
+      } catch (err) {
+        const message = getErrorMessage(
+          err,
+          "Impossible de mettre à jour le profil",
+        );
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [session],
+  );
+
+  const handleChangePassword = useCallback(
+    async (input: ChangePasswordInput) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (
+          dataSource.useDemoData &&
+          session?.accessToken === DEMO_ACCESS_TOKEN
+        ) {
+          throw new Error(
+            "La modification du mot de passe est indisponible en mode démo.",
+          );
+        }
+
+        await changeCurrentUserPassword(input);
+      } catch (err) {
+        const message = getErrorMessage(
+          err,
+          "Impossible de modifier le mot de passe",
+        );
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [session?.accessToken],
+  );
+
+  const handleDemoLogin = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -238,9 +330,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     // Issue #822 — when demo mode was activated mid-session via
     // the trigger credentials, restore the original boot-time
     // toggle so the next login attempt hits the real backend
@@ -251,7 +343,111 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     await authSession.clear();
     setSession(null);
-  };
+  }, []);
+
+  const handleDeleteAccount = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (dataSource.useDemoData && session.accessToken === DEMO_ACCESS_TOKEN) {
+        throw new Error(
+          "La suppression du compte est indisponible en mode démo.",
+        );
+      }
+
+      await deleteCurrentUser();
+      await Promise.allSettled([
+        purgeScanLocalData(),
+        purgeLabelDrafts(),
+        purgeAccountPreferences(),
+      ]);
+      await authSession.clear();
+      setSession(null);
+    } catch (err) {
+      const message = getErrorMessage(err, "Impossible de supprimer le compte");
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session]);
+
+  const handleRequestAccountDeletion = useCallback(async () => {
+    if (!session?.accessToken) {
+      throw new Error("Aucune session active.");
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (dataSource.useDemoData && session.accessToken === DEMO_ACCESS_TOKEN) {
+        throw new Error(
+          "La suppression du compte est indisponible en mode démo.",
+        );
+      }
+
+      const schedule = await requestCurrentUserDeletion();
+      setSession((current) =>
+        current
+          ? {
+              ...current,
+              user: {
+                ...current.user,
+                deletionRequestedAt: schedule.requestedAt,
+                deletionScheduledFor: schedule.scheduledFor,
+              },
+            }
+          : current,
+      );
+      return schedule;
+    } catch (err) {
+      const message = getErrorMessage(
+        err,
+        "Impossible de planifier la suppression du compte",
+      );
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session]);
+
+  const handleCancelAccountDeletion = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await cancelCurrentUserDeletion();
+      setSession((current) =>
+        current
+          ? {
+              ...current,
+              user: {
+                ...current.user,
+                deletionRequestedAt: null,
+                deletionScheduledFor: null,
+              },
+            }
+          : current,
+      );
+    } catch (err) {
+      const message = getErrorMessage(
+        err,
+        "Impossible d'annuler la suppression du compte",
+      );
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -261,7 +457,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login: handleLogin,
       signup: handleSignup,
       requestPasswordReset: handleRequestPasswordReset,
+      requestAccountDeletion: handleRequestAccountDeletion,
+      cancelAccountDeletion: handleCancelAccountDeletion,
       refreshProfile: handleRefreshProfile,
+      updateProfile: handleUpdateProfile,
+      changePassword: handleChangePassword,
+      deleteAccount: handleDeleteAccount,
       loginWithDemoAccount: handleDemoLogin,
       logout: handleLogout,
     }),
@@ -271,7 +472,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       error,
       isBootstrapped,
       handleRefreshProfile,
+      handleUpdateProfile,
+      handleChangePassword,
+      handleDeleteAccount,
       handleRequestPasswordReset,
+      handleRequestAccountDeletion,
+      handleCancelAccountDeletion,
+      handleLogin,
+      handleSignup,
+      handleDemoLogin,
+      handleLogout,
     ],
   );
 

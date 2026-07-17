@@ -4,8 +4,11 @@ export type User = {
   username: string;
   firstName?: string;
   lastName?: string;
+  bio?: string;
   role: string;
   isActive: boolean;
+  deletionRequestedAt?: string | null;
+  deletionScheduledFor?: string | null;
   createdAt: string;
   updatedAt: string;
 };

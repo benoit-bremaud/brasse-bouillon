@@ -1,12 +1,13 @@
 import { Href, usePathname, useRouter } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { colors, spacing } from "@/core/theme";
+import { spacing, useTheme } from "@/core/theme";
+import type { ThemeColors } from "@/core/theme";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -102,6 +103,8 @@ export function NavigationFooter() {
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
+  const { colors: themeColors } = useTheme();
+  const styles = useMemo(() => createStyles(themeColors), [themeColors]);
 
   // Same dock in demo and live — the nav must not diverge between modes.
   const navItems = BASE_NAV_ITEMS;
@@ -175,7 +178,9 @@ export function NavigationFooter() {
               name={item.icon}
               size={24}
               color={
-                isActive ? colors.neutral.white : colors.neutral.textPrimary
+                isActive
+                  ? themeColors.neutral.white
+                  : themeColors.neutral.textPrimary
               }
             />
           </Pressable>
@@ -185,42 +190,44 @@ export function NavigationFooter() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    left: spacing.lg,
-    right: spacing.lg,
-    flexDirection: "row",
-    backgroundColor: colors.neutral.white,
-    borderRadius: 100,
-    borderWidth: 1,
-    borderColor: colors.neutral.border,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
-    shadowColor: colors.neutral.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  item: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 100,
-    minHeight: 48,
-    zIndex: 2, // ensure icon is above the animated background
-  },
-  itemPressed: {
-    opacity: 0.7,
-  },
-  activeIndicator: {
-    position: "absolute",
-    height: 48,
-    top: spacing.xs,
-    left: spacing.xs,
-    borderRadius: 100,
-    backgroundColor: colors.semantic.success,
-    zIndex: 1,
-  },
-});
+function createStyles(themeColors: ThemeColors) {
+  return StyleSheet.create({
+    container: {
+      position: "absolute",
+      left: spacing.lg,
+      right: spacing.lg,
+      flexDirection: "row",
+      backgroundColor: themeColors.neutral.white,
+      borderRadius: 100,
+      borderWidth: 1,
+      borderColor: themeColors.neutral.border,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: spacing.xs,
+      shadowColor: themeColors.neutral.shadow,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    item: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 100,
+      minHeight: 48,
+      zIndex: 2,
+    },
+    itemPressed: {
+      opacity: 0.7,
+    },
+    activeIndicator: {
+      position: "absolute",
+      height: 48,
+      top: spacing.xs,
+      left: spacing.xs,
+      borderRadius: 100,
+      backgroundColor: themeColors.semantic.success,
+      zIndex: 1,
+    },
+  });
+}

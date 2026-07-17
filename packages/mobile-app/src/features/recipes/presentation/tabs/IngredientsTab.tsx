@@ -7,8 +7,12 @@ import { Card } from "@/core/ui/Card";
 import { Ionicons } from "@expo/vector-icons";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
 import { colors, radius, spacing, typography } from "@/core/theme";
+import { useAccountPreferences } from "@/core/preferences/account-preferences-context";
 import {
-  formatQuantity,
+  formatQuantityForUnitSystem,
+  formatVolumeForUnitSystem,
+} from "@/core/units";
+import {
   getIngredientGroupEntries,
   groupIngredientsByType,
   scaleQuantity,
@@ -60,6 +64,7 @@ export function IngredientsTab(props: IngredientsTabProps) {
     onOpenIngredient,
     onOpenShop,
   } = props;
+  const { units: unitSystem } = useAccountPreferences();
 
   const groupedIngredients = useMemo(
     () => groupIngredientsByType(ingredients),
@@ -79,12 +84,16 @@ export function IngredientsTab(props: IngredientsTabProps) {
             testID="recipe-target-volume-readout"
             style={styles.sliderValue}
           >
-            {targetVolumeLiters} L
+            {formatVolumeForUnitSystem(targetVolumeLiters, unitSystem)}
           </Text>
         </View>
         <Slider
           testID="recipe-target-volume-slider"
-          accessibilityLabel="Volume cible en litres"
+          accessibilityLabel={
+            unitSystem === "imperial"
+              ? "Volume cible en gallons"
+              : "Volume cible en litres"
+          }
           minimumValue={SLIDER_MIN_LITRES}
           maximumValue={SLIDER_MAX_LITRES}
           step={SLIDER_STEP}
@@ -95,8 +104,9 @@ export function IngredientsTab(props: IngredientsTabProps) {
           thumbTintColor={colors.brand.secondary}
         />
         <Text style={styles.sliderHint}>
-          Recette de base : {baseVolumeLiters} L. Les quantités se mettent à
-          jour quand tu déplaces le curseur.
+          Recette de base :{" "}
+          {formatVolumeForUnitSystem(baseVolumeLiters, unitSystem)}. Les
+          quantités se mettent à jour quand tu déplaces le curseur.
         </Text>
       </Card>
 
@@ -136,9 +146,10 @@ export function IngredientsTab(props: IngredientsTabProps) {
                 <Text style={styles.groupTitle}>{label}</Text>
 
                 {groupedIngredients[key].map((item, index) => {
-                  const quantity = formatQuantity(
+                  const quantity = formatQuantityForUnitSystem(
                     scaleQuantity(item.amount, scalingFactor),
                     item.unit,
+                    unitSystem,
                   );
 
                   return (

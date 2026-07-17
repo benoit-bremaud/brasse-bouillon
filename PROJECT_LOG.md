@@ -7,6 +7,12 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1469 merged (`2e04b35`) — chore(website): apply ruff format to roadmap_sync and weekly_digest scripts
+
+- Branch `chore/website-ruff-format`, 1 commit (`3619342`).
+- Formatter-only pass over the two pre-existing scripts that `ruff format --check` still flagged (line wrapping + missing trailing newline); AST-verified identical before/after. `ruff check`, the 58-test website unittest suite, and `quality_gate.py` stay green. Website CI runs no ruff step — this clears the local formatter baseline only.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot overview only, no inline comments; Codex posted no review. CI green.
+
 ### PR #1467 merged (`eac81af`) — fix(website): close the head-level blind spot in the i18n srcHash drift guard
 
 - Branch `claude/laughing-lamport-3fe93f`, 2 commits (`5f40146`, `a2c3a52`).

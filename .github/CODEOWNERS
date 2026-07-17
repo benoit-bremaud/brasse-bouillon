@@ -1,5 +1,8 @@
 # Solo-dev project — @benoit-bremaud is the sole code owner across the
-# whole repository. Automated reviews come from Copilot (via the
-# "Copilot review for default branch" ruleset) and Codex (auto-triggered
-# on push). Human reviewers are not auto-requested per project policy.
+# whole repository. Codex is auto-triggered on every PR, but its review
+# delivery is quota-gated, so it is not a guaranteed gate. Copilot is
+# on-demand only, triggered by the `needs-copilot` label (the
+# `copilot_code_review` rule was dropped from the default-branch ruleset
+# on 2026-07-17). See CONTRIBUTING.md § AI reviewers. Human reviewers are
+# not auto-requested per project policy.
 * @benoit-bremaud

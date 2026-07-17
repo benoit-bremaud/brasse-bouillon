@@ -7,6 +7,15 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1470 merged (`c3a9011`) — fix(mobile-app): drop dead Tabs.Screen registrations in (app) layout
+
+- Branch `fix/mobile-tabs-screen-names`, 3 commits (`1aea5c1`, `43b80a7`, `0f2e8be`) plus a `main` sync before merge.
+- The `(app)` layout declared six `Tabs.Screen` entries (`dashboard`, `equipment`, `shop`, `ingredients`, `tools`, `profile`) whose `name` matched no route node: those directories own no `_layout.tsx`, so expo-router hoists their routes to the parent navigator as `dir/index` and dropped every unmatched entry at runtime with a `[Layout children]: No route named "X" exists` warning. Their options (`headerShown`, `href: null`, `title`, `tabBarIcon`) had therefore never applied, making the removal behavior-preserving rather than a UI change — the pre-fix rendering is the one that shipped. The four retained entries (`recipes`, `batches`, `academy`, `beer-catalog`) each own a `_layout.tsx`.
+- ADR-0029 unaffected: `NavigationFooter` navigates by literal path through `router.replace()` and never reads these registrations. Orthogonal to #1461 for the same reason — retiring the `/ingredients` hub works through `Redirect` and `router.push`, not through the navigator's screen list.
+- Guard: `src/core/navigation/__tests__/app-tabs-screen-names.test.ts` asserts every declared `name` resolves to a real `(app)` route node — a child directory owning a `_layout`, or a hoisted leaf such as `dir/index`. Red-proven against the pre-fix layout, where it fails listing exactly the six dead names, and it carries a sanity check so a regex that stops matching cannot make it vacuously green.
+- Verified on the `bb_pixel_academy` emulator via Expo Go, A/B by stashing the fix: 6 warnings before, 0 after, dashboard rendering identical.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI), 2 Should Have taken (the guard test above; this entry). On GitHub: Copilot 1 inline (the layout comment stated a narrower rule than the guard enforces — hoisted leaves are valid children too) fixed in `0f2e8be` with an inline reply; Codex posted no review. CI green on the tree merged with `main`.
+
 ### PR #1469 merged (`2e04b35`) — chore(website): apply ruff format to roadmap_sync and weekly_digest scripts
 
 - Branch `chore/website-ruff-format`, 1 commit (`3619342`).

@@ -7,6 +7,14 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-17
 
+### PR #1472 merged (`1c368c3`) — docs(review): align AI-reviewer docs with GitHub reality
+
+- Branch `docs/ai-review-pipeline`, 3 commits (`f3f00be`, `8aa2463`, `e12f8d5`). Touches `CONTRIBUTING.md`, `.claude/skills/pr-create-brasse-bouillon/SKILL.md`, `README.md`, `.github/workflows/copilot-review.yml`.
+- Copilot auto-review: the 2026-06-06 disable never took effect — the workflow was label-gated but an active ruleset rule (`copilot_code_review`) kept auto-requesting Copilot on every non-draft PR (verified ≥2026-06-05 through #1467). Rule removed 2026-07-17 via the ruleset (id 14586694, renamed `Protect default branch`, keeping deletion + non_fast_forward on `main`); confirmed effective on #1472 (`requested_reviewers` empty). The auto-review switch is Settings → Rules → Rulesets, not the workflow file.
+- Codex verdict protocol corrected: Codex is never silent — per its own doc block it posts a review when it has findings (body anchored `Reviewed commit: <sha>`) or a `+1` reaction on the PR body when clean; neither present means not-finished. The clean verdict lands on `issues/N/reactions`, not `pulls/N/reviews`. Push does not re-trigger Codex (comment `@codex review`); a verdict covers only the SHA it names. Absence after a bounded wait (~10 min; observed reaction ~2 min, reviews 2–7 min) is logged as "no Codex verdict", never as clean — Codex did not run at all on 2026-07-16 (#1442–#1459 merged with no pass).
+- Reviews — local pre-push: 0 Must Have (Claude `pr-pre-reviewer` + Codex CLI + independent fact-check agent), all retained Should Have taken. On GitHub, Codex posted P2 (`f3f00be`) then P1 (`8aa2463`) against the never-wait wording; both fixed (`8aa2463`, `e12f8d5`) and replied inline. Clean 👍 verdict obtained on the final head `e12f8d5` after `@codex review`. CI green.
+- Follow-up split to #1476: stale AI-reviewer references outside these files (dead `auto-request-codex-review.yml`, ROADMAP, ADR-0001 errata).
+
 ### PR #1475 merged (`fbd1dd4`) — ci(website): add ruff lint and format checks to the website job
 
 - Branch `chore/website-ci-ruff`, 1 commit (`19088f5`).

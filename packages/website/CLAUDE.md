@@ -5,7 +5,7 @@
 **Name:** Brasse Bouillon — Marketing Website
 **Stack:** Static HTML/CSS/JS, no framework. Hosted on Cloudflare Pages; DNS and the custom domain (brasse-bouillon.com) are managed on Cloudflare (ADR-0014).
 **Deployment:** any push to `main` whose diff touches `packages/website/**` triggers the [`website-deploy.yml`](../../.github/workflows/website-deploy.yml) workflow, which stages the public files into `_site/` and publishes them to the `brasse-bouillon-website` Cloudflare Pages project via `wrangler pages deploy`. Can also be re-run manually from the Actions tab (`workflow_dispatch`).
-**Quality gate:** Python scripts under `scripts/` (`quality_gate.py` + the i18n generator `build_i18n.py`), tested in `tests/`, executed by the `website:` job in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (gate + unit suites) on every PR that touches the package.
+**Quality gate:** Python scripts under `scripts/` (`quality_gate.py` + the i18n generator `build_i18n.py`), tested in `tests/`, executed by the `website:` job in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (ruff lint + format check + gate + unit suites) on every PR that touches the package.
 
 The site is a thin marketing surface — not a SaaS frontend. Persistent product UX lives in `packages/mobile-app`.
 
@@ -94,7 +94,14 @@ cd packages/website
 python3 scripts/quality_gate.py            # run the gate locally
 python3 scripts/build_i18n.py --check      # en.html regeneration is clean
 python3 -m unittest discover -s tests -v   # gate + i18n generator suites
+ruff check scripts tests                   # lint (CI-blocking)
+ruff format --check scripts tests          # format (CI-blocking)
 ```
+
+CI blocks on the two `ruff` commands as well, so run them before pushing. The
+package has no `pyproject.toml`: ruff uses its built-in defaults, and CI pins
+`ruff==0.15.8` — install that same version locally (`pip install ruff==0.15.8`)
+so a local pass means a CI pass.
 
 ## Feedback Widget
 

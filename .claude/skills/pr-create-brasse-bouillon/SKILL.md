@@ -59,9 +59,11 @@ gh api graphql -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{pro
 
 ## Step 4 — Reviewers
 
-Codex reviews **every PR automatically** on GitHub; CodeRabbit was removed
-2026-06-24. Do **not** call `requested_reviewers` for `Codex` or `Copilot`
-(the API returns 422 for GitHub App bot accounts).
+Codex reviews **every PR automatically** on GitHub but **posts a comment
+only when it has findings** — a clean PR gets no Codex comment; never wait
+for one. CodeRabbit was removed 2026-06-24. Do **not** call
+`requested_reviewers` for `Codex` or `Copilot` (the API returns 422 for
+GitHub App bot accounts).
 
 Copilot is **manual** (it bills premium requests; ×13 per review since
 2026-06-01). Do **not** request it by default. Only when a deliberate Copilot
@@ -71,7 +73,12 @@ review is wanted, add the `needs-copilot` label:
 gh pr edit "$PR" --add-label "needs-copilot"
 ```
 
-The `Copilot Review` workflow then posts `@copilot please review`. See
+The `Copilot Review` workflow then posts `@copilot please review`. Gotcha:
+automatic Copilot review is governed by a **repository ruleset**, not by
+that workflow — after the workflow went label-only (2026-06-05), the
+`copilot_code_review` ruleset rule silently kept auto-reviewing every
+non-draft PR until it was removed on 2026-07-17. If unlabeled PRs get
+Copilot reviews again, fix it in *Settings → Rules → Rulesets*. See
 CONTRIBUTING.md § AI reviewers.
 
 ## Step 5 — Milestone
@@ -125,6 +132,6 @@ gh api repos/benoit-bremaud/brasse-bouillon/issues/$PR/comments \
 2. Open the PR (step 1).
 3. Apply labels + assignee + project + milestone (steps 2–5) — these can run in parallel.
 4. Post the French FYI comment (step 6).
-5. Wait for the automatic Codex review (and Copilot, if `needs-copilot` was added in step 4) to be **posted** per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible) before any merge. The substantive review is the local pre-push ritual (Claude + Codex) run before pushing.
+5. Check the posted bot reviews before any merge, per the global `pr-review-procedure` skill (loaded from `~/.claude/skills/pr-review-procedure/SKILL.md`, user-scoped — invoke by name, no in-repo link possible). Codex posts only when it has findings — a clean PR gets nothing, so never block waiting for it. Copilot posts only if `needs-copilot` was added in step 4. Address whatever comments are actually there. The substantive review is the local pre-push ritual (Claude + Codex) run before pushing.
 
 Never auto-merge. Never use `--auto` or `--admin`. Per the global merge gate, present a readiness summary in English and wait for explicit textual approval.

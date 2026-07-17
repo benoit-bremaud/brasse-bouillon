@@ -413,10 +413,10 @@ RGPD. Aucun impact sur l'application mobile ni sur le serveur backend.
 
 The list of people to mention should be suggested based on the PR context (scope labels, area labels) and confirmed by the author before posting.
 
-### 7. Wait for review
+### 7. Check reviews
 
 - CI must pass (GitHub Actions runs automatically)
-- Every posted review comment is addressed — bot reviewers (Codex, and Copilot on demand) only comment, and `main` is not branch-protected, so a GitHub approval is **not** required; the local pre-push review (all Must-Have items resolved) is the gate
+- Every posted review comment is addressed — bot reviewers (Codex, and Copilot on demand) only comment, and `main` has no required-approval or status-check rule (its ruleset only blocks deletion and force-push, see § AI reviewers below), so a GitHub approval is **not** required; the local pre-push review (all Must-Have items resolved) is the gate
 - Address review comments before merging
 
 #### AI reviewers — defence-in-depth pipeline
@@ -440,7 +440,7 @@ gates the push on all Must Have items resolved.
 
 | Reviewer | Bot account | Trigger | Status |
 |---|---|---|---|
-| Codex | `chatgpt-codex-connector[bot]` | Automatic on every PR | Comments only — never approves |
+| Codex | `chatgpt-codex-connector[bot]` | Automatic on every PR — **posts only when it has findings** | Comments only — never approves |
 | Copilot | `copilot-pull-request-reviewer[bot]` | **Manual** — add the `needs-copilot` label | On-demand only (premium-request quota) |
 
 Codex also runs in the **local pre-push** ritual (`scripts/codex-review.sh`).
@@ -452,13 +452,23 @@ What this means in practice:
   review on a PR, add the **`needs-copilot`** label — the `Copilot Review`
   workflow then posts `@copilot please review`. Use it sparingly (premium
   requests, ×13 per review).
+- **Automatic Copilot review is controlled by a repository ruleset, not by
+  the workflow.** From 2026-06-05 to 2026-07-17 an active ruleset rule
+  (`copilot_code_review`) kept auto-requesting Copilot on every non-draft
+  PR despite the documented manual-only policy; the rule was removed on
+  2026-07-17. The ruleset, renamed *Protect default branch*, now only
+  protects `main` against deletion and force-push. If Copilot ever starts
+  reviewing unlabeled PRs again, check *Settings → Rules → Rulesets* —
+  editing `copilot-review.yml` will not turn it off.
+- **Codex posts nothing on a clean PR.** Do not block a merge waiting for a
+  Codex comment that may never come — check the posted reviews and address
+  what is actually there.
 - **Do not** call `gh api ... requested_reviewers -X POST` for `Codex` or
   `Copilot` — the call fails with 422 for GitHub App bot accounts (not all
   `[bot]` users). Codex reviews automatically; Copilot is triggered via the
   `needs-copilot` label above.
-- **Do** wait for each review to be **posted** (not just "requested")
-  before considering the PR ready, per the PR review procedure in
-  global `~/.claude/CLAUDE.md`. Verify with:
+- **Do** check the posted reviews before considering the PR ready, per the
+  PR review procedure in global `~/.claude/CLAUDE.md`. Verify with:
   `gh api repos/OWNER/REPO/pulls/PR/reviews --jq '.[].state'`.
 - **Do** address every inline comment per the Must Have / Should
   Have / Nice to Have / Disagree taxonomy, exactly the same way as

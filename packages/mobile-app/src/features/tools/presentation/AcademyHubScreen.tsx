@@ -1,6 +1,7 @@
 import { colors, radius, spacing, typography } from "@/core/theme";
 import {
   Pressable,
+  // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- ADR-0029: horizontal filter carousel nested in the page; it must not inherit a vertical clearance, and the screen's own scroller already reserves it.
   ScrollView,
   StyleSheet,
   Text,

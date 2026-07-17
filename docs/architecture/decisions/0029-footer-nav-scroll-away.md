@@ -191,10 +191,39 @@ failure mode this redesign eliminates.
 
 ## Verification
 
-- `pr-pre-reviewer` checklist additions: no `useNavigationFooterOffset` references remain (the
-  hook is deleted); no screen-level `paddingBottom` derived from nav-bar arithmetic; the bar
-  height is read from `NAV_BAR_HEIGHT` only (grep for `48` / hardcoded `96` around the footer
-  and sticky CTAs).
+- **Enforced mechanically in CI** (added 2026-07-16, after #1457): the `@typescript-eslint/no-restricted-imports` rule in
+  `packages/mobile-app/eslint.config.js` restricts importing the raw-scroller family from
+  `react-native` inside `src/features/**/presentation/**/*Screen.tsx`, so a new screen cannot
+  reintroduce a raw scroller with hand-rolled padding. `ci:check` runs lint, so the mistake
+  cannot be merged.
+
+  This clause first read *"`pr-pre-reviewer` checklist additions"*. That protection had **the
+  same weakness as the defect it guards**: it relied on someone remembering to run the reviewer
+  and to notice. Remembering is exactly what failed — 36 screens opted in, 5 never did, and
+  nobody saw it for months (#1457). A rule that runs on every push needs no memory.
+
+  Legitimate exceptions disable the rule **on the offending line, with their reason** rather
+  than in an allowlist file: an allowlist rots out of sight, whereas a disable is visible in the
+  diff and has to be justified to a reviewer. Three exist today — `LoginScreen` (no bar under `(auth)`),
+  `AcademyHubScreen` (horizontal carousel) and `LabelSelectBatchScreen` (its list scrolls, but
+  its viewport is bounded above a CTA that carries the footprint, so nothing reaches the bar;
+  the bar knowingly does not hide on that screen — tracked). Type-only imports need no exception:
+  `allowTypeImports` lets them through, since a type renders nothing.
+
+  The rule covers the whole raw-scroller family — `ScrollView`, `FlatList`, `SectionList`,
+  `VirtualizedList`, `VirtualizedSectionList` — not just the two in use today. The unused ones
+  are the dangerous ones: a screen reaching for `SectionList` next year would reproduce the
+  defect with CI green, which is precisely how the 5 occluded screens stayed invisible.
+
+  Known limits, stated rather than glossed. Namespace imports (`import * as RN from
+  "react-native"`) **are** caught — ESLint rejects the whole `*` import when named restrictions
+  apply, verified with a probe. What the rule does not see: a local re-export of the raw
+  component, a scrollable screen whose file is not named `*Screen.tsx`, a screen that reserves
+  nothing while using the right container, and a bottom-anchored control outside any scroller.
+  It is a floor that makes the easy mistake impossible, not a proof of correctness.
+- `pr-pre-reviewer` checklist (still useful for what the rule cannot see): no
+  `useNavigationFooterOffset` references remain (the hook is deleted); the bar height is read
+  from `NAV_BAR_HEIGHT` only (grep for `48` / hardcoded `96` around the footer and sticky CTAs).
 - Tests pin the state machine (threshold, near-top guard, forced reveals), `Screen`'s reserved
   clearance, and that Snackbar/sticky-CTA track `FooterVisibilityContext`.
 - The existing `NavigationFooter.test.tsx` contract (six items, longest-prefix active match)

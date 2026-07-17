@@ -60,13 +60,17 @@ class RoadmapPayload:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Sync roadmap feed and markdown table from dispatch payload")
+    parser = argparse.ArgumentParser(
+        description="Sync roadmap feed and markdown table from dispatch payload"
+    )
     parser.add_argument(
         "--event-path",
         default="",
         help="Path to a GitHub event JSON file (defaults to $GITHUB_EVENT_PATH when omitted)",
     )
-    parser.add_argument("--payload-file", default="", help="Path to a payload JSON file")
+    parser.add_argument(
+        "--payload-file", default="", help="Path to a payload JSON file"
+    )
     parser.add_argument("--payload-json", default="", help="Raw payload JSON string")
     return parser.parse_args()
 
@@ -81,7 +85,12 @@ def normalize_iso_datetime(raw: str) -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
 
-    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return (
+        dt.astimezone(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
 
 
 def parse_evidence_links(raw: Any) -> list[str]:
@@ -118,7 +127,9 @@ def parse_payload(raw: dict[str, Any]) -> RoadmapPayload:
         "summary_en",
     ]
 
-    missing = [field for field in required_fields if not str(raw.get(field, "")).strip()]
+    missing = [
+        field for field in required_fields if not str(raw.get(field, "")).strip()
+    ]
     if missing:
         raise ValueError(f"Missing required payload field(s): {', '.join(missing)}")
 
@@ -149,7 +160,9 @@ def load_raw_payload(args: argparse.Namespace) -> dict[str, Any]:
     else:
         event_path = args.event_path or os_environ("GITHUB_EVENT_PATH")
         if not event_path:
-            raise ValueError("No payload source provided. Use --event-path, --payload-file, or --payload-json.")
+            raise ValueError(
+                "No payload source provided. Use --event-path, --payload-file, or --payload-json."
+            )
         data = json.loads(Path(event_path).read_text(encoding="utf-8"))
 
     if not isinstance(data, dict):
@@ -217,7 +230,9 @@ def upsert_entry(feed: dict[str, Any], entry: dict[str, Any]) -> None:
 
 def save_feed(feed: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
 
 def markdown_link(label: str, url: str) -> str:
@@ -240,7 +255,11 @@ def reference_label(url: str, index: int) -> str:
 
 def build_references(entry: dict[str, Any]) -> str:
     source_repo = str(entry.get("source_repo", "")).strip()
-    repo_name = source_repo.split("/")[-1].replace("brasse-bouillon-", "") if source_repo else "source"
+    repo_name = (
+        source_repo.split("/")[-1].replace("brasse-bouillon-", "")
+        if source_repo
+        else "source"
+    )
     pr_number = entry.get("pr_number")
     pr_url = str(entry.get("pr_url", "")).strip()
 
@@ -277,7 +296,9 @@ def render_done_table(entries: list[dict[str, Any]]) -> str:
     for entry in entries:
         date = sanitize_cell(entry.get("date", ""))
         domain = sanitize_cell(entry.get("domain", ""))
-        summary = sanitize_cell(entry.get("summary_en") or entry.get("pr_title") or "Update")
+        summary = sanitize_cell(
+            entry.get("summary_en") or entry.get("pr_title") or "Update"
+        )
         references = sanitize_cell(build_references(entry))
         lines.append(f"| {date} | {domain} | {summary} | {references} |")
 

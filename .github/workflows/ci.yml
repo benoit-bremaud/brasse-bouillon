@@ -6,7 +6,7 @@
 # Quality gates (ADR-0019):
 #   - Mobile App: lint + typecheck + format + unit tests (blocking coverage ratchet)
 #   - API: lint + build + unit tests (blocking coverage ratchet) + e2e (Supertest)
-#   - Website: Python quality gate
+#   - Website: ruff lint + format check + Python quality gate + unit tests
 #   - Beer Encyclopedia: ruff lint + compile check + tests (blocking coverage ratchet)
 #   - Security: npm audit (here) + gitleaks / CodeQL / dependency-review (dedicated workflows)
 #
@@ -137,7 +137,7 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # Website: Python quality gate (if scripts exist)
+  # Website: ruff lint + format check + Python quality gate + unit tests
   # ============================================================================
   website:
     needs: changes
@@ -153,6 +153,25 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The package ships no pyproject.toml, so ruff runs on its built-in
+      # defaults (line-length 88, lint rules E4/E7/E9/F) — deliberately looser
+      # than the beer-encyclopedia ruleset, which this baseline does not meet.
+      # Pinned exactly: Dependabot only tracks npm here, so an unpinned ruff
+      # would drift silently and could redden an unrelated website PR when a
+      # release changes formatter style or default rules. Nothing bumps this
+      # pin automatically — next-review: 2027-01.
+      - name: Install lint tooling (ruff)
+        run: pip install ruff==0.15.8
+
+      # Unguarded on purpose, unlike the two steps below: scripts/ and tests/
+      # are always present here, and a guard would turn their disappearance
+      # into a silent pass instead of the failure it should be.
+      - name: Lint (ruff)
+        run: ruff check scripts tests
+
+      - name: Format check (ruff)
+        run: ruff format --check scripts tests
+
       - name: Run quality gate
         run: |
           if [ -f scripts/quality_gate.py ]; then
@@ -162,7 +181,8 @@ jobs:
           fi
 
       # The gate only checks structural invariants; the unit suites cover the
-      # i18n generator and the gate logic itself (stdlib unittest — no pip).
+      # i18n generator and the gate logic itself (stdlib unittest — the suites
+      # themselves pull no dependency; ruff above is the job's only install).
       - name: Run Python unit tests
         run: |
           if [ -d tests ]; then

@@ -488,9 +488,14 @@ What this means in practice:
   rather than "Codex clean".
 - **A verdict covers only the commit Codex read, and pushing does not
   re-trigger it.** After pushing to an open PR, comment `@codex review` to get
-  a fresh pass. GitHub allows one reaction per user, so a re-triggered clean
-  pass cannot add a second 👍 — after a re-trigger, "no new review within the
-  bounded wait" is the clean signal.
+  a fresh pass, and check the new verdict names the current head SHA.
+- **On a PR that already carries a 👍, a clean re-pass has no signal left to
+  send** — GitHub allows one reaction per user, so Codex cannot 👍 twice. "No
+  new review" is then indistinguishable from "the re-run never happened", and
+  inferring clean from it is the same silence-as-authorization mistake this
+  section exists to prevent. That head has **no Codex verdict**: merge on the
+  local pre-push review + CI and log it as such. (A PR whose verdicts so far
+  were all reviews can still be cleared with a 👍 — the reaction is unused.)
 - **Do not** call `gh api ... requested_reviewers -X POST` for `Codex` or
   `Copilot` — the call fails with 422 for GitHub App bot accounts (not all
   `[bot]` users). Codex auto-triggers; Copilot is triggered via the

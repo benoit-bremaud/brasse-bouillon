@@ -120,7 +120,7 @@ modern, and offline-first.
 - Brewing assistant: Batch API + auth integration
 - Brewing assistant: Fermentation + reminders API
 - JWT integration tests (auth.protected.e2e-spec.ts — valid/invalid/expired/missing token)
-- Security: npm audit pipeline hardening (critical-only gate + tar override for sqlite3 chain)
+- Security: npm audit pipeline hardening (critical-only gate)
 - DB config alignment with migrations (typeorm.config.ts + data-source.ts synchronized)
 - CI: GitHub Actions build + test + lint:check
 - CI: Security audit job (production deps, critical-only)

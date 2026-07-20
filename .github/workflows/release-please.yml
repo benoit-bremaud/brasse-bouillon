@@ -15,6 +15,15 @@ permissions:
   contents: write
   pull-requests: write
 
+# Serialise runs. Two overlapping runs (rapid pushes to main, or a manual
+# dispatch racing a push) would both reach the lockfile-sync step and the
+# slower one's non-force push would be rejected as non-fast-forward — a loud
+# but pointless red run. `cancel-in-progress: false` because a run that is
+# already cutting tags must be allowed to finish.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release-please:
     name: Release Please
@@ -38,3 +47,86 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: main
+
+      # release-please bumps `packages/<pkg>/package.json` and the manifest but
+      # never the root `package-lock.json`: its node strategy looks for a
+      # lockfile *beside* each manifest, and this monorepo keeps a single one at
+      # the root, so the bump lands nowhere. `npm ci` then installs metadata one
+      # release behind the tag cut from it — which is what Codex flagged on
+      # #1425/#1426/#1427 and why they sat unmerged.
+      #
+      # release-please's own `node-workspace` plugin does update the root
+      # lockfile, but its `inScope()` is `releaseType === 'node'`, so it can
+      # never reach `packages/beer-encyclopedia` (release-type `python`). This
+      # step covers all four workspaces uniformly instead.
+      #
+      # Self-healing by design: a later release-please run rewrites its branches
+      # and drops the sync commit, but this step runs right after it every time,
+      # so the branch is back in step before anyone merges.
+      - name: Check out for the lockfile sync
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Sync the root lockfile on open release PR branches
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Double-gated on purpose, mirroring release-please-metadata.yml:
+          # the branch name alone is not trustworthy. `isCrossRepository`
+          # rejects a fork PR whose head branch merely matches the prefix —
+          # that ref does not exist on origin, so fetching it would fail and,
+          # under `set -e`, block the release workflow on every push to main
+          # until the PR was closed. The `autorelease: pending` marker then
+          # confirms release-please actually owns the branch.
+          # Every filter lives in --jq, and there is no `|| true`: piping into
+          # `grep` and swallowing the pipeline's status would mean a failing
+          # `gh` (expired token, API outage, rate limit) produced an empty list
+          # and a green "nothing to sync" run, while the lockfiles silently
+          # stayed stale. A real failure must fail the step.
+          branches=$(gh pr list --state open --limit 50 \
+            --json headRefName,isCrossRepository,labels \
+            --jq '.[]
+                  | select(.isCrossRepository == false)
+                  | select(any(.labels[]; .name == "autorelease: pending"))
+                  | select(.headRefName | startswith("release-please--branches--main--"))
+                  | .headRefName')
+
+          if [ -z "$branches" ]; then
+            echo "No open release PR — nothing to sync."
+            exit 0
+          fi
+
+          # Run main's copy of the script whatever the branch contains, so a
+          # branch generated before this landed is still handled.
+          cp scripts/sync-workspace-lockfile.mjs "$RUNNER_TEMP/sync.mjs"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Read line by line rather than word-splitting: branch names are
+          # remote-controlled input, and this keeps one name one iteration.
+          while IFS= read -r branch; do
+            [ -n "$branch" ] || continue
+            echo "::group::$branch"
+            git fetch --force origin "refs/heads/$branch:refs/heads/$branch"
+            git checkout "$branch"
+
+            node "$RUNNER_TEMP/sync.mjs"
+
+            if git diff --quiet -- package-lock.json; then
+              echo "already in step"
+            else
+              git add package-lock.json
+              git commit -m "chore(ci): sync root lockfile with released versions"
+              git push origin "refs/heads/$branch"
+            fi
+            echo "::endgroup::"
+          done <<< "$branches"

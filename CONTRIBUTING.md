@@ -81,15 +81,23 @@ Conventional scopes for this monorepo:
 
 | Scope                                                                                                                | Typical path touched            | Effect                                                                                                      |
 | -------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard`, `beer-catalog` | `packages/mobile-app/**`        | Bumps `mobile-app` (and `api` via lockstep group "app" if the commit also touches `packages/api/**`)        |
-| `api`                                                                                                                | `packages/api/**`               | Bumps `api` (and `mobile-app` via lockstep group "app" if the commit also touches `packages/mobile-app/**`) |
+| `mobile-app`, `scan`, `auth`, `recipes`, `batches`, `ingredients`, `labels`, `shop`, `tools`, `academy`, `dashboard`, `beer-catalog` | `packages/mobile-app/**`        | Bumps `mobile-app` independently                                                                            |
+| `api`                                                                                                                | `packages/api/**`               | Bumps `api` independently                                                                                   |
 | `website`                                                                                                            | `packages/website/**`           | Bumps `website` independently                                                                               |
 | `encyclopedia`                                                                                                       | `packages/beer-encyclopedia/**` | Bumps `encyclopedia` independently                                                                          |
 | `ydays`, `root`, `ci`, `monorepo`                                                                                    | anything outside `packages/**`  | No package bump — doc / infra commits only                                                                  |
 
-**Lockstep group "app"**: a single commit that touches files in both
-`packages/mobile-app` and `packages/api` will bump both packages to the
-same version under a linked release PR.
+**No lockstep**: every package versions on its own. A commit touching
+both `packages/mobile-app` and `packages/api` opens two release PRs, one
+per package, and their version numbers may diverge over time.
+
+The `linked-versions` group that used to bind `mobile-app` and `api` was
+removed on 2026-07-20: the plugin hardcodes a group PR title carrying no
+version (`linked-versions.ts:182`), so release-please could not parse a
+version back after merge and silently stopped tagging app releases from
+April onwards — three releases were lost that way. Nothing required the
+two packages to share a version: neither depends on the other, and both
+are private.
 
 Bump semantics (release-please computes automatically):
 
@@ -114,14 +122,17 @@ defined in `.github/workflows/release-please.yml` with the config
 in `release-please-config.json` and manifest in
 `.release-please-manifest.json`.
 
-### Monorepo grouping (hybrid)
+### Monorepo versioning (all packages independent)
 
-- **Group "app"** (lockstep): `packages/mobile-app` + `packages/api`
-  share a single `vX.Y.Z`. A commit touching either package bumps
-  both together, tag format `mobile-app-vX.Y.Z` + `api-vX.Y.Z`.
-- **Independent**: `packages/website` (tag `website-vX.Y.Z`),
-  `packages/beer-encyclopedia` (tag `encyclopedia-vX.Y.Z`). Each
-  evolves at its own rhythm.
+Every package versions and tags on its own rhythm, one release PR each:
+
+- `packages/mobile-app` → tag `mobile-app-vX.Y.Z`
+- `packages/api` → tag `api-vX.Y.Z`
+- `packages/website` → tag `website-vX.Y.Z`
+- `packages/beer-encyclopedia` → tag `encyclopedia-vX.Y.Z`
+
+`mobile-app` and `api` were grouped in lockstep until 2026-07-20; see
+the "No lockstep" note above for why that group was removed.
 
 ### Day-to-day flow
 
@@ -204,7 +215,8 @@ triptych as a regular PR:
   - `*--components--website` → `scope:website`
   - `*--components--mobile-app` → `scope:frontend`
   - `*--components--api` → `scope:backend`
-  - `*--groups--app` (lockstep) → `scope:monorepo`
+  - `*--groups--app` → `scope:monorepo` (legacy; the "app" group was
+    removed on 2026-07-20, so no new branch matches this)
 - **Project** — Brasse-Bouillon (`PVT_kwHOB8rwIc4AuVew`). Projects v2
   is user-scoped and cannot be reached from the default `GITHUB_TOKEN`
   at all. A PAT with the `project` scope (classic PAT) or Projects

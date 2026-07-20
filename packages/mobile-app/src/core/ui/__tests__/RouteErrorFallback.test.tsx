@@ -10,7 +10,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { RouteErrorFallback } from "@/core/ui/RouteErrorFallback";
 
 describe("RouteErrorFallback", () => {
-  it("happy: shows the error message so the failure is reportable", () => {
+  it("happy: pairs French guidance with the raw detail, so it is both usable and reportable", () => {
     render(
       <RouteErrorFallback
         error={new Error("undefined is not a function")}
@@ -18,8 +18,11 @@ describe("RouteErrorFallback", () => {
       />,
     );
 
-    expect(screen.getByText("undefined is not a function")).toBeTruthy();
     expect(screen.getByText("Une erreur est survenue")).toBeTruthy();
+    expect(screen.getByText(/Cet écran n’a pas pu s’afficher/)).toBeTruthy();
+    // The raw message is what makes a crash diagnosable — dropping it would
+    // reproduce the silent failure this component exists to prevent.
+    expect(screen.getByText("undefined is not a function")).toBeTruthy();
   });
 
   it("happy: pressing Réessayer re-mounts the subtree via retry", () => {
@@ -31,12 +34,14 @@ describe("RouteErrorFallback", () => {
     expect(retry).toHaveBeenCalledTimes(1);
   });
 
-  it("edge: an error with an empty message still renders a titled screen, never a blank one", () => {
+  it("edge: an error with an empty message still renders a usable screen, never a blank one", () => {
     render(<RouteErrorFallback error={new Error("")} retry={jest.fn()} />);
 
     // The point of the boundary is that the user is never left staring at
-    // nothing — the title and the recovery action carry the screen on their own.
+    // nothing — the guidance and the recovery action carry the screen on their
+    // own when there is no technical detail worth showing.
     expect(screen.getByText("Une erreur est survenue")).toBeTruthy();
+    expect(screen.getByText(/Cet écran n’a pas pu s’afficher/)).toBeTruthy();
     expect(screen.getByText("Réessayer")).toBeTruthy();
   });
 });

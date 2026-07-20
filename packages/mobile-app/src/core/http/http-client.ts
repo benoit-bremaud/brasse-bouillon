@@ -109,6 +109,7 @@ export async function request<T>(
   }
 
   let response: Response;
+  let payload: unknown;
   try {
     response = await fetch(url, {
       method,
@@ -116,11 +117,22 @@ export async function request<T>(
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });
+    // Body parsing stays inside the timed window on purpose. `fetch` resolves
+    // as soon as the headers land, so a server that sends headers and then
+    // stalls mid-body would otherwise slip past the ceiling and hang the
+    // caller anyway — the exact failure this timeout exists to prevent.
+    // Aborting the controller tears down the body stream too, so a stuck
+    // `response.text()` rejects rather than waiting forever.
+    payload = await parseBody(response);
   } catch (error) {
-    // An abort surfaces as a generic `AbortError` whichever side triggered it;
-    // the flag is what separates "we gave up waiting" from "the caller
-    // cancelled", and only the former is a failure worth reporting.
-    if (timedOut) {
+    // Two conditions, both required. `timedOut` says our timer fired; the
+    // `AbortError` check says this particular rejection is the abort that timer
+    // caused. On the flag alone, a genuine transport failure landing in the
+    // same tick as the timeout would be relabelled "we gave up waiting" and its
+    // real cause silently dropped — so the error reported must never be a
+    // timeout we merely assumed.
+    const isAbort = error instanceof Error && error.name === "AbortError";
+    if (timedOut && isAbort) {
       throw new HttpTimeoutError(timeoutMs);
     }
     throw error;
@@ -128,8 +140,6 @@ export async function request<T>(
     clearTimeout(timeoutId);
     signal?.removeEventListener("abort", abortFromCaller);
   }
-
-  const payload = await parseBody(response);
 
   if (!response.ok) {
     // A 401 on an *authenticated* request means the token expired or was

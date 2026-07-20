@@ -85,6 +85,32 @@ describe("http-client / request — timeout", () => {
     await assertion;
   });
 
+  it("sad: a response whose body stalls after the headers still hits the timeout", async () => {
+    // `fetch` resolves as soon as the headers arrive, so a server that then
+    // stalls mid-body would escape a ceiling that stopped at the fetch call.
+    fetchMock.mockImplementation(((_url: string, init?: RequestInit) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        text: () =>
+          new Promise<string>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () => {
+              const abortError = new Error("Aborted");
+              abortError.name = "AbortError";
+              reject(abortError);
+            });
+          }),
+      } as unknown as Response)) as unknown as typeof fetch);
+
+    const pending = request("/stalled-body");
+    const assertion = expect(pending).rejects.toBeInstanceOf(HttpTimeoutError);
+
+    await jest.advanceTimersByTimeAsync(20_000);
+
+    await assertion;
+  });
+
   it("sad: the timeout error carries the budget it exceeded", async () => {
     fetchMock.mockImplementation(
       buildNeverResolvingFetch() as unknown as typeof fetch,
@@ -135,6 +161,27 @@ describe("http-client / request — timeout", () => {
       expect(pending).rejects.not.toBeInstanceOf(HttpTimeoutError);
 
     controller.abort();
+
+    await assertion;
+  });
+
+  it("edge: a non-abort failure landing as the timer fires keeps its real cause", async () => {
+    // Guards the timeout classification: our timer firing is not on its own
+    // proof that the rejection came from it. A transport failure surfacing in
+    // the same tick must not be relabelled a timeout, or its cause is lost.
+    fetchMock.mockImplementation(
+      ((_url: string, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new TypeError("Network request failed"));
+          });
+        })) as unknown as typeof fetch,
+    );
+
+    const pending = request("/transport-failure");
+    const assertion = expect(pending).rejects.toThrow("Network request failed");
+
+    await jest.advanceTimersByTimeAsync(20_000);
 
     await assertion;
   });

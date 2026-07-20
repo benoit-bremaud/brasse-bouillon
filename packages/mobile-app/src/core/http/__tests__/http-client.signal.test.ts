@@ -99,13 +99,25 @@ describe("http-client / request — caller cancellation", () => {
     expect(forwarded.aborted).toBe(false);
   });
 
-  it("edge: a caller signal that is already aborted cancels the request immediately", async () => {
-    fetchMock.mockResolvedValueOnce(buildOkResponse());
+  it("edge: a caller signal that is already aborted rejects instead of hitting the network", async () => {
+    // The mock honours `signal.aborted` the way the platform does — resolving
+    // unconditionally here would let the request "succeed" while the assertion
+    // only inspected the signal, proving nothing about the caller's outcome.
+    fetchMock.mockImplementation(((_url: string, init?: RequestInit) => {
+      if (init?.signal?.aborted) {
+        const abortError = new Error("Aborted");
+        abortError.name = "AbortError";
+        return Promise.reject(abortError);
+      }
+      return Promise.resolve(buildOkResponse());
+    }) as unknown as typeof fetch);
+
     const controller = new AbortController();
     controller.abort();
 
-    await request("/p", { signal: controller.signal });
-
+    await expect(request("/p", { signal: controller.signal })).rejects.toThrow(
+      "Aborted",
+    );
     expect(signalGivenToFetch().aborted).toBe(true);
   });
 

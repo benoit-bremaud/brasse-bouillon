@@ -1,11 +1,22 @@
 import { brandHeader, colors, spacing, typography } from "@/core/theme";
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, type ErrorBoundaryProps } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { BrandLogo } from "@/core/ui/BrandLogo";
 import { NavigationFooter } from "@/core/ui/NavigationFooter";
+import { RouteErrorFallback } from "@/core/ui/RouteErrorFallback";
 import { Ionicons } from "@expo/vector-icons";
+
+/**
+ * Boundary for the authenticated shell. Duplicated from the root layout on
+ * purpose: catching here keeps the failure scoped to the tab subtree instead
+ * of tearing down `AuthProvider` with it, so `retry` re-mounts the screen
+ * without dropping the session.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return <RouteErrorFallback error={error} retry={retry} />;
+}
 
 export default function AppLayout() {
   const { session, isLoading } = useAuth();

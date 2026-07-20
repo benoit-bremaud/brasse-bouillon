@@ -1,7 +1,21 @@
 import { authSession } from "@/core/auth/session";
 import { env } from "@/core/config/env";
 
-import { HttpError } from "./http-error";
+import { HttpError, HttpTimeoutError } from "./http-error";
+
+/**
+ * Per-request ceiling. `fetch` has no built-in timeout, so without one a hung
+ * connection leaves the caller awaiting forever — the UI sits on a spinner with
+ * no way out. Sized well above the API's cold start: the Fly.io machine scales
+ * to zero and takes ~9-10s to answer the first request, so a tighter budget
+ * would abort legitimate wake-ups.
+ *
+ * Implemented with a plain `AbortController` + `setTimeout` rather than
+ * `AbortSignal.timeout()`: React Native polyfills `AbortController` from the
+ * `abort-controller` package (see `setUpXHR.js`), which ships neither the
+ * `timeout` nor the `any` static — both are `undefined` under Hermes.
+ */
+const DEFAULT_TIMEOUT_MS = 20_000;
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -20,6 +34,11 @@ type RequestOptions = {
    * a queryKey change only discards the stale result client-side.
    */
   signal?: AbortSignal;
+  /**
+   * Override the default timeout for this call. Use a longer budget for
+   * known-slow endpoints rather than removing the ceiling.
+   */
+  timeoutMs?: number;
 };
 
 async function parseBody(response: Response) {
@@ -48,6 +67,7 @@ export async function request<T>(
     headers = {},
     baseUrl,
     signal,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
   }: RequestOptions = {},
 ): Promise<T> {
   const resolvedBase = baseUrl ?? env.apiUrl;
@@ -68,14 +88,58 @@ export async function request<T>(
     }
   }
 
-  const response = await fetch(url, {
-    method,
-    headers: mergedHeaders,
-    body: body ? JSON.stringify(body) : undefined,
-    signal,
-  });
+  // Own controller so the timeout can abort the request. The caller's signal
+  // is chained onto it rather than passed straight to `fetch`, because `fetch`
+  // accepts a single signal and both sources must be able to cancel.
+  // `AbortSignal.any()` would express this natively but is undefined in Hermes.
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
 
-  const payload = await parseBody(response);
+  const abortFromCaller = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) {
+      controller.abort();
+    } else {
+      signal.addEventListener("abort", abortFromCaller);
+    }
+  }
+
+  let response: Response;
+  let payload: unknown;
+  try {
+    response = await fetch(url, {
+      method,
+      headers: mergedHeaders,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+    // Body parsing stays inside the timed window on purpose. `fetch` resolves
+    // as soon as the headers land, so a server that sends headers and then
+    // stalls mid-body would otherwise slip past the ceiling and hang the
+    // caller anyway — the exact failure this timeout exists to prevent.
+    // Aborting the controller tears down the body stream too, so a stuck
+    // `response.text()` rejects rather than waiting forever.
+    payload = await parseBody(response);
+  } catch (error) {
+    // Two conditions, both required. `timedOut` says our timer fired; the
+    // `AbortError` check says this particular rejection is the abort that timer
+    // caused. On the flag alone, a genuine transport failure landing in the
+    // same tick as the timeout would be relabelled "we gave up waiting" and its
+    // real cause silently dropped — so the error reported must never be a
+    // timeout we merely assumed.
+    const isAbort = error instanceof Error && error.name === "AbortError";
+    if (timedOut && isAbort) {
+      throw new HttpTimeoutError(timeoutMs);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener("abort", abortFromCaller);
+  }
 
   if (!response.ok) {
     // A 401 on an *authenticated* request means the token expired or was

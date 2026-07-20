@@ -1,7 +1,21 @@
 import { authSession } from "@/core/auth/session";
 import { env } from "@/core/config/env";
 
-import { HttpError } from "./http-error";
+import { HttpError, HttpTimeoutError } from "./http-error";
+
+/**
+ * Per-request ceiling. `fetch` has no built-in timeout, so without one a hung
+ * connection leaves the caller awaiting forever — the UI sits on a spinner with
+ * no way out. Sized well above the API's cold start: the Fly.io machine scales
+ * to zero and takes ~9-10s to answer the first request, so a tighter budget
+ * would abort legitimate wake-ups.
+ *
+ * Implemented with a plain `AbortController` + `setTimeout` rather than
+ * `AbortSignal.timeout()`: React Native polyfills `AbortController` from the
+ * `abort-controller` package (see `setUpXHR.js`), which ships neither the
+ * `timeout` nor the `any` static — both are `undefined` under Hermes.
+ */
+const DEFAULT_TIMEOUT_MS = 20_000;
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -20,6 +34,11 @@ type RequestOptions = {
    * a queryKey change only discards the stale result client-side.
    */
   signal?: AbortSignal;
+  /**
+   * Override the default timeout for this call. Use a longer budget for
+   * known-slow endpoints rather than removing the ceiling.
+   */
+  timeoutMs?: number;
 };
 
 async function parseBody(response: Response) {
@@ -48,6 +67,7 @@ export async function request<T>(
     headers = {},
     baseUrl,
     signal,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
   }: RequestOptions = {},
 ): Promise<T> {
   const resolvedBase = baseUrl ?? env.apiUrl;
@@ -68,12 +88,46 @@ export async function request<T>(
     }
   }
 
-  const response = await fetch(url, {
-    method,
-    headers: mergedHeaders,
-    body: body ? JSON.stringify(body) : undefined,
-    signal,
-  });
+  // Own controller so the timeout can abort the request. The caller's signal
+  // is chained onto it rather than passed straight to `fetch`, because `fetch`
+  // accepts a single signal and both sources must be able to cancel.
+  // `AbortSignal.any()` would express this natively but is undefined in Hermes.
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  const abortFromCaller = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) {
+      controller.abort();
+    } else {
+      signal.addEventListener("abort", abortFromCaller);
+    }
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method,
+      headers: mergedHeaders,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    // An abort surfaces as a generic `AbortError` whichever side triggered it;
+    // the flag is what separates "we gave up waiting" from "the caller
+    // cancelled", and only the former is a failure worth reporting.
+    if (timedOut) {
+      throw new HttpTimeoutError(timeoutMs);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener("abort", abortFromCaller);
+  }
 
   const payload = await parseBody(response);
 

@@ -36,7 +36,7 @@ describe('RecipeMatchingService (matcher v2, ADR-0016)', () => {
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
-          type: 'sqlite',
+          type: 'better-sqlite3',
           database: ':memory:',
           entities: [
             RecipeOrmEntity,

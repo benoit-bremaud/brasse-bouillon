@@ -30,7 +30,7 @@ describe('MashCatalogService', () => {
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
-          type: 'sqlite',
+          type: 'better-sqlite3',
           database: ':memory:',
           entities: [MashProfileOrmEntity, MashStepOrmEntity],
           synchronize: true,

@@ -29,7 +29,7 @@ describe('StyleCatalogService', () => {
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
-          type: 'sqlite',
+          type: 'better-sqlite3',
           database: ':memory:',
           entities: [StyleOrmEntity],
           synchronize: true,

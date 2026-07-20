@@ -101,12 +101,15 @@ Pulled from the global anti-pattern list and from the brasse-bouillon memory rul
 After writing the entry, run a quick sanity scan:
 
 ```bash
-# All merge SHAs in the log resolve to commits on main
-grep -oE '\([0-9a-f]{7}\)' PROJECT_LOG.md | tr -d '()' | sort -u | while read -r sha; do
+# All merge SHAs in the log resolve to commits on main.
+# The backticks in the pattern are load-bearing: entries write the SHA as
+# (`abc1234`), so a pattern without them matches nothing and the scan is a
+# silent no-op that always looks clean.
+grep -oE '\(`[0-9a-f]{7}`\)' PROJECT_LOG.md | tr -d '()`' | sort -u | while read -r sha; do
     git cat-file -e "$sha^{commit}" 2>/dev/null || echo "STALE: $sha"
 done | head -20
 ```
 
-A clean run prints nothing; any `STALE:` line points at an entry that references a SHA that no longer exists on `main` (likely a force-push or branch rewrite — investigate).
+A clean run prints nothing; any `STALE:` line points at an entry that references a SHA that no longer exists on `main`. Two causes to tell apart before investigating: a force-push or branch rewrite (a real problem), or a **feature-branch commit** cited alongside the merge SHA in a `Branch ..., N commits (...)` bullet — those are squashed away at merge and never exist on `main`, so they are expected noise on a whole-file scan. Scope the scan to the diff (`git diff origin/main -- PROJECT_LOG.md | grep '^+'`) to check only the entry being added.
 
 For broader retroactive audits (gaps, drift, orphans), see the audit procedure in the global `project-log-discipline` skill (invoke by name; user-scoped at `~/.claude/skills/project-log-discipline/SKILL.md`).

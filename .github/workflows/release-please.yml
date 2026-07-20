@@ -86,13 +86,18 @@ jobs:
           # under `set -e`, block the release workflow on every push to main
           # until the PR was closed. The `autorelease: pending` marker then
           # confirms release-please actually owns the branch.
+          # Every filter lives in --jq, and there is no `|| true`: piping into
+          # `grep` and swallowing the pipeline's status would mean a failing
+          # `gh` (expired token, API outage, rate limit) produced an empty list
+          # and a green "nothing to sync" run, while the lockfiles silently
+          # stayed stale. A real failure must fail the step.
           branches=$(gh pr list --state open --limit 50 \
             --json headRefName,isCrossRepository,labels \
             --jq '.[]
                   | select(.isCrossRepository == false)
                   | select(any(.labels[]; .name == "autorelease: pending"))
-                  | .headRefName' \
-            | grep '^release-please--branches--main--' || true)
+                  | select(.headRefName | startswith("release-please--branches--main--"))
+                  | .headRefName')
 
           if [ -z "$branches" ]; then
             echo "No open release PR — nothing to sync."

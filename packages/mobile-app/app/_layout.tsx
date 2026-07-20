@@ -7,9 +7,21 @@ import { FooterVisibilityProvider } from "@/core/ui/footer-visibility-context";
 import { SnackbarProvider } from "@/core/ui/snackbar-provider";
 import { StickyCtaClearanceProvider } from "@/core/ui/sticky-cta-clearance";
 import { QueryProvider } from "@/core/query/query-provider";
+import { RouteErrorFallback } from "@/core/ui/RouteErrorFallback";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
+import { Stack, type ErrorBoundaryProps } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+
+/**
+ * Root render-error boundary. expo-router wraps a route in `<Try>` only when
+ * its module exports `ErrorBoundary` — there is no implicit fallback on the
+ * native path, so without this export any render throw kills the process in a
+ * release build (no redbox), leaving the user with a black screen and us with
+ * no stack. Catches everything the `(app)` boundary below does not.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return <RouteErrorFallback error={error} retry={retry} />;
+}
 
 function AppShell() {
   const { session } = useAuth();

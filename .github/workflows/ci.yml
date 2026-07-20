@@ -33,6 +33,12 @@ jobs:
   # ============================================================================
   changes:
     runs-on: ubuntu-latest
+    # Observed max 0.21 min. Budgets across this file are deliberately loose:
+    # the point is to turn a hung runner into a fast, legible failure instead
+    # of letting it sit on the 360-minute Actions default, not to police
+    # runtime. A job cancelled on a slow-runner day is noise that erodes trust
+    # in CI, so every value keeps a wide margin over what we actually measure.
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: read
@@ -63,6 +69,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.mobile-app == 'true'
     runs-on: ubuntu-latest
+    # Observed max 2.29 min.
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: packages/mobile-app
@@ -100,6 +108,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    # Observed max 2.23 min.
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: packages/api
@@ -143,6 +153,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.website == 'true'
     runs-on: ubuntu-latest
+    # Observed max 0.18 min.
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: packages/website
@@ -198,6 +210,15 @@ jobs:
     needs: changes
     if: needs.changes.outputs.beer-encyclopedia == 'true'
     runs-on: ubuntu-latest
+    # Observed max 1.95 min — but budgeted higher than the npm jobs on purpose,
+    # not aligned with them. This is the one job with no dependency cache:
+    # `setup-python` here has no `cache: pip` (unlike `cache: npm` on mobile-app
+    # and api), so `pip install -e ".[ml,dev]"` refetches ultralytics, easyocr
+    # and opencv-python — and PyTorch transitively — from PyPI on every run.
+    # That install step alone is the bulk of the job and swings widely on
+    # registry conditions, so a slow PyPI day or a missing manylinux wheel
+    # (forcing a source build) is a realistic way to overrun a tighter budget.
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/beer-encyclopedia
@@ -240,6 +261,18 @@ jobs:
   # ============================================================================
   security-audit:
     runs-on: ubuntu-latest
+    # Observed max 0.40 min, but `npm audit` reaches the registry over the
+    # network, which is the kind of step that hangs rather than fails — hence a
+    # 25x margin rather than a tight one.
+    #
+    # Behaviour change worth naming: this job is deliberately unfailable today
+    # (`npm audit ... || true` plus `continue-on-error: true`), so findings
+    # never turn CI red. A `timeout-minutes` cancellation is NOT swallowed by
+    # `continue-on-error`, so a registry hang can now fail this job for the
+    # first time. That is the intended trade — a job stuck for six hours is
+    # worse than an occasional red on a hung network call — but it is a real
+    # change, not a no-op.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 

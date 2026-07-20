@@ -7,6 +7,16 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-20
 
+### PR #1504 merged (`4b30bbe`) — ci(ci): bound every CI job with an explicit timeout-minutes
+
+- Branch `chore/ci-job-timeouts`, 1 commit. Budgets: `changes` 5, `website` 10, `security-audit` 10, `mobile-app` 15, `api` 15, `beer-encyclopedia` 20.
+- Reviews — Codex closed with 👍, no findings. CI green.
+- **Decisions**:
+  - `loose-budgets-on-purpose` — values sit well above observed maxima (0.18-2.29 min). The goal is turning a hung runner into a fast, legible failure instead of a six-hour sit on the 360-minute default, not policing runtime; a job cancelled on a slow-runner day is noise that erodes trust in CI.
+  - `encyclopedia-budgeted-higher` — 20 minutes rather than the npm jobs' 15, because it is the only job with no dependency cache (`setup-python` without `cache: pip`), so it refetches ultralytics, easyocr, opencv-python and PyTorch from PyPI on every run; a slow registry day or a missing manylinux wheel is a realistic overrun.
+  - `timeout-survives-continue-on-error` — `security-audit` is deliberately unfailable today (`|| true` plus `continue-on-error: true`), but a `timeout-minutes` cancellation is not swallowed by `continue-on-error`. A registry hang can now redden that job for the first time; recorded as the intended trade, not a no-op.
+- Follow-up #1503 covers the nine workflows outside `ci.yml`, still unbounded.
+
 ### Tags `mobile-app-v0.1.14-alpha1` + `api-v0.1.14-alpha1` shipped (`5099dda`)
 
 - Release PR #1427 merged into the tags, created manually because `linked-versions` made automatic tagging structurally impossible (see #1496).

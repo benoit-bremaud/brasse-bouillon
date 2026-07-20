@@ -212,6 +212,26 @@ function mapPythonBeerToCatalogItem(
  * - HttpError 503 — OFF transport / payload / seed-state failure
  * - HttpError 4xx/5xx — other unexpected backend conditions
  */
+/**
+ * Budget for the encyclopedia import, well above the shared default.
+ *
+ * This call is not one round trip: on a cold-cache miss the encyclopedia wakes
+ * its Fly machine (~9-10s, scale-to-zero) and then gives its own OpenFoodFacts
+ * lookup 10s (`packages/beer-encyclopedia/importers/openfoodfacts.py`
+ * `DEFAULT_TIMEOUT_SECONDS`) before answering 503.
+ *
+ * That 503 is load-bearing: `lookupBeerByBarcode` reads it (and 404) to fall
+ * back to the legacy NestJS lookup, which may still hold a `scan_catalog` row
+ * not yet migrated. Cutting the client off before the backend can answer would
+ * not merely slow the scan down — `HttpTimeoutError` is deliberately not an
+ * `HttpError`, so it misses that fallback branch entirely and a beer the legacy
+ * table still knows would be reported as unrecognised.
+ *
+ * Sized to clear the worst realistic backend path (~10s wake + 10s OFF +
+ * overhead) with room to spare.
+ */
+const ENCYCLOPEDIA_IMPORT_TIMEOUT_MS = 45_000;
+
 export async function importBeerByEan(ean: string): Promise<ScanLookupResult> {
   // Codex P1 #871: when the env var is absent, the bundle would fall
   // back to `http://localhost:8000` — meaningful only on a host that
@@ -232,6 +252,7 @@ export async function importBeerByEan(ean: string): Promise<ScanLookupResult> {
     body: { ean },
     auth: false, // Python backend is currently unauthenticated.
     baseUrl: env.encyclopediaUrl,
+    timeoutMs: ENCYCLOPEDIA_IMPORT_TIMEOUT_MS,
   });
   const item = mapPythonBeerToCatalogItem(dto, ean);
   return {

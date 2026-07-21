@@ -101,15 +101,22 @@ Pulled from the global anti-pattern list and from the brasse-bouillon memory rul
 After writing the entry, run a quick sanity scan:
 
 ```bash
-# All merge SHAs in the log resolve to commits on main.
-# The backticks in the pattern are load-bearing: entries write the SHA as
-# (`abc1234`), so a pattern without them matches nothing and the scan is a
-# silent no-op that always looks clean.
-grep -oE '\(`[0-9a-f]{7}`\)' PROJECT_LOG.md | tr -d '()`' | sort -u | while read -r sha; do
+# Every SHA a heading claims is on main must resolve there.
+# Two things make this scan correct rather than a silent no-op:
+#   1. The backticks are load-bearing — entries write the SHA as (`abc1234`),
+#      so a pattern without them matches nothing and always looks clean.
+#   2. Only *heading* lines assert "this SHA is on main" (### PR ... merged,
+#      ### Tag(s) ... shipped, ### Admin bypass commit ...). The `Branch ...,
+#      N commits (...)` bullets cite feature-branch SHAs that are squashed away
+#      at merge and never exist on main — scanning the whole file reports them
+#      as false STALE: lines and trains readers to ignore the check. So filter
+#      to heading lines before extracting.
+grep -E '^### (PR #|Tags? |Admin bypass)' PROJECT_LOG.md \
+  | grep -oE '`[0-9a-f]{7}`' | tr -d '`' | sort -u | while read -r sha; do
     git cat-file -e "$sha^{commit}" 2>/dev/null || echo "STALE: $sha"
 done | head -20
 ```
 
-A clean run prints nothing; any `STALE:` line points at an entry that references a SHA that no longer exists on `main`. Two causes to tell apart before investigating: a force-push or branch rewrite (a real problem), or a **feature-branch commit** cited alongside the merge SHA in a `Branch ..., N commits (...)` bullet — those are squashed away at merge and never exist on `main`, so they are expected noise on a whole-file scan. Scope the scan to the diff (`git diff origin/main -- PROJECT_LOG.md | grep '^+'`) to check only the entry being added.
+A clean run prints nothing; any `STALE:` line points at a heading whose SHA no longer exists on `main` — a real problem (force-push or branch rewrite), since heading SHAs are merge/tag/admin commits that must be present. When verifying just the entry you added, scope to the diff instead: `git diff origin/main -- PROJECT_LOG.md | grep '^+### '` then extract the same way.
 
 For broader retroactive audits (gaps, drift, orphans), see the audit procedure in the global `project-log-discipline` skill (invoke by name; user-scoped at `~/.claude/skills/project-log-discipline/SKILL.md`).

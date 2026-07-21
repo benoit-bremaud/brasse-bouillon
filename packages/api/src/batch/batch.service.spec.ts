@@ -15,6 +15,7 @@ import { BatchService } from './services/batch.service';
 import { BatchStatus } from './domain/enums/batch-status.enum';
 import { BatchStepOrmEntity } from './entities/batch-step.orm.entity';
 import { BatchStepStatus } from './domain/enums/batch-step-status.enum';
+import { RecipeStepType } from '../recipe/domain/enums/recipe-step-type.enum';
 import { MeasurementOrmEntity } from './entities/measurement.orm.entity';
 import { MeasurementType } from './domain/enums/measurement-type.enum';
 import { ObservationOrmEntity } from './entities/observation.orm.entity';
@@ -200,6 +201,46 @@ describe('BatchService', () => {
     expect(reloaded[0].planned_duration_min).toBe(60);
     expect(reloaded[3].pedagogical_tip).toBeTruthy();
     expect(reloaded[3].planned_duration_min).toBeNull();
+  });
+
+  it("startMine() uses the recipe's boil time for the BOIL step's planned duration", async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'Long-boil IPA',
+      boil_time_min: 90,
+    });
+
+    const { steps } = await batchService.startMine(ownerId, recipe.id);
+    const boilStep = steps.find((step) => step.type === RecipeStepType.BOIL);
+
+    // Real recipe boil time (90), not the generic step-guidance default (60).
+    expect(boilStep?.planned_duration_min).toBe(90);
+  });
+
+  it('startMine() falls back to the guidance default when the recipe has no boil time', async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'No-boil-time',
+    });
+
+    const { steps } = await batchService.startMine(ownerId, recipe.id);
+    const boilStep = steps.find((step) => step.type === RecipeStepType.BOIL);
+
+    expect(boilStep?.planned_duration_min).toBe(60);
+  });
+
+  it("launchMine() also uses the recipe's boil time on the launched BOIL step", async () => {
+    const ownerId = 'user-1';
+    const recipe = await recipeService.create(ownerId, {
+      name: 'Draft long-boil',
+      boil_time_min: 90,
+    });
+    const { batch: draft } = await batchService.prepareMine(ownerId, recipe.id);
+
+    const { steps } = await batchService.launchMine(ownerId, draft.id);
+    const boilStep = steps.find((step) => step.type === RecipeStepType.BOIL);
+
+    expect(boilStep?.planned_duration_min).toBe(90);
   });
 
   it('getMineById() should enforce ownership', async () => {

@@ -1,4 +1,5 @@
 import { RecipeStep } from '../../../recipe/domain/entities/recipe-step.entity';
+import { RecipeStepType } from '../../../recipe/domain/enums/recipe-step-type.enum';
 
 import { BatchStatus } from '../enums/batch-status.enum';
 import { BatchStepStatus } from '../enums/batch-step-status.enum';
@@ -11,6 +12,12 @@ export interface StartBatchInput {
   ownerId: UserId;
   recipeId: RecipeId;
   steps: ReadonlyArray<RecipeStep>;
+  /**
+   * The recipe's boil time (minutes), used as the BOIL step's real planned
+   * duration instead of the generic step-guidance default. Null/absent → the
+   * default stands.
+   */
+  boilTimeMin?: number | null;
 }
 
 export interface PrepareBatchInput {
@@ -68,7 +75,11 @@ export class BatchDomainService {
    * `launchedAt` (the draft → in_progress transition of brew-day/07). The
    * first step opens in PRÉP (no step `startedAt`) per brew-day/06.
    */
-  launchBatch(batch: Batch, recipeSteps: ReadonlyArray<RecipeStep>): Batch {
+  launchBatch(
+    batch: Batch,
+    recipeSteps: ReadonlyArray<RecipeStep>,
+    boilTimeMin?: number | null,
+  ): Batch {
     if (batch.launchedAt !== undefined) {
       throw new Error('Batch already launched');
     }
@@ -80,7 +91,7 @@ export class BatchDomainService {
       ...batch,
       status: BatchStatus.IN_PROGRESS,
       currentStepOrder: 0,
-      steps: this.snapshotSteps(recipeSteps),
+      steps: this.snapshotSteps(recipeSteps, boilTimeMin),
       updatedAt: now,
       startedAt: now,
       launchedAt: now,
@@ -89,7 +100,11 @@ export class BatchDomainService {
 
   /** Prepare + launch in one shot — the direct POST /batches path. */
   startBatch(input: StartBatchInput): Batch {
-    return this.launchBatch(this.prepareBatch(input), input.steps);
+    return this.launchBatch(
+      this.prepareBatch(input),
+      input.steps,
+      input.boilTimeMin,
+    );
   }
 
   /**
@@ -97,11 +112,20 @@ export class BatchDomainService {
    * step starts pending except step 0, which opens as the current step in the
    * PRÉP phase (no `startedAt` until the brewer activates it — F1).
    */
-  private snapshotSteps(recipeSteps: ReadonlyArray<RecipeStep>): BatchStep[] {
+  private snapshotSteps(
+    recipeSteps: ReadonlyArray<RecipeStep>,
+    boilTimeMin?: number | null,
+  ): BatchStep[] {
     const sortedSteps = [...recipeSteps].sort((a, b) => a.order - b.order);
     return sortedSteps.map((step) => {
       const isFirst = step.order === 0;
       const guidance = getStepGuidance(step.type);
+      // The BOIL step gets the recipe's real boil time when it carries one
+      // (a positive value); otherwise the generic step-guidance default stands.
+      const plannedDurationMin =
+        step.type === RecipeStepType.BOIL && boilTimeMin && boilTimeMin > 0
+          ? boilTimeMin
+          : (guidance?.plannedDurationMin ?? undefined);
       return {
         order: step.order,
         type: step.type,
@@ -111,7 +135,7 @@ export class BatchDomainService {
         startedAt: undefined,
         completedAt: undefined,
         pedagogicalTip: guidance?.pedagogicalTip,
-        plannedDurationMin: guidance?.plannedDurationMin ?? undefined,
+        plannedDurationMin,
         // An empty list (e.g. PACKAGING — the B3 bottling gate covers it)
         // stays undefined so the column persists null and mobile renders no
         // empty PRÉP block.

@@ -152,6 +152,39 @@ function toConsentDecisions(settings: ScanConsentSettings): ConsentDecision[] {
   ];
 }
 
+/**
+ * Resolves the effective "use my data to train AI models" consent from the
+ * two training axes. ADR-0003 makes consent a single source of truth where
+ * the most recent decision wins across axes — so a newer opt-out on either
+ * `scan.training` or `ml.training` must revoke an older opt-in on the other,
+ * and vice versa. Reading a single axis would silently ignore a decision
+ * recorded from another surface (e.g. a profile-level AI-training toggle).
+ */
+function canUseForTraining(
+  latestByAxis: Map<ConsentDecision["axis"], ConsentDecision>,
+): boolean {
+  const trainingAxes: ConsentDecision["axis"][] = [
+    "scan.training",
+    "ml.training",
+  ];
+
+  let winner: ConsentDecision | null = null;
+  for (const axis of trainingAxes) {
+    const decision = latestByAxis.get(axis);
+    if (!decision) {
+      continue;
+    }
+    if (
+      !winner ||
+      Date.parse(decision.decidedAt) >= Date.parse(winner.decidedAt)
+    ) {
+      winner = decision;
+    }
+  }
+
+  return winner?.value ?? false;
+}
+
 function fromConsentDecisions(
   decisions: ConsentDecision[],
 ): ScanConsentSettings | null {
@@ -189,8 +222,7 @@ function fromConsentDecisions(
       storeBarcodeValue: latestByAxis.get("scan.barcode")?.value ?? false,
       storeBottlePhotos: latestByAxis.get("scan.photos")?.value ?? false,
       storeScanMetadata: latestByAxis.get("scan.metadata")?.value ?? false,
-      useDataForModelTraining:
-        latestByAxis.get("scan.training")?.value ?? false,
+      useDataForModelTraining: canUseForTraining(latestByAxis),
     },
   };
 }

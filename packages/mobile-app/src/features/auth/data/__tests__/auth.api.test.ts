@@ -1,7 +1,6 @@
 import {
   cancelCurrentUserDeletion,
   changeCurrentUserPassword,
-  deleteCurrentUser,
   getCurrentUser,
   requestPasswordReset,
   requestCurrentUserDeletion,
@@ -415,31 +414,6 @@ describe("auth.api", () => {
 
     // Assert
     await expect(changePromise).rejects.toBe(error);
-  });
-
-  it("deletes the current account through the authenticated endpoint", async () => {
-    // Arrange
-    mockRequest.mockResolvedValue({ message: "User deleted successfully" });
-
-    // Act
-    await deleteCurrentUser();
-
-    // Assert
-    expect(mockRequest).toHaveBeenCalledWith("/auth/me", {
-      method: "DELETE",
-    });
-  });
-
-  it("propagates account deletion failures", async () => {
-    // Arrange
-    const error = new HttpError(500, "Deletion failed");
-    mockRequest.mockRejectedValue(error);
-
-    // Act
-    const deletionPromise = deleteCurrentUser();
-
-    // Assert
-    await expect(deletionPromise).rejects.toBe(error);
   });
 
   it("requests a 30-day deletion grace period", async () => {

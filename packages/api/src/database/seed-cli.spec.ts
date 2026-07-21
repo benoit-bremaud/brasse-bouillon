@@ -6,10 +6,14 @@ import {
   seedPublicRecipes,
 } from './seeds/public-recipes.seed';
 import { seedSystemUser } from './seeds/system-user.seed';
+import { seedDeletedAuthor } from './seeds/deleted-author.seed';
 import { runProductionSeed } from './seed-cli';
 
 jest.mock('./seeds/system-user.seed', () => ({
   seedSystemUser: jest.fn(),
+}));
+jest.mock('./seeds/deleted-author.seed', () => ({
+  seedDeletedAuthor: jest.fn(),
 }));
 jest.mock('./seeds/public-recipes.seed', () => ({
   seedPublicRecipes: jest.fn(),
@@ -17,6 +21,7 @@ jest.mock('./seeds/public-recipes.seed', () => ({
 }));
 
 const mockedSeedSystemUser = jest.mocked(seedSystemUser);
+const mockedSeedDeletedAuthor = jest.mocked(seedDeletedAuthor);
 const mockedSeedPublicRecipes = jest.mocked(seedPublicRecipes);
 const mockedBuildSubRepos = jest.mocked(buildPublicRecipeSubResourceRepos);
 
@@ -49,6 +54,10 @@ function buildDataSource(isInitialized: boolean): {
 describe('runProductionSeed', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedSeedDeletedAuthor.mockResolvedValue({
+      inserted: true,
+      user_id: 'deleted',
+    });
     mockedBuildSubRepos.mockReturnValue(
       subRepos as unknown as ReturnType<
         typeof buildPublicRecipeSubResourceRepos
@@ -73,8 +82,10 @@ describe('runProductionSeed', () => {
 
       // Already initialised → must not re-initialise.
       expect(initialize).not.toHaveBeenCalled();
-      // System user seeded from the User repository.
+      // System user and deleted-author tombstone seeded from the User
+      // repository.
       expect(mockedSeedSystemUser).toHaveBeenCalledWith(userRepo);
+      expect(mockedSeedDeletedAuthor).toHaveBeenCalledWith(userRepo);
       // Public recipes seeded from the Recipe repository, default seed list,
       // and the sub-resource repos built from the same DataSource.
       expect(mockedBuildSubRepos).toHaveBeenCalledWith(dataSource);
@@ -85,6 +96,7 @@ describe('runProductionSeed', () => {
       );
       expect(result).toEqual({
         systemUser: { inserted: true, user_id: 'sys' },
+        deletedAuthor: { inserted: true, user_id: 'deleted' },
         publicRecipes: { inserted: 12, updated: 0, total: 12 },
       });
     });

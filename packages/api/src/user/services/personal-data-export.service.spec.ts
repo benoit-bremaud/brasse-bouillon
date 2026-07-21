@@ -1,12 +1,18 @@
-import { DataSource } from 'typeorm';
-
 import { User } from '../entities/user.entity';
+import { PersonalDataExportRepository } from '../repositories/personal-data-export.repository';
 import { UserService } from './user.service';
 import { PersonalDataExportService } from './personal-data-export.service';
 
 describe('PersonalDataExportService', () => {
-  const dataSource = {
-    query: jest.fn(),
+  const exportRepository = {
+    findRecipes: jest.fn(),
+    findRecipeComponents: jest.fn(),
+    findBatches: jest.fn(),
+    findBatchRecords: jest.fn(),
+    findEquipmentProfiles: jest.fn(),
+    findLabelDrafts: jest.fn(),
+    findScans: jest.fn(),
+    findScanImages: jest.fn(),
   };
   const userService = {
     findById: jest.fn(),
@@ -29,22 +35,28 @@ describe('PersonalDataExportService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     userService.findById.mockResolvedValue(user);
-    dataSource.query.mockResolvedValue([]);
+    for (const method of Object.values(exportRepository)) {
+      method.mockResolvedValue([]);
+    }
     service = new PersonalDataExportService(
-      dataSource as unknown as DataSource,
+      exportRepository as unknown as PersonalDataExportRepository,
       userService as unknown as UserService,
     );
   });
 
   it('exports only authenticated account data and owned aggregate projections', async () => {
     // Arrange
-    dataSource.query
-      .mockResolvedValueOnce([
-        { id: 'recipe-1', owner_id: 'user-1', name: 'My recipe' },
-      ])
-      .mockResolvedValueOnce([
-        { id: 'fermentable-1', recipe_id: 'recipe-1', name: 'Malt' },
-      ]);
+    exportRepository.findRecipes.mockResolvedValue([
+      { id: 'recipe-1', owner_id: 'user-1', name: 'My recipe' },
+    ]);
+    exportRepository.findRecipeComponents.mockResolvedValue([
+      {
+        id: 'fermentable-1',
+        recipe_id: 'recipe-1',
+        name: 'Malt',
+        kind: 'fermentable',
+      },
+    ]);
 
     // Act
     const result = await service.exportAccount('user-1');
@@ -74,15 +86,10 @@ describe('PersonalDataExportService', () => {
     ]);
     expect(result).not.toHaveProperty('password_hash');
     expect(result).not.toHaveProperty('role');
-    expect(dataSource.query).toHaveBeenCalledWith(
-      expect.stringContaining('FROM recipes'),
-      ['user-1'],
-    );
+    expect(exportRepository.findRecipes).toHaveBeenCalledWith('user-1');
   });
 
   it('returns empty collections for an account with no aggregate data', async () => {
-    // Arrange
-
     // Act
     const result = await service.exportAccount('empty-user');
 
@@ -96,7 +103,9 @@ describe('PersonalDataExportService', () => {
 
   it('propagates storage errors instead of returning a partial export', async () => {
     // Arrange
-    dataSource.query.mockRejectedValueOnce(new Error('database unavailable'));
+    exportRepository.findRecipes.mockRejectedValueOnce(
+      new Error('database unavailable'),
+    );
 
     // Act
     const exportPromise = service.exportAccount('user-1');

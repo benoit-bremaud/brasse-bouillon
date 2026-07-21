@@ -202,19 +202,6 @@ describe('AuthController', () => {
     });
   });
 
-  describe('deleteMe() - DELETE /auth/me', () => {
-    it('should delete current user account', async () => {
-      jest.spyOn(accountDeletionService, 'deleteAccount').mockResolvedValue();
-
-      const result = await controller.deleteMe(mockUser);
-
-      expect(accountDeletionService.deleteAccount).toHaveBeenCalledWith(
-        mockUser.id,
-      );
-      expect(result.message).toBeDefined();
-    });
-  });
-
   describe('requestDeletion() - POST /auth/me/deletion', () => {
     it('schedules deletion for the authenticated account', async () => {
       // Arrange

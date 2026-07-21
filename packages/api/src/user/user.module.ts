@@ -8,6 +8,7 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import { AccountDeletionService } from './services/account-deletion.service';
 import { PersonalDataExportService } from './services/personal-data-export.service';
+import { PersonalDataExportRepository } from './repositories/personal-data-export.repository';
 
 /**
  * User Module
@@ -139,6 +140,7 @@ import { PersonalDataExportService } from './services/personal-data-export.servi
     UserService, // Core service
     AccountDeletionService, // Authenticated account data-rights workflow
     PersonalDataExportService, // Authenticated personal-data export
+    PersonalDataExportRepository, // Persistence for the personal-data export
     PasswordService, // ✅ Password hashing/verification
     IsUniqueEmailConstraint, // Custom validator
     IsUniqueUsernameConstraint, // Custom validator

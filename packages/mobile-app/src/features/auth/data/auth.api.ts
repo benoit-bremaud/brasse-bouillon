@@ -231,12 +231,6 @@ export async function changeCurrentUserPassword(
   });
 }
 
-export async function deleteCurrentUser(): Promise<void> {
-  await request<{ message: string }>("/auth/me", {
-    method: "DELETE",
-  });
-}
-
 export async function requestCurrentUserDeletion(): Promise<AccountDeletionSchedule> {
   const data = await request<AccountDeletionScheduleDto>("/auth/me/deletion", {
     method: "POST",

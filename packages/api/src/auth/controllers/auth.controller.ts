@@ -154,17 +154,6 @@ export class AuthController {
     return { message: 'Password changed successfully' };
   }
 
-  @Delete('me')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete user account' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token' })
-  async deleteMe(@CurrentUser() user: User): Promise<{ message: string }> {
-    await this.accountDeletionService.deleteAccount(user.id);
-    return { message: 'User deleted successfully' };
-  }
-
   @Post('me/deletion')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)

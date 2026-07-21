@@ -3,7 +3,6 @@ import {
   ChangePasswordInput,
   AccountDeletionSchedule,
   cancelCurrentUserDeletion,
-  deleteCurrentUser,
   SignupInput,
   UpdateProfileInput,
   changeCurrentUserPassword,
@@ -26,9 +25,6 @@ import React, {
 import { authSession } from "@/core/auth/session";
 import { env } from "@/core/config/env";
 import { dataSource } from "@/core/data/data-source";
-import { purgeAccountPreferences } from "@/features/profile/application/account-preferences.use-cases";
-import { purgeLabelDrafts } from "@/features/labels/application/labels.use-cases";
-import { purgeScanLocalData } from "@/features/scan/application/scan.use-cases";
 import { AuthSession } from "@/features/auth/domain/auth.types";
 import { isDemoTriggerCredentials } from "@/features/auth/domain/demo-trigger-credentials";
 import { demoUsers } from "@/mocks/demo-data";
@@ -45,7 +41,6 @@ type AuthContextValue = {
   refreshProfile: () => Promise<void>;
   updateProfile: (input: UpdateProfileInput) => Promise<void>;
   changePassword: (input: ChangePasswordInput) => Promise<void>;
-  deleteAccount: () => Promise<void>;
   loginWithDemoAccount: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -345,37 +340,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
   }, []);
 
-  const handleDeleteAccount = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (dataSource.useDemoData && session.accessToken === DEMO_ACCESS_TOKEN) {
-        throw new Error(
-          "La suppression du compte est indisponible en mode démo.",
-        );
-      }
-
-      await deleteCurrentUser();
-      await Promise.allSettled([
-        purgeScanLocalData(),
-        purgeLabelDrafts(),
-        purgeAccountPreferences(),
-      ]);
-      await authSession.clear();
-      setSession(null);
-    } catch (err) {
-      const message = getErrorMessage(err, "Impossible de supprimer le compte");
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session]);
-
   const handleRequestAccountDeletion = useCallback(async () => {
     if (!session?.accessToken) {
       throw new Error("Aucune session active.");
@@ -462,7 +426,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshProfile: handleRefreshProfile,
       updateProfile: handleUpdateProfile,
       changePassword: handleChangePassword,
-      deleteAccount: handleDeleteAccount,
       loginWithDemoAccount: handleDemoLogin,
       logout: handleLogout,
     }),
@@ -474,7 +437,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       handleRefreshProfile,
       handleUpdateProfile,
       handleChangePassword,
-      handleDeleteAccount,
       handleRequestPasswordReset,
       handleRequestAccountDeletion,
       handleCancelAccountDeletion,

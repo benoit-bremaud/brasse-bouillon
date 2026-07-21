@@ -9,62 +9,21 @@ import { DataSource, EntityManager, LessThanOrEqual } from 'typeorm';
 import { promises as fs } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { BatchOrmEntity } from '../../batch/entities/batch.orm.entity';
 import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
 import { RecipeVisibility } from '../../recipe/domain/enums/recipe-visibility.enum';
 import { ScanLabelImageOrmEntity } from '../../scan/entities/scan-label-image.orm.entity';
+import { ScanRequestOrmEntity } from '../../scan/entities/scan-request.orm.entity';
+import { DELETED_AUTHOR_ID } from '../../database/seeds/deleted-author.seed';
 import { User } from '../entities/user.entity';
 import { AccountDeletionScheduleDto } from '../dtos/account-deletion.dto';
 
-const ANONYMOUS_AUTHOR_ID = '00000000-0000-0000-0000-000000000000';
 const SCAN_UPLOAD_DIRECTORY = resolve(process.cwd(), 'uploads/scan-labels');
 export const ACCOUNT_DELETION_GRACE_PERIOD_DAYS = 30;
-
-type RecipeOwnershipRow = {
-  id: string;
-  visibility: RecipeVisibility;
-};
 
 type StoredScanImageRow = {
   file_path: string;
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function isRecipeVisibility(value: unknown): value is RecipeVisibility {
-  return Object.values(RecipeVisibility).some(
-    (candidate) => candidate === value,
-  );
-}
-
-function parseRecipeOwnershipRows(value: unknown): RecipeOwnershipRow[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.flatMap((row) => {
-    if (
-      !isRecord(row) ||
-      typeof row.id !== 'string' ||
-      !isRecipeVisibility(row.visibility)
-    ) {
-      return [];
-    }
-
-    return [{ id: row.id, visibility: row.visibility }];
-  });
-}
-
-function parseIdRows(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.flatMap((row) =>
-    isRecord(row) && typeof row.id === 'string' ? [row.id] : [],
-  );
-}
 
 /**
  * Owns the transactional data-rights workflow for an authenticated account.
@@ -191,12 +150,23 @@ export class AccountDeletionService {
           return { deleted: false, imagePaths: [] };
         }
 
-        const ownedRecipes = parseRecipeOwnershipRows(
-          await manager.query(
-            'SELECT id, visibility FROM recipes WHERE owner_id = ?',
-            [userId],
-          ),
-        );
+        // Batches must go before the private recipes: `batches.recipe_id`
+        // references `recipes(id)` ON DELETE RESTRICT, so a batch still
+        // pointing at a recipe we are about to delete would abort the whole
+        // erasure transaction. Removing the user's batches first clears that
+        // reference.
+        const ownedBatches = await manager.find(BatchOrmEntity, {
+          select: { id: true },
+          where: { owner_id: userId },
+        });
+        const batchIds = ownedBatches.map((batch) => batch.id);
+        await this.deleteBatchDependents(manager, batchIds);
+        await this.deleteByIds(manager, 'batches', 'id', batchIds);
+
+        const ownedRecipes = await manager.find(RecipeOrmEntity, {
+          select: { id: true, visibility: true },
+          where: { owner_id: userId },
+        });
         const privateRecipeIds = ownedRecipes
           .filter((recipe) => recipe.visibility !== RecipeVisibility.PUBLIC)
           .map((recipe) => recipe.id);
@@ -206,31 +176,21 @@ export class AccountDeletionService {
         await manager
           .createQueryBuilder()
           .update(RecipeOrmEntity)
-          .set({ owner_id: ANONYMOUS_AUTHOR_ID })
+          .set({ owner_id: DELETED_AUTHOR_ID })
           .where('owner_id = :userId AND visibility = :visibility', {
             userId,
             visibility: RecipeVisibility.PUBLIC,
           })
           .execute();
 
-        const batchIds = await this.findIds(
-          manager,
-          'batches',
-          'owner_id',
-          userId,
-        );
-        await this.deleteBatchDependents(manager, batchIds);
-        await this.deleteByIds(manager, 'batches', 'id', batchIds);
-
         await this.deleteByOwner(manager, 'equipment_profiles', userId);
         await this.deleteByOwner(manager, 'label_drafts', userId);
 
-        const scanIds = await this.findIds(
-          manager,
-          'scan_requests',
-          'owner_id',
-          userId,
-        );
+        const ownedScans = await manager.find(ScanRequestOrmEntity, {
+          select: { id: true },
+          where: { owner_id: userId },
+        });
+        const scanIds = ownedScans.map((scan) => scan.id);
         const storedImages = scanIds.length
           ? await manager
               .createQueryBuilder(ScanLabelImageOrmEntity, 'image')
@@ -279,19 +239,6 @@ export class AccountDeletionService {
       scheduled_for: user.deletion_scheduled_for,
       grace_period_days: ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
     };
-  }
-
-  private async findIds(
-    manager: EntityManager,
-    table: string,
-    ownerColumn: string,
-    ownerId: string,
-  ): Promise<string[]> {
-    const rows: unknown = await manager.query(
-      `SELECT id FROM "${table}" WHERE "${ownerColumn}" = ?`,
-      [ownerId],
-    );
-    return parseIdRows(rows);
   }
 
   private async deleteByOwner(

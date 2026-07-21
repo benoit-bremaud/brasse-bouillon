@@ -1,6 +1,9 @@
 import { DataSource, EntityManager } from 'typeorm';
 
+import { BatchOrmEntity } from '../../batch/entities/batch.orm.entity';
+import { RecipeOrmEntity } from '../../recipe/entities/recipe.orm.entity';
 import { RecipeVisibility } from '../../recipe/domain/enums/recipe-visibility.enum';
+import { ScanRequestOrmEntity } from '../../scan/entities/scan-request.orm.entity';
 import { User } from '../entities/user.entity';
 import { AccountDeletionService } from './account-deletion.service';
 
@@ -18,7 +21,7 @@ describe('AccountDeletionService', () => {
 
   const manager = {
     findOne: jest.fn(),
-    query: jest.fn(),
+    find: jest.fn(),
     update: jest.fn(),
     createQueryBuilder: jest.fn(),
     delete: jest.fn(),
@@ -46,6 +49,7 @@ describe('AccountDeletionService', () => {
     queryBuilder.select.mockReturnValue(queryBuilder);
     queryBuilder.execute.mockResolvedValue({ affected: 1 });
     queryBuilder.getRawMany.mockResolvedValue([]);
+    manager.find.mockResolvedValue([]);
     manager.update.mockResolvedValue({ affected: 1 });
     manager.createQueryBuilder.mockReturnValue(queryBuilder);
     userRepository.find.mockResolvedValue([]);
@@ -64,17 +68,17 @@ describe('AccountDeletionService', () => {
     manager.findOne.mockResolvedValue(
       Object.assign(new User(), { id: userId }),
     );
-    manager.query.mockImplementation((sql: string) => {
-      if (sql.includes('FROM recipes')) {
+    manager.find.mockImplementation((entity: unknown) => {
+      if (entity === RecipeOrmEntity) {
         return Promise.resolve([
           { id: 'private-recipe', visibility: RecipeVisibility.PRIVATE },
           { id: 'public-recipe', visibility: RecipeVisibility.PUBLIC },
         ]);
       }
-      if (sql.includes('FROM "batches"')) {
+      if (entity === BatchOrmEntity) {
         return Promise.resolve([{ id: 'batch-1' }]);
       }
-      if (sql.includes('FROM "scan_requests"')) {
+      if (entity === ScanRequestOrmEntity) {
         return Promise.resolve([{ id: 'scan-1' }]);
       }
       return Promise.resolve([]);
@@ -98,6 +102,37 @@ describe('AccountDeletionService', () => {
     expect(manager.delete).toHaveBeenCalledWith(User, { id: userId });
   });
 
+  it('deletes batches before private recipes so the ON DELETE RESTRICT FK never aborts the transaction', async () => {
+    // Arrange — `batches.recipe_id` -> `recipes(id)` is ON DELETE RESTRICT,
+    // so the batch rows must be gone before their referenced private recipe.
+    manager.findOne.mockResolvedValue(
+      Object.assign(new User(), { id: 'user-1' }),
+    );
+    manager.find.mockImplementation((entity: unknown) => {
+      if (entity === RecipeOrmEntity) {
+        return Promise.resolve([
+          { id: 'private-recipe', visibility: RecipeVisibility.PRIVATE },
+        ]);
+      }
+      if (entity === BatchOrmEntity) {
+        return Promise.resolve([{ id: 'batch-1' }]);
+      }
+      return Promise.resolve([]);
+    });
+
+    // Act
+    await service.deleteAccount('user-1');
+
+    // Assert — the `batches` table delete is issued before the `recipes` one.
+    const fromCalls = queryBuilder.from.mock.calls as unknown[][];
+    const deletedTables = fromCalls.map((call) => call[0] as string);
+    const batchesIndex = deletedTables.indexOf('batches');
+    const recipesIndex = deletedTables.indexOf('recipes');
+    expect(batchesIndex).toBeGreaterThanOrEqual(0);
+    expect(recipesIndex).toBeGreaterThanOrEqual(0);
+    expect(batchesIndex).toBeLessThan(recipesIndex);
+  });
+
   it('is idempotent when the account was already removed', async () => {
     // Arrange
     manager.findOne.mockResolvedValue(null);
@@ -106,7 +141,7 @@ describe('AccountDeletionService', () => {
     await service.deleteAccount('missing-user');
 
     // Assert
-    expect(manager.query).not.toHaveBeenCalled();
+    expect(manager.find).not.toHaveBeenCalled();
     expect(manager.delete).not.toHaveBeenCalled();
   });
 
@@ -115,7 +150,7 @@ describe('AccountDeletionService', () => {
     manager.findOne.mockResolvedValue(
       Object.assign(new User(), { id: 'empty-user' }),
     );
-    manager.query.mockResolvedValue([]);
+    manager.find.mockResolvedValue([]);
 
     // Act
     await service.deleteAccount('empty-user');
@@ -299,7 +334,7 @@ describe('AccountDeletionService', () => {
     await service.deleteAccount('user-1', new Date('2026-07-16T10:00:00.000Z'));
 
     // Assert
-    expect(manager.query).not.toHaveBeenCalled();
+    expect(manager.find).not.toHaveBeenCalled();
     expect(manager.delete).not.toHaveBeenCalled();
   });
 
@@ -317,7 +352,7 @@ describe('AccountDeletionService', () => {
     await service.deleteAccount('user-1', new Date('2026-07-16T10:00:00.000Z'));
 
     // Assert
-    expect(manager.query).not.toHaveBeenCalled();
+    expect(manager.find).not.toHaveBeenCalled();
     expect(manager.delete).not.toHaveBeenCalled();
   });
 
@@ -330,7 +365,7 @@ describe('AccountDeletionService', () => {
         deletion_scheduled_for: new Date('2026-07-01T10:00:00.000Z'),
       }),
     );
-    manager.query.mockResolvedValue([]);
+    manager.find.mockResolvedValue([]);
 
     // Act
     await service.deleteAccount('user-1', new Date('2026-07-16T10:00:00.000Z'));

@@ -63,8 +63,12 @@ describe("theme context", () => {
     expect(resolvedMode).toBe("light");
   });
 
-  it("loads the persisted mode through the composition-root loader", async () => {
-    // Arrange
+  it("loads the persisted mode but renders light while dark mode is gated off", async () => {
+    // Dark mode is gated off in ThemeProvider until every screen is theme-aware.
+    // The persisted preference is still surfaced as `mode` (so the control can
+    // return later), but the RESOLVED mode is pinned to light — a stored "dark"
+    // preference loads as mode=dark yet renders resolvedMode=light, never leaking
+    // a half-dark app.
     const loadInitialPreferences = jest
       .fn()
       .mockResolvedValue({ theme: "dark" as const, units: "metric" as const });
@@ -79,7 +83,7 @@ describe("theme context", () => {
     );
 
     // Act
-    await waitFor(() => expect(screen.getByText("dark/dark")).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("dark/light")).toBeTruthy());
 
     // Assert
     expect(loadInitialPreferences).toHaveBeenCalledTimes(1);

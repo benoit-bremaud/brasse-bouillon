@@ -24,7 +24,6 @@ import {
 } from "@/features/profile/application/account-preferences.use-cases";
 import type {
   AccountPreferences,
-  ThemeMode,
   UnitSystem,
 } from "@/features/profile/domain/account-preferences.types";
 
@@ -209,25 +208,10 @@ export function AccountPreferencesScreen() {
           </View>
         ) : (
           <View style={styles.form}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Apparence</Text>
-              <Text style={styles.label}>Thème</Text>
-              <ChoiceGroup<ThemeMode>
-                accessibilityLabel="Choisir le thème"
-                onChange={(value) => updatePreference("theme", value)}
-                options={[
-                  { label: "Système", value: "system" },
-                  { label: "Clair", value: "light" },
-                  { label: "Sombre", value: "dark" },
-                ]}
-                value={preferences.theme}
-              />
-              <Text style={styles.note}>
-                Le thème est appliqué à l'espace Profil et aux composants
-                partagés dès l'enregistrement.
-              </Text>
-            </View>
-
+            {/* The theme selector is intentionally not surfaced yet: dark mode
+                is gated off in ThemeProvider until every screen is theme-aware
+                (a dedicated epic). The `theme` preference stays in the model so
+                the control can return once the migration lands. */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Unités de brassage</Text>
               <Text style={styles.label}>Système préféré</Text>

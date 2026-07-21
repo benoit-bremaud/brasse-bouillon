@@ -23,6 +23,13 @@ const defaultTheme: ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue>(defaultTheme);
 
+// Dark mode is not shipped yet: only ~15 of ~120 screens read `useTheme()`, the
+// rest still import the static `colors`, so resolving to "dark" would render the
+// app half-dark. Until every screen is migrated (a dedicated epic), the provider
+// pins the resolved mode to light. The preference, dark palette, and useTheme()
+// plumbing all stay in place as the groundwork — flip this to true to enable.
+const DARK_MODE_ENABLED = false;
+
 function resolveThemeMode(
   mode: ThemeMode,
   systemScheme: "light" | "dark" | null | undefined,
@@ -42,7 +49,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
   const { theme: mode, setThemeMode } = useAccountPreferences();
 
-  const resolvedMode = resolveThemeMode(mode, systemScheme);
+  const resolvedMode = DARK_MODE_ENABLED
+    ? resolveThemeMode(mode, systemScheme)
+    : "light";
   const value = useMemo<ThemeContextValue>(
     () => ({
       mode,

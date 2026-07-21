@@ -57,7 +57,7 @@ describe("AccountPreferencesScreen", () => {
     mockedGetPreferences.mockResolvedValue(DEFAULT_PREFERENCES);
   });
 
-  it("loads the saved theme and unit choices", async () => {
+  it("loads the saved unit choice and no longer surfaces the theme selector", async () => {
     // Arrange
     mockedGetPreferences.mockResolvedValue({
       ...DEFAULT_PREFERENCES,
@@ -71,25 +71,25 @@ describe("AccountPreferencesScreen", () => {
 
     // Assert
     expect(
-      screen.getByRole("radio", { name: "Sombre" }).props.accessibilityState,
-    ).toEqual({ selected: true });
-    expect(
       screen.getByRole("radio", { name: "Impérial" }).props.accessibilityState,
     ).toEqual({ selected: true });
+    // Theme selection is deferred (dark mode gated off): the control is not
+    // rendered even though the persisted "dark" preference is still loaded.
+    expect(screen.queryByRole("radio", { name: "Sombre" })).toBeNull();
+    expect(screen.queryByRole("radio", { name: "Clair" })).toBeNull();
   });
 
   it("saves changed preferences and returns to Profile", async () => {
     // Arrange
     mockedSavePreferences.mockResolvedValue({
       ...DEFAULT_PREFERENCES,
-      theme: "light",
       productUpdatesEnabled: true,
     });
     render(<AccountPreferencesScreen />);
     await screen.findByText("Préférences de l'application");
 
-    // Act
-    fireEvent.press(screen.getByRole("radio", { name: "Clair" }));
+    // Act — theme is no longer user-settable here; the untouched preference
+    // (default "system") must round-trip unchanged in the saved payload.
     fireEvent(
       screen.getByLabelText("Actualités de l'application"),
       "valueChange",
@@ -103,7 +103,6 @@ describe("AccountPreferencesScreen", () => {
     await waitFor(() => {
       expect(mockedSavePreferences).toHaveBeenCalledWith({
         ...DEFAULT_PREFERENCES,
-        theme: "light",
         productUpdatesEnabled: true,
       });
       expect(mockBack).toHaveBeenCalledTimes(1);

@@ -13,6 +13,14 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.15-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.14-alpha1...mobile-app-v0.1.15-alpha1) (2026-07-21)
+
+
+### Features
+
+* **recipes:** show a recipe's creation date on its card ([#1508](https://github.com/benoit-bremaud/brasse-bouillon/issues/1508)) ([b213bfb](https://github.com/benoit-bremaud/brasse-bouillon/commit/b213bfb50e9e2610a715a3c6f24d7538eea8062e))
+* **shop:** wire the Accessoires rayon to the misc catalog ([#1507](https://github.com/benoit-bremaud/brasse-bouillon/issues/1507)) ([1fe54e6](https://github.com/benoit-bremaud/brasse-bouillon/commit/1fe54e643768f4bc8eaf61e6538b6562c35f6425))
+
 ## [0.1.14-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.13-alpha1...mobile-app-v0.1.14-alpha1) (2026-07-20)
 
 

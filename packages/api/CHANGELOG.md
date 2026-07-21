@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.15-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.14-alpha1...api-v0.1.15-alpha1) (2026-07-20)
+
+
+### Refactors
+
+* **api:** use one SQLite driver in tests instead of two ([#1498](https://github.com/benoit-bremaud/brasse-bouillon/issues/1498)) ([c14d53b](https://github.com/benoit-bremaud/brasse-bouillon/commit/c14d53bca00a6774b595bf92d1efe696bab3448a))
+
 ## [0.1.14-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.13-alpha1...api-v0.1.14-alpha1) (2026-07-20)
 
 

@@ -1244,6 +1244,55 @@ export const demoIngredients: Ingredient[] = [
     fermentationMinC: 18,
     fermentationMaxC: 26,
   },
+  // Misc — the BeerXML `<MISC>` class behind the Accessoires rayon: one per
+  // type a novice actually meets (fining, spice, water agent, herb), so the
+  // rayon demonstrates its breadth rather than four variations of one thing.
+  {
+    id: "misc-1",
+    name: "Whirlfloc",
+    category: "misc",
+    supplier: "Kerry",
+    miscType: "fining",
+    useAt: "boil",
+    useFor: "Clarté",
+    timeMin: 15,
+    notes:
+      "Comprimé de carraghénane ajouté en fin d'ébullition : il agglomère les protéines, qui décantent ensuite. Une bière plus limpide, sans rien changer au goût.",
+  },
+  {
+    id: "misc-2",
+    name: "Coriandre en grains",
+    category: "misc",
+    origin: "France",
+    miscType: "spice",
+    useAt: "boil",
+    useFor: "Belgian Wit",
+    timeMin: 5,
+    notes:
+      "Concassée juste avant l'ajout, en toute fin d'ébullition pour préserver ses huiles. Signature de la blanche belge, avec l'écorce d'orange amère.",
+  },
+  {
+    id: "misc-3",
+    name: "Gypse (sulfate de calcium)",
+    category: "misc",
+    miscType: "water_agent",
+    useAt: "mash",
+    useFor: "Profil d'eau",
+    notes:
+      "Durcit l'eau et accentue l'amertume : il pousse les IPA houblonnées. À doser avec le profil d'eau cible, jamais au hasard.",
+  },
+  {
+    id: "misc-4",
+    name: "Écorce d'orange amère",
+    category: "misc",
+    origin: "Curaçao",
+    miscType: "herb",
+    useAt: "boil",
+    useFor: "Belgian Wit",
+    timeMin: 5,
+    notes:
+      "L'agrume qui répond à la coriandre dans une blanche. Amère, pas sucrée : c'est l'écorce qui parfume, pas le fruit.",
+  },
 ];
 
 export const demoRecipeSteps: RecipeStep[] = [

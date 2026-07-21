@@ -41,6 +41,18 @@ jest.mock("@/features/ingredients/presentation/YeastDetailsScreen", () => ({
   },
 }));
 
+jest.mock("@/features/ingredients/presentation/MiscDetailsScreen", () => ({
+  MiscDetailsScreen: ({ miscIdParam }: { miscIdParam?: string }) => {
+    const React = require("react");
+    const { View, Text } = require("react-native");
+    return React.createElement(
+      View,
+      { testID: "misc-details-screen" },
+      React.createElement(Text, {}, `Misc Details: ${miscIdParam || ""}`),
+    );
+  },
+}));
+
 describe("IngredientDetailsScreen", () => {
   it("delegates to HopDetailsScreen for hops category", () => {
     render(
@@ -76,6 +88,18 @@ describe("IngredientDetailsScreen", () => {
 
     expect(screen.getByTestId("malt-details-screen")).toBeTruthy();
     expect(screen.getByText("Malt Details: malt-1")).toBeTruthy();
+  });
+
+  it("delegates to MiscDetailsScreen for miscs category", () => {
+    render(
+      <IngredientDetailsScreen
+        categoryParam="miscs"
+        ingredientIdParam="misc-1"
+      />,
+    );
+
+    expect(screen.getByTestId("misc-details-screen")).toBeTruthy();
+    expect(screen.getByText("Misc Details: misc-1")).toBeTruthy();
   });
 
   it("renders unsupported state for unknown categories", () => {

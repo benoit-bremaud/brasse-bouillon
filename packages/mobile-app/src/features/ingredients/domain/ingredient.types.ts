@@ -1,4 +1,4 @@
-export type IngredientCategory = "malt" | "hop" | "yeast";
+export type IngredientCategory = "malt" | "hop" | "yeast" | "misc";
 
 type IngredientBase = {
   id: string;
@@ -35,7 +35,30 @@ export type YeastIngredient = IngredientBase & {
   fermentationMaxC: number;
 };
 
-export type Ingredient = MaltIngredient | HopIngredient | YeastIngredient;
+/**
+ * BeerXML 1.0 `<MISC>`: spices, finings, water agents, herbs, flavour
+ * adjuncts — the "Accessoires" rayon.
+ *
+ * Every spec is optional, unlike the other variants, because the catalog
+ * columns are genuinely nullable: a fining has no `useFor`, a spice has no
+ * `timeMin`. Requiring them would force the mapper to invent values.
+ * `miscType` stays a plain string rather than a literal union, mirroring
+ * `MiscProduct`: the API serves it free-form and nothing validates it, so a
+ * union here would claim a guarantee we do not enforce.
+ */
+export type MiscIngredient = IngredientBase & {
+  category: "misc";
+  miscType?: string;
+  useAt?: string;
+  useFor?: string;
+  timeMin?: number;
+};
+
+export type Ingredient =
+  | MaltIngredient
+  | HopIngredient
+  | YeastIngredient
+  | MiscIngredient;
 
 export type IngredientFilters = {
   search?: string;

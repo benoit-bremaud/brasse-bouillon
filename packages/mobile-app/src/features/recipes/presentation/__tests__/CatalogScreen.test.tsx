@@ -85,7 +85,9 @@ describe("CatalogScreen (Issue #779 — KISS Recipe Catalog mini)", () => {
     expect(await screen.findByText("Punk IPA")).toBeTruthy();
     expect(screen.getByText("Hazy Jane")).toBeTruthy();
 
-    fireEvent.press(screen.getByLabelText("Ouvrir la recette Punk IPA"));
+    // Prefix match: the card's accessible label now appends ", créée le <date>"
+    // when the recipe has a createdAt (date omitted here for timezone-robustness).
+    fireEvent.press(screen.getByLabelText(/^Ouvrir la recette Punk IPA/));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-public-1");
   });

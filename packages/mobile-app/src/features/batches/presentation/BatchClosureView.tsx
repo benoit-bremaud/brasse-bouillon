@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows, spacing, typography } from "@/core/theme";
 import { Card } from "@/core/ui/Card";
 import { PrimaryButton } from "@/core/ui/PrimaryButton";
+import { formatFrDate } from "@/core/utils/format";
 import { Batch } from "@/features/batches/domain/batch.types";
 import { Tasting } from "@/features/batches/domain/bottling.types";
 
@@ -20,22 +21,6 @@ type Props = {
   /** Fired by the "Noter ma dégustation" CTA. */
   onRateTasting: () => void;
 };
-
-/** Formats an ISO instant as a short French date (e.g. "12 mai 2026"). */
-function formatFrDate(iso: string | null | undefined): string | null {
-  if (!iso) {
-    return null;
-  }
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
 
 /**
  * Live closure / celebration view for a COMPLETED batch (B3).

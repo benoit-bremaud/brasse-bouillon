@@ -365,6 +365,32 @@ describe('BatchController', () => {
       expect(result).toBeDefined();
     });
 
+    it('maps the current step schedule onto the detail DTO', async () => {
+      // A fermentation current step with a real deadline — the detail
+      // endpoint must carry the same current_step_* fields as the list.
+      const fermentationStep: BatchStepOrmEntity = {
+        ...mockSteps[0],
+        step_order: 3,
+        type: RecipeStepType.FERMENTATION,
+        label: 'Fermentation',
+        started_at: new Date('2026-07-01T10:00:00.000Z'),
+        planned_duration_min: 120,
+      };
+      const batch = { ...mockBatchOrm, current_step_order: 3 };
+      jest.spyOn(service, 'getMineById').mockResolvedValue({
+        batch,
+        steps: [mockSteps[0], fermentationStep],
+      });
+
+      const result = await controller.getMineById(mockUser, batch.id);
+
+      expect(result.current_step_label).toBe('Fermentation');
+      expect(result.current_step_is_critical).toBe(true);
+      expect(result.current_step_due_at).toEqual(
+        new Date('2026-07-01T12:00:00.000Z'),
+      );
+    });
+
     it('should throw NotFoundException when batch not found', async () => {
       // Setup
       const getMineByIdSpy = jest

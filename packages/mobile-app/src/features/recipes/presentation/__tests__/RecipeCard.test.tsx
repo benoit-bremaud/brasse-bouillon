@@ -68,3 +68,40 @@ describe("RecipeCard — difficulty badge", () => {
     expect(screen.queryByText("FACILE")).toBeNull();
   });
 });
+
+describe("RecipeCard — creation date (novice differentiator for same-named recipes)", () => {
+  it("happy: shows the creation date so two same-named recipes are distinguishable", () => {
+    // Mid-month, midday UTC: the day may shift ±1 by timezone but the month
+    // and year stay put, keeping this deterministic on any runner.
+    render(
+      <RecipeCard
+        recipe={{ ...baseRecipe, createdAt: "2026-01-15T12:00:00.000Z" }}
+        onPress={() => {}}
+      />,
+    );
+
+    expect(screen.getByText(/^Créée le \d{1,2} janvier 2026$/)).toBeTruthy();
+  });
+
+  it("edge: omits the date line entirely when createdAt is missing", () => {
+    render(
+      <RecipeCard
+        recipe={{ ...baseRecipe, createdAt: "" }}
+        onPress={() => {}}
+      />,
+    );
+
+    expect(screen.queryByText(/^Créée le /)).toBeNull();
+  });
+
+  it("sad: omits the date line for an unparseable createdAt rather than showing 'Invalid Date'", () => {
+    render(
+      <RecipeCard
+        recipe={{ ...baseRecipe, createdAt: "not-a-date" }}
+        onPress={() => {}}
+      />,
+    );
+
+    expect(screen.queryByText(/^Créée le /)).toBeNull();
+  });
+});

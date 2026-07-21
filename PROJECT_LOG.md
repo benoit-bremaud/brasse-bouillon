@@ -5,7 +5,170 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-21
+
+### PR #1500 merged (`4e2d36b`) — chore(deps): bump tar from 6.2.1 to 7.5.20
+
+- Branch `dependabot/npm_and_yarn/tar-7.5.20`, 1 commit. Root `package-lock.json` only.
+- Net tree delta (measured against `main`): **86 nodes removed, 0 added, one version changed** (`tar` 7.5.14 -> 7.5.20). The 86 removals are the whole dead `sqlite3` native-build subtree — `node-gyp`, `cacache`, `make-fetch-happen`, `gauge`, and the three nested `tar@6.2.1` copies. Dependabot regenerated the lockfile from the post-#1498 manifests and npm no longer re-resolved TypeORM's optional `sqlite3` peer, finally pruning what #1498 intended to remove.
+- Verified locally before merge, because the change is root-lockfile only and the path filter skips the `api` job: `npm ci` clean, then `packages/api` `test:cov` green (1019/1021, 2 skipped) on the branch tree — `better-sqlite3`, the real driver since #1498, is byte-identical on both trees, so removing the dead `sqlite3` toolchain exercises nothing the API loads.
+- Resolves #1497 on both fronts at once: the `tar@6` subtree it tracked is gone, and the top-level bump to 7.5.20 clears the seven newer `tar@7` alerts (fixed-versions all <= 7.5.15) that had since made the 7.5.14 copy vulnerable. Residual fragility: the sqlite3-free tree holds under `npm ci` (what CI runs); a developer `npm install` could re-resolve the optional peer and reintroduce the subtree.
+
+### PR #1499 merged (`aba809c`) — chore(main): release api 0.1.15-alpha1
+
+- Branch `release-please--branches--main--components--api`, 2 commits. `packages/api` to 0.1.15-alpha1.
+- **First fully-automatic tagged release since the tagging fault of April.** After the merge, release-please created `api-v0.1.15-alpha1` on its own (release target `aba809c5`, prerelease) and relabelled the PR `autorelease: tagged` with no manual step — the transition that `linked-versions` structurally prevented (see #1496). The lockfile it carried had already been synced by the #1491 automation (commit `889bb537`), which Codex flagged against the pre-sync commit; replied and re-verified on the current head, then approved.
+- Confirms the tagging chain end to end: #1496 (drop `linked-versions`) + #1491 (auto-sync the release-branch lockfile) now produce a tagged release with zero intervention.
+
+## 2026-07-20
+
+### PR #1504 merged (`4b30bbe`) — ci(ci): bound every CI job with an explicit timeout-minutes
+
+- Branch `chore/ci-job-timeouts`, 1 commit. Budgets: `changes` 5, `website` 10, `security-audit` 10, `mobile-app` 15, `api` 15, `beer-encyclopedia` 20.
+- Reviews — Codex approved, no findings. CI green.
+- **Decisions**:
+  - `loose-budgets-on-purpose` — values sit well above observed maxima (0.18-2.29 min). The goal is turning a hung runner into a fast, legible failure instead of a six-hour sit on the 360-minute default, not policing runtime; a job cancelled on a slow-runner day is noise that erodes trust in CI.
+  - `encyclopedia-budgeted-higher` — 20 minutes rather than the npm jobs' 15, because it is the only job with no dependency cache (`setup-python` without `cache: pip`), so it refetches ultralytics, easyocr, opencv-python and PyTorch from PyPI on every run; a slow registry day or a missing manylinux wheel is a realistic overrun.
+  - `timeout-survives-continue-on-error` — `security-audit` is deliberately unfailable today (`|| true` plus `continue-on-error: true`), but a `timeout-minutes` cancellation is not swallowed by `continue-on-error`. A registry hang can now redden that job for the first time; recorded as the intended trade, not a no-op.
+- Follow-up #1503 covers the nine workflows outside `ci.yml`, still unbounded.
+
+### Tags `mobile-app-v0.1.14-alpha1` + `api-v0.1.14-alpha1` shipped (`5099dda`)
+
+- Release PR #1427 merged into the tags, created manually because `linked-versions` made automatic tagging structurally impossible (see #1496).
+- **Decisions**:
+  - `no-version-backfill` — `0.1.12-alpha1` (#769) and `0.1.13-alpha1` (#1197) hit the same fault in April and June and were never tagged. Deliberately not backfilled: alpha prereleases of private packages that nothing consumed. Both PRs had their `autorelease: pending` marker cleared and were left unlabelled rather than marked `tagged`, with a comment recording that no tag exists.
+
+### PR #1501 merged (`2c71cec`) — chore(deps): bump three NestJS packages to clear transitive CVEs
+
+- Branch `fix/nestjs-transitive-cves`, 1 commit. Lockfile only; no `package.json` changed.
+- `@nestjs/platform-express` 11.1.17 -> 11.1.28, `@nestjs/config` 4.0.3 -> 4.0.4, `@nestjs/swagger` 11.2.6 -> 11.4.6, clearing `path-to-regexp` 8.3.0 -> 8.4.2, `multer` 2.1.1 -> 2.2.0, `lodash` 4.17.23 -> 4.18.1 (3 high + 3 medium alerts).
+- **Decisions**:
+  - `nestjs-pins-transitives-exactly` — NestJS pins these transitives to exact versions, so `npm update <transitive>` is a no-op; the parents must move. `@nestjs/swagger` was the last holdout, keeping vulnerable copies hoisted at the root after the other two were updated.
+  - `swagger-carries-js-yaml-major` — `@nestjs/swagger` 11.4.6 pulls a nested `js-yaml` 4.1.1 -> 5.2.1. Accepted: swagger-module only calls `dump()` on the app's own OpenAPI document, never `load()` on untrusted input.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1498 merged (`c14d53b`) — refactor(api): use one SQLite driver in tests instead of two
+
+- Branch `refactor/api-single-sqlite-driver`, 1 commit. 18 specs plus `recipe-testing.module.ts` moved from TypeORM `type: 'sqlite'` to `type: 'better-sqlite3'`; `sqlite3` devDependency dropped.
+- **Decisions**:
+  - `dead-workspace-overrides` — removed `"overrides": {"sqlite3": {"tar": "7.5.7"}}` from `packages/api/package.json`. npm only reads `overrides` from the workspace root, so it had been inert since `88379e0` (the backend -> api rename). `AUDIT.md` and `ROADMAP.md` both credited it as working and were corrected.
+  - `hygiene-not-remediation` — does NOT clear the tar alerts: TypeORM declares `sqlite3` as an optional peer and `optional` does not stop npm installing it. Tracked as accepted risk on #1497.
+- Reviews — Codex approved, no findings. CI green. A correction comment was posted on the PR after merge: an earlier claim that the suite needed a `JWT_SECRET` from `.env` was wrong — the package's own `test:cov` supplies it, and the failure came from invoking bare `npx jest` instead.
+
+### PR #1496 merged (`be9bba4`) — fix(ci): drop linked-versions so app releases can be tagged again
+
+- Branch `fix/drop-linked-versions`, 1 commit. Also updates `CONTRIBUTING.md` and `.github/tag-protection.md`, which described the lockstep as current.
+- **Decisions**:
+  - `linked-versions-cannot-tag` — the plugin hardcodes a group PR title with no `${version}` (`linked-versions.ts:182`), ignoring `group-pull-request-title-pattern`. release-please cannot parse a version back after merge and aborts with "untagged, merged release PRs outstanding" — aborting because of the very PR it can never tag. No config fix exists; the plugin was removed.
+  - `no-lockstep` — `mobile-app` and `api` now version independently, like `website` and `beer-encyclopedia`. Nothing required them to match: neither depends on the other and both are private.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1487 merged (`ca41e1c`) — chore(deps): bump ip-address from 10.1.0 to 10.2.0
+
+- Branch `dependabot/npm_and_yarn/ip-address-10.2.0`, 1 commit. Closes 1 medium alert.
+
+### PR #1485 merged (`8e0c816`) — chore(deps): bump qs from 6.15.0 to 6.15.3
+
+- Branch `dependabot/npm_and_yarn/qs-6.15.3`, 1 commit. Closes 1 medium alert. The only package in the batch on the production runtime path (Express stack).
+
+### PR #1492 merged (`9534709`) — chore(deps): bump fast-uri from 3.1.0 to 3.1.4
+
+- Branch `dependabot/npm_and_yarn/fast-uri-3.1.4`, 1 commit. Closes 2 high alerts.
+
+### PR #1483 merged (`d972210`) — chore(deps): bump form-data from 4.0.5 to 4.0.6
+
+- Branch `dependabot/npm_and_yarn/form-data-4.0.6`, 1 commit. Closes 1 high alert.
+
+### PR #1484 merged (`8d8e385`) — chore(deps): bump undici from 6.25.0 to 6.27.0
+
+- Branch `dependabot/npm_and_yarn/undici-6.27.0`, 1 commit. Closes 1 high, 1 medium, 2 low alerts.
+
+### PR #1493 merged (`dab2197`) — chore(deps): bump ws from 6.2.3 to 6.2.6
+
+- Branch `dependabot/npm_and_yarn/ws-6.2.6`, 1 commit. Closes 3 high, 1 medium alerts.
+
+### PR #1488 merged (`8f7da96`) — chore(deps): bump @xmldom/xmldom from 0.8.11 to 0.8.13
+
+- Branch `dependabot/npm_and_yarn/xmldom/xmldom-0.8.13`, 1 commit. Closes 5 high alerts.
+
+### PR #1486 merged (`90a3c15`) — chore(deps): bump handlebars from 4.7.8 to 4.7.9
+
+- Branch `dependabot/npm_and_yarn/handlebars-4.7.9`, 1 commit. Closes 1 critical plus 3 lower alerts.
+
+### PR #1481 merged (`9b59af7`) — chore(deps): bump shell-quote from 1.8.3 to 1.10.0
+
+- Branch `dependabot/npm_and_yarn/shell-quote-1.10.0`, 1 commit. Closes 1 critical alert.
+
+### PR #1427 merged (`5099dda`) — chore(main): release app libraries
+
+- Branch `release-please--branches--main--groups--app`, 2 commits. `mobile-app` and `api` to 0.1.14-alpha1.
+- Reviews — bot-authored branch, so no local pre-push pass. On GitHub, Copilot and Codex both reviewed all three release PRs and Codex approved each; replies posted. CI green.
+
+### PR #1426 merged (`d3e058e`) — chore(main): release website 0.1.3
+
+- Branch `release-please--branches--main--components--website`, 3 commits. Tag `website-v0.1.3`.
+
+### PR #1425 merged (`a31d972`) — chore(main): release encyclopedia 0.2.5
+
+- Branch `release-please--branches--main--components--encyclopedia`, 2 commits. Tag `encyclopedia-v0.2.5`.
+
+### PR #1491 merged (`4550dcf`) — fix(ci): sync the root lockfile on release PR branches
+
+- Branch `fix/release-lockfile-sync-workflow`, 2 commits. Adds `scripts/sync-workspace-lockfile.mjs` (7 tests) and a workflow step running it on every open release PR branch.
+- **Decisions**:
+  - `node-workspace-rejected` — release-please's own `node-workspace` plugin was tried and rejected: its `inScope()` is `releaseType === 'node'`, so it can never reach `packages/beer-encyclopedia` (release-type `python`); it also patches only `candidates[0]`, and would have dropped the merged group candidate entirely (it carries `path: ROOT_PROJECT_PATH` yet is claimed in-scope).
+  - `surgical-not-npm-install` — `npm install --package-lock-only` re-resolves the whole tree and can lift unrelated packages inside a version-bump-only PR; the script rewrites only `packages/*` version fields.
+  - `double-gated-branch-list` — branch names are filtered on `isCrossRepository == false` plus the `autorelease: pending` marker. A fork PR whose head branch merely matched the release-please prefix would fail the fetch and, under `set -e`, block the release workflow on every push to main — a zero-privilege denial of service on a public repo.
+  - `no-silent-success` — every filter lives in `--jq` with no `|| true`, so a failing `gh` fails the step instead of reporting "nothing to sync" while lockfiles stay stale.
+- Reviews — Codex raised one P2 (the branch-listing step swallowed failures via `|| true`, on the one step whose whole job is to detect drift); fixed in `c7ba81a0` with an inline reply, then approved. CI green.
+
+### PR #1490 merged (`c27eb7b`) — fix(mobile-app): surface render errors and cap request duration
+
+- Branch `fix/mobile-error-boundary-http-timeout`, 3 commits. Adds `RouteErrorFallback` plus an `ErrorBoundary` export in `app/_layout.tsx` and `app/(app)/_layout.tsx`; adds a default request timeout and `HttpTimeoutError`.
+- **Decisions**:
+  - `no-boundary-no-diagnosis` — expo-router wraps a route in `<Try>` only when its module exports `ErrorBoundary`; release builds have no redbox, so an uncaught render throw killed the process silently. This is what made the 2026-07-20 APK crash take a day to diagnose.
+  - `abortsignal-statics-absent-in-hermes` — the timeout uses a plain `AbortController` + `setTimeout`, not `AbortSignal.timeout()`/`any()`: React Native polyfills `AbortController` from the `abort-controller` package, which ships neither static. The idiomatic spelling would have shipped the same `undefined is not a function` class of bug.
+  - `timeout-covers-body-read` — `parseBody` runs inside the timed window; `fetch` resolves on headers, so a stalled body would otherwise escape the ceiling.
+  - `scan-import-needs-its-own-budget` — `importBeerByEan` gets 45s: a cold encyclopedia miss is ~10s Fly wake-up plus its own 10s OpenFoodFacts budget, and `HttpTimeoutError` is deliberately not an `HttpError`, so timing out first skips the 404/503 fallback to the legacy NestJS lookup entirely.
+- Reviews — local pre-push: Claude `pr-pre-reviewer` + Codex CLI, Must Have cleared before push. On GitHub, Codex raised one P2 (the 20s default cut the encyclopedia import off before its own fallback could fire); fixed in `e82488b6` with an inline reply, then approved. CI green.
+
+### PR #1489 merged (`d93ca72`) — test(mobile-app): stop async assertions failing on machine load
+
+- Branch `fix/mobile-flaky-async-assertions`, 1 commit. Sets `jest.setTimeout(15_000)` and `asyncUtilTimeout: 10_000` in `packages/mobile-app/jest.setup.ts`.
+- **Decisions**:
+  - `budget-order-matters` — jest's own per-test timeout also defaults to 5s, so raising `asyncUtilTimeout` alone to 5s makes things worse: the assertion burns the whole test budget and jest kills it with an opaque message instead of the query's own. `asyncUtilTimeout` must stay clear of `jest.setTimeout`.
+  - `flake-is-not-localized` — two concurrent full suites failed every time, on different tests (`DashboardScreen`, then `BeerInfoCardScreen`), so the fix belongs in the shared setup rather than one spec.
+  - `beerinfocard-is-harness-not-app` — that spec's ~600ms outlier is `waitFor`'s wall-clock polling, not app latency: the screen leaves its error state in ~3ms once three React flush cycles run. No user-visible delay on the scan retry path.
+  - `jest-setup-is-do-not-modify` — `packages/mobile-app/CLAUDE.md` lists `jest.setup.ts` as do-not-modify; explicit approval was obtained and is recorded in the commit and the file comment.
+- Reviews — Codex approved, no findings. CI green.
+
+
+### Session cleanup and follow-ups opened
+
+- The nine Dependabot security PRs (#1481, #1483, #1484, #1485, #1486, #1487, #1488, #1492, #1493) were merged on the lightened bot gate — green CI plus per-bucket approval, no local pre-push pass and no AI review requested on bot-authored branches. Same-lockfile siblings were merged one at a time, rebasing each blocked sibling in turn.
+- Issue #1495 — grouped `npm-minor-patch` bump (#1494, 38 updates) deferred. CI red at the `Lint check` step on both `mobile-app` and `api`: Prettier 3.8.1 -> 3.9.5 reformats generic call expressions (15 files fail `--check` in files the PR does not touch) plus two `@typescript-eslint/no-unnecessary-type-assertion` errors. The react-native Jest-preset split and duplicated `rxjs` blockers recorded for its predecessor #1434 were not re-exercised, since the run never reached the test step.
+- Issue #1497 — `tar@6` alerts accepted as risk. Pinned by TypeORM's optional `sqlite3 ^5.0.3` peer; removing the devDependency, bumping `sqlite3` to v6 and a root `overrides` were each tried and each failed. Native-build tooling that rarely executes and never runs in the served application.
+- Issue #1503 — opened against the nine workflows other than `ci.yml`, which carried no `timeout-minutes` and so inherited the 360-minute Actions default; `docker-build.yml` holds `packages: write` to GHCR and the deploy workflows hold Cloudflare secrets.
+- 25 merged remote branches deleted; `feat/website-sitemap-social` (#1387, closed unmerged) kept because its supersession by #1384/#1393 could not be proven.
+
 ## 2026-07-17
+
+### PR #1476 merged (`392e3a6`) — chore(review): drop inert codex auto-request workflow, fix stale AI-reviewer claims
+
+- Branch `chore/ai-review-stale-artifacts`, 1 commit. Follow-up split from #1472.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1477 merged (`65639cd`) — docs(log): record PR #1472 (AI-reviewer docs aligned with GitHub reality)
+
+- Branch `docs/log-pr-1472`, 1 commit. Rebased to resolve a `PROJECT_LOG.md` ordering conflict: #1472 merged after #1475, so its entry sits above.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1479 merged (`2910979`) — chore(deps): drop dead npm manifests under _archive
+
+- Branch `chore/drop-archive-npm-manifests`, 1 commit. Removes `package.json` + `package-lock.json` from `_archive/{frontend,backend,docs/ydays}`.
+- Reviews — Codex approved, no findings. CI green.
+- **Decisions**:
+  - `archive-inflated-the-alert-count` — 109 of the repo's then-166 open Dependabot alerts came from these archived lockfiles. Removing the manifests took the scanned surface down to live code, leaving 57 real alerts. Dependabot security updates run outside `dependabot.yml`, so config `ignore` could not have suppressed them. #1371 (a dead-code lodash bump) was closed the same day.
 
 ### PR #1472 merged (`1c368c3`) — docs(review): align AI-reviewer docs with GitHub reality
 

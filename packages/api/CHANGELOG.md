@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.16-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.15-alpha1...api-v0.1.16-alpha1) (2026-07-21)
+
+
+### Features
+
+* **dashboard:** real batch deadlines from the backend (drop hardcoded schedule) ([#1512](https://github.com/benoit-bremaud/brasse-bouillon/issues/1512)) ([1f47824](https://github.com/benoit-bremaud/brasse-bouillon/commit/1f47824cf18c007b6e2ad38d7fd91775e0afc6b6))
+* **profile:** account & profile space — bio, RGPD export/deletion, preferences ([#1510](https://github.com/benoit-bremaud/brasse-bouillon/issues/1510)) ([1f14e7c](https://github.com/benoit-bremaud/brasse-bouillon/commit/1f14e7c26b4f2352bd35f8abad0f467f8435c79f))
+
 ## [0.1.15-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.14-alpha1...api-v0.1.15-alpha1) (2026-07-20)
 
 

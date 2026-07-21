@@ -76,11 +76,6 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
       onPress={onPress}
     >
       <Card style={styles.card}>
-        <Badge
-          label={renderedBadgeLabel}
-          variant={renderedBadgeVariant}
-          placement="corner"
-        />
         <View style={styles.cardContent}>
           <View style={[styles.recipeIcon, { backgroundColor: beerColor }]}>
             <Ionicons
@@ -90,9 +85,22 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
             />
           </View>
           <View style={styles.cardInfo}>
-            <Text style={styles.cardTitle} numberOfLines={1}>
-              {recipe.name}
-            </Text>
+            {/*
+              Title and visibility badge share one row: the title flex-shrinks
+              and truncates so a long name (e.g. "BrewDog DIY Dog Punk IPA")
+              can never run under the badge. Replaces the former absolute
+              `placement="corner"` badge, which overlapped long titles.
+            */}
+            <View style={styles.titleRow}>
+              <Text style={styles.cardTitle} numberOfLines={1}>
+                {recipe.name}
+              </Text>
+              <Badge
+                label={renderedBadgeLabel}
+                variant={renderedBadgeVariant}
+                style={styles.visibilityBadge}
+              />
+            </View>
             {stats && (
               <View style={styles.statsRow}>
                 <Text style={styles.statItem}>{stats.ibu} IBU</Text>
@@ -143,11 +151,27 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: spacing.sm,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   cardTitle: {
+    // Shrinks within the row so the single-line title truncates instead of
+    // overrunning the visibility badge to its right.
+    flexShrink: 1,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
+  },
+  visibilityBadge: {
+    // Never shrink; keep the compact micro sizing the corner badge used.
+    flexShrink: 0,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xxs,
+    fontSize: typography.size.micro,
+    lineHeight: typography.lineHeight.micro,
   },
   statsRow: {
     flexDirection: "row",

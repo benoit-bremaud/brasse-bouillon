@@ -7,6 +7,7 @@ import { DifficultyBadge } from "@/features/recipes/presentation/components/Diff
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Recipe } from "@/features/recipes/domain/recipe.types";
+import { formatFrDate } from "@/core/utils/format";
 import { getSrmColor } from "@/features/tools/data/catalogs/srm";
 
 const ebcToSrm = (ebc: number): number => ebc * 0.508;
@@ -57,10 +58,21 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
   const renderedBadgeLabel = badgeLabel ?? VISIBILITY_LABELS[recipe.visibility];
   const renderedBadgeVariant = VISIBILITY_VARIANTS[recipe.visibility];
 
+  // Novice differentiator: two recipes can legitimately share a name, so the
+  // card carries its creation date to tell them apart. Omitted entirely when
+  // the date is missing/unparseable rather than showing a broken value.
+  const createdAtLabel = formatFrDate(recipe.createdAt);
+
+  // Carry the date into the accessible label too, so screen-reader users get the
+  // same differentiator between two same-named recipes that sighted users do.
+  const accessibilityLabel = createdAtLabel
+    ? `Ouvrir la recette ${recipe.name}, créée le ${createdAtLabel}`
+    : `Ouvrir la recette ${recipe.name}`;
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Ouvrir la recette ${recipe.name}`}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
     >
       <Card style={styles.card}>
@@ -95,6 +107,9 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
                 level={recipe.difficultyEffective}
                 style={styles.difficultyBadge}
               />
+            ) : null}
+            {createdAtLabel ? (
+              <Text style={styles.createdAt}>Créée le {createdAtLabel}</Text>
             ) : null}
           </View>
           <Ionicons
@@ -141,6 +156,11 @@ const styles = StyleSheet.create({
   },
   difficultyBadge: {
     marginTop: spacing.xs,
+  },
+  createdAt: {
+    marginTop: spacing.xs,
+    fontSize: typography.size.label,
+    color: colors.neutral.muted,
   },
   statItem: {
     fontSize: typography.size.label,

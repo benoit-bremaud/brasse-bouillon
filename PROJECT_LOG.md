@@ -17,7 +17,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #1499 merged (`aba809c`) — chore(main): release api 0.1.15-alpha1
 
 - Branch `release-please--branches--main--components--api`, 2 commits. `packages/api` to 0.1.15-alpha1.
-- **First fully-automatic tagged release since the tagging fault of April.** After the merge, release-please created `api-v0.1.15-alpha1` on its own (release target `aba809c5`, prerelease) and relabelled the PR `autorelease: tagged` with no manual step — the transition that `linked-versions` structurally prevented (see #1496). The lockfile it carried had already been synced by the #1491 automation (commit `889bb537`), which Codex flagged against the pre-sync commit; replied and re-verified on the current head, then 👍.
+- **First fully-automatic tagged release since the tagging fault of April.** After the merge, release-please created `api-v0.1.15-alpha1` on its own (release target `aba809c5`, prerelease) and relabelled the PR `autorelease: tagged` with no manual step — the transition that `linked-versions` structurally prevented (see #1496). The lockfile it carried had already been synced by the #1491 automation (commit `889bb537`), which Codex flagged against the pre-sync commit; replied and re-verified on the current head, then approved.
 - Confirms the tagging chain end to end: #1496 (drop `linked-versions`) + #1491 (auto-sync the release-branch lockfile) now produce a tagged release with zero intervention.
 
 ## 2026-07-20
@@ -25,7 +25,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #1504 merged (`4b30bbe`) — ci(ci): bound every CI job with an explicit timeout-minutes
 
 - Branch `chore/ci-job-timeouts`, 1 commit. Budgets: `changes` 5, `website` 10, `security-audit` 10, `mobile-app` 15, `api` 15, `beer-encyclopedia` 20.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 - **Decisions**:
   - `loose-budgets-on-purpose` — values sit well above observed maxima (0.18-2.29 min). The goal is turning a hung runner into a fast, legible failure instead of a six-hour sit on the 360-minute default, not policing runtime; a job cancelled on a slow-runner day is noise that erodes trust in CI.
   - `encyclopedia-budgeted-higher` — 20 minutes rather than the npm jobs' 15, because it is the only job with no dependency cache (`setup-python` without `cache: pip`), so it refetches ultralytics, easyocr, opencv-python and PyTorch from PyPI on every run; a slow registry day or a missing manylinux wheel is a realistic overrun.
@@ -45,7 +45,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - **Decisions**:
   - `nestjs-pins-transitives-exactly` — NestJS pins these transitives to exact versions, so `npm update <transitive>` is a no-op; the parents must move. `@nestjs/swagger` was the last holdout, keeping vulnerable copies hoisted at the root after the other two were updated.
   - `swagger-carries-js-yaml-major` — `@nestjs/swagger` 11.4.6 pulls a nested `js-yaml` 4.1.1 -> 5.2.1. Accepted: swagger-module only calls `dump()` on the app's own OpenAPI document, never `load()` on untrusted input.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 
 ### PR #1498 merged (`c14d53b`) — refactor(api): use one SQLite driver in tests instead of two
 
@@ -53,7 +53,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - **Decisions**:
   - `dead-workspace-overrides` — removed `"overrides": {"sqlite3": {"tar": "7.5.7"}}` from `packages/api/package.json`. npm only reads `overrides` from the workspace root, so it had been inert since `88379e0` (the backend -> api rename). `AUDIT.md` and `ROADMAP.md` both credited it as working and were corrected.
   - `hygiene-not-remediation` — does NOT clear the tar alerts: TypeORM declares `sqlite3` as an optional peer and `optional` does not stop npm installing it. Tracked as accepted risk on #1497.
-- Reviews — Codex closed with 👍, no findings. CI green. A correction comment was posted on the PR after merge: an earlier claim that the suite needed a `JWT_SECRET` from `.env` was wrong — the package's own `test:cov` supplies it, and the failure came from invoking bare `npx jest` instead.
+- Reviews — Codex approved, no findings. CI green. A correction comment was posted on the PR after merge: an earlier claim that the suite needed a `JWT_SECRET` from `.env` was wrong — the package's own `test:cov` supplies it, and the failure came from invoking bare `npx jest` instead.
 
 ### PR #1496 merged (`be9bba4`) — fix(ci): drop linked-versions so app releases can be tagged again
 
@@ -61,7 +61,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 - **Decisions**:
   - `linked-versions-cannot-tag` — the plugin hardcodes a group PR title with no `${version}` (`linked-versions.ts:182`), ignoring `group-pull-request-title-pattern`. release-please cannot parse a version back after merge and aborts with "untagged, merged release PRs outstanding" — aborting because of the very PR it can never tag. No config fix exists; the plugin was removed.
   - `no-lockstep` — `mobile-app` and `api` now version independently, like `website` and `beer-encyclopedia`. Nothing required them to match: neither depends on the other and both are private.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 
 ### PR #1487 merged (`ca41e1c`) — chore(deps): bump ip-address from 10.1.0 to 10.2.0
 
@@ -102,7 +102,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #1427 merged (`5099dda`) — chore(main): release app libraries
 
 - Branch `release-please--branches--main--groups--app`, 2 commits. `mobile-app` and `api` to 0.1.14-alpha1.
-- Reviews — bot-authored branch, so no local pre-push pass. On GitHub, Copilot and Codex both reviewed all three release PRs and Codex closed each with 👍; replies posted. CI green.
+- Reviews — bot-authored branch, so no local pre-push pass. On GitHub, Copilot and Codex both reviewed all three release PRs and Codex approved each; replies posted. CI green.
 
 ### PR #1426 merged (`d3e058e`) — chore(main): release website 0.1.3
 
@@ -120,7 +120,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
   - `surgical-not-npm-install` — `npm install --package-lock-only` re-resolves the whole tree and can lift unrelated packages inside a version-bump-only PR; the script rewrites only `packages/*` version fields.
   - `double-gated-branch-list` — branch names are filtered on `isCrossRepository == false` plus the `autorelease: pending` marker. A fork PR whose head branch merely matched the release-please prefix would fail the fetch and, under `set -e`, block the release workflow on every push to main — a zero-privilege denial of service on a public repo.
   - `no-silent-success` — every filter lives in `--jq` with no `|| true`, so a failing `gh` fails the step instead of reporting "nothing to sync" while lockfiles stay stale.
-- Reviews — Codex raised one P2 (the branch-listing step swallowed failures via `|| true`, on the one step whose whole job is to detect drift); fixed in `c7ba81a0` with an inline reply, then 👍. CI green.
+- Reviews — Codex raised one P2 (the branch-listing step swallowed failures via `|| true`, on the one step whose whole job is to detect drift); fixed in `c7ba81a0` with an inline reply, then approved. CI green.
 
 ### PR #1490 merged (`c27eb7b`) — fix(mobile-app): surface render errors and cap request duration
 
@@ -130,7 +130,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
   - `abortsignal-statics-absent-in-hermes` — the timeout uses a plain `AbortController` + `setTimeout`, not `AbortSignal.timeout()`/`any()`: React Native polyfills `AbortController` from the `abort-controller` package, which ships neither static. The idiomatic spelling would have shipped the same `undefined is not a function` class of bug.
   - `timeout-covers-body-read` — `parseBody` runs inside the timed window; `fetch` resolves on headers, so a stalled body would otherwise escape the ceiling.
   - `scan-import-needs-its-own-budget` — `importBeerByEan` gets 45s: a cold encyclopedia miss is ~10s Fly wake-up plus its own 10s OpenFoodFacts budget, and `HttpTimeoutError` is deliberately not an `HttpError`, so timing out first skips the 404/503 fallback to the legacy NestJS lookup entirely.
-- Reviews — local pre-push: Claude `pr-pre-reviewer` + Codex CLI, Must Have cleared before push. On GitHub, Codex raised one P2 (the 20s default cut the encyclopedia import off before its own fallback could fire); fixed in `e82488b6` with an inline reply, then 👍. CI green.
+- Reviews — local pre-push: Claude `pr-pre-reviewer` + Codex CLI, Must Have cleared before push. On GitHub, Codex raised one P2 (the 20s default cut the encyclopedia import off before its own fallback could fire); fixed in `e82488b6` with an inline reply, then approved. CI green.
 
 ### PR #1489 merged (`d93ca72`) — test(mobile-app): stop async assertions failing on machine load
 
@@ -140,7 +140,7 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
   - `flake-is-not-localized` — two concurrent full suites failed every time, on different tests (`DashboardScreen`, then `BeerInfoCardScreen`), so the fix belongs in the shared setup rather than one spec.
   - `beerinfocard-is-harness-not-app` — that spec's ~600ms outlier is `waitFor`'s wall-clock polling, not app latency: the screen leaves its error state in ~3ms once three React flush cycles run. No user-visible delay on the scan retry path.
   - `jest-setup-is-do-not-modify` — `packages/mobile-app/CLAUDE.md` lists `jest.setup.ts` as do-not-modify; explicit approval was obtained and is recorded in the commit and the file comment.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 
 
 ### Session cleanup and follow-ups opened
@@ -156,17 +156,17 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 ### PR #1476 merged (`392e3a6`) — chore(review): drop inert codex auto-request workflow, fix stale AI-reviewer claims
 
 - Branch `chore/ai-review-stale-artifacts`, 1 commit. Follow-up split from #1472.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 
 ### PR #1477 merged (`65639cd`) — docs(log): record PR #1472 (AI-reviewer docs aligned with GitHub reality)
 
 - Branch `docs/log-pr-1472`, 1 commit. Rebased to resolve a `PROJECT_LOG.md` ordering conflict: #1472 merged after #1475, so its entry sits above.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 
 ### PR #1479 merged (`2910979`) — chore(deps): drop dead npm manifests under _archive
 
 - Branch `chore/drop-archive-npm-manifests`, 1 commit. Removes `package.json` + `package-lock.json` from `_archive/{frontend,backend,docs/ydays}`.
-- Reviews — Codex closed with 👍, no findings. CI green.
+- Reviews — Codex approved, no findings. CI green.
 - **Decisions**:
   - `archive-inflated-the-alert-count` — 109 of the repo's then-166 open Dependabot alerts came from these archived lockfiles. Removing the manifests took the scanned surface down to live code, leaving 57 real alerts. Dependabot security updates run outside `dependabot.yml`, so config `ignore` could not have suppressed them. #1371 (a dead-code lodash bump) was closed the same day.
 

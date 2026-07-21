@@ -172,6 +172,12 @@ export class AccountDeletionService {
           .map((recipe) => recipe.id);
 
         await this.deleteRecipeDependents(manager, privateRecipeIds);
+        // Safe today: `recipes.root_recipe_id` is ON DELETE RESTRICT and
+        // self-referencing, but every live recipe roots to itself (recipe
+        // forking is not yet wired). Once a user can own a multi-version
+        // lineage, deleting it in one bulk statement will hit the same
+        // RESTRICT abort we fixed for batches above and will need ordered
+        // deletion here.
         await this.deleteByIds(manager, 'recipes', 'id', privateRecipeIds);
         await manager
           .createQueryBuilder()

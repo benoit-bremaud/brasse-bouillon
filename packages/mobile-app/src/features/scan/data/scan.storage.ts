@@ -174,6 +174,10 @@ function canUseForTraining(
     if (!decision) {
       continue;
     }
+    // `>=` lets the later-listed axis win an exact-timestamp tie. This is
+    // harmless: the only writer that produces a tie (`toConsentDecisions`)
+    // stamps both axes with the same value at the same instant, so a tie
+    // never carries conflicting values.
     if (
       !winner ||
       Date.parse(decision.decidedAt) >= Date.parse(winner.decidedAt)

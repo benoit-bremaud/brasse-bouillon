@@ -109,6 +109,30 @@ describe("scanStorageRepository training consent (ADR-0003, cross-axis)", () => 
     expect(settings?.preferences.useDataForModelTraining).toBe(false);
   });
 
+  it("stays deterministic when both training axes share a timestamp", async () => {
+    // The real-world tie: saveConsentSettings writes both axes together with
+    // the same value + instant, so the tie-break never flips the result.
+    mockListDecisions.mockResolvedValue([
+      ...baseDecisions("2026-02-01T08:00:00.000Z"),
+      {
+        axis: "scan.training",
+        value: true,
+        decidedAt: "2026-02-01T08:00:00.000Z",
+        source: "scan",
+      },
+      {
+        axis: "ml.training",
+        value: true,
+        decidedAt: "2026-02-01T08:00:00.000Z",
+        source: "scan",
+      },
+    ]);
+
+    const settings = await scanStorageRepository.getConsentSettings();
+
+    expect(settings?.preferences.useDataForModelTraining).toBe(true);
+  });
+
   it("falls back to scan.training alone when ml.training was never recorded", async () => {
     mockListDecisions.mockResolvedValue([
       ...baseDecisions("2026-02-01T08:00:00.000Z"),

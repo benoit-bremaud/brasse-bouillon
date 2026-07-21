@@ -63,10 +63,16 @@ export function RecipeCard({ recipe, badgeLabel, onPress }: Props) {
   // the date is missing/unparseable rather than showing a broken value.
   const createdAtLabel = formatFrDate(recipe.createdAt);
 
+  // Carry the date into the accessible label too, so screen-reader users get the
+  // same differentiator between two same-named recipes that sighted users do.
+  const accessibilityLabel = createdAtLabel
+    ? `Ouvrir la recette ${recipe.name}, créée le ${createdAtLabel}`
+    : `Ouvrir la recette ${recipe.name}`;
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Ouvrir la recette ${recipe.name}`}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
     >
       <Card style={styles.card}>

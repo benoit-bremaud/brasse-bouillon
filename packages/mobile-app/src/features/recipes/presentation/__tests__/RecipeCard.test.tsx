@@ -94,6 +94,32 @@ describe("RecipeCard — creation date (novice differentiator for same-named rec
     expect(screen.queryByText(/^Créée le /)).toBeNull();
   });
 
+  it("happy: carries the creation date into the accessible label so screen readers get the differentiator", () => {
+    render(
+      <RecipeCard
+        recipe={{ ...baseRecipe, createdAt: "2026-01-15T12:00:00.000Z" }}
+        onPress={() => {}}
+      />,
+    );
+
+    expect(
+      screen.getByLabelText(
+        /^Ouvrir la recette Session IPA, créée le \d{1,2} janvier 2026$/,
+      ),
+    ).toBeTruthy();
+  });
+
+  it("edge: accessible label falls back to the name alone when there is no date", () => {
+    render(
+      <RecipeCard
+        recipe={{ ...baseRecipe, createdAt: "" }}
+        onPress={() => {}}
+      />,
+    );
+
+    expect(screen.getByLabelText("Ouvrir la recette Session IPA")).toBeTruthy();
+  });
+
   it("sad: omits the date line for an unparseable createdAt rather than showing 'Invalid Date'", () => {
     render(
       <RecipeCard

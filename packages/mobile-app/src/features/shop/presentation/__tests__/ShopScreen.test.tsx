@@ -56,6 +56,7 @@ describe("ShopScreen", () => {
       { category: "malt", count: 10 },
       { category: "hop", count: 4 },
       { category: "yeast", count: 4 },
+      { category: "misc", count: 4 },
     ]);
   });
 
@@ -90,11 +91,25 @@ describe("ShopScreen", () => {
     renderShopScreen();
     await screen.findByText("10");
 
+    // Accessoires left this list when its catalog was wired — the guard
+    // forcing that re-decision is the point of keeping it narrow.
     expect(screen.queryByLabelText("Ouvrir le rayon Kits")).toBeNull();
     expect(screen.queryByLabelText("Ouvrir le rayon Matériel")).toBeNull();
-    expect(screen.queryByLabelText("Ouvrir le rayon Accessoires")).toBeNull();
     // `Badge` uppercases its label by design (design-system § Badge).
-    expect(screen.getAllByText("BIENTÔT")).toHaveLength(3);
+    expect(screen.getAllByText("BIENTÔT")).toHaveLength(2);
+  });
+
+  it("opens the misc catalog from the Accessoires rayon", async () => {
+    renderShopScreen();
+
+    fireEvent.press(
+      await screen.findByLabelText("Ouvrir le rayon Accessoires"),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/(app)/ingredients/[category]",
+      params: { category: "misc" },
+    });
   });
 
   // #1444 deleted a catalog of invented prices. No price may render until

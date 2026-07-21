@@ -31,6 +31,16 @@ export const ingredientCategoryPresentationById: Record<
     iconName: "flask-outline",
     iconColor: colors.brand.secondary,
   },
+  // "L'Épicerie" revives the name the shop rayon used to carry: cryptic as a
+  // rayon label (a novice looking for adjuncts would not find it), but apt as
+  // a page title, where it sits with La Malterie / La Houblonnière / Le
+  // Fermentoir. The rayon says what it is; the page keeps the personality.
+  misc: {
+    pageName: "L'Épicerie",
+    emoji: "🌶️",
+    iconName: "restaurant-outline",
+    iconColor: colors.semantic.warning,
+  },
 };
 
 export function getIngredientCategoryPageTitle(

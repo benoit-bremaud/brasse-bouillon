@@ -22,7 +22,10 @@ import {
 } from "@/mocks/demo-data";
 
 import { dataSource } from "@/core/data/data-source";
-import { Ingredient } from "@/features/ingredients/domain/ingredient.types";
+import {
+  Ingredient,
+  IngredientCategory,
+} from "@/features/ingredients/domain/ingredient.types";
 
 export type RecipeDetailsIngredientItem = {
   ingredientId: string;
@@ -52,6 +55,24 @@ export type RecipeDetailsViewModel = {
   ingredients: RecipeDetailsIngredientItem[];
   equipment: RecipeDetailsEquipmentItem[];
 };
+
+/**
+ * Narrows a catalog `IngredientCategory` onto the recipe view's own grouping.
+ *
+ * The recipe detail groups ingredients as malt / hop / yeast / other, and
+ * `misc` (finings, spices, water agents) belongs in "other" there: a brewer
+ * reading a recipe treats them as adjuncts, and a fifth group would split the
+ * list for no gain. Written as an explicit whitelist rather than a cast so a
+ * future category cannot silently land in the wrong bucket.
+ */
+function toRecipeIngredientGroupKey(
+  category: IngredientCategory | undefined,
+): RecipeDetailsIngredientItem["category"] {
+  if (category === "malt" || category === "hop" || category === "yeast") {
+    return category;
+  }
+  return "other";
+}
 
 export async function listRecipes(): Promise<Recipe[]> {
   // « Mes recettes » = owned only. A demo recipe without an `ownerId` is a
@@ -187,7 +208,7 @@ export async function getRecipeDetailsViewModel(
         return {
           ingredientId: ref.ingredientId,
           name: ingredient?.name ?? "Ingrédient inconnu",
-          category: ingredient?.category ?? "other",
+          category: toRecipeIngredientGroupKey(ingredient?.category),
           amount: ref.amount,
           unit: ref.unit,
           timing: ref.timing,

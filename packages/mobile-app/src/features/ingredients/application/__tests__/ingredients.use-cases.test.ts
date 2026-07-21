@@ -15,6 +15,11 @@ import {
   getYeastDetails,
   listYeasts,
 } from "@/features/ingredients/application/yeasts.use-cases";
+import {
+  getMiscDetailsApi,
+  listMiscApi,
+  type MiscProduct,
+} from "@/features/ingredients/data/misc.api";
 
 import { HopProduct } from "@/features/ingredients/domain/hop.types";
 import { MaltProduct } from "@/features/ingredients/domain/malt.types";
@@ -43,6 +48,20 @@ jest.mock("@/features/ingredients/application/yeasts.use-cases", () => ({
   getYeastDetails: jest.fn(),
 }));
 
+// Misc dispatches straight to the api rather than through a per-type
+// use-case (it has no demo-only path or filters of its own), so the boundary
+// mocked here is the data module.
+jest.mock("@/features/ingredients/data/misc.api", () => ({
+  listMiscApi: jest.fn(),
+  getMiscDetailsApi: jest.fn(),
+}));
+
+const mockedListMiscApi = listMiscApi as jest.MockedFunction<
+  typeof listMiscApi
+>;
+const mockedGetMiscDetailsApi = getMiscDetailsApi as jest.MockedFunction<
+  typeof getMiscDetailsApi
+>;
 const mockedListMalts = listMalts as jest.MockedFunction<typeof listMalts>;
 const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
   typeof getMaltDetails
@@ -125,6 +144,19 @@ function buildYeastProduct(
   };
 }
 
+function buildMiscProduct(overrides: Partial<MiscProduct> = {}): MiscProduct {
+  return {
+    id: "misc-whirlfloc-uuid",
+    slug: "whirlfloc",
+    name: "Whirlfloc",
+    miscType: "fining",
+    useAt: "boil",
+    useFor: "Clarté",
+    timeMin: 15,
+    ...overrides,
+  };
+}
+
 describe("ingredients use-cases", () => {
   beforeEach(() => {
     dataSource.useDemoData = true;
@@ -134,6 +166,9 @@ describe("ingredients use-cases", () => {
     mockedGetHopDetails.mockReset();
     mockedListYeasts.mockReset();
     mockedGetYeastDetails.mockReset();
+    mockedListMiscApi.mockReset();
+    mockedListMiscApi.mockResolvedValue([]);
+    mockedGetMiscDetailsApi.mockReset();
   });
 
   describe("listIngredientCategoriesSummary", () => {
@@ -150,6 +185,7 @@ describe("ingredients use-cases", () => {
         hop: demoIngredients.filter((item) => item.category === "hop").length,
         yeast: demoIngredients.filter((item) => item.category === "yeast")
           .length,
+        misc: demoIngredients.filter((item) => item.category === "misc").length,
       });
 
       expect(mockedListMalts).not.toHaveBeenCalled();
@@ -169,13 +205,15 @@ describe("ingredients use-cases", () => {
       );
     });
 
-    // Edge case — always returns the 3 expected categories.
-    it("always includes all three categories (malt, hop, yeast)", async () => {
+    // Edge case — every rayon the shop can open must get a count, so the hub
+    // never renders a live rayon with a missing badge.
+    it("always includes every catalog category (malt, hop, yeast, misc)", async () => {
       const summary = await listIngredientCategoriesSummary();
 
       expect(summary.map((item) => item.category).sort()).toEqual([
         "hop",
         "malt",
+        "misc",
         "yeast",
       ]);
     });
@@ -242,16 +280,19 @@ describe("ingredients use-cases", () => {
       ]);
       mockedListHops.mockResolvedValue([buildHopProduct()]);
       mockedListYeasts.mockResolvedValue([buildYeastProduct()]);
+      mockedListMiscApi.mockResolvedValue([buildMiscProduct()]);
 
       const summary = await listIngredientCategoriesSummary();
 
       expect(mockedListMalts).toHaveBeenCalledTimes(1);
       expect(mockedListHops).toHaveBeenCalledTimes(1);
       expect(mockedListYeasts).toHaveBeenCalledTimes(1);
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
       expect(summary).toEqual([
         { category: "malt", count: 2 },
         { category: "hop", count: 1 },
         { category: "yeast", count: 1 },
+        { category: "misc", count: 1 },
       ]);
     });
 
@@ -341,6 +382,88 @@ describe("ingredients use-cases", () => {
 
       expect(details).toBeNull();
       expect(mockedGetYeastDetails).not.toHaveBeenCalled();
+    });
+
+    // Misc dispatches straight to `listMiscApi` (no per-type use-case, see
+    // `listLiveIngredientsByCategory`'s `case "misc"`), so the delegation
+    // guard here mirrors the hop/yeast ones above but against the api mock.
+    it("delegates the misc list to listMiscApi + maps MiscProduct to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedListMiscApi.mockResolvedValue([
+        buildMiscProduct({
+          id: "misc-whirlfloc-uuid",
+          name: "Whirlfloc",
+          miscType: "fining",
+          useAt: "boil",
+          useFor: "Clarté",
+          timeMin: 15,
+          description: "Clarifiant utilisé en fin d'ébullition.",
+        }),
+      ]);
+
+      const results = await listIngredientsByCategory("misc");
+
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
+      expect(results).toHaveLength(1);
+      // Full-shape assertion (not just toMatchObject) — miscToIngredient is
+      // the flattest mapper (no specGroups to parse), so every field is a
+      // straight passthrough worth pinning, including the
+      // description → notes rename.
+      expect(results[0]).toEqual({
+        id: "misc-whirlfloc-uuid",
+        name: "Whirlfloc",
+        category: "misc",
+        miscType: "fining",
+        useAt: "boil",
+        useFor: "Clarté",
+        timeMin: 15,
+        notes: "Clarifiant utilisé en fin d'ébullition.",
+      });
+    });
+
+    // Edge case — an empty catalog page must not surface as an error or a
+    // stale list; the Accessoires rayon should just render empty.
+    it("returns an empty list when the misc catalog is empty", async () => {
+      dataSource.useDemoData = false;
+      mockedListMiscApi.mockResolvedValue([]);
+
+      const results = await listIngredientsByCategory("misc");
+
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
+      expect(results).toEqual([]);
+    });
+
+    it("delegates misc details to getMiscDetailsApi + maps to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedGetMiscDetailsApi.mockResolvedValue(
+        buildMiscProduct({
+          id: "misc-whirlfloc-uuid",
+          name: "Whirlfloc",
+        }),
+      );
+
+      const details = await getIngredientDetails("misc", "misc-whirlfloc-uuid");
+
+      expect(mockedGetMiscDetailsApi).toHaveBeenCalledWith(
+        "misc-whirlfloc-uuid",
+      );
+      expect(details).toMatchObject({
+        id: "misc-whirlfloc-uuid",
+        name: "Whirlfloc",
+        category: "misc",
+      });
+    });
+
+    // Sad path — a missing id resolves to null rather than throwing, same
+    // contract as getMaltDetails/getHopDetails/getYeastDetails on a 404.
+    it("returns null when the misc id does not resolve to a catalog product", async () => {
+      dataSource.useDemoData = false;
+      mockedGetMiscDetailsApi.mockResolvedValue(null);
+
+      const details = await getIngredientDetails("misc", "misc-unknown-uuid");
+
+      expect(mockedGetMiscDetailsApi).toHaveBeenCalledWith("misc-unknown-uuid");
+      expect(details).toBeNull();
     });
   });
 

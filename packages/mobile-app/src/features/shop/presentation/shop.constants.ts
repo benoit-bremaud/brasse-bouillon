@@ -46,11 +46,19 @@ export const SHOP_RAYONS: ShopRayon[] = [
     description: "Lagers, Ales, Weiße, Belgian...",
     catalogCategory: "yeast",
   },
-  // The three rayons below have no `catalogCategory` yet, for two different
-  // reasons. Kits has no source anywhere. Matériel and Accessoires ARE served
-  // by the backend already (`/catalog/equipment-templates`,
-  // `/catalog/misc-templates`) but nothing consumes them mobile-side: they
-  // wait on plumbing, not on data, and Lot 2 wires them.
+  {
+    id: "accessoires",
+    label: "Accessoires",
+    icon: "restaurant-outline",
+    description: "Adjuvants, épices et compléments aromatiques",
+    catalogCategory: "misc",
+  },
+  // The two below have no `catalogCategory`, for different reasons. Kits has
+  // no source anywhere. Matériel IS served by the backend already
+  // (`/catalog/equipment-templates`) but an EquipmentTemplate is not an
+  // Ingredient — its specs are BeerXML equipment (boil_size_l, tun_volume_l…),
+  // so wiring it needs a target kind this model cannot express yet, plus its
+  // own screens. That is its own lot, not a slice of this one.
   {
     id: "kits",
     label: "Kits",
@@ -63,13 +71,6 @@ export const SHOP_RAYONS: ShopRayon[] = [
     label: "Matériel",
     icon: "construct-outline",
     description: "Matériel de brassage, cuves et équipements clés",
-    catalogCategory: null,
-  },
-  {
-    id: "accessoires",
-    label: "Accessoires",
-    icon: "restaurant-outline",
-    description: "Adjuvants, épices et compléments aromatiques",
     catalogCategory: null,
   },
 ];

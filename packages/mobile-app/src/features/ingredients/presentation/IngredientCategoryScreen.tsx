@@ -29,6 +29,10 @@ import { Screen } from "@/core/ui/Screen";
 import { ScreenFlatList } from "@/core/ui/ScreenFlatList";
 import { getErrorMessage } from "@/core/http/http-error";
 import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
+import {
+  getMiscTypeLabel,
+  getMiscUseLabel,
+} from "@/features/ingredients/presentation/misc.presentation";
 import { listIngredientsByCategory } from "@/features/ingredients/application/ingredients.use-cases";
 import { listMalts } from "@/features/ingredients/application/malts.use-cases";
 import { normalizeRouteParam } from "@/core/navigation/route-params";
@@ -91,7 +95,17 @@ function getIngredientMeta(item: IngredientListItem): string {
   if (item.category === "hop") {
     return `Usage: ${item.hopUse} • Alpha: ${item.alphaAcid}%`;
   }
-  return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
+  if (item.category === "yeast") {
+    return `Type: ${item.yeastType} • Atténuation: ${item.attenuationMin}-${item.attenuationMax}%`;
+  }
+  // Misc specs are all nullable in the catalog, so build from what is there
+  // rather than printing "undefined • undefined" for a fining with no usage.
+  const miscMeta = [
+    getMiscTypeLabel(item.miscType),
+    getMiscUseLabel(item.useAt),
+    item.useFor,
+  ].filter((part): part is string => Boolean(part));
+  return miscMeta.length > 0 ? miscMeta.join(" • ") : "Adjuvant de brassage";
 }
 
 export function IngredientCategoryScreen({

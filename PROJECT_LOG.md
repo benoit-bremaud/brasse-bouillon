@@ -7,6 +7,32 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-21
 
+### Tags `mobile-app-v0.1.16-alpha1` + `api-v0.1.16-alpha1` shipped (`869b0fe`, `87ea68c`)
+
+- Release PRs #1513 (mobile-app) + #1514 (api) merged into the tags, auto-tagged by release-please (the automatic chain from #1496 + #1491).
+- Cut together the same session: the two simultaneous release PRs conflicted on `.release-please-manifest.json` (each bumped its own component); resolved to both at 0.1.16-alpha1, lockfile re-synced via `scripts/sync-workspace-lockfile.mjs`. Codex flagged the pre-sync lockfile on both PRs (P2) — replied + re-verified in-step, then merged.
+- No mobile APK cut from 0.1.16: the EAS free-plan Android build quota was exhausted (resets 2026-08-01).
+
+### PR #1512 merged (`1f47824`) — feat(dashboard): real batch deadlines from the backend
+
+- Branch `feat/dashboard-real-deadlines`, 5 commits. UML conception under `docs/architecture/diagrams/dashboard-deadlines/`.
+- Replaces the hardcoded `BREWING_STEPS` schedule: `GET /batches` (+ `/:id`) expose `current_step_due_at` (= step `started_at` + `planned_duration_min`), `current_step_is_critical` (from step type), `current_step_label`; the dashboard buckets them, null → neutral "En cours". "Temps réel" caption → "Échéances réelles".
+- Reviews — pre-push (Claude + Codex) run twice, all Must Have resolved; Codex P2 on GitHub (fermentation/packaging carry no planned duration → those critical phases show "En cours", follow-up tracked). CI green.
+
+### PR #1511 merged (`3545d7a`) — fix(mobile-app): stop the badge overlapping long card titles
+
+- Branch `fix/recipe-card-badge-overlap`, 1 commit.
+- Recipe + batch list cards: the absolute `placement="corner"` badge overran long titles. Moved into a flex title row (title flex-shrinks + truncates). StepCard left as-is (short fixed labels).
+- Reviews — Codex clean (approved). CI green.
+
+### PR #1510 merged (`1f14e7c`) — feat(profile): account & profile space (bio, RGPD export/deletion, preferences)
+
+- Branch `feat/profile-account-management`, 6 commits. Account UML suite + ADR-0012.
+- API: bio, personal-data export (`GET /auth/me/export`), account deletion with 30-day grace (`POST`/`DELETE /auth/me/deletion`) + hourly cron worker, ADR-0012 anonymization onto a seeded "Auteur supprimé" tombstone. Mobile: 9-screen profile space, dark mode gated off.
+- 5 pre-push Must Haves fixed before PR (batch-before-recipe deletion order/FK RESTRICT, removed the immediate-erase `DELETE /auth/me` bypass, tombstone seed for the anonymized-recipe FK, no raw SQL in services, cross-axis training consent per ADR-0003). Codex 2 P2 (tombstone-before-anonymize is a deploy step; export not account-scoped on a shared install) — replied, tracked as follow-ups.
+- Reviews — pre-push (Claude + Codex) + Codex on GitHub. CI green.
+- Deploy note: run the production seed CLI so the tombstone row exists before any deletion runs.
+
 ### PR #1500 merged (`4e2d36b`) — chore(deps): bump tar from 6.2.1 to 7.5.20
 
 - Branch `dependabot/npm_and_yarn/tar-7.5.20`, 1 commit. Root `package-lock.json` only.

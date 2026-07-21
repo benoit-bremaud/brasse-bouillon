@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.17-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.16-alpha1...api-v0.1.17-alpha1) (2026-07-21)
+
+
+### Features
+
+* **api:** use the recipe's boil time as the BOIL step's real deadline ([#1516](https://github.com/benoit-bremaud/brasse-bouillon/issues/1516)) ([1048ec6](https://github.com/benoit-bremaud/brasse-bouillon/commit/1048ec60789efb70ef039bb73bd77bddc348f397))
+
 ## [0.1.16-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.15-alpha1...api-v0.1.16-alpha1) (2026-07-21)
 
 

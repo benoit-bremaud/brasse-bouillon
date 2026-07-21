@@ -25,6 +25,9 @@ type BatchSummaryDto = {
   fermentation_completed_at?: string | null;
   bottled_at?: string | null;
   completed_at?: string | null;
+  current_step_label?: string | null;
+  current_step_due_at?: string | null;
+  current_step_is_critical?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -81,6 +84,9 @@ function mapBatchSummary(dto: BatchSummaryDto): BatchSummary {
     fermentationCompletedAt: dto.fermentation_completed_at ?? null,
     bottledAt: dto.bottled_at ?? null,
     completedAt: dto.completed_at ?? null,
+    currentStepLabel: dto.current_step_label ?? null,
+    currentStepDueAt: dto.current_step_due_at ?? null,
+    currentStepIsCritical: dto.current_step_is_critical ?? false,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

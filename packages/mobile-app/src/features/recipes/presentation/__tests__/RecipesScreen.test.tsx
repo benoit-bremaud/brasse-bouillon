@@ -138,7 +138,9 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
 
     await screen.findByText("My Saison");
 
-    fireEvent.press(screen.getByLabelText("Ouvrir la recette My Saison"));
+    // Prefix match: the card's accessible label now appends ", créée le <date>"
+    // when the recipe has a createdAt (date omitted here for timezone-robustness).
+    fireEvent.press(screen.getByLabelText(/^Ouvrir la recette My Saison/));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-mine-1");
   });
@@ -166,7 +168,7 @@ describe("RecipesScreen — Mes Recettes Hub (Issue #740 Round 2)", () => {
 
     await screen.findByText("Punk IPA Clone");
 
-    fireEvent.press(screen.getByLabelText("Ouvrir la recette Punk IPA Clone"));
+    fireEvent.press(screen.getByLabelText(/^Ouvrir la recette Punk IPA Clone/));
 
     expect(mockPush).toHaveBeenCalledWith("/(app)/recipes/r-public-1");
   });

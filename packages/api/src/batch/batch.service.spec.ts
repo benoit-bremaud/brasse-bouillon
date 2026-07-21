@@ -420,6 +420,25 @@ describe('BatchService', () => {
     expect(row.currentStep).toBeNull();
   });
 
+  it('listMine() should attach the right current step to each of two batches sharing a step order', async () => {
+    const ownerId = 'user-1';
+    const recipeA = await recipeService.create(ownerId, { name: 'Batch A' });
+    const recipeB = await recipeService.create(ownerId, { name: 'Batch B' });
+    const startedA = await batchService.startMine(ownerId, recipeA.id);
+    const startedB = await batchService.startMine(ownerId, recipeB.id);
+
+    const list = await batchService.listMine(ownerId);
+    const byId = new Map(list.map((row) => [row.batch.id, row]));
+    const rowA = byId.get(startedA.batch.id);
+    const rowB = byId.get(startedB.batch.id);
+
+    // Both freshly-started batches sit at the same step order; the composite
+    // (batch_id, step_order) key must attach each batch its own step.
+    expect(rowA?.batch.current_step_order).toBe(rowB?.batch.current_step_order);
+    expect(rowA?.currentStep?.batch_id).toBe(startedA.batch.id);
+    expect(rowB?.currentStep?.batch_id).toBe(startedB.batch.id);
+  });
+
   it('cancelMine() should soft-cancel an in-progress batch and keep its journal', async () => {
     const ownerId = 'user-1';
     const recipe = await recipeService.create(ownerId, { name: 'My IPA' });

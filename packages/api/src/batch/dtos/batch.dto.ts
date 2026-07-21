@@ -20,8 +20,14 @@ export class BatchDto extends BatchSummaryDto {
     batch: BatchOrmEntity,
     steps: BatchStepOrmEntity[],
   ): BatchDto {
+    const currentStep =
+      batch.current_step_order != null
+        ? (steps.find(
+            (step) => step.step_order === batch.current_step_order,
+          ) ?? null)
+        : null;
     return {
-      ...BatchSummaryDto.fromEntity(batch),
+      ...BatchSummaryDto.fromEntity(batch, currentStep),
       steps: steps.map((step) => BatchStepDto.fromEntity(step)),
       prep_checked_ids: batch.prep_checked_ids ?? null,
     };

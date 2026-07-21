@@ -2638,6 +2638,11 @@ export const demoBatchSummaries: BatchSummary[] = [
     fermentationStartedAt: null,
     fermentationCompletedAt: null,
     completedAt: null,
+    currentStepLabel: "Empâtage",
+    // Null on the fixed-date demo so the alert reads a neutral "En cours"
+    // rather than a stale "En retard"; criticality is what matters here.
+    currentStepDueAt: null,
+    currentStepIsCritical: false,
     createdAt: "2026-05-19T09:00:00.000Z",
     updatedAt: "2026-05-19T09:30:00.000Z",
   },
@@ -2651,6 +2656,9 @@ export const demoBatchSummaries: BatchSummary[] = [
     fermentationStartedAt: "2026-05-14T11:30:00.000Z",
     fermentationCompletedAt: null,
     completedAt: null,
+    currentStepLabel: "Fermentation",
+    currentStepDueAt: null,
+    currentStepIsCritical: true,
     createdAt: "2026-05-14T09:00:00.000Z",
     updatedAt: "2026-05-19T08:00:00.000Z",
   },
@@ -2664,6 +2672,10 @@ export const demoBatchSummaries: BatchSummary[] = [
     fermentationStartedAt: "2026-04-22T11:30:00.000Z",
     fermentationCompletedAt: "2026-05-06T11:30:00.000Z",
     completedAt: "2026-05-12T15:00:00.000Z",
+    // Completed batch: no active step, so it never surfaces as an alert.
+    currentStepLabel: null,
+    currentStepDueAt: null,
+    currentStepIsCritical: false,
     createdAt: "2026-04-22T09:00:00.000Z",
     updatedAt: "2026-05-12T15:00:00.000Z",
   },

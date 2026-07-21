@@ -60,15 +60,10 @@ type BrewStepConfig = {
   isCriticalQuality: boolean;
 };
 
-type TimelineStep = {
-  label: string;
-  state: "past" | "current" | "next";
-};
-
-// Illustrative brewing sequence for the 3-step timeline strip and the
-// demo-only hero card. It NO LONGER drives the live "Alertes & échéances"
-// deadlines/urgency/criticality — those now come from the backend
-// (batch.currentStepDueAt / currentStepIsCritical), see buildBatchAlert.
+// Illustrative brewing sequence for the demo-only hero card. It does NOT drive
+// the live "Alertes & échéances" deadlines/urgency/criticality — those come
+// from the backend (batch.currentStepDueAt / currentStepIsCritical), see
+// buildBatchAlert.
 const BREWING_STEPS: BrewStepConfig[] = [
   { label: "Empâtage", expectedHours: 2, isCriticalQuality: false },
   { label: "Ébullition", expectedHours: 8, isCriticalQuality: false },
@@ -295,20 +290,6 @@ function buildBatchAlert(
     status: getAlertStatus(dueAt, now),
     isCriticalQuality: batch.currentStepIsCritical ?? false,
   };
-}
-
-function getTimelineSteps(stepOrder?: number | null): TimelineStep[] {
-  const stepIndex = clampStepIndex(stepOrder);
-  const previousLabel =
-    stepIndex > 0 ? BREWING_STEPS[stepIndex - 1].label : "Préparation";
-  const currentLabel = BREWING_STEPS[stepIndex].label;
-  const nextLabel = BREWING_STEPS[stepIndex + 1]?.label ?? "Finalisation";
-
-  return [
-    { label: previousLabel, state: "past" },
-    { label: currentLabel, state: "current" },
-    { label: nextLabel, state: "next" },
-  ];
 }
 
 function getStatusColors(status: string): {
@@ -984,7 +965,6 @@ export function DashboardScreen() {
                 const statusColors = getStatusColors(
                   alert?.status ?? "Bientôt",
                 );
-                const timeline = getTimelineSteps(batch.currentStepOrder);
 
                 return (
                   <Pressable
@@ -1023,32 +1003,6 @@ export function DashboardScreen() {
                     <Text style={styles.activeBatchMeta}>
                       {alert?.currentStepLabel ?? "Étape en cours"}
                     </Text>
-
-                    <View style={styles.timelineRow}>
-                      {timeline.map((step) => {
-                        const dotStyle =
-                          step.state === "past"
-                            ? styles.timelineDotPast
-                            : step.state === "current"
-                              ? styles.timelineDotCurrent
-                              : styles.timelineDotNext;
-
-                        return (
-                          <View
-                            key={`${batch.id}-${step.label}`}
-                            style={styles.timelineItem}
-                          >
-                            <View style={[styles.timelineDot, dotStyle]} />
-                            <Text
-                              style={styles.timelineLabel}
-                              numberOfLines={1}
-                            >
-                              {step.label}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                    </View>
                   </Pressable>
                 );
               })}
@@ -1451,33 +1405,6 @@ const styles = StyleSheet.create({
     color: colors.neutral.textPrimary,
   },
   activeBatchMeta: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
-  },
-  timelineRow: {
-    flexDirection: "row",
-    gap: spacing.xs,
-  },
-  timelineItem: {
-    flex: 1,
-    alignItems: "center",
-    gap: spacing.xxs,
-  },
-  timelineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.full,
-  },
-  timelineDotPast: {
-    backgroundColor: colors.semantic.success,
-  },
-  timelineDotCurrent: {
-    backgroundColor: colors.brand.secondary,
-  },
-  timelineDotNext: {
-    backgroundColor: colors.neutral.muted,
-  },
-  timelineLabel: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },

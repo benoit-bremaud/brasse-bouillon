@@ -229,6 +229,8 @@ describe("DashboardScreen — real deadlines (from the backend, not BREWING_STEP
 
     expect(await screen.findByText("Alertes & échéances")).toBeTruthy();
     expect(screen.getByText("En cours")).toBeTruthy();
+    // Neutral "Planifié" status pill rather than a fabricated urgency.
+    expect(screen.getAllByText("Planifié").length).toBeGreaterThan(0);
     // No fabricated "En retard de Nh" projection for an undated step.
     expect(screen.queryByText(/En retard de/)).toBeNull();
   });

@@ -22,9 +22,8 @@ export class BatchDto extends BatchSummaryDto {
   ): BatchDto {
     const currentStep =
       batch.current_step_order != null
-        ? (steps.find(
-            (step) => step.step_order === batch.current_step_order,
-          ) ?? null)
+        ? (steps.find((step) => step.step_order === batch.current_step_order) ??
+          null)
         : null;
     return {
       ...BatchSummaryDto.fromEntity(batch, currentStep),

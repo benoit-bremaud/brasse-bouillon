@@ -1,8 +1,5 @@
 import { RecipeStepType } from '../../recipe/domain/enums/recipe-step-type.enum';
-import {
-  computeStepDueAt,
-  isQualityCriticalType,
-} from './batch-step-schedule';
+import { computeStepDueAt, isQualityCriticalType } from './batch-step-schedule';
 
 describe('isQualityCriticalType', () => {
   it('flags the biological/packaging phases as critical', () => {

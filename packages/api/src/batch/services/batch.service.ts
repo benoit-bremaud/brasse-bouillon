@@ -119,6 +119,7 @@ export class BatchService {
   ) {}
 
   async startMine(ownerId: string, recipeId: string): Promise<BatchWithSteps> {
+    const recipe = await this.recipeService.getReadableById(ownerId, recipeId);
     const recipeSteps = await this.recipeService.listMineSteps(
       ownerId,
       recipeId,
@@ -136,6 +137,7 @@ export class BatchService {
       ownerId,
       recipeId,
       steps: snapshotSteps,
+      boilTimeMin: recipe.boil_time_min ?? null,
     });
 
     return this.batchRepo.manager.transaction(async (manager) => {
@@ -233,6 +235,10 @@ export class BatchService {
     this.assertMutable(batch);
     this.assertDraft(batch);
 
+    const recipe = await this.recipeService.getReadableById(
+      ownerId,
+      batch.recipe_id,
+    );
     const recipeSteps = await this.recipeService.listMineSteps(
       ownerId,
       batch.recipe_id,
@@ -245,7 +251,12 @@ export class BatchService {
     }));
 
     const launched = this.runStepTransition(
-      (draft) => this.domain.launchBatch(draft, snapshotSteps),
+      (draft) =>
+        this.domain.launchBatch(
+          draft,
+          snapshotSteps,
+          recipe.boil_time_min ?? null,
+        ),
       this.toDomain(batch, []),
     );
 

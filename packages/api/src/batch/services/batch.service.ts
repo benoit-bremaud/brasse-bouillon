@@ -51,6 +51,16 @@ export interface BatchWithSteps {
   steps: BatchStepOrmEntity[];
 }
 
+export interface BatchWithCurrentStep {
+  batch: BatchOrmEntity;
+  currentStep: BatchStepOrmEntity | null;
+}
+
+/** Composite key for the (batch_id, step_order) primary key of a batch step. */
+function stepKey(batchId: string, stepOrder: number): string {
+  return `${batchId}:${stepOrder}`;
+}
+
 export interface CreateMeasurementInput {
   type: MeasurementType;
   value: number;
@@ -244,11 +254,46 @@ export class BatchService {
     });
   }
 
-  async listMine(ownerId: string): Promise<BatchOrmEntity[]> {
-    return this.batchRepo.find({
+  async listMine(ownerId: string): Promise<BatchWithCurrentStep[]> {
+    const batches = await this.batchRepo.find({
       where: { owner_id: ownerId },
       order: { updated_at: 'DESC' },
     });
+
+    const currentSteps = await this.loadCurrentSteps(batches);
+    return batches.map((batch) => ({
+      batch,
+      currentStep:
+        batch.current_step_order != null
+          ? (currentSteps.get(stepKey(batch.id, batch.current_step_order)) ??
+            null)
+          : null,
+    }));
+  }
+
+  /**
+   * Loads, in a single query, the current step of each batch that has one.
+   * Keyed by `batchId:stepOrder` so batches sharing a step order don't
+   * collide — avoids an N+1 over the batch list.
+   */
+  private async loadCurrentSteps(
+    batches: BatchOrmEntity[],
+  ): Promise<Map<string, BatchStepOrmEntity>> {
+    const conditions = batches
+      .filter((batch) => batch.current_step_order != null)
+      .map((batch) => ({
+        batch_id: batch.id,
+        step_order: batch.current_step_order as number,
+      }));
+
+    if (conditions.length === 0) {
+      return new Map();
+    }
+
+    const steps = await this.stepRepo.find({ where: conditions });
+    return new Map(
+      steps.map((step) => [stepKey(step.batch_id, step.step_order), step]),
+    );
   }
 
   async getMineById(ownerId: string, id: string): Promise<BatchWithSteps> {

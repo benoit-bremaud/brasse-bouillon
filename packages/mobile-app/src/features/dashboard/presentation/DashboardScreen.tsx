@@ -24,15 +24,16 @@ const FERMENTATION_DAYS = 7;
 const BOTTLING_DAYS = 10;
 
 type PeriodKey = "year" | "90d" | "30d";
-type AlertStatus = "Bientôt" | "Urgent" | "En retard";
+type AlertStatus = "Planifié" | "Bientôt" | "Urgent" | "En retard";
 
 type DashboardAlert = {
   id: string;
   batchId: string;
   batchName: string;
   currentStepLabel: string;
-  nextStepLabel: string;
-  dueAt: Date;
+  // Null when the current step has not started / carries no planned duration:
+  // the alert shows a neutral "En cours" state instead of a fabricated deadline.
+  dueAt: Date | null;
   status: AlertStatus;
   isCriticalQuality: boolean;
 };
@@ -59,11 +60,10 @@ type BrewStepConfig = {
   isCriticalQuality: boolean;
 };
 
-type TimelineStep = {
-  label: string;
-  state: "past" | "current" | "next";
-};
-
+// Illustrative brewing sequence for the demo-only hero card. It does NOT drive
+// the live "Alertes & échéances" deadlines/urgency/criticality — those come
+// from the backend (batch.currentStepDueAt / currentStepIsCritical), see
+// buildBatchAlert.
 const BREWING_STEPS: BrewStepConfig[] = [
   { label: "Empâtage", expectedHours: 2, isCriticalQuality: false },
   { label: "Ébullition", expectedHours: 8, isCriticalQuality: false },
@@ -170,6 +170,7 @@ const ALERT_STATUS_PRIORITY: Record<AlertStatus, number> = {
   "En retard": 0,
   Urgent: 1,
   Bientôt: 2,
+  Planifié: 3,
 };
 
 // `value` is nullable since batch.startedAt is null while a batch is an « en
@@ -201,7 +202,10 @@ function clampStepIndex(stepOrder?: number | null): number {
   return Math.min(Math.max(normalized, 0), BREWING_STEPS.length - 1);
 }
 
-function getAlertStatus(dueAt: Date, now: Date): AlertStatus {
+function getAlertStatus(dueAt: Date | null, now: Date): AlertStatus {
+  if (dueAt === null) {
+    return "Planifié";
+  }
   const timeUntilDue = dueAt.getTime() - now.getTime();
   if (timeUntilDue < 0) {
     return "En retard";
@@ -212,7 +216,11 @@ function getAlertStatus(dueAt: Date, now: Date): AlertStatus {
   return "Bientôt";
 }
 
-function formatRelativeDue(dueAt: Date, now: Date): string {
+function formatRelativeDue(dueAt: Date | null, now: Date): string {
+  if (dueAt === null) {
+    return "En cours";
+  }
+
   const diff = dueAt.getTime() - now.getTime();
 
   if (diff < 0) {
@@ -253,13 +261,12 @@ function isWithinSelectedPeriod(
   return date >= threshold;
 }
 
-function getDueAtForCurrentStep(startedAt: Date, stepIndex: number): Date {
-  const totalExpectedHours = BREWING_STEPS.slice(0, stepIndex + 1).reduce(
-    (total, step) => total + step.expectedHours,
-    0,
-  );
-
-  return new Date(startedAt.getTime() + totalExpectedHours * HOUR_MS);
+function parseDueAt(iso: string | null): Date | null {
+  if (!iso) {
+    return null;
+  }
+  const parsed = new Date(iso);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function buildBatchAlert(
@@ -270,36 +277,19 @@ function buildBatchAlert(
     return null;
   }
 
-  const stepIndex = clampStepIndex(batch.currentStepOrder);
-  const currentStep = BREWING_STEPS[stepIndex];
-  const nextStep = BREWING_STEPS[stepIndex + 1];
-  const startedAt = parseDateOrNow(batch.startedAt, now);
-  const dueAt = getDueAtForCurrentStep(startedAt, stepIndex);
+  // Real schedule from the backend (current step's snapshotted timing), not a
+  // hardcoded projection. A null deadline renders a neutral "En cours" state.
+  const dueAt = parseDueAt(batch.currentStepDueAt ?? null);
 
   return {
-    id: `${batch.id}-${currentStep.label}`,
+    id: `${batch.id}-${batch.currentStepOrder ?? "step"}`,
     batchId: batch.id,
     batchName: `Brassin #${batch.id.slice(0, 6)}`,
-    currentStepLabel: currentStep.label,
-    nextStepLabel: nextStep?.label ?? "Finalisation",
+    currentStepLabel: batch.currentStepLabel ?? "Étape en cours",
     dueAt,
     status: getAlertStatus(dueAt, now),
-    isCriticalQuality: currentStep.isCriticalQuality,
+    isCriticalQuality: batch.currentStepIsCritical ?? false,
   };
-}
-
-function getTimelineSteps(stepOrder?: number | null): TimelineStep[] {
-  const stepIndex = clampStepIndex(stepOrder);
-  const previousLabel =
-    stepIndex > 0 ? BREWING_STEPS[stepIndex - 1].label : "Préparation";
-  const currentLabel = BREWING_STEPS[stepIndex].label;
-  const nextLabel = BREWING_STEPS[stepIndex + 1]?.label ?? "Finalisation";
-
-  return [
-    { label: previousLabel, state: "past" },
-    { label: currentLabel, state: "current" },
-    { label: nextLabel, state: "next" },
-  ];
 }
 
 function getStatusColors(status: string): {
@@ -398,7 +388,10 @@ export function DashboardScreen() {
             );
           }
 
-          return a.dueAt.getTime() - b.dueAt.getTime();
+          // Undated alerts (no started deadline) sort after dated ones.
+          return (
+            (a.dueAt?.getTime() ?? Infinity) - (b.dueAt?.getTime() ?? Infinity)
+          );
         }),
     [activeBatches, referenceDate],
   );
@@ -424,6 +417,9 @@ export function DashboardScreen() {
   const actionsDueCount = useMemo(
     () =>
       filteredAlerts.filter((alert) => {
+        if (alert.dueAt === null) {
+          return false;
+        }
         const diff = alert.dueAt.getTime() - referenceDate.getTime();
         return diff >= 0 && diff <= DAY_MS;
       }).length,
@@ -459,7 +455,10 @@ export function DashboardScreen() {
         return alertA.isCriticalQuality ? -1 : 1;
       }
 
-      return alertA.dueAt.getTime() - alertB.dueAt.getTime();
+      return (
+        (alertA.dueAt?.getTime() ?? Infinity) -
+        (alertB.dueAt?.getTime() ?? Infinity)
+      );
     };
 
     return [...filteredActiveBatches].sort(compareBatches).slice(0, 2);
@@ -847,7 +846,7 @@ export function DashboardScreen() {
           <Card style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Alertes & échéances</Text>
-              <Text style={styles.sectionMeta}>Temps réel</Text>
+              <Text style={styles.sectionMeta}>Échéances réelles</Text>
             </View>
 
             {filteredAlerts.length === 0 ? (
@@ -873,7 +872,7 @@ export function DashboardScreen() {
                           {alert.batchName}
                         </Text>
                         <Text style={styles.alertMetaText}>
-                          {alert.currentStepLabel} → {alert.nextStepLabel}
+                          {alert.currentStepLabel}
                         </Text>
                         <Text style={styles.alertDueText}>
                           {formatRelativeDue(alert.dueAt, referenceDate)}
@@ -966,7 +965,6 @@ export function DashboardScreen() {
                 const statusColors = getStatusColors(
                   alert?.status ?? "Bientôt",
                 );
-                const timeline = getTimelineSteps(batch.currentStepOrder);
 
                 return (
                   <Pressable
@@ -1003,35 +1001,8 @@ export function DashboardScreen() {
                     </View>
 
                     <Text style={styles.activeBatchMeta}>
-                      {alert?.currentStepLabel ?? "Étape en cours"} →{" "}
-                      {alert?.nextStepLabel ?? "Étape suivante"}
+                      {alert?.currentStepLabel ?? "Étape en cours"}
                     </Text>
-
-                    <View style={styles.timelineRow}>
-                      {timeline.map((step) => {
-                        const dotStyle =
-                          step.state === "past"
-                            ? styles.timelineDotPast
-                            : step.state === "current"
-                              ? styles.timelineDotCurrent
-                              : styles.timelineDotNext;
-
-                        return (
-                          <View
-                            key={`${batch.id}-${step.label}`}
-                            style={styles.timelineItem}
-                          >
-                            <View style={[styles.timelineDot, dotStyle]} />
-                            <Text
-                              style={styles.timelineLabel}
-                              numberOfLines={1}
-                            >
-                              {step.label}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                    </View>
                   </Pressable>
                 );
               })}
@@ -1434,33 +1405,6 @@ const styles = StyleSheet.create({
     color: colors.neutral.textPrimary,
   },
   activeBatchMeta: {
-    fontSize: typography.size.caption,
-    color: colors.neutral.textSecondary,
-  },
-  timelineRow: {
-    flexDirection: "row",
-    gap: spacing.xs,
-  },
-  timelineItem: {
-    flex: 1,
-    alignItems: "center",
-    gap: spacing.xxs,
-  },
-  timelineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.full,
-  },
-  timelineDotPast: {
-    backgroundColor: colors.semantic.success,
-  },
-  timelineDotCurrent: {
-    backgroundColor: colors.brand.secondary,
-  },
-  timelineDotNext: {
-    backgroundColor: colors.neutral.muted,
-  },
-  timelineLabel: {
     fontSize: typography.size.caption,
     color: colors.neutral.textSecondary,
   },

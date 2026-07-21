@@ -34,6 +34,15 @@ export type BatchSummary = {
   // (ADR/state-05); bottledAt is the dedicated timestamp.
   bottledAt?: string | null;
   completedAt?: string | null;
+  // Current step's real schedule (from the launch snapshot), so the dashboard
+  // shows a true deadline instead of a hardcoded projection. `currentStepDueAt`
+  // is null when the step has not started / has no planned duration; the label
+  // is null and `currentStepIsCritical` false when there is no current step
+  // (draft / completed batch). Optional so older fixtures/demo rows omit them;
+  // the API mapping always populates them.
+  currentStepLabel?: string | null;
+  currentStepDueAt?: string | null;
+  currentStepIsCritical?: boolean;
   createdAt: string;
   updatedAt: string;
 };

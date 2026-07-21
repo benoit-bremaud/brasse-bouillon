@@ -130,7 +130,9 @@ export class BatchController {
   @ApiOkResponse({ type: BatchSummaryDto, isArray: true })
   async listMine(@CurrentUser() user: User): Promise<BatchSummaryDto[]> {
     const rows = await this.service.listMine(user.id);
-    return rows.map((row) => BatchSummaryDto.fromEntity(row));
+    return rows.map((row) =>
+      BatchSummaryDto.fromEntity(row.batch, row.currentStep),
+    );
   }
 
   @Get(':id')

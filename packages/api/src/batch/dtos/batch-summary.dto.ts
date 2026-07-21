@@ -5,7 +5,12 @@ import {
   EFFECTIVE_BATCH_STATUSES,
 } from '../domain/enums/batch-status.enum';
 import type { EffectiveBatchStatus } from '../domain/enums/batch-status.enum';
+import {
+  computeStepDueAt,
+  isQualityCriticalType,
+} from '../domain/batch-step-schedule';
 import { BatchOrmEntity } from '../entities/batch.orm.entity';
+import { BatchStepOrmEntity } from '../entities/batch-step.orm.entity';
 
 export class BatchSummaryDto {
   @ApiProperty()
@@ -59,7 +64,25 @@ export class BatchSummaryDto {
   @ApiProperty()
   updated_at: Date;
 
-  static fromEntity(e: BatchOrmEntity): BatchSummaryDto {
+  // Current step's real schedule, so the dashboard can show a true deadline
+  // instead of a hardcoded projection. `current_step` is the step matching the
+  // batch's `current_step_order`; null for a draft/completed batch.
+  @ApiPropertyOptional({ nullable: true })
+  current_step_label?: string | null;
+
+  // `current_step.started_at + planned_duration_min`; null when the step has
+  // not started or carries no planned duration.
+  @ApiPropertyOptional({ nullable: true, type: Date })
+  current_step_due_at?: Date | null;
+
+  // Derived from the current step's type (fermentation / packaging).
+  @ApiProperty()
+  current_step_is_critical: boolean;
+
+  static fromEntity(
+    e: BatchOrmEntity,
+    currentStep?: BatchStepOrmEntity | null,
+  ): BatchSummaryDto {
     return {
       id: e.id,
       owner_id: e.owner_id,
@@ -80,6 +103,11 @@ export class BatchSummaryDto {
       archived_at: e.archived_at ?? null,
       created_at: e.created_at,
       updated_at: e.updated_at,
+      current_step_label: currentStep?.label ?? null,
+      current_step_due_at: computeStepDueAt(currentStep),
+      current_step_is_critical: currentStep
+        ? isQualityCriticalType(currentStep.type)
+        : false,
     };
   }
 }

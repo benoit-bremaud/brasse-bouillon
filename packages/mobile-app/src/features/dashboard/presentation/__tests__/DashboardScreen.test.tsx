@@ -183,6 +183,59 @@ describe("DashboardScreen", () => {
   });
 });
 
+describe("DashboardScreen — real deadlines (from the backend, not BREWING_STEPS)", () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+    dataSourceMock.useDemoData = false;
+    sessionUserMock.id = "u1";
+    sessionUserMock.firstName = "Benoit";
+  });
+
+  it("renders the real overdue deadline and step label from the batch summary", async () => {
+    const threeHoursAgo = new Date(
+      Date.now() - 3 * 60 * 60 * 1000,
+    ).toISOString();
+    (listBatches as jest.Mock).mockResolvedValue([
+      {
+        ...liveBatch,
+        id: "b-overdue",
+        currentStepLabel: "Fermentation",
+        currentStepDueAt: threeHoursAgo,
+        currentStepIsCritical: true,
+      },
+    ]);
+
+    renderDashboardScreen();
+
+    expect(await screen.findByText("Alertes & échéances")).toBeTruthy();
+    // Deadline computed from the backend due date, not a hardcoded schedule.
+    expect(screen.getAllByText(/En retard de \d+h/).length).toBeGreaterThan(0);
+    // Real snapshotted step label, no fabricated "→ next step".
+    expect(screen.getAllByText("Fermentation").length).toBeGreaterThan(0);
+  });
+
+  it("renders a neutral 'En cours' state when the current step has no deadline yet", async () => {
+    (listBatches as jest.Mock).mockResolvedValue([
+      {
+        ...liveBatch,
+        id: "b-no-deadline",
+        currentStepLabel: "Empâtage",
+        currentStepDueAt: null,
+        currentStepIsCritical: false,
+      },
+    ]);
+
+    renderDashboardScreen();
+
+    expect(await screen.findByText("Alertes & échéances")).toBeTruthy();
+    expect(screen.getByText("En cours")).toBeTruthy();
+    // Neutral "Planifié" status pill rather than a fabricated urgency.
+    expect(screen.getAllByText("Planifié").length).toBeGreaterThan(0);
+    // No fabricated "En retard de Nh" projection for an undated step.
+    expect(screen.queryByText(/En retard de/)).toBeNull();
+  });
+});
+
 describe("DashboardScreen — demo-mode hero", () => {
   // Anchor the fil-rouge fermentation start 5 days ago so the ribbon
   // computes a sensible "J+5" value at render time. The mash batch

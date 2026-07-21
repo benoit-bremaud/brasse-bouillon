@@ -42,6 +42,12 @@ import { configure } from "@testing-library/react-native";
 jest.setTimeout(15_000);
 configure({ asyncUtilTimeout: 10_000 });
 
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
 jest.mock("react-native-safe-area-context", () => {
   const actual = jest.requireActual("react-native-safe-area-context");
   return {

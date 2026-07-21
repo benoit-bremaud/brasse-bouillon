@@ -1,6 +1,9 @@
 import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "@/core/auth/auth-context";
+import { AccountPreferencesProvider } from "@/core/preferences/account-preferences-context";
+import { ThemeProvider, useTheme } from "@/core/theme";
+import { getAccountPreferences } from "@/features/profile/application/account-preferences.use-cases";
 
 import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { FooterVisibilityProvider } from "@/core/ui/footer-visibility-context";
@@ -11,6 +14,11 @@ import { RouteErrorFallback } from "@/core/ui/RouteErrorFallback";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack, type ErrorBoundaryProps } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+
+async function loadInitialAccountPreferences() {
+  const preferences = await getAccountPreferences();
+  return { theme: preferences.theme, units: preferences.units };
+}
 
 /**
  * Root render-error boundary. expo-router wraps a route in `<Try>` only when
@@ -25,6 +33,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
 function AppShell() {
   const { session } = useAuth();
+  const { resolvedMode } = useTheme();
   const queryScopeKey = session?.accessToken ?? "anonymous";
 
   return (
@@ -40,7 +49,7 @@ function AppShell() {
           <StickyCtaClearanceProvider>
             <SnackbarProvider>
               <Stack screenOptions={{ headerShown: false }} />
-              <StatusBar style="auto" />
+              <StatusBar style={resolvedMode === "dark" ? "light" : "dark"} />
             </SnackbarProvider>
           </StickyCtaClearanceProvider>
         </FooterVisibilityProvider>
@@ -53,7 +62,13 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AppShell />
+        <AccountPreferencesProvider
+          loadInitialPreferences={loadInitialAccountPreferences}
+        >
+          <ThemeProvider>
+            <AppShell />
+          </ThemeProvider>
+        </AccountPreferencesProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

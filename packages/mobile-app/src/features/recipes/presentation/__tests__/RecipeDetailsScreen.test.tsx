@@ -11,6 +11,8 @@ import {
 import { RecipeDetailsScreen } from "@/features/recipes/presentation/RecipeDetailsScreen";
 import { ConfirmProvider } from "@/core/ui/confirm-provider";
 import { SnackbarProvider } from "@/core/ui/snackbar-provider";
+import { AccountPreferencesProvider } from "@/core/preferences/account-preferences-context";
+import type { UnitSystem } from "@/core/preferences/account-preferences.types";
 import { HttpError } from "@/core/http/http-error";
 import {
   deleteRecipeFromCarnet,
@@ -29,6 +31,7 @@ jest.mock("@expo/vector-icons", () => ({
 
 type SliderMockProps = {
   testID?: string;
+  accessibilityLabel?: string;
   value: number;
   onSlidingComplete?: (value: number) => void;
 };
@@ -40,11 +43,12 @@ jest.mock("@react-native-community/slider", () => {
   return {
     __esModule: true,
     default: function MockSlider(props: SliderMockProps) {
-      const { testID, value, onSlidingComplete } = props;
+      const { testID, accessibilityLabel, value, onSlidingComplete } = props;
       return ReactActual.createElement(
         RN.Pressable,
         {
           testID,
+          accessibilityLabel,
           accessibilityRole: "slider",
           onPress: () => {
             if (typeof onSlidingComplete === "function") {
@@ -59,15 +63,14 @@ jest.mock("@react-native-community/slider", () => {
 });
 
 jest.mock("expo-router", () => {
-  const actual = jest.requireActual("expo-router");
   return {
-    ...actual,
     useRouter: () => ({
       push: mockPush,
       replace: mockReplace,
       back: mockBack,
       canGoBack: () => mockCanGoBack,
     }),
+    usePathname: () => "/(app)/recipes/r1",
   };
 });
 
@@ -150,7 +153,7 @@ const publicViewModel = {
   },
 };
 
-function renderRecipeDetails(recipeId = "r1") {
+function renderRecipeDetails(recipeId = "r1", units: UnitSystem = "metric") {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -167,7 +170,14 @@ function renderRecipeDetails(recipeId = "r1") {
     <QueryClientProvider client={queryClient}>
       <ConfirmProvider>
         <SnackbarProvider>
-          <RecipeDetailsScreen recipeId={recipeId} />
+          <AccountPreferencesProvider
+            loadInitialPreferences={async () => ({
+              theme: "system",
+              units,
+            })}
+          >
+            <RecipeDetailsScreen recipeId={recipeId} />
+          </AccountPreferencesProvider>
         </SnackbarProvider>
       </ConfirmProvider>
     </QueryClientProvider>,
@@ -447,6 +457,22 @@ describe("RecipeDetailsScreen — 5-tab redesigned layout (Issue #740 v2)", () =
     expect(
       screen.getByTestId("recipe-target-volume-readout"),
     ).toHaveTextContent("40 L");
+  });
+
+  it("renders scaled recipe quantities in the saved imperial system", async () => {
+    // Arrange
+    renderRecipeDetails("r1", "imperial");
+
+    // Act
+    await screen.findByTestId("recipe-overview-tab");
+    switchToTab("ingredients");
+
+    // Assert
+    expect(await screen.findByText("0.88 oz • boil - 10 min")).toBeTruthy();
+    expect(
+      screen.getByTestId("recipe-target-volume-readout"),
+    ).toHaveTextContent("5.28 gal");
+    expect(screen.getByLabelText("Volume cible en gallons")).toBeTruthy();
   });
 
   it("reflects the scaled target volume on the Overview at-a-glance card", async () => {

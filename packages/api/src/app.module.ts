@@ -20,6 +20,7 @@ import { LabelModule } from './label/label.module';
 import { Module } from '@nestjs/common';
 import { RecipeModule } from './recipe/recipe.module';
 import { ScanModule } from './scan/scan.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from './user/user.module';
 import { WaterModule } from './water/water.module';
@@ -69,6 +70,8 @@ const bootstrapEnvironment = buildBootstrapEnvironmentConfig();
         limit: 10,
       },
     ]),
+
+    ScheduleModule.forRoot(),
 
     // Liveness probe - public GET /health, no database dependency.
     // Registered before DatabaseModule to reflect that it never touches

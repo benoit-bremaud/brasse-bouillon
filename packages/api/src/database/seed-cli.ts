@@ -10,6 +10,10 @@ import {
   SeedPublicRecipesResult,
 } from './seeds/public-recipes.seed';
 import { SeedSystemUserResult, seedSystemUser } from './seeds/system-user.seed';
+import {
+  SeedDeletedAuthorResult,
+  seedDeletedAuthor,
+} from './seeds/deleted-author.seed';
 import { buildTypeOrmOptions } from './typeorm.config';
 
 /**
@@ -32,24 +36,30 @@ import { buildTypeOrmOptions } from './typeorm.config';
  * boot (`migrationsRun: true`, see `typeorm.config.ts`); this entrypoint
  * covers the remaining gap — seeding — explicitly and on demand.
  *
- * Idempotent: `seedSystemUser` and `seedPublicRecipes` upsert by id, so
- * re-running converges on the declared seed without duplicating rows.
+ * Idempotent: `seedSystemUser`, `seedDeletedAuthor` and `seedPublicRecipes`
+ * upsert by id, so re-running converges on the declared seed without
+ * duplicating rows.
  */
 
 /** Combined result of the production seed, for logging / verification. */
 export interface ProductionSeedSummary {
   systemUser: SeedSystemUserResult;
+  deletedAuthor: SeedDeletedAuthorResult;
   publicRecipes: SeedPublicRecipesResult;
 }
 
 /**
  * Seed the data a freshly-deployed production database needs to serve the
  * public catalogue: the system curator user (the FK owner of every seeded
- * recipe) and the curated PUBLIC recipes with their full content.
+ * recipe), the deleted-author tombstone (the anonymization target account
+ * deletion repoints public recipes at), and the curated PUBLIC recipes with
+ * their full content.
  *
  * Order matters: the system user must exist before the recipes are written
- * (`recipes.owner_id` -> `users.id`). The caller owns the DataSource
- * lifecycle; this function initialises it if needed but never destroys it.
+ * (`recipes.owner_id` -> `users.id`). The deleted-author tombstone must exist
+ * before any account erasure runs, so it is seeded here alongside the system
+ * user. The caller owns the DataSource lifecycle; this function initialises
+ * it if needed but never destroys it.
  */
 export async function runProductionSeed(
   dataSource: DataSource,
@@ -59,13 +69,14 @@ export async function runProductionSeed(
   }
 
   const systemUser = await seedSystemUser(dataSource.getRepository(User));
+  const deletedAuthor = await seedDeletedAuthor(dataSource.getRepository(User));
   const publicRecipes = await seedPublicRecipes(
     dataSource.getRepository(RecipeOrmEntity),
     undefined,
     buildPublicRecipeSubResourceRepos(dataSource),
   );
 
-  return { systemUser, publicRecipes };
+  return { systemUser, deletedAuthor, publicRecipes };
 }
 
 /**

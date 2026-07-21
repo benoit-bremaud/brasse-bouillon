@@ -1,19 +1,16 @@
 import {
+  cancelCurrentUserDeletion,
+  changeCurrentUserPassword,
   getCurrentUser,
   requestPasswordReset,
+  requestCurrentUserDeletion,
   signup,
+  updateCurrentUser,
 } from "@/features/auth/data/auth.api";
 
 import { HttpError } from "@/core/http/http-error";
 
 const mockRequest = jest.fn();
-
-let credentialSequence = 0;
-
-const createTestCredential = () => {
-  credentialSequence += 1;
-  return `credential-${credentialSequence}`;
-};
 
 jest.mock("@/core/http/http-client", () => ({
   request: (...args: unknown[]) => mockRequest(...args),
@@ -25,7 +22,8 @@ describe("auth.api", () => {
   });
 
   it("registers with /auth/register first", async () => {
-    const credential = createTestCredential();
+    // Arrange
+    const credential = "Password1!";
 
     mockRequest.mockResolvedValue({
       access_token: "access-token",
@@ -35,6 +33,7 @@ describe("auth.api", () => {
         username: "new-user",
         first_name: "New",
         last_name: "User",
+        bio: "Brewer",
         role: "user",
         is_active: true,
         created_at: "2026-01-01T00:00:00.000Z",
@@ -42,6 +41,7 @@ describe("auth.api", () => {
       },
     });
 
+    // Act
     const session = await signup({
       email: "new-user@example.com",
       password: credential,
@@ -50,6 +50,7 @@ describe("auth.api", () => {
       lastName: "User",
     });
 
+    // Assert
     expect(mockRequest).toHaveBeenCalledWith("/auth/register", {
       method: "POST",
       body: {
@@ -67,12 +68,14 @@ describe("auth.api", () => {
       user: {
         id: "u-signup",
         email: "new-user@example.com",
+        bio: "Brewer",
       },
     });
   });
 
   it("falls back to /auth/signup when /auth/register is not found", async () => {
-    const credential = createTestCredential();
+    // Arrange
+    const credential = "Password1!";
 
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
@@ -89,12 +92,14 @@ describe("auth.api", () => {
         },
       });
 
+    // Act
     const session = await signup({
       email: "fallback-user@example.com",
       password: credential,
       username: "fallback-user",
     });
 
+    // Assert
     expect(mockRequest).toHaveBeenNthCalledWith(
       1,
       "/auth/register",
@@ -109,11 +114,14 @@ describe("auth.api", () => {
   });
 
   it("requests password reset via /auth/forgot-password", async () => {
+    // Arrange
     const email = "reset@example.com";
     mockRequest.mockResolvedValue(undefined);
 
+    // Act
     await requestPasswordReset(email);
 
+    // Assert
     expect(mockRequest).toHaveBeenCalledWith("/auth/forgot-password", {
       method: "POST",
       body: { email },
@@ -122,13 +130,16 @@ describe("auth.api", () => {
   });
 
   it("falls back to /auth/password/forgot when /auth/forgot-password is not found", async () => {
+    // Arrange
     const email = "reset-fallback@example.com";
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
       .mockResolvedValueOnce(undefined);
 
+    // Act
     await requestPasswordReset(email);
 
+    // Assert
     expect(mockRequest).toHaveBeenNthCalledWith(1, "/auth/forgot-password", {
       method: "POST",
       body: { email },
@@ -142,11 +153,16 @@ describe("auth.api", () => {
   });
 
   it("propagates forgot password errors when they are not 404", async () => {
+    // Arrange
     const email = "reset@example.com";
     const error = new HttpError(500, "Internal Server Error");
     mockRequest.mockRejectedValue(error);
 
-    await expect(requestPasswordReset(email)).rejects.toBe(error);
+    // Act
+    const requestPromise = requestPasswordReset(email);
+
+    // Assert
+    await expect(requestPromise).rejects.toBe(error);
     expect(mockRequest).toHaveBeenCalledTimes(1);
     expect(mockRequest).toHaveBeenCalledWith("/auth/forgot-password", {
       method: "POST",
@@ -156,13 +172,18 @@ describe("auth.api", () => {
   });
 
   it("throws when both forgot-password endpoints are missing", async () => {
+    // Arrange
     const email = "missing-reset@example.com";
 
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
       .mockRejectedValueOnce(new HttpError(404, "Not Found"));
 
-    await expect(requestPasswordReset(email)).rejects.toThrow(
+    // Act
+    const requestPromise = requestPasswordReset(email);
+
+    // Assert
+    await expect(requestPromise).rejects.toThrow(
       "Password reset endpoint unavailable.",
     );
     expect(mockRequest).toHaveBeenNthCalledWith(1, "/auth/forgot-password", {
@@ -178,20 +199,24 @@ describe("auth.api", () => {
   });
 
   it("loads current user from /auth/me", async () => {
+    // Arrange
     mockRequest.mockResolvedValue({
       id: "u1",
       email: "brewer@example.com",
       username: "brewer",
       first_name: "Benoit",
       last_name: "Bremaud",
+      bio: "Brasseur amateur",
       role: "user",
       is_active: true,
       created_at: "2026-01-01T00:00:00.000Z",
       updated_at: "2026-01-02T00:00:00.000Z",
     });
 
+    // Act
     const user = await getCurrentUser();
 
+    // Assert
     expect(mockRequest).toHaveBeenCalledWith("/auth/me");
     expect(user).toEqual({
       id: "u1",
@@ -199,6 +224,7 @@ describe("auth.api", () => {
       username: "brewer",
       firstName: "Benoit",
       lastName: "Bremaud",
+      bio: "Brasseur amateur",
       role: "user",
       isActive: true,
       createdAt: "2026-01-01T00:00:00.000Z",
@@ -207,6 +233,7 @@ describe("auth.api", () => {
   });
 
   it("falls back to /users/me when /auth/me is not found", async () => {
+    // Arrange
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
       .mockResolvedValueOnce({
@@ -221,8 +248,10 @@ describe("auth.api", () => {
         updated_at: "2026-01-04T00:00:00.000Z",
       });
 
+    // Act
     const user = await getCurrentUser();
 
+    // Assert
     expect(mockRequest).toHaveBeenNthCalledWith(1, "/auth/me");
     expect(mockRequest).toHaveBeenNthCalledWith(2, "/users/me");
     expect(user).toMatchObject({
@@ -233,13 +262,194 @@ describe("auth.api", () => {
   });
 
   it("throws when both profile endpoints return not found", async () => {
+    // Arrange
     mockRequest
       .mockRejectedValueOnce(new HttpError(404, "Not Found"))
       .mockRejectedValueOnce(new HttpError(404, "Not Found"));
 
+    // Act
     const promise = getCurrentUser();
 
+    // Assert
     await expect(promise).rejects.toBeInstanceOf(HttpError);
     await expect(promise).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("updates the current user with the backend field names", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({
+      id: "u1",
+      email: "new@example.com",
+      username: "new_user",
+      first_name: "New",
+      last_name: "Name",
+      bio: "Brasseur amateur",
+      role: "user",
+      is_active: true,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-03T00:00:00.000Z",
+    });
+
+    // Act
+    const user = await updateCurrentUser({
+      email: "new@example.com",
+      username: "new_user",
+      firstName: "New",
+      lastName: "Name",
+      bio: "Brasseur amateur",
+    });
+
+    // Assert
+    expect(mockRequest).toHaveBeenCalledWith("/auth/me", {
+      method: "PATCH",
+      body: {
+        email: "new@example.com",
+        username: "new_user",
+        first_name: "New",
+        last_name: "Name",
+        bio: "Brasseur amateur",
+      },
+    });
+    expect(user.firstName).toBe("New");
+  });
+
+  it("changes the current user's password", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({ message: "Password changed successfully" });
+
+    // Act
+    await changeCurrentUserPassword({
+      currentPassword: "OldPassword1!",
+      newPassword: "NewPassword1!",
+    });
+
+    // Assert
+    expect(mockRequest).toHaveBeenCalledWith("/auth/me/change-password", {
+      method: "POST",
+      body: {
+        old_password: "OldPassword1!",
+        new_password: "NewPassword1!",
+      },
+    });
+  });
+
+  it("omits optional signup fields when they are not provided", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({
+      access_token: "access-token",
+      user: {
+        id: "u-minimal",
+        email: "minimal@example.com",
+        username: "minimal",
+        role: "user",
+        is_active: true,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      },
+    });
+
+    // Act
+    await signup({
+      email: "minimal@example.com",
+      password: "Password1!",
+    });
+
+    // Assert
+    expect(mockRequest).toHaveBeenCalledWith("/auth/register", {
+      method: "POST",
+      body: {
+        email: "minimal@example.com",
+        password: "Password1!",
+      },
+      auth: false,
+    });
+  });
+
+  it("sends only the profile fields provided by the caller", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({
+      id: "u1",
+      email: "new@example.com",
+      username: "new_user",
+      role: "user",
+      is_active: true,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-03T00:00:00.000Z",
+    });
+
+    // Act
+    await updateCurrentUser({ email: "new@example.com" });
+
+    // Assert
+    expect(mockRequest).toHaveBeenCalledWith("/auth/me", {
+      method: "PATCH",
+      body: { email: "new@example.com" },
+    });
+  });
+
+  it("propagates a profile update failure", async () => {
+    // Arrange
+    const error = new HttpError(422, "Email already used");
+    mockRequest.mockRejectedValue(error);
+
+    // Act
+    const updatePromise = updateCurrentUser({
+      email: "duplicate@example.com",
+    });
+
+    // Assert
+    await expect(updatePromise).rejects.toBe(error);
+  });
+
+  it("propagates a password change failure", async () => {
+    // Arrange
+    const error = new HttpError(401, "Current password is invalid");
+    mockRequest.mockRejectedValue(error);
+
+    // Act
+    const changePromise = changeCurrentUserPassword({
+      currentPassword: "WrongPassword1!",
+      newPassword: "NewPassword1!",
+    });
+
+    // Assert
+    await expect(changePromise).rejects.toBe(error);
+  });
+
+  it("requests a 30-day deletion grace period", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({
+      status: "scheduled",
+      requested_at: "2026-07-16T10:00:00.000Z",
+      scheduled_for: "2026-08-15T10:00:00.000Z",
+      grace_period_days: 30,
+    });
+
+    // Act
+    const result = await requestCurrentUserDeletion();
+
+    // Assert
+    expect(result).toEqual({
+      status: "scheduled",
+      requestedAt: "2026-07-16T10:00:00.000Z",
+      scheduledFor: "2026-08-15T10:00:00.000Z",
+      gracePeriodDays: 30,
+    });
+    expect(mockRequest).toHaveBeenCalledWith("/auth/me/deletion", {
+      method: "POST",
+    });
+  });
+
+  it("cancels the authenticated deletion request", async () => {
+    // Arrange
+    mockRequest.mockResolvedValue({ message: "Account deletion canceled" });
+
+    // Act
+    await cancelCurrentUserDeletion();
+
+    // Assert
+    expect(mockRequest).toHaveBeenCalledWith("/auth/me/deletion", {
+      method: "DELETE",
+    });
   });
 });

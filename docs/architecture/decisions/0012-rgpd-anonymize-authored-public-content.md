@@ -1,8 +1,8 @@
 # ADR-0012 — On account deletion, anonymize authored public content (don't hard-delete)
 
-**Status**  Proposed
-**Date**    2026-05-25
-**Owners**  @benoit-bremaud
+**Status** Proposed
+**Date** 2026-05-25
+**Owners** @benoit-bremaud
 
 > Records the RGPD decision surfaced by the account/profile data-flow conception
 > (PR #1100, `account/06-data-flow.md`) and epic #645.
@@ -25,7 +25,7 @@ community has built on.
 
 ## Decision
 
-**On account deletion, erase personal data but anonymize authored *public*
+**On account deletion, erase personal data but anonymize authored _public_
 content rather than hard-deleting it.**
 
 - **Erase**: identity + PII (email, names, avatar, preferences, sessions),
@@ -40,6 +40,10 @@ content rather than hard-deleting it.**
   write it) — per the data-flow diagram.
 - Deletion + anonymization run server-side in one transaction; the operation is
   idempotent and logged (without PII) for audit.
+- Account deletion requests have a 30-day server-side grace period. During that
+  period the authenticated user may cancel the request. An hourly expiry worker
+  invokes the same transactional deletion service after the scheduled timestamp;
+  the grace state is never trusted from the mobile client.
 
 ---
 

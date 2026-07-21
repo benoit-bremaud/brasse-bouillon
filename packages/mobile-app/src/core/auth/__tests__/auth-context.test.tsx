@@ -5,6 +5,8 @@ const mockApiLogin = jest.fn();
 const mockApiSignup = jest.fn();
 const mockApiGetCurrentUser = jest.fn();
 const mockApiRequestPasswordReset = jest.fn();
+const mockApiRequestCurrentUserDeletion = jest.fn();
+const mockApiCancelCurrentUserDeletion = jest.fn();
 
 jest.mock("@/features/auth/data/auth.api", () => ({
   login: (...args: unknown[]) => mockApiLogin(...args),
@@ -12,6 +14,10 @@ jest.mock("@/features/auth/data/auth.api", () => ({
   getCurrentUser: (...args: unknown[]) => mockApiGetCurrentUser(...args),
   requestPasswordReset: (...args: unknown[]) =>
     mockApiRequestPasswordReset(...args),
+  requestCurrentUserDeletion: (...args: unknown[]) =>
+    mockApiRequestCurrentUserDeletion(...args),
+  cancelCurrentUserDeletion: (...args: unknown[]) =>
+    mockApiCancelCurrentUserDeletion(...args),
 }));
 
 const mockSessionLoad = jest.fn();
@@ -67,6 +73,13 @@ describe("AuthProvider — demo-trigger credentials (Issue #822)", () => {
     mockApiSignup.mockReset();
     mockApiGetCurrentUser.mockReset();
     mockApiRequestPasswordReset.mockReset();
+    mockApiRequestCurrentUserDeletion.mockReset().mockResolvedValue({
+      status: "scheduled",
+      requestedAt: "2026-07-16T10:00:00.000Z",
+      scheduledFor: "2026-08-15T10:00:00.000Z",
+      gracePeriodDays: 30,
+    });
+    mockApiCancelCurrentUserDeletion.mockReset().mockResolvedValue(undefined);
     mockSessionLoad.mockReset().mockResolvedValue(null);
     mockSessionSetAccessToken.mockReset().mockResolvedValue(undefined);
     mockSessionClear.mockReset().mockResolvedValue(undefined);
@@ -191,6 +204,58 @@ describe("AuthProvider — demo-trigger credentials (Issue #822)", () => {
 
     // Boot-time demo mode stays on after logout.
     expect(dataSourceMock.useDemoData).toBe(true);
+  });
+
+  it("schedules and cancels deletion without clearing the active session", async () => {
+    // Arrange
+    mockApiLogin.mockResolvedValue({
+      accessToken: "real-token-abc",
+      user: {
+        id: "u-real-1",
+        email: "lea@brasse-bouillon.test",
+        username: "lea",
+        role: "user",
+        isActive: true,
+        createdAt: "2026-04-30T00:00:00.000Z",
+        updatedAt: "2026-04-30T00:00:00.000Z",
+      },
+    });
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await act(async () => {
+      await result.current.login("lea@brasse-bouillon.test", "StrongPass123!");
+    });
+
+    // Act
+    await act(async () => {
+      await result.current.requestAccountDeletion();
+    });
+    await act(async () => {
+      await result.current.cancelAccountDeletion();
+    });
+
+    // Assert
+    expect(mockApiRequestCurrentUserDeletion).toHaveBeenCalledTimes(1);
+    expect(mockApiCancelCurrentUserDeletion).toHaveBeenCalledTimes(1);
+    expect(result.current.session?.user.deletionScheduledFor).toBeNull();
+    expect(mockSessionClear).not.toHaveBeenCalled();
+  });
+
+  it("rejects demo account deletion without calling the backend", async () => {
+    // Arrange
+    dataSourceMock.useDemoData = true;
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await act(async () => {
+      await result.current.login(DEMO_TRIGGER_EMAIL, DEMO_TRIGGER_PASSWORD);
+    });
+
+    // Act and Assert — the graced deletion flow refuses in demo mode.
+    await expect(
+      act(async () => result.current.requestAccountDeletion()),
+    ).rejects.toThrow("indisponible en mode démo");
+    expect(mockApiRequestCurrentUserDeletion).not.toHaveBeenCalled();
+    expect(mockSessionClear).not.toHaveBeenCalled();
   });
 
   it("bootstrap restores a stored demo session without hitting the API and re-arms the dataSource flag", async () => {

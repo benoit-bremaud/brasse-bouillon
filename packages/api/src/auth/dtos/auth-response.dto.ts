@@ -77,8 +77,11 @@ export class AuthResponseDto {
     username: string;
     first_name?: string;
     last_name?: string;
+    bio?: string;
     role: UserRole;
     is_active: boolean;
+    deletion_requested_at?: Date | null;
+    deletion_scheduled_for?: Date | null;
     created_at: Date;
     updated_at: Date;
   };

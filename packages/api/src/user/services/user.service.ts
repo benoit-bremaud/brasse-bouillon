@@ -624,6 +624,7 @@ export class UserService {
       username?: string;
       first_name?: string;
       last_name?: string;
+      bio?: string;
     },
   ): Promise<User> {
     // ✅ EXISTENCE CHECK: Verify user exists
@@ -662,6 +663,7 @@ export class UserService {
       user.first_name = updateUserData.first_name;
     if (updateUserData.last_name !== undefined)
       user.last_name = updateUserData.last_name;
+    if (updateUserData.bio !== undefined) user.bio = updateUserData.bio;
 
     // ✅ DATABASE PERSISTENCE: Save updated user
     const updatedUser = await this.userRepository.save(user);

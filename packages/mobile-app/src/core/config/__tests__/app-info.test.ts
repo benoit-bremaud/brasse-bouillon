@@ -8,6 +8,13 @@
 import Constants from "expo-constants";
 
 import { getAppInfo } from "@/core/config/app-info";
+import { getOtaInfo } from "@/core/config/app-info";
+
+jest.mock("expo-updates", () => ({
+  channel: "preview",
+  updateId: "ota-123",
+  createdAt: new Date("2026-07-15T10:00:00.000Z"),
+}));
 
 jest.mock("expo-constants", () => ({
   __esModule: true,
@@ -65,5 +72,19 @@ describe("getAppInfo", () => {
     mockedConstants.expoConfig = null;
 
     expect(getAppInfo().version).toBe("0.0.0-unknown");
+  });
+
+  it("reads OTA channel and update metadata", () => {
+    // Arrange
+
+    // Act
+    const otaInfo = getOtaInfo();
+
+    // Assert
+    expect(otaInfo).toEqual({
+      channel: "preview",
+      updateId: "ota-123",
+      lastUpdate: "2026-07-15T10:00:00.000Z",
+    });
   });
 });

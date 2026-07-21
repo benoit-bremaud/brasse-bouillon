@@ -190,4 +190,17 @@ export class UpdateUserDto {
     message: 'Last name must not be longer than 100 characters',
   })
   last_name?: string;
+
+  /** Short personal description shown on the user's profile. */
+  @ApiProperty({
+    example: 'Je brasse surtout des IPA et des stouts.',
+    description: 'Short personal description shown on the profile',
+    type: String,
+    maxLength: 500,
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Bio must be a string' })
+  @MaxLength(500, { message: 'Bio must not be longer than 500 characters' })
+  bio?: string;
 }

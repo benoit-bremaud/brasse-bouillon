@@ -9,8 +9,11 @@ type AuthUserDto = {
   username: string;
   first_name?: string;
   last_name?: string;
+  bio?: string;
   role: string;
   is_active: boolean;
+  deletion_requested_at?: string | null;
+  deletion_scheduled_for?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -34,6 +37,33 @@ export type SignupInput = {
   lastName?: string;
 };
 
+export type UpdateProfileInput = {
+  email?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+};
+
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type AccountDeletionSchedule = {
+  status: "scheduled";
+  requestedAt: string;
+  scheduledFor: string;
+  gracePeriodDays: number;
+};
+
+type AccountDeletionScheduleDto = {
+  status: "scheduled";
+  requested_at: string;
+  scheduled_for: string;
+  grace_period_days: number;
+};
+
 const CURRENT_USER_ENDPOINTS = ["/auth/me", "/users/me"] as const;
 const FORGOT_PASSWORD_ENDPOINTS = [
   "/auth/forgot-password",
@@ -47,8 +77,11 @@ function mapUser(dto: AuthUserDto): User {
     username: dto.username,
     firstName: dto.first_name,
     lastName: dto.last_name,
+    bio: dto.bio,
     role: dto.role,
     isActive: dto.is_active,
+    deletionRequestedAt: dto.deletion_requested_at,
+    deletionScheduledFor: dto.deletion_scheduled_for,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };
@@ -165,4 +198,54 @@ export async function getCurrentUser(): Promise<User> {
   }
 
   throw new Error("Unable to load current user profile.");
+}
+
+export async function updateCurrentUser(
+  input: UpdateProfileInput,
+): Promise<User> {
+  const body: Record<string, string> = {};
+
+  if (input.email !== undefined) body.email = input.email;
+  if (input.username !== undefined) body.username = input.username;
+  if (input.firstName !== undefined) body.first_name = input.firstName;
+  if (input.lastName !== undefined) body.last_name = input.lastName;
+  if (input.bio !== undefined) body.bio = input.bio;
+
+  const data = await request<AuthUserDto>("/auth/me", {
+    method: "PATCH",
+    body,
+  });
+
+  return mapUser(data);
+}
+
+export async function changeCurrentUserPassword(
+  input: ChangePasswordInput,
+): Promise<void> {
+  await request<{ message: string }>("/auth/me/change-password", {
+    method: "POST",
+    body: {
+      old_password: input.currentPassword,
+      new_password: input.newPassword,
+    },
+  });
+}
+
+export async function requestCurrentUserDeletion(): Promise<AccountDeletionSchedule> {
+  const data = await request<AccountDeletionScheduleDto>("/auth/me/deletion", {
+    method: "POST",
+  });
+
+  return {
+    status: data.status,
+    requestedAt: data.requested_at,
+    scheduledFor: data.scheduled_for,
+    gracePeriodDays: data.grace_period_days,
+  };
+}
+
+export async function cancelCurrentUserDeletion(): Promise<void> {
+  await request<{ message: string }>("/auth/me/deletion", {
+    method: "DELETE",
+  });
 }

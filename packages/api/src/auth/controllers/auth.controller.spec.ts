@@ -12,11 +12,16 @@ import { UpdateUserDto } from '../../user/dtos/update-user.dto';
 import { User } from '../../user/entities/user.entity';
 import { UserRole } from '../../common/enums/role.enum';
 import { UserService } from '../../user/services/user.service';
+import { AccountDeletionService } from '../../user/services/account-deletion.service';
+import { PersonalDataExportService } from '../../user/services/personal-data-export.service';
+import { AccountDeletionScheduleDto } from '../../user/dtos/account-deletion.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
   let userService: UserService;
+  let accountDeletionService: AccountDeletionService;
+  let personalDataExportService: PersonalDataExportService;
 
   const mockUser: User = Object.assign(new User(), {
     id: '550e8400-e29b-41d4-a716-446655440200',
@@ -66,6 +71,20 @@ describe('AuthController', () => {
             delete: jest.fn(),
           },
         },
+        {
+          provide: AccountDeletionService,
+          useValue: {
+            deleteAccount: jest.fn(),
+            requestDeletion: jest.fn(),
+            cancelDeletion: jest.fn(),
+          },
+        },
+        {
+          provide: PersonalDataExportService,
+          useValue: {
+            exportAccount: jest.fn(),
+          },
+        },
       ],
     });
 
@@ -78,6 +97,12 @@ describe('AuthController', () => {
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
+    accountDeletionService = module.get<AccountDeletionService>(
+      AccountDeletionService,
+    );
+    personalDataExportService = module.get<PersonalDataExportService>(
+      PersonalDataExportService,
+    );
   });
 
   afterEach(() => {
@@ -137,8 +162,15 @@ describe('AuthController', () => {
 
   describe('updateMe() - PATCH /auth/me', () => {
     it('should update and return the user profile', async () => {
-      const updateDto: UpdateUserDto = { first_name: 'Jane' };
-      const updatedUser = { ...mockUser, first_name: 'Jane' } as User;
+      const updateDto: UpdateUserDto = {
+        first_name: 'Jane',
+        bio: 'Je brasse le week-end.',
+      };
+      const updatedUser = {
+        ...mockUser,
+        first_name: 'Jane',
+        bio: updateDto.bio,
+      } as User;
 
       jest.spyOn(userService, 'update').mockResolvedValue(updatedUser);
 
@@ -146,6 +178,7 @@ describe('AuthController', () => {
 
       expect(userService.update).toHaveBeenCalledWith(mockUser.id, updateDto);
       expect(result.first_name).toEqual('Jane');
+      expect(result.bio).toEqual(updateDto.bio);
     });
   });
 
@@ -169,14 +202,80 @@ describe('AuthController', () => {
     });
   });
 
-  describe('deleteMe() - DELETE /auth/me', () => {
-    it('should delete current user account', async () => {
-      jest.spyOn(userService, 'delete').mockResolvedValue();
+  describe('requestDeletion() - POST /auth/me/deletion', () => {
+    it('schedules deletion for the authenticated account', async () => {
+      // Arrange
+      const schedule: AccountDeletionScheduleDto = {
+        status: 'scheduled',
+        requested_at: new Date('2026-07-16T10:00:00.000Z'),
+        scheduled_for: new Date('2026-08-15T10:00:00.000Z'),
+        grace_period_days: 30,
+      };
+      jest
+        .spyOn(accountDeletionService, 'requestDeletion')
+        .mockResolvedValue(schedule);
 
-      const result = await controller.deleteMe(mockUser);
+      // Act
+      const result = await controller.requestDeletion(mockUser);
 
-      expect(userService.delete).toHaveBeenCalledWith(mockUser.id);
-      expect(result.message).toBeDefined();
+      // Assert
+      expect(accountDeletionService.requestDeletion).toHaveBeenCalledWith(
+        mockUser.id,
+      );
+      expect(result).toEqual(schedule);
+    });
+  });
+
+  describe('cancelDeletion() - DELETE /auth/me/deletion', () => {
+    it('cancels the authenticated account deletion request', async () => {
+      // Arrange
+      jest.spyOn(accountDeletionService, 'cancelDeletion').mockResolvedValue();
+
+      // Act
+      const result = await controller.cancelDeletion(mockUser);
+
+      // Assert
+      expect(accountDeletionService.cancelDeletion).toHaveBeenCalledWith(
+        mockUser.id,
+      );
+      expect(result).toEqual({ message: 'Account deletion canceled' });
+    });
+  });
+
+  describe('exportMe() - GET /auth/me/export', () => {
+    it('returns only the authenticated user export', async () => {
+      const exportPayload = {
+        schema_version: '1.0',
+        exported_at: new Date('2026-07-16T10:00:00.000Z'),
+        account: {
+          id: mockUser.id,
+          email: mockUser.email,
+          username: mockUser.username,
+          first_name: mockUser.first_name,
+          last_name: mockUser.last_name,
+          bio: null,
+          created_at: mockUser.created_at,
+          updated_at: mockUser.updated_at,
+        },
+        recipes: [],
+        recipe_components: [],
+        batches: [],
+        batch_records: [],
+        equipment_profiles: [],
+        label_drafts: [],
+        scans: [],
+        scan_images: [],
+      };
+      jest
+        .spyOn(personalDataExportService, 'exportAccount')
+        .mockResolvedValue(exportPayload);
+
+      const result = await controller.exportMe(mockUser);
+
+      expect(personalDataExportService.exportAccount).toHaveBeenCalledWith(
+        mockUser.id,
+      );
+      expect(result).toEqual(exportPayload);
     });
   });
 });

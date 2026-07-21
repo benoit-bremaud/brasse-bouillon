@@ -16,6 +16,7 @@ import {
   listYeasts,
 } from "@/features/ingredients/application/yeasts.use-cases";
 import {
+  getMiscDetailsApi,
   listMiscApi,
   type MiscProduct,
 } from "@/features/ingredients/data/misc.api";
@@ -57,6 +58,9 @@ jest.mock("@/features/ingredients/data/misc.api", () => ({
 
 const mockedListMiscApi = listMiscApi as jest.MockedFunction<
   typeof listMiscApi
+>;
+const mockedGetMiscDetailsApi = getMiscDetailsApi as jest.MockedFunction<
+  typeof getMiscDetailsApi
 >;
 const mockedListMalts = listMalts as jest.MockedFunction<typeof listMalts>;
 const mockedGetMaltDetails = getMaltDetails as jest.MockedFunction<
@@ -164,6 +168,7 @@ describe("ingredients use-cases", () => {
     mockedGetYeastDetails.mockReset();
     mockedListMiscApi.mockReset();
     mockedListMiscApi.mockResolvedValue([]);
+    mockedGetMiscDetailsApi.mockReset();
   });
 
   describe("listIngredientCategoriesSummary", () => {
@@ -377,6 +382,88 @@ describe("ingredients use-cases", () => {
 
       expect(details).toBeNull();
       expect(mockedGetYeastDetails).not.toHaveBeenCalled();
+    });
+
+    // Misc dispatches straight to `listMiscApi` (no per-type use-case, see
+    // `listLiveIngredientsByCategory`'s `case "misc"`), so the delegation
+    // guard here mirrors the hop/yeast ones above but against the api mock.
+    it("delegates the misc list to listMiscApi + maps MiscProduct to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedListMiscApi.mockResolvedValue([
+        buildMiscProduct({
+          id: "misc-whirlfloc-uuid",
+          name: "Whirlfloc",
+          miscType: "fining",
+          useAt: "boil",
+          useFor: "Clarté",
+          timeMin: 15,
+          description: "Clarifiant utilisé en fin d'ébullition.",
+        }),
+      ]);
+
+      const results = await listIngredientsByCategory("misc");
+
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
+      expect(results).toHaveLength(1);
+      // Full-shape assertion (not just toMatchObject) — miscToIngredient is
+      // the flattest mapper (no specGroups to parse), so every field is a
+      // straight passthrough worth pinning, including the
+      // description → notes rename.
+      expect(results[0]).toEqual({
+        id: "misc-whirlfloc-uuid",
+        name: "Whirlfloc",
+        category: "misc",
+        miscType: "fining",
+        useAt: "boil",
+        useFor: "Clarté",
+        timeMin: 15,
+        notes: "Clarifiant utilisé en fin d'ébullition.",
+      });
+    });
+
+    // Edge case — an empty catalog page must not surface as an error or a
+    // stale list; the Accessoires rayon should just render empty.
+    it("returns an empty list when the misc catalog is empty", async () => {
+      dataSource.useDemoData = false;
+      mockedListMiscApi.mockResolvedValue([]);
+
+      const results = await listIngredientsByCategory("misc");
+
+      expect(mockedListMiscApi).toHaveBeenCalledTimes(1);
+      expect(results).toEqual([]);
+    });
+
+    it("delegates misc details to getMiscDetailsApi + maps to Ingredient", async () => {
+      dataSource.useDemoData = false;
+      mockedGetMiscDetailsApi.mockResolvedValue(
+        buildMiscProduct({
+          id: "misc-whirlfloc-uuid",
+          name: "Whirlfloc",
+        }),
+      );
+
+      const details = await getIngredientDetails("misc", "misc-whirlfloc-uuid");
+
+      expect(mockedGetMiscDetailsApi).toHaveBeenCalledWith(
+        "misc-whirlfloc-uuid",
+      );
+      expect(details).toMatchObject({
+        id: "misc-whirlfloc-uuid",
+        name: "Whirlfloc",
+        category: "misc",
+      });
+    });
+
+    // Sad path — a missing id resolves to null rather than throwing, same
+    // contract as getMaltDetails/getHopDetails/getYeastDetails on a 404.
+    it("returns null when the misc id does not resolve to a catalog product", async () => {
+      dataSource.useDemoData = false;
+      mockedGetMiscDetailsApi.mockResolvedValue(null);
+
+      const details = await getIngredientDetails("misc", "misc-unknown-uuid");
+
+      expect(mockedGetMiscDetailsApi).toHaveBeenCalledWith("misc-unknown-uuid");
+      expect(details).toBeNull();
     });
   });
 

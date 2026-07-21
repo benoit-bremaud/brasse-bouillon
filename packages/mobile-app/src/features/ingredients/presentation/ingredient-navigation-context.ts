@@ -1,5 +1,6 @@
 import { normalizeRouteParam } from "@/core/navigation/route-params";
 import { IngredientCategory } from "@/features/ingredients/domain/ingredient.types";
+import { isIngredientCategory } from "@/features/ingredients/presentation/ingredient-category.constants";
 
 type OptionalRouteParam = string | string[] | undefined;
 
@@ -206,9 +207,8 @@ export function buildIngredientDetailsReturnParams(
 function normalizeIngredientCategory(
   value?: string,
 ): IngredientCategory | undefined {
-  if (value === "malt" || value === "hop" || value === "yeast") {
-    return value;
-  }
-
-  return undefined;
+  // Delegate to the single source of truth (INGREDIENT_CATEGORY_VALUES) rather
+  // than re-listing categories here — a hand-rolled whitelist silently dropped
+  // "misc" and broke back-navigation from the Accessoires rayon.
+  return value !== undefined && isIngredientCategory(value) ? value : undefined;
 }

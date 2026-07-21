@@ -5,6 +5,21 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-21
+
+### PR #1500 merged (`4e2d36b`) — chore(deps): bump tar from 6.2.1 to 7.5.20
+
+- Branch `dependabot/npm_and_yarn/tar-7.5.20`, 1 commit. Root `package-lock.json` only.
+- Net tree delta (measured against `main`): **86 nodes removed, 0 added, one version changed** (`tar` 7.5.14 -> 7.5.20). The 86 removals are the whole dead `sqlite3` native-build subtree — `node-gyp`, `cacache`, `make-fetch-happen`, `gauge`, and the three nested `tar@6.2.1` copies. Dependabot regenerated the lockfile from the post-#1498 manifests and npm no longer re-resolved TypeORM's optional `sqlite3` peer, finally pruning what #1498 intended to remove.
+- Verified locally before merge, because the change is root-lockfile only and the path filter skips the `api` job: `npm ci` clean, then `packages/api` `test:cov` green (1019/1021, 2 skipped) on the branch tree — `better-sqlite3`, the real driver since #1498, is byte-identical on both trees, so removing the dead `sqlite3` toolchain exercises nothing the API loads.
+- Resolves #1497 on both fronts at once: the `tar@6` subtree it tracked is gone, and the top-level bump to 7.5.20 clears the seven newer `tar@7` alerts (fixed-versions all <= 7.5.15) that had since made the 7.5.14 copy vulnerable. Residual fragility: the sqlite3-free tree holds under `npm ci` (what CI runs); a developer `npm install` could re-resolve the optional peer and reintroduce the subtree.
+
+### PR #1499 merged (`aba809c`) — chore(main): release api 0.1.15-alpha1
+
+- Branch `release-please--branches--main--components--api`, 2 commits. `packages/api` to 0.1.15-alpha1.
+- **First fully-automatic tagged release since the tagging fault of April.** After the merge, release-please created `api-v0.1.15-alpha1` on its own (release target `aba809c5`, prerelease) and relabelled the PR `autorelease: tagged` with no manual step — the transition that `linked-versions` structurally prevented (see #1496). The lockfile it carried had already been synced by the #1491 automation (commit `889bb537`), which Codex flagged against the pre-sync commit; replied and re-verified on the current head, then 👍.
+- Confirms the tagging chain end to end: #1496 (drop `linked-versions`) + #1491 (auto-sync the release-branch lockfile) now produce a tagged release with zero intervention.
+
 ## 2026-07-20
 
 ### PR #1504 merged (`4b30bbe`) — ci(ci): bound every CI job with an explicit timeout-minutes

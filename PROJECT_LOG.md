@@ -7,6 +7,18 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ## 2026-07-21
 
+### Tag `api-v0.1.17-alpha1` shipped (`b485919`)
+
+- Release PR #1517 (`release-please--branches--main--components--api`) merged into the tag, auto-tagged by release-please (the chain from BOIL #1516).
+- Pure release cut: `packages/api` to 0.1.17-alpha1 + CHANGELOG + manifest/lockfile sync, no functional change. Copilot reviewed, no blocking comments (one low-confidence trailing-whitespace note verified as a false positive — the manifest ends cleanly). Codex could not review (usage quota exhausted). CI green.
+
+### PR #1516 merged (`1048ec6`) — feat(api): use the recipe's boil time as the BOIL step's real deadline
+
+- Branch `feat/batch-boil-real-duration`, launched-from-recipe boil time now drives the BOIL step's planned duration.
+- `BatchDomainService.launchBatch`/`snapshotSteps` take an optional `boilTimeMin`; when the step is `BOIL` and the recipe carries `boil_time_min > 0` it overrides the generic 60-min guidance, else falls back to guidance. `BatchService.startMine`/`launchMine` fetch the recipe via `recipeService.getReadableById` (owner-or-public — deliberately not `getMineById`, to preserve the existing read authz) and pass `boil_time_min`. 3 spec cases added (boil override, no-boil fallback, launch path).
+- Follows up the dashboard #1512 gap for BOIL; fermentation/packaging still carry no planned duration (separate follow-up — needs a real recipe duration field).
+- Reviews — pre-push (Claude + Codex): a Should Have caught that an earlier draft used `getMineById` and silently tightened authz; switched to `getReadableById` + added the launch-path test. CI green.
+
 ### Tags `mobile-app-v0.1.16-alpha1` + `api-v0.1.16-alpha1` shipped (`869b0fe`, `87ea68c`)
 
 - Release PRs #1513 (mobile-app) + #1514 (api) merged into the tags, auto-tagged by release-please (the automatic chain from #1496 + #1491).

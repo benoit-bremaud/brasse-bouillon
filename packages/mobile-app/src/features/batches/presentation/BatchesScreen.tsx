@@ -148,11 +148,6 @@ export function BatchesScreen() {
               }}
             >
               <Card style={styles.card}>
-                <Badge
-                  label={getStatusLabel(item.status)}
-                  variant={getStatusVariant(item.status)}
-                  placement="corner"
-                />
                 <View style={styles.cardContent}>
                   <View
                     style={[styles.beerIcon, { backgroundColor: beerColor }]}
@@ -164,9 +159,22 @@ export function BatchesScreen() {
                     />
                   </View>
                   <View style={styles.cardInfo}>
-                    <Text style={styles.cardTitle} numberOfLines={1}>
-                      {getRecipeName(item.recipeId, item.id)}
-                    </Text>
+                    {/*
+                      Title and status badge share one row: the title
+                      flex-shrinks and truncates so a long recipe name can
+                      never run under the badge. Replaces the former absolute
+                      `placement="corner"` badge, which overlapped long titles.
+                    */}
+                    <View style={styles.titleRow}>
+                      <Text style={styles.cardTitle} numberOfLines={1}>
+                        {getRecipeName(item.recipeId, item.id)}
+                      </Text>
+                      <Badge
+                        label={getStatusLabel(item.status)}
+                        variant={getStatusVariant(item.status)}
+                        style={styles.statusBadge}
+                      />
+                    </View>
                   </View>
                   <Ionicons
                     name="chevron-forward"
@@ -206,10 +214,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: spacing.sm,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   cardTitle: {
+    // Shrinks within the row so the single-line title truncates instead of
+    // overrunning the status badge to its right.
+    flexShrink: 1,
     fontSize: typography.size.body,
     lineHeight: typography.lineHeight.body,
     fontWeight: typography.weight.bold,
     color: colors.neutral.textPrimary,
+  },
+  statusBadge: {
+    // Never shrink; keep the compact micro sizing the corner badge used.
+    flexShrink: 0,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xxs,
+    fontSize: typography.size.micro,
+    lineHeight: typography.lineHeight.micro,
   },
 });

@@ -6,13 +6,17 @@ ruleset scoped to every tag pattern used by release-please.
 
 ## Tag patterns protected
 
-Per the hybrid monorepo release strategy (see [CONTRIBUTING.md](../CONTRIBUTING.md#release-workflow)):
+Every package versions independently (see [CONTRIBUTING.md](../CONTRIBUTING.md#release-workflow)):
 
-- `mobile-app-v*` — lockstep with `api-v*` (group "app")
-- `api-v*` — lockstep with `mobile-app-v*`
+- `mobile-app-v*` — independent
+- `api-v*` — independent
 - `website-v*` — independent
 - `encyclopedia-v*` — independent
 - `v*` — reserved for repo-wide anchors (audit snapshots, milestones)
+
+`mobile-app-v*` and `api-v*` were kept in lockstep until 2026-07-20, when the
+`linked-versions` group was removed because it prevented release-please from
+tagging app releases at all. The protected patterns themselves are unchanged.
 
 ## Ruleset policy (current, active)
 

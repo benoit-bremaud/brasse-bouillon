@@ -28,10 +28,56 @@ while the product is still in pre-launch.
   (`og-image-en.png` — the FR card has a French tagline baked in).
 - A `noindex` on any EN page is a **gate failure** since S2 (the switch must
   not silently regress).
-- `robots.txt` is minimal and points to the sitemap.
-- Structured data: **Organization** + **FAQPage** on both homes (FAQPage is
-  rebuilt from the same i18n catalog keys as the visible FAQ — no
-  SoftwareApplication entity until `app.html` exists).
+- The **repo** `robots.txt` (`packages/website/robots.txt`) is minimal and
+  points to the sitemap. The **live** file is edge-modified — see §1.1.
+- Structured data: **WebSite** + **Organization** + **FAQPage** on both homes
+  (FAQPage is rebuilt from the same i18n catalog keys as the visible FAQ; the
+  WebSite block is language-neutral — brand + apex URL — and copied verbatim
+  to `en.html`; it feeds Google's site-name feature, which matters because the
+  `<title>` is keyword-first/brand-last. No SoftwareApplication entity until
+  `app.html` exists).
+
+### 1.1) Edge overlay — Cloudflare managed robots.txt & AI Crawl Control
+
+The live `https://brasse-bouillon.com/robots.txt` is **not** the repo file
+alone, and AI crawlers can be 403-blocked before they ever read it. Two
+zone-level Cloudflare mechanisms sit in front of this repo. Both are
+**dashboard state** — mutable outside git; the values below are dated
+snapshots, never trust them without re-running the probes:
+
+- **Managed robots.txt** prepends a Cloudflare-maintained block: a
+  `Content-Signal` line (snapshot 2026-07-17: `search=yes,ai-train=no,use=reference`
+  — note `ai-input` is deliberately unset) plus `Disallow: /` for a
+  Cloudflare-curated crawler list (snapshot: GPTBot, ClaudeBot, CCBot,
+  Google-Extended, Amazonbot, Applebot-Extended, Bytespider,
+  meta-externalagent, CloudflareBrowserRenderingCrawler — Cloudflare updates
+  this list over time). The repo file is appended after the managed block.
+- **AI Crawl Control** returns 403 at the network level for each crawler set
+  to "Block" in the dashboard — a **per-crawler toggle**, not a fixed class
+  (snapshot 2026-07-17: every probed AI agent was blocked, including the
+  search/citation agents `OAI-SearchBot`, `ChatGPT-User`, `Claude-SearchBot`,
+  `Claude-User`, `PerplexityBot`).
+
+Any GEO decision (letting AI answer engines read or cite the site) is made in
+the Cloudflare dashboard (AI Crawl Control section; the references below carry
+the current navigation), never in this repo. Re-verify live state before and
+after any change:
+
+```bash
+curl -s https://brasse-bouillon.com/robots.txt   # the managed block, as crawlers see it
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -A "Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)" \
+  https://brasse-bouillon.com/                   # 403 = blocked, 200 = not UA-blocked
+```
+
+**Probe with the bot's real, full user-agent string** (as documented by each
+vendor). Bare tokens (`-A "GPTBot"`) do not match the edge rules and return
+**false 200s** (observed 2026-07-17). A 200 only proves the absence of a
+UA-level block for that exact string — verified-bot rules may still treat the
+real crawler differently.
+
+Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/)
+· [AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/).
 
 ## 2) Release checklist (every SEO PR)
 
@@ -44,12 +90,26 @@ while the product is still in pre-launch.
    - `User-agent: *`
    - `Allow: /`
    - `Sitemap: https://brasse-bouillon.com/sitemap.xml`
+
+   The repo file is not the whole story — Cloudflare prepends a managed block
+   and can 403 AI crawlers before they ever fetch it (§1.1). Verify the live
+   file with `curl -s https://brasse-bouillon.com/robots.txt`; if the change
+   concerns AI-crawler access, also run the full-UA status probe from §1.1.
 5. Run local quality checks:
 
 ```bash
 python3 scripts/quality_gate.py
 python3 -m unittest discover -s tests
 ```
+
+6. If `_headers` changed, verify after deploy that the pages.dev alias stays
+   out of search indexes:
+   `curl -sI https://brasse-bouillon-website.pages.dev/ | grep -i x-robots-tag`
+   (expect `noindex`; the custom domain must NOT carry that header).
+7. `llms.txt` is gate-required in the repo but ships only if staged by
+   `website-deploy.yml` (explicit whitelist). After any deploy-workflow
+   change, verify:
+   `curl -s -o /dev/null -w "%{http_code}\n" https://brasse-bouillon.com/llms.txt`.
 
 ## 3) Google Search Console (GSC) procedure
 

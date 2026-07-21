@@ -32,7 +32,7 @@ export const RECIPE_ORM_ENTITIES = [
 export function buildRecipeTestingTypeOrm() {
   return [
     TypeOrmModule.forRoot({
-      type: 'sqlite' as const,
+      type: 'better-sqlite3' as const,
       database: ':memory:',
       entities: [...RECIPE_ORM_ENTITIES],
       synchronize: true,

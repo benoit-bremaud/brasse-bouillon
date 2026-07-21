@@ -4,8 +4,9 @@ name: Copilot Review
 # Rationale: each Copilot review consumes a GitHub Copilot premium request
 # (13 per review since 2026-06-01 under the AI-credits model), so we reserve it
 # for deliberate, complementary reviews. The default review path is the local
-# pre-push ritual (Claude + Codex) plus CodeRabbit post-push.
-# See CONTRIBUTING.md § AI reviewers.
+# pre-push ritual (Claude + Codex) plus the Codex GitHub bot post-push.
+# NOTE: automatic Copilot review is governed by a repository RULESET, not by
+# this workflow — see CONTRIBUTING.md § AI reviewers (rule removed 2026-07-17).
 #
 # To trigger Copilot on a PR: add the `needs-copilot` label.
 on:

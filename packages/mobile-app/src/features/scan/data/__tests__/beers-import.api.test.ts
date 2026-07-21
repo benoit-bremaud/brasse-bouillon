@@ -380,4 +380,23 @@ describe("beers-import.api / importBeerByEan", () => {
       expect(item.origin).toBe("manual");
     });
   });
+
+  describe("timeout budget", () => {
+    it("edge: asks for far more than the shared default, so the backend can answer 503 before we give up", async () => {
+      // A cold miss is ~10s of Fly wake-up plus the encyclopedia's own 10s
+      // OpenFoodFacts budget. The 503 that ends it is what makes
+      // `lookupBeerByBarcode` fall back to the legacy NestJS lookup, and
+      // `HttpTimeoutError` is not an `HttpError`, so timing out first skips
+      // that fallback entirely rather than merely delaying it.
+      mockRequest.mockResolvedValueOnce(buildDto({ source: "internal" }));
+
+      await importBeerByEan("3760231860119");
+
+      const [, options] = mockRequest.mock.calls[0] as [
+        string,
+        { timeoutMs?: number },
+      ];
+      expect(options.timeoutMs).toBeGreaterThanOrEqual(25_000);
+    });
+  });
 });

@@ -1,11 +1,22 @@
 import { brandHeader, colors, spacing, typography } from "@/core/theme";
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, type ErrorBoundaryProps } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/core/auth/auth-context";
 import { BrandLogo } from "@/core/ui/BrandLogo";
 import { NavigationFooter } from "@/core/ui/NavigationFooter";
+import { RouteErrorFallback } from "@/core/ui/RouteErrorFallback";
 import { Ionicons } from "@expo/vector-icons";
+
+/**
+ * Boundary for the authenticated shell. Duplicated from the root layout on
+ * purpose: catching here keeps the failure scoped to the tab subtree instead
+ * of tearing down `AuthProvider` with it, so `retry` re-mounts the screen
+ * without dropping the session.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return <RouteErrorFallback error={error} retry={retry} />;
+}
 
 export default function AppLayout() {
   const { session, isLoading } = useAuth();
@@ -42,16 +53,11 @@ export default function AppLayout() {
             ),
           }}
         >
-          <Tabs.Screen
-            name="dashboard"
-            options={{
-              title: "Dashboard",
-              headerShown: false,
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="home-outline" size={size} color={color} />
-              ),
-            }}
-          />
+          {/* A name here must match one of this navigator's route nodes: a
+              child directory owning a _layout, or a hoisted leaf like
+              "dir/index" from a _layout-less directory. Unmatched names are
+              silently dropped with a [Layout children] warning (guarded by
+              app-tabs-screen-names.test.ts). */}
           <Tabs.Screen
             name="recipes"
             options={{
@@ -71,34 +77,6 @@ export default function AppLayout() {
             }}
           />
           <Tabs.Screen
-            name="equipment"
-            options={{
-              title: "Equipment",
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="construct-outline" size={size} color={color} />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="shop"
-            options={{
-              href: null,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="ingredients"
-            options={{
-              href: null,
-            }}
-          />
-          <Tabs.Screen
-            name="tools"
-            options={{
-              href: null,
-            }}
-          />
-          <Tabs.Screen
             name="academy"
             options={{
               href: null,
@@ -108,13 +86,6 @@ export default function AppLayout() {
             name="beer-catalog"
             options={{
               href: null,
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              href: null,
-              title: "Profil",
             }}
           />
         </Tabs>

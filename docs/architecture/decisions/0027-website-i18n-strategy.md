@@ -398,7 +398,10 @@ beyond the home + legal set.
 
 - **CI (quality gate)**: regen-diff on `en.html` (byte-identical); key parity
   (`data-i18n`/`data-i18n-attrs`/`data-i18n-en-only` ↔ catalog); **`srcHash`
-  freshness** (FR source changed ⇒ EN value + hash must change); **hreflang
+  freshness** (FR source changed ⇒ EN value + hash must change), including the
+  **`headSrcHashes` head guard** (FR `<title>`/meta/OG/Twitter head strings ⇒
+  their `head` overrides; `ogImage`/`orgDescription`/`knowsAbout` excluded — no
+  1:1 FR head string); **hreflang
   reciprocity + self-reference completeness** across every pair; **FAQPage
   JSON-LD text == visible `<details>` text**; legal freshness stamps; `en.html`
   HTML rules (lang, marker, canonical `= /en`, schema bans); sitemap allowlist

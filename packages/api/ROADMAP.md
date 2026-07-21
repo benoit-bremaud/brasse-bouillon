@@ -27,8 +27,13 @@ modern, and offline-first.
   Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `ci`.
 - Base branch: `main` (trunk-based).
 - PR policy: 2 PRs (baseline fixes/docs, then features).
-- Copilot review: auto-review via repo/org config; mention `@copilot` in PRs.
-- Reviewers: CODEOWNERS configured to request review from `@vitalikevin`.
+- Copilot review: on-demand only — add the `needs-copilot` label to the PR;
+  the `Copilot Review` workflow then posts an `@copilot please review.`
+  comment. Automatic review was retired 2026-07-17 (the `copilot_code_review`
+  rule was dropped from the default-branch ruleset). See CONTRIBUTING.md
+  § AI reviewers.
+- Reviewers: solo project — root `.github/CODEOWNERS` names `@benoit-bremaud`
+  as sole code owner; human reviewers are not auto-requested.
 - Clean Architecture inside feature modules (domain/application/infrastructure/presentation).
 - Code quality gates in CI: lint + tests + security audit (SonarCloud planned).
 
@@ -115,13 +120,13 @@ modern, and offline-first.
 - Brewing assistant: Batch API + auth integration
 - Brewing assistant: Fermentation + reminders API
 - JWT integration tests (auth.protected.e2e-spec.ts — valid/invalid/expired/missing token)
-- Security: npm audit pipeline hardening (critical-only gate + tar override for sqlite3 chain)
+- Security: npm audit pipeline hardening (critical-only gate)
 - DB config alignment with migrations (typeorm.config.ts + data-source.ts synchronized)
 - CI: GitHub Actions build + test + lint:check
 - CI: Security audit job (production deps, critical-only)
-- CI: auto-request Copilot review on new PRs
+- CI: Copilot review workflow (on-demand via the `needs-copilot` label, #1202)
 - CD: build and push Docker image to GHCR on merges to main
-- Repo: CODEOWNERS auto-requests review from `@vitalikevin`
+- Repo: CODEOWNERS — `@benoit-bremaud` is sole code owner (solo-dev policy)
 
 ### In Progress
 - Test coverage improvement (currently ~33% — target ≥60%)

@@ -5,7 +5,243 @@ This is the operational logbook, not the release changelog (see [docs/changelog.
 
 ---
 
+## 2026-07-21
+
+### PR #1500 merged (`4e2d36b`) — chore(deps): bump tar from 6.2.1 to 7.5.20
+
+- Branch `dependabot/npm_and_yarn/tar-7.5.20`, 1 commit. Root `package-lock.json` only.
+- Net tree delta (measured against `main`): **86 nodes removed, 0 added, one version changed** (`tar` 7.5.14 -> 7.5.20). The 86 removals are the whole dead `sqlite3` native-build subtree — `node-gyp`, `cacache`, `make-fetch-happen`, `gauge`, and the three nested `tar@6.2.1` copies. Dependabot regenerated the lockfile from the post-#1498 manifests and npm no longer re-resolved TypeORM's optional `sqlite3` peer, finally pruning what #1498 intended to remove.
+- Verified locally before merge, because the change is root-lockfile only and the path filter skips the `api` job: `npm ci` clean, then `packages/api` `test:cov` green (1019/1021, 2 skipped) on the branch tree — `better-sqlite3`, the real driver since #1498, is byte-identical on both trees, so removing the dead `sqlite3` toolchain exercises nothing the API loads.
+- Resolves #1497 on both fronts at once: the `tar@6` subtree it tracked is gone, and the top-level bump to 7.5.20 clears the seven newer `tar@7` alerts (fixed-versions all <= 7.5.15) that had since made the 7.5.14 copy vulnerable. Residual fragility: the sqlite3-free tree holds under `npm ci` (what CI runs); a developer `npm install` could re-resolve the optional peer and reintroduce the subtree.
+
+### PR #1499 merged (`aba809c`) — chore(main): release api 0.1.15-alpha1
+
+- Branch `release-please--branches--main--components--api`, 2 commits. `packages/api` to 0.1.15-alpha1.
+- **First fully-automatic tagged release since the tagging fault of April.** After the merge, release-please created `api-v0.1.15-alpha1` on its own (release target `aba809c5`, prerelease) and relabelled the PR `autorelease: tagged` with no manual step — the transition that `linked-versions` structurally prevented (see #1496). The lockfile it carried had already been synced by the #1491 automation (commit `889bb537`), which Codex flagged against the pre-sync commit; replied and re-verified on the current head, then approved.
+- Confirms the tagging chain end to end: #1496 (drop `linked-versions`) + #1491 (auto-sync the release-branch lockfile) now produce a tagged release with zero intervention.
+
+## 2026-07-20
+
+### PR #1504 merged (`4b30bbe`) — ci(ci): bound every CI job with an explicit timeout-minutes
+
+- Branch `chore/ci-job-timeouts`, 1 commit. Budgets: `changes` 5, `website` 10, `security-audit` 10, `mobile-app` 15, `api` 15, `beer-encyclopedia` 20.
+- Reviews — Codex approved, no findings. CI green.
+- **Decisions**:
+  - `loose-budgets-on-purpose` — values sit well above observed maxima (0.18-2.29 min). The goal is turning a hung runner into a fast, legible failure instead of a six-hour sit on the 360-minute default, not policing runtime; a job cancelled on a slow-runner day is noise that erodes trust in CI.
+  - `encyclopedia-budgeted-higher` — 20 minutes rather than the npm jobs' 15, because it is the only job with no dependency cache (`setup-python` without `cache: pip`), so it refetches ultralytics, easyocr, opencv-python and PyTorch from PyPI on every run; a slow registry day or a missing manylinux wheel is a realistic overrun.
+  - `timeout-survives-continue-on-error` — `security-audit` is deliberately unfailable today (`|| true` plus `continue-on-error: true`), but a `timeout-minutes` cancellation is not swallowed by `continue-on-error`. A registry hang can now redden that job for the first time; recorded as the intended trade, not a no-op.
+- Follow-up #1503 covers the nine workflows outside `ci.yml`, still unbounded.
+
+### Tags `mobile-app-v0.1.14-alpha1` + `api-v0.1.14-alpha1` shipped (`5099dda`)
+
+- Release PR #1427 merged into the tags, created manually because `linked-versions` made automatic tagging structurally impossible (see #1496).
+- **Decisions**:
+  - `no-version-backfill` — `0.1.12-alpha1` (#769) and `0.1.13-alpha1` (#1197) hit the same fault in April and June and were never tagged. Deliberately not backfilled: alpha prereleases of private packages that nothing consumed. Both PRs had their `autorelease: pending` marker cleared and were left unlabelled rather than marked `tagged`, with a comment recording that no tag exists.
+
+### PR #1501 merged (`2c71cec`) — chore(deps): bump three NestJS packages to clear transitive CVEs
+
+- Branch `fix/nestjs-transitive-cves`, 1 commit. Lockfile only; no `package.json` changed.
+- `@nestjs/platform-express` 11.1.17 -> 11.1.28, `@nestjs/config` 4.0.3 -> 4.0.4, `@nestjs/swagger` 11.2.6 -> 11.4.6, clearing `path-to-regexp` 8.3.0 -> 8.4.2, `multer` 2.1.1 -> 2.2.0, `lodash` 4.17.23 -> 4.18.1 (3 high + 3 medium alerts).
+- **Decisions**:
+  - `nestjs-pins-transitives-exactly` — NestJS pins these transitives to exact versions, so `npm update <transitive>` is a no-op; the parents must move. `@nestjs/swagger` was the last holdout, keeping vulnerable copies hoisted at the root after the other two were updated.
+  - `swagger-carries-js-yaml-major` — `@nestjs/swagger` 11.4.6 pulls a nested `js-yaml` 4.1.1 -> 5.2.1. Accepted: swagger-module only calls `dump()` on the app's own OpenAPI document, never `load()` on untrusted input.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1498 merged (`c14d53b`) — refactor(api): use one SQLite driver in tests instead of two
+
+- Branch `refactor/api-single-sqlite-driver`, 1 commit. 18 specs plus `recipe-testing.module.ts` moved from TypeORM `type: 'sqlite'` to `type: 'better-sqlite3'`; `sqlite3` devDependency dropped.
+- **Decisions**:
+  - `dead-workspace-overrides` — removed `"overrides": {"sqlite3": {"tar": "7.5.7"}}` from `packages/api/package.json`. npm only reads `overrides` from the workspace root, so it had been inert since `88379e0` (the backend -> api rename). `AUDIT.md` and `ROADMAP.md` both credited it as working and were corrected.
+  - `hygiene-not-remediation` — does NOT clear the tar alerts: TypeORM declares `sqlite3` as an optional peer and `optional` does not stop npm installing it. Tracked as accepted risk on #1497.
+- Reviews — Codex approved, no findings. CI green. A correction comment was posted on the PR after merge: an earlier claim that the suite needed a `JWT_SECRET` from `.env` was wrong — the package's own `test:cov` supplies it, and the failure came from invoking bare `npx jest` instead.
+
+### PR #1496 merged (`be9bba4`) — fix(ci): drop linked-versions so app releases can be tagged again
+
+- Branch `fix/drop-linked-versions`, 1 commit. Also updates `CONTRIBUTING.md` and `.github/tag-protection.md`, which described the lockstep as current.
+- **Decisions**:
+  - `linked-versions-cannot-tag` — the plugin hardcodes a group PR title with no `${version}` (`linked-versions.ts:182`), ignoring `group-pull-request-title-pattern`. release-please cannot parse a version back after merge and aborts with "untagged, merged release PRs outstanding" — aborting because of the very PR it can never tag. No config fix exists; the plugin was removed.
+  - `no-lockstep` — `mobile-app` and `api` now version independently, like `website` and `beer-encyclopedia`. Nothing required them to match: neither depends on the other and both are private.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1487 merged (`ca41e1c`) — chore(deps): bump ip-address from 10.1.0 to 10.2.0
+
+- Branch `dependabot/npm_and_yarn/ip-address-10.2.0`, 1 commit. Closes 1 medium alert.
+
+### PR #1485 merged (`8e0c816`) — chore(deps): bump qs from 6.15.0 to 6.15.3
+
+- Branch `dependabot/npm_and_yarn/qs-6.15.3`, 1 commit. Closes 1 medium alert. The only package in the batch on the production runtime path (Express stack).
+
+### PR #1492 merged (`9534709`) — chore(deps): bump fast-uri from 3.1.0 to 3.1.4
+
+- Branch `dependabot/npm_and_yarn/fast-uri-3.1.4`, 1 commit. Closes 2 high alerts.
+
+### PR #1483 merged (`d972210`) — chore(deps): bump form-data from 4.0.5 to 4.0.6
+
+- Branch `dependabot/npm_and_yarn/form-data-4.0.6`, 1 commit. Closes 1 high alert.
+
+### PR #1484 merged (`8d8e385`) — chore(deps): bump undici from 6.25.0 to 6.27.0
+
+- Branch `dependabot/npm_and_yarn/undici-6.27.0`, 1 commit. Closes 1 high, 1 medium, 2 low alerts.
+
+### PR #1493 merged (`dab2197`) — chore(deps): bump ws from 6.2.3 to 6.2.6
+
+- Branch `dependabot/npm_and_yarn/ws-6.2.6`, 1 commit. Closes 3 high, 1 medium alerts.
+
+### PR #1488 merged (`8f7da96`) — chore(deps): bump @xmldom/xmldom from 0.8.11 to 0.8.13
+
+- Branch `dependabot/npm_and_yarn/xmldom/xmldom-0.8.13`, 1 commit. Closes 5 high alerts.
+
+### PR #1486 merged (`90a3c15`) — chore(deps): bump handlebars from 4.7.8 to 4.7.9
+
+- Branch `dependabot/npm_and_yarn/handlebars-4.7.9`, 1 commit. Closes 1 critical plus 3 lower alerts.
+
+### PR #1481 merged (`9b59af7`) — chore(deps): bump shell-quote from 1.8.3 to 1.10.0
+
+- Branch `dependabot/npm_and_yarn/shell-quote-1.10.0`, 1 commit. Closes 1 critical alert.
+
+### PR #1427 merged (`5099dda`) — chore(main): release app libraries
+
+- Branch `release-please--branches--main--groups--app`, 2 commits. `mobile-app` and `api` to 0.1.14-alpha1.
+- Reviews — bot-authored branch, so no local pre-push pass. On GitHub, Copilot and Codex both reviewed all three release PRs and Codex approved each; replies posted. CI green.
+
+### PR #1426 merged (`d3e058e`) — chore(main): release website 0.1.3
+
+- Branch `release-please--branches--main--components--website`, 3 commits. Tag `website-v0.1.3`.
+
+### PR #1425 merged (`a31d972`) — chore(main): release encyclopedia 0.2.5
+
+- Branch `release-please--branches--main--components--encyclopedia`, 2 commits. Tag `encyclopedia-v0.2.5`.
+
+### PR #1491 merged (`4550dcf`) — fix(ci): sync the root lockfile on release PR branches
+
+- Branch `fix/release-lockfile-sync-workflow`, 2 commits. Adds `scripts/sync-workspace-lockfile.mjs` (7 tests) and a workflow step running it on every open release PR branch.
+- **Decisions**:
+  - `node-workspace-rejected` — release-please's own `node-workspace` plugin was tried and rejected: its `inScope()` is `releaseType === 'node'`, so it can never reach `packages/beer-encyclopedia` (release-type `python`); it also patches only `candidates[0]`, and would have dropped the merged group candidate entirely (it carries `path: ROOT_PROJECT_PATH` yet is claimed in-scope).
+  - `surgical-not-npm-install` — `npm install --package-lock-only` re-resolves the whole tree and can lift unrelated packages inside a version-bump-only PR; the script rewrites only `packages/*` version fields.
+  - `double-gated-branch-list` — branch names are filtered on `isCrossRepository == false` plus the `autorelease: pending` marker. A fork PR whose head branch merely matched the release-please prefix would fail the fetch and, under `set -e`, block the release workflow on every push to main — a zero-privilege denial of service on a public repo.
+  - `no-silent-success` — every filter lives in `--jq` with no `|| true`, so a failing `gh` fails the step instead of reporting "nothing to sync" while lockfiles stay stale.
+- Reviews — Codex raised one P2 (the branch-listing step swallowed failures via `|| true`, on the one step whose whole job is to detect drift); fixed in `c7ba81a0` with an inline reply, then approved. CI green.
+
+### PR #1490 merged (`c27eb7b`) — fix(mobile-app): surface render errors and cap request duration
+
+- Branch `fix/mobile-error-boundary-http-timeout`, 3 commits. Adds `RouteErrorFallback` plus an `ErrorBoundary` export in `app/_layout.tsx` and `app/(app)/_layout.tsx`; adds a default request timeout and `HttpTimeoutError`.
+- **Decisions**:
+  - `no-boundary-no-diagnosis` — expo-router wraps a route in `<Try>` only when its module exports `ErrorBoundary`; release builds have no redbox, so an uncaught render throw killed the process silently. This is what made the 2026-07-20 APK crash take a day to diagnose.
+  - `abortsignal-statics-absent-in-hermes` — the timeout uses a plain `AbortController` + `setTimeout`, not `AbortSignal.timeout()`/`any()`: React Native polyfills `AbortController` from the `abort-controller` package, which ships neither static. The idiomatic spelling would have shipped the same `undefined is not a function` class of bug.
+  - `timeout-covers-body-read` — `parseBody` runs inside the timed window; `fetch` resolves on headers, so a stalled body would otherwise escape the ceiling.
+  - `scan-import-needs-its-own-budget` — `importBeerByEan` gets 45s: a cold encyclopedia miss is ~10s Fly wake-up plus its own 10s OpenFoodFacts budget, and `HttpTimeoutError` is deliberately not an `HttpError`, so timing out first skips the 404/503 fallback to the legacy NestJS lookup entirely.
+- Reviews — local pre-push: Claude `pr-pre-reviewer` + Codex CLI, Must Have cleared before push. On GitHub, Codex raised one P2 (the 20s default cut the encyclopedia import off before its own fallback could fire); fixed in `e82488b6` with an inline reply, then approved. CI green.
+
+### PR #1489 merged (`d93ca72`) — test(mobile-app): stop async assertions failing on machine load
+
+- Branch `fix/mobile-flaky-async-assertions`, 1 commit. Sets `jest.setTimeout(15_000)` and `asyncUtilTimeout: 10_000` in `packages/mobile-app/jest.setup.ts`.
+- **Decisions**:
+  - `budget-order-matters` — jest's own per-test timeout also defaults to 5s, so raising `asyncUtilTimeout` alone to 5s makes things worse: the assertion burns the whole test budget and jest kills it with an opaque message instead of the query's own. `asyncUtilTimeout` must stay clear of `jest.setTimeout`.
+  - `flake-is-not-localized` — two concurrent full suites failed every time, on different tests (`DashboardScreen`, then `BeerInfoCardScreen`), so the fix belongs in the shared setup rather than one spec.
+  - `beerinfocard-is-harness-not-app` — that spec's ~600ms outlier is `waitFor`'s wall-clock polling, not app latency: the screen leaves its error state in ~3ms once three React flush cycles run. No user-visible delay on the scan retry path.
+  - `jest-setup-is-do-not-modify` — `packages/mobile-app/CLAUDE.md` lists `jest.setup.ts` as do-not-modify; explicit approval was obtained and is recorded in the commit and the file comment.
+- Reviews — Codex approved, no findings. CI green.
+
+
+### Session cleanup and follow-ups opened
+
+- The nine Dependabot security PRs (#1481, #1483, #1484, #1485, #1486, #1487, #1488, #1492, #1493) were merged on the lightened bot gate — green CI plus per-bucket approval, no local pre-push pass and no AI review requested on bot-authored branches. Same-lockfile siblings were merged one at a time, rebasing each blocked sibling in turn.
+- Issue #1495 — grouped `npm-minor-patch` bump (#1494, 38 updates) deferred. CI red at the `Lint check` step on both `mobile-app` and `api`: Prettier 3.8.1 -> 3.9.5 reformats generic call expressions (15 files fail `--check` in files the PR does not touch) plus two `@typescript-eslint/no-unnecessary-type-assertion` errors. The react-native Jest-preset split and duplicated `rxjs` blockers recorded for its predecessor #1434 were not re-exercised, since the run never reached the test step.
+- Issue #1497 — `tar@6` alerts accepted as risk. Pinned by TypeORM's optional `sqlite3 ^5.0.3` peer; removing the devDependency, bumping `sqlite3` to v6 and a root `overrides` were each tried and each failed. Native-build tooling that rarely executes and never runs in the served application.
+- Issue #1503 — opened against the nine workflows other than `ci.yml`, which carried no `timeout-minutes` and so inherited the 360-minute Actions default; `docker-build.yml` holds `packages: write` to GHCR and the deploy workflows hold Cloudflare secrets.
+- 25 merged remote branches deleted; `feat/website-sitemap-social` (#1387, closed unmerged) kept because its supersession by #1384/#1393 could not be proven.
+
 ## 2026-07-17
+
+### PR #1476 merged (`392e3a6`) — chore(review): drop inert codex auto-request workflow, fix stale AI-reviewer claims
+
+- Branch `chore/ai-review-stale-artifacts`, 1 commit. Follow-up split from #1472.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1477 merged (`65639cd`) — docs(log): record PR #1472 (AI-reviewer docs aligned with GitHub reality)
+
+- Branch `docs/log-pr-1472`, 1 commit. Rebased to resolve a `PROJECT_LOG.md` ordering conflict: #1472 merged after #1475, so its entry sits above.
+- Reviews — Codex approved, no findings. CI green.
+
+### PR #1479 merged (`2910979`) — chore(deps): drop dead npm manifests under _archive
+
+- Branch `chore/drop-archive-npm-manifests`, 1 commit. Removes `package.json` + `package-lock.json` from `_archive/{frontend,backend,docs/ydays}`.
+- Reviews — Codex approved, no findings. CI green.
+- **Decisions**:
+  - `archive-inflated-the-alert-count` — 109 of the repo's then-166 open Dependabot alerts came from these archived lockfiles. Removing the manifests took the scanned surface down to live code, leaving 57 real alerts. Dependabot security updates run outside `dependabot.yml`, so config `ignore` could not have suppressed them. #1371 (a dead-code lodash bump) was closed the same day.
+
+### PR #1472 merged (`1c368c3`) — docs(review): align AI-reviewer docs with GitHub reality
+
+- Branch `docs/ai-review-pipeline`, 3 commits (`f3f00be`, `8aa2463`, `e12f8d5`). Touches `CONTRIBUTING.md`, `.claude/skills/pr-create-brasse-bouillon/SKILL.md`, `README.md`, `.github/workflows/copilot-review.yml`.
+- Copilot auto-review: the 2026-06-06 disable never took effect — the workflow was label-gated but an active ruleset rule (`copilot_code_review`) kept auto-requesting Copilot on every non-draft PR (verified ≥2026-06-05 through #1467). Rule removed 2026-07-17 via the ruleset (id 14586694, renamed `Protect default branch`, keeping deletion + non_fast_forward on `main`); confirmed effective on #1472 (`requested_reviewers` empty). The auto-review switch is Settings → Rules → Rulesets, not the workflow file.
+- Codex verdict protocol corrected: Codex is never silent — per its own doc block it posts a review when it has findings (body anchored `Reviewed commit: <sha>`) or a `+1` reaction on the PR body when clean; neither present means not-finished. The clean verdict lands on `issues/N/reactions`, not `pulls/N/reviews`. Push does not re-trigger Codex (comment `@codex review`); a verdict covers only the SHA it names. Absence after a bounded wait (~10 min; observed reaction ~2 min, reviews 2–7 min) is logged as "no Codex verdict", never as clean — Codex did not run at all on 2026-07-16 (#1442–#1459 merged with no pass).
+- Reviews — local pre-push: 0 Must Have (Claude `pr-pre-reviewer` + Codex CLI + independent fact-check agent), all retained Should Have taken. On GitHub, Codex posted P2 (`f3f00be`) then P1 (`8aa2463`) against the never-wait wording; both fixed (`8aa2463`, `e12f8d5`) and replied inline. Clean 👍 verdict obtained on the final head `e12f8d5` after `@codex review`. CI green.
+- Follow-up split to #1476: stale AI-reviewer references outside these files (dead `auto-request-codex-review.yml`, ROADMAP, ADR-0001 errata).
+
+### PR #1475 merged (`fbd1dd4`) — ci(website): add ruff lint and format checks to the website job
+
+- Branch `chore/website-ci-ruff`, 1 commit (`19088f5`).
+- Adds `ruff check scripts tests` + `ruff format --check scripts tests` to the `website:` job (before the gate, fail-fast) plus the matching `packages/website/CLAUDE.md` local-repro update. Supersedes the #1469 entry's "Website CI runs no ruff step" — that baseline is now enforced. `ruff check` was verified green independently (#1469 was a `ruff format` pass only).
+- **Decisions**:
+  - `website-ruff-defaults` — no `pyproject.toml`/repo-root ruff config, so ruff runs on built-in defaults (line-length 88, `E4`/`E7`/`E9`/`F`) and beer-encyclopedia's `.[ml,dev]` install path does not transfer. Aligning on its ruleset (line-length 100 + extended select) reformats all 8 files + raises 6 `I001` — deferred.
+  - `ruff-pinned-exactly` — Dependabot tracks npm only, so nothing auto-bumps Python tooling; pinned `ruff==0.15.8` with a `next-review: 2027-01` marker.
+  - `lint-steps-unguarded` — no `if [ -d ]` guard (unlike the gate/test steps): a missing `scripts/` should fail, not silently pass.
+- `website:` job is path-filtered on `packages/website/**`; the doc change triggered it here, so a workflow-only change to this job won't self-verify on its own PR.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). CI green; `website` job log confirms both checks ran (`All checks passed!`, `8 files already formatted`), gate + 69 tests green.
+- Follow-up: `packages/website/CONTRIBUTING.md` local-commands block separately stale (`py_compile` step CI never runs, unit suite omitted).
+
+### PR #1470 merged (`c3a9011`) — fix(mobile-app): drop dead Tabs.Screen registrations in (app) layout
+
+- Branch `fix/mobile-tabs-screen-names`, 3 commits (`1aea5c1`, `43b80a7`, `0f2e8be`) plus a `main` sync before merge.
+- The `(app)` layout declared six `Tabs.Screen` entries (`dashboard`, `equipment`, `shop`, `ingredients`, `tools`, `profile`) whose `name` matched no route node: those directories own no `_layout.tsx`, so expo-router hoists their routes to the parent navigator as `dir/index` and dropped every unmatched entry at runtime with a `[Layout children]: No route named "X" exists` warning. Their options (`headerShown`, `href: null`, `title`, `tabBarIcon`) had therefore never applied, making the removal behavior-preserving rather than a UI change — the pre-fix rendering is the one that shipped. The four retained entries (`recipes`, `batches`, `academy`, `beer-catalog`) each own a `_layout.tsx`.
+- ADR-0029 unaffected: `NavigationFooter` navigates by literal path through `router.replace()` and never reads these registrations. Orthogonal to #1461 for the same reason — retiring the `/ingredients` hub works through `Redirect` and `router.push`, not through the navigator's screen list.
+- Guard: `src/core/navigation/__tests__/app-tabs-screen-names.test.ts` asserts every declared `name` resolves to a real `(app)` route node — a child directory owning a `_layout`, or a hoisted leaf such as `dir/index`. Red-proven against the pre-fix layout, where it fails listing exactly the six dead names, and it carries a sanity check so a regex that stops matching cannot make it vacuously green.
+- Verified on the `bb_pixel_academy` emulator via Expo Go, A/B by stashing the fix: 6 warnings before, 0 after, dashboard rendering identical.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI), 2 Should Have taken (the guard test above; this entry). On GitHub: Copilot 1 inline (the layout comment stated a narrower rule than the guard enforces — hoisted leaves are valid children too) fixed in `0f2e8be` with an inline reply; Codex posted no review. CI green on the tree merged with `main`.
+
+### PR #1469 merged (`2e04b35`) — chore(website): apply ruff format to roadmap_sync and weekly_digest scripts
+
+- Branch `chore/website-ruff-format`, 1 commit (`3619342`).
+- Formatter-only pass over the two pre-existing scripts that `ruff format --check` still flagged (line wrapping + missing trailing newline); AST-verified identical before/after. `ruff check`, the 58-test website unittest suite, and `quality_gate.py` stay green. Website CI runs no ruff step — this clears the local formatter baseline only.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot overview only, no inline comments; Codex posted no review. CI green.
+
+### PR #1467 merged (`eac81af`) — fix(website): close the head-level blind spot in the i18n srcHash drift guard
+
+- Branch `claude/laughing-lamport-3fe93f`, 2 commits (`5f40146`, `a2c3a52`).
+- The `srcHash` drift guard covered `catalog["strings"]` only: editing a FR `<head>` value (title, meta description, keywords, OG/Twitter) regenerated `en.html` with the stale EN override while `build_i18n.py --check` and the quality gate stayed green — contradicting the module docstring's promise. New `headSrcHashes` map in `i18n/home.en.json` fingerprints the FR source of the 8 head keys that mirror a FR head string; a single shared `_GUARDED_HEAD_PATTERNS` table drives both the EN head swap and the guard so they cannot disagree on the FR source; `--update-hashes` refreshes the map. `ogImage` / `orgDescription` / `knowsAbout` documented as unguarded (no 1:1 FR head string). ADR-0027 verification checklist now names the head guard (D1 clause 4(c) enforcement gap closed, decision unchanged).
+- Tests: 9-case `HeadGuardTests` (happy/sad/edge: fresh pass, drifted title/description/keywords fail, missing/orphan/unguardable keys fail, `--update-hashes` restores green); website suite at 69 green. `quality_gate.py` picks the guard up with zero changes (calls `generate(check_hashes=True)` in-process).
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex CLI). On GitHub: Copilot 1 inline (`python` → `python3` in the catalog `_comment`) fixed in `a2c3a52` with inline reply; Codex posted no review. CI green.
+
+### PR #1461 merged (`12ccc6b`) — feat(shop): make the shop the single door into the ingredient catalog
+
+- Branch `feat/shop-catalog-door`, 2 commits (`8457ef5`, `e415fd2`). Lot 1 of the shop-catalog epic, implementing the conception merged in #1456. The shop stops being a placeholder and opens the catalog that already existed: Malts / Houblons / Levures show their real count from `listIngredientCategoriesSummary()` and route to `/(app)/ingredients/[category]`; Kits / Matériel / Accessoires stay inert.
+- **Reuse, not relocation**: the hub reads the existing use-case and routes into the existing category screens, owning **no `data/` layer** — a second API client would rebuild the duplication #1444 deleted. `RecipeDetailsScreen` deep-links into the datasheets, so those routes are untouched: the goal is one door, not one directory.
+- `/ingredients` hub retired — route redirects instead of 404ing, dashboard entry removed, `IngredientsScreen` + its test deleted (the redirect left them with zero consumers). `ShopCategory` deleted too; `IngredientCategory` is the single taxonomy. New `ShopRayon` model with a nullable `catalogCategory`; placeholders render as plain `View`s, not disabled `Pressable`s, so they are not focusable and cannot gain an `onPress` by accident.
+- Retiring the hub silently broke four back paths that no test caught: `IngredientCategoryScreen`'s button read "Ingrédients" while landing on a screen titled "Ma Boutique", and the three datasheet fallbacks pushed to the dead hub. All now say and go to the shop, without bouncing through the redirect; their tests, which had pinned the old labels, were updated to the new intent.
+- **Decisions**:
+  - `shop-is-the-catalog-door` — one entry point for one actor goal. Two doors (an "Ingrédients" menu entry and a "Boutique" one) for the same goal is what let two catalogs ship, one of them fake. Per #1456, `ingredients/` keeps the use case; the shop is its entry point.
+  - `guard-narrowed-not-dropped` — #1453's "no pressable affordance" assertion tightens to sourceless rayons rather than being deleted: live rayons are pressable by design now, and that re-decision is what the guard existed to force.
+  - `named-gap-over-unfailable-test` — `isRetryingWithError` (missing versus every sibling screen) was restored, but mutation testing proved the obvious regression test for it passes with the guard removed: a first-load failure leaves the query data-less, so `status` returns to `pending` and the loader shows either way. The guard only bites on a populated catalog whose refetch fails, unreachable without a remount. The gap is documented in a comment rather than covered by a test that cannot fail.
+- Reviews — local pre-push: 0 Must Have, 5 Should Have addressed in-branch (retry guard, stale docstring, comment placement, rebase). Copilot 2 inline (type-only imports for `IngredientCategorySummary` / `ShopRayon`, a repeat of its #1444 feedback reintroduced by copying the replaced screen's shape) fixed in `e415fd2` with inline replies, threads resolved. Codex no review. CI green; 353/353 across the touched suites; visual QA on the Android emulator in demo mode.
+- Lot 2 (not started): wire `/catalog/misc-templates` (Accessoires) then `/catalog/equipment-templates` (Matériel) — both served by the backend already, unconsumed mobile-side. Kits has no source anywhere.
+
+### PR #1463 merged (`79711a8`) — docs(claude-tooling): refresh website-audit skill for Cloudflare Pages hosting
+
+- Branch `docs/website-audit-skill-cloudflare-refresh`, 2 commits (`0f57232`, `84ad8a7`).
+- `.claude/skills/website-audit-brasse-bouillon`: the Target section still claimed GitHub Pages hosting with no settable response headers (Cloudflare edge-proxy workaround) — stale since ADR-0014 and PR #1370's `packages/website/_headers`. Rewritten: Cloudflare Pages host, real `website-deploy.yml` triggers (pushes to `main`/`staging` touching `packages/website/**`, plus `workflow_dispatch`), `_headers` mechanism with its edge-emitted vs deliberately-deferred split (#1032 CSP, #1033 HSTS) and the re-verify-live rule. Also fixed: the audit report is tracked on `main` (the `docs/log-website-audit` working branch no longer exists) and the VitePress dev port is the 5173 default, not 5183.
+- `.claude/skills/website-pages-deploy`: HISTORICAL banner + description rewrite, so an agent loading the retired GitHub Pages runbook directly sees it was superseded by ADR-0014 instead of following it.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer + Codex); 2 Shoulds applied (the deprecation banner above; commit scope aligned to the `claude-tooling` precedent). On GitHub: Copilot 1 inline (the workflow does not fire on arbitrary refs — the `other refs produce preview deployments` phrasing had been lifted from ADR-0014's own simplification), fixed in `84ad8a7`, replied inline and resolved; Codex posted no review on this docs-only diff.
+
+### PR #1464 merged (`89aeb254`) — feat(website): SEO/GEO optimization (keyword-first titles, WebSite schema, llms.txt, pages.dev noindex)
+
+- Branch `claude/brasse-bouillon-seo-geo-audit-ed89eb`, 3 commits (`f458dbb5`, `ce45be27`, `2189fa8b`).
+- Both homes: keyword-first/brand-last `<title>`, WebSite JSON-LD + `og:site_name` (brand carriers), `max-image-preview:large`, Organization `sameAs` (Ko-fi, ADR-0028). `llms.txt` added to the gate's `REQUIRED_FILES` (+ fixture) and to the deploy whitelist (`website-deploy.yml`); `_headers` noindexes the pages.dev production/preview hosts; sitemap `lastmod` bumped; privacy(-en) em-dash residue from #1421 swept (legal stamps refreshed).
+- New repo skill `.claude/skills/seo-geo-brasse-bouillon` (SEO/GEO overlay: gate invariants, edge caveat, AI-bot taxonomy, standing action plan). SEO_RUNBOOK gains §1.1: the live robots.txt is edge-modified (Cloudflare managed robots.txt + AI Crawl Control per-crawler 403s); probes must use the vendor's full bot UA string — bare tokens return false 200s (observed live).
+- **Decisions**:
+  - `titles-keyword-first-brand-last` — SERP truncation now cuts the brand, not the keywords; the brand stays visible via the WebSite JSON-LD (Google site-name) and `og:site_name`; `og:title`/`twitter:title` stay brand-first for social cards. Recorded in SEO_RUNBOOK §1 and the skill.
+  - `pages-dev-alias-noindexed` — the production pages.dev alias served the full site as an indexable duplicate; host-scoped `X-Robots-Tag: noindex` rules added per the documented Cloudflare pattern.
+- Reviews — local pre-push: 0 Must Have (Claude reviewer ×2 + Codex CLI), then 3 adversarial lenses + a 3-agent verification pass (43 claims fact-checked, 19 findings applied in-branch). On GitHub: Copilot reviewed 13/13 files with no comments; Codex posted no review. Merged under the delegated gate (checks green + comments answered); verified live post-deploy (llms.txt 200, WebSite JSON-LD served, pages.dev noindex header present, apex clean of it).
+- GEO remains gated on the Cloudflare dashboard (AI-crawler unblock) and GSC/Bing setup — user-side, documented in SEO_RUNBOOK §1.1/§3.
 
 ### PR #1460 merged (`f568c95`) — chore(mobile-app): make the nav-clearance rule enforceable, not memorable
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.2.5](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.4...encyclopedia-v0.2.5) (2026-07-20)
+
+
+### Features
+
+* **encyclopedia:** Beer IBU/SRM as min-max intervals + Style.family (BJCP) ([#1204](https://github.com/benoit-bremaud/brasse-bouillon/issues/1204)) ([00f5d0e](https://github.com/benoit-bremaud/brasse-bouillon/commit/00f5d0e1db3ca6df797976f3bb5df788b29b1379))
+* **encyclopedia:** gate the public catalogue on the published status (ADR-0015 D1) ([#1226](https://github.com/benoit-bremaud/brasse-bouillon/issues/1226)) ([d542637](https://github.com/benoit-bremaud/brasse-bouillon/commit/d542637fd5387e834c4aac62289c7ed8861db00d))
+* **encyclopedia:** resolve brewery_name / style_name on the beer read & write endpoints ([#1222](https://github.com/benoit-bremaud/brasse-bouillon/issues/1222)) ([1a761e7](https://github.com/benoit-bremaud/brasse-bouillon/commit/1a761e72af9e515b18b77ce25aea9d36cc1cfe28))
+* **encyclopedia:** seed curated beer corpus — 39 breweries, 44 beers, styles, ingredients ([#1207](https://github.com/benoit-bremaud/brasse-bouillon/issues/1207)) ([2066740](https://github.com/benoit-bremaud/brasse-bouillon/commit/2066740f4976e5165a530396a9883ff8ce00c435))
+
+
+### Bug Fixes
+
+* **beer-encyclopedia/ml:** correct ABV parsing, name fallback, and dead IBU weight ([#1287](https://github.com/benoit-bremaud/brasse-bouillon/issues/1287)) ([5a2cada](https://github.com/benoit-bremaud/brasse-bouillon/commit/5a2cadac31a03dee0fc13989bb6b1d395f8fad40))
+* **encyclopedia:** assert exposed routes via OpenAPI, not app.routes (FastAPI 0.137) ([#1223](https://github.com/benoit-bremaud/brasse-bouillon/issues/1223)) ([051aa07](https://github.com/benoit-bremaud/brasse-bouillon/commit/051aa077135310ced4947a56794d8535c8ec5587))
+
+
+### Documentation
+
+* **config:** align Claude config with reality (ADR list, encyclopedia stack, decisions index) ([#1239](https://github.com/benoit-bremaud/brasse-bouillon/issues/1239)) ([ab51f4a](https://github.com/benoit-bremaud/brasse-bouillon/commit/ab51f4aa8f2ecfa15d7d3b4b4b62afa58f4f32cc))
+* **mobile-catalog:** UML conception study for the mobile beer catalogue (UC1/2/3) ([#1213](https://github.com/benoit-bremaud/brasse-bouillon/issues/1213)) ([79138b0](https://github.com/benoit-bremaud/brasse-bouillon/commit/79138b0231ef3fce9b243e99f5ec68088952bc18)), closes [#1128](https://github.com/benoit-bremaud/brasse-bouillon/issues/1128)
+
 ## [0.2.4](https://github.com/benoit-bremaud/brasse-bouillon/compare/encyclopedia-v0.2.3...encyclopedia-v0.2.4) (2026-06-05)
 
 

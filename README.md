@@ -413,7 +413,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick summary:
 - Use Conventional Commits: `type(scope): description`.
 - Run `make lint-all && make test-all` before pushing.
 - Open a PR with a clear description and checklist.
-- Wait for CI green and at least one review before merging.
+- Wait for CI green and for Codex's verdict — a review (findings) or a 👍 on the PR body (clean) — before merging. See [CONTRIBUTING.md](CONTRIBUTING.md) § AI reviewers.
 
 ---
 

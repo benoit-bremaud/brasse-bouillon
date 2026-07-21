@@ -7,11 +7,12 @@
        collapses behind the burger when scripting is available. Without
        JS the header nav stays visible (no-js fallback). -->
   <script>document.documentElement.classList.replace('no-js', 'js');</script>
-  <title>Brasse-Bouillon - Application de brassage amateur (recettes bière, IBU/ABV, fermentation)</title>
+  <title>Application de brassage amateur - recettes de bière, IBU/ABV, fermentation | Brasse-Bouillon</title>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="Brasse-Bouillon est l’application de brassage amateur pour créer des recettes de bière, calculer IBU/ABV, suivre la fermentation et réussir chaque brassin pas à pas.">
   <meta name="keywords" content="application brassage amateur, brassage maison, recette bière, calcul IBU, calcul ABV, suivi fermentation, guide brassage, journal de brassins, homebrew">
+  <meta name="robots" content="max-image-preview:large">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">
@@ -19,6 +20,7 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Brasse-Bouillon">
   <meta property="og:url" content="https://brasse-bouillon.com/">
   <meta property="og:title" content="Brasse-Bouillon | Application de brassage amateur">
   <meta property="og:description" content="Crée des recettes de bière, calcule IBU/ABV et suis la fermentation avec un guide de brassage pas à pas.">
@@ -46,6 +48,21 @@
 
   <link rel="stylesheet" href="site.css?v=20260715">
 
+  <!-- WebSite Schema — feeds Google's site-name feature; the <title> is
+       keyword-first/brand-last, so this is what keeps the brand visible in
+       SERPs. Language-neutral by design (brand + apex URL only): the i18n
+       generator copies it verbatim to en.html, no catalog keys involved. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@id": "https://brasse-bouillon.com/#website",
+    "@type": "WebSite",
+    "name": "Brasse-Bouillon",
+    "url": "https://brasse-bouillon.com/",
+    "publisher": { "@id": "https://brasse-bouillon.com/#organization" }
+  }
+  </script>
+
   <!-- Organization Schema -->
   <script type="application/ld+json">
   {
@@ -60,6 +77,9 @@
       "@type": "Person",
       "name": "Benoît Bremaud"
     },
+    "sameAs": [
+      "https://ko-fi.com/brassebouillon"
+    ],
     "knowsAbout": [
       "Brassage amateur",
       "Recettes de bière",

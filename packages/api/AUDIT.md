@@ -232,7 +232,13 @@ Tests:       2 skipped, 54 passed, 56 total
 - `RolesGuard` for admin routes ✅
 
 ### Dependencies
-- `npm audit` critical vulnerabilities: ✅ clean (sqlite3 chain handled with tar override)
+- `npm audit` critical vulnerabilities: ✅ clean
+- The `sqlite3 -> node-gyp -> cacache -> tar@6` chain is **not** handled — an
+  earlier `overrides` block claimed to pin `tar` but never applied (npm only
+  reads `overrides` from the workspace root) and has been removed. The chain is
+  pinned by TypeORM's optional `sqlite3 ^5.0.3` peer and is accepted risk:
+  native-build tooling that rarely executes and never runs in the served app.
+  Tracked in #1497.
 - `high`-level vulnerabilities may still exist (policy: CI gate at `critical` only)
 
 ### Exposure and Hardening

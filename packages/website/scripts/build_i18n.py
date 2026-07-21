@@ -16,8 +16,12 @@ Usage:
     python3 scripts/build_i18n.py --stamp      # refresh the EN legal twins' i18n-src freshness stamp
 
 The drift guard: each catalog entry stores `srcHash`, the sha1 of the French
-source (element inner HTML or attribute value) it translates. On generate/check,
-a mismatch is a hard error — a FR copy change without its EN update fails CI. The
+source (element inner HTML or attribute value) it translates. The catalog's
+`headSrcHashes` block guards the FR-sourced `head` overrides the same way
+(title, meta description/keywords, social titles/descriptions, og:image:alt);
+head keys with no 1:1 FR head string (ogImage, orgDescription, knowsAbout) are
+deliberately unguarded — see `_GUARDED_HEAD_PATTERNS`. On generate/check, a
+mismatch is a hard error — a FR copy change without its EN update fails CI. The
 author updates the EN value, runs --update-hashes, and commits deliberately.
 
 The legal twins (`legal`, `privacy`, `cookies`, `terms`) are hand-maintained,
@@ -207,7 +211,9 @@ def load_catalog() -> dict:
     Schema: `strings` maps catalog key → `{"en": <EN HTML fragment>,
     "srcHash": <sha1 of the FR source>}`; `insertions` maps EN-only keys →
     fragments (no FR source, so no hash); `idStems` lists the DOM id stems
-    rewritten `…Fr` → `…En`; `head` holds the EN head-override values.
+    rewritten `…Fr` → `…En`; `head` holds the EN head-override values;
+    `headSrcHashes` maps each guarded head key → sha1 of its FR head value
+    (see `_GUARDED_HEAD_PATTERNS` for the guarded set and the exclusions).
     """
     if not CATALOG_PATH.exists():
         raise BuildError(f"catalog not found: {CATALOG_PATH}")
@@ -239,6 +245,69 @@ def _fr_attr_value(tag_text: str, attr: str) -> str:
     if not match:
         raise BuildError(f"attribute '{attr}' not found on tag: {tag_text[:60]}…")
     return match.group(1)
+
+
+# FR-sourced head overrides under the head drift guard. Each entry maps a
+# catalog `head` key to the (pattern, flags) locating its FR value in
+# index.html: group 1 = prefix, group 2 = FR value, group 3 = suffix.
+# `_transform_head` splices the EN value between groups 1 and 3 and the guard
+# fingerprints group 2, so the swap and the guard can never disagree on what
+# "the FR source" is.
+#
+# Deliberately NOT guarded (no 1:1 FR head string to fingerprint):
+#   - ogImage: localized share-card asset URL (og-image-en.png), a URL swap,
+#     not a translation of FR copy;
+#   - orgDescription / knowsAbout: JSON-LD Organization fields rebuilt by
+#     `_rebuild_org_schema` (multi-line JSON string / array), not head strings;
+#   - twitter:image:alt / twitter:image: swap-only mirrors of ogImageAlt
+#     (guarded via og:image:alt) and ogImage.
+_GUARDED_HEAD_PATTERNS: tuple[tuple[str, str, int], ...] = (
+    ("title", r"(<title>)(.*?)(</title>)", re.DOTALL),
+    ("description", r'(<meta name="description" content=")(.*?)(">)', re.DOTALL),
+    ("keywords", r'(<meta name="keywords" content=")(.*?)(">)', 0),
+    ("ogTitle", r'(<meta property="og:title" content=")([^"]*)(">)', 0),
+    ("ogDescription", r'(<meta property="og:description" content=")([^"]*)(">)', 0),
+    ("twitterTitle", r'(<meta name="twitter:title" content=")([^"]*)(">)', 0),
+    (
+        "twitterDescription",
+        r'(<meta name="twitter:description" content=")([^"]*)(">)',
+        0,
+    ),
+    ("ogImageAlt", r'(<meta property="og:image:alt" content=")([^"]*)(">)', 0),
+)
+
+
+def _fr_head_value(source: str, key: str, pattern: str, flags: int) -> str:
+    match = re.search(pattern, source, flags=flags)
+    if match is None:
+        raise BuildError(f"head key '{key}' has no matching FR element in the source")
+    return match.group(2)
+
+
+def _head_hash_errors(source: str, catalog: dict) -> list[str]:
+    """Return the guarded head keys whose FR source drifted, as `head.<key>`.
+
+    Raises `BuildError` on structural problems that a hash refresh alone cannot
+    fix: a guarded head key with no FR element to fingerprint, or a
+    `headSrcHashes` entry that guards nothing (unknown or unguardable key).
+    """
+    head = catalog.get("head", {})
+    hashes = catalog.get("headSrcHashes", {})
+    stale: list[str] = []
+    guarded: set[str] = set()
+    for key, pattern, flags in _GUARDED_HEAD_PATTERNS:
+        if key not in head:
+            continue
+        guarded.add(key)
+        if hashes.get(key) != sha1(_fr_head_value(source, key, pattern, flags)):
+            stale.append(f"head.{key}")
+    orphaned = set(hashes) - guarded
+    if orphaned:
+        raise BuildError(
+            f"headSrcHashes entries guard nothing: {sorted(orphaned)} "
+            "(run `python3 scripts/build_i18n.py --update-hashes`)"
+        )
+    return stale
 
 
 # --------------------------------------------------------------------------- #
@@ -294,6 +363,9 @@ def generate(source: str, catalog: dict, *, check_hashes: bool = True) -> str:
         ops.append(
             (attr_op.tag_start, attr_op.tag_start + len(attr_op.tag_text), new_tag)
         )
+
+    if check_hashes:
+        hash_errors.extend(_head_hash_errors(source, catalog))
 
     if hash_errors:
         keys = ", ".join(sorted(set(hash_errors)))
@@ -368,43 +440,26 @@ def _transform_head(html: str, catalog: dict) -> str:
     # source: a cluster is identical on every page of the pair by design (S2 —
     # the S1 ship-dark strip is gone, en.html is indexable).
 
-    replacements = [
-        (r"(<title>).*?(</title>)", head.get("title")),
-        (r'(<meta name="description" content=").*?(">)', head.get("description")),
-    ]
-    for pattern, value in replacements:
+    # FR-sourced head strings (title, meta description/keywords, social
+    # titles/descriptions, og:image:alt): the shared guarded table drives both
+    # this swap and the head srcHash drift guard.
+    for key, pattern, flags in _GUARDED_HEAD_PATTERNS:
+        value = head.get(key)
         if value is not None:
             html = re.sub(
                 pattern,
-                lambda m, v=value: m.group(1) + v + m.group(2),
+                lambda m, v=value: m.group(1) + v + m.group(3),
                 html,
                 count=1,
-                flags=re.DOTALL,
+                flags=flags,
             )
 
-    keywords = head.get("keywords")
-    if keywords is not None:
-        html = re.sub(
-            r'(<meta name="keywords" content=").*?(">)',
-            lambda m: m.group(1) + keywords + m.group(2),
-            html,
-            count=1,
-        )
-
-    # URL/meta swaps to the EN locale.
+    # Swap-only rewrites (no FR copy to guard): fixed EN URLs, the twitter
+    # mirrors of guarded values, and the localized share-card asset.
     url_meta = {
         r'(<link rel="canonical" href=")[^"]*(">)': CANONICAL_EN,
         r'(<meta property="og:url" content=")[^"]*(">)': CANONICAL_EN,
         r'(<meta name="twitter:url" content=")[^"]*(">)': CANONICAL_EN,
-        r'(<meta property="og:title" content=")[^"]*(">)': head.get("ogTitle"),
-        r'(<meta property="og:description" content=")[^"]*(">)': head.get(
-            "ogDescription"
-        ),
-        r'(<meta name="twitter:title" content=")[^"]*(">)': head.get("twitterTitle"),
-        r'(<meta name="twitter:description" content=")[^"]*(">)': head.get(
-            "twitterDescription"
-        ),
-        r'(<meta property="og:image:alt" content=")[^"]*(">)': head.get("ogImageAlt"),
         r'(<meta name="twitter:image:alt" content=")[^"]*(">)': head.get("ogImageAlt"),
         # Localized share card (the FR card has a French tagline baked in).
         r'(<meta property="og:image" content=")[^"]*(">)': head.get("ogImage"),
@@ -538,11 +593,13 @@ def _transform_body_structure(html: str, catalog: dict) -> str:
 
 
 def update_hashes(source: str, catalog: dict) -> dict:
-    """Refresh every `srcHash` from the current FR source.
+    """Refresh every `srcHash` and the `headSrcHashes` block from the FR source.
 
     Mutates `catalog` in place AND returns it (callers may chain either).
-    Covers both text ops and attribute ops. Run after deliberately updating
-    the EN translations for a FR copy change (`--update-hashes`).
+    Covers text ops, attribute ops, and the guarded head keys (the
+    `headSrcHashes` block is rebuilt wholesale, clearing stale entries). Run
+    after deliberately updating the EN translations for a FR copy change
+    (`--update-hashes`).
     """
     parser = _AnnotationParser(source)
     parser.feed(source)
@@ -558,6 +615,17 @@ def update_hashes(source: str, catalog: dict) -> dict:
                 catalog["strings"][key]["srcHash"] = sha1(
                     _fr_attr_value(attr_op.tag_text, attr)
                 )
+
+    head = catalog.get("head", {})
+    head_hashes = {
+        key: sha1(_fr_head_value(source, key, pattern, flags))
+        for key, pattern, flags in _GUARDED_HEAD_PATTERNS
+        if key in head
+    }
+    if head_hashes:
+        catalog["headSrcHashes"] = head_hashes
+    else:
+        catalog.pop("headSrcHashes", None)
     return catalog
 
 

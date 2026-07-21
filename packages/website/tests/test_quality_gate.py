@@ -168,6 +168,8 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
 """,
     )
 
+    _write_file(base, "llms.txt", "# Brasse-Bouillon\n\n> Test summary.\n")
+
 
 def _stampable_fixture(base: Path) -> None:
     """Valid fixture + the build_i18n toolchain marker (so `check_legal_freshness`

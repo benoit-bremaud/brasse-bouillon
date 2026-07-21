@@ -1,5 +1,60 @@
 # Changelog
 
+## [0.1.15-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.14-alpha1...api-v0.1.15-alpha1) (2026-07-20)
+
+
+### Refactors
+
+* **api:** use one SQLite driver in tests instead of two ([#1498](https://github.com/benoit-bremaud/brasse-bouillon/issues/1498)) ([c14d53b](https://github.com/benoit-bremaud/brasse-bouillon/commit/c14d53bca00a6774b595bf92d1efe696bab3448a))
+
+## [0.1.14-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.13-alpha1...api-v0.1.14-alpha1) (2026-07-20)
+
+
+### Features
+
+* **api/batches:** Alert entity + table ([#605](https://github.com/benoit-bremaud/brasse-bouillon/issues/605) slice 3) ([#1115](https://github.com/benoit-bremaud/brasse-bouillon/issues/1115)) ([82648d9](https://github.com/benoit-bremaud/brasse-bouillon/commit/82648d9b0af987c10993d9a069ed46dd05f3d78e))
+* **api/batches:** Measurement entity + table ([#605](https://github.com/benoit-bremaud/brasse-bouillon/issues/605) slice 1) ([#1112](https://github.com/benoit-bremaud/brasse-bouillon/issues/1112)) ([9d3da1a](https://github.com/benoit-bremaud/brasse-bouillon/commit/9d3da1a41f2116b103c5d91d18f7d8b535691947))
+* **api/batches:** measurement entry + list endpoints ([#607](https://github.com/benoit-bremaud/brasse-bouillon/issues/607) slice A) ([#1116](https://github.com/benoit-bremaud/brasse-bouillon/issues/1116)) ([859c105](https://github.com/benoit-bremaud/brasse-bouillon/commit/859c10557842c2fdadecfb7f3adb82e996d7c8d1))
+* **api/batches:** Observation entity + table ([#605](https://github.com/benoit-bremaud/brasse-bouillon/issues/605) slice 2) ([#1113](https://github.com/benoit-bremaud/brasse-bouillon/issues/1113)) ([5637b69](https://github.com/benoit-bremaud/brasse-bouillon/commit/5637b69a5e626a32309d920c0ba61e6f085baacf))
+* **api/batches:** observation entry + list endpoints ([#607](https://github.com/benoit-bremaud/brasse-bouillon/issues/607) slice B) ([#1118](https://github.com/benoit-bremaud/brasse-bouillon/issues/1118)) ([697e17b](https://github.com/benoit-bremaud/brasse-bouillon/commit/697e17beffa96b68ba199c99fab1fc03c59dfcc2))
+* **api/db:** one-off difficulty backfill CLI (recompute existing recipes) ([#1350](https://github.com/benoit-bremaud/brasse-bouillon/issues/1350)) ([0126536](https://github.com/benoit-bremaud/brasse-bouillon/commit/0126536f731945c4651834b20a2eebdbb17cfa95))
+* **api/equipment-fit:** advisory capacity fit-check endpoint (ADR-0026) ([#1362](https://github.com/benoit-bremaud/brasse-bouillon/issues/1362)) ([73feaa0](https://github.com/benoit-bremaud/brasse-bouillon/commit/73feaa0bbad6c45dfb07057ff5815e7f6187c210))
+* **api/recipe:** brewing-difficulty compute + storage (Tranche B slices 1+2) ([#1342](https://github.com/benoit-bremaud/brasse-bouillon/issues/1342)) ([45bdfd3](https://github.com/benoit-bremaud/brasse-bouillon/commit/45bdfd3e700589100987e85d2562d0900792412f))
+* **api/seeds:** seed ingredients + steps for scan-reachable public recipes ([#1170](https://github.com/benoit-bremaud/brasse-bouillon/issues/1170)) ([a3f4d8b](https://github.com/benoit-bremaud/brasse-bouillon/commit/a3f4d8b2dba9270b8c3b4e4dc02b25c82f62b1da))
+* **api/water:** append-only cache + conditional sync for /water (water-profile slice 2) ([#1374](https://github.com/benoit-bremaud/brasse-bouillon/issues/1374)) ([7b91011](https://github.com/benoit-bremaud/brasse-bouillon/commit/7b91011a7709c355b60c3c4887cb9412932b29b6))
+* **api:** dedicated /health liveness probe; repoint Docker HEALTHCHECK ([#1227](https://github.com/benoit-bremaud/brasse-bouillon/issues/1227)) ([950a542](https://github.com/benoit-bremaud/brasse-bouillon/commit/950a5424d476af118712c1412f177aafffe94a49))
+* **api:** deployable production seeding via a compiled seed CLI ([#1253](https://github.com/benoit-bremaud/brasse-bouillon/issues/1253)) ([b565913](https://github.com/benoit-bremaud/brasse-bouillon/commit/b56591383c3e0814e4f72e220a4d36a55d1f774b))
+* **api:** feedback ingestion endpoint ([#1047](https://github.com/benoit-bremaud/brasse-bouillon/issues/1047)) ([fbf7470](https://github.com/benoit-bremaud/brasse-bouillon/commit/fbf7470bb3503710e3ae2a6df38ffcb24b4e031f))
+* **api:** seed the beginner blonde as a PUBLIC recipe (first real-world brew, A1) ([#1251](https://github.com/benoit-bremaud/brasse-bouillon/issues/1251)) ([e4da874](https://github.com/benoit-bremaud/brasse-bouillon/commit/e4da874d7239761ba3467bec8b507268dbb590f0))
+* **api:** single-holder CREATOR role above ADMIN, rank-based RolesGuard (ADR-0011) ([#1231](https://github.com/benoit-bremaud/brasse-bouillon/issues/1231)) ([c9b637e](https://github.com/benoit-bremaud/brasse-bouillon/commit/c9b637e7858ea9f5c93b4a076c66af00ac6a54b7))
+* **batch:** bottling, live closure and first tasting (B3) ([#1274](https://github.com/benoit-bremaud/brasse-bouillon/issues/1274)) ([38bb60c](https://github.com/benoit-bremaud/brasse-bouillon/commit/38bb60c4c50d40473b996dbf7964b56e96acc6f2))
+* **batches:** cancel + archive batch soft-lifecycle (F16/F25) ([#1292](https://github.com/benoit-bremaud/brasse-bouillon/issues/1292)) ([3f99584](https://github.com/benoit-bremaud/brasse-bouillon/commit/3f99584c6dbb7e51411fe6af401059dc62930b1b))
+* **batches:** derive PRÉP/ACTIF step phase from startedAt (F1) ([#1286](https://github.com/benoit-bremaud/brasse-bouillon/issues/1286)) ([421dc9f](https://github.com/benoit-bremaud/brasse-bouillon/commit/421dc9f6ac11e35698f22d2b5d7129e6530c1a80)), closes [#868](https://github.com/benoit-bremaud/brasse-bouillon/issues/868)
+* **batches:** draft/prep batch tier with persisted checklist (F14/F15) ([#1300](https://github.com/benoit-bremaud/brasse-bouillon/issues/1300)) ([53f34a9](https://github.com/benoit-bremaud/brasse-bouillon/commit/53f34a9b9378ea53c1102dbe46393ddc9479d164))
+* **batches:** explicit end condition (doneWhen) in the ACTIF phase (F5) ([#1307](https://github.com/benoit-bremaud/brasse-bouillon/issues/1307)) ([3a51dd2](https://github.com/benoit-bremaud/brasse-bouillon/commit/3a51dd24b20d7d4ea78ae934e35476d38832192c))
+* **batches:** PRÉP-phase physical prep actions with pedagogical why (F4) ([#1305](https://github.com/benoit-bremaud/brasse-bouillon/issues/1305)) ([48654e8](https://github.com/benoit-bremaud/brasse-bouillon/commit/48654e867c64f336d462f53b9e2b7722941220eb))
+* **batch:** live brew-day step guidance (B1-live) ([#1270](https://github.com/benoit-bremaud/brasse-bouillon/issues/1270)) ([d9d75c7](https://github.com/benoit-bremaud/brasse-bouillon/commit/d9d75c79cbcb108823c76f9dfe342cc5a1c30846))
+* **equipment:** equipment wizard — 3-question profile + server-side defaults (E1) ([#1277](https://github.com/benoit-bremaud/brasse-bouillon/issues/1277)) ([a3dc240](https://github.com/benoit-bremaud/brasse-bouillon/commit/a3dc240eb8afd579e6805d667842f28fe0c06f4b))
+* **equipment:** unique profile names per owner (F21) + equipment-axis labels (F17) ([#1282](https://github.com/benoit-bremaud/brasse-bouillon/issues/1282)) ([5bfffa7](https://github.com/benoit-bremaud/brasse-bouillon/commit/5bfffa727d1282eb63ebe6abff6a2475924ff09c))
+* **faq-bot:** public FAQ chatbot — API (Mistral + ALTCHA) + website widget ([#1293](https://github.com/benoit-bremaud/brasse-bouillon/issues/1293)) ([28a1535](https://github.com/benoit-bremaud/brasse-bouillon/commit/28a15359f9dcf7137b613a8f2747f6b4ef8fa515))
+* **recipe:** recipe-matching v2 — BJCP-family-graded scorer + completeness + threshold (ADR-0016) ([#1210](https://github.com/benoit-bremaud/brasse-bouillon/issues/1210)) ([7032066](https://github.com/benoit-bremaud/brasse-bouillon/commit/70320661799ef79855dcd749f62df8af23a52b72))
+* **recipes/api:** allow reading ingredients of public recipes ([#1167](https://github.com/benoit-bremaud/brasse-bouillon/issues/1167)) ([f0cb399](https://github.com/benoit-bremaud/brasse-bouillon/commit/f0cb39987e455e11d28fa5de78bef7cd5aa15944))
+* **recipes:** match recipes by characteristics, not a scan-catalog id ([#1190](https://github.com/benoit-bremaud/brasse-bouillon/issues/1190)) ([e1d1764](https://github.com/benoit-bremaud/brasse-bouillon/commit/e1d1764580573e1a1df4de001db823db6a3fa7d4))
+
+
+### Bug Fixes
+
+* **api/water:** restore the Hub'Eau water-quality check (v1 API contract drift) ([#1352](https://github.com/benoit-bremaud/brasse-bouillon/issues/1352)) ([6595786](https://github.com/benoit-bremaud/brasse-bouillon/commit/659578629158a0eaa43f6fec8c94707bc1227f48))
+* **api:** copy faq-bot prompt assets to the runtime dist root ([#1311](https://github.com/benoit-bremaud/brasse-bouillon/issues/1311)) ([7641480](https://github.com/benoit-bremaud/brasse-bouillon/commit/7641480a93b8bd67be91d67a3b8b98f49aeb15f2))
+* **faq-bot:** add founder few-shot example so English founder answers hold ([#1418](https://github.com/benoit-bremaud/brasse-bouillon/issues/1418)) ([d23d342](https://github.com/benoit-bremaud/brasse-bouillon/commit/d23d34209a6f2528b0a9ad4d30dc288dd494cfdb))
+* **faq-bot:** enforce the language lock in the user turn, next to the question ([#1424](https://github.com/benoit-bremaud/brasse-bouillon/issues/1424)) ([4f592b8](https://github.com/benoit-bremaud/brasse-bouillon/commit/4f592b84fc86d1a4996e5392490bb4eb0e705b89))
+* **faq-bot:** fail closed on GET /challenge when the HMAC secret is missing ([#1315](https://github.com/benoit-bremaud/brasse-bouillon/issues/1315)) ([c58a4b5](https://github.com/benoit-bremaud/brasse-bouillon/commit/c58a4b5458913f44c9864899d628274f1f3f0a0b))
+* **faq-bot:** keep reply language on refusals (FR/EN scope, EN fallback) ([#1414](https://github.com/benoit-bremaud/brasse-bouillon/issues/1414)) ([cc5bddf](https://github.com/benoit-bremaud/brasse-bouillon/commit/cc5bddfe57c2d2a088c2877706899fb661a2ba16))
+* **faq-bot:** stop founder questions from pulling English replies into French ([#1416](https://github.com/benoit-bremaud/brasse-bouillon/issues/1416)) ([6c44df1](https://github.com/benoit-bremaud/brasse-bouillon/commit/6c44df10a48a85463d498ceeade4cdf590eac3db))
+* **faq-bot:** turn the [CONTACT] placeholder into a real sign-up link ([1e2f143](https://github.com/benoit-bremaud/brasse-bouillon/commit/1e2f143a5363ef8bf7a76997bfecb43b88fdedf7))
+* **recipes:** explain why a recipe used by a batch cannot be deleted ([#1322](https://github.com/benoit-bremaud/brasse-bouillon/issues/1322)) ([06cf5a0](https://github.com/benoit-bremaud/brasse-bouillon/commit/06cf5a028c5536d0ce4a91be2927b99bd960ed3d))
+* **recipes:** style-gate the official-recipe shortcut (Leffe Blonde → Punk IPA) ([#1194](https://github.com/benoit-bremaud/brasse-bouillon/issues/1194)) ([1844815](https://github.com/benoit-bremaud/brasse-bouillon/commit/184481578fda0ae75557b8199fa92e4c402ca7d5))
+
 ## [0.1.13-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/api-v0.1.12-alpha1...api-v0.1.13-alpha1) (2026-06-05)
 
 

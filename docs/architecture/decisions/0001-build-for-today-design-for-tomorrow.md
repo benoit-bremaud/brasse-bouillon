@@ -4,6 +4,20 @@
 **Date**    2026-04-24
 **Owners**  @benoit-bremaud
 
+> **Update 2026-07-17** — The review pipeline referenced throughout this
+> ADR has changed since acceptance:
+>
+> - **Pre-push (local)** is now the primary review path.
+> - **Codex** is still auto-triggered on every PR, but its review delivery
+>   is quota-gated — it is not a guaranteed gate.
+> - **Copilot** is on-demand only, triggered by the `needs-copilot` label.
+>
+> Statements below that Copilot and Codex "review every PR" describe the
+> pipeline as it stood at acceptance time. The decision itself — the
+> five clauses, the anti-patterns, the exceptions — is unaffected; only
+> the enforcement mechanism changed. Current source of truth:
+> CONTRIBUTING.md § AI reviewers.
+
 ---
 
 ## Context

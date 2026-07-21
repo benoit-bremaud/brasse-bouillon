@@ -1,6 +1,6 @@
 {
   "name": "brasse-bouillon-backend",
-  "version": "0.1.13-alpha1",
+  "version": "0.1.15-alpha1",
   "engines": {
     "node": ">=20 <21"
   },
@@ -75,7 +75,6 @@
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
-    "sqlite3": "^5.1.7",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
@@ -116,10 +115,5 @@
       }
     },
     "testEnvironment": "node"
-  },
-  "overrides": {
-    "sqlite3": {
-      "tar": "7.5.7"
-    }
   }
 }

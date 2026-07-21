@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.1.3](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.2...website-v0.1.3) (2026-07-20)
+
+
+### Features
+
+* **faq-bot:** public FAQ chatbot — API (Mistral + ALTCHA) + website widget ([#1293](https://github.com/benoit-bremaud/brasse-bouillon/issues/1293)) ([28a1535](https://github.com/benoit-bremaud/brasse-bouillon/commit/28a15359f9dcf7137b613a8f2747f6b4ef8fa515))
+* **website:** add "buy me a beer" Ko-fi donation link (ADR-0028) ([#1423](https://github.com/benoit-bremaud/brasse-bouillon/issues/1423)) ([c813529](https://github.com/benoit-bremaud/brasse-bouillon/commit/c8135290b5f4e31b473276ec474736d0dec40341))
+* **website:** add Académie brassicole feature section (FR) ([#1388](https://github.com/benoit-bremaud/brasse-bouillon/issues/1388)) ([98430bf](https://github.com/benoit-bremaud/brasse-bouillon/commit/98430bf417d9f1bc1d596bf321c856cd93fbe53d))
+* **website:** add security response headers via Cloudflare Pages _headers ([#1370](https://github.com/benoit-bremaud/brasse-bouillon/issues/1370)) ([dbb704e](https://github.com/benoit-bremaud/brasse-bouillon/commit/dbb704e7eaa9bd141e1c7bc88fb5e0c4d2b7a625))
+* **website:** flip the i18n S2 SEO switch — EN pages indexable (ADR-0027 D5) ([#1428](https://github.com/benoit-bremaud/brasse-bouillon/issues/1428)) ([1cfe565](https://github.com/benoit-bremaud/brasse-bouillon/commit/1cfe5657346c3d664ccede78e7559876e1fefbb4))
+* **website:** legal-twin freshness stamps — close i18n S4 (ADR-0027 D1.5) ([#1439](https://github.com/benoit-bremaud/brasse-bouillon/issues/1439)) ([0300653](https://github.com/benoit-bremaud/brasse-bouillon/commit/03006533ec6712a21800d3f9efda3a7ffacea4d1))
+* **website:** put the FAQ chatbot live on production (ADR-0022 go-live) ([#1420](https://github.com/benoit-bremaud/brasse-bouillon/issues/1420)) ([ff97409](https://github.com/benoit-bremaud/brasse-bouillon/commit/ff9740955e97cb82ffdd8108c7de2f7d8561e8dd))
+* **website:** real English home at /en (i18n epic S1) ([#1394](https://github.com/benoit-bremaud/brasse-bouillon/issues/1394)) ([801049c](https://github.com/benoit-bremaud/brasse-bouillon/commit/801049c1690b672197b1fe6f8119d4daad37a6f6))
+* **website:** real mascot og-image (1200×630) + dimension gate ([#1413](https://github.com/benoit-bremaud/brasse-bouillon/issues/1413)) ([0833968](https://github.com/benoit-bremaud/brasse-bouillon/commit/0833968c181e18ce0073d5274d8bfc2d904bf2f8))
+* **website:** self-host Inter & Fraunces fonts (drop Google Fonts CDN) ([#1378](https://github.com/benoit-bremaud/brasse-bouillon/issues/1378)) ([c003d8e](https://github.com/benoit-bremaud/brasse-bouillon/commit/c003d8ec0f4d9f3905a1ed458ee992b44300d2f9))
+* **website:** SEO/GEO optimization (keyword-first titles, WebSite schema, llms.txt, pages.dev noindex) ([#1464](https://github.com/benoit-bremaud/brasse-bouillon/issues/1464)) ([89aeb25](https://github.com/benoit-bremaud/brasse-bouillon/commit/89aeb25429968b27555d9cde4f31e8bba4cc1030))
+
+
+### Bug Fixes
+
+* **faq-bot:** turn the [CONTACT] placeholder into a real sign-up link ([1e2f143](https://github.com/benoit-bremaud/brasse-bouillon/commit/1e2f143a5363ef8bf7a76997bfecb43b88fdedf7))
+* **website:** close the head-level blind spot in the i18n srcHash drift guard ([#1467](https://github.com/benoit-bremaud/brasse-bouillon/issues/1467)) ([eac81af](https://github.com/benoit-bremaud/brasse-bouillon/commit/eac81afd46b053bd048e49e9d46c84e2dca066c9))
+* **website:** disclose the FR-interface screenshots on the EN home ([#1417](https://github.com/benoit-bremaud/brasse-bouillon/issues/1417)) ([691166c](https://github.com/benoit-bremaud/brasse-bouillon/commit/691166cadd90191ad2723939b3e1bd2c2886fd72))
+* **website:** faq-bot widget 400-vs-503 UX ([#1314](https://github.com/benoit-bremaud/brasse-bouillon/issues/1314)) + wire live API origin ([#1381](https://github.com/benoit-bremaud/brasse-bouillon/issues/1381)) ([f738b2b](https://github.com/benoit-bremaud/brasse-bouillon/commit/f738b2bc1c66ccc7442e43490e3df2db3a6a7188))
+* **website:** legal pages compliance — real host, drop false claims (LCEN/RGPD) ([#1379](https://github.com/benoit-bremaud/brasse-bouillon/issues/1379)) ([e59303e](https://github.com/benoit-bremaud/brasse-bouillon/commit/e59303ea835eeb9e65527cbf5ed551eea83ed5c3))
+* **website:** newsletter honeypot, badge contrast (AA), honest widget comment (Lot 6) ([#1389](https://github.com/benoit-bremaud/brasse-bouillon/issues/1389)) ([b0b43f2](https://github.com/benoit-bremaud/brasse-bouillon/commit/b0b43f20419b246e0c553e8bc3e14a39c552acbe))
+* **website:** point canonical/hreflang/links at clean URLs; noindex EN legal ([#1373](https://github.com/benoit-bremaud/brasse-bouillon/issues/1373)) ([79dda0c](https://github.com/benoit-bremaud/brasse-bouillon/commit/79dda0c711ec10f895a220f421f3f5d93df56e74))
+* **website:** serve a real 404 page for unknown routes ([#1367](https://github.com/benoit-bremaud/brasse-bouillon/issues/1367)) ([a8b9e28](https://github.com/benoit-bremaud/brasse-bouillon/commit/a8b9e28d4e3741bc180aa87441a9aa6e8576e156))
+* **website:** sitemap legal pages, social meta, drop 197KB SVG favicon (Lot 5) ([#1384](https://github.com/benoit-bremaud/brasse-bouillon/issues/1384)) ([803693a](https://github.com/benoit-bremaud/brasse-bouillon/commit/803693a93078e70fca1628cc3d4065b3344b4672))
+
+
+### Performance
+
+* **website:** cut sustained animation load (fewer bubbles + pause off-screen loops) ([2721525](https://github.com/benoit-bremaud/brasse-bouillon/commit/2721525649233758341235974adcc50b0d301664))
+
+
+### Refactors
+
+* **website:** drop the redundant footer language switcher ([#1419](https://github.com/benoit-bremaud/brasse-bouillon/issues/1419)) ([40b73c7](https://github.com/benoit-bremaud/brasse-bouillon/commit/40b73c70b932e33d485a6cbbde1f90858d21ddc1))
+* **website:** exact-set sitemap policy + O(n) duplicate check ([#1393](https://github.com/benoit-bremaud/brasse-bouillon/issues/1393)) ([152b470](https://github.com/benoit-bremaud/brasse-bouillon/commit/152b4707dfd6583dc9616fc3736a9b21cc06dab1))
+
+
+### Documentation
+
+* **website/architecture:** website i18n epic conception (ADR-0027, UML, EN launch playbook) ([#1383](https://github.com/benoit-bremaud/brasse-bouillon/issues/1383)) ([2184856](https://github.com/benoit-bremaud/brasse-bouillon/commit/21848567b1936eef5950f7d9e3309773598885ce))
+* **website:** freeze the r/Homebrewing launch post + account runway plan ([#1431](https://github.com/benoit-bremaud/brasse-bouillon/issues/1431)) ([205dc3e](https://github.com/benoit-bremaud/brasse-bouillon/commit/205dc3ef965e778942325a90f6eeb489a434943b))
+
 ## [0.1.2](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.1...website-v0.1.2) (2026-06-05)
 
 

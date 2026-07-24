@@ -242,6 +242,21 @@ class QualityGateTests(unittest.TestCase):
             _create_valid_fixture(root)
             self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
 
+    def test_breadcrumb_schema_accepts_whitespace_in_script_end_tag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            path = root / "legal.html"
+            schema = _breadcrumb_script("legal.html")
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    schema, schema.replace("</script>", "</script >")
+                ),
+                encoding="utf-8",
+            )
+
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+
     def test_breadcrumb_schema_detects_missing_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

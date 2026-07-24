@@ -386,7 +386,7 @@ def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
     script_pattern = re.compile(
         r"<script\b"
         r"(?=[^>]*\btype\s*=\s*[\"']application/ld\+json[\"'])"
-        r"[^>]*>(.*?)</script>",
+        r"[^>]*>(.*?)</script\s*>",
         flags=REGEX_FLAGS,
     )
     errors: list[str] = []

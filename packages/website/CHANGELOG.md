@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.5...website-v0.1.6) (2026-07-24)
+
+
+### Bug Fixes
+
+* **website:** add breadcrumbs to secondary pages ([#1527](https://github.com/benoit-bremaud/brasse-bouillon/issues/1527)) ([964668a](https://github.com/benoit-bremaud/brasse-bouillon/commit/964668ab01323030e3f0fb822a5450068f27d66e))
+
 ## [0.1.5](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.4...website-v0.1.5) (2026-07-24)
 
 

@@ -210,7 +210,7 @@ For #990, capture at minimum:
    showing the index status and both canonical fields.
 
 Record the `/en` inspection result as text in the PR's **SEO Evidence**
-section; add a separate screenshot when EN metadata or indexation changed.
+section; add a separate screenshot when EN metadata or indexing changed.
 Crop screenshots to the relevant property, URL, status, and timestamp.
 Exclude unrelated properties, account details, search queries, traffic
 metrics, and other private data.

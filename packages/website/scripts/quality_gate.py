@@ -17,7 +17,20 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 HOMEPAGE_FILES = ("index.html", "en.html")
+SERP_METADATA_FILES = (
+    *HOMEPAGE_FILES,
+    "legal.html",
+    "legal-en.html",
+    "privacy.html",
+    "privacy-en.html",
+    "cookies.html",
+    "cookies-en.html",
+    "terms.html",
+    "terms-en.html",
+)
 HOMEPAGE_TITLE_MAX_LENGTH = 60
+META_DESCRIPTION_MIN_LENGTH = 120
+META_DESCRIPTION_MAX_LENGTH = 155
 KEYWORDS_META_PATTERN = (
     r"<meta\b"
     r"(?=[^>]*\bname\s*=\s*(?:[\"']keywords[\"']|keywords(?=[\s/>])))"
@@ -339,6 +352,92 @@ def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def _meta_content(
+    content: str, selector_attribute: str, selector_value: str
+) -> str | None:
+    """Return meta content regardless of attribute order or quote style."""
+    meta_pattern = re.compile(r"<meta\b[^>]*>", flags=REGEX_FLAGS)
+    attribute_pattern = re.compile(
+        r"""([:\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))""",
+        flags=re.DOTALL,
+    )
+    expected_attribute = selector_attribute.casefold()
+    expected_value = selector_value.casefold()
+
+    for meta_match in meta_pattern.finditer(content):
+        attributes: dict[str, str] = {}
+        for attribute_match in attribute_pattern.finditer(meta_match.group(0)):
+            value = next(
+                candidate
+                for candidate in attribute_match.groups()[1:]
+                if candidate is not None
+            )
+            attributes[attribute_match.group(1).casefold()] = value
+        if attributes.get(expected_attribute, "").casefold() == expected_value:
+            return attributes.get("content")
+
+    return None
+
+
+def check_serp_metadata(root: Path = ROOT) -> list[str]:
+    """Keep indexable-page search snippets concise, unique, and synchronized."""
+    errors: list[str] = []
+    title_pattern = re.compile(r"<title>(.*?)</title>", flags=REGEX_FLAGS)
+    titles: dict[str, list[str]] = {}
+    descriptions: dict[str, list[str]] = {}
+
+    for rel_path in SERP_METADATA_FILES:
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+        content = full_path.read_text(encoding="utf-8")
+        title_match = title_pattern.search(content)
+        if title_match is None:
+            errors.append(f"{rel_path}: SEO title is missing")
+            continue
+
+        title = re.sub(r"\s+", " ", title_match.group(1)).strip()
+        titles.setdefault(title, []).append(rel_path)
+        if len(title) > HOMEPAGE_TITLE_MAX_LENGTH:
+            errors.append(
+                f"{rel_path}: SEO title is {len(title)} characters "
+                f"(maximum {HOMEPAGE_TITLE_MAX_LENGTH})"
+            )
+
+        description = _meta_content(content, "name", "description")
+        if description is None:
+            errors.append(f"{rel_path}: meta description is missing")
+        else:
+            normalized_description = re.sub(r"\s+", " ", description).strip()
+            descriptions.setdefault(normalized_description, []).append(rel_path)
+            description_length = len(normalized_description)
+            if not (
+                META_DESCRIPTION_MIN_LENGTH
+                <= description_length
+                <= META_DESCRIPTION_MAX_LENGTH
+            ):
+                errors.append(
+                    f"{rel_path}: meta description is {description_length} characters "
+                    f"(expected {META_DESCRIPTION_MIN_LENGTH}–"
+                    f"{META_DESCRIPTION_MAX_LENGTH})"
+                )
+
+        for selector_attribute, selector_value, label in (
+            ("property", "og:title", "Open Graph title"),
+            ("name", "twitter:title", "Twitter title"),
+        ):
+            social_title = _meta_content(content, selector_attribute, selector_value)
+            if social_title != title:
+                errors.append(f"{rel_path}: {label} must match the SEO title")
+
+    for label, values in (("SEO title", titles), ("meta description", descriptions)):
+        for paths in values.values():
+            if len(paths) > 1:
+                errors.append(f"duplicate {label}: {', '.join(paths)}")
+
+    return errors
+
+
 def check_feedback_widget(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for rel_path in WIDGET_HTML_FILES:
@@ -647,6 +746,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_required_files(root))
     errors.extend(check_html_files(root))
     errors.extend(check_homepage_seo_metadata(root))
+    errors.extend(check_serp_metadata(root))
     errors.extend(check_feedback_widget(root))
     errors.extend(check_chat_widget(root))
     errors.extend(check_sitemap_policy(root))

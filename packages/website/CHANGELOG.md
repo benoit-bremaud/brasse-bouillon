@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.4...website-v0.1.5) (2026-07-24)
+
+
+### Bug Fixes
+
+* **website:** optimize indexable page metadata ([#1523](https://github.com/benoit-bremaud/brasse-bouillon/issues/1523)) ([948579c](https://github.com/benoit-bremaud/brasse-bouillon/commit/948579cf6a40e411655d08534aea4c120a9c53bc))
+
 ## [0.1.4](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.3...website-v0.1.4) (2026-07-24)
 
 

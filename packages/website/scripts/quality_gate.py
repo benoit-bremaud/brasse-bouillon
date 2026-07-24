@@ -325,9 +325,8 @@ def check_html_files(root: Path = ROOT) -> list[str]:
 
 
 def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
-    """Reject verbose titles and obsolete metadata on acquisition pages."""
+    """Reject obsolete metadata on acquisition pages."""
     errors: list[str] = []
-    title_pattern = re.compile(r"<title>(.*?)</title>", flags=REGEX_FLAGS)
     keywords_pattern = re.compile(KEYWORDS_META_PATTERN, flags=REGEX_FLAGS)
     faq_schema_pattern = re.compile(r'"@type"\s*:\s*"FAQPage"', flags=REGEX_FLAGS)
 
@@ -336,14 +335,6 @@ def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
         if not full_path.exists():
             continue
         content = full_path.read_text(encoding="utf-8")
-        title_match = title_pattern.search(content)
-        if title_match is not None:
-            title = re.sub(r"\s+", " ", title_match.group(1)).strip()
-            if len(title) > HOMEPAGE_TITLE_MAX_LENGTH:
-                errors.append(
-                    f"{rel_path}: homepage title is {len(title)} characters "
-                    f"(maximum {HOMEPAGE_TITLE_MAX_LENGTH})"
-                )
         if keywords_pattern.search(content):
             errors.append(f"{rel_path}: obsolete meta keywords tag is not allowed")
         if faq_schema_pattern.search(content):
@@ -427,7 +418,11 @@ def check_serp_metadata(root: Path = ROOT) -> list[str]:
             ("name", "twitter:title", "Twitter title"),
         ):
             social_title = _meta_content(content, selector_attribute, selector_value)
-            if social_title != title:
+            if social_title is None:
+                errors.append(f"{rel_path}: {label} is missing")
+                continue
+            normalized_social_title = re.sub(r"\s+", " ", social_title).strip()
+            if normalized_social_title != title:
                 errors.append(f"{rel_path}: {label} must match the SEO title")
 
     for label, values in (("SEO title", titles), ("meta description", descriptions)):

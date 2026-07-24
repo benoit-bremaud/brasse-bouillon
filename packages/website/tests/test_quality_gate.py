@@ -292,11 +292,11 @@ class QualityGateTests(unittest.TestCase):
             index_path.write_text(
                 content.replace(
                     "<title>FR</title>", f"<title>{overlong_title}</title>"
-                ),
+                ).replace('content="FR"', f'content="{overlong_title}"'),
                 encoding="utf-8",
             )
 
-            errors = quality_gate.check_homepage_seo_metadata(root)
+            errors = quality_gate.check_serp_metadata(root)
             self.assertEqual(len(errors), 1)
             self.assertIn("index.html", errors[0])
             self.assertIn("61 characters", errors[0])
@@ -379,6 +379,39 @@ class QualityGateTests(unittest.TestCase):
             self.assertIn(
                 "index.html: Open Graph title must match the SEO title", errors
             )
+
+    def test_reports_missing_social_titles_and_normalizes_present_values(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            index_content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                index_content.replace(
+                    '<meta property="og:title" content="FR">', ""
+                ).replace(
+                    '<meta name="twitter:title" content="FR">',
+                    '<meta name="twitter:title" content="  FR  ">',
+                ),
+                encoding="utf-8",
+            )
+            en_path = root / "en.html"
+            en_content = en_path.read_text(encoding="utf-8")
+            en_path.write_text(
+                en_content.replace(
+                    '<meta name="twitter:title" content="EN">', ""
+                ).replace(
+                    '<meta property="og:title" content="EN">',
+                    '<meta property="og:title" content="  EN  ">',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_serp_metadata(root)
+
+            self.assertIn("index.html: Open Graph title is missing", errors)
+            self.assertIn("en.html: Twitter title is missing", errors)
+            self.assertEqual(len(errors), 2)
 
     def test_detects_duplicate_serp_titles_and_descriptions(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -771,6 +771,27 @@ class QualityGateTests(unittest.TestCase):
             errors = quality_gate.check_sitemap_policy(root)
             self.assertEqual(errors, [])
 
+    def test_detects_handwritten_sitemap_lastmod(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            sitemap_path = root / "sitemap.xml"
+            content = sitemap_path.read_text(encoding="utf-8")
+            sitemap_path.write_text(
+                content.replace(
+                    "<loc>https://brasse-bouillon.com/</loc>",
+                    "<loc>https://brasse-bouillon.com/</loc>"
+                    "<lastmod>2026-07-24</lastmod>",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_sitemap_policy(root)
+
+            self.assertEqual(len(errors), 1)
+            self.assertIn("lastmod doit être généré au déploiement", errors[0])
+
     def test_detects_sitemap_missing_home(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

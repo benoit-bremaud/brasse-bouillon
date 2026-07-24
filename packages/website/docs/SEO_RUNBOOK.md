@@ -18,6 +18,10 @@ while the product is still in pre-launch.
   **out of the sitemap** (secondary pages, reachable via hreflang + links).
 - `sitemap.xml` lists **exactly** `/`, `/en` and the four FR legal pages — the
   quality gate (`SITEMAP_URLS`, exact-set policy) enforces it.
+- The repository sitemap is a date-free template. During deployment,
+  `scripts/build_sitemap.py` injects each page's latest Git commit date into
+  the staged `_site/sitemap.xml`; handwritten source `<lastmod>` values are a
+  quality-gate failure.
 - Every FR/EN pair carries one identical hreflang cluster on both pages:
   `fr` → FR page, `en` → EN page, `x-default` → FR page (FR-first project).
   The gate (`check_hreflang_reciprocity`) fails on any incomplete or
@@ -87,7 +91,15 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
    `i18n/home.en.json`, never `en.html` directly. Also verify Open Graph
    (`og:locale` + `og:image`), Twitter card, canonical, and hreflang cluster.
 2. Regenerate and verify the EN home: `python3 scripts/build_i18n.py --check`.
-3. Confirm `sitemap.xml` matches the exact indexable set (gate-enforced).
+3. Confirm the source `sitemap.xml` matches the exact indexable set and
+   contains no handwritten `<lastmod>` values. To preview the deployed form:
+
+   ```bash
+   python3 scripts/build_sitemap.py --output /tmp/brasse-sitemap.xml
+   ```
+
+   Inspect the generated file and confirm every URL has a page-specific,
+   Git-backed date.
 4. Confirm `robots.txt` includes:
    - `User-agent: *`
    - `Allow: /`

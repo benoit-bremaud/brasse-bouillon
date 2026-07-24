@@ -483,9 +483,15 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
         for loc in xml_root.findall(".//{*}loc")
         if (loc.text or "").strip()
     ]
+    errors: list[str] = []
+    if xml_root.findall(".//{*}lastmod"):
+        errors.append(
+            "sitemap.xml: lastmod doit être généré au déploiement, "
+            "jamais enregistré dans le modèle source"
+        )
 
     if sorted(loc_values) == sorted(SITEMAP_URLS):
-        return []
+        return errors
 
     counts = Counter(loc_values)
     expected = set(SITEMAP_URLS)
@@ -504,7 +510,8 @@ def check_sitemap_policy(root: Path = ROOT) -> list[str]:
         problems.append("dupliquées: " + ", ".join(duplicates))
 
     detail = " ; ".join(problems)
-    return [f"sitemap.xml: doit lister exactement les URL indexables ({detail})"]
+    errors.append(f"sitemap.xml: doit lister exactement les URL indexables ({detail})")
+    return errors
 
 
 def check_robots_policy(root: Path = ROOT) -> list[str]:

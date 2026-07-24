@@ -36,6 +36,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Page-level lastmod dates require history beyond the deployment
+          # commit; a shallow checkout can return no `git log -- <page>` result.
+          fetch-depth: 0
 
       # Stage only the public-facing site under `_site/`. Everything that
       # ships to the browser is whitelisted here; internal repo files
@@ -95,6 +99,13 @@ jobs:
           echo "::group::Deployment payload"
           find _site -maxdepth 2 -type f | sort
           echo "::endgroup::"
+
+      - name: Generate sitemap modification dates
+        run: |
+          python3 packages/website/scripts/build_sitemap.py \
+            --template packages/website/sitemap.xml \
+            --output _site/sitemap.xml \
+            --repo-root .
 
       # Bootstrap the Pages project on first run, then deploy. The branch
       # passed to `pages deploy` is derived from the ref: pushes/dispatches

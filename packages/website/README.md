@@ -35,7 +35,8 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
   visitors about the project only (not brewing help). First-party call to the NestJS
   `faq-bot` API, ALTCHA proof-of-work solved client-side, no cookies/tracking. Live on
   production since the 2026-07-13 go-live (staging/localhost also allowed). See ADR-0022.
-- `favicon.ico`, `logo.png`, `logo-removebg-preview.png`: static assets
+- `favicon.ico`, `logo-icon-32.png`, `logo-hero.webp`, `logo.png`, and
+  `og-image*.png`: public brand and social assets
 - `_redirects`: Cloudflare Pages redirects (`/index-en` → `/en` 301)
 - `i18n/home.en.json`: EN string catalog for the generated home (with `srcHash`
   drift guards)

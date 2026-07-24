@@ -208,27 +208,6 @@ class GenerateTests(unittest.TestCase):
         # write mode and rewrite en.html.
         self.assertEqual(build_i18n.main(["build_i18n.py", "--chek"]), 2)
 
-    def test_faq_jsonld_rebuilt_from_visible_keys(self) -> None:
-        source = (
-            "<head>"
-            '<script type="application/ld+json">\n'
-            '  {\n    "@context": "https://schema.org",\n'
-            '    "@type": "FAQPage",\n    "mainEntity": []\n  }\n'
-            "  </script>"
-            "</head>"
-            '<summary data-i18n="faq.q1.summary">Q FR</summary>'
-            '<p data-i18n="faq.q1.answer">A FR</p>'
-        )
-        catalog = _catalog(
-            {
-                "faq.q1.summary": {"en": "Q EN"},
-                "faq.q1.answer": {"en": "A EN"},
-            }
-        )
-        out = build_i18n.generate(source, catalog, check_hashes=False)
-        self.assertIn('"name": "Q EN"', out)
-        self.assertIn('"text": "A EN"', out)
-
 
 class HeadGuardTests(unittest.TestCase):
     """Per-key srcHash guard on the FR-sourced head overrides (ADR-0027)."""
@@ -289,16 +268,18 @@ class HeadGuardTests(unittest.TestCase):
         self.assertIn("<title>Titre FR</title>", out)
 
     def test_guarded_head_key_without_fr_element_raises(self) -> None:
-        # An EN keywords override with no FR keywords meta is a structural
+        # An EN description override with no FR description meta is a structural
         # problem a hash refresh cannot fix — fail loudly, never skip silently.
         catalog = _catalog(
             {},
-            head={"keywords": "beer, brewing"},
-            headSrcHashes={"keywords": build_i18n.sha1("x")},
+            head={"description": "English description"},
+            headSrcHashes={"description": build_i18n.sha1("x")},
         )
         with self.assertRaises(build_i18n.BuildError) as ctx:
-            build_i18n.generate(self.source, catalog, check_hashes=True)
-        self.assertIn("keywords", str(ctx.exception))
+            build_i18n.generate(
+                "<head><title>FR</title></head>", catalog, check_hashes=True
+            )
+        self.assertIn("description", str(ctx.exception))
         self.assertIn("no matching FR element", str(ctx.exception))
 
     def test_orphaned_head_hash_raises(self) -> None:

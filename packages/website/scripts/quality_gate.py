@@ -16,6 +16,13 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
+HOMEPAGE_FILES = ("index.html", "en.html")
+HOMEPAGE_TITLE_MAX_LENGTH = 60
+KEYWORDS_META_PATTERN = (
+    r"<meta\b"
+    r"(?=[^>]*\bname\s*=\s*(?:[\"']keywords[\"']|keywords(?=[\s/>])))"
+    r"[^>]*>"
+)
 
 # Open Graph share images (FR + localized EN card). Social platforms crop to
 # the 1.91:1 ratio, so each card must be exactly 1200×630 or it renders
@@ -300,6 +307,34 @@ def check_html_files(root: Path = ROOT) -> list[str]:
         for pattern, message in DISALLOWED_HTML_PATTERNS.get(rel_path, []):
             if re.search(pattern, content, flags=REGEX_FLAGS):
                 errors.append(f"{rel_path}: {message}")
+
+    return errors
+
+
+def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
+    """Reject verbose titles and obsolete metadata on acquisition pages."""
+    errors: list[str] = []
+    title_pattern = re.compile(r"<title>(.*?)</title>", flags=REGEX_FLAGS)
+    keywords_pattern = re.compile(KEYWORDS_META_PATTERN, flags=REGEX_FLAGS)
+    faq_schema_pattern = re.compile(r'"@type"\s*:\s*"FAQPage"', flags=REGEX_FLAGS)
+
+    for rel_path in HOMEPAGE_FILES:
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+        content = full_path.read_text(encoding="utf-8")
+        title_match = title_pattern.search(content)
+        if title_match is not None:
+            title = re.sub(r"\s+", " ", title_match.group(1)).strip()
+            if len(title) > HOMEPAGE_TITLE_MAX_LENGTH:
+                errors.append(
+                    f"{rel_path}: homepage title is {len(title)} characters "
+                    f"(maximum {HOMEPAGE_TITLE_MAX_LENGTH})"
+                )
+        if keywords_pattern.search(content):
+            errors.append(f"{rel_path}: obsolete meta keywords tag is not allowed")
+        if faq_schema_pattern.search(content):
+            errors.append(f"{rel_path}: obsolete FAQPage schema is not allowed")
 
     return errors
 
@@ -611,6 +646,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
     errors.extend(check_html_files(root))
+    errors.extend(check_homepage_seo_metadata(root))
     errors.extend(check_feedback_widget(root))
     errors.extend(check_chat_widget(root))
     errors.extend(check_sitemap_policy(root))

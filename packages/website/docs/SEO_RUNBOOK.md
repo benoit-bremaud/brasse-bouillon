@@ -30,12 +30,11 @@ while the product is still in pre-launch.
   not silently regress).
 - The **repo** `robots.txt` (`packages/website/robots.txt`) is minimal and
   points to the sitemap. The **live** file is edge-modified — see §1.1.
-- Structured data: **WebSite** + **Organization** + **FAQPage** on both homes
-  (FAQPage is rebuilt from the same i18n catalog keys as the visible FAQ; the
-  WebSite block is language-neutral — brand + apex URL — and copied verbatim
-  to `en.html`; it feeds Google's site-name feature, which matters because the
-  `<title>` is keyword-first/brand-last. No SoftwareApplication entity until
-  `app.html` exists).
+- Structured data: **WebSite** + **Organization** on both homes. The WebSite
+  block is language-neutral — brand + apex URL — and copied verbatim to
+  `en.html`; it feeds Google's site-name feature. `FAQPage` was removed after
+  Google stopped showing FAQ rich results in May 2026; the visible FAQ remains
+  useful page content. No SoftwareApplication entity until `app.html` exists.
 
 ### 1.1) Edge overlay — Cloudflare managed robots.txt & AI Crawl Control
 
@@ -82,7 +81,8 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
 ## 2) Release checklist (every SEO PR)
 
 1. Validate metadata in `index.html` (the single authored home source):
-   title, meta description, Open Graph (incl. `og:locale` + `og:image`),
+   concise title (60 characters maximum), meta description, Open Graph
+   (incl. `og:locale` + `og:image`),
    Twitter card, canonical, hreflang cluster.
 2. Regenerate and verify the EN home: `python3 scripts/build_i18n.py --check`.
 3. Confirm `sitemap.xml` matches the exact indexable set (gate-enforced).

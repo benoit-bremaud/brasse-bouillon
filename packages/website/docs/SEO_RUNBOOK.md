@@ -136,25 +136,84 @@ python3 -m unittest discover -s tests
 
 ## 3) Google Search Console (GSC) procedure
 
-### 3.1 Submit sitemap
+Official references: [Sitemaps report][gsc-sitemaps] ·
+[URL Inspection tool][gsc-inspection] · [request a recrawl][gsc-recrawl].
 
-1. Open property `https://brasse-bouillon.com/`
-2. Go to **Sitemaps**
-3. Submit/re-submit: `sitemap.xml`
-4. Verify status = **Success**
+### 3.1 Access and production preflight
 
-### 3.2 Inspect canonical URLs
+1. Select the GSC property that contains the exact production URLs below
+   (`https://brasse-bouillon.com/` URL-prefix property or the equivalent
+   domain property). Sitemap submission requires property-owner permission;
+   URL Inspection indexing requests require owner or full-user permission.
+2. Confirm the production resources are reachable before recording GSC
+   evidence:
+
+   ```bash
+   curl -fsSI https://brasse-bouillon.com/ | head -n 1
+   curl -fsSI https://brasse-bouillon.com/en | head -n 1
+   curl -fsS https://brasse-bouillon.com/sitemap.xml
+   ```
+
+   Expect HTTP `200` for both homes. Confirm the sitemap contains the exact
+   allowlisted URLs from §1 and truthful, deployment-generated `<lastmod>`
+   values.
+
+### 3.2 Submit or refresh the sitemap
+
+1. Open **Sitemaps** for the selected property.
+2. Submit `https://brasse-bouillon.com/sitemap.xml` (the UI may prefill the
+   property prefix). Re-submit the same URL only when this runbook or a
+   remediation task explicitly asks for fresh evidence; do not use the
+   retired unauthenticated sitemap ping endpoint.
+3. Wait for the report to process the request, then verify:
+   - **Status** = `Success`
+   - **Last read** is present
+   - **Discovered pages** matches the current sitemap URL count
+4. Capture the evidence described in §3.5. If the status is not `Success`,
+   open the sitemap row, record the reported error, and fix it before
+   requesting indexing.
+
+### 3.3 Inspect indexed canonical URLs
 
 Use **URL Inspection** for:
 
-- `https://brasse-bouillon.com/` (indexable, self-canonical)
-- `https://brasse-bouillon.com/en` (indexable, self-canonical — since S2)
-- Spot-check one legal pair (`/privacy` + `/privacy-en`) after any legal edit.
+- `https://brasse-bouillon.com/`
+- `https://brasse-bouillon.com/en`
+- one affected legal pair after a legal-page change
 
-### 3.3 Request indexing
+For each affected URL, record the indexed result and verify:
 
-After important metadata/content changes, use **Request indexing** on the
-affected home (`/` and/or `/en`).
+- the index status shown by GSC (do not rewrite a failure as a pass);
+- **User-declared canonical** equals the inspected clean URL;
+- **Google-selected canonical** equals the inspected clean URL;
+- the last crawl timestamp is recorded.
+
+Google-selected canonical is an indexed-data field. The live test in §3.4
+cannot predict which canonical Google will select.
+
+### 3.4 Test the live URL and request indexing
+
+1. From URL Inspection, select **Test live URL**.
+2. Verify the live result reports that crawling is allowed, the page fetch
+   succeeds, and indexing is allowed.
+3. After a material metadata or content change, select **Request indexing**
+   once for each affected home. A request does not guarantee indexing, and
+   repeated requests do not make crawling faster.
+
+### 3.5 Trajectoire A evidence capture
+
+For #990, capture at minimum:
+
+1. The Sitemaps report row showing the sitemap URL, `Success`, **Last read**,
+   and **Discovered pages**.
+2. The indexed URL Inspection result for `https://brasse-bouillon.com/`
+   showing the index status and both canonical fields.
+
+Record the `/en` inspection result as text in the PR's **SEO Evidence**
+section; add a separate screenshot when EN metadata or indexation changed.
+Crop screenshots to the relevant property, URL, status, and timestamp.
+Exclude unrelated properties, account details, search queries, traffic
+metrics, and other private data.
 
 ## 4) Analytics
 
@@ -164,12 +223,29 @@ SEO work. Traffic signals come from GSC only.
 
 ## 5) PR Evidence section (mandatory)
 
-Each SEO PR should include a section named **"SEO Evidence"** with:
+Each SEO PR must include a section named **"SEO Evidence"**. Separate
+repository evidence from production evidence so a PR never claims to have
+validated code that is not deployed yet.
 
-1. **Diff summary** — changed files (`index.html`, `en.html` + catalog,
-   `sitemap.xml`, `robots.txt`, legal twins, etc.)
-2. **GSC screenshots** — sitemap success, URL Inspection for `/` and `/en`
-3. **Command output** — `python3 scripts/quality_gate.py` result
+### 5.1 Pre-merge repository evidence
+
+1. **Diff summary** — changed files and affected canonical URLs.
+2. **Command output** — quality gate, unit tests, i18n check, and any
+   task-specific validation.
+3. **Expected production checks** — exact URLs and GSC fields to verify.
+
+### 5.2 GSC evidence for already-deployed production
+
+Include cropped screenshots and a short textual result for every affected
+URL. For #990, use the minimum evidence set from §3.5. Never include
+unrelated account or performance data.
+
+### 5.3 Changes that require the current PR to deploy
+
+Mark GSC evidence as `pending post-deploy` in the PR body. After merge and a
+successful production deployment, add the dated evidence to the linked issue
+or the merged PR conversation. Do not present a pre-deploy inspection as proof
+of the new change.
 
 ## 6) Future switch (when app page is ready)
 
@@ -179,3 +255,7 @@ When `app.html` is launched, move app-specific SEO/entity there:
   the homes)
 - keep the homepages focused on brand/entity discovery
 - add `app.html` (and its EN twin) to `SITEMAP_URLS` when it should be indexed
+
+[gsc-sitemaps]: https://support.google.com/webmasters/answer/7451001
+[gsc-inspection]: https://support.google.com/webmasters/answer/9012289
+[gsc-recrawl]: https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl

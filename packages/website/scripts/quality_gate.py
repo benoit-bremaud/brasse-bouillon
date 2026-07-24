@@ -80,6 +80,44 @@ HREFLANG_PAIRS = [
     ("terms.html", "terms-en.html", f"{HOMEPAGE_URL}terms", f"{HOMEPAGE_URL}terms-en"),
 ]
 
+
+# Breadcrumb structured data mirrors the visible legal navigation. Each
+# secondary page has one two-step, locale-specific trail: locale home → page.
+BREADCRUMB_TRAILS = {
+    "legal.html": (
+        ("Accueil", HOMEPAGE_URL),
+        ("Mentions légales", f"{HOMEPAGE_URL}legal"),
+    ),
+    "legal-en.html": (
+        ("Home", f"{HOMEPAGE_URL}en"),
+        ("Legal Notice", f"{HOMEPAGE_URL}legal-en"),
+    ),
+    "privacy.html": (
+        ("Accueil", HOMEPAGE_URL),
+        ("Politique de confidentialité", f"{HOMEPAGE_URL}privacy"),
+    ),
+    "privacy-en.html": (
+        ("Home", f"{HOMEPAGE_URL}en"),
+        ("Privacy Policy", f"{HOMEPAGE_URL}privacy-en"),
+    ),
+    "cookies.html": (
+        ("Accueil", HOMEPAGE_URL),
+        ("Politique cookies", f"{HOMEPAGE_URL}cookies"),
+    ),
+    "cookies-en.html": (
+        ("Home", f"{HOMEPAGE_URL}en"),
+        ("Cookie Policy", f"{HOMEPAGE_URL}cookies-en"),
+    ),
+    "terms.html": (
+        ("Accueil", HOMEPAGE_URL),
+        ("Conditions d’utilisation", f"{HOMEPAGE_URL}terms"),
+    ),
+    "terms-en.html": (
+        ("Home", f"{HOMEPAGE_URL}en"),
+        ("Terms of Use", f"{HOMEPAGE_URL}terms-en"),
+    ),
+}
+
 REQUIRED_FILES = [
     "index.html",
     "en.html",
@@ -339,6 +377,66 @@ def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
             errors.append(f"{rel_path}: obsolete meta keywords tag is not allowed")
         if faq_schema_pattern.search(content):
             errors.append(f"{rel_path}: obsolete FAQPage schema is not allowed")
+
+    return errors
+
+
+def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
+    """Require one valid, locale-specific BreadcrumbList per secondary page."""
+    script_pattern = re.compile(
+        r"<script\b"
+        r"(?=[^>]*\btype\s*=\s*[\"']application/ld\+json[\"'])"
+        r"[^>]*>(.*?)</script\b[^>]*>",
+        flags=REGEX_FLAGS,
+    )
+    errors: list[str] = []
+
+    for rel_path, trail in BREADCRUMB_TRAILS.items():
+        full_path = root / rel_path
+        if not full_path.exists():
+            continue
+
+        breadcrumbs: list[dict[str, object]] = []
+        has_malformed_json_ld = False
+        content = full_path.read_text(encoding="utf-8")
+        for raw_payload in script_pattern.findall(content):
+            try:
+                payload = json.loads(raw_payload)
+            except json.JSONDecodeError as exc:
+                errors.append(f"{rel_path}: JSON-LD invalide ({exc.msg})")
+                has_malformed_json_ld = True
+                continue
+            if isinstance(payload, dict) and payload.get("@type") == "BreadcrumbList":
+                breadcrumbs.append(payload)
+
+        if not breadcrumbs and has_malformed_json_ld:
+            continue
+
+        if len(breadcrumbs) != 1:
+            errors.append(
+                f"{rel_path}: doit contenir exactement un schema BreadcrumbList "
+                f"(trouvé: {len(breadcrumbs)})"
+            )
+            continue
+
+        expected_items = [
+            {
+                "@type": "ListItem",
+                "position": position,
+                "name": name,
+                "item": url,
+            }
+            for position, (name, url) in enumerate(trail, start=1)
+        ]
+        breadcrumb = breadcrumbs[0]
+        if (
+            breadcrumb.get("@context") != "https://schema.org"
+            or breadcrumb.get("itemListElement") != expected_items
+        ):
+            errors.append(
+                f"{rel_path}: BreadcrumbList ne correspond pas au parcours "
+                "canonique attendu"
+            )
 
     return errors
 
@@ -748,6 +846,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_required_files(root))
     errors.extend(check_html_files(root))
     errors.extend(check_homepage_seo_metadata(root))
+    errors.extend(check_breadcrumb_schema(root))
     errors.extend(check_serp_metadata(root))
     errors.extend(check_feedback_widget(root))
     errors.extend(check_chat_widget(root))

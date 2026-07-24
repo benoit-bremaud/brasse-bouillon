@@ -36,9 +36,13 @@ while the product is still in pre-launch.
   points to the sitemap. The **live** file is edge-modified — see §1.1.
 - Structured data: **WebSite** + **Organization** on both homes. The WebSite
   block is language-neutral — brand + apex URL — and copied verbatim to
-  `en.html`; it feeds Google's site-name feature. `FAQPage` was removed after
-  Google stopped showing FAQ rich results in May 2026; the visible FAQ remains
-  useful page content. No SoftwareApplication entity until `app.html` exists.
+  `en.html`; it feeds Google's site-name feature. Every FR/EN secondary page
+  carries one locale-specific **BreadcrumbList** matching its visible legal
+  navigation (`Accueil`/`Home` → current page); `check_breadcrumb_schema`
+  rejects missing, duplicate, malformed, or non-canonical trails. `FAQPage`
+  was removed after Google stopped showing FAQ rich results in May 2026; the
+  visible FAQ remains useful page content. No SoftwareApplication entity until
+  `app.html` exists.
 
 ### 1.1) Edge overlay — Cloudflare managed robots.txt & AI Crawl Control
 
@@ -91,7 +95,12 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
    `i18n/home.en.json`, never `en.html` directly. Also verify Open Graph
    (`og:locale` + `og:image`), Twitter card, canonical, and hreflang cluster.
 2. Regenerate and verify the EN home: `python3 scripts/build_i18n.py --check`.
-3. Confirm the source `sitemap.xml` matches the exact indexable set and
+   After reviewing changes to an FR/EN legal pair, refresh its freshness stamp
+   with `python3 scripts/build_i18n.py --stamp`.
+3. For structured-data changes, confirm `python3 scripts/quality_gate.py`
+   validates every expected page. After deployment, test representative FR/EN
+   URLs with Google Rich Results Test and confirm there are no critical errors.
+4. Confirm the source `sitemap.xml` matches the exact indexable set and
    contains no handwritten `<lastmod>` values. To preview the deployed form:
 
    ```bash
@@ -100,7 +109,7 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
 
    Inspect the generated file and confirm every URL has a page-specific,
    Git-backed date.
-4. Confirm `robots.txt` includes:
+5. Confirm `robots.txt` includes:
    - `User-agent: *`
    - `Allow: /`
    - `Sitemap: https://brasse-bouillon.com/sitemap.xml`
@@ -109,18 +118,18 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
    and can 403 AI crawlers before they ever fetch it (§1.1). Verify the live
    file with `curl -s https://brasse-bouillon.com/robots.txt`; if the change
    concerns AI-crawler access, also run the full-UA status probe from §1.1.
-5. Run local quality checks:
+6. Run local quality checks:
 
 ```bash
 python3 scripts/quality_gate.py
 python3 -m unittest discover -s tests
 ```
 
-6. If `_headers` changed, verify after deploy that the pages.dev alias stays
+7. If `_headers` changed, verify after deploy that the pages.dev alias stays
    out of search indexes:
    `curl -sI https://brasse-bouillon-website.pages.dev/ | grep -i x-robots-tag`
    (expect `noindex`; the custom domain must NOT carry that header).
-7. `llms.txt` is gate-required in the repo but ships only if staged by
+8. `llms.txt` is gate-required in the repo but ships only if staged by
    `website-deploy.yml` (explicit whitelist). After any deploy-workflow
    change, verify:
    `curl -s -o /dev/null -w "%{http_code}\n" https://brasse-bouillon.com/llms.txt`.

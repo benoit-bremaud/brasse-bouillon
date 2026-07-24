@@ -250,7 +250,7 @@ class QualityGateTests(unittest.TestCase):
             schema = _breadcrumb_script("legal.html")
             path.write_text(
                 path.read_text(encoding="utf-8").replace(
-                    schema, schema.replace("</script>", "</script >")
+                    schema, schema.replace("</script>", "</script\t\n bar>")
                 ),
                 encoding="utf-8",
             )

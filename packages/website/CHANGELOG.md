@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.3...website-v0.1.4) (2026-07-24)
+
+
+### Bug Fixes
+
+* **website:** tighten homepage SEO metadata ([#1520](https://github.com/benoit-bremaud/brasse-bouillon/issues/1520)) ([2594ed7](https://github.com/benoit-bremaud/brasse-bouillon/commit/2594ed79b10c035e61995b77c095381da897eec4))
+
 ## [0.1.3](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.2...website-v0.1.3) (2026-07-20)
 
 

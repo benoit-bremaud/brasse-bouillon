@@ -397,15 +397,20 @@ def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
             continue
 
         breadcrumbs: list[dict[str, object]] = []
+        has_malformed_json_ld = False
         content = full_path.read_text(encoding="utf-8")
         for raw_payload in script_pattern.findall(content):
             try:
                 payload = json.loads(raw_payload)
             except json.JSONDecodeError as exc:
                 errors.append(f"{rel_path}: JSON-LD invalide ({exc.msg})")
+                has_malformed_json_ld = True
                 continue
             if isinstance(payload, dict) and payload.get("@type") == "BreadcrumbList":
                 breadcrumbs.append(payload)
+
+        if not breadcrumbs and has_malformed_json_ld:
+            continue
 
         if len(breadcrumbs) != 1:
             errors.append(

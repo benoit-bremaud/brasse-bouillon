@@ -308,6 +308,7 @@ class QualityGateTests(unittest.TestCase):
 
                 errors = quality_gate.check_breadcrumb_schema(root)
 
+                self.assertEqual(len(errors), 1)
                 self.assertTrue(any(expected in error for error in errors))
 
     def test_breadcrumb_schema_detects_duplicate_schema(self) -> None:

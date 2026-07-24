@@ -264,6 +264,45 @@ class QualityGateTests(unittest.TestCase):
                 any("noindex interdit dans legal-en.html" in err for err in errors)
             )
 
+    def test_detects_overlong_homepage_title(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            content = index_path.read_text(encoding="utf-8")
+            overlong_title = "A" * (quality_gate.HOMEPAGE_TITLE_MAX_LENGTH + 1)
+            index_path.write_text(
+                content.replace(
+                    "<title>FR</title>", f"<title>{overlong_title}</title>"
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_homepage_seo_metadata(root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("index.html", errors[0])
+            self.assertIn("61 characters", errors[0])
+
+    def test_detects_obsolete_homepage_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            en_path = root / "en.html"
+            content = en_path.read_text(encoding="utf-8")
+            en_path.write_text(
+                content.replace(
+                    "</head>",
+                    '<meta name="keywords" content="homebrewing">'
+                    '<script type="application/ld+json">'
+                    '{"@type":"FAQPage"}</script></head>',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_homepage_seo_metadata(root)
+            self.assertTrue(any("meta keywords" in error for error in errors))
+            self.assertTrue(any("FAQPage" in error for error in errors))
+
     def test_hreflang_reciprocity_detects_missing_return_link(self) -> None:
         # Sad path: the FR home loses its `en` alternate. Validation is
         # per-file against the pair's expected cluster, so only the page whose

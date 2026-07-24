@@ -1,5 +1,5 @@
 {
-  "_comment": "English catalog for the generated en.html (ADR-0027). Edit the 'en' values; run `python3 scripts/build_i18n.py --update-hashes` to refresh srcHash + headSrcHashes, then `python3 scripts/build_i18n.py` to regenerate en.html. Do NOT edit en.html by hand. Schema: strings = {key: {en: <EN HTML fragment>, srcHash: <sha1 of the FR source>}}; insertions = EN-only fragments (no FR source); idStems = DOM id stems rewritten Fr->En; head = EN head-override values; headSrcHashes = {head key: sha1 of its FR head value} for the guarded head keys (title, description, keywords, og/twitter titles+descriptions, ogImageAlt) — ogImage, orgDescription and knowsAbout have no 1:1 FR head string and are unguarded.",
+  "_comment": "English catalog for the generated en.html (ADR-0027). Edit the 'en' values; run `python3 scripts/build_i18n.py --update-hashes` to refresh srcHash + headSrcHashes, then `python3 scripts/build_i18n.py` to regenerate en.html. Do NOT edit en.html by hand. Schema: strings = {key: {en: <EN HTML fragment>, srcHash: <sha1 of the FR source>}}; insertions = EN-only fragments (no FR source); idStems = DOM id stems rewritten Fr->En; head = EN head-override values; headSrcHashes = {head key: sha1 of its FR head value} for the guarded head keys (title, description, og/twitter titles+descriptions, ogImageAlt) — ogImage, orgDescription and knowsAbout have no 1:1 FR head string and are unguarded.",
   "idStems": [
     "mainContent",
     "journey",
@@ -16,7 +16,7 @@
     "qContact"
   ],
   "head": {
-    "title": "Homebrewing app - beer recipes, IBU/ABV, fermentation tracking | Brasse-Bouillon",
+    "title": "Homebrewing app for beer recipes | Brasse-Bouillon",
     "description": "Brasse-Bouillon is the homebrewing app to build beer recipes, calculate IBU/ABV, track fermentation and nail every batch step by step.",
     "ogTitle": "Brasse-Bouillon | Homebrewing companion app",
     "ogDescription": "Build beer recipes, calculate IBU/ABV and track fermentation with a step-by-step brewing guide.",
@@ -25,7 +25,6 @@
     "ogImageAlt": "Brasse-Bouillon, homebrewing mobile app",
     "ogImage": "https://brasse-bouillon.com/og-image-en.png?v=20260713",
     "orgDescription": "A homebrewing mobile-app project to build beer recipes, calculate IBU/ABV and track fermentation.",
-    "keywords": "homebrewing app, home brewing, beer recipe, IBU calculator, ABV calculator, fermentation tracking, brewing guide, brew log, homebrew",
     "knowsAbout": [
       "Homebrewing",
       "Beer recipes",
@@ -35,9 +34,8 @@
     ]
   },
   "headSrcHashes": {
-    "title": "ef2daf1b6fefce2f34315d77e3ffe04c6d044396",
+    "title": "9d88e704a40e47e2a1587076aa8d263fb26eada7",
     "description": "cd5bb0f731654076f87c326684c7d2b107a69a83",
-    "keywords": "6f500c318efa742bb08ac78a6bc063195c1ca7f9",
     "ogTitle": "eed5db45b798800e20847b95f77c7dd983a724a7",
     "ogDescription": "e4b47d9d66996c4c615de44b35f8837f20216f82",
     "twitterTitle": "eed5db45b798800e20847b95f77c7dd983a724a7",

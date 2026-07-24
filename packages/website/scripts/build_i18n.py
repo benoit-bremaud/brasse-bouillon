@@ -18,7 +18,7 @@ Usage:
 The drift guard: each catalog entry stores `srcHash`, the sha1 of the French
 source (element inner HTML or attribute value) it translates. The catalog's
 `headSrcHashes` block guards the FR-sourced `head` overrides the same way
-(title, meta description/keywords, social titles/descriptions, og:image:alt);
+(title, meta description, social titles/descriptions, og:image:alt);
 head keys with no 1:1 FR head string (ogImage, orgDescription, knowsAbout) are
 deliberately unguarded — see `_GUARDED_HEAD_PATTERNS`. On generate/check, a
 mismatch is a hard error — a FR copy change without its EN update fails CI. The
@@ -264,7 +264,6 @@ def _fr_attr_value(tag_text: str, attr: str) -> str:
 _GUARDED_HEAD_PATTERNS: tuple[tuple[str, str, int], ...] = (
     ("title", r"(<title>)(.*?)(</title>)", re.DOTALL),
     ("description", r'(<meta name="description" content=")(.*?)(">)', re.DOTALL),
-    ("keywords", r'(<meta name="keywords" content=")(.*?)(">)', 0),
     ("ogTitle", r'(<meta property="og:title" content=")([^"]*)(">)', 0),
     ("ogDescription", r'(<meta property="og:description" content=")([^"]*)(">)', 0),
     ("twitterTitle", r'(<meta name="twitter:title" content=")([^"]*)(">)', 0),
@@ -440,7 +439,7 @@ def _transform_head(html: str, catalog: dict) -> str:
     # source: a cluster is identical on every page of the pair by design (S2 —
     # the S1 ship-dark strip is gone, en.html is indexable).
 
-    # FR-sourced head strings (title, meta description/keywords, social
+    # FR-sourced head strings (title, meta description, social
     # titles/descriptions, og:image:alt): the shared guarded table drives both
     # this swap and the head srcHash drift guard.
     for key, pattern, flags in _GUARDED_HEAD_PATTERNS:
@@ -490,7 +489,6 @@ def _transform_head(html: str, catalog: dict) -> str:
     # noindex on the EN pages so the SEO switch cannot silently regress).
 
     html = _rebuild_org_schema(html, catalog)
-    html = _rebuild_faq_schema(html, catalog)
 
     # Generated-file marker right after <head>.
     html = html.replace("<head>", f"<head>\n  {GENERATED_MARKER}", 1)
@@ -519,46 +517,6 @@ def _rebuild_org_schema(html: str, catalog: dict) -> str:
             flags=re.DOTALL,
         )
     return html
-
-
-def _rebuild_faq_schema(html: str, catalog: dict) -> str:
-    # Single source of truth: the FAQ structured data is built from the SAME
-    # catalog keys as the visible <details> FAQ (faq.qN.summary / faq.qN.answer),
-    # so the JSON-LD can never drift from the rendered copy (ADR-0027 D1.3).
-    strings = catalog.get("strings", {})
-    entities = []
-    index = 1
-    while f"faq.q{index}.summary" in strings:
-        question = strings[f"faq.q{index}.summary"]["en"]
-        answer_key = f"faq.q{index}.answer"
-        if answer_key not in strings:
-            raise BuildError(f"FAQ key '{answer_key}' missing for the JSON-LD rebuild")
-        entities.append(
-            {
-                "@type": "Question",
-                "name": question,
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": strings[answer_key]["en"],
-                },
-            }
-        )
-        index += 1
-    if not entities:
-        return html
-    payload = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": entities,
-    }
-    block = json.dumps(payload, ensure_ascii=False, indent=2)
-    return re.sub(
-        r'(<script type="application/ld\+json">\s*\{\s*"@context": "https://schema\.org",\s*"@type": "FAQPage".*?</script>)',
-        f'<script type="application/ld+json">\n{block}\n  </script>',
-        html,
-        count=1,
-        flags=re.DOTALL,
-    )
 
 
 def _transform_body_structure(html: str, catalog: dict) -> str:

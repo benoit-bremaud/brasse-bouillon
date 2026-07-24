@@ -35,6 +35,30 @@ def _serp_description(seed: str) -> str:
     return seed + " " + "x" * (quality_gate.META_DESCRIPTION_MIN_LENGTH - len(seed) - 1)
 
 
+def _breadcrumb_script(rel_path: str) -> str:
+    items = [
+        {
+            "@type": "ListItem",
+            "position": position,
+            "name": name,
+            "item": url,
+        }
+        for position, (name, url) in enumerate(
+            quality_gate.BREADCRUMB_TRAILS[rel_path], start=1
+        )
+    ]
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": items,
+    }
+    return (
+        '<script type="application/ld+json">'
+        f"{json.dumps(payload, ensure_ascii=False)}"
+        "</script>"
+    )
+
+
 def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
@@ -53,6 +77,7 @@ def _create_valid_fixture(base: Path) -> None:
         '<link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/{stem}">'
         '<link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/{stem}-en">'
         '<link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/{stem}">'
+        "{breadcrumb}"
         f"</head><body>{widget_tag}</body></html>"
     )
     legal_pages = [
@@ -74,6 +99,7 @@ def _create_valid_fixture(base: Path) -> None:
                 title=title,
                 description=_serp_description(title),
                 stem=stem,
+                breadcrumb=_breadcrumb_script(rel_path),
             ),
         )
 
@@ -209,6 +235,82 @@ class QualityGateTests(unittest.TestCase):
             root = Path(tmp_dir)
             _stampable_fixture(root)
             self.assertEqual(quality_gate.check_legal_freshness(root), [])
+
+    def test_breadcrumb_schema_accepts_all_secondary_pages(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+
+    def test_breadcrumb_schema_detects_missing_schema(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            path = root / "legal.html"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    _breadcrumb_script("legal.html"), ""
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_breadcrumb_schema(root)
+
+            self.assertEqual(len(errors), 1)
+            self.assertIn("legal.html", errors[0])
+            self.assertIn("trouvé: 0", errors[0])
+
+    def test_breadcrumb_schema_detects_malformed_and_wrong_trails(self) -> None:
+        variants = {
+            "malformed": (
+                "privacy.html",
+                _breadcrumb_script("privacy.html").replace(
+                    '"itemListElement"', '"itemListElement" INVALID', 1
+                ),
+                "JSON-LD invalide",
+            ),
+            "wrong URL": (
+                "cookies-en.html",
+                _breadcrumb_script("cookies-en.html").replace(
+                    "https://brasse-bouillon.com/cookies-en",
+                    "https://brasse-bouillon.com/cookies",
+                    1,
+                ),
+                "parcours canonique attendu",
+            ),
+        }
+        for label, (rel_path, replacement, expected) in variants.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as tmp_dir:
+                root = Path(tmp_dir)
+                _create_valid_fixture(root)
+                path = root / rel_path
+                path.write_text(
+                    path.read_text(encoding="utf-8").replace(
+                        _breadcrumb_script(rel_path), replacement
+                    ),
+                    encoding="utf-8",
+                )
+
+                errors = quality_gate.check_breadcrumb_schema(root)
+
+                self.assertTrue(any(expected in error for error in errors))
+
+    def test_breadcrumb_schema_detects_duplicate_schema(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            path = root / "terms-en.html"
+            schema = _breadcrumb_script("terms-en.html")
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(schema, schema + schema),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_breadcrumb_schema(root)
+
+            self.assertEqual(len(errors), 1)
+            self.assertIn("terms-en.html", errors[0])
+            self.assertIn("trouvé: 2", errors[0])
 
     def test_legal_freshness_detects_stale_stamp(self) -> None:
         # A FR legal edit without re-stamping the EN twin must fail the gate.

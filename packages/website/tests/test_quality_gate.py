@@ -31,6 +31,10 @@ def _write_og_image(base: Path, width: int = 1200, height: int = 630) -> None:
     (base / "og-image-en.png").write_bytes(_png_header_bytes(width, height))
 
 
+def _serp_description(seed: str) -> str:
+    return seed + " " + "x" * (quality_gate.META_DESCRIPTION_MIN_LENGTH - len(seed) - 1)
+
+
 def _create_valid_fixture(base: Path) -> None:
     _write_file(base, "README.md", "# readme\n")
     _write_file(base, "CONTRIBUTING.md", "# contributing\n")
@@ -43,6 +47,9 @@ def _create_valid_fixture(base: Path) -> None:
     legal_html_template = (
         '<!DOCTYPE html><html lang="{lang}"><head>'
         "<title>{title}</title>"
+        '<meta name="description" content="{description}">'
+        '<meta property="og:title" content="{title}">'
+        '<meta name="twitter:title" content="{title}">'
         '<link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/{stem}">'
         '<link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/{stem}-en">'
         '<link rel="alternate" hreflang="x-default" href="https://brasse-bouillon.com/{stem}">'
@@ -62,7 +69,12 @@ def _create_valid_fixture(base: Path) -> None:
         _write_file(
             base,
             rel_path,
-            legal_html_template.format(lang=lang, title=title, stem=stem),
+            legal_html_template.format(
+                lang=lang,
+                title=title,
+                description=_serp_description(title),
+                stem=stem,
+            ),
         )
 
     _write_file(
@@ -72,6 +84,9 @@ def _create_valid_fixture(base: Path) -> None:
 <html lang="fr">
 <head>
   <title>FR</title>
+  <meta name="description" content="FR_DESCRIPTION">
+  <meta property="og:title" content="FR">
+  <meta name="twitter:title" content="FR">
   <link rel="canonical" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">
@@ -91,7 +106,7 @@ def _create_valid_fixture(base: Path) -> None:
   <script type="module" src="chat-widget.js"></script>
 </body>
 </html>
-""",
+""".replace("FR_DESCRIPTION", _serp_description("FR")),
     )
 
     _write_file(
@@ -101,6 +116,9 @@ def _create_valid_fixture(base: Path) -> None:
 <html lang="en">
 <head>
   <title>EN</title>
+  <meta name="description" content="EN_DESCRIPTION">
+  <meta property="og:title" content="EN">
+  <meta name="twitter:title" content="EN">
   <link rel="canonical" href="https://brasse-bouillon.com/en">
   <link rel="alternate" hreflang="fr" href="https://brasse-bouillon.com/">
   <link rel="alternate" hreflang="en" href="https://brasse-bouillon.com/en">
@@ -113,7 +131,7 @@ def _create_valid_fixture(base: Path) -> None:
   <script type="module" src="chat-widget.js"></script>
 </body>
 </html>
-""",
+""".replace("EN_DESCRIPTION", _serp_description("EN")),
     )
 
     _write_file(base, "_redirects", "/index-en /en 301\n")
@@ -274,11 +292,11 @@ class QualityGateTests(unittest.TestCase):
             index_path.write_text(
                 content.replace(
                     "<title>FR</title>", f"<title>{overlong_title}</title>"
-                ),
+                ).replace('content="FR"', f'content="{overlong_title}"'),
                 encoding="utf-8",
             )
 
-            errors = quality_gate.check_homepage_seo_metadata(root)
+            errors = quality_gate.check_serp_metadata(root)
             self.assertEqual(len(errors), 1)
             self.assertIn("index.html", errors[0])
             self.assertIn("61 characters", errors[0])
@@ -314,6 +332,106 @@ class QualityGateTests(unittest.TestCase):
             self.assertTrue(any("index.html" in error for error in keyword_errors))
             self.assertTrue(any("en.html" in error for error in keyword_errors))
             self.assertTrue(any("FAQPage" in error for error in errors))
+
+    def test_detects_invalid_description_lengths_and_social_title_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            index_content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                index_content.replace(
+                    _serp_description("FR"),
+                    "S" * (quality_gate.META_DESCRIPTION_MIN_LENGTH - 1),
+                    1,
+                ).replace(
+                    '<meta property="og:title" content="FR">',
+                    '<meta property="og:title" content="Different">',
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            en_path = root / "en.html"
+            en_content = en_path.read_text(encoding="utf-8")
+            en_path.write_text(
+                en_content.replace(
+                    _serp_description("EN"),
+                    "L" * (quality_gate.META_DESCRIPTION_MAX_LENGTH + 1),
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_serp_metadata(root)
+
+            self.assertTrue(
+                any(
+                    "index.html: meta description is 119 characters" in error
+                    for error in errors
+                )
+            )
+            self.assertTrue(
+                any(
+                    "en.html: meta description is 156 characters" in error
+                    for error in errors
+                )
+            )
+            self.assertIn(
+                "index.html: Open Graph title must match the SEO title", errors
+            )
+
+    def test_reports_missing_social_titles_and_normalizes_present_values(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            index_path = root / "index.html"
+            index_content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                index_content.replace(
+                    '<meta property="og:title" content="FR">', ""
+                ).replace(
+                    '<meta name="twitter:title" content="FR">',
+                    '<meta name="twitter:title" content="  FR  ">',
+                ),
+                encoding="utf-8",
+            )
+            en_path = root / "en.html"
+            en_content = en_path.read_text(encoding="utf-8")
+            en_path.write_text(
+                en_content.replace(
+                    '<meta name="twitter:title" content="EN">', ""
+                ).replace(
+                    '<meta property="og:title" content="EN">',
+                    '<meta property="og:title" content="  EN  ">',
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_serp_metadata(root)
+
+            self.assertIn("index.html: Open Graph title is missing", errors)
+            self.assertIn("en.html: Twitter title is missing", errors)
+            self.assertEqual(len(errors), 2)
+
+    def test_detects_duplicate_serp_titles_and_descriptions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            terms_en_path = root / "terms-en.html"
+            content = terms_en_path.read_text(encoding="utf-8")
+            terms_en_path.write_text(
+                content.replace(
+                    _serp_description("terms-en"), _serp_description("legal")
+                ).replace("terms-en", "terms"),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_serp_metadata(root)
+
+            self.assertIn("duplicate SEO title: terms.html, terms-en.html", errors)
+            self.assertIn(
+                "duplicate meta description: legal.html, terms-en.html", errors
+            )
 
     def test_hreflang_reciprocity_detects_missing_return_link(self) -> None:
         # Sad path: the FR home loses its `en` alternate. Validation is

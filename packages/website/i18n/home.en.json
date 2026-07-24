@@ -17,10 +17,10 @@
   ],
   "head": {
     "title": "Homebrewing app for beer recipes | Brasse-Bouillon",
-    "description": "Brasse-Bouillon is the homebrewing app to build beer recipes, calculate IBU/ABV, track fermentation and nail every batch step by step.",
-    "ogTitle": "Brasse-Bouillon | Homebrewing companion app",
+    "description": "Build beer recipes, calculate IBU and ABV, track fermentation, and follow every brewing step with the Brasse-Bouillon homebrewing app.",
+    "ogTitle": "Homebrewing app for beer recipes | Brasse-Bouillon",
     "ogDescription": "Build beer recipes, calculate IBU/ABV and track fermentation with a step-by-step brewing guide.",
-    "twitterTitle": "Brasse-Bouillon | Homebrewing companion app",
+    "twitterTitle": "Homebrewing app for beer recipes | Brasse-Bouillon",
     "twitterDescription": "The homebrewer’s companion: beer recipes, IBU/ABV calculators, fermentation tracking and a step-by-step guide.",
     "ogImageAlt": "Brasse-Bouillon, homebrewing mobile app",
     "ogImage": "https://brasse-bouillon.com/og-image-en.png?v=20260713",
@@ -35,10 +35,10 @@
   },
   "headSrcHashes": {
     "title": "9d88e704a40e47e2a1587076aa8d263fb26eada7",
-    "description": "cd5bb0f731654076f87c326684c7d2b107a69a83",
-    "ogTitle": "eed5db45b798800e20847b95f77c7dd983a724a7",
+    "description": "e8fadc0b409611f84724463425d067d381cb0589",
+    "ogTitle": "9d88e704a40e47e2a1587076aa8d263fb26eada7",
     "ogDescription": "e4b47d9d66996c4c615de44b35f8837f20216f82",
-    "twitterTitle": "eed5db45b798800e20847b95f77c7dd983a724a7",
+    "twitterTitle": "9d88e704a40e47e2a1587076aa8d263fb26eada7",
     "twitterDescription": "d15a4c7d7be7116006ac44886d64e6b4593132df",
     "ogImageAlt": "190fd3c1ce58ea7b95c506d71ca4683fbc26f060"
   },

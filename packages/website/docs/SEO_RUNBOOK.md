@@ -80,10 +80,12 @@ Cloudflare references: [managed robots.txt](https://developers.cloudflare.com/bo
 
 ## 2) Release checklist (every SEO PR)
 
-1. Validate metadata in `index.html` (the single authored home source):
-   concise title (60 characters maximum), meta description, Open Graph
-   (incl. `og:locale` + `og:image`),
-   Twitter card, canonical, hreflang cluster.
+1. Validate metadata across every indexable FR/EN page. The quality gate
+   enforces unique titles (60 characters maximum), unique meta descriptions
+   (120–155 characters), and exact `<title>` / `og:title` / `twitter:title`
+   alignment. For the generated EN home, edit `index.html` plus
+   `i18n/home.en.json`, never `en.html` directly. Also verify Open Graph
+   (`og:locale` + `og:image`), Twitter card, canonical, and hreflang cluster.
 2. Regenerate and verify the EN home: `python3 scripts/build_i18n.py --check`.
 3. Confirm `sitemap.xml` matches the exact indexable set (gate-enforced).
 4. Confirm `robots.txt` includes:

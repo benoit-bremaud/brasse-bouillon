@@ -18,6 +18,11 @@ ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 HOMEPAGE_FILES = ("index.html", "en.html")
 HOMEPAGE_TITLE_MAX_LENGTH = 60
+KEYWORDS_META_PATTERN = (
+    r"<meta\b"
+    r"(?=[^>]*\bname\s*=\s*(?:[\"']keywords[\"']|keywords(?=[\s/>])))"
+    r"[^>]*>"
+)
 
 # Open Graph share images (FR + localized EN card). Social platforms crop to
 # the 1.91:1 ratio, so each card must be exactly 1200×630 or it renders
@@ -310,7 +315,7 @@ def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
     """Reject verbose titles and obsolete metadata on acquisition pages."""
     errors: list[str] = []
     title_pattern = re.compile(r"<title>(.*?)</title>", flags=REGEX_FLAGS)
-    keywords_pattern = re.compile(r'<meta\s+name=["\']keywords["\']', flags=REGEX_FLAGS)
+    keywords_pattern = re.compile(KEYWORDS_META_PATTERN, flags=REGEX_FLAGS)
     faq_schema_pattern = re.compile(r'"@type"\s*:\s*"FAQPage"', flags=REGEX_FLAGS)
 
     for rel_path in HOMEPAGE_FILES:

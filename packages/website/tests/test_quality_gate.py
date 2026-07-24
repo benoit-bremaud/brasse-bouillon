@@ -287,6 +287,15 @@ class QualityGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
+            index_path = root / "index.html"
+            index_content = index_path.read_text(encoding="utf-8")
+            index_path.write_text(
+                index_content.replace(
+                    "</head>",
+                    '<meta content="brassage" name=keywords></head>',
+                ),
+                encoding="utf-8",
+            )
             en_path = root / "en.html"
             content = en_path.read_text(encoding="utf-8")
             en_path.write_text(
@@ -300,7 +309,10 @@ class QualityGateTests(unittest.TestCase):
             )
 
             errors = quality_gate.check_homepage_seo_metadata(root)
-            self.assertTrue(any("meta keywords" in error for error in errors))
+            keyword_errors = [error for error in errors if "meta keywords" in error]
+            self.assertEqual(len(keyword_errors), 2)
+            self.assertTrue(any("index.html" in error for error in keyword_errors))
+            self.assertTrue(any("en.html" in error for error in keyword_errors))
             self.assertTrue(any("FAQPage" in error for error in errors))
 
     def test_hreflang_reciprocity_detects_missing_return_link(self) -> None:

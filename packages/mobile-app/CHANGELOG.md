@@ -13,6 +13,16 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.17-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.16-alpha1...mobile-app-v0.1.17-alpha1) (2026-07-27)
+
+
+### Features
+
+* **academy:** add web publishing foundation ([#1531](https://github.com/benoit-bremaud/brasse-bouillon/issues/1531)) ([8b3fd2c](https://github.com/benoit-bremaud/brasse-bouillon/commit/8b3fd2c45e22ac639d186e225ce30a7d43e65625))
+* **website:** publish first Academy guide ([#1535](https://github.com/benoit-bremaud/brasse-bouillon/issues/1535)) ([7fcee79](https://github.com/benoit-bremaud/brasse-bouillon/commit/7fcee7932d4724c89a2db9a076417e0dd246e22e))
+* **website:** publish first-brew beginner guide ([#1538](https://github.com/benoit-bremaud/brasse-bouillon/issues/1538)) ([663238b](https://github.com/benoit-bremaud/brasse-bouillon/commit/663238b3701ee3d4ea0d833cad51e7eda8373df8))
+* **website:** publish homebrew fermentation guide ([#1540](https://github.com/benoit-bremaud/brasse-bouillon/issues/1540)) ([a9a22a3](https://github.com/benoit-bremaud/brasse-bouillon/commit/a9a22a3e524c2a431eb9759b10637505905a75ce))
+
 ## [0.1.16-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.15-alpha1...mobile-app-v0.1.16-alpha1) (2026-07-21)
 
 

@@ -1,17 +1,22 @@
 ---
 slug: houblons
-title: Houblons
-summary: Repère pratique sur le rôle du houblon dans l'amertume, l'aromatique, le moment des ajouts et l'équilibre d'une bière.
+title: "IBU et houblon : comprendre l'amertume d'une bière"
+summary: Comprendre ce que mesure l'IBU, pourquoi l'amertume perçue varie et comment le moment des ajouts de houblon transforme une bière.
 category: ingredients
 level: beginner
 status: published
-version: 1.0.0
-estimated_read_time_minutes: 9
+version: 1.1.0
+estimated_read_time_minutes: 11
 tags:
   - ingredients
   - bitterness
   - aroma
-updated_at: 2026-07-08
+  - ibu
+  - dry-hop
+updated_at: 2026-07-27
+web_publication:
+  status: published
+  slug: ibu-biere-amertume-houblon
 related_articles:
   - introduction
   - fermentescibles
@@ -41,66 +46,91 @@ sensitive: false
 risk_topics: []
 source_ids:
   - palmer-2017
+  - oqlf-houblonnage-cru-2018
 review:
-  confidence_level: reviewed
+  confidence_level: validated
   reviewed_by: Academy editorial review
-  reviewed_at: 2026-07-08
+  reviewed_at: 2026-07-27
   notes:
     - Expanded from the initial pilot article to align with the migrated Academy content depth.
+    - Approved for public-web publication on 2026-07-27.
 ---
 
-## Rôle du houblon {#role-du-houblon}
+## IBU : ce que mesure vraiment l'amertume {#role-du-houblon}
 
-Le houblon apporte principalement de l'amertume, des arômes, des saveurs et une
-part de stabilité microbiologique. Pour un débutant, la première distinction à
-retenir est simple : plus l'ajout reste longtemps pendant l'ébullition, plus il
-sert l'amertume ; plus il est tardif, plus il préserve les arômes.
+L'IBU, ou International Bitterness Unit, indique la concentration de composés
+amers issus principalement des acides alpha du houblon. Dans une recette, cette
+valeur sert de repère pour comparer l'amertume calculée. Elle ne prédit toutefois
+pas exactement ce que tu ressentiras dans le verre : le corps, le sucre résiduel,
+l'alcool, l'eau et les arômes modifient l'équilibre perçu.
 
 :::definition id="definition-acide-alpha" term="Acide alpha" definition="Composé du houblon qui se transforme pendant l'ébullition et contribue à l'amertume mesurée en IBU." sourceIds="palmer-2017":::
 
-:::example id="example-ajout-tardif" title="Ajout tardif" body="Un ajout dans les dernières minutes d'ébullition ou en whirlpool favorisera davantage l'expression aromatique qu'un ajout de début d'ébullition." sourceIds="palmer-2017":::
+:::definition id="definition-ibu" term="IBU" definition="Unité utilisée pour quantifier les composés amers d'une bière. Elle aide à comparer des recettes, mais ne décrit pas à elle seule l'amertume ressentie." sourceIds="palmer-2017":::
 
 :::glossaryReference id="ibu-reference" termSlug="ibu" label="IBU" sourceIds="palmer-2017":::
 
-## Amertume, goût et arôme {#amertume-gout-arome}
+## Du houblon amer au houblon aromatique {#amertume-gout-arome}
 
-L'amertume vient surtout de l'isomérisation des acides alpha pendant
-l'ébullition. Le goût et l'arôme viennent davantage des huiles essentielles, qui
-sont plus sensibles à la chaleur et au temps. C'est pour cette raison qu'une
-recette peut combiner un ajout long pour l'amertume, un ajout court pour le
-goût, puis un ajout à froid pour le nez.
+Le houblon ne sert pas uniquement à rendre une bière amère. Pendant une longue
+ébullition, la chaleur transforme les acides alpha et construit l'amertume de
+base. Les huiles aromatiques sont plus volatiles : des ajouts tardifs, au
+whirlpool ou à froid cherchent davantage à préserver leurs notes fruitées,
+florales, résineuses ou épicées.
 
-:::definition id="definition-ibu" term="IBU" definition="Estimation de l'amertume calculée. Les IBU aident à comparer des recettes, mais ne décrivent pas toujours l'amertume réellement perçue." sourceIds="palmer-2017":::
+:::example id="example-ajout-tardif" title="Même houblon, résultat différent" body="Un ajout en début d'ébullition contribue surtout à l'amertume. Le même houblon ajouté en fin d'ébullition ou au whirlpool préservera davantage son expression aromatique." sourceIds="palmer-2017":::
 
-## Moment des ajouts {#timing-ajouts}
+## Quand ajouter le houblon ? {#timing-ajouts}
 
-Un ajout à 60 minutes sert surtout à construire l'amertume de base. Un ajout
-entre 15 et 5 minutes apporte encore un peu d'amertume, mais garde plus de
-saveur. Un whirlpool ou hop stand extrait beaucoup d'aromatique avec une
-amertume plus douce. Le dry hop se fait après l'ébullition, souvent pendant ou
-après la fermentation, pour renforcer le nez sans ajouter beaucoup d'IBU
-calculés.
+Le moment de l'ajout détermine le rôle principal du houblon. Il ne s'agit pas
+d'une frontière absolue : chaque ajout peut contribuer à plusieurs dimensions,
+mais cette grille donne un point de départ clair.
+
+:::example id="example-ajout-amerisant" title="Début d'ébullition" body="Un ajout long construit surtout une base amère nette et calculable." sourceIds="palmer-2017":::
+
+:::example id="example-ajout-saveur" title="15 à 5 minutes avant la fin" body="Un ajout court cherche un compromis entre saveur et contribution aux IBU." sourceIds="palmer-2017":::
+
+:::example id="example-whirlpool" title="Whirlpool ou hop stand" body="Un ajout après l'ébullition privilégie l'expression aromatique avec une contribution amère plus limitée." sourceIds="palmer-2017":::
+
+:::example id="example-dry-hop" title="Pendant ou après la fermentation" body="Un ajout à froid renforce le nez houblonné sans rechercher l'amertume de l'ébullition." sourceIds="palmer-2017,oqlf-houblonnage-cru-2018":::
 
 :::example id="example-ipa-timing" title="IPA simple" body="Une IPA peut utiliser un ajout amérisant en début d'ébullition, un ajout tardif pour le goût, puis un dry hop pour l'intensité aromatique." sourceIds="palmer-2017":::
 
-:::calculatorCta id="hop-calculator" calculatorSlug="houblons" title="Calculer une amertume cible" description="Utiliser le calculateur houblons pour estimer les IBU d'une recette." sourceIds="palmer-2017":::
+## Houblonnage à cru : renforcer l'arôme {#houblonnage-a-cru}
 
-## Équilibre avec le malt et l'eau {#equilibre}
+Le houblonnage à cru, ou dry hopping, consiste à ajouter du houblon pendant ou
+après la fermentation afin de renforcer les arômes sans rechercher
+l'isomérisation obtenue pendant l'ébullition. Cette technique demande de limiter
+les manipulations et l'exposition à l'oxygène, car une bière houblonnée perd vite
+sa fraîcheur aromatique lorsqu'elle s'oxyde.
 
-Une amertume ne se juge jamais seule. Une bière avec une OG élevée, beaucoup de
-corps ou une finale sucrée peut supporter plus d'IBU qu'une bière légère et
-sèche. L'eau change aussi la perception : les sulfates renforcent souvent une
-impression sèche et nette, tandis que les chlorures soutiennent davantage la
-rondeur.
+:::definition id="definition-houblonnage-cru" term="Houblonnage à cru" definition="Ajout de houblon aromatique pendant ou après la fermentation pour renforcer les arômes sans augmenter volontairement l'amertume." sourceIds="oqlf-houblonnage-cru-2018":::
+
+## Pourquoi deux bières à 40 IBU semblent différentes {#equilibre}
+
+Une amertume ne se juge jamais seule. Une bière légère et sèche peut paraître
+très amère à 40 IBU, tandis qu'une bière plus dense, maltée ou sucrée peut
+sembler plus équilibrée avec la même valeur. La densité initiale, l'atténuation,
+le corps et le profil de l'eau changent la manière dont le palais interprète
+l'amertume.
 
 :::relatedArticle id="related-fermentables" articleSlug="fermentescibles" sectionId="role-du-malt" sourceIds="palmer-2017":::
 
 :::relatedArticle id="related-water" articleSlug="eau" sectionId="alcalinite-ratio" sourceIds="palmer-2017":::
 
-## Pièges fréquents à éviter {#pieges}
+## Calculer les IBU sans perdre de vue le goût {#calculer-ibu}
 
-Les erreurs courantes sont de confondre IBU calculés et amertume perçue, de
-mettre tout le houblon au même moment, de surcharger un dry hop sans maîtriser
-l'oxydation, ou d'augmenter les IBU sans vérifier l'équilibre malté. Le bon
-réflexe consiste à définir d'abord le rôle de chaque ajout : amerisant,
-aromatique, whirlpool ou dry hop.
+Un calculateur estime les IBU à partir de la quantité de houblon, de son taux
+d'acides alpha, du volume, de la densité du moût, du temps d'ébullition et d'un
+modèle d'utilisation. Le résultat aide à construire et reproduire une recette ;
+il ne remplace ni la dégustation ni les notes prises après chaque brassin.
+
+:::calculatorCta id="hop-calculator" calculatorSlug="houblons" title="Préparer une amertume cible" description="Le calculateur houblons de Brasse-Bouillon aide à estimer les IBU d'une recette et à comparer plusieurs scénarios d'ajout." sourceIds="palmer-2017":::
+
+## Les erreurs fréquentes {#pieges}
+
+Les erreurs les plus courantes consistent à confondre IBU calculés et amertume
+perçue, à ajouter tout le houblon au même moment, à augmenter une dose sans
+vérifier l'équilibre malté ou à multiplier les manipulations pendant un dry hop.
+Avant de modifier une recette, donne un objectif à chaque ajout : construire
+l'amertume, apporter de la saveur, préserver l'arôme ou renforcer le nez.

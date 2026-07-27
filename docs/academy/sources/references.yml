@@ -20,6 +20,17 @@
   year: 2021
   notes: Style and sensory reference.
 
+- id: oqlf-houblonnage-cru-2018
+  kind: website
+  title: Houblonnage à cru
+  authors:
+    - Office québécois de la langue française
+  publisher: Office québécois de la langue française
+  url: https://vitrinelinguistique.oqlf.gouv.qc.ca/fiche-gdt/fiche/2088405/houblonnage-a-cru
+  accessed_at: 2026-07-27
+  year: 2018
+  notes: Official French terminology and definition for dry hopping.
+
 - id: brun-water-knowledge
   kind: website
   title: Bru'n Water Knowledge

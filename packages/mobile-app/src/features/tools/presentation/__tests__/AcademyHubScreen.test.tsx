@@ -63,7 +63,9 @@ describe("AcademyHubScreen", () => {
       "amertume",
     );
 
-    expect(screen.getByText("Houblons")).toBeTruthy();
+    expect(
+      screen.getByText("IBU et houblon : comprendre l'amertume d'une bière"),
+    ).toBeTruthy();
     expect(screen.queryByText("Histoire de la bière")).toBeNull();
   });
 
@@ -82,7 +84,9 @@ describe("AcademyHubScreen", () => {
 
     fireEvent.press(screen.getByTestId("academy-filter-Ingrédients"));
 
-    expect(screen.getByText("Houblons")).toBeTruthy();
+    expect(
+      screen.getByText("IBU et houblon : comprendre l'amertume d'une bière"),
+    ).toBeTruthy();
     expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
     expect(screen.queryByText("Eau de brassage")).toBeNull();
 

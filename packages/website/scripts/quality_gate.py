@@ -6,6 +6,7 @@ This script is intentionally dependency-free so it can run locally and in CI.
 
 from __future__ import annotations
 
+from html import unescape
 from collections import Counter
 from pathlib import Path
 import json
@@ -45,14 +46,16 @@ OG_IMAGES = [OG_IMAGE, "og-image-en.png"]
 OG_IMAGE_SIZE = (1200, 630)
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
-# URLs: the two landing pages plus the four French legal pages (S2, ADR-0027
-# D5 clause 3). The English legal twins are indexable since S2 but stay OUT of
+# URLs: the two landing pages, public French guides, and four French legal pages
+# (S2, ADR-0027 D5 clause 3). English legal twins stay OUT of
 # the sitemap deliberately (secondary pages, paired to their FR twin via
 # hreflang); any `.html` URL 308-redirects to its clean form, so neither may
 # ever appear here.
 SITEMAP_URLS = [
     HOMEPAGE_URL,
     f"{HOMEPAGE_URL}en",
+    f"{HOMEPAGE_URL}guides/",
+    f"{HOMEPAGE_URL}guides/ibu-biere-amertume-houblon/",
     f"{HOMEPAGE_URL}legal",
     f"{HOMEPAGE_URL}privacy",
     f"{HOMEPAGE_URL}cookies",
@@ -181,6 +184,10 @@ HTML_RULES = {
             "canonical FR vers https://brasse-bouillon.com/ manquante",
         ),
         (
+            r'<a\s+href="/guides/"\s+hreflang="fr"',
+            "lien interne vers les guides manquant sur la page FR",
+        ),
+        (
             r'"@type"\s*:\s*"Organization"',
             "schema Organization manquant dans index.html",
         ),
@@ -208,6 +215,10 @@ HTML_RULES = {
             r"<link\s+rel=\"canonical\"\s+href=\""
             r"https://brasse-bouillon\.com/en\"",
             "canonical EN vers https://brasse-bouillon.com/en manquante",
+        ),
+        (
+            r'<a\s+href="/guides/"\s+hreflang="fr"',
+            "lien interne vers les guides manquant sur la page EN",
         ),
     ],
     # The catch-all error page (Cloudflare Pages serves it with a real HTTP
@@ -325,6 +336,31 @@ ROBOTS_REQUIRED_DIRECTIVES = [
 REGEX_FLAGS = re.IGNORECASE | re.DOTALL
 
 
+def _guide_html_paths(root: Path) -> list[Path]:
+    guides_root = root / "guides"
+    return sorted(guides_root.rglob("*.html")) if guides_root.exists() else []
+
+
+def _all_html_paths(root: Path) -> list[Path]:
+    return sorted(root.glob("*.html")) + _guide_html_paths(root)
+
+
+def _guide_url(root: Path, path: Path) -> str:
+    relative_directory = path.relative_to(root).parent.as_posix()
+    return f"{HOMEPAGE_URL}{relative_directory}/"
+
+
+def _guide_h1(content: str) -> str:
+    match = re.search(r"<h1\b[^>]*>(.*?)</h1>", content, flags=REGEX_FLAGS)
+    if match is None:
+        return ""
+    return unescape(re.sub(r"<[^>]+>", "", match.group(1))).strip()
+
+
+def _guide_og_type(root: Path, path: Path) -> str:
+    return "website" if path == root / "guides/index.html" else "article"
+
+
 def check_required_files(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for rel_path in REQUIRED_FILES:
@@ -359,6 +395,39 @@ def check_html_files(root: Path = ROOT) -> list[str]:
             if re.search(pattern, content, flags=REGEX_FLAGS):
                 errors.append(f"{rel_path}: {message}")
 
+    for path in _guide_html_paths(root):
+        rel_path = path.relative_to(root).as_posix()
+        content = path.read_text(encoding="utf-8")
+        for pattern, message in BLOCKED_PATTERNS:
+            if re.search(pattern, content):
+                errors.append(f"{rel_path}: {message}")
+        for pattern, message in (
+            (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
+            (r'<html\s+lang="fr"', 'balise <html lang="fr"> manquante'),
+        ):
+            if not re.search(pattern, content, flags=REGEX_FLAGS):
+                errors.append(f"{rel_path}: {message}")
+
+        expected_url = re.escape(_guide_url(root, path))
+        canonical_pattern = rf'<link\s+rel="canonical"\s+href="{expected_url}"'
+        if not re.search(canonical_pattern, content, flags=REGEX_FLAGS):
+            errors.append(f"{rel_path}: canonical guide incorrecte")
+
+        expected_og_type = re.escape(_guide_og_type(root, path))
+        og_type_pattern = rf'<meta\s+property="og:type"\s+content="{expected_og_type}"'
+        if not re.search(og_type_pattern, content, flags=REGEX_FLAGS):
+            errors.append(f"{rel_path}: og:type guide incorrect")
+
+        h1_count = len(re.findall(r"<h1\b", content, flags=REGEX_FLAGS))
+        if h1_count != 1:
+            errors.append(
+                f"{rel_path}: doit contenir exactement un h1 (trouvé: {h1_count})"
+            )
+        if re.search(r'<[^>]+\sstyle\s*=\s*["\']', content, flags=REGEX_FLAGS):
+            errors.append(f"{rel_path}: style inline interdit")
+        if re.search(NOINDEX_META_PATTERN, content, flags=REGEX_FLAGS):
+            errors.append(f"{rel_path}: meta robots noindex interdit")
+
     return errors
 
 
@@ -381,8 +450,28 @@ def check_homepage_seo_metadata(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def _guide_breadcrumb_trails(
+    root: Path,
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    trails: dict[str, tuple[tuple[str, str], ...]] = {}
+    for path in _guide_html_paths(root):
+        rel_path = path.relative_to(root).as_posix()
+        guide_url = _guide_url(root, path)
+        if path == root / "guides/index.html":
+            trail = (("Accueil", HOMEPAGE_URL), ("Guides", guide_url))
+        else:
+            content = path.read_text(encoding="utf-8")
+            trail = (
+                ("Accueil", HOMEPAGE_URL),
+                ("Guides", f"{HOMEPAGE_URL}guides/"),
+                (_guide_h1(content), guide_url),
+            )
+        trails[rel_path] = trail
+    return trails
+
+
 def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
-    """Require one valid, locale-specific BreadcrumbList per secondary page."""
+    """Require one valid, canonical BreadcrumbList per secondary page."""
     script_pattern = re.compile(
         r"<script\b"
         r"(?=[^>]*\btype\s*=\s*[\"']application/ld\+json[\"'])"
@@ -391,7 +480,8 @@ def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
     )
     errors: list[str] = []
 
-    for rel_path, trail in BREADCRUMB_TRAILS.items():
+    trails = {**BREADCRUMB_TRAILS, **_guide_breadcrumb_trails(root)}
+    for rel_path, trail in trails.items():
         full_path = root / rel_path
         if not full_path.exists():
             continue
@@ -441,6 +531,68 @@ def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
     return errors
 
 
+def check_guide_structured_data(root: Path = ROOT) -> list[str]:
+    """Validate the primary CollectionPage or Article schema for every guide."""
+    script_pattern = re.compile(
+        r"<script\b"
+        r"(?=[^>]*\btype\s*=\s*[\"']application/ld\+json[\"'])"
+        r"[^>]*>(.*?)</script\b[^>]*>",
+        flags=REGEX_FLAGS,
+    )
+    errors: list[str] = []
+
+    for path in _guide_html_paths(root):
+        rel_path = path.relative_to(root).as_posix()
+        content = path.read_text(encoding="utf-8")
+        payloads: list[dict[str, object]] = []
+        for raw_payload in script_pattern.findall(content):
+            try:
+                payload = json.loads(raw_payload)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, dict):
+                payloads.append(payload)
+
+        expected_type = (
+            "CollectionPage" if path == root / "guides/index.html" else "Article"
+        )
+        matching = [
+            payload for payload in payloads if payload.get("@type") == expected_type
+        ]
+        if len(matching) != 1:
+            errors.append(
+                f"{rel_path}: doit contenir exactement un schema {expected_type} "
+                f"(trouvé: {len(matching)})"
+            )
+            continue
+
+        schema = matching[0]
+        canonical = _guide_url(root, path)
+        title_key = "name" if expected_type == "CollectionPage" else "headline"
+        if (
+            schema.get("@context") != "https://schema.org"
+            or schema.get("url") != canonical
+            or schema.get("inLanguage") != "fr-FR"
+            or schema.get(title_key) != _guide_h1(content)
+        ):
+            errors.append(f"{rel_path}: schema {expected_type} incohérent avec la page")
+            continue
+
+        if expected_type == "Article" and (
+            schema.get("mainEntityOfPage") != canonical
+            or not schema.get("datePublished")
+            or not schema.get("dateModified")
+        ):
+            errors.append(f"{rel_path}: schema Article incomplet")
+        elif expected_type == "CollectionPage" and schema.get("isPartOf") != {
+            "@type": "WebSite",
+            "url": HOMEPAGE_URL,
+        }:
+            errors.append(f"{rel_path}: schema CollectionPage incomplet")
+
+    return errors
+
+
 def _meta_content(
     content: str, selector_attribute: str, selector_value: str
 ) -> str | None:
@@ -475,7 +627,10 @@ def check_serp_metadata(root: Path = ROOT) -> list[str]:
     titles: dict[str, list[str]] = {}
     descriptions: dict[str, list[str]] = {}
 
-    for rel_path in SERP_METADATA_FILES:
+    guide_files = tuple(
+        path.relative_to(root).as_posix() for path in _guide_html_paths(root)
+    )
+    for rel_path in (*SERP_METADATA_FILES, *guide_files):
         full_path = root / rel_path
         if not full_path.exists():
             continue
@@ -533,7 +688,10 @@ def check_serp_metadata(root: Path = ROOT) -> list[str]:
 
 def check_feedback_widget(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
-    for rel_path in WIDGET_HTML_FILES:
+    guide_files = tuple(
+        path.relative_to(root).as_posix() for path in _guide_html_paths(root)
+    )
+    for rel_path in (*WIDGET_HTML_FILES, *guide_files):
         full_path = root / rel_path
         if not full_path.exists():
             continue
@@ -648,9 +806,7 @@ def check_clean_seo_urls(root: Path = ROOT) -> list[str]:
     seo_rel = re.compile(r'rel="(?:canonical|alternate)"', flags=REGEX_FLAGS)
     html_href = re.compile(r'href="[^"]*\.html"', flags=REGEX_FLAGS)
     errors: list[str] = []
-    # Flat layout: every HTML page lives at the package root (no nested dirs
-    # today), so a non-recursive glob covers the whole site.
-    for path in sorted(root.glob("*.html")):
+    for path in _all_html_paths(root):
         content = path.read_text(encoding="utf-8")
         for tag in link_tag.findall(content):
             if seo_rel.search(tag) and html_href.search(tag):
@@ -669,7 +825,7 @@ def check_no_external_fonts(root: Path = ROOT) -> list[str]:
     <link>, or a CSS `@import`/`url()`) removed in the self-host change."""
     pattern = re.compile(r"fonts\.(?:googleapis|gstatic)\.com", flags=REGEX_FLAGS)
     errors: list[str] = []
-    files = sorted(root.glob("*.html")) + sorted(root.glob("*.css"))
+    files = _all_html_paths(root) + sorted(root.glob("*.css"))
     for path in files:
         if pattern.search(path.read_text(encoding="utf-8")):
             errors.append(
@@ -687,7 +843,7 @@ def check_no_stale_host(root: Path = ROOT) -> list[str]:
     pages overhaul)."""
     pattern = re.compile(r"GitHub\s+Pages", flags=REGEX_FLAGS)
     errors: list[str] = []
-    for path in sorted(root.glob("*.html")):
+    for path in _all_html_paths(root):
         if pattern.search(path.read_text(encoding="utf-8")):
             errors.append(
                 f"{path.name}: mention « GitHub Pages » — l'hébergeur est "
@@ -847,6 +1003,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_html_files(root))
     errors.extend(check_homepage_seo_metadata(root))
     errors.extend(check_breadcrumb_schema(root))
+    errors.extend(check_guide_structured_data(root))
     errors.extend(check_serp_metadata(root))
     errors.extend(check_feedback_widget(root))
     errors.extend(check_chat_widget(root))

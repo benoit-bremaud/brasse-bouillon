@@ -134,6 +134,39 @@ python3 -m unittest discover -s tests
    change, verify:
    `curl -s -o /dev/null -w "%{http_code}\n" https://brasse-bouillon.com/llms.txt`.
 
+### 2.1) Academy guide publication
+
+Public guides are generated from the canonical Academy corpus; never author a
+file under `guides/` by hand.
+
+1. Edit the Markdown source under `docs/academy/` and set
+   `web_publication.status: review` with a stable French slug.
+2. Run `npm -w packages/mobile-app run academy:generate` and review both
+   generated corpus artifacts.
+3. Complete the factual and editorial review. A public guide requires all
+   three gates: Academy `status: published`, review confidence `validated`, and
+   `web_publication.status: published`. Do not use a technical PR approval as
+   a substitute for editorial validation.
+4. Run `python3 scripts/build_guides.py`. The command writes deterministic,
+   committed HTML under `guides/` and refuses to delete obsolete pages
+   automatically.
+5. Update the homepage internal link, `sitemap.xml`, `llms.txt`, and the
+   Git-backed mapping in `scripts/build_sitemap.py` when the indexable URL set
+   changes.
+6. Run the publication checks:
+
+   ```bash
+   npm -w packages/mobile-app run academy:check
+   python3 scripts/build_guides.py --check
+   python3 scripts/quality_gate.py
+   python3 -m unittest discover -s tests -v
+   ```
+
+French-only guides declare `fr` and `x-default` alternates to their own
+canonical URL. Do not emit an `en` alternate or an English page until a
+complete, useful translation exists. Explanatory guides use `Article` schema;
+reserve `HowTo` for content that genuinely describes an ordered procedure.
+
 ## 3) Google Search Console (GSC) procedure
 
 Official references: [Sitemaps report][gsc-sitemaps] ·

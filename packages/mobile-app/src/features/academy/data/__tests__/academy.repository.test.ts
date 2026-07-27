@@ -13,7 +13,7 @@ describe("Academy generated repository", () => {
       "Introduction au brassage",
     );
     expect(repository.getArticleBySlug("houblons")?.metadata.title).toBe(
-      "Houblons",
+      "IBU et houblon : comprendre l'amertume d'une bière",
     );
     expect(repository.getGlossaryTermBySlug("ibu")?.label).toBe("IBU");
     expect(repository.listCalculatorSlugs()).toEqual([

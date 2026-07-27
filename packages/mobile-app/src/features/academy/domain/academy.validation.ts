@@ -255,17 +255,7 @@ export function validateAcademyCorpus(
     "Calculator slugs must be unique.",
     issues,
   );
-  collectUniqueValues(
-    corpus.articles.flatMap((article) =>
-      article.metadata.webPublication
-        ? [article.metadata.webPublication.slug]
-        : [],
-    ),
-    "articles",
-    "corpus.webPublicationSlug.duplicate",
-    "Web publication slugs must be unique.",
-    issues,
-  );
+  validateUniqueWebPublicationSlugs(corpus.articles, issues);
   const knownArticleSectionIds = new Map(
     corpus.articles.map((article) => [
       article.slug,
@@ -785,6 +775,32 @@ function collectUniqueValues(
   });
 
   return knownValues;
+}
+
+function validateUniqueWebPublicationSlugs(
+  articles: readonly AcademyArticle[],
+  issues: AcademyValidationIssue[],
+) {
+  const knownSlugs = new Set<string>();
+
+  articles.forEach((article, index) => {
+    const slug = article.metadata.webPublication?.slug;
+
+    if (!slug) {
+      return;
+    }
+
+    if (knownSlugs.has(slug)) {
+      pushIssue(
+        issues,
+        "error",
+        "corpus.webPublicationSlug.duplicate",
+        `articles.${index}.metadata.webPublication.slug`,
+        "Web publication slugs must be unique.",
+      );
+    }
+    knownSlugs.add(slug);
+  });
 }
 
 function requireText(

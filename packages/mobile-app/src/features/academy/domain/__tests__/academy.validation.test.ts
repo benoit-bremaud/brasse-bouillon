@@ -443,7 +443,7 @@ describe("Academy domain validation", () => {
       },
     };
     const corpus: AcademyCorpus = {
-      articles: [webArticle, duplicateArticle],
+      articles: [webArticle, validArticle, duplicateArticle],
       glossaryTerms: [
         {
           slug: "ibu",
@@ -481,6 +481,11 @@ describe("Academy domain validation", () => {
         "corpus.webPublicationSlug.duplicate",
       ]),
     );
+    expect(
+      result.issues.find(
+        (issue) => issue.code === "corpus.webPublicationSlug.duplicate",
+      )?.path,
+    ).toBe("articles.2.metadata.webPublication.slug");
   });
 
   it("rejects article sources missing from the corpus registry", () => {

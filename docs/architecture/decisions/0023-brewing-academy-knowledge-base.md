@@ -1,8 +1,8 @@
 # ADR-0023 - Brewing Academy as a generated knowledge base
 
-**Status**  Proposed
-**Date**    2026-07-02
-**Owners**  @benoit-bremaud
+**Status** Accepted
+**Date** 2026-07-02
+**Owners** @benoit-bremaud
 
 ---
 
@@ -23,6 +23,10 @@ The product decision is clear:
 The first implementation must stay proportionate: three pilot articles
 (`houblons`, `levures`, `eau`), local search, central glossary, calculator
 links, mobile-first reading, and no backend publishing surface.
+
+Issue #993 adds a public, French-first content hub as a second delivery channel.
+The extension must reuse the Academy source and validation pipeline rather than
+create a parallel website corpus.
 
 ## Decision
 
@@ -55,10 +59,29 @@ links, mobile-first reading, and no backend publishing surface.
    Specification, and Template Method may be used only when they reduce
    coupling, improve testability, or clarify a concrete responsibility.
 
+8. **The public website is a second read-only corpus consumer.** The generator
+   emits deterministic JSON for static website rendering alongside the typed
+   mobile payload. Markdown parsing and corpus validation remain shared.
+
+9. **Web publication is explicit and stricter than mobile publication.** An
+   article is eligible only when `web_publication.status` is `published`, the
+   Academy article status is `published`, and review confidence is `validated`.
+   Omitting `web_publication` keeps an article private to the Academy corpus.
+
+10. **Public guide URLs are stable and French-first.** Article front matter owns
+    the lowercase kebab-case web slug, rendered as `/guides/<slug>/`. English
+    variants are created only after a complete, useful translation exists.
+
+11. **Generated artifacts are committed and checked.** Contributors run the
+    Academy generator after source changes. A deterministic check fails when
+    either the TypeScript or JSON artifact is stale.
+
 ## Consequences
 
 Positive:
 
+- Mobile and website delivery reuse one validated editorial corpus.
+- Public eligibility and stable guide URLs are reviewable in front matter.
 - Academy content becomes reviewable and versioned.
 - Core Academy content stays offline-capable.
 - Broken metadata, links, glossary terms, and sources can fail before runtime.
@@ -67,6 +90,8 @@ Positive:
 
 Negative:
 
+- The authoring toolchain gains a small TypeScript runner dependency.
+- Website publication requires a stricter editorial review gate.
 - Non-technical editing remains less comfortable than a CMS.
 - Content updates require a generation and app release path.
 - The generator and schemas become required project tooling.
@@ -83,6 +108,9 @@ Negative:
 6. Generate retrieval chunks only when chatbot preparation becomes useful.
 7. Revisit backend publishing or CMS only after the Git-based workflow becomes
    a real limitation.
+
+8. Publish the deterministic JSON artifact for the static website generator.
+9. Add the French guide hub only after pilot content passes editorial review.
 
 ## References
 

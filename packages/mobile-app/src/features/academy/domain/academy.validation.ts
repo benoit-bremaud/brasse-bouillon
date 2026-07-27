@@ -30,6 +30,7 @@ export interface AcademyValidationContext {
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SECTION_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SOURCE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9-]*[a-z0-9])?$/;
+const WEB_PUBLICATION_STATUSES = new Set(["draft", "review", "published"]);
 
 export function validateAcademyArticle(
   article: AcademyArticle,
@@ -118,6 +119,8 @@ export function validateAcademyArticle(
       "Published Academy content cannot keep draft review confidence.",
     );
   }
+
+  validateWebPublication(article, issues);
 
   article.metadata.sources.forEach((source, index) =>
     validateSourceReference(source, `metadata.sources.${index}`, issues),
@@ -252,6 +255,17 @@ export function validateAcademyCorpus(
     "Calculator slugs must be unique.",
     issues,
   );
+  collectUniqueValues(
+    corpus.articles.flatMap((article) =>
+      article.metadata.webPublication
+        ? [article.metadata.webPublication.slug]
+        : [],
+    ),
+    "articles",
+    "corpus.webPublicationSlug.duplicate",
+    "Web publication slugs must be unique.",
+    issues,
+  );
   const knownArticleSectionIds = new Map(
     corpus.articles.map((article) => [
       article.slug,
@@ -290,6 +304,66 @@ export function validateAcademyCorpus(
   });
 
   return toResult(issues);
+}
+
+function validateWebPublication(
+  article: AcademyArticle,
+  issues: AcademyValidationIssue[],
+) {
+  const webPublication = article.metadata.webPublication;
+
+  if (!webPublication) {
+    return;
+  }
+
+  requireText(
+    webPublication.slug,
+    "metadata.webPublication.slug",
+    "article.webPublication.slug.required",
+    issues,
+  );
+  requirePattern(
+    webPublication.slug,
+    SLUG_PATTERN,
+    "metadata.webPublication.slug",
+    "article.webPublication.slug.invalid",
+    "Web publication slug must be lowercase kebab-case.",
+    issues,
+  );
+
+  if (!WEB_PUBLICATION_STATUSES.has(webPublication.status)) {
+    pushIssue(
+      issues,
+      "error",
+      "article.webPublication.status.invalid",
+      "metadata.webPublication.status",
+      "Web publication status must be draft, review, or published.",
+    );
+  }
+
+  if (webPublication.status !== "published") {
+    return;
+  }
+
+  if (article.metadata.status !== "published") {
+    pushIssue(
+      issues,
+      "error",
+      "article.webPublication.articleStatus.invalid",
+      "metadata.status",
+      "A web-published article must also be published in the Academy corpus.",
+    );
+  }
+
+  if (article.metadata.review?.confidenceLevel !== "validated") {
+    pushIssue(
+      issues,
+      "error",
+      "article.webPublication.review.invalid",
+      "metadata.review.confidenceLevel",
+      "A web-published article must have validated review confidence.",
+    );
+  }
 }
 
 export function validateGlossaryTerm(

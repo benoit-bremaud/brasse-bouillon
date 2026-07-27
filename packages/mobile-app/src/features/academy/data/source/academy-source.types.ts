@@ -4,6 +4,7 @@ import {
   AcademyContentBlock,
   AcademyLevel,
   AcademyReviewConfidence,
+  AcademyWebPublicationStatus,
   SourceKind,
 } from "../../domain";
 
@@ -41,6 +42,12 @@ export interface AcademySourceArticleFrontMatter {
   readonly risk_topics: readonly string[];
   readonly source_ids: readonly string[];
   readonly review: AcademySourceReviewMetadata | null;
+  readonly web_publication?: AcademySourceWebPublicationMetadata;
+}
+
+export interface AcademySourceWebPublicationMetadata {
+  readonly status: AcademyWebPublicationStatus;
+  readonly slug: string;
 }
 
 export interface AcademySourceReviewMetadata {

@@ -236,6 +236,29 @@ describe("Academy source validation", () => {
     );
   });
 
+  it("maps explicit web publication metadata into the generated corpus", () => {
+    const webArticle: AcademySourceArticle = {
+      ...houblonsArticle,
+      frontMatter: {
+        ...houblonsArticle.frontMatter,
+        web_publication: {
+          status: "review",
+          slug: "ibu-amertume-biere",
+        },
+      },
+    };
+
+    const result = validateAcademySourceCorpus(
+      makeSourceCorpus([webArticle, levuresArticle]),
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.corpus?.articles[0]?.metadata.webPublication).toEqual({
+      status: "review",
+      slug: "ibu-amertume-biere",
+    });
+  });
+
   it("keeps draft source articles out of the published article list", () => {
     const result = validateAcademySourceCorpus(makeSourceCorpus());
 

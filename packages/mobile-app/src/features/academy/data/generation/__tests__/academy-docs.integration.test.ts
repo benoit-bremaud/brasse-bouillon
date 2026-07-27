@@ -2,33 +2,22 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { academyCorpus } from "../../generated/academy-corpus.generated";
+import { validateAcademySourceCorpus } from "../../source";
 import {
+  academyArticlePaths,
+  academyCalculatorSlugs,
+  generateAcademyContentFiles,
   parseAcademyGlossaryYaml,
   parseAcademyMarkdownArticle,
   parseAcademySourcesYaml,
-} from "../academy-markdown-parser";
-import { validateAcademySourceCorpus } from "../../source";
+} from "../";
 
 const repoRoot = path.resolve(process.cwd(), "../..");
 const academyDocsRoot = path.join(repoRoot, "docs/academy");
 
-const articlePaths = [
-  "history/histoire.md",
-  "getting-started/introduction.md",
-  "ingredients/houblons.md",
-  "ingredients/levures.md",
-  "water/eau.md",
-  "ingredients/fermentescibles.md",
-  "process/couleur.md",
-  "process/carbonatation.md",
-  "process/rendement.md",
-  "process/avances.md",
-  "glossary/glossaire.md",
-] as const;
-
 describe("Academy docs corpus", () => {
   it("keeps the committed generated corpus aligned with docs/academy sources", () => {
-    const articles = articlePaths.map((relativePath) => {
+    const articles = academyArticlePaths.map((relativePath) => {
       const absolutePath = path.join(academyDocsRoot, relativePath);
       const result = parseAcademyMarkdownArticle(
         `docs/academy/${relativePath}`,
@@ -58,14 +47,29 @@ describe("Academy docs corpus", () => {
     expect(glossaryTerms.errors).toEqual([]);
     expect(glossaryTerms.value).not.toBeNull();
 
-    const validation = validateAcademySourceCorpus({
+    const sourceCorpus = {
       articles: articles.filter((article) => article !== null),
       glossaryTerms: glossaryTerms.value ?? [],
       sources: sources.value ?? [],
-      calculatorSlugs: academyCorpus.calculatorSlugs,
-    });
+      calculatorSlugs: academyCalculatorSlugs,
+    };
+    const validation = validateAcademySourceCorpus(sourceCorpus);
 
     expect(validation.issues).toEqual([]);
     expect(validation.corpus).toEqual(academyCorpus);
+
+    const generation = generateAcademyContentFiles(sourceCorpus);
+    const generatedJson = generation.files.find((file) =>
+      file.path.endsWith(".json"),
+    );
+
+    expect(generation.errors).toEqual([]);
+    expect(generatedJson).toBeDefined();
+    expect(
+      fs.readFileSync(
+        path.join(repoRoot, generatedJson?.path ?? "missing.json"),
+        "utf8",
+      ),
+    ).toBe(generatedJson?.content);
   });
 });

@@ -21,6 +21,13 @@ export type AcademyCategory =
 
 export type AcademyReviewConfidence = "draft" | "reviewed" | "validated";
 
+export type AcademyWebPublicationStatus = "draft" | "review" | "published";
+
+export interface AcademyWebPublicationMetadata {
+  readonly status: AcademyWebPublicationStatus;
+  readonly slug: string;
+}
+
 export interface AcademyReviewMetadata {
   readonly confidenceLevel: AcademyReviewConfidence;
   readonly reviewedBy: string | null;
@@ -48,6 +55,7 @@ export interface AcademyArticleMetadata {
   readonly riskTopics: readonly string[];
   readonly sources: readonly SourceReference[];
   readonly review: AcademyReviewMetadata | null;
+  readonly webPublication?: AcademyWebPublicationMetadata;
 }
 
 export interface AcademyArticle {

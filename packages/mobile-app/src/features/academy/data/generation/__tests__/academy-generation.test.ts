@@ -45,6 +45,9 @@ updated_at: 2026-07-03
 related_articles: []
 related_glossary_terms:
   - ibu
+web_publication:
+  status: review
+  slug: ibu-amertume-biere
 related_calculators:
   - slug: houblons
     label: Hop calculator
@@ -81,7 +84,7 @@ Hops bring bitterness, aroma, flavor, and some preservative effects.
 `;
 
 describe("Academy content generation", () => {
-  it("parses Markdown and registries into generated TypeScript content", () => {
+  it("parses Markdown and registries into deterministic generated content", () => {
     const article = parseAcademyMarkdownArticle(
       "docs/academy/ingredients/houblons.md",
       articleMarkdown,
@@ -107,14 +110,41 @@ describe("Academy content generation", () => {
     });
 
     expect(result.errors).toEqual([]);
-    expect(result.files).toHaveLength(1);
-    expect(result.files[0]?.path).toBe(
+    expect(result.files).toHaveLength(2);
+    const generatedTypeScript = result.files.find((file) =>
+      file.path.endsWith(".ts"),
+    );
+    const generatedJson = result.files.find((file) =>
+      file.path.endsWith(".json"),
+    );
+
+    expect(generatedTypeScript?.path).toBe(
       "packages/mobile-app/src/features/academy/data/generated/academy-corpus.generated.ts",
     );
-    expect(result.files[0]?.content).toContain(
+    expect(generatedTypeScript?.content).toContain(
       "export const academyCorpus: AcademyCorpus",
     );
-    expect(result.files[0]?.content).toContain('"slug": "houblons"');
+    expect(generatedTypeScript?.content).toContain('"slug": "houblons"');
+    expect(generatedTypeScript?.content).toContain(
+      '"slug": "ibu-amertume-biere"',
+    );
+    expect(generatedJson?.path).toBe(
+      "docs/academy/generated/academy-corpus.generated.json",
+    );
+    expect(JSON.parse(generatedJson?.content ?? "")).toEqual(
+      expect.objectContaining({
+        articles: [
+          expect.objectContaining({
+            metadata: expect.objectContaining({
+              webPublication: {
+                status: "review",
+                slug: "ibu-amertume-biere",
+              },
+            }),
+          }),
+        ],
+      }),
+    );
   });
 
   it("returns actionable errors for unsupported Academy directives", () => {
@@ -130,7 +160,7 @@ describe("Academy content generation", () => {
 
     expect(article.value).toBeNull();
     expect(article.errors).toContain(
-      'docs/academy/ingredients/houblons.md:48: unsupported Academy directive "videoEmbed".',
+      'docs/academy/ingredients/houblons.md:51: unsupported Academy directive "videoEmbed".',
     );
   });
 

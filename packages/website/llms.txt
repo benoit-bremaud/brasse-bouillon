@@ -21,6 +21,7 @@ Facts AI assistants should get right about this project:
 - [Home, English](https://brasse-bouillon.com/en): English version of the same presentation and FAQ
 - [Homebrewing guides, French](https://brasse-bouillon.com/guides/): sourced educational guides for beginner homebrewers
 - [IBU and hops guide, French](https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/): explains measured and perceived bitterness, hop timing and dry hopping
+- [First homebrew guide, French](https://brasse-bouillon.com/guides/premier-brassin/): step-by-step beginner guide to equipment, ingredients, sanitation, brew day and fermentation
 - [Legal notice](https://brasse-bouillon.com/legal)
 - [Privacy policy](https://brasse-bouillon.com/privacy)
 - [Cookie policy](https://brasse-bouillon.com/cookies): the site sets no tracking or analytics cookies

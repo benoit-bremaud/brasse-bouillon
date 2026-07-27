@@ -191,4 +191,4 @@ styles sans les figer, de s'inspirer du passé sans l'idéaliser, et de garder l
 but principal d'un brassin moderne : produire une bière maîtrisée, cohérente et
 agréable à boire.
 
-:::relatedArticle id="related-introduction" articleSlug="introduction" sectionId="pourquoi-commencer" sourceIds="hornsey-2003":::
+:::relatedArticle id="related-introduction" articleSlug="introduction" sectionId="preparer-premier-brassin" sourceIds="hornsey-2003":::

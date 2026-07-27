@@ -56,6 +56,7 @@ SITEMAP_URLS = [
     f"{HOMEPAGE_URL}en",
     f"{HOMEPAGE_URL}guides/",
     f"{HOMEPAGE_URL}guides/ibu-biere-amertume-houblon/",
+    f"{HOMEPAGE_URL}guides/premier-brassin/",
     f"{HOMEPAGE_URL}legal",
     f"{HOMEPAGE_URL}privacy",
     f"{HOMEPAGE_URL}cookies",

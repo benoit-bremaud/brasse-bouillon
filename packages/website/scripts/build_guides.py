@@ -278,7 +278,7 @@ def _document(
   <meta name="twitter:image" content="{SITE_URL}/og-image.png?v=20260710">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260727">
+  <link rel="stylesheet" href="/site.css?v=20260727-1">
   {schema_markup}
 </head>
 <body class="guide-page">

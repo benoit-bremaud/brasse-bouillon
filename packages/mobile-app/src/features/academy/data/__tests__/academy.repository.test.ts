@@ -10,7 +10,7 @@ describe("Academy generated repository", () => {
     const repository = createAcademyCorpusRepository(academyCorpus);
 
     expect(repository.getArticleBySlug("introduction")?.metadata.title).toBe(
-      "Introduction au brassage",
+      "Mon premier brassin : le guide pour débuter",
     );
     expect(repository.getArticleBySlug("houblons")?.metadata.title).toBe(
       "IBU et houblon : comprendre l'amertume d'une bière",

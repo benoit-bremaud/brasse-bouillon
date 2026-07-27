@@ -16,6 +16,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://brasse-bouillon.com/guides/glossaire-brassage/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

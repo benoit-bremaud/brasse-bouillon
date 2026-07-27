@@ -2176,6 +2176,107 @@
       font-size: var(--text-sm);
     }
 
+    .glossary-page {
+      max-width: var(--content-wide);
+      margin-inline: auto;
+    }
+
+    .glossary-page .guide-hero {
+      max-width: var(--content-reading);
+    }
+
+    .glossary-index,
+    .glossary-term {
+      border: var(--border-thin) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--color-guide-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .glossary-index {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4);
+    }
+
+    .glossary-index h2 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+    }
+
+    .glossary-index ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .glossary-index a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--space-5);
+      border-radius: var(--radius-pill);
+      background: var(--foam);
+      color: var(--copper-deep);
+      padding: var(--space-1) var(--space-2);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .glossary-group {
+      scroll-margin-top: var(--space-7);
+      margin-block: var(--space-6);
+    }
+
+    .glossary-group > h2 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      color: var(--copper-deep);
+    }
+
+    .glossary-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-min-width)), 1fr));
+      gap: var(--space-4);
+    }
+
+    .glossary-term {
+      scroll-margin-top: var(--space-7);
+      padding: var(--space-4);
+    }
+
+    .glossary-term h3 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      line-height: var(--line-height-tight);
+    }
+
+    .glossary-term p {
+      color: var(--ink-soft);
+      line-height: var(--line-height-copy);
+    }
+
+    .glossary-term__summary {
+      font-weight: 700;
+    }
+
+    .glossary-term__aliases,
+    .glossary-term__related,
+    .glossary-term__sources {
+      font-size: var(--text-sm);
+    }
+
+    .glossary-term a,
+    .guide-reference a {
+      color: var(--copper-deep);
+      text-underline-offset: var(--underline-offset);
+    }
+
     .guide-footer {
       width: min(100% - (2 * var(--space-4)), var(--content-wide));
       margin-inline: auto;

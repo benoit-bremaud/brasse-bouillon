@@ -18,6 +18,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 HOMEPAGE_FILES = ("index.html", "en.html")
+GLOSSARY_REL_PATH = "guides/glossaire-brassage/index.html"
 SERP_METADATA_FILES = (
     *HOMEPAGE_FILES,
     "legal.html",
@@ -55,6 +56,7 @@ SITEMAP_URLS = [
     HOMEPAGE_URL,
     f"{HOMEPAGE_URL}en",
     f"{HOMEPAGE_URL}guides/",
+    f"{HOMEPAGE_URL}guides/glossaire-brassage/",
     f"{HOMEPAGE_URL}guides/ibu-biere-amertume-houblon/",
     f"{HOMEPAGE_URL}guides/premier-brassin/",
     f"{HOMEPAGE_URL}guides/fermentation-biere-duree-temperature/",
@@ -359,8 +361,18 @@ def _guide_h1(content: str) -> str:
     return unescape(re.sub(r"<[^>]+>", "", match.group(1))).strip()
 
 
+def _guide_primary_schema_type(root: Path, path: Path) -> str:
+    rel_path = path.relative_to(root).as_posix()
+    if rel_path == "guides/index.html":
+        return "CollectionPage"
+    if rel_path == GLOSSARY_REL_PATH:
+        return "DefinedTermSet"
+    return "Article"
+
+
 def _guide_og_type(root: Path, path: Path) -> str:
-    return "website" if path == root / "guides/index.html" else "article"
+    primary_type = _guide_primary_schema_type(root, path)
+    return "website" if primary_type != "Article" else "article"
 
 
 def check_required_files(root: Path = ROOT) -> list[str]:
@@ -534,7 +546,7 @@ def check_breadcrumb_schema(root: Path = ROOT) -> list[str]:
 
 
 def check_guide_structured_data(root: Path = ROOT) -> list[str]:
-    """Validate the primary CollectionPage or Article schema for every guide."""
+    """Validate each guide page's primary structured-data type."""
     script_pattern = re.compile(
         r"<script\b"
         r"(?=[^>]*\btype\s*=\s*[\"']application/ld\+json[\"'])"
@@ -555,9 +567,7 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
             if isinstance(payload, dict):
                 payloads.append(payload)
 
-        expected_type = (
-            "CollectionPage" if path == root / "guides/index.html" else "Article"
-        )
+        expected_type = _guide_primary_schema_type(root, path)
         matching = [
             payload for payload in payloads if payload.get("@type") == expected_type
         ]
@@ -570,7 +580,7 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
 
         schema = matching[0]
         canonical = _guide_url(root, path)
-        title_key = "name" if expected_type == "CollectionPage" else "headline"
+        title_key = "headline" if expected_type == "Article" else "name"
         if (
             schema.get("@context") != "https://schema.org"
             or schema.get("url") != canonical
@@ -591,6 +601,37 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
             "url": HOMEPAGE_URL,
         }:
             errors.append(f"{rel_path}: schema CollectionPage incomplet")
+        elif expected_type == "DefinedTermSet":
+            terms = schema.get("hasDefinedTerm")
+            term_ids: list[str] = []
+            terms_are_valid = isinstance(terms, list) and bool(terms)
+            if terms_are_valid:
+                for term in terms:
+                    if not isinstance(term, dict):
+                        terms_are_valid = False
+                        break
+                    term_id = term.get("@id")
+                    if not isinstance(term_id, str):
+                        terms_are_valid = False
+                        break
+                    term_ids.append(term_id)
+                    if (
+                        term.get("@type") != "DefinedTerm"
+                        or not term_id.startswith(f"{canonical}#")
+                        or not term.get("name")
+                        or not term.get("description")
+                        or term.get("inDefinedTermSet") != canonical
+                        or not isinstance(term.get("alternateName"), list)
+                    ):
+                        terms_are_valid = False
+                        break
+            if (
+                schema.get("@id") != canonical
+                or schema.get("isPartOf") != {"@type": "WebSite", "url": HOMEPAGE_URL}
+                or not terms_are_valid
+                or len(term_ids) != len(set(term_ids))
+            ):
+                errors.append(f"{rel_path}: schema DefinedTermSet incomplet")
 
     return errors
 

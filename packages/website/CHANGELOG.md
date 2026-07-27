@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.7](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.6...website-v0.1.7) (2026-07-27)
+
+
+### Features
+
+* **website:** publish first Academy guide ([#1535](https://github.com/benoit-bremaud/brasse-bouillon/issues/1535)) ([7fcee79](https://github.com/benoit-bremaud/brasse-bouillon/commit/7fcee7932d4724c89a2db9a076417e0dd246e22e))
+* **website:** publish first-brew beginner guide ([#1538](https://github.com/benoit-bremaud/brasse-bouillon/issues/1538)) ([663238b](https://github.com/benoit-bremaud/brasse-bouillon/commit/663238b3701ee3d4ea0d833cad51e7eda8373df8))
+* **website:** publish homebrew fermentation guide ([#1540](https://github.com/benoit-bremaud/brasse-bouillon/issues/1540)) ([a9a22a3](https://github.com/benoit-bremaud/brasse-bouillon/commit/a9a22a3e524c2a431eb9759b10637505905a75ce))
+
 ## [0.1.6](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.5...website-v0.1.6) (2026-07-24)
 
 

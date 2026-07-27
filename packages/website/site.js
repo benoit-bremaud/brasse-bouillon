@@ -5,6 +5,10 @@
   // the discriminator, ADR-0027 D3), so they are language-neutral constants.
   const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
   const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
+  const GUIDE_BUBBLE_COUNT = 30;
+  const DEW_SELECTOR =
+    '.hero, .journey-step, .feature-card, .faq-item, .participate, ' +
+    '.guide-card, .guide-objectives, .guide-toc, .guide-note, .guide-cta';
 
   // Per-language UI string catalogs. Kept here (not inline in the page) so the
   // home's bootstrap <script> stays language-neutral and build_i18n.py only has
@@ -343,7 +347,7 @@
   function setupDew(options) {
     const selector =
       (options && options.selector) ||
-      '.hero, .journey-step, .feature-card, .faq-item, .participate';
+      DEW_SELECTOR;
     const cards = document.querySelectorAll(selector);
     if (!cards.length) return;
 
@@ -572,7 +576,10 @@
   }
 
   onReady(function () {
-    setupBubbles();
+    const options = document.body.classList.contains('guide-page')
+      ? { count: GUIDE_BUBBLE_COUNT }
+      : undefined;
+    setupBubbles(options);
   });
 
   // Pause the ambient animations while the tab is hidden — no point spending

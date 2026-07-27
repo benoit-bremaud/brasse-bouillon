@@ -283,9 +283,11 @@ def _document(
 </head>
 <body class="guide-page">
   <a class="skip-link" href="#mainContent">Aller au contenu principal</a>
+  <div class="bubbles" aria-hidden="true"></div>
   {_site_header(guides_current=guides_current)}
 {main}
   {_site_footer()}
+  <script src="/site.js?v=20260727"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>

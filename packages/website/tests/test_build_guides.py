@@ -182,9 +182,7 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"Article"', fermentation_html)
         self.assertIn('"@type":"BreadcrumbList"', fermentation_html)
         self.assertIn("/guides/premier-brassin/", fermentation_html)
-        self.assertIn(
-            "/guides/fermentation-biere-duree-temperature/", first_brew_html
-        )
+        self.assertIn("/guides/fermentation-biere-duree-temperature/", first_brew_html)
 
     def test_excludes_content_still_in_web_review(self) -> None:
         article = _article()

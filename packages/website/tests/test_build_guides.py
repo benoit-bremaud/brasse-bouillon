@@ -161,6 +161,29 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn("/guides/premier-brassin/", hub_html)
         self.assertIn("/guides/ibu-biere-amertume-houblon/", first_brew_html)
 
+    def test_published_fermentation_guide_preserves_safety_signals(self) -> None:
+        files = build_guides.expected_files(
+            build_guides.load_corpus(build_guides.CORPUS_PATH)
+        )
+
+        fermentation_html = files[
+            Path("fermentation-biere-duree-temperature/index.html")
+        ]
+        first_brew_html = files[Path("premier-brassin/index.html")]
+        self.assertIn("Fermentation bière maison", fermentation_html)
+        self.assertIn("Une absence de bulles ne prouve pas", fermentation_html)
+        self.assertIn(
+            "deux mesures identiques espacées d&#x27;environ 24 heures",
+            fermentation_html,
+        )
+        self.assertIn(
+            "N&#x27;embouteille pas parce que le barboteur", fermentation_html
+        )
+        self.assertIn('"@type":"Article"', fermentation_html)
+        self.assertIn('"@type":"BreadcrumbList"', fermentation_html)
+        self.assertIn("/guides/premier-brassin/", fermentation_html)
+        self.assertIn("/guides/fermentation-biere-duree-temperature/", first_brew_html)
+
     def test_excludes_content_still_in_web_review(self) -> None:
         article = _article()
         metadata = article["metadata"]

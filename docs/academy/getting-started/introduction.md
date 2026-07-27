@@ -159,6 +159,8 @@ produire une surpression dans les bouteilles.
 
 :::example id="example-fermentation-patience" title="Pendant l'attente" body="Note la température et observe sans ouvrir. Utilise les mesures prévues par la recette pour décider de la suite, pas seulement l'activité visible dans le barboteur." sourceIds="palmer-2017":::
 
+:::relatedArticle id="related-fermentation" articleSlug="levures" sectionId="fermentation" sourceIds="palmer-2017,aha-brewing-with-extract":::
+
 ## Suivre les mesures vraiment utiles {#mesures-utiles}
 
 Pour un premier brassin, concentre-toi sur quelques données : volumes,

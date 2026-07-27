@@ -27,6 +27,9 @@ URL_SOURCE_PATHS = {
     "https://brasse-bouillon.com/guides/premier-brassin/": Path(
         "packages/website/guides/premier-brassin/index.html"
     ),
+    "https://brasse-bouillon.com/guides/fermentation-biere-duree-temperature/": Path(
+        "packages/website/guides/fermentation-biere-duree-temperature/index.html"
+    ),
     "https://brasse-bouillon.com/legal": Path("packages/website/legal.html"),
     "https://brasse-bouillon.com/privacy": Path("packages/website/privacy.html"),
     "https://brasse-bouillon.com/cookies": Path("packages/website/cookies.html"),

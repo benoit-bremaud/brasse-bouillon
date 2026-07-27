@@ -79,6 +79,9 @@ jobs:
           if [ -d "$src/screenshots" ]; then
             cp -R "$src/screenshots" _site/screenshots
           fi
+          if [ -d "$src/guides" ]; then
+            cp -R "$src/guides" _site/guides
+          fi
           # Self-hosted webfonts (.woff2). Not matched by the extension globs
           # above, so the fonts/ directory is staged explicitly — without it
           # /fonts/*.woff2 would 404 and pages fall back to system fonts.

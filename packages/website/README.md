@@ -40,6 +40,7 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 - `_redirects`: Cloudflare Pages redirects (`/index-en` → `/en` 301)
 - `i18n/home.en.json`: EN string catalog for the generated home (with `srcHash`
   drift guards)
+- `guides/`: committed public HTML generated from the validated Academy corpus
 - `docs/ROADMAP.md`: product roadmap
 - `docs/roadmap-feed.json`: machine-readable roadmap sync feed
 - `docs/GOVERNANCE.md`: backlog conventions, runbook, and repository governance
@@ -47,6 +48,7 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 - `../../.github/workflows/website-deploy.yml`: Cloudflare Pages publication pipeline
 - `scripts/quality_gate.py`: dependency-free local/CI quality gate
 - `scripts/build_i18n.py`: dependency-free EN home generator (ADR-0027)
+- `scripts/build_guides.py`: dependency-free Academy JSON → public guides generator
 - `scripts/roadmap_sync.py`: roadmap ingest and markdown table sync script
 - `CONTRIBUTING.md`: contribution conventions
 

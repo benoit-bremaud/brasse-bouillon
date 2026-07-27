@@ -35,6 +35,75 @@ def _serp_description(seed: str) -> str:
     return seed + " " + "x" * (quality_gate.META_DESCRIPTION_MIN_LENGTH - len(seed) - 1)
 
 
+def _sitemap_xml(urls: list[str] | None = None) -> str:
+    sitemap_urls = quality_gate.SITEMAP_URLS if urls is None else urls
+    entries = "\n".join(f"  <url><loc>{url}</loc></url>" for url in sitemap_urls)
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{entries}\n"
+        "</urlset>\n"
+    )
+
+
+def _guide_html() -> str:
+    title = "Comprendre les IBU"
+    description = _serp_description("Guide IBU")
+    canonical = "https://brasse-bouillon.com/guides/ibu/"
+    breadcrumb = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": quality_gate.HOMEPAGE_URL,
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Guides",
+                "item": f"{quality_gate.HOMEPAGE_URL}guides/",
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": title,
+                "item": canonical,
+            },
+        ],
+    }
+    article = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title,
+        "url": canonical,
+        "mainEntityOfPage": canonical,
+        "inLanguage": "fr-FR",
+        "datePublished": "2026-07-27",
+        "dateModified": "2026-07-27",
+    }
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>{title}</title>
+  <meta name="description" content="{description}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{title}">
+  <meta name="twitter:title" content="{title}">
+  <link rel="canonical" href="{canonical}">
+  <script type="application/ld+json">{json.dumps(breadcrumb)}</script>
+  <script type="application/ld+json">{json.dumps(article)}</script>
+</head>
+<body>
+  <main><h1>{title}</h1></main>
+  <script type="module" src="/feedback-widget.js"></script>
+</body>
+</html>
+"""
+
+
 def _breadcrumb_script(rel_path: str) -> str:
     items = [
         {
@@ -125,7 +194,7 @@ def _create_valid_fixture(base: Path) -> None:
       aria-expanded="false" aria-controls="headerNav" aria-label="Ouvrir le menu">
       <span class="nav-toggle__bars"></span>
     </button>
-    <nav class="header-nav" id="headerNav"><a href="#features">L'app</a></nav>
+    <nav class="header-nav" id="headerNav"><a href="/guides/" hreflang="fr">Guides</a></nav>
   </div></header>
   <main id="mainContentFr"></main>
   <script type="module" src="feedback-widget.js"></script>
@@ -152,6 +221,7 @@ def _create_valid_fixture(base: Path) -> None:
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
+  <a href="/guides/" hreflang="fr">Guides</a>
   <main id="mainContentEn"></main>
   <script type="module" src="feedback-widget.js"></script>
   <script type="module" src="chat-widget.js"></script>
@@ -176,32 +246,7 @@ def _create_valid_fixture(base: Path) -> None:
 """,
     )
 
-    _write_file(
-        base,
-        "sitemap.xml",
-        """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://brasse-bouillon.com/</loc>
-  </url>
-  <url>
-    <loc>https://brasse-bouillon.com/en</loc>
-  </url>
-  <url>
-    <loc>https://brasse-bouillon.com/legal</loc>
-  </url>
-  <url>
-    <loc>https://brasse-bouillon.com/privacy</loc>
-  </url>
-  <url>
-    <loc>https://brasse-bouillon.com/cookies</loc>
-  </url>
-  <url>
-    <loc>https://brasse-bouillon.com/terms</loc>
-  </url>
-</urlset>
-""",
-    )
+    _write_file(base, "sitemap.xml", _sitemap_xml())
 
     _write_file(
         base,
@@ -229,6 +274,55 @@ class QualityGateTests(unittest.TestCase):
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             self.assertEqual(quality_gate.collect_errors(root), [])
+
+    def test_nested_guides_join_html_metadata_and_widget_checks(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            _write_file(root, "guides/ibu/index.html", _guide_html())
+
+            self.assertEqual(quality_gate.check_html_files(root), [])
+            self.assertEqual(quality_gate.check_serp_metadata(root), [])
+            self.assertEqual(quality_gate.check_feedback_widget(root), [])
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+            self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+
+    def test_nested_guide_guards_detect_forbidden_patterns(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            guide = (
+                _guide_html()
+                .replace(
+                    "<main>",
+                    '<main style="color:red">GitHub Pages fonts.googleapis.com ',
+                )
+                .replace(
+                    "https://brasse-bouillon.com/guides/ibu/",
+                    "https://brasse-bouillon.com/guides/ibu.html",
+                )
+            )
+            _write_file(root, "guides/ibu/index.html", guide)
+
+            self.assertTrue(
+                any(
+                    "style inline" in error
+                    for error in quality_gate.check_html_files(root)
+                )
+            )
+            self.assertTrue(quality_gate.check_clean_seo_urls(root))
+            self.assertTrue(quality_gate.check_no_external_fonts(root))
+            self.assertTrue(quality_gate.check_no_stale_host(root))
+
+    def test_nested_guide_schema_rejects_wrong_content_type(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            guide = _guide_html().replace('"@type": "Article"', '"@type": "HowTo"')
+            _write_file(root, "guides/ibu/index.html", guide)
+
+            errors = quality_gate.check_guide_structured_data(root)
+            self.assertTrue(any("schema Article" in error for error in errors))
 
     def test_legal_freshness_passes_when_stamped(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -841,6 +935,24 @@ class QualityGateTests(unittest.TestCase):
                 any("bouton burger .nav-toggle manquant" in err for err in errors)
             )
 
+    def test_detects_missing_homepage_guide_link(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            en_path = root / "en.html"
+            en_path.write_text(
+                en_path.read_text(encoding="utf-8").replace(
+                    '<a href="/guides/" hreflang="fr">Guides</a>',
+                    "",
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_html_files(root)
+            self.assertTrue(
+                any("guides manquant sur la page EN" in error for error in errors)
+            )
+
     def test_detects_sitemap_disallowed_url(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -867,24 +979,12 @@ class QualityGateTests(unittest.TestCase):
             self.assertTrue(any("legal-en" in err for err in forbidden))
             self.assertTrue(any("legal.html" in err for err in forbidden))
 
-    def test_sitemap_allows_home_and_fr_legal_pages(self) -> None:
+    def test_sitemap_allows_indexable_public_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _create_valid_fixture(root)
             sitemap_path = root / "sitemap.xml"
-            sitemap_path.write_text(
-                """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://brasse-bouillon.com/</loc></url>
-  <url><loc>https://brasse-bouillon.com/en</loc></url>
-  <url><loc>https://brasse-bouillon.com/legal</loc></url>
-  <url><loc>https://brasse-bouillon.com/privacy</loc></url>
-  <url><loc>https://brasse-bouillon.com/cookies</loc></url>
-  <url><loc>https://brasse-bouillon.com/terms</loc></url>
-</urlset>
-""",
-                encoding="utf-8",
-            )
+            sitemap_path.write_text(_sitemap_xml(), encoding="utf-8")
 
             errors = quality_gate.check_sitemap_policy(root)
             self.assertEqual(errors, [])

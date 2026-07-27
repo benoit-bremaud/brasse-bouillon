@@ -20,6 +20,10 @@ SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
 URL_SOURCE_PATHS = {
     "https://brasse-bouillon.com/": Path("packages/website/index.html"),
     "https://brasse-bouillon.com/en": Path("packages/website/en.html"),
+    "https://brasse-bouillon.com/guides/": Path("packages/website/guides/index.html"),
+    "https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/": Path(
+        "packages/website/guides/ibu-biere-amertume-houblon/index.html"
+    ),
     "https://brasse-bouillon.com/legal": Path("packages/website/legal.html"),
     "https://brasse-bouillon.com/privacy": Path("packages/website/privacy.html"),
     "https://brasse-bouillon.com/cookies": Path("packages/website/cookies.html"),

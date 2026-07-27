@@ -67,6 +67,10 @@
       "en": "The app",
       "srcHash": "4526810b473fe44dd886b4f9d00c8f30335ff3e2"
     },
+    "nav.guides": {
+      "en": "Guides",
+      "srcHash": "929a28d261428029e61c0f81c6161fd71ba0b2fe"
+    },
     "nav.faq": {
       "en": "FAQ",
       "srcHash": "03688ba6aa340b87549088aa5739944cb6b1dc73"

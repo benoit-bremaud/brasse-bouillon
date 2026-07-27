@@ -55,10 +55,12 @@ jobs:
           filters: |
             mobile-app:
               - 'packages/mobile-app/**'
+              - 'docs/academy/**'
             api:
               - 'packages/api/**'
             website:
               - 'packages/website/**'
+              - 'docs/academy/generated/academy-corpus.generated.json'
             beer-encyclopedia:
               - 'packages/beer-encyclopedia/**'
 
@@ -89,6 +91,9 @@ jobs:
 
       - name: Lint + Typecheck + Format check
         run: npm run ci:check
+
+      - name: Check generated Academy corpus
+        run: npm run academy:check
 
       - name: Run tests with coverage (blocking ratchet)
         run: npm run test:coverage
@@ -191,6 +196,9 @@ jobs:
           else
             echo "No quality gate script found — skipping"
           fi
+
+      - name: Check generated public guides
+        run: python3 scripts/build_guides.py --check
 
       # The gate only checks structural invariants; the unit suites cover the
       # i18n generator and the gate logic itself (stdlib unittest — the suites

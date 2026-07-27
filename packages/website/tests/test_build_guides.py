@@ -114,6 +114,15 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"CollectionPage"', hub_html)
         self.assertIn('"@type":"Article"', article_html)
         self.assertIn('"@type":"BreadcrumbList"', article_html)
+        self.assertIn(
+            '<a href="/guides/" aria-current="page">Guides</a>',
+            hub_html,
+        )
+        self.assertIn('<a href="/guides/">Guides</a>', article_html)
+        self.assertNotIn(
+            '<a href="/guides/" aria-current="page">Guides</a>',
+            article_html,
+        )
         self.assertNotIn("not-public", article_html)
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

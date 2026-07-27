@@ -138,6 +138,7 @@ def render_hub(articles: list[Mapping[str, object]]) -> str:
         main,
         [breadcrumb, collection_schema],
         og_type="website",
+        guides_current=True,
     )
 
 
@@ -223,7 +224,15 @@ def render_article(
         </section>
       </article>
     </main>"""
-    return _document(title, description, canonical, main, schemas, og_type="article")
+    return _document(
+        title,
+        description,
+        canonical,
+        main,
+        schemas,
+        og_type="article",
+        guides_current=False,
+    )
 
 
 def _document(
@@ -234,6 +243,7 @@ def _document(
     schemas: list[str],
     *,
     og_type: str,
+    guides_current: bool,
 ) -> str:
     escaped_title = escape(title)
     escaped_description = escape(description, quote=True)
@@ -273,7 +283,7 @@ def _document(
 </head>
 <body class="guide-page">
   <a class="skip-link" href="#mainContent">Aller au contenu principal</a>
-  {_site_header()}
+  {_site_header(guides_current=guides_current)}
 {main}
   {_site_footer()}
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
@@ -282,8 +292,9 @@ def _document(
 """
 
 
-def _site_header() -> str:
-    return """<header class="site-header">
+def _site_header(*, guides_current: bool) -> str:
+    current_attribute = ' aria-current="page"' if guides_current else ""
+    return f"""<header class="site-header">
     <div class="header-inner">
       <a class="header-logo" href="/" aria-label="Brasse-Bouillon — Accueil">
         <img src="/logo-icon-32.png" alt="" width="48" height="48">
@@ -291,7 +302,7 @@ def _site_header() -> str:
       </a>
       <nav class="header-nav guide-nav" aria-label="Navigation principale">
         <a href="/">Accueil</a>
-        <a href="/guides/" aria-current="page">Guides</a>
+        <a href="/guides/"{current_attribute}>Guides</a>
         <a class="header-cta" href="/#participerFr">Rejoindre la liste d’attente</a>
       </nav>
     </div>

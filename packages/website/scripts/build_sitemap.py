@@ -21,6 +21,9 @@ URL_SOURCE_PATHS = {
     "https://brasse-bouillon.com/": Path("packages/website/index.html"),
     "https://brasse-bouillon.com/en": Path("packages/website/en.html"),
     "https://brasse-bouillon.com/guides/": Path("packages/website/guides/index.html"),
+    "https://brasse-bouillon.com/guides/glossaire-brassage/": Path(
+        "packages/website/guides/glossaire-brassage/index.html"
+    ),
     "https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/": Path(
         "packages/website/guides/ibu-biere-amertume-houblon/index.html"
     ),

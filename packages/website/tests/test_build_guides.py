@@ -90,6 +90,47 @@ def _article() -> dict[str, object]:
     }
 
 
+def _glossary_article() -> dict[str, object]:
+    return {
+        "slug": "glossaire",
+        "metadata": {
+            "title": "Glossaire du brassage amateur",
+            "summary": (
+                "Comprenez 22 termes essentiels du brassage amateur : IBU, "
+                "malt, moût, fermentation, densité, atténuation, EBC, SRM, "
+                "pH et bien plus."
+            ),
+            "category": "glossary",
+            "status": "published",
+            "review": {"confidenceLevel": "validated"},
+            "webPublication": {
+                "status": "published",
+                "slug": "glossaire-brassage",
+            },
+        },
+        "body": {"sections": []},
+    }
+
+
+def _glossary_term(
+    slug: str, label: str, related_terms: list[str]
+) -> dict[str, object]:
+    return {
+        "slug": slug,
+        "label": label,
+        "aliases": [f"Alias {label}"],
+        "shortDefinition": f"Définition courte de {label}.",
+        "detailedDefinition": f"Définition détaillée de {label}.",
+        "relatedTerms": related_terms,
+        "sources": [
+            {
+                "title": "How to Brew <script>",
+                "url": "https://www.howtobrew.com/",
+            }
+        ],
+    }
+
+
 def _corpus(article: dict[str, object] | None = None) -> dict[str, object]:
     return {"articles": [article or _article()]}
 
@@ -160,6 +201,68 @@ class BuildGuidesTests(unittest.TestCase):
         first_brew_html = files[Path("premier-brassin/index.html")]
         self.assertIn("/guides/premier-brassin/", hub_html)
         self.assertIn("/guides/ibu-biere-amertume-houblon/", first_brew_html)
+
+    def test_generates_public_glossary_and_links_guide_references(self) -> None:
+        corpus = {
+            "articles": [_article(), _glossary_article()],
+            "glossaryTerms": [
+                _glossary_term("ibu", "IBU", ["acide-alpha"]),
+                _glossary_term("acide-alpha", "Acide alpha", ["ibu"]),
+            ],
+        }
+
+        files = build_guides.expected_files(corpus)
+
+        glossary_path = Path("glossaire-brassage/index.html")
+        self.assertIn(glossary_path, files)
+        glossary_html = files[glossary_path]
+        guide_html = files[Path("ibu-biere-amertume-houblon/index.html")]
+        hub_html = files[Path("index.html")]
+        self.assertIn("Glossaire du brassage amateur", glossary_html)
+        self.assertIn('<meta property="og:type" content="website">', glossary_html)
+        self.assertIn('"@type":"DefinedTermSet"', glossary_html)
+        self.assertEqual(glossary_html.count('"@type":"DefinedTerm"'), 2)
+        self.assertIn('id="acide-alpha"', glossary_html)
+        self.assertIn('id="ibu"', glossary_html)
+        self.assertLess(
+            glossary_html.index('id="acide-alpha"'),
+            glossary_html.index('id="ibu"'),
+        )
+        self.assertIn("How to Brew &lt;script&gt;", glossary_html)
+        self.assertNotIn("How to Brew <script>", glossary_html)
+        self.assertIn("/guides/glossaire-brassage/#ibu", guide_html)
+        self.assertIn("/guides/glossaire-brassage/", hub_html)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            build_guides.write_generated_files(root / "guides", files)
+            self.assertEqual(quality_gate.check_html_files(root), [])
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+            self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+
+    def test_rejects_invalid_public_glossary_references(self) -> None:
+        glossary = _glossary_article()
+        metadata = glossary["metadata"]
+        self.assertIsInstance(metadata, dict)
+        metadata["review"]["confidenceLevel"] = "reviewed"
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "validated review confidence"
+        ):
+            build_guides.expected_files(
+                {
+                    "articles": [glossary],
+                    "glossaryTerms": [_glossary_term("ibu", "IBU", [])],
+                }
+            )
+
+        metadata["review"]["confidenceLevel"] = "validated"
+        with self.assertRaisesRegex(build_guides.GuideBuildError, "unknown term"):
+            build_guides.expected_files(
+                {
+                    "articles": [glossary],
+                    "glossaryTerms": [_glossary_term("ibu", "IBU", ["missing-term"])],
+                }
+            )
 
     def test_published_fermentation_guide_preserves_safety_signals(self) -> None:
         files = build_guides.expected_files(

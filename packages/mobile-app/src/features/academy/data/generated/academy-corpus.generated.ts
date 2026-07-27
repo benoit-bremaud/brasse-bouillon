@@ -2610,16 +2610,16 @@ export const academyCorpus: AcademyCorpus = {
     {
       slug: "glossaire",
       metadata: {
-        title: "Glossaire brassicole",
+        title: "Glossaire du brassage amateur",
         summary:
-          "Repère pratique pour comprendre le vocabulaire brassicole, les unités, les acronymes et les confusions techniques.",
+          "Comprenez 22 termes essentiels du brassage amateur : IBU, malt, moût, fermentation, densité, atténuation, EBC, SRM, pH et bien plus.",
         category: "glossary",
         level: "beginner",
         status: "published",
-        version: "1.0.0",
+        version: "1.1.0",
         estimatedReadTimeMinutes: 8,
         tags: ["glossary", "vocabulary", "reference"],
-        updatedAt: "2026-07-07",
+        updatedAt: "2026-07-27",
         relatedArticles: ["introduction", "houblons", "levures", "eau"],
         relatedGlossaryTerms: [
           "ibu",
@@ -2669,10 +2669,18 @@ export const academyCorpus: AcademyCorpus = {
           },
         ],
         review: {
-          confidenceLevel: "reviewed",
+          confidenceLevel: "validated",
           reviewedBy: "Academy editorial review",
-          reviewedAt: "2026-07-07",
-          notes: ["Migrated from the legacy mobile Academy glossary topic."],
+          reviewedAt: "2026-07-27",
+          notes: [
+            "Migrated from the legacy mobile Academy glossary topic.",
+            "Definitions and sources reviewed for consolidated public-web publication.",
+            "Approved for public-web publication on 2026-07-27.",
+          ],
+        },
+        webPublication: {
+          status: "published",
+          slug: "glossaire-brassage",
         },
       },
       body: {
@@ -2684,14 +2692,14 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "pourquoi-glossaire-paragraph-1",
                 type: "paragraph",
-                text: "En brassage, une decision depend souvent d'un mot technique bien compris : OG, FG, attenuation, IBU, pH, RA, pitch rate ou volumes CO2. Le glossaire sert de reference rapide pour lire une recette, comprendre une fiche technique et relier chaque terme a une action concrete.",
+                text: "En brassage, une décision dépend souvent d'un mot technique bien compris : OG, FG, atténuation, IBU, pH, RA, pitch rate ou volumes CO2. Le glossaire sert de référence rapide pour lire une recette, comprendre une fiche technique et relier chaque terme à une action concrète.",
                 sourceIds: [],
               },
               {
                 id: "example-vocabulary-decision",
                 type: "example",
                 title: "Vocabulaire utile",
-                body: "IBU aide a raisonner l'amertume calculee, mais ne remplace pas la degustation. Le mot est utile seulement si on sait aussi ce qu'il mesure et ce qu'il ne mesure pas.",
+                body: "IBU aide à raisonner l'amertume calculée, mais ne remplace pas la dégustation. Le mot est utile seulement si on sait aussi ce qu'il mesure et ce qu'il ne mesure pas.",
                 sourceIds: ["palmer-2017"],
               },
             ],
@@ -2703,7 +2711,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "lire-entree-paragraph-1",
                 type: "paragraph",
-                text: "Une bonne entree de glossaire doit donner une definition simple, l'unite associee quand elle existe, l'impact pratique sur le process, puis la confusion frequente a eviter. Cette structure evite d'apprendre des acronymes sans savoir quoi en faire pendant un brassin.",
+                text: "Une bonne entrée de glossaire doit donner une définition simple, l’unité associée quand elle existe, l'impact pratique sur le process, puis la confusion fréquente à éviter. Cette structure évite d'apprendre des acronymes sans savoir quoi en faire pendant un brassin.",
                 sourceIds: [],
               },
               {
@@ -2729,7 +2737,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "familles-paragraph-1",
                 type: "paragraph",
-                text: "Les termes de densite et d'alcool couvrent OG, FG, ABV, attenuation et degres Plato. Les termes d'amertume et de couleur couvrent IBU, BU:GU, MCU, SRM et EBC. Les termes d'eau et de chimie couvrent pH, alcalinite residuelle, sulfates, chlorures et bicarbonates. Les termes de fermentation couvrent pitch rate, floculation, repos diacetyle et nutriments de levure.",
+                text: "Les termes de densité et d'alcool couvrent OG, FG, ABV, atténuation et degrés Plato. Les termes d'amertume et de couleur couvrent IBU, BU:GU, MCU, SRM et EBC. Les termes d'eau et de chimie couvrent pH, alcalinité résiduelle, sulfates, chlorures et bicarbonates. Les termes de fermentation couvrent pitch rate, floculation, repos diacétyle et nutriments de levure.",
                 sourceIds: [],
               },
               {
@@ -2737,7 +2745,7 @@ export const academyCorpus: AcademyCorpus = {
                 type: "definition",
                 term: "Mesure, calcul et cible",
                 definition:
-                  "Une mesure vient d'un instrument, un calcul derive une valeur, et une cible represente l'objectif process choisi pour une recette.",
+                  "Une mesure vient d'un instrument, un calcul dérive une valeur, et une cible représente l'objectif process choisi pour une recette.",
                 sourceIds: ["palmer-2017"],
               },
             ],
@@ -2749,7 +2757,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "reperes-paragraph-1",
                 type: "paragraph",
-                text: "Les premiers reperes a maitriser sont OG pour la densite initiale, FG pour la densite finale, ABV pour l'alcool, IBU pour l'amertume calculee, EBC ou SRM pour la couleur, pH pour l'acidite, attenuation pour la part des sucres fermentes, pitch rate pour la quantite de levure, RA pour l'effet tampon de l'eau, et volumes CO2 pour la carbonatation.",
+                text: "Les premiers repères à maîtriser sont OG pour la densité initiale, FG pour la densité finale, ABV pour l'alcool, IBU pour l'amertume calculée, EBC ou SRM pour la couleur, pH pour l'acidité, atténuation pour la part des sucres fermentés, pitch rate pour la quantité de levure, RA pour l’effet tampon de l'eau, et volumes CO2 pour la carbonatation.",
                 sourceIds: [],
               },
               {
@@ -2768,7 +2776,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "confusions-paragraph-1",
                 type: "paragraph",
-                text: "Les confusions les plus courantes sont de melanger OG et FG avec ABV, de confondre EBC du malt et couleur finale de la biere, de prendre les IBU theoriques pour l'amertume reellement percue, de melanger SG, points et degres Plato sans conversion, ou de comparer un pH mesure a chaud avec une cible prevue a temperature de lecture.",
+                text: "Les confusions les plus courantes sont de mélanger OG et FG avec ABV, de confondre EBC du malt et couleur finale de la bière, de prendre les IBU théoriques pour l'amertume réellement perçue, de mélanger SG, points et degrés Plato sans conversion, ou de comparer un pH mesuré à chaud avec une cible prévue à température de lecture.",
                 sourceIds: [],
               },
             ],
@@ -2780,7 +2788,7 @@ export const academyCorpus: AcademyCorpus = {
               {
                 id: "methode-paragraph-1",
                 type: "paragraph",
-                text: "Commencer par memoriser les reperes essentiels, puis associer chaque terme a une decision concrete : corriger une recette, choisir une levure, ajuster l'eau ou diagnostiquer un brassin. Ajouter les unites dans les notes de brassage aide a eviter les erreurs de lecture. Apres chaque brassin, revenir au glossaire pour consolider les termes rencontres en pratique.",
+                text: "Commencer par mémoriser les repères essentiels, puis associer chaque terme à une décision concrète : corriger une recette, choisir une levure, ajuster l'eau ou diagnostiquer un brassin. Ajouter les unités dans les notes de brassage aide à éviter les erreurs de lecture. Après chaque brassin, revenir au glossaire pour consolider les termes rencontrés en pratique.",
                 sourceIds: [],
               },
             ],

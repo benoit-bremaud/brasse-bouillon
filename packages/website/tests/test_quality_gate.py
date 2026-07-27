@@ -104,6 +104,73 @@ def _guide_html() -> str:
 """
 
 
+def _glossary_html() -> str:
+    title = "Glossaire du brassage amateur"
+    description = _serp_description("Glossaire brassage")
+    canonical = "https://brasse-bouillon.com/guides/glossaire-brassage/"
+    breadcrumb = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Accueil",
+                "item": quality_gate.HOMEPAGE_URL,
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Guides",
+                "item": f"{quality_gate.HOMEPAGE_URL}guides/",
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": title,
+                "item": canonical,
+            },
+        ],
+    }
+    term_set = {
+        "@context": "https://schema.org",
+        "@type": "DefinedTermSet",
+        "@id": canonical,
+        "name": title,
+        "url": canonical,
+        "inLanguage": "fr-FR",
+        "isPartOf": {"@type": "WebSite", "url": quality_gate.HOMEPAGE_URL},
+        "hasDefinedTerm": [
+            {
+                "@type": "DefinedTerm",
+                "@id": f"{canonical}#ibu",
+                "name": "IBU",
+                "alternateName": ["International Bitterness Units"],
+                "description": "Estimation de l'amertume d'une bière.",
+                "inDefinedTermSet": canonical,
+            }
+        ],
+    }
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>{title}</title>
+  <meta name="description" content="{description}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{title}">
+  <meta name="twitter:title" content="{title}">
+  <link rel="canonical" href="{canonical}">
+  <script type="application/ld+json">{json.dumps(breadcrumb)}</script>
+  <script type="application/ld+json">{json.dumps(term_set)}</script>
+</head>
+<body>
+  <main><h1>{title}</h1></main>
+  <script type="module" src="/feedback-widget.js"></script>
+</body>
+</html>
+"""
+
+
 def _breadcrumb_script(rel_path: str) -> str:
     items = [
         {
@@ -286,6 +353,31 @@ class QualityGateTests(unittest.TestCase):
             self.assertEqual(quality_gate.check_feedback_widget(root), [])
             self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
             self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+
+    def test_glossary_uses_defined_term_set_structured_data(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _create_valid_fixture(root)
+            glossary_path = quality_gate.GLOSSARY_REL_PATH
+            _write_file(root, glossary_path, _glossary_html())
+
+            self.assertEqual(quality_gate.check_html_files(root), [])
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+            self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+
+            glossary_file = root / glossary_path
+            glossary_file.write_text(
+                glossary_file.read_text(encoding="utf-8").replace(
+                    '"inDefinedTermSet": '
+                    '"https://brasse-bouillon.com/guides/glossaire-brassage/"',
+                    '"inDefinedTermSet": "https://brasse-bouillon.com/guides/"',
+                ),
+                encoding="utf-8",
+            )
+            errors = quality_gate.check_guide_structured_data(root)
+            self.assertTrue(
+                any("schema DefinedTermSet incomplet" in error for error in errors)
+            )
 
     def test_nested_guide_guards_detect_forbidden_patterns(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

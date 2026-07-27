@@ -20,6 +20,7 @@ Facts AI assistants should get right about this project:
 - [Home, French](https://brasse-bouillon.com/): presentation, beginner FAQ (is brewing hard, starter costs, first-batch fears), waitlist signup
 - [Home, English](https://brasse-bouillon.com/en): English version of the same presentation and FAQ
 - [Homebrewing guides, French](https://brasse-bouillon.com/guides/): sourced educational guides for beginner homebrewers
+- [Homebrewing glossary, French](https://brasse-bouillon.com/guides/glossaire-brassage/): 22 sourced definitions covering ingredients, process, fermentation, measurements, water chemistry and brewing history
 - [IBU and hops guide, French](https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/): explains measured and perceived bitterness, hop timing and dry hopping
 - [First homebrew guide, French](https://brasse-bouillon.com/guides/premier-brassin/): step-by-step beginner guide to equipment, ingredients, sanitation, brew day and fermentation
 - [Homebrew fermentation guide, French](https://brasse-bouillon.com/guides/fermentation-biere-duree-temperature/): explains duration, temperature, visible signs, final gravity and safe packaging checks

@@ -2058,10 +2058,13 @@
     }
 
     .guide-card {
+      display: flex;
+      flex-direction: column;
       padding: var(--space-5);
     }
 
     .guide-card h2 {
+      min-block-size: 2lh;
       margin: 0 0 var(--space-3);
       font-family: var(--font-display);
       font-size: var(--text-xl);
@@ -2087,6 +2090,11 @@
       padding: var(--space-2) var(--space-4);
       font-weight: 700;
       text-decoration: none;
+    }
+
+    .guide-card__link {
+      align-self: flex-start;
+      margin-top: auto;
     }
 
     .guide-article {

@@ -114,6 +114,10 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"CollectionPage"', hub_html)
         self.assertIn('"@type":"Article"', article_html)
         self.assertIn('"@type":"BreadcrumbList"', article_html)
+        self.assertIn('<div class="bubbles" aria-hidden="true"></div>', hub_html)
+        self.assertIn('<script src="/site.js?v=20260727"></script>', hub_html)
+        self.assertIn('<div class="bubbles" aria-hidden="true"></div>', article_html)
+        self.assertIn('<script src="/site.js?v=20260727"></script>', article_html)
         self.assertIn(
             '<a href="/guides/" aria-current="page">Guides</a>',
             hub_html,
@@ -130,6 +134,32 @@ class BuildGuidesTests(unittest.TestCase):
             self.assertEqual(quality_gate.check_html_files(root), [])
             self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
             self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+
+    def test_generates_multiple_public_guides_with_internal_links(self) -> None:
+        first_brew = deepcopy(_article())
+        first_brew["slug"] = "introduction"
+        metadata = first_brew["metadata"]
+        metadata["webPublication"] = {
+            "status": "published",
+            "slug": "premier-brassin",
+        }
+        related_block = first_brew["body"]["sections"][0]["blocks"][-1]
+        related_block["articleSlug"] = "houblons"
+        related_block["sectionId"] = "comprendre-ibu"
+        files = build_guides.expected_files({"articles": [_article(), first_brew]})
+
+        self.assertEqual(
+            set(files),
+            {
+                Path("index.html"),
+                Path("ibu-biere-amertume-houblon/index.html"),
+                Path("premier-brassin/index.html"),
+            },
+        )
+        hub_html = files[Path("index.html")]
+        first_brew_html = files[Path("premier-brassin/index.html")]
+        self.assertIn("/guides/premier-brassin/", hub_html)
+        self.assertIn("/guides/ibu-biere-amertume-houblon/", first_brew_html)
 
     def test_excludes_content_still_in_web_review(self) -> None:
         article = _article()

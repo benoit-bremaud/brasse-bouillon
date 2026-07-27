@@ -9,6 +9,17 @@
   year: 2017
   notes: General homebrewing reference for ingredients and process.
 
+- id: aha-brewing-with-extract
+  kind: website
+  title: Brewing with Extract
+  authors:
+    - American Homebrewers Association
+  publisher: American Homebrewers Association
+  url: https://www.homebrewersassociation.org/wp-content/uploads/How-To-Extract.pdf
+  accessed_at: 2026-07-27
+  year: null
+  notes: Beginner brewing process, equipment, cleaning, sanitation, fermentation, and packaging reference.
+
 - id: bjcp-2021
   kind: standard
   title: BJCP Beer Style Guidelines

@@ -21,6 +21,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://brasse-bouillon.com/guides/premier-brassin/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://brasse-bouillon.com/legal</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

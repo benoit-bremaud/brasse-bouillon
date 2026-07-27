@@ -40,6 +40,10 @@ function toGeneratedFiles(
       path: "packages/mobile-app/src/features/academy/data/generated/academy-corpus.generated.ts",
       content: toGeneratedTsFile("academyCorpus", corpus),
     },
+    {
+      path: "docs/academy/generated/academy-corpus.generated.json",
+      content: `${JSON.stringify(corpus, null, 2)}\n`,
+    },
   ];
 }
 

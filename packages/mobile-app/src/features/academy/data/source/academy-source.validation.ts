@@ -103,6 +103,14 @@ function toAcademyArticle(
             notes: article.frontMatter.review.notes,
           }
         : null,
+      ...(article.frontMatter.web_publication
+        ? {
+            webPublication: {
+              status: article.frontMatter.web_publication.status,
+              slug: article.frontMatter.web_publication.slug,
+            },
+          }
+        : {}),
     },
     body: {
       sections: article.sections,

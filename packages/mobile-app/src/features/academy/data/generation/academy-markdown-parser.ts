@@ -6,6 +6,7 @@ import {
   AcademyContentBlock,
   AcademyLevel,
   AcademyReviewConfidence,
+  AcademyWebPublicationStatus,
   SourceKind,
 } from "../../domain";
 import {
@@ -374,6 +375,10 @@ function toArticleFrontMatter(
 ): AcademyParseResult<AcademySourceArticleFrontMatter> {
   const record = asRecord(value);
   const review = record.review === null ? null : asRecord(record.review);
+  const webPublication =
+    record.web_publication === undefined || record.web_publication === null
+      ? null
+      : asRecord(record.web_publication);
 
   return {
     value: {
@@ -420,6 +425,17 @@ function toArticleFrontMatter(
             notes: requireStringArray(review, "notes"),
           }
         : null,
+      ...(webPublication
+        ? {
+            web_publication: {
+              status: requireString(
+                webPublication,
+                "status",
+              ) as AcademyWebPublicationStatus,
+              slug: requireString(webPublication, "slug"),
+            },
+          }
+        : {}),
     },
     errors: [],
   };

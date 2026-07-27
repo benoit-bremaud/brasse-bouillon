@@ -12,7 +12,7 @@ Markdown + registries
   -> validate schemas
   -> validate links and source references
   -> normalize content blocks
-  -> generate typed payloads
+  -> generate typed mobile and neutral JSON payloads
   -> generate search index
   -> optionally generate retrieval chunks for future chatbot
 ```
@@ -104,6 +104,10 @@ contract.
   camelCase. The generator owns this mapping and validates both sides through
   schemas. The source `slug` is promoted to `AcademyArticle.slug` in generated
   payloads to avoid duplicated slug state.
+- Optional `web_publication` metadata uses an explicit status and a stable,
+  lowercase kebab-case public slug.
+- Web publication requires a published Academy article and validated review
+  confidence.
 
 ### Phase 3 - Body Parsing
 
@@ -130,15 +134,20 @@ contract.
 
 ### Phase 6 - Generation
 
-Generated output:
+Generated outputs:
 
 ```text
 packages/mobile-app/src/features/academy/data/generated/
   academy-corpus.generated.ts
+
+docs/academy/generated/
+  academy-corpus.generated.json
 ```
 
-The generator emits a single `academy-corpus.generated.ts` exporting one
-`academyCorpus: AcademyCorpus` constant with four top-level collections:
+The generator emits equivalent deterministic TypeScript and JSON representations.
+The TypeScript file exports one `academyCorpus: AcademyCorpus` constant; the JSON
+file is the neutral handoff for non-mobile consumers. Both contain four top-level
+collections:
 
 ```text
 academyCorpus
@@ -148,9 +157,15 @@ academyCorpus
   calculatorSlugs   // calculator bridges referenced by articles
 ```
 
-The file carries a `Do not edit manually` header and is regenerated from
-`docs/academy`; a per-article / search-index / retrieval-chunk split remains a
-possible future optimization if the single corpus grows too large.
+The TypeScript file carries a `Do not edit manually` header. Both artifacts are
+regenerated from `docs/academy`; a per-article / search-index / retrieval-chunk
+split remains a possible future optimization if the single corpus grows too
+large.
+
+```bash
+npm -w packages/mobile-app run academy:generate
+npm -w packages/mobile-app run academy:check
+```
 
 ## Error Quality
 
@@ -186,6 +201,6 @@ At minimum, CI should eventually run:
 
 - content validation;
 - typecheck;
-- generator deterministic output check;
+- `npm -w packages/mobile-app run academy:check`;
 - renderer tests;
 - link resolution tests.

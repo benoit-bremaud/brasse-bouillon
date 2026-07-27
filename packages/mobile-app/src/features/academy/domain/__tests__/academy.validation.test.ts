@@ -123,6 +123,48 @@ describe("Academy domain validation", () => {
     expect(result.issues).toEqual([]);
   });
 
+  it("allows web publication metadata to remain in editorial review", () => {
+    const article: AcademyArticle = {
+      ...validArticle,
+      metadata: {
+        ...validArticle.metadata,
+        webPublication: {
+          status: "review",
+          slug: "ibu-amertume-biere",
+        },
+      },
+    };
+
+    const result = validateAcademyArticle(article, validationContext);
+
+    expect(result.valid).toBe(true);
+    expect(result.issues).toEqual([]);
+  });
+
+  it("requires validated Academy content before web publication", () => {
+    const article: AcademyArticle = {
+      ...validArticle,
+      metadata: {
+        ...validArticle.metadata,
+        status: "review",
+        webPublication: {
+          status: "published",
+          slug: "ibu-amertume-biere",
+        },
+      },
+    };
+
+    const result = validateAcademyArticle(article, validationContext);
+
+    expect(result.valid).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toEqual(
+      expect.arrayContaining([
+        "article.webPublication.articleStatus.invalid",
+        "article.webPublication.review.invalid",
+      ]),
+    );
+  });
+
   it("rejects sensitive published content without sources or review metadata", () => {
     const article: AcademyArticle = {
       ...validArticle,
@@ -383,15 +425,25 @@ describe("Academy domain validation", () => {
   });
 
   it("rejects duplicate corpus identifiers", () => {
-    const duplicateArticle: AcademyArticle = {
+    const webArticle: AcademyArticle = {
       ...validArticle,
       metadata: {
         ...validArticle.metadata,
+        webPublication: {
+          status: "review",
+          slug: "ibu-amertume-biere",
+        },
+      },
+    };
+    const duplicateArticle: AcademyArticle = {
+      ...webArticle,
+      metadata: {
+        ...webArticle.metadata,
         title: "Duplicate hops",
       },
     };
     const corpus: AcademyCorpus = {
-      articles: [validArticle, duplicateArticle],
+      articles: [webArticle, validArticle, duplicateArticle],
       glossaryTerms: [
         {
           slug: "ibu",
@@ -426,8 +478,14 @@ describe("Academy domain validation", () => {
         "corpus.glossarySlug.duplicate",
         "corpus.sourceId.duplicate",
         "corpus.calculatorSlug.duplicate",
+        "corpus.webPublicationSlug.duplicate",
       ]),
     );
+    expect(
+      result.issues.find(
+        (issue) => issue.code === "corpus.webPublicationSlug.duplicate",
+      )?.path,
+    ).toBe("articles.2.metadata.webPublication.slug");
   });
 
   it("rejects article sources missing from the corpus registry", () => {

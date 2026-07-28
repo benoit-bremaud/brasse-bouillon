@@ -114,7 +114,7 @@ sembler plus équilibrée avec la même valeur. La densité initiale, l'atténua
 le corps et le profil de l'eau changent la manière dont le palais interprète
 l'amertume.
 
-:::relatedArticle id="related-fermentables" articleSlug="fermentescibles" sectionId="role-du-malt" sourceIds="palmer-2017":::
+:::relatedArticle id="related-fermentables" articleSlug="fermentescibles" sectionId="role-og-fg" sourceIds="palmer-2017":::
 
 :::relatedArticle id="related-water" articleSlug="eau" sectionId="alcalinite-ratio" sourceIds="palmer-2017":::
 

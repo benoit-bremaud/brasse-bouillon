@@ -173,7 +173,7 @@ historiquement inspirée sans prétendre reproduire exactement une boisson
 ancienne. La bonne question devient : quel élément historique veut-on explorer,
 et quel contrôle moderne veut-on garder pour obtenir une bière stable et bonne ?
 
-:::relatedArticle id="related-fermentescibles" articleSlug="fermentescibles" sectionId="role-du-malt" sourceIds="hornsey-2003":::
+:::relatedArticle id="related-fermentescibles" articleSlug="fermentescibles" sectionId="role-og-fg" sourceIds="hornsey-2003":::
 
 ## À retenir pour brasser {#retenir-brasser}
 

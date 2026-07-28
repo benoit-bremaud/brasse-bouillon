@@ -3,6 +3,7 @@
 **Status**  Accepted
 **Date**    2026-07-10 (accepted 2026-07-10, after a 6-reviewer adversarial conception review folded in)
 **Amended** 2026-07-13 — D4 clause 1: footer switcher mirror dropped (maintainer UX review; sticky header keeps the primary switcher always visible)
+**Amended** 2026-07-28 — D6 added: English-first authoring for NEW educational content; D5 clause 2 qualified (`x-default` → FR for every FR/EN pair, → self for a single-locale EN page)
 **Owners**  @benoit-bremaud
 
 ---
@@ -312,6 +313,55 @@ suggestion banner + a shareable `/en` URL without demoting French).
    unchanged. **This OG/JSON-LD is shipped in S1** (see rollout); S2 only asserts
    it via the gate rather than re-authoring it.
 5. `SEO_RUNBOOK.md` is rewritten to record the reversal (EN indexed from now on).
+
+### D6 — English-first authoring for new educational content (amendment 2026-07-28)
+
+New **educational** content (guides, glossary, walkthrough) may be authored and
+published **English-first**: a new English guide does not require a complete French
+twin at publication time. Locales are paired only when both pages are complete and
+genuinely equivalent. Rationale: the homebrewing audience we can actually reach is
+global, and authoring in English first avoids the worse outcome D1 was built to
+prevent — shipping a thin or drifting French twin purely to satisfy a pairing rule.
+
+**This is not the rejected "English-by-default" alternative.** That alternative
+(see *Alternatives considered*) was about **serving** visitors English by default and
+inverting the site's default locale. D6 is only about the **authoring order of new
+content**. French is not demoted: the root URL stays French, the FR home keeps
+`x-default`, D4's no-auto-redirect rule is untouched, and every existing French page
+keeps its content and its search signals.
+
+Clauses:
+
+1. **Scope.** D6 covers new educational content only. The home and the four legal
+   pages remain strictly paired FR+EN (D1/D5 unchanged) — they are the site's
+   contractual and marketing surface, not editorial content.
+2. **`x-default` (qualifies D5 clause 2).** For every FR/EN **pair**, `x-default`
+   points at the **FR** page — unchanged, and now gate-enforced. For a **single-locale
+   English** page, `x-default` points at that page itself, because there is no French
+   version of that content to default to; pointing it at an unrelated French URL would
+   be a false signal. A single-locale page therefore advertises `en` + `x-default`
+   only, and never a `fr` alternate.
+3. **Invariants every published English page must still satisfy**, twin or not:
+   self-canonical, present in `sitemap.xml`, no `noindex`, `<html lang="en">`, and a
+   complete hreflang cluster for the locales that actually exist (reciprocal return
+   tags on both faces whenever a twin exists).
+4. **Enforcement.** The **paired** case is already gate-enforced today:
+   `check_hreflang_reciprocity` asserts `{fr → FR, en → EN, x-default → FR}` on both
+   faces of every entry in `HREFLANG_PAIRS`, so a paired page cannot silently invert
+   `x-default`. The **single-locale** case is *not* yet enforced, because no
+   single-locale page exists — such a page would simply be absent from
+   `HREFLANG_PAIRS` and go unchecked. **Required before the first English-only page
+   ships:** extend the gate to assert that an English page declaring no `fr` alternate
+   emits exactly `{en → self, x-default → self}`. Shipping an English-only page without
+   that check first is a violation of this ADR.
+5. **No thin placeholders.** English-first never means publishing an incomplete page
+   in either language to satisfy a rule. A French twin is added later when it is
+   genuinely complete, at which point clause 2's paired behaviour applies.
+
+Consequence accepted deliberately: once single-locale English guides ship, some
+hreflang clusters will carry `x-default` → an English URL. That is correct for content
+that exists only in English, and is confined to those clusters; the site-level default
+(`/`, the FR home) is unaffected.
 
 ## Consequences
 

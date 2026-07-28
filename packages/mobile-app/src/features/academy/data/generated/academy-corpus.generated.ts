@@ -339,7 +339,7 @@ export const academyCorpus: AcademyCorpus = {
                 id: "related-fermentescibles",
                 type: "relatedArticle",
                 articleSlug: "fermentescibles",
-                sectionId: "role-du-malt",
+                sectionId: "role-og-fg",
                 sourceIds: ["hornsey-2003"],
               },
             ],
@@ -528,7 +528,7 @@ export const academyCorpus: AcademyCorpus = {
                 id: "related-og-fg",
                 type: "relatedArticle",
                 articleSlug: "fermentescibles",
-                sectionId: "role-du-malt",
+                sectionId: "role-og-fg",
                 sourceIds: ["palmer-2017"],
               },
             ],
@@ -975,7 +975,7 @@ export const academyCorpus: AcademyCorpus = {
                 id: "related-fermentables",
                 type: "relatedArticle",
                 articleSlug: "fermentescibles",
-                sectionId: "role-du-malt",
+                sectionId: "role-og-fg",
                 sourceIds: ["palmer-2017"],
               },
               {
@@ -1707,17 +1707,17 @@ export const academyCorpus: AcademyCorpus = {
       body: {
         sections: [
           {
-            id: "role-du-malt",
+            id: "role-og-fg",
             title: "Pourquoi mesurer l'OG, la FG et l'atténuation",
             blocks: [
               {
-                id: "role-du-malt-paragraph-1",
+                id: "role-og-fg-paragraph-1",
                 type: "paragraph",
                 text: "L'OG, ou densité initiale, mesure le moût avant la fermentation. La FG, ou densité finale, mesure la bière lorsque le travail de la levure est terminé. L'atténuation apparente compare ces deux valeurs pour estimer la proportion de sucres consommée. Ensemble, elles permettent de suivre la fermentation, d'estimer l'alcool et de comprendre si la bière sera plutôt sèche ou ronde.",
                 sourceIds: [],
               },
               {
-                id: "role-du-malt-paragraph-2",
+                id: "role-og-fg-paragraph-2",
                 type: "paragraph",
                 text: "Ces mesures partent des sucres apportés par le malt, les extraits ou d'autres fermentescibles. La levure n'en consomme qu'une partie : la recette, la souche et le profil d'empâtage influencent donc autant le résultat que la quantité de malt utilisée.",
                 sourceIds: [],

@@ -58,7 +58,7 @@ review:
     - Approved for public-web publication on 2026-07-27.
 ---
 
-## Pourquoi mesurer l'OG, la FG et l'atténuation {#role-du-malt}
+## Pourquoi mesurer l'OG, la FG et l'atténuation {#role-og-fg}
 
 L'OG, ou densité initiale, mesure le moût avant la fermentation. La FG, ou
 densité finale, mesure la bière lorsque le travail de la levure est terminé.

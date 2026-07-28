@@ -156,9 +156,9 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"Article"', article_html)
         self.assertIn('"@type":"BreadcrumbList"', article_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', hub_html)
-        self.assertIn('<script src="/site.js?v=20260729"></script>', hub_html)
+        self.assertIn('<script src="/site.js?v=20260728"></script>', hub_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', article_html)
-        self.assertIn('<script src="/site.js?v=20260729"></script>', article_html)
+        self.assertIn('<script src="/site.js?v=20260728"></script>', article_html)
         self.assertIn(
             '<a href="/guides/" aria-current="page">Guides</a>',
             hub_html,
@@ -353,7 +353,7 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn("From Grain to Glass", english_hub_html)
         self.assertIn('id="brewingWalkthroughSteps"', english_hub_html)
         self.assertIn(
-            'class="guide-walkthrough__controls" '
+            'class="guide-walkthrough__controls" role="group" '
             'aria-label="Walkthrough controls" hidden',
             english_hub_html,
         )

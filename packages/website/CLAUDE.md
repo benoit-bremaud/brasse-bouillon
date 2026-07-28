@@ -125,7 +125,8 @@ The `@brasse-bouillon/feedback-widget` (separate repo `benoit-bremaud/feedback-w
 - External JavaScript frameworks
 - Third-party tracking scripts loaded before consent
 - Hardcoded color, spacing, or font values (use CSS custom properties)
-- English-only public pages without their French counterpart
+- An English-only **home or legal** page without its French counterpart (new *educational* guides may ship English-first — see ADR-0027 D6)
+- A thin or machine-translated twin published only to satisfy a pairing rule (ADR-0027 D6 clause 5)
 - French commit messages, PR titles, or PR bodies (English only on GitHub)
 
 ## Project-local Claude tooling

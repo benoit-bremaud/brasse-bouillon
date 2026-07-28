@@ -43,8 +43,8 @@
     "ogImageAlt": "190fd3c1ce58ea7b95c506d71ca4683fbc26f060"
   },
   "insertions": {
-    "hero.honesty": "Heads-up for English speakers: the app’s interface launches in French first -<br>an English version is on the way. This site is already in English so you can follow along today.",
-    "journey.screensNote": "Screenshots throughout this page show the app’s French interface - the English app UI is in the works."
+    "hero.honesty": "A note for English-speaking brewers: the app launches in French first.<br>An English interface is planned, and you can already follow the project here in English.",
+    "journey.screensNote": "Screenshots on this page show the current French interface. An English app interface is planned."
   },
   "strings": {
     "nav.logo.href": {
@@ -70,6 +70,14 @@
     "nav.guides": {
       "en": "Guides",
       "srcHash": "929a28d261428029e61c0f81c6161fd71ba0b2fe"
+    },
+    "nav.guides.href": {
+      "en": "/en/guides/",
+      "srcHash": "b83e9b79afbb10505d8a1eb2bbc407d07e176ad0"
+    },
+    "nav.guides.hreflang": {
+      "en": "en",
+      "srcHash": "b858a87c07b04c4568f51b0dce655f78d73c02b3"
     },
     "nav.faq": {
       "en": "FAQ",
@@ -112,7 +120,7 @@
       "srcHash": "350295349876d5fa05be97100d5307aabd72777f"
     },
     "journey.intro": {
-      "en": "Four steps, a copilot at every moment. You’re never left alone in front of the kettle.",
+      "en": "Four stages, with clear guidance at each one. You always know what comes next.",
       "srcHash": "bac252e2ef02f310edd52db277a2fe73f04afa58"
     },
     "journey.1.img": {
@@ -124,7 +132,7 @@
       "srcHash": "3b59041f30967e4ff04d828315b2aed6249c7465"
     },
     "journey.1.body": {
-      "en": "Compare the community’s clone recipes - rated and battle-tested - and adopt the one that tempts you. No jargon.",
+      "en": "Compare community-rated clone recipes and choose one you want to brew. No jargon.",
       "srcHash": "ed856fa092db692ce1fde534f663a30e8756f457"
     },
     "journey.2.img": {
@@ -156,11 +164,11 @@
       "srcHash": "ede4db4df83e2931aa99a93302ec9999223b18e5"
     },
     "journey.4.title": {
-      "en": "Bottle it, savor it",
+      "en": "Bottle it, taste it",
       "srcHash": "ebd1cb34b4754f03653d6f2e6ac604c7428bae04"
     },
     "journey.4.body": {
-      "en": "Slap on your label, share with friends, and enjoy your first creation.",
+      "en": "Add your label, share it with friends, and enjoy the beer you made.",
       "srcHash": "7bfc60d8fc55433b4e0ceaf18627f85bb343faea"
     },
     "marquee.mash": {
@@ -232,7 +240,7 @@
       "srcHash": "685b231279bd01c446d5cb6860c0fdb84a6c6473"
     },
     "features.2.body": {
-      "en": "IBU, ABV, color, volumes, efficiency. Every number in one place, and reliable.",
+      "en": "IBU, ABV, color, volumes and efficiency—all your key numbers in one reliable place.",
       "srcHash": "da9339d475905b61e29d8d3e22ca0a4ccc907a5a"
     },
     "features.3.img": {
@@ -256,7 +264,7 @@
       "srcHash": "fe435adcf423205b4cb3fa54f4ab9851819645b4"
     },
     "scan.intro": {
-      "en": "Scan the label of a store-bought beer&nbsp;: Brasse-Bouillon identifies it, then suggests equivalent recipes rated by the community - ready to brew.",
+      "en": "Scan the label of a commercial beer. Brasse-Bouillon identifies it, then suggests similar community-rated recipes you can brew.",
       "srcHash": "b3344a9b87e28f2ea039dc42ca6f5ebc5e326b69"
     },
     "scan.1.img": {
@@ -300,11 +308,11 @@
       "srcHash": "48482e0dd80bbda7ebee9932a298e79855f0773e"
     },
     "academie.1.title": {
-      "en": "Landmarks, not jargon",
+      "en": "Clear guidance, no jargon",
       "srcHash": "4dcdf1b35677dde49d849ac4705dccc1b66e7164"
     },
     "academie.1.body": {
-      "en": "Ingredients, color, alcohol, fermentation: clear articles, sorted by theme, to learn at your own pace.",
+      "en": "Learn about ingredients, color, alcohol and fermentation through clear, source-backed articles organized by topic.",
       "srcHash": "347699e8e0de111e4f9a506bfe17841351309c32"
     },
     "academie.2.img": {
@@ -340,7 +348,7 @@
       "srcHash": "8096f00f68bbd57dbe236430647008def460b4fe"
     },
     "faq.q2.answer": {
-      "en": "Roughly €60-120 for a complete starter kit. You’ll reuse it for 5-6 batches, and the gear pays for itself fast compared with buying good craft beer.",
+      "en": "A complete starter kit typically costs around €60–120. Most of the equipment is reusable, so your first purchase supports many future batches.",
       "srcHash": "c162fe38065d03546edb5676dda6f5ca6f3eb0d4"
     },
     "faq.q3.summary": {
@@ -356,7 +364,7 @@
       "srcHash": "4651d4798bb65222ec6a683fddbb4a16a114e10f"
     },
     "faq.q4.answer": {
-      "en": "It happens, and it’s almost always drinkable. The app walks back through each step to help you understand what happened - and your next batch comes out better.",
+      "en": "A disappointing first batch is still useful. The app helps you review each step, understand what happened and improve the next brew.",
       "srcHash": "ae6ca65a650453ee485b88501e21480748e5bcb3"
     },
     "faq.q5.summary": {

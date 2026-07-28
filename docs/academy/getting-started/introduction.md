@@ -94,6 +94,8 @@ rinçage dépendent du produit utilisé.
 
 :::example id="example-checklist-materiel" title="Checklist avant de chauffer" body="Recette relue, ingrédients pesés, thermomètre disponible, fermenteur prêt, matériel de transfert vérifié et produits de nettoyage et de désinfection préparés selon leur notice." sourceIds="palmer-2017,aha-brewing-with-extract":::
 
+:::relatedArticle id="related-og-fg" articleSlug="fermentescibles" sectionId="role-og-fg" sourceIds="palmer-2017":::
+
 ## Nettoyer puis désinfecter au bon moment {#nettoyer-desinfecter}
 
 Nettoyer et désinfecter répondent à deux besoins différents. Le nettoyage

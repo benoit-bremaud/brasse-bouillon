@@ -1,4 +1,4 @@
-# SEO Runbook (bilingual FR+EN website)
+# SEO Runbook (English-first website with maintained FR pages)
 
 This runbook documents the operational SEO process for **brasse-bouillon.com**
 while the product is still in pre-launch.
@@ -12,18 +12,32 @@ while the product is still in pre-launch.
 
 ## 1) Current SEO policy
 
-- Indexable pages: `/` and `/en` (the two homes) + the four **FR** legal pages
-  (`/legal`, `/privacy`, `/cookies`, `/terms`).
+> **2026-07-28 — English-first editorial policy.** Existing French pages stay
+> published and keep their search signals, but new educational content is
+> authored and published in English. A future English guide does not require a
+> French Academy twin. Pair locales only when both pages are complete and
+> genuinely equivalent.
+
+- Indexable pages: `/` and `/en` (the two homes), the French `/guides/`
+  content hub, every validated French guide or glossary page generated from the
+  Academy corpus, the English `/en/guides/` hub and each complete English guide,
+  and the four **FR** legal pages (`/legal`, `/privacy`, `/cookies`, `/terms`).
 - The four **EN** legal twins (`/legal-en`, …) are indexable but deliberately
   **out of the sitemap** (secondary pages, reachable via hreflang + links).
-- `sitemap.xml` lists **exactly** `/`, `/en` and the four FR legal pages — the
-  quality gate (`SITEMAP_URLS`, exact-set policy) enforces it.
+  French-only Academy content has no incomplete English twin.
+- `sitemap.xml` lists **exactly** the two homes, both guide hubs, every
+  published French Academy web page, each complete English guide, and the four
+  FR legal pages. The quality gate
+  (`SITEMAP_URLS`, exact-set policy) enforces the current set, while
+  `scripts/build_guides.py --check` prevents generated guide drift.
 - The repository sitemap is a date-free template. During deployment,
   `scripts/build_sitemap.py` injects each page's latest Git commit date into
   the staged `_site/sitemap.xml`; handwritten source `<lastmod>` values are a
   quality-gate failure.
 - Every FR/EN pair carries one identical hreflang cluster on both pages:
-  `fr` → FR page, `en` → EN page, `x-default` → FR page (FR-first project).
+  `fr` → FR page, `en` → EN page, `x-default` → FR page for the maintained
+  paired cluster. English-only guides declare `en` and `x-default` to their own
+  self-canonical URL.
   The gate (`check_hreflang_reciprocity`) fails on any incomplete or
   non-reciprocal cluster.
 - Every page is self-canonical at its clean URL. `en.html` is **generated**
@@ -36,13 +50,14 @@ while the product is still in pre-launch.
   points to the sitemap. The **live** file is edge-modified — see §1.1.
 - Structured data: **WebSite** + **Organization** on both homes. The WebSite
   block is language-neutral — brand + apex URL — and copied verbatim to
-  `en.html`; it feeds Google's site-name feature. Every FR/EN secondary page
-  carries one locale-specific **BreadcrumbList** matching its visible legal
-  navigation (`Accueil`/`Home` → current page); `check_breadcrumb_schema`
-  rejects missing, duplicate, malformed, or non-canonical trails. `FAQPage`
-  was removed after Google stopped showing FAQ rich results in May 2026; the
-  visible FAQ remains useful page content. No SoftwareApplication entity until
-  `app.html` exists.
+  `en.html`; it feeds Google's site-name feature. Every secondary page carries
+  a **BreadcrumbList** matching its visible navigation. The guide hub adds
+  **CollectionPage**, explanatory guides add **Article**, and the glossary adds
+  **DefinedTermSet** with one **DefinedTerm** per published entry.
+  `check_breadcrumb_schema` and `check_guide_structured_data` reject missing,
+  duplicate, malformed, or non-canonical data. `FAQPage` was removed after
+  Google stopped showing FAQ rich results in May 2026; the visible FAQ remains
+  useful page content. No SoftwareApplication entity until `app.html` exists.
 
 ### 1.1) Edge overlay — Cloudflare managed robots.txt & AI Crawl Control
 
@@ -134,38 +149,65 @@ python3 -m unittest discover -s tests
    change, verify:
    `curl -s -o /dev/null -w "%{http_code}\n" https://brasse-bouillon.com/llms.txt`.
 
-### 2.1) Academy guide publication
+### 2.1) English guide publication
 
-Public guides are generated from the canonical Academy corpus; never author a
-file under `guides/` by hand.
+Public guides are generated; never author a file under `guides/` or
+`en/guides/` by hand.
 
-1. Edit the Markdown source under `docs/academy/` and set
-   `web_publication.status: review` with a stable French slug.
-2. Run `npm -w packages/mobile-app run academy:generate` and review both
-   generated corpus artifacts.
-3. Complete the factual and editorial review. A public guide requires all
-   three gates: Academy `status: published`, review confidence `validated`, and
-   `web_publication.status: published`. Do not use a technical PR approval as
-   a substitute for editorial validation.
-4. Run `python3 scripts/build_guides.py`. The command writes deterministic,
-   committed HTML under `guides/` and refuses to delete obsolete pages
-   automatically.
-5. Update the homepage internal link, `sitemap.xml`, `llms.txt`, and the
-   Git-backed mapping in `scripts/build_sitemap.py` when the indexable URL set
-   changes.
-6. Run the publication checks:
+1. Add or edit the complete reviewed English content in
+   `content/guides.en.json`. Include useful sources, a stable lowercase slug,
+   beginner-readable sections, contextual internal links, and illustration
+   placeholders where a diagram will materially improve understanding. Every
+   factual block, procedure step and walkthrough stage must declare non-empty
+   `sourceIds` that resolve to its local source catalog; the generator rejects
+   missing, duplicate or unknown IDs. These IDs are editorial traceability,
+   not inline citation markers. Do not publish partial or thin content.
+2. Add `academySlug` only when the English page is a complete equivalent of an
+   already published and validated French Academy page. Omit it for new
+   English-only content. The generator then emits no false French alternate.
+3. Run `python3 scripts/build_guides.py`. The command writes deterministic,
+   committed HTML and refuses to delete obsolete pages automatically.
+4. Update `sitemap.xml`, `llms.txt`, the exact-set allowlist in
+   `quality_gate.py`, and the Git-backed mapping in `build_sitemap.py` whenever
+   the indexable URL set changes.
+5. Run the publication checks:
 
    ```bash
-   npm -w packages/mobile-app run academy:check
    python3 scripts/build_guides.py --check
    python3 scripts/quality_gate.py
    python3 -m unittest discover -s tests -v
    ```
 
-French-only guides declare `fr` and `x-default` alternates to their own
-canonical URL. Do not emit an `en` alternate or an English page until a
-complete, useful translation exists. Explanatory guides use `Article` schema;
-reserve `HowTo` for content that genuinely describes an ordered procedure.
+For a maintained French page, continue using the Academy Markdown source and
+mobile corpus generation workflow before publication. A complete locale pair
+uses self-canonicals and reciprocal `fr`, `en` and `x-default` alternates. An
+English-only page uses a self-canonical URL under `/en/guides/`, an `en`
+alternate and `x-default` pointing to itself. Explanatory guides use `Article`;
+the glossary uses `DefinedTermSet`; reserve `HowTo` for genuinely ordered
+procedures.
+
+Illustration placeholders must not use broken `<img>` elements. They reserve
+space, carry an accessible description and a precise art brief. Replace them
+with optimized responsive assets when final artwork is available.
+
+After deployment, verify each new URL returns 200, run the live URL test, and
+request indexing once for the new canonical URL when fresh evidence is needed.
+
+### 2.2) Approved English topical-cluster backlog
+
+Forum research and the current guide coverage identify two standalone beginner
+search intents that should be developed next. Do not add either URL to the
+sitemap or hub schema until the complete, reviewed page exists:
+
+| Priority | Working slug | Primary search intent | Required links |
+|---|---|---|---|
+| 1 | `mash-efficiency-low-original-gravity` | Diagnose low OG and improve mash efficiency | First homebrew, OG/FG, glossary |
+| 2 | `brewing-water-mash-ph` | Understand brewing water and mash pH without salt-ratio shortcuts | First homebrew, IBU/hops, glossary |
+
+Each guide must include a novice decision path, a worked example, an
+illustration brief, claim-level source IDs, and links back to the relevant
+cornerstone guide. Keep the pages English-only unless a complete French twin is
+reviewed and published later.
 
 ## 3) Google Search Console (GSC) procedure
 

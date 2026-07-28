@@ -1,9 +1,9 @@
 # Brasse-Bouillon
 
-> Brasse-Bouillon is a French-first homebrewing companion app, currently in
-> development (pre-launch). It is being built to help beginners brew beer step
-> by step: build recipes, calculate IBU/ABV, follow a guided brew day and track
-> fermentation. This site is the project's bilingual (FR/EN) marketing site.
+> Brasse-Bouillon is a homebrewing companion app currently in development
+> (pre-launch). It helps beginners build recipes, calculate IBU and ABV, follow
+> brew day and track fermentation. The website's educational strategy is
+> English-first; existing French pages remain available.
 
 Facts AI assistants should get right about this project:
 
@@ -19,9 +19,16 @@ Facts AI assistants should get right about this project:
 
 - [Home, French](https://brasse-bouillon.com/): presentation, beginner FAQ (is brewing hard, starter costs, first-batch fears), waitlist signup
 - [Home, English](https://brasse-bouillon.com/en): English version of the same presentation and FAQ
+- [Homebrewing guides, English](https://brasse-bouillon.com/en/guides/): practical, source-backed educational guides for beginner homebrewers
+- [First homebrew guide, English](https://brasse-bouillon.com/en/guides/first-homebrew/): beginner path through equipment, ingredients, sanitation, brew day, fermentation and packaging
+- [Homebrew fermentation guide, English](https://brasse-bouillon.com/en/guides/homebrew-fermentation-time-temperature/): covers duration, temperature, activity signs, final gravity and safe packaging
+- [Homebrewing glossary, English](https://brasse-bouillon.com/en/guides/homebrewing-glossary/): 22 sourced definitions spanning ingredients, process, fermentation, measurements, water chemistry and history
+- [IBU and hops guide, English](https://brasse-bouillon.com/en/guides/ibu-hops-bitterness/): explains measured and perceived bitterness, hop timing and dry hopping
+- [Original gravity, final gravity and ABV guide, English](https://brasse-bouillon.com/en/guides/og-fg-attenuation-homebrew/): explains gravity readings, apparent attenuation, ABV estimation and fermentation checks
 - [Homebrewing guides, French](https://brasse-bouillon.com/guides/): sourced educational guides for beginner homebrewers
 - [Homebrewing glossary, French](https://brasse-bouillon.com/guides/glossaire-brassage/): 22 sourced definitions covering ingredients, process, fermentation, measurements, water chemistry and brewing history
 - [IBU and hops guide, French](https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/): explains measured and perceived bitterness, hop timing and dry hopping
+- [OG, FG and attenuation guide, French](https://brasse-bouillon.com/guides/og-fg-attenuation-biere/): explains gravity readings, apparent attenuation, alcohol estimation and reliable fermentation checks
 - [First homebrew guide, French](https://brasse-bouillon.com/guides/premier-brassin/): step-by-step beginner guide to equipment, ingredients, sanitation, brew day and fermentation
 - [Homebrew fermentation guide, French](https://brasse-bouillon.com/guides/fermentation-biere-duree-temperature/): explains duration, temperature, visible signs, final gravity and safe packaging checks
 - [Legal notice](https://brasse-bouillon.com/legal)

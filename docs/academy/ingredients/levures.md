@@ -18,6 +18,7 @@ web_publication:
   slug: fermentation-biere-duree-temperature
 related_articles:
   - introduction
+  - fermentescibles
   - carbonatation
   - houblons
 related_glossary_terms:
@@ -160,6 +161,8 @@ conditions de fermentation avant de conclure.
 :::definition id="definition-attenuation" term="Atténuation" definition="Part des sucres fermentescibles consommée par la levure. Elle relie la densité initiale à la densité finale et influence le corps ainsi que la sensation de sécheresse." sourceIds="palmer-2017":::
 
 :::example id="example-gravity-stable" title="Décider avec deux mesures" body="Une première mesure indique 1,012. Une seconde mesure prise environ 24 heures plus tard indique encore 1,012. Cette stabilité, associée au délai et aux consignes de la recette, est un meilleur indicateur de fin de fermentation qu'un barboteur silencieux." sourceIds="aha-brewing-with-extract":::
+
+:::relatedArticle id="related-og-fg" articleSlug="fermentescibles" sectionId="og-fg" sourceIds="palmer-2017":::
 
 ## Vérifier un démarrage lent ou un arrêt apparent {#diagnostic-fermentation}
 

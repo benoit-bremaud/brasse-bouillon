@@ -288,7 +288,7 @@ def _create_valid_fixture(base: Path) -> None:
   <script type="application/ld+json">{"@type":"Organization"}</script>
 </head>
 <body>
-  <a href="/guides/" hreflang="fr">Guides</a>
+  <a href="/en/guides/" hreflang="en">Guides</a>
   <main id="mainContentEn"></main>
   <script type="module" src="feedback-widget.js"></script>
   <script type="module" src="chat-widget.js"></script>
@@ -1034,7 +1034,7 @@ class QualityGateTests(unittest.TestCase):
             en_path = root / "en.html"
             en_path.write_text(
                 en_path.read_text(encoding="utf-8").replace(
-                    '<a href="/guides/" hreflang="fr">Guides</a>',
+                    '<a href="/en/guides/" hreflang="en">Guides</a>',
                     "",
                 ),
                 encoding="utf-8",
@@ -1042,7 +1042,10 @@ class QualityGateTests(unittest.TestCase):
 
             errors = quality_gate.check_html_files(root)
             self.assertTrue(
-                any("guides manquant sur la page EN" in error for error in errors)
+                any(
+                    "guides anglais manquant sur la page EN" in error
+                    for error in errors
+                )
             )
 
     def test_detects_sitemap_disallowed_url(self) -> None:

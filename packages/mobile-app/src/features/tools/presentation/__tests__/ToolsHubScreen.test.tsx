@@ -32,7 +32,9 @@ describe("ToolsHubScreen", () => {
     render(<ToolsHubScreen />);
 
     expect(screen.getByText("Calculateurs")).toBeTruthy();
-    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
+    expect(
+      screen.getByText("OG, FG et atténuation : calculer l’alcool d’une bière"),
+    ).toBeTruthy();
     expect(screen.getByText("Couleur")).toBeTruthy();
     expect(screen.getByText("Eau de brassage")).toBeTruthy();
   });
@@ -41,7 +43,7 @@ describe("ToolsHubScreen", () => {
     render(<ToolsHubScreen />);
 
     const cardAction = screen.getByLabelText(
-      "Ouvrir le calculateur Malts et fermentescibles",
+      "Ouvrir le calculateur OG, FG et atténuation : calculer l’alcool d’une bière",
     );
 
     fireEvent.press(cardAction);

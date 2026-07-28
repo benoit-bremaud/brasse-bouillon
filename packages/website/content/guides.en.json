@@ -1,0 +1,2411 @@
+{
+  "guides": [
+    {
+      "academySlug": "introduction",
+      "slug": "first-homebrew",
+      "title": "How to Brew Your First Beer at Home",
+      "description": "Brew your first batch step by step, from equipment and sanitation to fermentation, bottling and the measurements that matter most.",
+      "updatedAt": "2026-07-28",
+      "readTimeMinutes": 21,
+      "learningObjectives": [
+        "Prepare the essential equipment and ingredients before brew day.",
+        "Understand how wort becomes beer from the boil through fermentation.",
+        "Separate cleaning from sanitizing to protect the batch.",
+        "Track a few useful measurements without overcomplicating your first brew."
+      ],
+      "sources": [
+        {
+          "id": "palmer-2017",
+          "kind": "book",
+          "title": "How to Brew",
+          "authors": [
+            "John J. Palmer"
+          ],
+          "publisher": "Brewers Publications",
+          "url": null,
+          "accessedAt": null,
+          "year": 2017,
+          "notes": "Fourth-edition reference for brewing ingredients, process, fermentation, measurements, and recipe design."
+        },
+        {
+          "id": "aha-brewing-with-extract",
+          "kind": "website",
+          "title": "Brewing with Extract",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://www.homebrewersassociation.org/wp-content/uploads/How-To-Extract.pdf",
+          "accessedAt": "2026-07-27",
+          "year": null,
+          "notes": "Beginner brewing process, equipment, cleaning, sanitation, fermentation, and packaging reference."
+        },
+        {
+          "id": "aha-accurate-hydrometer-reading",
+          "kind": "website",
+          "title": "How to Take an Accurate Hydrometer Reading",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://www.homebrewersassociation.org/how-to-brew/how-to-take-an-accurate-hydrometer-reading/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Hydrometer sampling, meniscus, temperature, and measurement procedure."
+        },
+        {
+          "id": "lallemand-bottle-conditioning",
+          "kind": "technical-guide",
+          "title": "Best Practices: Bottle Conditioning",
+          "authors": [
+            "Lallemand Brewing"
+          ],
+          "publisher": "Lallemand Brewing",
+          "url": "https://connect.lallemandbrewing.com/wp-content/uploads/2021/02/LAL-bestpractices-Bottle-conditioning-Digital.pdf",
+          "accessedAt": "2026-07-28",
+          "year": 2021,
+          "notes": "Final-gravity stability, priming, conditioning, and bottle-conditioning safety."
+        },
+        {
+          "id": "brewers-association-package-pressure",
+          "kind": "technical-guide",
+          "title": "Preventing Package Over-Pressurization",
+          "authors": [
+            "Brewers Association"
+          ],
+          "publisher": "Brewers Association",
+          "url": "https://www.brewersassociation.org/educational-publications/preventing-package-over-pressurization/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Package over-pressurization hazards and prevention controls."
+        },
+        {
+          "id": "aha-dump-or-dont",
+          "kind": "website",
+          "title": "Dump ’Em or Don’t: When to Dump Homebrew",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://homebrewersassociation.org/how-to-brew/dump-em-or-dont-when-to-dump-homebrew/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Beginner guidance for distinguishing common fermentation appearance from contamination warning signs."
+        }
+      ],
+      "sections": [
+        {
+          "id": "plan-first-batch",
+          "title": "Plan a first batch you can finish confidently",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Your first batch is mainly about learning the complete sequence: prepare, brew, cool, ferment and package. Choose a short, well-documented recipe and read it from beginning to end before heating any water.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Check the ingredients, equipment and time you need. Mark every point where the recipe asks for a temperature, volume, hop addition or gravity reading so you are not searching for tools while the wort is hot.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "A sensible first recipe",
+              "body": "An extract kit or a simple all-grain recipe with few ingredients reduces decisions. Finishing every stage cleanly and taking notes matters more than controlling every advanced variable.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "First-batch roadmap",
+              "description": "A five-stage path from preparation and brew day to fermentation, packaging and tasting.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "first-brew-sequence",
+          "title": "Brew your first beer in eight clear steps",
+          "blocks": [
+            {
+              "type": "procedure",
+              "id": "first-brew-eight-steps",
+              "title": "The complete beginner brewing sequence",
+              "description": "Use this sequence as your high-level map. Your recipe supplies the exact quantities, temperatures and timings for the beer you are making.",
+              "steps": [
+                {
+                  "id": "prepare-recipe-equipment",
+                  "title": "Read the recipe and prepare the equipment",
+                  "text": "Check every ingredient, vessel and measurement before heating water. Clean reusable equipment, then prepare sanitizer according to its label.",
+                  "href": "#equipment-ingredients",
+                  "linkLabel": "Review the equipment and ingredients",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "aha-dump-or-dont"
+                  ]
+                },
+                {
+                  "id": "produce-sweet-wort",
+                  "title": "Produce the sweet wort",
+                  "text": "Dissolve malt extract as directed or mash crushed malt so enzymes can convert starch into sugars. Follow one method and one recipe consistently.",
+                  "href": "/en/guides/homebrewing-glossary/#mout",
+                  "linkLabel": "Understand wort",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "palmer-2017"
+                  ]
+                },
+                {
+                  "id": "boil-add-hops",
+                  "title": "Boil the wort and add hops on schedule",
+                  "text": "Maintain the recipe’s boil and make each hop addition at its specified time. Earlier and later additions serve different bitterness and aroma purposes.",
+                  "href": "/en/guides/ibu-hops-bitterness/",
+                  "linkLabel": "Learn hop timing and bitterness",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "palmer-2017"
+                  ]
+                },
+                {
+                  "id": "cool-protect-wort",
+                  "title": "Cool the wort and protect the cold side",
+                  "text": "After the boil, cool the wort toward the yeast’s pitching range. Every surface touching cooled wort must already be clean and properly sanitized.",
+                  "href": "#clean-sanitize",
+                  "linkLabel": "Apply the cold-side sanitation rule",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "aha-dump-or-dont"
+                  ]
+                },
+                {
+                  "id": "transfer-measure-og",
+                  "title": "Transfer safely and measure original gravity",
+                  "text": "Move the cooled wort into the sanitized fermenter, measure OG when the recipe requires it, and record the reading without returning the sample.",
+                  "href": "/en/guides/og-fg-attenuation-homebrew/",
+                  "linkLabel": "Use OG and FG correctly",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "aha-accurate-hydrometer-reading",
+                    "palmer-2017"
+                  ]
+                },
+                {
+                  "id": "pitch-control-fermentation",
+                  "title": "Pitch healthy yeast and control fermentation",
+                  "text": "Add the yeast within its recommended temperature range, close the fermenter and keep it stable. Avoid opening it merely to check airlock bubbles.",
+                  "href": "/en/guides/homebrew-fermentation-time-temperature/",
+                  "linkLabel": "Follow fermentation safely",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "palmer-2017"
+                  ]
+                },
+                {
+                  "id": "confirm-package-beer",
+                  "title": "Confirm completion before packaging",
+                  "text": "Respect the recipe timeline and confirm stable final gravity when instructed. Bottle or keg only after fermentation is complete, using a measured carbonation method.",
+                  "href": "/en/guides/homebrew-fermentation-time-temperature/#package-safely",
+                  "linkLabel": "Check before packaging",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "lallemand-bottle-conditioning",
+                    "brewers-association-package-pressure"
+                  ]
+                },
+                {
+                  "id": "condition-taste-learn",
+                  "title": "Condition, taste and improve",
+                  "text": "Give the packaged beer the required conditioning time, then taste it alongside your recipe and brew notes. Record one success and one change for the next batch.",
+                  "href": "#taste-and-improve",
+                  "linkLabel": "Build a useful tasting note",
+                  "sourceIds": [
+                    "aha-brewing-with-extract",
+                    "lallemand-bottle-conditioning",
+                    "brewers-association-package-pressure"
+                  ]
+                }
+              ],
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "equipment-ingredients",
+          "title": "Gather the equipment and four core ingredients",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "The exact setup depends on your method, but most first batches need a suitable kettle, a thermometer, a fermenter and airlock, transfer equipment, packaging equipment and a way to measure volume. Your recipe may also call for a hydrometer, grain bag or wort chiller.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Beer starts with water, malt, hops and yeast. Water forms the batch, malt or malt extract provides fermentable sugars, hops add bitterness and aroma, and yeast turns wort sugars into alcohol, carbon dioxide and flavor compounds.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "definition",
+              "term": "Wort",
+              "definition": "The sweet liquid produced from malt before fermentation. Once yeast ferments it, wort becomes beer.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "mout",
+              "label": "Wort"
+            }
+          ]
+        },
+        {
+          "id": "clean-sanitize",
+          "title": "Clean first, then sanitize",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Cleaning removes residue and visible soil. Sanitizing treats an already clean surface to reduce microorganisms that could spoil the beer. Sanitizer cannot compensate for equipment that is still dirty.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "After the boil, anything touching cooled wort or beer must be clean and properly sanitized: the fermenter, lid, thermometer, tubing, hydrometer jar and packaging equipment. Follow the product label for concentration, contact time and rinsing.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "The cold-side rule",
+              "body": "Once the boil ends and the wort begins to cool, treat every contact as sensitive. Keep hands, utensils, tubing, instruments and the fermenter clean and sanitized.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Clean versus sanitize decision path",
+              "description": "A two-lane diagram showing residue removal first, sanitizer concentration and contact time second, then the protected cold-side equipment.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "brew-day",
+          "title": "Follow the brew-day sequence",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "With grain, mashing lets malt enzymes convert starches into fermentable sugars. With malt extract, much of that work has already been done. Follow one recipe and one method instead of combining several protocols.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Boil the wort and add hops at the scheduled times. Cool it, transfer it into the sanitized fermenter, take the original gravity reading if required, pitch the yeast within its recommended temperature range, then close the fermenter.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Brew-day flow",
+              "description": "A left-to-right diagram of mash or extract preparation, boil and hop additions, cooling, transfer, OG measurement and yeast pitching.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "ibu-hops-bitterness"
+            }
+          ]
+        },
+        {
+          "id": "ferment-patiently",
+          "title": "Let fermentation work",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Keep the fermenter within the yeast manufacturer’s temperature range. Avoid repeated movement and unnecessary opening. Airlock activity varies with pressure and seal quality, so bubbles alone do not prove whether fermentation is active or complete.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Before packaging, respect the recipe timeline and confirm final gravity when instructed. Do not bottle beer while gravity is still falling: continued fermentation inside sealed bottles can create dangerous excess pressure.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "homebrew-fermentation-time-temperature"
+            }
+          ]
+        },
+        {
+          "id": "measure-what-matters",
+          "title": "Record the measurements that matter",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "For a first batch, record volumes, key temperatures, hop-addition times, OG, FG and simple fermentation observations. Those notes explain most differences between the recipe and the finished beer.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "OG estimates extract before fermentation. FG shows what remains afterward. Their difference estimates alcohol and apparent attenuation. IBU is a recipe estimate for bitterness, not a direct promise of how bitter the beer will taste.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Gravity measurement checkpoints",
+              "description": "A hydrometer timeline showing an OG reading before fermentation, repeated FG readings after activity, and the rule to never return a sample to the fermenter.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-accurate-hydrometer-reading",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "densite-initiale",
+              "label": "Original gravity"
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "og-fg-attenuation-homebrew"
+            }
+          ]
+        },
+        {
+          "id": "avoid-first-batch-mistakes",
+          "title": "Avoid common first-batch mistakes",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Do not improvise sanitizer dosage, return a sample to the fermenter, pitch yeast into wort that is too hot, or package on a fixed date without checking fermentation. These shortcuts create larger risks than a small calculation error.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Write down deviations instead of trying to correct several things at once. A clear record turns an imperfect batch into useful evidence for the next recipe.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "taste-and-improve",
+          "title": "Taste, record and improve the next batch",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Taste the finished beer after carbonation and describe aroma, bitterness, sweetness, body and carbonation in plain language. Compare those notes with your measurements and recipe rather than judging the beer only as good or bad.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "A useful final note",
+              "body": "Record one thing to keep and one thing to change. That small feedback loop makes the second batch easier to plan and compare.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "calculatorCta",
+              "title": "Keep every batch in one place",
+              "description": "Brasse-Bouillon connects recipes, brew-day steps, gravity readings and tasting notes so each batch helps improve the next one."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "academySlug": "houblons",
+      "slug": "ibu-hops-bitterness",
+      "title": "IBU and Hops: Understanding Beer Bitterness",
+      "description": "Understand what IBU measures, how hop timing changes bitterness and aroma, and why two beers with the same IBU can taste completely different.",
+      "updatedAt": "2026-07-28",
+      "readTimeMinutes": 13,
+      "learningObjectives": [
+        "Explain what an IBU estimate represents and what it cannot predict.",
+        "Choose hop timings for bitterness, flavor, aroma or dry hopping.",
+        "Interpret bitterness alongside gravity, beer style and recipe balance."
+      ],
+      "sources": [
+        {
+          "id": "palmer-2017",
+          "kind": "book",
+          "title": "How to Brew",
+          "authors": [
+            "John J. Palmer"
+          ],
+          "publisher": "Brewers Publications",
+          "url": null,
+          "accessedAt": null,
+          "year": 2017,
+          "notes": "Fourth-edition reference for brewing ingredients, process, fermentation, measurements, and recipe design."
+        },
+        {
+          "id": "oqlf-houblonnage-cru-2018",
+          "kind": "website",
+          "title": "Houblonnage à cru",
+          "authors": [
+            "Office québécois de la langue française"
+          ],
+          "publisher": "Office québécois de la langue française",
+          "url": "https://vitrinelinguistique.oqlf.gouv.qc.ca/fiche-gdt/fiche/2088405/houblonnage-a-cru",
+          "accessedAt": "2026-07-27",
+          "year": 2018,
+          "notes": "Official French terminology and definition for dry hopping."
+        },
+        {
+          "id": "brewers-association-hop-creep",
+          "kind": "technical-guide",
+          "title": "Hop Creep Technical Brief",
+          "authors": [
+            "Brewers Association"
+          ],
+          "publisher": "Brewers Association",
+          "url": "https://www.brewersassociation.org/educational-publications/hop-creep-technical-brief/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Dry-hop enzymes, renewed fermentation, diacetyl, and package-safety implications."
+        },
+        {
+          "id": "brun-water-knowledge",
+          "kind": "website",
+          "title": "Bru’n Water Knowledge",
+          "authors": [
+            "Martin Brungard"
+          ],
+          "publisher": "Bru’n Water",
+          "url": "https://www.brunwater.com/water-knowledge",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Brewing-water ions, mash pH, and sensory effects."
+        }
+      ],
+      "sections": [
+        {
+          "id": "what-ibu-measures",
+          "title": "What IBU actually measures",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "International Bitterness Units estimate the concentration of bitter compounds in beer, mainly iso-alpha acids formed when hop alpha acids are heated. Recipe software predicts IBU from hop quantity, alpha-acid percentage, boil time, wort gravity and volume.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "IBU is a technical reference, not a sensory score. Malt sweetness, alcohol, carbonation, water profile, hop aroma and individual perception all change how bitter a beer tastes.",
+              "sourceIds": [
+                "palmer-2017",
+                "brun-water-knowledge"
+              ]
+            },
+            {
+              "type": "definition",
+              "term": "IBU",
+              "definition": "A brewing unit used to estimate bittering compounds in beer. One number helps compare recipes, but it does not describe the whole flavor.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "ibu",
+              "label": "IBU"
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "IBU versus perceived bitterness",
+              "description": "Two beers marked 40 IBU with different malt sweetness and therefore different perceived bitterness.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "hop-contributions",
+          "title": "Bitterness, flavor and aroma come from different hop compounds",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Alpha acids provide bittering potential. Essential oils contribute citrus, floral, resinous, spicy or tropical aromas, while polyphenols can affect mouthfeel and sharpness. Variety, crop, storage and freshness all matter.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "A hop with a high alpha-acid percentage can reach a bitterness target with less plant material, but the variety should still fit the intended aroma and flavor.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "acide-alpha",
+              "label": "Alpha acids"
+            }
+          ]
+        },
+        {
+          "id": "hop-timing",
+          "title": "Choose hop timing by purpose",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Long boil additions favor bitterness because heat has more time to isomerize alpha acids, although volatile aromas are lost. Additions in the final 15 to 5 minutes retain more flavor and aroma while still contributing some bitterness.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Whirlpool or hop-stand additions happen after the boil and emphasize aroma with variable bitterness depending on temperature and contact time. Dry hopping adds hops during or after fermentation and is mainly used for aroma.",
+              "sourceIds": [
+                "palmer-2017",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Hop-addition timeline",
+              "description": "A 60-minute boil timeline showing bittering, late-boil, whirlpool and dry-hop zones with their expected bitterness and aroma contributions.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "dry-hopping",
+          "title": "Dry hopping changes aroma and can restart fermentation",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Dry hopping is mainly used to build aroma, but its effects are not limited to aroma. Hop compounds can change measured and perceived bitterness, sharpness and mouthfeel even though standard kettle-IBU formulas do not model the addition well.",
+              "sourceIds": [
+                "palmer-2017",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Hops can also introduce enzymes that break some remaining dextrins into fermentable sugars. This hop creep can restart fermentation, lower final gravity, produce more carbon dioxide and allow diacetyl to rise again.",
+              "sourceIds": [
+                "palmer-2017",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Limit oxygen when adding or removing hops. After dry hopping, allow the planned contact and fermentation time, then reconfirm stable gravity over at least 48 hours after activity appears finished before packaging. Strong, slow or cold-fermented beer may need longer.",
+              "sourceIds": [
+                "palmer-2017",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Dry hop aroma and hop-creep safety path",
+              "description": "A two-lane diagram: aroma extraction on one side; hop enzymes, renewed fermentation, gravity checks and safe packaging on the other.",
+              "sourceIds": [
+                "palmer-2017",
+                "brewers-association-hop-creep"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "same-ibu-different-taste",
+          "title": "Why equal IBU values can taste different",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A strong, sweet beer can carry 40 IBU with a rounded balance, while a lighter dry beer at 40 IBU may taste much sharper. Original gravity and final gravity help explain the malt and residual-sugar context behind the number.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Water chemistry also shifts perception. Sulfate often makes bitterness seem drier and more defined, while chloride can support fullness and malt expression. Compare actual concentrations, not only a sulfate-to-chloride ratio.",
+              "sourceIds": [
+                "palmer-2017",
+                "brun-water-knowledge"
+              ]
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "og-fg-attenuation-homebrew"
+            }
+          ]
+        },
+        {
+          "id": "estimate-ibu",
+          "title": "Estimate IBU without losing sight of taste",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Common Tinseth or Rager calculations are models. Use one consistently, enter the correct post-boil volume, hop alpha-acid percentage, wort gravity and addition time, then compare the prediction with your own finished beer.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Build toward a target",
+              "body": "Choose a style range, assign most calculated bitterness to an early addition, then reserve later additions for flavor and aroma. Record the actual hop lot and timings so the result is reproducible.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "calculatorCta",
+              "title": "Plan hop additions and bitterness",
+              "description": "Use Brasse-Bouillon to connect hop variety, alpha acids, timing, wort gravity and target IBU in one recipe."
+            }
+          ]
+        },
+        {
+          "id": "avoid-hop-mistakes",
+          "title": "Avoid common hop-planning mistakes",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Do not treat calculated IBU as perceived bitterness, copy an alpha-acid value from another crop, or ignore final volume and wort gravity. A late addition can still add bitterness, and a dry-hop addition can change both sensory bitterness and fermentation.",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "The useful question is not “How many IBU is best?” but “What bitterness, malt balance and hop aroma should this beer deliver?”",
+              "sourceIds": [
+                "palmer-2017"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "academySlug": "levures",
+      "slug": "homebrew-fermentation-time-temperature",
+      "title": "Homebrew Fermentation: Time, Temperature and Signs",
+      "description": "Learn how long beer fermentation takes, how to control yeast temperature, read activity signs and confirm stable final gravity before bottling.",
+      "updatedAt": "2026-07-28",
+      "readTimeMinutes": 17,
+      "learningObjectives": [
+        "Understand the main stages of beer fermentation.",
+        "Use the yeast manufacturer’s temperature range instead of a universal schedule.",
+        "Distinguish visible activity from reliable proof of completion.",
+        "Confirm stable final gravity before packaging."
+      ],
+      "sources": [
+        {
+          "id": "palmer-2017",
+          "kind": "book",
+          "title": "How to Brew",
+          "authors": [
+            "John J. Palmer"
+          ],
+          "publisher": "Brewers Publications",
+          "url": null,
+          "accessedAt": null,
+          "year": 2017,
+          "notes": "Fourth-edition reference for brewing ingredients, process, fermentation, measurements, and recipe design."
+        },
+        {
+          "id": "aha-brewing-with-extract",
+          "kind": "website",
+          "title": "Brewing with Extract",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://www.homebrewersassociation.org/wp-content/uploads/How-To-Extract.pdf",
+          "accessedAt": "2026-07-27",
+          "year": null,
+          "notes": "Beginner brewing process, equipment, cleaning, sanitation, fermentation, and packaging reference."
+        },
+        {
+          "id": "aha-accurate-hydrometer-reading",
+          "kind": "website",
+          "title": "How to Take an Accurate Hydrometer Reading",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://www.homebrewersassociation.org/how-to-brew/how-to-take-an-accurate-hydrometer-reading/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Hydrometer sampling, meniscus, temperature, and measurement procedure."
+        },
+        {
+          "id": "lallemand-bottle-conditioning",
+          "kind": "technical-guide",
+          "title": "Best Practices: Bottle Conditioning",
+          "authors": [
+            "Lallemand Brewing"
+          ],
+          "publisher": "Lallemand Brewing",
+          "url": "https://connect.lallemandbrewing.com/wp-content/uploads/2021/02/LAL-bestpractices-Bottle-conditioning-Digital.pdf",
+          "accessedAt": "2026-07-28",
+          "year": 2021,
+          "notes": "Final-gravity stability, priming, conditioning, and bottle-conditioning safety."
+        },
+        {
+          "id": "brewers-association-package-pressure",
+          "kind": "technical-guide",
+          "title": "Preventing Package Over-Pressurization",
+          "authors": [
+            "Brewers Association"
+          ],
+          "publisher": "Brewers Association",
+          "url": "https://www.brewersassociation.org/educational-publications/preventing-package-over-pressurization/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Package over-pressurization hazards and prevention controls."
+        },
+        {
+          "id": "aha-dump-or-dont",
+          "kind": "website",
+          "title": "Dump ’Em or Don’t: When to Dump Homebrew",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://homebrewersassociation.org/how-to-brew/dump-em-or-dont-when-to-dump-homebrew/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Beginner guidance for distinguishing common fermentation appearance from contamination warning signs."
+        },
+        {
+          "id": "brewers-association-hop-creep",
+          "kind": "technical-guide",
+          "title": "Hop Creep Technical Brief",
+          "authors": [
+            "Brewers Association"
+          ],
+          "publisher": "Brewers Association",
+          "url": "https://www.brewersassociation.org/educational-publications/hop-creep-technical-brief/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Dry-hop enzymes, renewed fermentation, diacetyl, and package-safety implications."
+        }
+      ],
+      "sections": [
+        {
+          "id": "fermentation-stages",
+          "title": "What happens inside the fermenter",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "After pitching, yeast adapts, reproduces and begins converting fermentable sugars into alcohol, carbon dioxide and flavor compounds. Activity then slows as sugars are depleted and the yeast starts settling.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "The boundaries are gradual. Yeast strain, pitch rate, wort gravity, oxygenation, nutrients and temperature all influence the pace and flavor profile.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Fermentation stages",
+              "description": "A timeline showing lag, active fermentation, slowdown, cleanup and stable final gravity.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fermentation-duration",
+          "title": "How long does beer fermentation take?",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Many ales show active fermentation within 12 to 72 hours and may reach final gravity in roughly one to two weeks, but those ranges are only planning references. Strong beers, cool conditions and some yeast strains need longer.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "A calendar cannot confirm completion. Follow the recipe, observe the batch and compare gravity readings before deciding to package.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Treat the schedule as conditional",
+              "body": "“Bottle on day 14” is less reliable than “check gravity near day 14 and package only after it is stable.”",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "control-temperature",
+          "title": "Keep yeast in its recommended temperature range",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Read the exact yeast manufacturer’s range. Different strains sold as ale or lager yeast can require very different conditions. Measure the beer or fermenter temperature when possible, because active fermentation can run warmer than the room.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Large swings can stress yeast and change flavor. Choose a stable location, shield the fermenter from direct sunlight and make adjustments gradually.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Yeast temperature control",
+              "description": "A fermenter with a temperature probe, a shaded stable zone and warnings for rapid temperature swings.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "read-signs",
+          "title": "Read activity signs without opening the fermenter",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Krausen, cloudy wort and carbon-dioxide release are common signs. Some batches produce dramatic foam while others remain quiet. Airlock bubbles also depend on seal quality and pressure.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "No bubbles do not prove that yeast is inactive, and stopped bubbles do not prove completion. Observe through the closed vessel and avoid repeated lid opening, which adds contamination and oxidation risk.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "definition",
+              "term": "Krausen",
+              "definition": "The foam layer that may form on top of wort during active fermentation. Its size and duration vary by batch.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "measure-final-gravity",
+          "title": "Measure and confirm final gravity",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A hydrometer tracks the drop from original gravity to final gravity. Take samples with clean, sanitized equipment, account for the instrument’s calibration temperature and never return a sample to the fermenter.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Two matching readings taken at least 48 hours apart, after the expected fermentation timeline, are stronger evidence than a silent airlock. Stable gravity does not have to match the recipe exactly, but a result far above target deserves investigation. Strong, slow, cold-fermented or dry-hopped beer may need a longer observation window.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Decide with repeat readings",
+              "body": "A reading of 1.012 followed by another 1.012 at least 48 hours later supports completion when the recipe timeline, temperature and fermentation conditions also make sense.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "densite-finale",
+              "label": "Final gravity"
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "og-fg-attenuation-homebrew"
+            }
+          ]
+        },
+        {
+          "id": "diagnose-slow-fermentation",
+          "title": "Check slow starts and apparent stalls in order",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "First check elapsed time, actual temperature and fermenter seal. Visible signs may take up to 72 hours, and gas may escape somewhere other than the airlock. Compare a gravity reading with OG to see whether sugars are being consumed.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "If gravity remains unchanged or well above target, verify the yeast range, age and storage, then reread the recipe. Avoid adding sugar, oxygen or more yeast at random; the correct action depends on the cause.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Slow-fermentation decision tree",
+              "description": "A diagnostic flow from elapsed time, temperature and seal checks to gravity measurement and yeast assessment.",
+              "sourceIds": [
+                "aha-accurate-hydrometer-reading",
+                "lallemand-bottle-conditioning"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "normal-or-contamination",
+          "title": "Distinguish normal fermentation from possible contamination",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Krausen can look uneven, tan, cream-colored or crusty, then leave a ring as it falls. Yeast rafts, hop particles and sediment are also common. Judge the whole sequence, not one unfamiliar patch viewed through the fermenter.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Fuzzy or hairy growth, especially with green, blue or black color, is a stronger warning sign than ordinary foam. A thin film or persistent surface bubbles can have several causes, so a photo alone may not identify the organism. Unexpected aroma, continuing gravity change and how the surface develops provide useful context.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Inspect without creating a new risk",
+              "body": "Look through the closed vessel, compare with earlier observations and take a sanitized gravity sample only when it changes the decision. Do not repeatedly open the lid to photograph the surface. If obvious mold is present or the diagnosis remains uncertain, do not package the beer until you have assessed it safely.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Normal krausen or warning sign?",
+              "description": "A comparison panel showing normal krausen and yeast rafts, an ambiguous surface film that needs context, and fuzzy colored mold as a strong warning sign.",
+              "sourceIds": [
+                "aha-brewing-with-extract",
+                "aha-dump-or-dont"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "protect-the-beer",
+          "title": "Protect beer from contamination, oxygen and pressure",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Everything that touches cooled wort or beer must be clean and sanitized. Take only the sample you need, close the fermenter promptly and avoid splashing once active fermentation slows.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Cold-side oxygen can dull fresh hop aroma and accelerate stale flavors or darkening. Reduce open transfers and repeated lid opening, keep the transfer outlet below the beer surface, fill with gentle flow, and cap bottles promptly. Purge vessels or lines with carbon dioxide when your equipment safely supports it.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Low-oxygen transfer path",
+              "description": "A side-by-side transfer diagram contrasting splashing into an open vessel with a gentle, covered transfer through tubing below the receiving beer surface.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Always leave a safe route for carbon dioxide to escape. Do not block an airlock or blow-off tube, and never open a pressurized fermenter without following its manufacturer’s instructions.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-brewing-with-extract"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "package-safely",
+          "title": "Package only after fermentation is complete",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Do not bottle because bubbles stopped or a date arrived. After the expected fermentation timeline, confirm matching gravity readings at least 48 hours apart; extend the check for strong, slow, cold-fermented or dry-hopped beer.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Calculate priming sugar from the actual packaged volume, the temperature assumption used for residual carbon dioxide, the desired carbonation and the sugar type. Follow one validated calculator or recipe method rather than estimating by spoonful.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Prepare and distribute the priming solution evenly while limiting splashing. Use clean, sanitized bottles designed for pressure, inspect each bottle, leave consistent headspace, cap promptly and condition within the recipe or yeast supplier’s range.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Before packaging",
+              "body": "Expected time respected; gravity stable for at least 48 hours; dry-hop activity resolved; actual packaged volume measured; priming inputs checked; sugar distributed evenly; equipment sanitized; pressure-rated bottles inspected and ready.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure",
+                "brewers-association-hop-creep"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Bottle-conditioning checklist",
+              "description": "A left-to-right checklist from stable gravity and actual beer volume through priming calculation, gentle mixing, pressure-rated bottles, conditioning and a chilled test bottle.",
+              "sourceIds": [
+                "lallemand-bottle-conditioning",
+                "brewers-association-package-pressure"
+              ]
+            },
+            {
+              "type": "calculatorCta",
+              "title": "Track fermentation with confidence",
+              "description": "Brasse-Bouillon keeps yeast, temperature, OG, FG and packaging checks connected to the batch record."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "academySlug": "fermentescibles",
+      "slug": "og-fg-attenuation-homebrew",
+      "title": "Original Gravity, Final Gravity and ABV in Homebrewing",
+      "description": "Learn how original gravity, final gravity and apparent attenuation help you track fermentation and estimate your homebrew beer’s alcohol content.",
+      "updatedAt": "2026-07-28",
+      "readTimeMinutes": 13,
+      "learningObjectives": [
+        "Distinguish original gravity, final gravity, alcohol by volume and apparent attenuation.",
+        "Estimate your beer’s ABV from hydrometer readings.",
+        "Use stable gravity readings to make safer fermentation decisions."
+      ],
+      "sections": [
+        {
+          "id": "why-measure-gravity",
+          "title": "Why original and final gravity matter",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Original gravity (OG) is the specific gravity of wort before fermentation. Final gravity (FG) is the stable reading reached near the end. Apparent attenuation measures the observed gravity reduction; because alcohol lowers the liquid’s density, it is not the same as the true mass of extract consumed.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Together, these readings help you follow fermentation, estimate alcohol by volume (ABV), and understand whether a beer is likely to finish dry or retain more body. The grain bill, other fermentables, mash profile and yeast strain all influence the result.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "definition",
+              "term": "Original gravity and final gravity",
+              "definition": "OG is measured before fermentation begins. FG is measured after fermentation has reached a stable endpoint.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Gravity from wort to finished beer",
+              "description": "A hydrometer scale showing OG before fermentation, FG after fermentation, and the gravity drop between them.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "quick-reference",
+          "title": "OG, FG, ABV and attenuation at a glance",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "OG describes the wort before fermentation. FG describes the beer near the stable endpoint. ABV estimates the final percentage of alcohol by volume. Apparent attenuation expresses the observed gravity drop relative to the original gravity points; it is an apparent density-based value, not real attenuation.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Think of OG as the starting concentration of dissolved extract and FG as the reading left at the end. A larger gravity drop usually means more alcohol and a drier finish, but the expected FG still depends on the recipe and yeast.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "calculate-abv",
+          "title": "How to calculate ABV from OG and FG",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A common homebrewing estimate is: ABV ≈ (OG − FG) × 131.25. It converts the change in specific gravity into an estimated percentage of alcohol by volume. It is a practical approximation, not a laboratory measurement.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "Example: OG 1.060 and FG 1.012",
+              "body": "(1.060 − 1.012) × 131.25 gives an estimated 6.3% ABV. The result depends on accurate, temperature-corrected readings.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "calculatorCta",
+              "title": "Estimate alcohol and attenuation",
+              "description": "See how Brasse-Bouillon connects OG, FG, apparent attenuation and ABV without making you repeat every conversion by hand."
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "densite-initiale",
+              "label": "Original gravity"
+            }
+          ]
+        },
+        {
+          "id": "calculate-attenuation",
+          "title": "How to calculate apparent attenuation",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Many ale yeast strains publish an apparent attenuation range around 70–85%, although the actual result depends on the strain, wort composition, mash profile and fermentation conditions. Higher attenuation often produces a drier beer; lower attenuation can leave more body and sweetness.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Calculate apparent attenuation with: ((OG − FG) ÷ (OG − 1)) × 100. A beer that moves from 1.060 to 1.012 reaches 80% apparent attenuation. Compare that figure with the yeast manufacturer’s range, your recipe and previous batches.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "definition",
+              "term": "Apparent attenuation",
+              "definition": "The percentage reduction calculated from original and final specific gravity. Alcohol lowers density, so apparent attenuation is higher than real attenuation and should not be described as the exact share of extract consumed.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Apparent attenuation calculation",
+              "description": "A worked visual that maps OG 1.060 and FG 1.012 to 80% apparent attenuation.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interpret-readings",
+          "title": "How to interpret your readings",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "The same FG can taste different from one beer to another. A reading near 1.010 may seem dry in a modest, crisp beer yet fuller in a stronger or more dextrinous recipe. Original gravity, alcohol, dextrins, acidity, carbonation, bitterness and serving conditions all affect the impression.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "These numbers are reference points, not pass-or-fail limits. Beer style, yeast strain, fermentation temperature, wort composition and mash profile can all move the expected FG. One isolated reading cannot prove that fermentation is complete.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "glossaryReference",
+              "termSlug": "attenuation",
+              "label": "Apparent attenuation"
+            }
+          ]
+        },
+        {
+          "id": "use-hydrometer-refractometer",
+          "title": "Use a hydrometer and refractometer correctly",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "For a hydrometer reading, collect a representative sample in a clean, sanitized trial jar and cool it near the instrument’s calibration temperature. Add enough liquid for the hydrometer to float freely, remove clinging bubbles, read at eye level using the instrument’s specified meniscus, then apply a temperature correction when needed.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "A refractometer needs only a small sample and is convenient before fermentation. Calibrate it as directed. Once alcohol is present, enter the original and current refractometer readings into an alcohol-correction model; the raw post-fermentation value is not final gravity.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "example",
+              "title": "A repeatable measurement routine",
+              "body": "Identify the instrument and units, note sample temperature, clear bubbles or foam, read at eye level, record the unrounded value and correction, and never return the sample to the fermenter.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Hydrometer reading at eye level",
+              "description": "A trial jar showing free flotation, bubble removal, the correct meniscus reading at eye level, sample temperature and a separate corrected result.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "measurement-errors",
+          "title": "Avoid common gravity-reading errors",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Check your hydrometer’s calibration temperature and correct readings taken from warmer or colder samples. Do not mix specific gravity, degrees Plato and gravity points without converting them. Take a representative sample with clean, sanitized equipment and never return it to the fermenter.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "A refractometer reading also needs an alcohol correction once fermentation has started. Alcohol changes how the instrument bends light, so an uncorrected post-fermentation value is not a reliable FG.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "confirm-fermentation",
+          "title": "Confirm fermentation before packaging",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A stable FG across repeat readings taken at least 48 hours apart, after the expected fermentation timeline, is more useful than a target date or a quiet airlock. If gravity is still falling, fermentation is still active. Strong, slow, cold-fermented or dry-hopped beer may need a longer check.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Do not rely on airlock activity alone. A leaking fermenter may show few bubbles while fermentation proceeds normally, and a quiet airlock does not guarantee that the beer is ready to bottle.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "illustrationPlaceholder",
+              "title": "Stable final gravity decision",
+              "description": "Two matching hydrometer readings taken at least 48 hours apart after the expected timeline, followed by the packaging decision.",
+              "sourceIds": [
+                "palmer-2017",
+                "aha-accurate-hydrometer-reading"
+              ]
+            },
+            {
+              "type": "relatedArticle",
+              "guideSlug": "homebrew-fermentation-time-temperature"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "palmer-2017",
+          "kind": "book",
+          "title": "How to Brew",
+          "authors": [
+            "John J. Palmer"
+          ],
+          "publisher": "Brewers Publications",
+          "url": null,
+          "accessedAt": null,
+          "year": 2017,
+          "notes": "Fourth-edition reference for brewing ingredients, process, fermentation, measurements, and recipe design."
+        },
+        {
+          "id": "aha-accurate-hydrometer-reading",
+          "kind": "website",
+          "title": "How to Take an Accurate Hydrometer Reading",
+          "authors": [
+            "American Homebrewers Association"
+          ],
+          "publisher": "American Homebrewers Association",
+          "url": "https://www.homebrewersassociation.org/how-to-brew/how-to-take-an-accurate-hydrometer-reading/",
+          "accessedAt": "2026-07-28",
+          "year": null,
+          "notes": "Hydrometer sampling, meniscus, temperature, and measurement procedure."
+        }
+      ]
+    }
+  ],
+  "glossary": {
+    "academySlug": "glossaire",
+    "slug": "homebrewing-glossary",
+    "title": "Homebrewing Glossary",
+    "description": "Understand 22 essential homebrewing terms covering ingredients, fermentation, gravity, bitterness, color, water chemistry and brewing history.",
+    "updatedAt": "2026-07-28",
+    "illustration": {
+      "type": "illustrationPlaceholder",
+      "title": "Homebrewing concept map",
+      "description": "A connected map grouping ingredients, process, fermentation, measurements, water chemistry and brewing history."
+    },
+    "terms": [
+      {
+        "slug": "ibu",
+        "label": "IBU",
+        "aliases": [
+          "International Bitterness Units"
+        ],
+        "shortDefinition": "A recipe estimate of beer bitterness.",
+        "detailedDefinition": "IBU estimates the concentration of bitter compounds, mainly those produced from hops during the boil. It helps compare recipes but does not fully predict perceived bitterness.",
+        "relatedTerms": [
+          "acide-alpha",
+          "houblon"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "houblon",
+        "label": "Hops",
+        "aliases": [
+          "hop cones"
+        ],
+        "shortDefinition": "The flowers used to add bitterness, flavor and aroma to beer.",
+        "detailedDefinition": "Hops provide alpha acids, aromatic oils and polyphenols. Their effect depends on variety, crop, storage, amount and addition timing.",
+        "relatedTerms": [
+          "ibu",
+          "acide-alpha"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "acide-alpha",
+        "label": "Alpha acid",
+        "aliases": [
+          "alpha acids"
+        ],
+        "shortDefinition": "A hop compound that provides bittering potential.",
+        "detailedDefinition": "Alpha acids from hops isomerize during heating and contribute much of beer’s measured bitterness.",
+        "relatedTerms": [
+          "ibu",
+          "houblon"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "malt",
+        "label": "Malt",
+        "aliases": [
+          "malted grain"
+        ],
+        "shortDefinition": "Germinated and kilned grain that provides starch, enzymes, color and flavor.",
+        "detailedDefinition": "Malt is the fermentable foundation of many beers. During mashing, its enzymes convert starch into sugars that yeast can use.",
+        "relatedTerms": [
+          "empatage",
+          "mout",
+          "ebc"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "mout",
+        "label": "Wort",
+        "aliases": [],
+        "shortDefinition": "The sweet liquid produced from malt before fermentation.",
+        "detailedDefinition": "Wort contains sugars, proteins, minerals and flavor compounds extracted from malt. Yeast fermentation turns it into beer.",
+        "relatedTerms": [
+          "malt",
+          "densite-initiale",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "empatage",
+        "label": "Mash",
+        "aliases": [
+          "mashing"
+        ],
+        "shortDefinition": "The stage where crushed grain and hot water convert starch into sugars.",
+        "detailedDefinition": "Mashing activates malt enzymes within controlled temperature and pH ranges. It influences fermentability, body, efficiency and final character.",
+        "relatedTerms": [
+          "malt",
+          "mout",
+          "ph"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "densite-initiale",
+        "label": "Original gravity",
+        "aliases": [
+          "OG"
+        ],
+        "shortDefinition": "The specific gravity of wort before fermentation.",
+        "detailedDefinition": "Original gravity estimates the extract available before fermentation. It helps predict alcohol potential and compare the brewed wort with the recipe target.",
+        "relatedTerms": [
+          "mout",
+          "densite-finale",
+          "attenuation"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "densite-finale",
+        "label": "Final gravity",
+        "aliases": [
+          "FG"
+        ],
+        "shortDefinition": "The gravity measured when fermentation has finished and stabilized.",
+        "detailedDefinition": "Final gravity reflects the extract remaining after fermentation. Combined with OG, it helps estimate apparent attenuation and alcohol content.",
+        "relatedTerms": [
+          "densite-initiale",
+          "attenuation",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "attenuation",
+        "label": "Apparent attenuation",
+        "aliases": [
+          "attenuation"
+        ],
+        "shortDefinition": "The relative gravity drop from the start to the end of fermentation.",
+        "detailedDefinition": "Apparent attenuation estimates how much wort extract the yeast consumed. Yeast strain, mash profile, wort composition and fermentation conditions affect it.",
+        "relatedTerms": [
+          "densite-initiale",
+          "densite-finale",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "fermentation",
+        "label": "Fermentation",
+        "aliases": [
+          "primary fermentation"
+        ],
+        "shortDefinition": "The conversion of wort sugars into alcohol, carbon dioxide and flavor compounds by yeast.",
+        "detailedDefinition": "Fermentation converts fermentable sugars and builds much of the beer’s final profile. Temperature, yeast health, initial oxygen and nutrients influence the result.",
+        "relatedTerms": [
+          "mout",
+          "attenuation",
+          "densite-finale"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "srm",
+        "label": "SRM",
+        "aliases": [
+          "Standard Reference Method"
+        ],
+        "shortDefinition": "The American scale used to describe beer color.",
+        "detailedDefinition": "SRM expresses finished beer color using a standardized method. Homebrewers often estimate it from the grain bill with formulas such as Morey.",
+        "relatedTerms": [
+          "ebc",
+          "malt"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "ebc",
+        "label": "EBC",
+        "aliases": [
+          "European Brewery Convention"
+        ],
+        "shortDefinition": "The European scale used to describe malt and beer color.",
+        "detailedDefinition": "EBC is widely used in Europe for color. A common finished-beer approximation is EBC equals SRM multiplied by about 1.97.",
+        "relatedTerms": [
+          "srm",
+          "malt"
+        ],
+        "sources": [
+          {
+            "id": "palmer-2017",
+            "kind": "book",
+            "title": "How to Brew",
+            "authors": [
+              "John J. Palmer"
+            ],
+            "publisher": "Brewers Publications",
+            "url": "https://www.howtobrew.com/",
+            "accessedAt": "2026-07-03",
+            "year": 2017,
+            "notes": "General homebrewing reference for ingredients and process."
+          }
+        ]
+      },
+      {
+        "slug": "profil-mineral",
+        "label": "Water profile",
+        "aliases": [
+          "mineral profile"
+        ],
+        "shortDefinition": "The mineral composition of brewing water.",
+        "detailedDefinition": "A water profile summarizes major ions such as calcium, sulfate, chloride, sodium, magnesium and bicarbonate.",
+        "relatedTerms": [
+          "calcium",
+          "sulfate",
+          "chlorure",
+          "ph"
+        ],
+        "sources": [
+          {
+            "id": "brun-water-knowledge",
+            "kind": "website",
+            "title": "Bru'n Water Knowledge",
+            "authors": [
+              "Martin Brungard"
+            ],
+            "publisher": "Bru'n Water",
+            "url": "https://www.brunwater.com/water-knowledge",
+            "accessedAt": "2026-07-03",
+            "year": null,
+            "notes": "Practical brewing water chemistry reference."
+          }
+        ]
+      },
+      {
+        "slug": "ph",
+        "label": "pH",
+        "aliases": [
+          "potential of hydrogen"
+        ],
+        "shortDefinition": "A measure of how acidic or basic a liquid is.",
+        "detailedDefinition": "In brewing, pH affects enzyme activity, extraction, fermentation and flavor stability. Mash pH is an important process reference.",
+        "relatedTerms": [
+          "empatage",
+          "profil-mineral",
+          "calcium"
+        ],
+        "sources": [
+          {
+            "id": "brun-water-knowledge",
+            "kind": "website",
+            "title": "Bru'n Water Knowledge",
+            "authors": [
+              "Martin Brungard"
+            ],
+            "publisher": "Bru'n Water",
+            "url": "https://www.brunwater.com/water-knowledge",
+            "accessedAt": "2026-07-03",
+            "year": null,
+            "notes": "Practical brewing water chemistry reference."
+          }
+        ]
+      },
+      {
+        "slug": "calcium",
+        "label": "Calcium",
+        "aliases": [
+          "Ca",
+          "Ca2+"
+        ],
+        "shortDefinition": "A major brewing-water ion that supports pH control, clarification and fermentation.",
+        "detailedDefinition": "Calcium can help lower mash pH, support enzyme reactions and encourage flocculation. Brewers often adjust it with gypsum or calcium chloride.",
+        "relatedTerms": [
+          "profil-mineral",
+          "sulfate",
+          "chlorure",
+          "ph"
+        ],
+        "sources": [
+          {
+            "id": "brun-water-knowledge",
+            "kind": "website",
+            "title": "Bru'n Water Knowledge",
+            "authors": [
+              "Martin Brungard"
+            ],
+            "publisher": "Bru'n Water",
+            "url": "https://www.brunwater.com/water-knowledge",
+            "accessedAt": "2026-07-03",
+            "year": null,
+            "notes": "Practical brewing water chemistry reference."
+          }
+        ]
+      },
+      {
+        "slug": "sulfate",
+        "label": "Sulfate",
+        "aliases": [
+          "SO4",
+          "SO4 2-"
+        ],
+        "shortDefinition": "A water ion that can sharpen dryness and hop bitterness.",
+        "detailedDefinition": "Sulfate can make bitterness seem drier and more defined, especially in hop-forward beer. Evaluate it alongside chloride and absolute concentrations.",
+        "relatedTerms": [
+          "profil-mineral",
+          "calcium",
+          "chlorure",
+          "ibu"
+        ],
+        "sources": [
+          {
+            "id": "brun-water-knowledge",
+            "kind": "website",
+            "title": "Bru'n Water Knowledge",
+            "authors": [
+              "Martin Brungard"
+            ],
+            "publisher": "Bru'n Water",
+            "url": "https://www.brunwater.com/water-knowledge",
+            "accessedAt": "2026-07-03",
+            "year": null,
+            "notes": "Practical brewing water chemistry reference."
+          }
+        ]
+      },
+      {
+        "slug": "chlorure",
+        "label": "Chloride",
+        "aliases": [
+          "Cl"
+        ],
+        "shortDefinition": "A water ion that can support fullness and malt expression.",
+        "detailedDefinition": "Chloride can enhance body, roundness and malt sweetness. Balance it with sulfate and keep total mineral concentrations appropriate.",
+        "relatedTerms": [
+          "profil-mineral",
+          "calcium",
+          "sulfate",
+          "malt"
+        ],
+        "sources": [
+          {
+            "id": "brun-water-knowledge",
+            "kind": "website",
+            "title": "Bru'n Water Knowledge",
+            "authors": [
+              "Martin Brungard"
+            ],
+            "publisher": "Bru'n Water",
+            "url": "https://www.brunwater.com/water-knowledge",
+            "accessedAt": "2026-07-03",
+            "year": null,
+            "notes": "Practical brewing water chemistry reference."
+          }
+        ]
+      },
+      {
+        "slug": "cervoise",
+        "label": "Cervoise",
+        "aliases": [
+          "ancient ale"
+        ],
+        "shortDefinition": "A historical grain-based fermented drink associated with unhopped or lightly hopped European beer.",
+        "detailedDefinition": "Cervoise broadly describes cereal fermentations from before hops dominated European beer. The term distinguishes older practices from standardized modern brewing.",
+        "relatedTerms": [
+          "gruit",
+          "houblon",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "hornsey-2003",
+            "kind": "book",
+            "title": "A History of Beer and Brewing",
+            "authors": [
+              "Ian S. Hornsey"
+            ],
+            "publisher": "Royal Society of Chemistry",
+            "url": null,
+            "accessedAt": null,
+            "year": 2003,
+            "notes": "General reference for historical brewing development, ingredients, and industrialization."
+          }
+        ]
+      },
+      {
+        "slug": "gruit",
+        "label": "Gruit",
+        "aliases": [
+          "grut",
+          "herb mixture"
+        ],
+        "shortDefinition": "A blend of herbs used before or alongside hops to season and balance beer.",
+        "detailedDefinition": "Gruit composition varied by region, production rights and local practice. It shows that beer bitterness and aroma were not always dominated by hops.",
+        "relatedTerms": [
+          "cervoise",
+          "houblon",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "hornsey-2003",
+            "kind": "book",
+            "title": "A History of Beer and Brewing",
+            "authors": [
+              "Ian S. Hornsey"
+            ],
+            "publisher": "Royal Society of Chemistry",
+            "url": null,
+            "accessedAt": null,
+            "year": 2003,
+            "notes": "General reference for historical brewing development, ingredients, and industrialization."
+          }
+        ]
+      },
+      {
+        "slug": "bappir",
+        "label": "Bappir",
+        "aliases": [
+          "beer bread"
+        ],
+        "shortDefinition": "A Mesopotamian grain preparation associated with ancient brewing descriptions.",
+        "detailedDefinition": "Bappir is often described as a bread or cereal preparation in reconstructions of Mesopotamian brewing. It illustrates how ancient methods differed from modern mashing.",
+        "relatedTerms": [
+          "malt",
+          "mout",
+          "fermentation"
+        ],
+        "sources": [
+          {
+            "id": "etcsl-ninkasi",
+            "kind": "website",
+            "title": "A hymn to Ninkasi",
+            "authors": [
+              "The Electronic Text Corpus of Sumerian Literature"
+            ],
+            "publisher": "University of Oxford",
+            "url": "https://etcsl.orinst.ox.ac.uk/cgi-bin/etcsl.cgi?text=t.4.23.1",
+            "accessedAt": "2026-07-13",
+            "year": 2006,
+            "notes": "Sumerian literary source used as a textual anchor for ancient brewing vocabulary and process imagery."
+          },
+          {
+            "id": "hornsey-2003",
+            "kind": "book",
+            "title": "A History of Beer and Brewing",
+            "authors": [
+              "Ian S. Hornsey"
+            ],
+            "publisher": "Royal Society of Chemistry",
+            "url": null,
+            "accessedAt": null,
+            "year": 2003,
+            "notes": "General reference for historical brewing development, ingredients, and industrialization."
+          }
+        ]
+      },
+      {
+        "slug": "reinheitsgebot",
+        "label": "Reinheitsgebot",
+        "aliases": [
+          "1516 Bavarian regulation",
+          "German Beer Purity Law"
+        ],
+        "shortDefinition": "A 1516 Bavarian regulation commonly associated with beer ingredients.",
+        "detailedDefinition": "The Reinheitsgebot is often presented as a purity law, but it also belongs to a context of grain supply, prices, taxation and market control. It was not a universal beer recipe.",
+        "relatedTerms": [
+          "malt",
+          "houblon",
+          "lager"
+        ],
+        "sources": [
+          {
+            "id": "wired-reinheitsgebot-2010",
+            "kind": "article",
+            "title": "April 23, 1516: Bavaria Cracks Down on Beer Brewers",
+            "authors": [
+              "Betsy Mason"
+            ],
+            "publisher": "WIRED",
+            "url": "https://www.wired.com/2010/04/0423deutsche-reinheitsgebot-german-beer-purity-law/",
+            "accessedAt": "2026-07-13",
+            "year": 2010,
+            "notes": "Contextual article on the 1516 Bavarian beer regulation and later purity-law framing."
+          },
+          {
+            "id": "hornsey-2003",
+            "kind": "book",
+            "title": "A History of Beer and Brewing",
+            "authors": [
+              "Ian S. Hornsey"
+            ],
+            "publisher": "Royal Society of Chemistry",
+            "url": null,
+            "accessedAt": null,
+            "year": 2003,
+            "notes": "General reference for historical brewing development, ingredients, and industrialization."
+          }
+        ]
+      },
+      {
+        "slug": "lager",
+        "label": "Lager",
+        "aliases": [
+          "bottom-fermented beer"
+        ],
+        "shortDefinition": "A beer family associated with cooler fermentation and extended cold conditioning.",
+        "detailedDefinition": "Lagers generally ferment and condition cooler than classic ales. Their development is tied to yeast selection, refrigeration, maturation and technical stability.",
+        "relatedTerms": [
+          "fermentation",
+          "malt",
+          "reinheitsgebot"
+        ],
+        "sources": [
+          {
+            "id": "hornsey-2003",
+            "kind": "book",
+            "title": "A History of Beer and Brewing",
+            "authors": [
+              "Ian S. Hornsey"
+            ],
+            "publisher": "Royal Society of Chemistry",
+            "url": null,
+            "accessedAt": null,
+            "year": 2003,
+            "notes": "General reference for historical brewing development, ingredients, and industrialization."
+          },
+          {
+            "id": "bjcp-2021",
+            "kind": "standard",
+            "title": "BJCP Beer Style Guidelines",
+            "authors": [
+              "Beer Judge Certification Program"
+            ],
+            "publisher": "BJCP",
+            "url": "https://www.bjcp.org/bjcp-style-guidelines/",
+            "accessedAt": "2026-07-03",
+            "year": 2021,
+            "notes": "Style and sensory reference."
+          }
+        ]
+      }
+    ]
+  },
+  "walkthrough": {
+    "title": "From Grain to Glass: How Beer Is Made",
+    "description": "Beer is the result of a clear chain of transformations. Start with this overview, then open the detailed guide for the stage you want to understand.",
+    "steps": [
+      {
+        "id": "barley",
+        "phase": "Before brew day",
+        "title": "Barley",
+        "summary": "Brewing begins with cereal grain. Barley is widely used because its kernels contain starch and can develop useful enzymes.",
+        "whyItMatters": "The grain provides the raw material that will later become fermentable sugar.",
+        "illustrationBrief": "A field of ripe barley leading to a close-up cutaway of a barley kernel.",
+        "href": "/en/guides/homebrewing-glossary/#malt",
+        "linkLabel": "Understand malt",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "malting",
+        "phase": "Before brew day",
+        "title": "Malting",
+        "summary": "A maltster soaks barley, lets it germinate, then dries or kilns it. Brewers usually buy grain after this specialist stage.",
+        "whyItMatters": "Malting develops enzymes and creates colors and flavors that shape the beer.",
+        "illustrationBrief": "Three-panel transformation: dry barley, germinating grain and kilned malt.",
+        "href": "/en/guides/homebrewing-glossary/#malt",
+        "linkLabel": "Read the malt definition",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "crushing",
+        "phase": "Before brew day",
+        "title": "Crushing",
+        "summary": "A mill cracks each malt kernel while keeping much of the husk intact. The result is called the grist.",
+        "whyItMatters": "Crushing exposes the starch so hot water and enzymes can reach it during the mash.",
+        "illustrationBrief": "Two rollers cracking malt, with intact husks and coarse grist falling below.",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "mashing",
+        "phase": "Brew day",
+        "title": "Mashing",
+        "summary": "Crushed malt rests in warm water. Malt enzymes convert starch into a mixture of fermentable and less-fermentable sugars.",
+        "whyItMatters": "Mash temperature, time and pH influence fermentability, body and efficiency.",
+        "illustrationBrief": "A mash vessel cutaway with grain, water, thermometer and starch-to-sugar arrows.",
+        "href": "/en/guides/homebrewing-glossary/#empatage",
+        "linkLabel": "Understand mashing",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "lautering",
+        "phase": "Brew day",
+        "title": "Lautering and sparging",
+        "summary": "The brewer separates sweet wort from the spent grain. Rinsing the grain with additional water is called sparging.",
+        "whyItMatters": "This stage collects sugars while limiting harsh extraction and controls the volume before the boil.",
+        "illustrationBrief": "A lauter vessel draining clear wort through a grain bed, with optional sparge water above.",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "boiling",
+        "phase": "Brew day",
+        "title": "Boiling the wort",
+        "summary": "The wort boils for a defined time. Boiling sanitizes it, drives off unwanted volatile compounds and concentrates the recipe.",
+        "whyItMatters": "A controlled boil creates stable wort and sets the timing reference for hop additions.",
+        "illustrationBrief": "A kettle at a steady rolling boil with steam, timer and volume markers.",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "hops",
+        "phase": "Brew day",
+        "title": "Adding hops",
+        "summary": "Early boil additions usually contribute more calculated kettle bitterness. Moving additions later generally shifts their role toward flavor and aroma, but late-boil, whirlpool and dry hopping each create a different profile and can still affect bitterness.",
+        "whyItMatters": "Timing matters as much as quantity because heat changes hop acids and aromatic oils.",
+        "illustrationBrief": "A hop timeline spanning early boil, late boil, whirlpool and dry hopping.",
+        "href": "/en/guides/ibu-hops-bitterness/",
+        "linkLabel": "Learn hop timing and IBU",
+        "sourceIds": [
+          "palmer-2017"
+        ]
+      },
+      {
+        "id": "cooling",
+        "phase": "Brew day",
+        "title": "Cooling and transferring",
+        "summary": "After the boil, the wort is cooled quickly and moved into a clean, sanitized fermenter.",
+        "whyItMatters": "Cooling reaches a safe yeast-pitching temperature and begins the contamination-sensitive cold side.",
+        "illustrationBrief": "A wort chiller cooling the kettle, followed by a closed transfer into a sanitized fermenter.",
+        "href": "/en/guides/first-homebrew/#clean-sanitize",
+        "linkLabel": "Review cold-side sanitation",
+        "sourceIds": [
+          "palmer-2017",
+          "aha-brewing-with-extract"
+        ]
+      },
+      {
+        "id": "yeast",
+        "phase": "Fermentation",
+        "title": "Pitching yeast",
+        "summary": "The brewer measures original gravity when required, then adds a suitable amount of healthy yeast within its recommended temperature range.",
+        "whyItMatters": "Yeast choice and pitching conditions strongly affect fermentation speed and flavor.",
+        "illustrationBrief": "A hydrometer reading beside yeast entering a temperature-controlled fermenter.",
+        "href": "/en/guides/og-fg-attenuation-homebrew/",
+        "linkLabel": "Understand original gravity",
+        "sourceIds": [
+          "palmer-2017",
+          "aha-brewing-with-extract"
+        ]
+      },
+      {
+        "id": "fermentation",
+        "phase": "Fermentation",
+        "title": "Fermentation",
+        "summary": "Yeast converts wort sugars into alcohol, carbon dioxide and flavor compounds. Activity slows as available sugars are consumed.",
+        "whyItMatters": "Stable temperature and patient observation help yeast finish cleanly. Airlock bubbles alone cannot confirm completion.",
+        "illustrationBrief": "A transparent fermenter showing krausen, yeast activity, CO2 and settling over time.",
+        "href": "/en/guides/homebrew-fermentation-time-temperature/",
+        "linkLabel": "Follow fermentation safely",
+        "sourceIds": [
+          "palmer-2017",
+          "aha-brewing-with-extract"
+        ]
+      },
+      {
+        "id": "packaging",
+        "phase": "Packaging",
+        "title": "Packaging and carbonation",
+        "summary": "Once final gravity is stable, the beer is bottled or kegged. Bottle conditioning uses a calculated priming-sugar dose; kegging can use controlled CO2 pressure.",
+        "whyItMatters": "Packaging too early or adding too much priming sugar can create dangerous excess pressure.",
+        "illustrationBrief": "Split scene: pressure-rated bottles with measured priming sugar and a keg with regulated CO2.",
+        "href": "/en/guides/homebrew-fermentation-time-temperature/#package-safely",
+        "linkLabel": "Check before packaging",
+        "sourceIds": [
+          "lallemand-bottle-conditioning",
+          "brewers-association-package-pressure"
+        ]
+      },
+      {
+        "id": "pouring",
+        "phase": "Glass and learning",
+        "title": "Pouring, tasting and learning",
+        "summary": "After conditioning, chill and pour the beer appropriately. Compare aroma, bitterness, body and carbonation with the recipe and your notes.",
+        "whyItMatters": "Tasting closes the feedback loop: every batch teaches you what to keep or change next time.",
+        "illustrationBrief": "A finished beer poured into a glass beside a concise tasting note and the next recipe draft.",
+        "href": "/en/guides/first-homebrew/#taste-and-improve",
+        "linkLabel": "Plan the next batch",
+        "sourceIds": [
+          "palmer-2017",
+          "aha-brewing-with-extract"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "palmer-2017",
+        "kind": "book",
+        "title": "How to Brew",
+        "authors": [
+          "John J. Palmer"
+        ],
+        "publisher": "Brewers Publications",
+        "url": null,
+        "accessedAt": null,
+        "year": 2017,
+        "notes": "Fourth-edition reference for brewing ingredients, process, fermentation, measurements, and recipe design."
+      },
+      {
+        "id": "aha-brewing-with-extract",
+        "kind": "website",
+        "title": "Brewing with Extract",
+        "authors": [
+          "American Homebrewers Association"
+        ],
+        "publisher": "American Homebrewers Association",
+        "url": "https://www.homebrewersassociation.org/wp-content/uploads/How-To-Extract.pdf",
+        "accessedAt": "2026-07-28",
+        "year": null,
+        "notes": "Beginner brewing process, equipment, cleaning, sanitation, fermentation, and packaging reference."
+      },
+      {
+        "id": "lallemand-bottle-conditioning",
+        "kind": "technical-guide",
+        "title": "Best Practices: Bottle Conditioning",
+        "authors": [
+          "Lallemand Brewing"
+        ],
+        "publisher": "Lallemand Brewing",
+        "url": "https://connect.lallemandbrewing.com/wp-content/uploads/2021/02/LAL-bestpractices-Bottle-conditioning-Digital.pdf",
+        "accessedAt": "2026-07-28",
+        "year": 2021,
+        "notes": "Final-gravity stability, priming, conditioning, and bottle-conditioning safety."
+      },
+      {
+        "id": "brewers-association-package-pressure",
+        "kind": "technical-guide",
+        "title": "Preventing Package Over-Pressurization",
+        "authors": [
+          "Brewers Association"
+        ],
+        "publisher": "Brewers Association",
+        "url": "https://www.brewersassociation.org/educational-publications/preventing-package-over-pressurization/",
+        "accessedAt": "2026-07-28",
+        "year": null,
+        "notes": "Package over-pressurization hazards and prevention controls."
+      }
+    ]
+  }
+}

@@ -2040,6 +2040,230 @@
       font-size: var(--text-sm);
     }
 
+    .guide-walkthrough {
+      margin-block: var(--space-7);
+      padding: var(--space-5);
+      border: var(--border-thin) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--color-guide-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .guide-walkthrough__header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .guide-walkthrough__header > div:first-child {
+      max-width: var(--content-reading);
+    }
+
+    .guide-walkthrough__header h2,
+    .guide-hub-section-title {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      line-height: var(--line-height-tight);
+    }
+
+    .guide-walkthrough__header > p:last-child {
+      color: var(--ink-soft);
+      font-size: var(--text-lg);
+      line-height: var(--line-height-copy);
+    }
+
+    .guide-walkthrough__controls {
+      display: flex;
+      gap: var(--space-2);
+      flex: 0 0 auto;
+    }
+
+    .guide-walkthrough__controls button {
+      border: var(--border-thin) solid var(--line);
+      border-radius: var(--radius-pill);
+      background: var(--ink);
+      color: var(--foam);
+      padding: var(--space-2) var(--space-3);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .guide-walkthrough__controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .guide-walkthrough__steps {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(13rem, 1fr));
+      gap: var(--space-4);
+      margin: 0;
+      padding: 0 0 var(--space-3);
+      overflow-x: auto;
+      list-style: none;
+      scroll-snap-type: x proximity;
+      scroll-behavior: smooth;
+      cursor: grab;
+    }
+
+    .guide-walkthrough__steps.is-dragging {
+      scroll-behavior: auto;
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    .guide-walkthrough__step {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      border: var(--border-thin) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--foam);
+      scroll-snap-align: start;
+    }
+
+    .guide-walkthrough__step:not(:last-child)::after {
+      position: absolute;
+      z-index: 2;
+      top: var(--space-3);
+      right: var(--space-2);
+      content: "→";
+      color: var(--copper-deep);
+      font-size: var(--text-xl);
+      font-weight: 700;
+    }
+
+    .guide-walkthrough__visual,
+    .guide-illustration-placeholder__canvas {
+      display: grid;
+      place-items: center;
+      min-height: 10rem;
+      border-bottom: var(--border-thin) dashed var(--copper);
+      background: linear-gradient(135deg, var(--paper), var(--foam));
+      color: var(--copper-deep);
+    }
+
+    .guide-walkthrough__visual {
+      position: relative;
+      align-items: end;
+      min-height: 6rem;
+      aspect-ratio: 16 / 8;
+      padding: var(--space-3);
+    }
+
+    .guide-walkthrough__number {
+      position: absolute;
+      top: var(--space-3);
+      left: var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      color: var(--copper-deep);
+    }
+
+    .guide-walkthrough__visual-label,
+    .guide-illustration-placeholder__canvas span {
+      border-radius: var(--radius-pill);
+      background: var(--ink);
+      color: var(--foam);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .guide-walkthrough__visual-label {
+      max-width: calc(100% - (2 * var(--space-3)));
+      overflow: hidden;
+      line-height: var(--line-height-tight);
+      padding-block: calc(var(--space-1) / 2);
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .guide-walkthrough__copy {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      padding: var(--space-3);
+    }
+
+    .guide-walkthrough__phase {
+      margin: 0 0 var(--space-2);
+      color: var(--copper-deep);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: var(--letter-spacing-eyebrow);
+      min-height: calc(2 * var(--text-sm) * var(--line-height-copy));
+      text-transform: uppercase;
+    }
+
+    .guide-walkthrough__copy h3 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      line-height: var(--line-height-tight);
+      min-height: calc(3 * var(--text-lg) * var(--line-height-tight));
+    }
+
+    .guide-walkthrough__copy p {
+      color: var(--ink-soft);
+      line-height: var(--line-height-copy);
+    }
+
+    .guide-walkthrough__copy > p {
+      margin: 0 0 var(--space-3);
+    }
+
+    .guide-walkthrough__why {
+      align-self: end;
+      padding-top: var(--space-3);
+      border-top: var(--border-thin) solid var(--line);
+    }
+
+    .guide-walkthrough__why summary {
+      color: var(--copper-deep);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .guide-walkthrough__why p {
+      margin-bottom: var(--space-2);
+      font-size: var(--text-sm);
+    }
+
+    .guide-walkthrough__link {
+      color: var(--copper-deep);
+      font-weight: 700;
+      text-underline-offset: var(--underline-offset);
+    }
+
+    .guide-hub-section-title {
+      margin-top: var(--space-7);
+    }
+
+    .guide-illustration-placeholder {
+      overflow: hidden;
+      margin-block: var(--space-5);
+      border: var(--border-thin) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--color-guide-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .guide-illustration-placeholder__canvas {
+      aspect-ratio: 16 / 7;
+    }
+
+    .guide-illustration-placeholder figcaption {
+      padding: var(--space-3) var(--space-4);
+      color: var(--ink-soft);
+      line-height: var(--line-height-copy);
+    }
+
     .guide-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-min-width)), 1fr));
@@ -2050,7 +2274,8 @@
     .guide-objectives,
     .guide-toc,
     .guide-note,
-    .guide-cta {
+    .guide-cta,
+    .guide-procedure {
       border: var(--border-thin) solid var(--line);
       border-radius: var(--radius-lg);
       background: var(--color-guide-surface);
@@ -2105,7 +2330,8 @@
     .guide-objectives,
     .guide-toc,
     .guide-note,
-    .guide-cta {
+    .guide-cta,
+    .guide-procedure {
       margin-block: var(--space-5);
       padding: var(--space-4);
     }
@@ -2143,6 +2369,67 @@
       color: var(--ink-soft);
       font-size: var(--text-lg);
       line-height: var(--line-height-copy);
+    }
+
+    .guide-procedure > h3 {
+      margin: 0 0 var(--space-2);
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      line-height: var(--line-height-tight);
+    }
+
+    .guide-procedure > p {
+      margin: 0 0 var(--space-4);
+      color: var(--ink-soft);
+      line-height: var(--line-height-copy);
+    }
+
+    .guide-procedure ol {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .guide-procedure li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-3);
+      scroll-margin-top: var(--space-7);
+      border-top: var(--border-thin) solid var(--line);
+      padding-top: var(--space-3);
+    }
+
+    .guide-procedure__number {
+      display: grid;
+      place-items: center;
+      align-self: start;
+      width: var(--space-5);
+      aspect-ratio: 1;
+      border-radius: var(--radius-pill);
+      background: var(--ink);
+      color: var(--foam);
+      font-weight: 700;
+    }
+
+    .guide-procedure h4 {
+      margin: 0 0 var(--space-1);
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      line-height: var(--line-height-tight);
+    }
+
+    .guide-procedure li p {
+      margin: 0 0 var(--space-2);
+      color: var(--ink-soft);
+      line-height: var(--line-height-copy);
+    }
+
+    .guide-procedure a {
+      color: var(--copper-deep);
+      font-weight: 700;
+      text-underline-offset: var(--underline-offset);
     }
 
     .guide-note--definition {
@@ -2304,6 +2591,20 @@
       .guide-shell {
         width: min(100% - (2 * var(--space-3)), var(--content-wide));
       }
+
+      .guide-walkthrough {
+        padding: var(--space-4);
+      }
+
+      .guide-walkthrough__header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .guide-walkthrough__controls {
+        display: none;
+      }
+
     }
 
     /* ========================================================================

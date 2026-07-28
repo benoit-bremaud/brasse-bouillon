@@ -2,7 +2,7 @@
 
 Marketing site package inside the **Brasse-Bouillon** monorepo (imported from the standalone `brasse-bouillon-website` repo on 2026-03-24 via `git subtree`).
 
-This package contains a bilingual static landing page (FR/EN). Quality gates run in the monorepo CI (`website:` job in [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml)); Cloudflare Pages deployment runs in [`../../.github/workflows/website-deploy.yml`](../../.github/workflows/website-deploy.yml) (ADR-0014).
+This package contains an English-first static marketing and educational site, with maintained French legacy pages. Quality gates run in the monorepo CI (`website:` job in [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml)); Cloudflare Pages deployment runs in [`../../.github/workflows/website-deploy.yml`](../../.github/workflows/website-deploy.yml) (ADR-0014).
 
 ---
 
@@ -40,7 +40,14 @@ It is maintained with a **build-in-public** approach and an epic-based simplifie
 - `_redirects`: Cloudflare Pages redirects (`/index-en` → `/en` 301)
 - `i18n/home.en.json`: EN string catalog for the generated home (with `srcHash`
   drift guards)
-- `guides/`: committed public HTML generated from the validated Academy corpus
+- `content/guides.en.json`: canonical reviewed English guide, glossary and
+  grain-to-glass walkthrough content; claim-bearing guide blocks and walkthrough
+  stages carry validated internal `sourceIds`; `academySlug` is optional and
+  only pairs a page with an existing validated French Academy source
+- `guides/`: committed French public HTML generated from the validated Academy
+  corpus
+- `en/guides/`: committed English public HTML generated from
+  `content/guides.en.json`; new English pages do not require a French edition
 - `docs/ROADMAP.md`: product roadmap
 - `docs/roadmap-feed.json`: machine-readable roadmap sync feed
 - `docs/GOVERNANCE.md`: backlog conventions, runbook, and repository governance
@@ -78,6 +85,7 @@ Any push to `main` whose diff touches `packages/website/**` (and `workflow_dispa
 python3 -m unittest discover -s tests -v   # gate + i18n generator suites
 python3 scripts/quality_gate.py
 python3 scripts/build_i18n.py --check      # en.html regeneration is clean
+python3 scripts/build_guides.py --check    # FR/EN guide generation is clean
 python3 -m py_compile scripts/quality_gate.py scripts/build_i18n.py scripts/roadmap_sync.py
 ```
 

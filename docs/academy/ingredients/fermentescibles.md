@@ -1,18 +1,21 @@
 ---
 slug: fermentescibles
-title: Malts et fermentescibles
-summary: Repère pratique sur les malts, les sucres fermentescibles, la densité, l'atténuation et l'alcool.
+title: "OG, FG et atténuation : calculer l’alcool d’une bière"
+summary: "Comprends l’OG, la FG et l’atténuation pour suivre la fermentation, estimer l’alcool d’une bière maison et interpréter sa densité finale."
 category: ingredients
 level: beginner
 status: published
-version: 1.0.0
+version: 1.1.0
 estimated_read_time_minutes: 10
 tags:
   - malt
   - fermentables
   - gravity
   - alcohol
-updated_at: 2026-07-07
+updated_at: 2026-07-27
+web_publication:
+  status: published
+  slug: og-fg-attenuation-biere
 related_articles:
   - introduction
   - levures
@@ -45,79 +48,105 @@ risk_topics:
 source_ids:
   - palmer-2017
 review:
-  confidence_level: reviewed
+  confidence_level: validated
   reviewed_by: Academy editorial review
-  reviewed_at: 2026-07-07
+  reviewed_at: 2026-07-27
   notes:
     - Migrated from the legacy mobile Academy fermentables topic.
-    - Title intentionally exposes malt as a fundamental ingredient.
+    - Expanded into a beginner guide for OG, FG, apparent attenuation, and homebrew alcohol calculation search intent.
+    - Gravity, attenuation, ABV, measurement-temperature, and fermentation-completion guidance cross-checked against Palmer.
+    - Approved for public-web publication on 2026-07-27.
 ---
 
-## Pourquoi le malt est central {#role-du-malt}
+## Pourquoi mesurer l'OG, la FG et l'atténuation {#role-og-fg}
 
-Le malt est la base energetique de la biere. Il apporte l'amidon qui sera
-converti en sucres pendant l'empatage, mais aussi une partie de la couleur, du
-corps, de la mousse et du profil aromatique. Les autres fermentescibles, comme
-certains sucres ou extraits, peuvent completer la recette, mais le malt reste le
-repere principal pour comprendre la structure d'une biere.
+L'OG, ou densité initiale, mesure le moût avant la fermentation. La FG, ou
+densité finale, mesure la bière lorsque le travail de la levure est terminé.
+L'atténuation apparente compare ces deux valeurs pour estimer la proportion de
+sucres consommée. Ensemble, elles permettent de suivre la fermentation,
+d'estimer l'alcool et de comprendre si la bière sera plutôt sèche ou ronde.
 
-:::definition id="definition-fermentescible" term="Fermentescible" definition="Ingredient qui apporte des sucres pouvant etre transformes en alcool et en dioxyde de carbone par la levure." sourceIds="palmer-2017":::
+Ces mesures partent des sucres apportés par le malt, les extraits ou d'autres
+fermentescibles. La levure n'en consomme qu'une partie : la recette, la souche
+et le profil d'empâtage influencent donc autant le résultat que la quantité de
+malt utilisée.
 
-:::example id="example-malt-role" title="Lecture simple" body="Augmenter la charge de malt augmente souvent l'OG et donc le potentiel alcool, mais le type de malt et le profil d'empatage influencent aussi le corps et la FG." sourceIds="palmer-2017":::
+:::definition id="definition-og-fg" term="OG et FG" definition="L'OG représente la densité initiale du moût avant fermentation ; la FG représente la densité finale de la bière après fermentation." sourceIds="palmer-2017":::
 
 ## Repères rapides {#reperes}
 
-OG signifie Original Gravity : c'est la densite du mout avant fermentation. FG
-signifie Final Gravity : c'est la densite apres fermentation. ABV exprime le
-pourcentage d'alcool final. L'attenuation indique la part des sucres consommee
-par la levure. Ces quatre notions permettent de relier recette, fermentation et
-resultat en bouche.
+OG signifie Original Gravity : c'est la densité du moût avant fermentation. FG
+signifie Final Gravity : c'est la densité après fermentation. ABV exprime le
+pourcentage d'alcool final. L'atténuation indique la part des sucres consommée
+par la levure. Ces quatre notions relient la recette, la fermentation et le
+résultat en bouche.
 
-:::definition id="definition-og-fg" term="OG et FG" definition="L'OG represente la densite initiale avant fermentation ; la FG represente la densite finale apres fermentation." sourceIds="palmer-2017":::
+:::glossaryReference id="initial-gravity-reference" termSlug="densite-initiale" label="Densité initiale" sourceIds="palmer-2017":::
+
+:::glossaryReference id="final-gravity-reference" termSlug="densite-finale" label="Densité finale" sourceIds="palmer-2017":::
 
 ## Comprendre OG et FG {#og-fg}
 
-Pense l'OG comme la quantite de sucres disponibles au depart, puis la FG comme
-ce qu'il reste a la fin. L'ecart entre OG et FG montre si la levure a transforme
-les sucres comme prevu. Une OG elevee donne plus de potentiel alcool. Une FG
-basse donne une biere plus seche. Une FG haute peut donner plus de rondeur, mais
-peut aussi signaler une fermentation incomplete si elle n'etait pas attendue.
+Pense l'OG comme la quantité de sucres disponibles au départ, puis la FG comme
+ce qu'il reste à la fin. L'écart entre OG et FG montre si la levure a transformé
+les sucres comme prévu. Une OG élevée donne plus de potentiel alcool. Une FG
+basse donne une bière plus sèche. Une FG haute peut donner plus de rondeur, mais
+peut aussi signaler une fermentation incomplète si elle n'était pas attendue.
 
-:::example id="example-og-fg" title="Exemple courant" body="Une biere qui passe de 1,060 a 1,012 a fermente de facon coherente pour beaucoup d'Ales, avec une finale plutot seche et un ABV autour de 6,3%." sourceIds="palmer-2017":::
+:::example id="example-og-fg" title="Exemple courant" body="Une bière qui passe de 1,060 à 1,012 a fermenté de façon cohérente pour beaucoup d'Ales, avec une finale plutôt sèche et un ABV estimé autour de 6,3 %." sourceIds="palmer-2017":::
 
 ## Calculer l'alcool simplement {#abv}
 
-La formule pratique la plus courante est ABV environ egal a OG moins FG,
-multiplie par 131,25. Elle transforme un ecart de densite en estimation du
-pourcentage d'alcool. Ce n'est pas une loi physique parfaite, mais c'est un
-repere fiable pour le brassage amateur.
+La formule pratique la plus courante est : ABV ≈ (OG − FG) × 131,25. Elle
+transforme un écart de densité en estimation du pourcentage d'alcool. Ce n'est
+pas une loi physique parfaite, mais c'est un repère fiable pour le brassage
+amateur lorsque les deux densités sont correctement mesurées.
 
-:::calculatorCta id="fermentables-calculator" calculatorSlug="fermentescibles" title="Estimer alcool et atténuation" description="Utiliser le calculateur fermentescibles pour relier OG, FG, atténuation et ABV." sourceIds="palmer-2017":::
+:::example id="example-abv-calculation" title="Calcul avec une OG de 1,060 et une FG de 1,012" body="(1,060 − 1,012) × 131,25 donne environ 6,3 % ABV. Le résultat reste une estimation et dépend de la précision des mesures." sourceIds="palmer-2017":::
+
+:::calculatorCta id="fermentables-calculator" calculatorSlug="fermentescibles" title="Estimer l'alcool et l'atténuation" description="Découvre comment Brasse-Bouillon relie OG, FG, atténuation et ABV sans refaire les conversions à la main." sourceIds="palmer-2017":::
 
 ## Estimer la FG avec l'atténuation {#attenuation}
 
-L'attenuation annoncee par une levure aide a prevoir une FG realiste avant le
-brassage. Une Ale se situe souvent autour de 70 a 85% d'attenuation apparente,
-selon la souche, la recette et le profil d'empatage. Une biere plus attenuee
-sera souvent plus seche ; une biere moins attenuee gardera plus de corps ou de
-sucres residuels.
+L'atténuation annoncée par une levure aide à prévoir une FG réaliste avant le
+brassage. Une Ale se situe souvent autour de 70 à 85 % d'atténuation apparente,
+selon la souche, la recette et le profil d'empâtage. Une bière plus atténuée
+sera souvent plus sèche ; une bière moins atténuée gardera plus de corps ou de
+sucres résiduels.
 
-:::definition id="definition-attenuation" term="Attenuation apparente" definition="Pourcentage de baisse de densite observe entre OG et FG. Elle estime la part des sucres consommee pendant la fermentation." sourceIds="palmer-2017":::
+L'atténuation apparente se calcule avec les points de densité :
+((OG − FG) ÷ (OG − 1)) × 100. Pour une bière qui passe de 1,060 à 1,012,
+le calcul donne 80 %. Cette valeur doit être comparée à la plage de la levure,
+à la recette et aux mesures des brassins précédents.
+
+:::definition id="definition-attenuation" term="Atténuation apparente" definition="Pourcentage de baisse de densité observé entre OG et FG. Elle estime la part des sucres consommée pendant la fermentation." sourceIds="palmer-2017":::
+
+:::glossaryReference id="attenuation-reference" termSlug="attenuation" label="Atténuation" sourceIds="palmer-2017":::
 
 ## Plages utiles pour se repérer {#plages}
 
-Une OG autour de 1,044 a 1,050 correspond souvent a des bieres legeres. Une OG
-autour de 1,055 a 1,070 correspond a de nombreuses IPA et bieres plus fortes.
-Une FG autour de 1,008 a 1,012 donne souvent une finale seche ; une FG au-dessus
+Une OG autour de 1,044 à 1,050 correspond souvent à des bières légères. Une OG
+autour de 1,055 à 1,070 correspond à de nombreuses IPA et bières plus fortes.
+Une FG autour de 1,008 à 1,012 donne souvent une finale sèche ; une FG au-dessus
 de 1,015 donne souvent plus de douceur et de corps. En brassage maison, beaucoup
-de recettes courantes se situent entre 4% et 7% ABV.
+de recettes courantes se situent entre 4 et 7 % ABV.
+
+Ces plages servent uniquement de repères. Le style, la souche, la température,
+la composition du moût et le profil d'empâtage peuvent déplacer la FG attendue.
+Une valeur isolée ne suffit donc pas à déclarer une fermentation terminée.
 
 ## Pièges fréquents à éviter {#pieges}
 
-Les erreurs les plus courantes sont de lire la densite sans corriger la
-temperature de mesure, de melanger SG, degres Plato et points sans conversion,
-d'oublier que la levure influence la FG, ou de croire que plus de malt donne
-toujours une meilleure biere. Le malt doit rester coherent avec le style, la
-levure, l'empatage et l'equilibre final recherche.
+Les erreurs les plus courantes sont de lire la densité sans corriger la
+température de mesure, de mélanger SG, degrés Plato et points sans conversion,
+ou de confondre une estimation avec une preuve de fin de fermentation. Vérifie
+la température d'étalonnage de l'instrument et prélève un échantillon
+représentatif sans le reverser dans le fermenteur.
+
+Une FG stable sur plusieurs mesures espacées est plus utile qu'une date prévue
+ou que l'arrêt du barboteur. Si la densité reste nettement au-dessus de la cible,
+vérifie la température, la souche et le temps écoulé avant de conditionner.
 
 :::relatedArticle id="related-yeast" articleSlug="levures" sectionId="fermentation" sourceIds="palmer-2017":::
+
+:::relatedArticle id="related-first-brew" articleSlug="introduction" sectionId="jour-brassage" sourceIds="palmer-2017":::

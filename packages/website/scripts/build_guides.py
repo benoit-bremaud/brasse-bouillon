@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Generate deterministic French guide pages from the Academy corpus."""
+"""Generate deterministic French and English guide pages."""
 
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from datetime import date
 from html import escape
 from pathlib import Path
 from typing import Mapping
 import json
+import re
 import sys
 import unicodedata
 
@@ -16,6 +18,8 @@ WEBSITE_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = WEBSITE_DIR.parent.parent
 CORPUS_PATH = REPO_ROOT / "docs/academy/generated/academy-corpus.generated.json"
 OUTPUT_DIR = WEBSITE_DIR / "guides"
+ENGLISH_GUIDES_PATH = WEBSITE_DIR / "content/guides.en.json"
+ENGLISH_OUTPUT_DIR = WEBSITE_DIR / "en/guides"
 SITE_URL = "https://brasse-bouillon.com"
 GLOSSARY_ACADEMY_SLUG = "glossaire"
 GENERATED_MARKER = (
@@ -38,6 +42,19 @@ def load_corpus(path: Path) -> Mapping[str, object]:
         ) from error
 
     return _mapping(payload, "Academy corpus")
+
+
+def load_english_guides(path: Path) -> Mapping[str, object]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as error:
+        raise GuideBuildError(f"cannot read English guides {path}: {error}") from error
+    except json.JSONDecodeError as error:
+        raise GuideBuildError(
+            f"cannot parse English guides {path}: {error.msg}"
+        ) from error
+
+    return _mapping(payload, "English guides")
 
 
 def public_articles(corpus: Mapping[str, object]) -> list[Mapping[str, object]]:
@@ -157,11 +174,31 @@ def public_glossary(
     )
 
 
-def expected_files(corpus: Mapping[str, object]) -> dict[Path, str]:
+def expected_files(
+    corpus: Mapping[str, object],
+    english_payload: Mapping[str, object] | None = None,
+) -> dict[Path, str]:
     articles = public_articles(corpus)
     glossary = public_glossary(corpus)
     if not articles and glossary is None:
         return {}
+
+    english_guides = _english_guides(english_payload) if english_payload else []
+    english_by_academy_slug: dict[str, Mapping[str, object]] = {}
+    for guide in english_guides:
+        _validate_english_guide(guide)
+        academy_slug = _optional_academy_slug(guide, "English guide")
+        if academy_slug is None:
+            continue
+        if academy_slug in english_by_academy_slug:
+            raise GuideBuildError(
+                f'duplicate English guide Academy slug "{academy_slug}"'
+            )
+        english_by_academy_slug[academy_slug] = guide
+
+    english_glossary = _english_glossary(english_payload) if english_payload else None
+    if english_glossary is not None:
+        _validate_english_glossary(english_glossary)
 
     article_by_academy_slug = {
         _required_text(article, "slug", "article"): article for article in articles
@@ -176,22 +213,144 @@ def expected_files(corpus: Mapping[str, object]) -> dict[Path, str]:
     if glossary_web_slug in article_web_slugs:
         raise GuideBuildError(f'duplicate public guide slug "{glossary_web_slug}"')
 
-    files = {Path("index.html"): render_hub(articles, glossary)}
+    has_english_content = bool(english_guides or english_glossary)
+    files = {
+        Path("index.html"): render_hub(
+            articles,
+            glossary,
+            english_alternate=has_english_content,
+        )
+    }
     for article in articles:
+        academy_slug = _required_text(article, "slug", "article")
+        english_guide = english_by_academy_slug.get(academy_slug)
         files[Path(_web_slug(article)) / "index.html"] = render_article(
             article,
             article_by_academy_slug,
             glossary_web_slug,
             glossary_slugs,
+            english_slug=(
+                _required_text(english_guide, "slug", "English guide")
+                if english_guide is not None
+                else None
+            ),
         )
     if glossary is not None:
-        files[Path(glossary_web_slug) / "index.html"] = render_glossary(*glossary)
+        english_glossary_slug = None
+        if (
+            english_glossary is not None
+            and _optional_academy_slug(english_glossary, "English glossary")
+            == GLOSSARY_ACADEMY_SLUG
+        ):
+            english_glossary_slug = _required_text(
+                english_glossary, "slug", "English glossary"
+            )
+        files[Path(glossary_web_slug) / "index.html"] = render_glossary(
+            *glossary,
+            english_slug=english_glossary_slug,
+        )
+    return files
+
+
+def expected_english_files(
+    corpus: Mapping[str, object],
+    english_payload: Mapping[str, object],
+) -> dict[Path, str]:
+    guides = _english_guides(english_payload)
+    glossary = _english_glossary(english_payload)
+    walkthrough = _english_walkthrough(english_payload)
+    if not guides and glossary is None:
+        return {}
+
+    _validate_english_walkthrough(walkthrough)
+
+    french_articles = {
+        _required_text(article, "slug", "article"): article
+        for article in public_articles(corpus)
+    }
+    french_glossary = public_glossary(corpus)
+    validated: list[tuple[Mapping[str, object], Mapping[str, object] | None]] = []
+    slugs: set[str] = set()
+    academy_slugs: set[str] = set()
+    for guide in guides:
+        _validate_english_guide(guide)
+        slug = _required_text(guide, "slug", "English guide")
+        if slug in slugs:
+            raise GuideBuildError(f'duplicate English content slug "{slug}"')
+        slugs.add(slug)
+
+        academy_slug = _optional_academy_slug(guide, "English guide")
+        source_article = None
+        if academy_slug is not None:
+            if academy_slug in academy_slugs:
+                raise GuideBuildError(
+                    f'duplicate English guide Academy slug "{academy_slug}"'
+                )
+            academy_slugs.add(academy_slug)
+            source_article = french_articles.get(academy_slug)
+            if source_article is None:
+                raise GuideBuildError(
+                    f'English guide references unpublished Academy article "{academy_slug}"'
+                )
+        validated.append((guide, source_article))
+
+    if glossary is not None:
+        _validate_english_glossary(glossary)
+        glossary_slug = _required_text(glossary, "slug", "English glossary")
+        if glossary_slug in slugs:
+            raise GuideBuildError(f'duplicate English content slug "{glossary_slug}"')
+        slugs.add(glossary_slug)
+        academy_slug = _optional_academy_slug(glossary, "English glossary")
+        if academy_slug is not None:
+            if academy_slug != GLOSSARY_ACADEMY_SLUG or french_glossary is None:
+                raise GuideBuildError(
+                    f'English glossary references unpublished Academy article "{academy_slug}"'
+                )
+            glossary_source = french_glossary[0]
+        else:
+            glossary_source = None
+    else:
+        glossary_source = None
+
+    guide_by_slug = {
+        _required_text(guide, "slug", "English guide"): guide for guide, _ in validated
+    }
+    glossary_terms = _mapping_list(glossary, "terms") if glossary is not None else []
+    glossary_term_slugs = {
+        _required_text(term, "slug", "English glossary term") for term in glossary_terms
+    }
+    glossary_slug = (
+        _required_text(glossary, "slug", "English glossary")
+        if glossary is not None
+        else None
+    )
+
+    files = {
+        Path("index.html"): render_english_hub(
+            [guide for guide, _ in validated], glossary, walkthrough
+        )
+    }
+    for guide, source_article in validated:
+        slug = _required_text(guide, "slug", "English guide")
+        files[Path(slug) / "index.html"] = render_english_article(
+            guide,
+            source_article,
+            guide_by_slug,
+            glossary_slug,
+            glossary_term_slugs,
+        )
+    if glossary is not None:
+        files[Path(glossary_slug) / "index.html"] = render_english_glossary(
+            glossary, glossary_source
+        )
     return files
 
 
 def render_hub(
     articles: list[Mapping[str, object]],
     glossary: tuple[Mapping[str, object], list[Mapping[str, object]]] | None = None,
+    *,
+    english_alternate: bool = False,
 ) -> str:
     title = "Guides du brassage amateur | Brasse-Bouillon"
     description = (
@@ -236,6 +395,7 @@ def render_hub(
         [breadcrumb, collection_schema],
         og_type="website",
         guides_current=True,
+        english_canonical=(f"{SITE_URL}/en/guides/" if english_alternate else None),
     )
 
 
@@ -244,6 +404,8 @@ def render_article(
     article_by_academy_slug: Mapping[str, Mapping[str, object]],
     glossary_web_slug: str | None = None,
     glossary_slugs: set[str] | None = None,
+    *,
+    english_slug: str | None = None,
 ) -> str:
     metadata = _metadata(article)
     title = _required_text(metadata, "title", "article.metadata")
@@ -337,11 +499,245 @@ def render_article(
         schemas,
         og_type="article",
         guides_current=False,
+        english_canonical=(
+            f"{SITE_URL}/en/guides/{english_slug}/"
+            if english_slug is not None
+            else None
+        ),
+    )
+
+
+def render_english_hub(
+    guides: list[Mapping[str, object]],
+    glossary: Mapping[str, object] | None,
+    walkthrough: Mapping[str, object],
+) -> str:
+    title = "Homebrewing Guides | Brasse-Bouillon"
+    description = (
+        "Learn homebrewing fundamentals with practical, source-backed guides "
+        "to brew day, hops, gravity readings, fermentation and beer terminology."
+    )
+    canonical = f"{SITE_URL}/en/guides/"
+    french_canonical = f"{SITE_URL}/guides/"
+    cards = [_render_english_card(guide) for guide in guides]
+    walkthrough_markup = _render_english_walkthrough(walkthrough)
+    if glossary is not None:
+        cards.append(_render_english_glossary_card(glossary))
+    schemas = [
+        _breadcrumb_schema([("Home", f"{SITE_URL}/en"), ("Guides", canonical)]),
+        _json_ld(
+            {
+                "@context": "https://schema.org",
+                "@type": "CollectionPage",
+                "name": "Homebrewing Guides",
+                "description": description,
+                "url": canonical,
+                "inLanguage": "en",
+                "isPartOf": {"@type": "WebSite", "url": f"{SITE_URL}/"},
+                "mainEntity": _english_hub_item_list(guides, glossary),
+            }
+        ),
+    ]
+    main = f"""
+    <main id="mainContent" class="guide-shell guide-hub">
+      {_visible_breadcrumb([("Home", "/en"), ("Guides", None)], label="Breadcrumb")}
+      <header class="guide-hero">
+        <p class="guide-eyebrow">Brasse-Bouillon Academy</p>
+        <h1>Homebrewing Guides</h1>
+        <p>{escape(description)}</p>
+      </header>
+{walkthrough_markup}
+      <h2 class="guide-hub-section-title">Explore the detailed guides</h2>
+      <section class="guide-grid" aria-label="Available guides">
+{"\n".join(cards)}
+      </section>
+    </main>"""
+    return _english_document(
+        title,
+        description,
+        canonical,
+        french_canonical,
+        main,
+        schemas,
+        og_type="website",
+        guides_current=True,
+    )
+
+
+def _render_english_walkthrough(walkthrough: Mapping[str, object]) -> str:
+    title = _required_text(walkthrough, "title", "English walkthrough")
+    description = _required_text(walkthrough, "description", "English walkthrough")
+    rendered_steps: list[str] = []
+    for position, step in enumerate(_mapping_list(walkthrough, "steps"), start=1):
+        step_id = _required_text(step, "id", "English walkthrough step")
+        phase = _required_text(step, "phase", "English walkthrough step")
+        step_title = _required_text(step, "title", "English walkthrough step")
+        summary = _required_text(step, "summary", "English walkthrough step")
+        why = _required_text(step, "whyItMatters", "English walkthrough step")
+        illustration_brief = _required_text(
+            step, "illustrationBrief", "English walkthrough step"
+        )
+        link_markup = ""
+        href = step.get("href")
+        if isinstance(href, str):
+            link_label = _required_text(step, "linkLabel", "English walkthrough step")
+            link_markup = (
+                f'\n              <a class="guide-walkthrough__link" '
+                f'href="{escape(href, quote=True)}">{escape(link_label)}</a>'
+            )
+        rendered_steps.append(
+            f"""        <li class="guide-walkthrough__step" id="walkthrough-{escape(step_id, quote=True)}">
+          <div class="guide-walkthrough__visual" data-illustration-status="planned" role="img" aria-label="Planned illustration: {escape(illustration_brief, quote=True)}">
+            <span class="guide-walkthrough__number" aria-hidden="true">{position:02d}</span>
+            <span class="guide-walkthrough__visual-label" aria-hidden="true">Illustration planned</span>
+          </div>
+          <div class="guide-walkthrough__copy">
+            <p class="guide-walkthrough__phase">{escape(phase)}</p>
+            <h3>{escape(step_title)}</h3>
+            <p>{escape(summary)}</p>
+            <details class="guide-walkthrough__why">
+              <summary>Why it matters</summary>
+              <p>{escape(why)}</p>{link_markup}
+            </details>
+          </div>
+        </li>"""
+        )
+    steps_markup = "\n".join(rendered_steps)
+    return f"""      <section class="guide-walkthrough" aria-labelledby="walkthroughTitle">
+        <header class="guide-walkthrough__header">
+          <div>
+            <p class="guide-eyebrow">The complete brewing journey</p>
+            <h2 id="walkthroughTitle">{escape(title)}</h2>
+            <p>{escape(description)}</p>
+          </div>
+          <div class="guide-walkthrough__controls" role="group" aria-label="Walkthrough controls" hidden>
+            <button type="button" data-walkthrough-direction="previous" aria-controls="brewingWalkthroughSteps">Previous</button>
+            <button type="button" data-walkthrough-direction="next" aria-controls="brewingWalkthroughSteps">Next</button>
+          </div>
+        </header>
+        <ol class="guide-walkthrough__steps" id="brewingWalkthroughSteps" tabindex="0" aria-label="Beer-making stages. Scroll horizontally to explore all twelve steps.">
+{steps_markup}
+        </ol>
+      </section>"""
+
+
+def render_english_article(
+    guide: Mapping[str, object],
+    source_article: Mapping[str, object] | None,
+    guide_by_slug: Mapping[str, Mapping[str, object]],
+    glossary_slug: str | None,
+    glossary_term_slugs: set[str],
+) -> str:
+    title = _required_text(guide, "title", "English guide")
+    description = _required_text(guide, "description", "English guide")
+    slug = _required_text(guide, "slug", "English guide")
+    canonical = f"{SITE_URL}/en/guides/{slug}/"
+    french_canonical = (
+        f"{SITE_URL}/guides/{_web_slug(source_article)}/"
+        if source_article is not None
+        else None
+    )
+    updated_at = _required_text(guide, "updatedAt", "English guide")
+    read_time = guide.get("readTimeMinutes")
+    sections = _mapping_list(guide, "sections")
+    objectives = _text_list(guide, "learningObjectives")
+    sources = _mapping_list(guide, "sources")
+
+    toc_items = "\n".join(
+        f'          <li><a href="#{escape(_required_text(section, "id", "English section"), quote=True)}">'
+        f"{escape(_required_text(section, 'title', 'English section'))}</a></li>"
+        for section in sections
+    )
+    rendered_sections = "\n".join(
+        _render_english_section(
+            section,
+            guide_by_slug,
+            glossary_slug,
+            glossary_term_slugs,
+        )
+        for section in sections
+    )
+    objective_items = "\n".join(
+        f"          <li>{escape(objective)}</li>" for objective in objectives
+    )
+    source_items = "\n".join(_render_source(source) for source in sources)
+    procedure = _english_procedure(guide)
+    procedure_id = (
+        f"{canonical}#{_required_text(procedure, 'id', 'English procedure')}"
+        if procedure is not None
+        else None
+    )
+    schemas = [
+        _breadcrumb_schema(
+            [
+                ("Home", f"{SITE_URL}/en"),
+                ("Guides", f"{SITE_URL}/en/guides/"),
+                (title, canonical),
+            ]
+        ),
+        _article_schema(
+            title,
+            description,
+            canonical,
+            updated_at,
+            language="en",
+            image=f"{SITE_URL}/og-image-en.png?v=20260713",
+            has_part_id=procedure_id,
+        ),
+    ]
+    if procedure is not None:
+        schemas.append(_how_to_schema(procedure, canonical))
+    main = f"""
+    <main id="mainContent" class="guide-shell">
+      {_visible_breadcrumb([("Home", "/en"), ("Guides", "/en/guides/"), (title, None)], label="Breadcrumb")}
+      <article class="guide-article">
+        <header class="guide-hero">
+          <p class="guide-eyebrow">Practical guide · Beginner</p>
+          <h1>{escape(title)}</h1>
+          <p class="guide-lead">{escape(description)}</p>
+          <p class="guide-meta">
+            Updated <time datetime="{escape(updated_at, quote=True)}">{escape(updated_at)}</time>
+            · {read_time} min read
+          </p>
+        </header>
+        <section class="guide-objectives" aria-labelledby="objectivesTitle">
+          <h2 id="objectivesTitle">What you will learn</h2>
+          <ul>
+{objective_items}
+          </ul>
+        </section>
+        <nav class="guide-toc" aria-labelledby="tocTitle">
+          <h2 id="tocTitle">In this guide</h2>
+          <ol>
+{toc_items}
+          </ol>
+        </nav>
+{rendered_sections}
+        <section class="guide-sources" aria-labelledby="sourcesTitle">
+          <h2 id="sourcesTitle">Sources</h2>
+          <ol>
+{source_items}
+          </ol>
+        </section>
+      </article>
+    </main>"""
+    return _english_document(
+        title,
+        description,
+        canonical,
+        french_canonical,
+        main,
+        schemas,
+        og_type="article",
+        guides_current=False,
     )
 
 
 def render_glossary(
-    article: Mapping[str, object], terms: list[Mapping[str, object]]
+    article: Mapping[str, object],
+    terms: list[Mapping[str, object]],
+    *,
+    english_slug: str | None = None,
 ) -> str:
     metadata = _metadata(article)
     title = _required_text(metadata, "title", "glossary.metadata")
@@ -401,6 +797,92 @@ def render_glossary(
         schemas,
         og_type="website",
         guides_current=False,
+        english_canonical=(
+            f"{SITE_URL}/en/guides/{english_slug}/"
+            if english_slug is not None
+            else None
+        ),
+    )
+
+
+def render_english_glossary(
+    glossary: Mapping[str, object],
+    source_article: Mapping[str, object] | None,
+) -> str:
+    title = _required_text(glossary, "title", "English glossary")
+    description = _required_text(glossary, "description", "English glossary")
+    slug = _required_text(glossary, "slug", "English glossary")
+    canonical = f"{SITE_URL}/en/guides/{slug}/"
+    french_canonical = (
+        f"{SITE_URL}/guides/{_web_slug(source_article)}/"
+        if source_article is not None
+        else None
+    )
+    terms = sorted(
+        _mapping_list(glossary, "terms"),
+        key=lambda term: _alphabetical_key(
+            _required_text(term, "label", "English glossary term")
+        ),
+    )
+    term_by_slug = {
+        _required_text(term, "slug", "English glossary term"): term for term in terms
+    }
+    grouped_terms: dict[str, list[Mapping[str, object]]] = {}
+    for term in terms:
+        label = _required_text(term, "label", "English glossary term")
+        grouped_terms.setdefault(_alphabetical_key(label)[0].upper(), []).append(term)
+
+    letter_links = "\n".join(
+        f'          <li><a href="#letter-{escape(letter.lower(), quote=True)}">'
+        f"{escape(letter)}</a></li>"
+        for letter in grouped_terms
+    )
+    groups = "\n".join(
+        _render_english_glossary_group(letter, group, term_by_slug)
+        for letter, group in grouped_terms.items()
+    )
+    illustration = _mapping(
+        glossary.get("illustration"), "English glossary illustration"
+    )
+    illustration_markup = _render_english_block(illustration, {}, None, set())
+    schemas = [
+        _breadcrumb_schema(
+            [
+                ("Home", f"{SITE_URL}/en"),
+                ("Guides", f"{SITE_URL}/en/guides/"),
+                (title, canonical),
+            ]
+        ),
+        _glossary_schema(title, description, canonical, terms, language="en"),
+    ]
+    main = f"""
+    <main id="mainContent" class="guide-shell">
+      {_visible_breadcrumb([("Home", "/en"), ("Guides", "/en/guides/"), (title, None)], label="Breadcrumb")}
+      <article class="glossary-page">
+        <header class="guide-hero">
+          <p class="guide-eyebrow">Reference · {len(terms)} terms</p>
+          <h1>{escape(title)}</h1>
+          <p class="guide-lead">{escape(description)}</p>
+        </header>
+{illustration_markup}
+        <nav class="glossary-index" aria-labelledby="glossaryIndexTitle">
+          <h2 id="glossaryIndexTitle">Jump to a letter</h2>
+          <ol>
+{letter_links}
+          </ol>
+        </nav>
+{groups}
+      </article>
+    </main>"""
+    return _english_document(
+        f"{title} | Brasse-Bouillon",
+        description,
+        canonical,
+        french_canonical,
+        main,
+        schemas,
+        og_type="website",
+        guides_current=False,
     )
 
 
@@ -413,11 +895,22 @@ def _document(
     *,
     og_type: str,
     guides_current: bool,
+    english_canonical: str | None = None,
 ) -> str:
     escaped_title = escape(title)
     escaped_description = escape(description, quote=True)
     escaped_canonical = escape(canonical, quote=True)
     schema_markup = "\n  ".join(schemas)
+    english_alternate = (
+        f'\n  <link rel="alternate" hreflang="en" href="{escape(english_canonical, quote=True)}">'
+        if english_canonical is not None
+        else ""
+    )
+    locale_alternate = (
+        '\n  <meta property="og:locale:alternate" content="en_US">'
+        if english_canonical is not None
+        else ""
+    )
     return f"""<!DOCTYPE html>
 <html lang="fr" class="no-js">
 <head>
@@ -428,7 +921,7 @@ def _document(
   <meta name="description" content="{escaped_description}">
   <meta name="robots" content="max-image-preview:large">
   <link rel="canonical" href="{escaped_canonical}">
-  <link rel="alternate" hreflang="fr" href="{escaped_canonical}">
+  <link rel="alternate" hreflang="fr" href="{escaped_canonical}">{english_alternate}
   <link rel="alternate" hreflang="x-default" href="{escaped_canonical}">
   <meta property="og:type" content="{escape(og_type, quote=True)}">
   <meta property="og:site_name" content="Brasse-Bouillon">
@@ -439,7 +932,7 @@ def _document(
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Brasse-Bouillon, guides du brassage amateur">
-  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale" content="fr_FR">{locale_alternate}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="{escaped_canonical}">
   <meta name="twitter:title" content="{escape(title, quote=True)}">
@@ -447,37 +940,165 @@ def _document(
   <meta name="twitter:image" content="{SITE_URL}/og-image.png?v=20260710">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260727-2">
+  <link rel="stylesheet" href="/site.css?v=20260728">
   {schema_markup}
 </head>
 <body class="guide-page">
   <a class="skip-link" href="#mainContent">Aller au contenu principal</a>
   <div class="bubbles" aria-hidden="true"></div>
-  {_site_header(guides_current=guides_current)}
+  {_site_header(guides_current=guides_current, english_canonical=english_canonical)}
 {main}
   {_site_footer()}
-  <script src="/site.js?v=20260727"></script>
+  <script src="/site.js?v=20260728"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>
 """
 
 
-def _site_header(*, guides_current: bool) -> str:
+def _site_header(*, guides_current: bool, english_canonical: str | None = None) -> str:
     current_attribute = ' aria-current="page"' if guides_current else ""
+    language_switch = ""
+    if english_canonical is not None:
+        english_path = english_canonical.removeprefix(SITE_URL)
+        language_switch = (
+            '\n        <div class="lang-switch" role="group" '
+            'aria-label="Langue / Language">\n'
+            f'          <a class="lang-switch__link" href="{escape(english_path, quote=True)}" lang="en">EN</a>\n'
+            "        </div>"
+        )
     return f"""<header class="site-header">
     <div class="header-inner">
       <a class="header-logo" href="/" aria-label="Brasse-Bouillon — Accueil">
         <img src="/logo-icon-32.png" alt="" width="48" height="48">
         <span>Brasse-Bouillon</span>
       </a>
-      <nav class="header-nav guide-nav" aria-label="Navigation principale">
+      <nav class="header-nav guide-nav" aria-label="Navigation principale">{language_switch}
         <a href="/">Accueil</a>
         <a href="/guides/"{current_attribute}>Guides</a>
         <a class="header-cta" href="/#participerFr">Rejoindre la liste d’attente</a>
       </nav>
     </div>
   </header>"""
+
+
+def _english_document(
+    title: str,
+    description: str,
+    canonical: str,
+    french_canonical: str | None,
+    main: str,
+    schemas: list[str],
+    *,
+    og_type: str,
+    guides_current: bool,
+) -> str:
+    escaped_title = escape(title)
+    escaped_description = escape(description, quote=True)
+    escaped_canonical = escape(canonical, quote=True)
+    if french_canonical is None:
+        locale_links = (
+            f'<link rel="alternate" hreflang="en" href="{escaped_canonical}">\n'
+            f'  <link rel="alternate" hreflang="x-default" href="{escaped_canonical}">'
+        )
+        locale_meta = ""
+    else:
+        escaped_french_canonical = escape(french_canonical, quote=True)
+        locale_links = (
+            f'<link rel="alternate" hreflang="fr" href="{escaped_french_canonical}">\n'
+            f'  <link rel="alternate" hreflang="en" href="{escaped_canonical}">\n'
+            f'  <link rel="alternate" hreflang="x-default" href="{escaped_french_canonical}">'
+        )
+        locale_meta = '\n  <meta property="og:locale:alternate" content="fr_FR">'
+    schema_markup = "\n  ".join(schemas)
+    return f"""<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {GENERATED_MARKER}
+  <title>{escaped_title}</title>
+  <meta name="description" content="{escaped_description}">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="{escaped_canonical}">
+  {locale_links}
+  <meta property="og:type" content="{escape(og_type, quote=True)}">
+  <meta property="og:site_name" content="Brasse-Bouillon">
+  <meta property="og:url" content="{escaped_canonical}">
+  <meta property="og:title" content="{escape(title, quote=True)}">
+  <meta property="og:description" content="{escaped_description}">
+  <meta property="og:image" content="{SITE_URL}/og-image-en.png?v=20260713">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Brasse-Bouillon homebrewing guides">
+  <meta property="og:locale" content="en_US">{locale_meta}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="{escaped_canonical}">
+  <meta name="twitter:title" content="{escape(title, quote=True)}">
+  <meta name="twitter:description" content="{escaped_description}">
+  <meta name="twitter:image" content="{SITE_URL}/og-image-en.png?v=20260713">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/fonts.css?v=20260526">
+  <link rel="stylesheet" href="/site.css?v=20260728">
+  {schema_markup}
+</head>
+<body class="guide-page">
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <div class="bubbles" aria-hidden="true"></div>
+  {_english_header(guides_current=guides_current, french_canonical=french_canonical)}
+{main}
+  {_english_footer()}
+  <script src="/site.js?v=20260728"></script>
+  <script type="module" src="/feedback-widget.js?v=20260601"></script>
+</body>
+</html>
+"""
+
+
+def _english_header(*, guides_current: bool, french_canonical: str | None) -> str:
+    current_attribute = ' aria-current="page"' if guides_current else ""
+    language_switch = ""
+    if french_canonical is not None:
+        french_path = french_canonical.removeprefix(SITE_URL)
+        language_switch = (
+            '\n        <div class="lang-switch" role="group" aria-label="Language">\n'
+            f'          <a class="lang-switch__link" href="{escape(french_path, quote=True)}" lang="fr">FR</a>\n'
+            "        </div>"
+        )
+    return f"""<header class="site-header">
+    <div class="header-inner">
+      <a class="header-logo" href="/en" aria-label="Brasse-Bouillon — Home">
+        <img src="/logo-icon-32.png" alt="" width="48" height="48">
+        <span>Brasse-Bouillon</span>
+      </a>
+      <nav class="header-nav guide-nav" aria-label="Main navigation">{language_switch}
+        <a href="/en">Home</a>
+        <a href="/en/guides/"{current_attribute}>Guides</a>
+        <a class="header-cta" href="/en#participerEn">Join the waitlist</a>
+      </nav>
+    </div>
+  </header>"""
+
+
+def _english_footer() -> str:
+    return """<footer class="footer guide-footer">
+    <div class="footer-brand">
+      <span class="footer-mark">B·B</span>
+      <p>Brasse-Bouillon, the app for curious homebrewers.</p>
+    </div>
+    <div class="footer-links">
+      <a href="/legal-en">Legal notice</a>
+      <a href="/privacy-en">Privacy</a>
+      <a href="/cookies-en">Cookies</a>
+      <a href="/terms-en">Terms of use</a>
+    </div>
+  </footer>
+  <aside class="responsibility-band" aria-label="Responsible drinking notice">
+    <div class="responsibility-band__inner">
+      <span class="responsibility-band__badge" aria-hidden="true">18+</span>
+      <p>Alcohol abuse is dangerous for your health. Drink responsibly.</p>
+    </div>
+  </aside>"""
 
 
 def _site_footer() -> str:
@@ -511,6 +1132,32 @@ def _render_guide_card(article: Mapping[str, object]) -> str:
           <h2><a href="/guides/{escape(_web_slug(article), quote=True)}/">{escape(title)}</a></h2>
           <p>{escape(summary)}</p>
           <a class="guide-card__link" href="/guides/{escape(_web_slug(article), quote=True)}/">Lire le guide</a>
+        </article>"""
+
+
+def _render_english_card(guide: Mapping[str, object]) -> str:
+    title = _required_text(guide, "title", "English guide")
+    description = _required_text(guide, "description", "English guide")
+    slug = _required_text(guide, "slug", "English guide")
+    read_time = guide.get("readTimeMinutes")
+    return f"""        <article class="guide-card">
+          <p class="guide-card__meta">Beginner · {escape(str(read_time))} min</p>
+          <h2><a href="/en/guides/{escape(slug, quote=True)}/">{escape(title)}</a></h2>
+          <p>{escape(description)}</p>
+          <a class="guide-card__link" href="/en/guides/{escape(slug, quote=True)}/">Read the guide</a>
+        </article>"""
+
+
+def _render_english_glossary_card(glossary: Mapping[str, object]) -> str:
+    title = _required_text(glossary, "title", "English glossary")
+    description = _required_text(glossary, "description", "English glossary")
+    slug = _required_text(glossary, "slug", "English glossary")
+    term_count = len(_mapping_list(glossary, "terms"))
+    return f"""        <article class="guide-card">
+          <p class="guide-card__meta">Reference · {term_count} terms</p>
+          <h2><a href="/en/guides/{escape(slug, quote=True)}/">{escape(title)}</a></h2>
+          <p>{escape(description)}</p>
+          <a class="guide-card__link" href="/en/guides/{escape(slug, quote=True)}/">Browse the glossary</a>
         </article>"""
 
 
@@ -619,6 +1266,132 @@ def _render_block(
     raise GuideBuildError(f'unsupported public guide block type "{block_type}"')
 
 
+def _render_english_section(
+    section: Mapping[str, object],
+    guide_by_slug: Mapping[str, Mapping[str, object]],
+    glossary_slug: str | None,
+    glossary_term_slugs: set[str],
+) -> str:
+    section_id = _required_text(section, "id", "English section")
+    title = _required_text(section, "title", "English section")
+    blocks = _mapping_list(section, "blocks")
+    rendered_blocks = "\n".join(
+        _render_english_block(
+            block,
+            guide_by_slug,
+            glossary_slug,
+            glossary_term_slugs,
+        )
+        for block in blocks
+    )
+    return f"""        <section class="guide-section" id="{escape(section_id, quote=True)}">
+          <h2>{escape(title)}</h2>
+{rendered_blocks}
+        </section>"""
+
+
+def _render_english_block(
+    block: Mapping[str, object],
+    guide_by_slug: Mapping[str, Mapping[str, object]],
+    glossary_slug: str | None,
+    glossary_term_slugs: set[str],
+) -> str:
+    block_type = _required_text(block, "type", "English content block")
+    if block_type == "paragraph":
+        return f"          <p>{escape(_required_text(block, 'text', 'English paragraph'))}</p>"
+    if block_type == "definition":
+        term = escape(_required_text(block, "term", "English definition"))
+        definition = escape(_required_text(block, "definition", "English definition"))
+        return f"""          <aside class="guide-note guide-note--definition">
+            <h3>{term}</h3>
+            <p>{definition}</p>
+          </aside>"""
+    if block_type == "example":
+        title = escape(_required_text(block, "title", "English example"))
+        body = escape(_required_text(block, "body", "English example"))
+        return f"""          <aside class="guide-note guide-note--example">
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </aside>"""
+    if block_type == "calculatorCta":
+        title = escape(_required_text(block, "title", "English calculator CTA"))
+        description = escape(
+            _required_text(block, "description", "English calculator CTA")
+        )
+        return f"""          <aside class="guide-cta">
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <a href="/en#features">Explore the Brasse-Bouillon tools</a>
+          </aside>"""
+    if block_type == "procedure":
+        procedure_id = _required_text(block, "id", "English procedure")
+        title = escape(_required_text(block, "title", "English procedure"))
+        description = escape(_required_text(block, "description", "English procedure"))
+        rendered_steps = []
+        for position, step in enumerate(_mapping_list(block, "steps"), start=1):
+            step_id = _required_text(step, "id", "English procedure step")
+            step_title = escape(_required_text(step, "title", "English procedure step"))
+            step_text = escape(_required_text(step, "text", "English procedure step"))
+            link_markup = ""
+            href = step.get("href")
+            if isinstance(href, str):
+                link_label = escape(
+                    _required_text(step, "linkLabel", "English procedure step")
+                )
+                link_markup = f'<a href="{escape(href, quote=True)}">{link_label}</a>'
+            rendered_steps.append(
+                f'''            <li id="{escape(step_id, quote=True)}">
+              <span class="guide-procedure__number" aria-hidden="true">{position:02d}</span>
+              <div>
+                <h4>{step_title}</h4>
+                <p>{step_text}</p>
+                {link_markup}
+              </div>
+            </li>'''
+            )
+        return f'''          <div class="guide-procedure" id="{escape(procedure_id, quote=True)}" aria-labelledby="{escape(procedure_id, quote=True)}Title">
+            <h3 id="{escape(procedure_id, quote=True)}Title">{title}</h3>
+            <p>{description}</p>
+            <ol>
+{"\n".join(rendered_steps)}
+            </ol>
+          </div>'''
+    if block_type == "illustrationPlaceholder":
+        title = escape(_required_text(block, "title", "illustration placeholder"))
+        description = escape(
+            _required_text(block, "description", "illustration placeholder")
+        )
+        return f"""          <figure class="guide-illustration-placeholder" data-illustration-status="planned" role="img" aria-label="Planned illustration: {title}">
+            <div class="guide-illustration-placeholder__canvas" aria-hidden="true">
+              <span>Illustration planned</span>
+            </div>
+            <figcaption><strong>{title}</strong> — {description}</figcaption>
+          </figure>"""
+    if block_type == "glossaryReference":
+        label = escape(_required_text(block, "label", "English glossary reference"))
+        term_slug = _required_text(block, "termSlug", "English glossary reference")
+        if glossary_slug is None or term_slug not in glossary_term_slugs:
+            raise GuideBuildError(
+                f'English glossaryReference points to unknown term "{term_slug}"'
+            )
+        href = escape(f"/en/guides/{glossary_slug}/#{term_slug}", quote=True)
+        return (
+            '          <p class="guide-reference">In the homebrewing glossary: '
+            f'<a href="{href}"><strong>{label}</strong></a>.</p>'
+        )
+    if block_type == "relatedArticle":
+        target_slug = _required_text(block, "guideSlug", "English related article")
+        target = guide_by_slug.get(target_slug)
+        if target is None:
+            raise GuideBuildError(
+                f'English relatedArticle points to unknown guide "{target_slug}"'
+            )
+        label = escape(_required_text(target, "title", "English guide"))
+        href = escape(f"/en/guides/{target_slug}/", quote=True)
+        return f'          <p class="guide-related">Read next: <a href="{href}">{label}</a></p>'
+    raise GuideBuildError(f'unsupported English guide block type "{block_type}"')
+
+
 def _render_glossary_group(
     letter: str,
     terms: list[Mapping[str, object]],
@@ -677,6 +1450,66 @@ def _render_glossary_term(
             </article>"""
 
 
+def _render_english_glossary_group(
+    letter: str,
+    terms: list[Mapping[str, object]],
+    term_by_slug: Mapping[str, Mapping[str, object]],
+) -> str:
+    rendered_terms = "\n".join(
+        _render_english_glossary_term(term, term_by_slug) for term in terms
+    )
+    letter_id = f"letter-{letter.lower()}"
+    return f"""        <section class="glossary-group" aria-labelledby="{escape(letter_id, quote=True)}">
+          <h2 id="{escape(letter_id, quote=True)}">{escape(letter)}</h2>
+          <div class="glossary-list">
+{rendered_terms}
+          </div>
+        </section>"""
+
+
+def _render_english_glossary_term(
+    term: Mapping[str, object],
+    term_by_slug: Mapping[str, Mapping[str, object]],
+) -> str:
+    slug = _required_text(term, "slug", "English glossary term")
+    label = _required_text(term, "label", "English glossary term")
+    aliases = _text_list(term, "aliases")
+    short_definition = _required_text(term, "shortDefinition", "English glossary term")
+    detailed_definition = _required_text(
+        term, "detailedDefinition", "English glossary term"
+    )
+    related_terms = _text_list(term, "relatedTerms")
+    sources = _mapping_list(term, "sources")
+
+    alias_markup = ""
+    if aliases:
+        alias_markup = (
+            '              <p class="glossary-term__aliases">'
+            "<strong>Also called:</strong> "
+            f"{escape(', '.join(aliases))}</p>\n"
+        )
+    related_markup = ""
+    if related_terms:
+        links = ", ".join(
+            f'<a href="#{escape(related_slug, quote=True)}">'
+            f"{escape(_required_text(term_by_slug[related_slug], 'label', 'English glossary term'))}"
+            "</a>"
+            for related_slug in related_terms
+        )
+        related_markup = (
+            '              <p class="glossary-term__related">'
+            f"<strong>Related terms:</strong> {links}</p>\n"
+        )
+    source_links = ", ".join(_render_inline_source(source) for source in sources)
+
+    return f"""            <article class="glossary-term" id="{escape(slug, quote=True)}">
+              <h3>{escape(label)}</h3>
+{alias_markup}              <p class="glossary-term__summary">{escape(short_definition)}</p>
+              <p>{escape(detailed_definition)}</p>
+{related_markup}              <p class="glossary-term__sources"><strong>Sources:</strong> {source_links}</p>
+            </article>"""
+
+
 def _render_inline_source(source: Mapping[str, object]) -> str:
     title = escape(_required_text(source, "title", "source"))
     url = source.get("url")
@@ -704,7 +1537,9 @@ def _render_source(source: Mapping[str, object]) -> str:
     return f"          <li>{title_markup}{suffix}</li>"
 
 
-def _visible_breadcrumb(items: list[tuple[str, str | None]]) -> str:
+def _visible_breadcrumb(
+    items: list[tuple[str, str | None]], *, label: str = "Fil d’Ariane"
+) -> str:
     rendered: list[str] = []
     for name, href in items:
         if href is None:
@@ -712,7 +1547,7 @@ def _visible_breadcrumb(items: list[tuple[str, str | None]]) -> str:
         else:
             rendered.append(f'<a href="{escape(href, quote=True)}">{escape(name)}</a>')
     return (
-        '<nav class="guide-breadcrumb" aria-label="Fil d’Ariane">'
+        f'<nav class="guide-breadcrumb" aria-label="{escape(label, quote=True)}">'
         + '<span aria-hidden="true"> / </span>'.join(rendered)
         + "</nav>"
     )
@@ -737,32 +1572,118 @@ def _breadcrumb_schema(items: list[tuple[str, str]]) -> str:
 
 
 def _article_schema(
-    title: str, description: str, canonical: str, updated_at: str
+    title: str,
+    description: str,
+    canonical: str,
+    updated_at: str,
+    *,
+    language: str = "fr-FR",
+    image: str = f"{SITE_URL}/og-image.png?v=20260710",
+    has_part_id: str | None = None,
 ) -> str:
+    payload: dict[str, object] = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title,
+        "description": description,
+        "url": canonical,
+        "mainEntityOfPage": canonical,
+        "inLanguage": language,
+        "datePublished": updated_at,
+        "dateModified": updated_at,
+        "author": {"@type": "Organization", "name": "Brasse-Bouillon"},
+        "publisher": {
+            "@type": "Organization",
+            "name": "Brasse-Bouillon",
+            "url": f"{SITE_URL}/",
+            "logo": {
+                "@type": "ImageObject",
+                "url": f"{SITE_URL}/logo.png",
+            },
+        },
+        "image": image,
+    }
+    if has_part_id is not None:
+        payload["hasPart"] = {"@id": has_part_id}
+    return _json_ld(payload)
+
+
+def _how_to_schema(procedure: Mapping[str, object], canonical: str) -> str:
+    procedure_id = _required_text(procedure, "id", "English procedure")
     return _json_ld(
         {
             "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": title,
-            "description": description,
-            "url": canonical,
+            "@type": "HowTo",
+            "@id": f"{canonical}#{procedure_id}",
+            "name": _required_text(procedure, "title", "English procedure"),
+            "description": _required_text(
+                procedure, "description", "English procedure"
+            ),
+            "url": f"{canonical}#{procedure_id}",
             "mainEntityOfPage": canonical,
-            "inLanguage": "fr-FR",
-            "datePublished": updated_at,
-            "dateModified": updated_at,
-            "author": {"@type": "Organization", "name": "Brasse-Bouillon"},
-            "publisher": {
-                "@type": "Organization",
-                "name": "Brasse-Bouillon",
-                "url": f"{SITE_URL}/",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": f"{SITE_URL}/logo.png",
-                },
-            },
-            "image": f"{SITE_URL}/og-image.png?v=20260710",
+            "inLanguage": "en",
+            "step": [
+                {
+                    "@type": "HowToStep",
+                    "position": position,
+                    "name": _required_text(step, "title", "English procedure step"),
+                    "text": _required_text(step, "text", "English procedure step"),
+                    "url": (
+                        f"{canonical}#{_required_text(step, 'id', 'English procedure step')}"
+                    ),
+                }
+                for position, step in enumerate(
+                    _mapping_list(procedure, "steps"), start=1
+                )
+            ],
         }
     )
+
+
+def _english_hub_item_list(
+    guides: list[Mapping[str, object]],
+    glossary: Mapping[str, object] | None,
+) -> Mapping[str, object]:
+    resources = [
+        (
+            _required_text(guide, "title", "English guide"),
+            f"{SITE_URL}/en/guides/{_required_text(guide, 'slug', 'English guide')}/",
+        )
+        for guide in guides
+    ]
+    if glossary is not None:
+        resources.append(
+            (
+                _required_text(glossary, "title", "English glossary"),
+                f"{SITE_URL}/en/guides/"
+                f"{_required_text(glossary, 'slug', 'English glossary')}/",
+            )
+        )
+    return {
+        "@type": "ItemList",
+        "numberOfItems": len(resources),
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": position,
+                "name": name,
+                "url": url,
+            }
+            for position, (name, url) in enumerate(resources, start=1)
+        ],
+    }
+
+
+def _english_procedure(
+    guide: Mapping[str, object],
+) -> Mapping[str, object] | None:
+    procedures = [
+        block
+        for section in _mapping_list(guide, "sections")
+        for block in _mapping_list(section, "blocks")
+        if block.get("type") == "procedure"
+    ]
+    return procedures[0] if procedures else None
 
 
 def _glossary_schema(
@@ -770,6 +1691,8 @@ def _glossary_schema(
     description: str,
     canonical: str,
     terms: list[Mapping[str, object]],
+    *,
+    language: str = "fr-FR",
 ) -> str:
     return _json_ld(
         {
@@ -779,7 +1702,7 @@ def _glossary_schema(
             "name": title,
             "description": description,
             "url": canonical,
-            "inLanguage": "fr-FR",
+            "inLanguage": language,
             "isPartOf": {"@type": "WebSite", "url": f"{SITE_URL}/"},
             "hasDefinedTerm": [
                 {
@@ -804,6 +1727,295 @@ def _json_ld(payload: Mapping[str, object]) -> str:
     serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     safe = serialized.replace("<", "\\u003c").replace(">", "\\u003e")
     return f'<script type="application/ld+json">{safe}</script>'
+
+
+def _english_guides(payload: Mapping[str, object]) -> list[Mapping[str, object]]:
+    raw_guides = payload.get("guides")
+    if not isinstance(raw_guides, list):
+        raise GuideBuildError('English guides field "guides" must be an array')
+    return [
+        _mapping(raw_guide, f"English guides.{index}")
+        for index, raw_guide in enumerate(raw_guides)
+    ]
+
+
+def _english_glossary(
+    payload: Mapping[str, object],
+) -> Mapping[str, object] | None:
+    raw_glossary = payload.get("glossary")
+    if raw_glossary is None:
+        return None
+    return _mapping(raw_glossary, "English glossary")
+
+
+def _english_walkthrough(payload: Mapping[str, object]) -> Mapping[str, object]:
+    return _mapping(payload.get("walkthrough"), "English walkthrough")
+
+
+def _source_ids(
+    content: Mapping[str, object],
+    *,
+    label: str,
+    valid_source_ids: set[str],
+) -> None:
+    if content.get("sourceIds") is None:
+        raise GuideBuildError(f"{label}.sourceIds must not be empty")
+    source_ids = _text_list(content, "sourceIds")
+    if not source_ids:
+        raise GuideBuildError(f"{label}.sourceIds must not be empty")
+    if len(source_ids) != len(set(source_ids)):
+        raise GuideBuildError(f"{label}.sourceIds must not contain duplicates")
+    unknown_source_ids = set(source_ids) - valid_source_ids
+    if unknown_source_ids:
+        unknown = ", ".join(sorted(unknown_source_ids))
+        raise GuideBuildError(f"{label} references unknown source IDs: {unknown}")
+
+
+def _source_catalog(
+    content: Mapping[str, object],
+    *,
+    label: str,
+) -> set[str]:
+    sources = _mapping_list(content, "sources")
+    if not sources:
+        raise GuideBuildError(f"{label}.sources must not be empty")
+
+    source_ids: set[str] = set()
+    for index, source in enumerate(sources):
+        source_label = f"{label}.sources.{index}"
+        source_id = _required_slug(source, "id", source_label)
+        if source_id in source_ids:
+            raise GuideBuildError(f'duplicate {label} source id "{source_id}"')
+        source_ids.add(source_id)
+        for key in ("kind", "title", "publisher", "notes"):
+            _required_text(source, key, source_label)
+        if not _text_list(source, "authors"):
+            raise GuideBuildError(f"{source_label}.authors must not be empty")
+        url = source.get("url")
+        if url is not None and (
+            not isinstance(url, str) or not url.startswith(("https://", "http://"))
+        ):
+            raise GuideBuildError(f"{source_label}.url must be an HTTP(S) URL or null")
+        year = source.get("year")
+        if year is not None and (not isinstance(year, int) or year < 1000):
+            raise GuideBuildError(f"{source_label}.year must be a valid year or null")
+    return source_ids
+
+
+def _validate_english_walkthrough(walkthrough: Mapping[str, object]) -> None:
+    _required_text(walkthrough, "title", "English walkthrough")
+    _required_text(walkthrough, "description", "English walkthrough")
+    source_ids = _source_catalog(walkthrough, label="English walkthrough")
+    steps = _mapping_list(walkthrough, "steps")
+    if len(steps) < 2:
+        raise GuideBuildError("English walkthrough must contain at least two steps")
+    step_ids: set[str] = set()
+    for step in steps:
+        step_id = _required_slug(step, "id", "English walkthrough step")
+        if step_id in step_ids:
+            raise GuideBuildError(f'duplicate English walkthrough step id "{step_id}"')
+        step_ids.add(step_id)
+        for key in (
+            "phase",
+            "title",
+            "summary",
+            "whyItMatters",
+            "illustrationBrief",
+        ):
+            _required_text(step, key, "English walkthrough step")
+        _source_ids(
+            step,
+            label=f'English walkthrough step "{step_id}"',
+            valid_source_ids=source_ids,
+        )
+        href = step.get("href")
+        if href is not None:
+            if not isinstance(href, str) or not href.startswith("/en/"):
+                raise GuideBuildError(
+                    "English walkthrough step.href must be an internal /en/ path"
+                )
+            _required_text(step, "linkLabel", "English walkthrough step")
+
+
+def _optional_academy_slug(content: Mapping[str, object], label: str) -> str | None:
+    value = content.get("academySlug")
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise GuideBuildError(f"{label}.academySlug must be a non-empty string")
+    return value
+
+
+def _validate_iso_date(mapping: Mapping[str, object], label: str) -> None:
+    updated_at = _required_text(mapping, "updatedAt", label)
+    try:
+        date.fromisoformat(updated_at)
+    except ValueError as error:
+        raise GuideBuildError(
+            f"{label}.updatedAt must be an ISO date (YYYY-MM-DD)"
+        ) from error
+
+
+def _validate_english_guide(guide: Mapping[str, object]) -> None:
+    _optional_academy_slug(guide, "English guide")
+    for key in ("title", "description"):
+        _required_text(guide, key, "English guide")
+    _required_slug(guide, "slug", "English guide")
+    _validate_iso_date(guide, "English guide")
+    read_time = guide.get("readTimeMinutes")
+    if not isinstance(read_time, int) or read_time <= 0:
+        raise GuideBuildError("English guide.readTimeMinutes must be positive")
+    if not _text_list(guide, "learningObjectives"):
+        raise GuideBuildError("English guide.learningObjectives must not be empty")
+    source_ids = _source_catalog(guide, label="English guide")
+
+    sections = _mapping_list(guide, "sections")
+    if not sections:
+        raise GuideBuildError("English guide.sections must not be empty")
+    section_ids: set[str] = set()
+    for section in sections:
+        section_id = _required_slug(section, "id", "English section")
+        _required_text(section, "title", "English section")
+        if section_id in section_ids:
+            raise GuideBuildError(f'duplicate English section id "{section_id}"')
+        section_ids.add(section_id)
+        blocks = _mapping_list(section, "blocks")
+        if not blocks:
+            raise GuideBuildError(
+                f'English section "{section_id}" blocks must not be empty'
+            )
+        for block in blocks:
+            _validate_english_block(block, valid_source_ids=source_ids)
+
+    procedures = [
+        block
+        for section in sections
+        for block in _mapping_list(section, "blocks")
+        if block.get("type") == "procedure"
+    ]
+    if len(procedures) > 1:
+        raise GuideBuildError("English guide must not contain multiple procedures")
+    if procedures:
+        for step in _mapping_list(procedures[0], "steps"):
+            href = step.get("href")
+            if isinstance(href, str) and href.startswith("#"):
+                target = href.removeprefix("#")
+                if target not in section_ids:
+                    raise GuideBuildError(
+                        f'English procedure step references unknown section "{target}"'
+                    )
+
+
+def _validate_english_block(
+    block: Mapping[str, object],
+    *,
+    valid_source_ids: set[str] | None = None,
+) -> None:
+    block_type = _required_text(block, "type", "English content block")
+    required_fields = {
+        "paragraph": ("text",),
+        "definition": ("term", "definition"),
+        "example": ("title", "body"),
+        "calculatorCta": ("title", "description"),
+        "illustrationPlaceholder": ("title", "description"),
+        "procedure": ("id", "title", "description"),
+        "glossaryReference": ("termSlug", "label"),
+        "relatedArticle": ("guideSlug",),
+    }
+    fields = required_fields.get(block_type)
+    if fields is None:
+        raise GuideBuildError(f'unsupported English guide block type "{block_type}"')
+    for field in fields:
+        _required_text(block, field, f"English {block_type}")
+    if valid_source_ids is not None and block_type in {
+        "paragraph",
+        "definition",
+        "example",
+        "illustrationPlaceholder",
+        "procedure",
+    }:
+        _source_ids(
+            block,
+            label=f"English {block_type}",
+            valid_source_ids=valid_source_ids,
+        )
+    if block_type == "procedure":
+        _required_slug(block, "id", "English procedure")
+        steps = _mapping_list(block, "steps")
+        if len(steps) < 2:
+            raise GuideBuildError("English procedure must contain at least two steps")
+        step_ids: set[str] = set()
+        for step in steps:
+            step_id = _required_slug(step, "id", "English procedure step")
+            if step_id in step_ids:
+                raise GuideBuildError(
+                    f'duplicate English procedure step id "{step_id}"'
+                )
+            step_ids.add(step_id)
+            for key in ("title", "text"):
+                _required_text(step, key, "English procedure step")
+            if valid_source_ids is not None:
+                _source_ids(
+                    step,
+                    label=f'English procedure step "{step_id}"',
+                    valid_source_ids=valid_source_ids,
+                )
+            href = step.get("href")
+            if href is not None:
+                if not isinstance(href, str) or not (
+                    href.startswith("#") or href.startswith("/en/")
+                ):
+                    raise GuideBuildError(
+                        "English procedure step.href must be a local fragment "
+                        "or internal /en/ path"
+                    )
+                _required_text(step, "linkLabel", "English procedure step")
+    if block_type in {"glossaryReference", "relatedArticle"}:
+        slug_field = "termSlug" if block_type == "glossaryReference" else "guideSlug"
+        _required_slug(block, slug_field, f"English {block_type}")
+
+
+def _validate_english_glossary(glossary: Mapping[str, object]) -> None:
+    _optional_academy_slug(glossary, "English glossary")
+    for key in ("title", "description"):
+        _required_text(glossary, key, "English glossary")
+    _required_slug(glossary, "slug", "English glossary")
+    _validate_iso_date(glossary, "English glossary")
+    illustration = _mapping(
+        glossary.get("illustration"), "English glossary illustration"
+    )
+    if illustration.get("type") != "illustrationPlaceholder":
+        raise GuideBuildError(
+            "English glossary.illustration must be an illustrationPlaceholder"
+        )
+    _validate_english_block(illustration)
+    terms = _mapping_list(glossary, "terms")
+    if not terms:
+        raise GuideBuildError("English glossary.terms must not be empty")
+
+    term_slugs: set[str] = set()
+    for term in terms:
+        slug = _required_slug(term, "slug", "English glossary term")
+        if slug in term_slugs:
+            raise GuideBuildError(f'duplicate English glossary term slug "{slug}"')
+        term_slugs.add(slug)
+        _required_text(term, "label", "English glossary term")
+        _required_text(term, "shortDefinition", "English glossary term")
+        _required_text(term, "detailedDefinition", "English glossary term")
+        _text_list(term, "aliases")
+        _text_list(term, "relatedTerms")
+        if not _mapping_list(term, "sources"):
+            raise GuideBuildError(
+                f'English glossary term "{slug}" sources must not be empty'
+            )
+
+    for term in terms:
+        for related_slug in _text_list(term, "relatedTerms"):
+            if related_slug not in term_slugs:
+                raise GuideBuildError(
+                    f'English glossary term "{term["slug"]}" references unknown term '
+                    f'"{related_slug}"'
+                )
 
 
 def _metadata(article: Mapping[str, object]) -> Mapping[str, object]:
@@ -844,6 +2056,15 @@ def _required_text(mapping: Mapping[str, object], key: str, label: str) -> str:
     value = mapping.get(key)
     if not isinstance(value, str) or not value.strip():
         raise GuideBuildError(f"{label}.{key} must be a non-empty string")
+    return value
+
+
+def _required_slug(mapping: Mapping[str, object], key: str, label: str) -> str:
+    value = _required_text(mapping, key, label)
+    if re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value) is None:
+        raise GuideBuildError(
+            f"{label}.{key} must contain only lowercase letters, digits, and hyphens"
+        )
     return value
 
 
@@ -899,26 +2120,37 @@ def main(argv: list[str] | None = None) -> int:
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", type=Path, default=CORPUS_PATH)
     parser.add_argument("--output", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--english-guides", type=Path, default=ENGLISH_GUIDES_PATH)
+    parser.add_argument("--english-output", type=Path, default=ENGLISH_OUTPUT_DIR)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
 
     try:
-        files = expected_files(load_corpus(args.corpus))
+        corpus = load_corpus(args.corpus)
+        english_payload = load_english_guides(args.english_guides)
+        files = expected_files(corpus, english_payload)
+        english_files = expected_english_files(corpus, english_payload)
         if args.check:
-            errors = check_generated_files(args.output, files)
+            errors = [
+                *check_generated_files(args.output, files),
+                *check_generated_files(args.english_output, english_files),
+            ]
             if errors:
                 for error in errors:
                     print(f"build_guides: {error}", file=sys.stderr)
                 return 1
-            print(f"Guide pages are up to date ({len(files)} files).")
+            total = len(files) + len(english_files)
+            print(f"Guide pages are up to date ({total} files).")
             return 0
 
         write_generated_files(args.output, files)
+        write_generated_files(args.english_output, english_files)
     except GuideBuildError as error:
         print(f"build_guides: {error}", file=sys.stderr)
         return 1
 
-    print(f"Generated {len(files)} guide files.")
+    total = len(files) + len(english_files)
+    print(f"Generated {total} guide files.")
     return 0
 
 

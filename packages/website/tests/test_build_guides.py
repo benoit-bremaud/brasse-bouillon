@@ -156,9 +156,9 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"Article"', article_html)
         self.assertIn('"@type":"BreadcrumbList"', article_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', hub_html)
-        self.assertIn('<script src="/site.js?v=20260727"></script>', hub_html)
+        self.assertIn('<script src="/site.js?v=20260728"></script>', hub_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', article_html)
-        self.assertIn('<script src="/site.js?v=20260727"></script>', article_html)
+        self.assertIn('<script src="/site.js?v=20260728"></script>', article_html)
         self.assertIn(
             '<a href="/guides/" aria-current="page">Guides</a>',
             hub_html,
@@ -286,6 +286,288 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"BreadcrumbList"', fermentation_html)
         self.assertIn("/guides/premier-brassin/", fermentation_html)
         self.assertIn("/guides/fermentation-biere-duree-temperature/", first_brew_html)
+
+    def test_published_og_fg_guide_preserves_formulas_and_cluster_links(self) -> None:
+        files = build_guides.expected_files(
+            build_guides.load_corpus(build_guides.CORPUS_PATH)
+        )
+
+        guide_path = Path("og-fg-attenuation-biere/index.html")
+        self.assertIn(guide_path, files)
+        guide_html = files[guide_path]
+        hub_html = files[Path("index.html")]
+        fermentation_html = files[
+            Path("fermentation-biere-duree-temperature/index.html")
+        ]
+        first_brew_html = files[Path("premier-brassin/index.html")]
+
+        self.assertIn("OG, FG et atténuation", guide_html)
+        self.assertIn("(OG − FG) × 131,25", guide_html)
+        self.assertIn("le calcul donne 80 %", guide_html)
+        self.assertIn("Une FG stable sur plusieurs mesures", guide_html)
+        self.assertIn('"@type":"Article"', guide_html)
+        self.assertIn('"@type":"BreadcrumbList"', guide_html)
+        self.assertIn("/guides/glossaire-brassage/#densite-initiale", guide_html)
+        self.assertIn("/guides/glossaire-brassage/#densite-finale", guide_html)
+        self.assertIn("/guides/glossaire-brassage/#attenuation", guide_html)
+        self.assertIn("/guides/premier-brassin/", guide_html)
+        self.assertIn("/guides/fermentation-biere-duree-temperature/", guide_html)
+        self.assertIn("/guides/og-fg-attenuation-biere/", hub_html)
+        self.assertIn("/guides/og-fg-attenuation-biere/", fermentation_html)
+        self.assertIn("/guides/og-fg-attenuation-biere/", first_brew_html)
+
+    def test_generates_complete_english_guide_with_reciprocal_hreflang(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        english_payload = build_guides.load_english_guides(
+            build_guides.ENGLISH_GUIDES_PATH
+        )
+
+        french_files = build_guides.expected_files(corpus, english_payload)
+        english_files = build_guides.expected_english_files(corpus, english_payload)
+
+        english_path = Path("og-fg-attenuation-homebrew/index.html")
+        self.assertEqual(
+            set(english_files),
+            {
+                Path("index.html"),
+                Path("first-homebrew/index.html"),
+                Path("homebrew-fermentation-time-temperature/index.html"),
+                Path("homebrewing-glossary/index.html"),
+                Path("ibu-hops-bitterness/index.html"),
+                english_path,
+            },
+        )
+        english_html = english_files[english_path]
+        english_hub_html = english_files[Path("index.html")]
+        beginner_html = english_files[Path("first-homebrew/index.html")]
+        english_glossary_html = english_files[Path("homebrewing-glossary/index.html")]
+        french_html = french_files[Path("og-fg-attenuation-biere/index.html")]
+        self.assertIn('<html lang="en"', english_html)
+        self.assertIn("Original Gravity, Final Gravity and ABV", english_html)
+        self.assertIn("(OG − FG) × 131.25", english_html)
+        self.assertIn("reaches 80% apparent attenuation", english_html)
+        self.assertIn("alcohol lowers the liquid’s density", english_html)
+        self.assertIn("Use a hydrometer and refractometer correctly", english_html)
+        self.assertIn('"inLanguage":"en"', english_html)
+        self.assertEqual(english_hub_html.count('class="guide-walkthrough__step"'), 12)
+        self.assertIn("From Grain to Glass", english_hub_html)
+        self.assertIn('id="brewingWalkthroughSteps"', english_hub_html)
+        self.assertIn(
+            'class="guide-walkthrough__controls" role="group" '
+            'aria-label="Walkthrough controls" hidden',
+            english_hub_html,
+        )
+        self.assertIn('data-walkthrough-direction="previous"', english_hub_html)
+        self.assertIn('data-walkthrough-direction="next"', english_hub_html)
+        self.assertEqual(english_hub_html.count("<details"), 12)
+        self.assertTrue(
+            all(line == line.rstrip() for line in english_hub_html.splitlines())
+        )
+        self.assertIn('"@type":"ItemList","numberOfItems":5', english_hub_html)
+        self.assertIn('class="guide-procedure"', beginner_html)
+        self.assertEqual(beginner_html.count('class="guide-procedure__number"'), 8)
+        self.assertEqual(beginner_html.count('"@type":"HowToStep"'), 8)
+        self.assertIn('"@type":"HowTo"', beginner_html)
+        self.assertIn('"hasPart":{"@id":', beginner_html)
+        self.assertEqual(
+            beginner_html.count('class="guide-illustration-placeholder"'), 4
+        )
+        fermentation_html = english_files[
+            Path("homebrew-fermentation-time-temperature/index.html")
+        ]
+        hops_html = english_files[Path("ibu-hops-bitterness/index.html")]
+        self.assertIn("at least 48 hours apart", fermentation_html)
+        self.assertIn("Normal krausen or warning sign?", fermentation_html)
+        self.assertIn("Low-oxygen transfer path", fermentation_html)
+        self.assertIn("Bottle-conditioning checklist", fermentation_html)
+        self.assertIn("This hop creep can restart fermentation", hops_html)
+        site_js = (build_guides.WEBSITE_DIR / "site.js").read_text(encoding="utf-8")
+        self.assertIn("function setupGuideWalkthrough()", site_js)
+        self.assertIn("event.pointerType !== 'mouse'", site_js)
+        self.assertIn("controls.hidden = false", site_js)
+        site_css = (build_guides.WEBSITE_DIR / "site.css").read_text(encoding="utf-8")
+        self.assertIn("grid-template-rows: auto auto 1fr auto", site_css)
+        self.assertIn(
+            "min-height: calc(3 * var(--text-lg) * var(--line-height-tight))",
+            site_css,
+        )
+        self.assertIn(".guide-walkthrough__visual-label {", site_css)
+        self.assertIn(
+            "min-height: calc(2 * var(--text-sm) * var(--line-height-copy))",
+            site_css,
+        )
+        self.assertIn("align-self: end", site_css)
+        self.assertIn('"@type":"DefinedTermSet"', english_glossary_html)
+        self.assertEqual(english_glossary_html.count('"@type":"DefinedTerm"'), 22)
+        self.assertIn(
+            '<link rel="alternate" hreflang="fr" '
+            'href="https://brasse-bouillon.com/guides/og-fg-attenuation-biere/">',
+            english_html,
+        )
+        self.assertIn(
+            '<link rel="alternate" hreflang="en" '
+            'href="https://brasse-bouillon.com/en/guides/'
+            'og-fg-attenuation-homebrew/">',
+            french_html,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            build_guides.write_generated_files(root / "guides", french_files)
+            build_guides.write_generated_files(root / "en/guides", english_files)
+            self.assertEqual(quality_gate.check_html_files(root), [])
+            self.assertEqual(quality_gate.check_breadcrumb_schema(root), [])
+            self.assertEqual(quality_gate.check_guide_structured_data(root), [])
+            self.assertEqual(quality_gate.check_hreflang_reciprocity(root), [])
+
+    def test_quality_gate_rejects_visible_procedure_and_schema_drift(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        files = build_guides.expected_english_files(corpus, payload)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            build_guides.write_generated_files(root / "en/guides", files)
+            beginner_path = root / "en/guides/first-homebrew/index.html"
+            beginner_path.write_text(
+                beginner_path.read_text(encoding="utf-8").replace(
+                    ">Produce the sweet wort</h4>",
+                    ">Make the wort</h4>",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_guide_structured_data(root)
+            self.assertTrue(any("schema HowTo incohérent" in error for error in errors))
+
+    def test_quality_gate_rejects_hub_item_list_and_card_drift(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        files = build_guides.expected_english_files(corpus, payload)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            build_guides.write_generated_files(root / "en/guides", files)
+            hub_path = root / "en/guides/index.html"
+            hub_path.write_text(
+                hub_path.read_text(encoding="utf-8").replace(
+                    '"numberOfItems":5',
+                    '"numberOfItems":4',
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            errors = quality_gate.check_guide_structured_data(root)
+            self.assertTrue(
+                any("schema ItemList incohérent" in error for error in errors)
+            )
+
+    def test_rejects_english_guide_without_published_academy_source(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        guide = payload["guides"][0]
+        self.assertIsInstance(guide, dict)
+        guide["academySlug"] = "missing"
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "unpublished Academy article"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_supports_future_english_only_guide(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        guide = payload["guides"][0]
+        self.assertIsInstance(guide, dict)
+        del guide["academySlug"]
+
+        files = build_guides.expected_english_files(corpus, payload)
+        html = files[Path("first-homebrew/index.html")]
+
+        self.assertNotIn('hreflang="fr"', html)
+        self.assertIn(
+            '<link rel="alternate" hreflang="x-default" '
+            'href="https://brasse-bouillon.com/en/guides/first-homebrew/">',
+            html,
+        )
+
+    def test_rejects_unsafe_english_guide_slug(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        guide = payload["guides"][0]
+        self.assertIsInstance(guide, dict)
+        guide["slug"] = "../../outside"
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "lowercase letters, digits, and hyphens"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_duplicate_english_procedure_step_id(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        procedure = payload["guides"][0]["sections"][1]["blocks"][0]
+        procedure["steps"][1]["id"] = procedure["steps"][0]["id"]
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "duplicate English procedure step id"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_external_english_procedure_link(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        procedure = payload["guides"][0]["sections"][1]["blocks"][0]
+        procedure["steps"][0]["href"] = "https://example.com/unsafe"
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "local fragment or internal /en/ path"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_missing_english_claim_source_ids(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        del payload["guides"][0]["sections"][0]["blocks"][0]["sourceIds"]
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "sourceIds must not be empty"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_unknown_english_claim_source_id(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        payload["guides"][0]["sections"][0]["blocks"][0]["sourceIds"] = [
+            "missing-source"
+        ]
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "unknown source IDs: missing-source"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_unsourced_english_walkthrough_step(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        payload["walkthrough"]["steps"][0]["sourceIds"] = []
+
+        with self.assertRaisesRegex(
+            build_guides.GuideBuildError, "sourceIds must not be empty"
+        ):
+            build_guides.expected_english_files(corpus, payload)
+
+    def test_rejects_invalid_english_guide_date(self) -> None:
+        corpus = build_guides.load_corpus(build_guides.CORPUS_PATH)
+        payload = build_guides.load_english_guides(build_guides.ENGLISH_GUIDES_PATH)
+        guide = payload["guides"][0]
+        self.assertIsInstance(guide, dict)
+        guide["updatedAt"] = "2026-99-99"
+
+        with self.assertRaisesRegex(build_guides.GuideBuildError, "ISO date"):
+            build_guides.expected_english_files(corpus, payload)
 
     def test_excludes_content_still_in_web_review(self) -> None:
         article = _article()

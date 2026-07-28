@@ -120,7 +120,12 @@
         </div>
         <a href="#journeyEn" data-i18n="nav.journey">How it works</a>
         <a href="#features" data-i18n="nav.app">The app</a>
-        <a href="/guides/" hreflang="fr" data-i18n="nav.guides">Guides</a>
+        <a
+          href="/en/guides/"
+          hreflang="en"
+          data-i18n="nav.guides"
+          data-i18n-attrs="href:nav.guides.href,hreflang:nav.guides.hreflang"
+        >Guides</a>
         <a href="#faq" data-i18n="nav.faq">FAQ</a>
         <a href="#participerEn" class="header-cta" data-i18n="nav.cta">Join the waitlist</a>
       </nav>
@@ -140,7 +145,7 @@
           <a class="btn btn-primary" href="#participerEn" data-i18n="hero.cta.primary">Join the waitlist</a>
           <a class="btn btn-ghost" href="#journeyEn" data-i18n="hero.cta.secondary">See how it goes</a>
         </div>
-        <p class="hero-honesty" data-i18n-en-only="hero.honesty">Heads-up for English speakers: the app’s interface launches in French first -<br>an English version is on the way. This site is already in English so you can follow along today.</p>
+        <p class="hero-honesty" data-i18n-en-only="hero.honesty">A note for English-speaking brewers: the app launches in French first.<br>An English interface is planned, and you can already follow the project here in English.</p>
         <div class="hero-mascot">
           <img class="logo" src="logo-hero.webp" alt="Brasse-Bouillon official mascot" loading="eager" width="180" height="180" data-i18n-attrs="alt:hero.mascot">
         </div>
@@ -149,10 +154,10 @@
       <section class="section-block" id="journeyEn">
         <p class="section-eyebrow" data-i18n="journey.eyebrow">The journey</p>
         <h2 class="section-title" data-i18n="journey.title">From recipe to <em>first pour</em></h2>
-        <p class="section-intro" data-i18n="journey.intro">Four steps, a copilot at every moment. You’re never left alone in front of the kettle.</p>
+        <p class="section-intro" data-i18n="journey.intro">Four stages, with clear guidance at each one. You always know what comes next.</p>
         <!-- EN-only disclosure: rendered empty on the FR page, filled from the
              catalog insertions on en.html (the app UI is French-only today). -->
-        <p class="screens-note" data-i18n-en-only="journey.screensNote">Screenshots throughout this page show the app’s French interface - the English app UI is in the works.</p>
+        <p class="screens-note" data-i18n-en-only="journey.screensNote">Screenshots on this page show the current French interface. An English app interface is planned.</p>
         <ol class="journey-grid">
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">01</span>
@@ -160,7 +165,7 @@
               <img src="screenshots/journey-1-catalog.webp?v=20260526" alt="App recipe catalog: a list of public recipes with their IBU, ABV and volume figures" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.1.img">
             </div>
             <h3 data-i18n="journey.1.title">Pick your recipe</h3>
-            <p data-i18n="journey.1.body">Compare the community’s clone recipes - rated and battle-tested - and adopt the one that tempts you. No jargon.</p>
+            <p data-i18n="journey.1.body">Compare community-rated clone recipes and choose one you want to brew. No jargon.</p>
           </li>
           <li class="journey-step">
             <span class="journey-num" aria-hidden="true">02</span>
@@ -183,8 +188,8 @@
             <div class="journey-screenshot">
               <img src="screenshots/journey-4-deguste.webp?v=20260526" alt="‘Batch complete’ celebration screen with the bottle and a custom label" loading="lazy" width="320" height="640" data-i18n-attrs="alt:journey.4.img">
             </div>
-            <h3 data-i18n="journey.4.title">Bottle it, savor it</h3>
-            <p data-i18n="journey.4.body">Slap on your label, share with friends, and enjoy your first creation.</p>
+            <h3 data-i18n="journey.4.title">Bottle it, taste it</h3>
+            <p data-i18n="journey.4.body">Add your label, share it with friends, and enjoy the beer you made.</p>
           </li>
         </ol>
       </section>
@@ -229,7 +234,7 @@
               <img src="screenshots/feature-calculs-hops.webp?v=20260526" alt="Hop calculator screen with Quick, Reverse and BU:GU tabs and interactive sliders" loading="lazy" width="280" height="560" data-i18n-attrs="alt:features.2.img">
             </div>
             <h3 data-i18n="features.2.title">Brewing calculators</h3>
-            <p data-i18n="features.2.body">IBU, ABV, color, volumes, efficiency. Every number in one place, and reliable.</p>
+            <p data-i18n="features.2.body">IBU, ABV, color, volumes and efficiency—all your key numbers in one reliable place.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
@@ -244,7 +249,7 @@
       <section class="section-block" id="scanEn">
         <p class="section-eyebrow" data-i18n="scan.eyebrow">Recognition</p>
         <h2 class="section-title" data-i18n="scan.title">Loved a beer?&nbsp;<em>Scan it.</em></h2>
-        <p class="section-intro" data-i18n="scan.intro">Scan the label of a store-bought beer&nbsp;: Brasse-Bouillon identifies it, then suggests equivalent recipes rated by the community - ready to brew.</p>
+        <p class="section-intro" data-i18n="scan.intro">Scan the label of a commercial beer. Brasse-Bouillon identifies it, then suggests similar community-rated recipes you can brew.</p>
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-screenshot">
@@ -272,8 +277,8 @@
             <div class="feature-screenshot">
               <img src="screenshots/feature-academie.webp?v=20260710" alt="Brewing Academy home screen: a summary card (10 articles, 8 calculators), a search bar, theme filters and an article list (history of beer, introduction to brewing, malts and fermentables)" loading="lazy" width="280" height="560" data-i18n-attrs="alt:academie.1.img">
             </div>
-            <h3 data-i18n="academie.1.title">Landmarks, not jargon</h3>
-            <p data-i18n="academie.1.body">Ingredients, color, alcohol, fermentation: clear articles, sorted by theme, to learn at your own pace.</p>
+            <h3 data-i18n="academie.1.title">Clear guidance, no jargon</h3>
+            <p data-i18n="academie.1.body">Learn about ingredients, color, alcohol and fermentation through clear, source-backed articles organized by topic.</p>
           </article>
           <article class="feature-card">
             <div class="feature-screenshot">
@@ -295,7 +300,7 @@
           </details>
           <details class="faq-item">
             <summary data-i18n="faq.q2.summary">How much does it cost to get started?</summary>
-            <p data-i18n="faq.q2.answer">Roughly €60-120 for a complete starter kit. You’ll reuse it for 5-6 batches, and the gear pays for itself fast compared with buying good craft beer.</p>
+            <p data-i18n="faq.q2.answer">A complete starter kit typically costs around €60–120. Most of the equipment is reusable, so your first purchase supports many future batches.</p>
           </details>
           <details class="faq-item">
             <summary data-i18n="faq.q3.summary">How long does a batch take (the first time)?</summary>
@@ -303,7 +308,7 @@
           </details>
           <details class="faq-item">
             <summary data-i18n="faq.q4.summary">And if I botch my first batch?</summary>
-            <p data-i18n="faq.q4.answer">It happens, and it’s almost always drinkable. The app walks back through each step to help you understand what happened - and your next batch comes out better.</p>
+            <p data-i18n="faq.q4.answer">A disappointing first batch is still useful. The app helps you review each step, understand what happened and improve the next brew.</p>
           </details>
           <details class="faq-item">
             <summary data-i18n="faq.q5.summary">When will the app be available?</summary>

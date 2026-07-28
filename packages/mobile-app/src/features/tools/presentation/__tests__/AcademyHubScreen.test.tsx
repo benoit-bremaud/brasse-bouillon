@@ -87,7 +87,9 @@ describe("AcademyHubScreen", () => {
     expect(
       screen.getByText("IBU et houblon : comprendre l'amertume d'une bière"),
     ).toBeTruthy();
-    expect(screen.getByText("Malts et fermentescibles")).toBeTruthy();
+    expect(
+      screen.getByText("OG, FG et atténuation : calculer l’alcool d’une bière"),
+    ).toBeTruthy();
     expect(screen.queryByText("Eau de brassage")).toBeNull();
 
     fireEvent.press(screen.getByTestId("academy-filter-all"));

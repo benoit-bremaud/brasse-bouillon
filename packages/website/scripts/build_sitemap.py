@@ -20,12 +20,33 @@ SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
 URL_SOURCE_PATHS = {
     "https://brasse-bouillon.com/": Path("packages/website/index.html"),
     "https://brasse-bouillon.com/en": Path("packages/website/en.html"),
+    "https://brasse-bouillon.com/en/guides/": Path(
+        "packages/website/en/guides/index.html"
+    ),
+    "https://brasse-bouillon.com/en/guides/first-homebrew/": Path(
+        "packages/website/en/guides/first-homebrew/index.html"
+    ),
+    "https://brasse-bouillon.com/en/guides/homebrew-fermentation-time-temperature/": Path(
+        "packages/website/en/guides/homebrew-fermentation-time-temperature/index.html"
+    ),
+    "https://brasse-bouillon.com/en/guides/homebrewing-glossary/": Path(
+        "packages/website/en/guides/homebrewing-glossary/index.html"
+    ),
+    "https://brasse-bouillon.com/en/guides/ibu-hops-bitterness/": Path(
+        "packages/website/en/guides/ibu-hops-bitterness/index.html"
+    ),
+    "https://brasse-bouillon.com/en/guides/og-fg-attenuation-homebrew/": Path(
+        "packages/website/en/guides/og-fg-attenuation-homebrew/index.html"
+    ),
     "https://brasse-bouillon.com/guides/": Path("packages/website/guides/index.html"),
     "https://brasse-bouillon.com/guides/glossaire-brassage/": Path(
         "packages/website/guides/glossaire-brassage/index.html"
     ),
     "https://brasse-bouillon.com/guides/ibu-biere-amertume-houblon/": Path(
         "packages/website/guides/ibu-biere-amertume-houblon/index.html"
+    ),
+    "https://brasse-bouillon.com/guides/og-fg-attenuation-biere/": Path(
+        "packages/website/guides/og-fg-attenuation-biere/index.html"
     ),
     "https://brasse-bouillon.com/guides/premier-brassin/": Path(
         "packages/website/guides/premier-brassin/index.html"

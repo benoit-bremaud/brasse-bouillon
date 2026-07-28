@@ -544,6 +544,72 @@
    * swaps the `'fr'` literal to `'en'` (and the `…Fr` DOM ids to `…En`) when it
    * generates `en.html`, so the bootstrap itself carries no translatable text.
    */
+  /**
+   * Adds progressive controls and mouse drag-to-scroll to the English
+   * grain-to-glass walkthrough. Touch devices keep native horizontal swiping;
+   * the ordered list remains keyboard-scrollable without JavaScript.
+   */
+  function setupGuideWalkthrough() {
+    const scroller = document.getElementById('brewingWalkthroughSteps');
+    if (!scroller) return;
+
+    const controls = document.querySelector('.guide-walkthrough__controls');
+    const previous = document.querySelector('[data-walkthrough-direction="previous"]');
+    const next = document.querySelector('[data-walkthrough-direction="next"]');
+    let updateQueued = false;
+
+    function updateControls() {
+      updateQueued = false;
+      const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+      if (previous) previous.disabled = scroller.scrollLeft <= 1;
+      if (next) next.disabled = scroller.scrollLeft >= maxScroll - 1;
+    }
+
+    function queueControlUpdate() {
+      if (updateQueued) return;
+      updateQueued = true;
+      requestAnimationFrame(updateControls);
+    }
+
+    function move(direction) {
+      const distance = Math.max(260, scroller.clientWidth * 0.75);
+      scroller.scrollBy({ left: direction * distance, behavior: 'smooth' });
+    }
+
+    if (controls) controls.hidden = false;
+    if (previous) previous.addEventListener('click', () => move(-1));
+    if (next) next.addEventListener('click', () => move(1));
+    scroller.addEventListener('scroll', queueControlUpdate, { passive: true });
+    window.addEventListener('resize', queueControlUpdate);
+
+    let drag = null;
+    scroller.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      if (event.target instanceof Element && event.target.closest('a, button, summary')) return;
+      drag = { pointerId: event.pointerId, startX: event.clientX, scrollLeft: scroller.scrollLeft };
+      scroller.classList.add('is-dragging');
+      scroller.setPointerCapture(event.pointerId);
+    });
+    scroller.addEventListener('pointermove', (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      scroller.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX);
+    });
+
+    function stopDragging(event) {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      drag = null;
+      scroller.classList.remove('is-dragging');
+      if (scroller.hasPointerCapture(event.pointerId)) {
+        scroller.releasePointerCapture(event.pointerId);
+      }
+      queueControlUpdate();
+    }
+
+    scroller.addEventListener('pointerup', stopDragging);
+    scroller.addEventListener('pointercancel', stopDragging);
+    updateControls();
+  }
+
   function initHome(options) {
     const lang = options && options.lang === 'en' ? 'en' : 'fr';
     const suffix = lang === 'en' ? 'En' : 'Fr';
@@ -580,6 +646,7 @@
       ? { count: GUIDE_BUBBLE_COUNT }
       : undefined;
     setupBubbles(options);
+    setupGuideWalkthrough();
   });
 
   // Pause the ambient animations while the tab is hidden — no point spending
@@ -607,6 +674,7 @@
     setupQuestionnaire,
     setupMenu,
     setupBubbles,
-    setupDew
+    setupDew,
+    setupGuideWalkthrough
   };
 }(window));

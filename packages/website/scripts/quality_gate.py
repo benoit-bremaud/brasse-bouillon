@@ -19,6 +19,10 @@ ROOT = Path(__file__).resolve().parent.parent
 HOMEPAGE_URL = "https://brasse-bouillon.com/"
 HOMEPAGE_FILES = ("index.html", "en.html")
 GLOSSARY_REL_PATH = "guides/glossaire-brassage/index.html"
+GLOSSARY_REL_PATHS = {
+    GLOSSARY_REL_PATH,
+    "en/guides/homebrewing-glossary/index.html",
+}
 SERP_METADATA_FILES = (
     *HOMEPAGE_FILES,
     "legal.html",
@@ -47,17 +51,23 @@ OG_IMAGES = [OG_IMAGE, "og-image-en.png"]
 OG_IMAGE_SIZE = (1200, 630)
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
-# URLs: the two landing pages, public French guides, and four French legal pages
-# (S2, ADR-0027 D5 clause 3). English legal twins stay OUT of
-# the sitemap deliberately (secondary pages, paired to their FR twin via
-# hreflang); any `.html` URL 308-redirects to its clean form, so neither may
-# ever appear here.
+# URLs: the two landing pages, public French guides, the English guide hub and
+# its fully localized guides, plus four French legal pages. English legal twins
+# stay out of the sitemap deliberately; any `.html` URL redirects to its clean
+# form, so neither may ever appear here.
 SITEMAP_URLS = [
     HOMEPAGE_URL,
     f"{HOMEPAGE_URL}en",
+    f"{HOMEPAGE_URL}en/guides/",
+    f"{HOMEPAGE_URL}en/guides/first-homebrew/",
+    f"{HOMEPAGE_URL}en/guides/homebrew-fermentation-time-temperature/",
+    f"{HOMEPAGE_URL}en/guides/homebrewing-glossary/",
+    f"{HOMEPAGE_URL}en/guides/ibu-hops-bitterness/",
+    f"{HOMEPAGE_URL}en/guides/og-fg-attenuation-homebrew/",
     f"{HOMEPAGE_URL}guides/",
     f"{HOMEPAGE_URL}guides/glossaire-brassage/",
     f"{HOMEPAGE_URL}guides/ibu-biere-amertume-houblon/",
+    f"{HOMEPAGE_URL}guides/og-fg-attenuation-biere/",
     f"{HOMEPAGE_URL}guides/premier-brassin/",
     f"{HOMEPAGE_URL}guides/fermentation-biere-duree-temperature/",
     f"{HOMEPAGE_URL}legal",
@@ -71,6 +81,42 @@ SITEMAP_URLS = [
 # pages. Google ignores non-reciprocal or incomplete clusters.
 HREFLANG_PAIRS = [
     ("index.html", "en.html", HOMEPAGE_URL, f"{HOMEPAGE_URL}en"),
+    (
+        "guides/index.html",
+        "en/guides/index.html",
+        f"{HOMEPAGE_URL}guides/",
+        f"{HOMEPAGE_URL}en/guides/",
+    ),
+    (
+        "guides/premier-brassin/index.html",
+        "en/guides/first-homebrew/index.html",
+        f"{HOMEPAGE_URL}guides/premier-brassin/",
+        f"{HOMEPAGE_URL}en/guides/first-homebrew/",
+    ),
+    (
+        "guides/fermentation-biere-duree-temperature/index.html",
+        "en/guides/homebrew-fermentation-time-temperature/index.html",
+        f"{HOMEPAGE_URL}guides/fermentation-biere-duree-temperature/",
+        f"{HOMEPAGE_URL}en/guides/homebrew-fermentation-time-temperature/",
+    ),
+    (
+        "guides/glossaire-brassage/index.html",
+        "en/guides/homebrewing-glossary/index.html",
+        f"{HOMEPAGE_URL}guides/glossaire-brassage/",
+        f"{HOMEPAGE_URL}en/guides/homebrewing-glossary/",
+    ),
+    (
+        "guides/ibu-biere-amertume-houblon/index.html",
+        "en/guides/ibu-hops-bitterness/index.html",
+        f"{HOMEPAGE_URL}guides/ibu-biere-amertume-houblon/",
+        f"{HOMEPAGE_URL}en/guides/ibu-hops-bitterness/",
+    ),
+    (
+        "guides/og-fg-attenuation-biere/index.html",
+        "en/guides/og-fg-attenuation-homebrew/index.html",
+        f"{HOMEPAGE_URL}guides/og-fg-attenuation-biere/",
+        f"{HOMEPAGE_URL}en/guides/og-fg-attenuation-homebrew/",
+    ),
     ("legal.html", "legal-en.html", f"{HOMEPAGE_URL}legal", f"{HOMEPAGE_URL}legal-en"),
     (
         "privacy.html",
@@ -221,8 +267,8 @@ HTML_RULES = {
             "canonical EN vers https://brasse-bouillon.com/en manquante",
         ),
         (
-            r'<a\s+href="/guides/"\s+hreflang="fr"',
-            "lien interne vers les guides manquant sur la page EN",
+            r'<a\b(?=[^>]*\bhref="/en/guides/")(?=[^>]*\bhreflang="en")[^>]*>',
+            "lien interne vers les guides anglais manquant sur la page EN",
         ),
     ],
     # The catch-all error page (Cloudflare Pages serves it with a real HTTP
@@ -341,8 +387,13 @@ REGEX_FLAGS = re.IGNORECASE | re.DOTALL
 
 
 def _guide_html_paths(root: Path) -> list[Path]:
-    guides_root = root / "guides"
-    return sorted(guides_root.rglob("*.html")) if guides_root.exists() else []
+    guide_roots = (root / "guides", root / "en/guides")
+    return sorted(
+        path
+        for guides_root in guide_roots
+        if guides_root.exists()
+        for path in guides_root.rglob("*.html")
+    )
 
 
 def _all_html_paths(root: Path) -> list[Path]:
@@ -363,9 +414,9 @@ def _guide_h1(content: str) -> str:
 
 def _guide_primary_schema_type(root: Path, path: Path) -> str:
     rel_path = path.relative_to(root).as_posix()
-    if rel_path == "guides/index.html":
+    if rel_path in {"guides/index.html", "en/guides/index.html"}:
         return "CollectionPage"
-    if rel_path == GLOSSARY_REL_PATH:
+    if rel_path in GLOSSARY_REL_PATHS:
         return "DefinedTermSet"
     return "Article"
 
@@ -415,9 +466,13 @@ def check_html_files(root: Path = ROOT) -> list[str]:
         for pattern, message in BLOCKED_PATTERNS:
             if re.search(pattern, content):
                 errors.append(f"{rel_path}: {message}")
+        expected_language = "en" if rel_path.startswith("en/guides/") else "fr"
         for pattern, message in (
             (r"<!DOCTYPE html>", "doctype HTML5 manquant"),
-            (r'<html\s+lang="fr"', 'balise <html lang="fr"> manquante'),
+            (
+                rf'<html\s+lang="{expected_language}"',
+                f'balise <html lang="{expected_language}"> manquante',
+            ),
         ):
             if not re.search(pattern, content, flags=REGEX_FLAGS):
                 errors.append(f"{rel_path}: {message}")
@@ -471,15 +526,18 @@ def _guide_breadcrumb_trails(
     for path in _guide_html_paths(root):
         rel_path = path.relative_to(root).as_posix()
         guide_url = _guide_url(root, path)
-        if path == root / "guides/index.html":
-            trail = (("Accueil", HOMEPAGE_URL), ("Guides", guide_url))
+        is_english = rel_path.startswith("en/guides/")
+        home = (
+            ("Home", f"{HOMEPAGE_URL}en") if is_english else ("Accueil", HOMEPAGE_URL)
+        )
+        hub_url = (
+            f"{HOMEPAGE_URL}en/guides/" if is_english else f"{HOMEPAGE_URL}guides/"
+        )
+        if rel_path in {"guides/index.html", "en/guides/index.html"}:
+            trail = (home, ("Guides", guide_url))
         else:
             content = path.read_text(encoding="utf-8")
-            trail = (
-                ("Accueil", HOMEPAGE_URL),
-                ("Guides", f"{HOMEPAGE_URL}guides/"),
-                (_guide_h1(content), guide_url),
-            )
+            trail = (home, ("Guides", hub_url), (_guide_h1(content), guide_url))
         trails[rel_path] = trail
     return trails
 
@@ -581,10 +639,11 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
         schema = matching[0]
         canonical = _guide_url(root, path)
         title_key = "headline" if expected_type == "Article" else "name"
+        expected_language = "en" if rel_path.startswith("en/guides/") else "fr-FR"
         if (
             schema.get("@context") != "https://schema.org"
             or schema.get("url") != canonical
-            or schema.get("inLanguage") != "fr-FR"
+            or schema.get("inLanguage") != expected_language
             or schema.get(title_key) != _guide_h1(content)
         ):
             errors.append(f"{rel_path}: schema {expected_type} incohérent avec la page")
@@ -632,6 +691,85 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
                 or len(term_ids) != len(set(term_ids))
             ):
                 errors.append(f"{rel_path}: schema DefinedTermSet incomplet")
+
+        if rel_path == "en/guides/index.html":
+            card_matches = re.findall(
+                r'<article\s+class="guide-card".*?<h2><a\s+href="([^"]+)">'
+                r"(.*?)</a></h2>",
+                content,
+                flags=REGEX_FLAGS,
+            )
+            expected_resources = [
+                {
+                    "@type": "ListItem",
+                    "position": position,
+                    "name": unescape(re.sub(r"<[^>]+>", "", name)).strip(),
+                    "url": f"{HOMEPAGE_URL.rstrip('/')}{href}",
+                }
+                for position, (href, name) in enumerate(card_matches, start=1)
+            ]
+            item_list = schema.get("mainEntity")
+            if not isinstance(item_list, dict) or (
+                item_list.get("@type") != "ItemList"
+                or item_list.get("numberOfItems") != len(expected_resources)
+                or item_list.get("itemListElement") != expected_resources
+            ):
+                errors.append(
+                    f"{rel_path}: schema ItemList incohérent avec les cartes visibles"
+                )
+
+        procedure_match = re.search(
+            r'<div\s+class="guide-procedure"\s+id="([^"]+)".*?'
+            r"<h3[^>]*>(.*?)</h3>.*?<ol>(.*?)</ol>",
+            content,
+            flags=REGEX_FLAGS,
+        )
+        how_tos = [payload for payload in payloads if payload.get("@type") == "HowTo"]
+        if procedure_match is None and how_tos:
+            errors.append(f"{rel_path}: schema HowTo sans procédure visible")
+        elif procedure_match is not None:
+            if len(how_tos) != 1:
+                errors.append(
+                    f"{rel_path}: doit contenir exactement un schema HowTo "
+                    f"pour la procédure visible (trouvé: {len(how_tos)})"
+                )
+            else:
+                procedure_id, procedure_title, procedure_markup = (
+                    procedure_match.groups()
+                )
+                visible_steps = re.findall(
+                    r'<li\s+id="([^"]+)">.*?<h4>(.*?)</h4>\s*<p>(.*?)</p>',
+                    procedure_markup,
+                    flags=REGEX_FLAGS,
+                )
+                expected_steps = [
+                    {
+                        "@type": "HowToStep",
+                        "position": position,
+                        "name": unescape(re.sub(r"<[^>]+>", "", name)).strip(),
+                        "text": unescape(re.sub(r"<[^>]+>", "", text)).strip(),
+                        "url": f"{canonical}#{step_id}",
+                    }
+                    for position, (step_id, name, text) in enumerate(
+                        visible_steps, start=1
+                    )
+                ]
+                how_to = how_tos[0]
+                expected_id = f"{canonical}#{procedure_id}"
+                if (
+                    how_to.get("@context") != "https://schema.org"
+                    or how_to.get("@id") != expected_id
+                    or how_to.get("url") != expected_id
+                    or how_to.get("mainEntityOfPage") != canonical
+                    or how_to.get("inLanguage") != "en"
+                    or how_to.get("name")
+                    != unescape(re.sub(r"<[^>]+>", "", procedure_title)).strip()
+                    or how_to.get("step") != expected_steps
+                    or schema.get("hasPart") != {"@id": expected_id}
+                ):
+                    errors.append(
+                        f"{rel_path}: schema HowTo incohérent avec la procédure visible"
+                    )
 
     return errors
 

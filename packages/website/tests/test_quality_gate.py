@@ -1323,5 +1323,112 @@ class I18nGateTests(unittest.TestCase):
             self.assertEqual(quality_gate.check_i18n_home_generated(Path(tmp_dir)), [])
 
 
+class AriaNamingValidityTests(unittest.TestCase):
+    """Guards the invalid-ARIA naming patterns that shipped undetected in the
+    English guide renderer (19 W3C errors on 5 pages, audit 2026-07-29)."""
+
+    def test_accepts_valid_naming_markup(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                "<figure><figcaption>Caption</figcaption></figure>"
+                '<section aria-labelledby="t"><h3 id="t">Title</h3></section>',
+            )
+
+            self.assertEqual(quality_gate.check_aria_naming_validity(root), [])
+
+    def test_rejects_role_on_a_figure_that_has_a_figcaption(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                '<figure role="img" aria-label="Planned">'
+                "<figcaption>Caption</figcaption></figure>",
+            )
+
+            errors = quality_gate.check_aria_naming_validity(root)
+
+            self.assertEqual(len(errors), 1)
+            self.assertIn("figcaption", errors[0])
+
+    def test_rejects_naming_attribute_on_a_roleless_generic_element(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                '<div aria-labelledby="t">a</div><span aria-label="b">c</span>',
+            )
+
+            errors = quality_gate.check_aria_naming_validity(root)
+
+            self.assertEqual(len(errors), 2)
+            self.assertTrue(all("sans role" in error for error in errors))
+
+    def test_allows_a_naming_attribute_when_an_explicit_role_is_present(self) -> None:
+        # `role="img"` DOES support an accessible name — the walkthrough visuals
+        # rely on exactly this, so the check must not flag them.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root, "index.html", '<div role="img" aria-label="Described"></div>'
+            )
+
+            self.assertEqual(quality_gate.check_aria_naming_validity(root), [])
+
+    def test_treats_an_empty_role_as_no_role(self) -> None:
+        # An invalid/empty role token falls back to the implicit role (generic),
+        # so the label still does nothing and must be reported.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                '<div role="" aria-label="x">a</div><div role="  " aria-label="y">b</div>',
+            )
+
+            self.assertEqual(len(quality_gate.check_aria_naming_validity(root)), 2)
+
+    def test_allows_role_on_a_figure_without_a_caption(self) -> None:
+        # Without a figcaption there is no caption semantics to discard, so
+        # role + aria-label on the figure is valid.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root, "index.html", '<figure role="img" aria-label="Alt"></figure>'
+            )
+
+            self.assertEqual(quality_gate.check_aria_naming_validity(root), [])
+
+    def test_reports_the_offending_figure_only_when_figures_are_nested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                "<figure>"
+                '<figure role="img"><figcaption>Inner</figcaption></figure>'
+                "</figure>",
+            )
+
+            errors = quality_gate.check_aria_naming_validity(root)
+
+            self.assertEqual(len(errors), 1)
+
+    def test_scans_nested_guide_pages_in_both_locales(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            bad = '<div aria-label="x">y</div>'
+            _write_file(root, "guides/premier-brassin/index.html", bad)
+            _write_file(root, "en/guides/first-homebrew/index.html", bad)
+
+            errors = quality_gate.check_aria_naming_validity(root)
+
+            self.assertEqual(len(errors), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

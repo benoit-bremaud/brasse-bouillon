@@ -125,6 +125,7 @@ When a new ADR is accepted, add its file link here (no dates, no per-ADR summari
 | API docs | [docs/api/](docs/api/) |
 | Architecture | [docs/architecture/](docs/architecture/) |
 | Architecture Decision Records | [docs/architecture/decisions/](docs/architecture/decisions/) |
+| Email templates (Brevo source of truth) | [docs/email/](docs/email/) |
 
 ## Project-local Claude tooling
 

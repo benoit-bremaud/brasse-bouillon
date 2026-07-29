@@ -1373,7 +1373,7 @@ class AriaNamingValidityTests(unittest.TestCase):
             errors = quality_gate.check_aria_naming_validity(root)
 
             self.assertEqual(len(errors), 2)
-            self.assertTrue(all("sans role" in error for error in errors))
+            self.assertTrue(all("role=generic implicite" in error for error in errors))
 
     def test_allows_a_naming_attribute_when_an_explicit_role_is_present(self) -> None:
         # `role="img"` DOES support an accessible name — the walkthrough visuals
@@ -1398,6 +1398,38 @@ class AriaNamingValidityTests(unittest.TestCase):
             )
 
             self.assertEqual(len(quality_gate.check_aria_naming_validity(root)), 2)
+
+    def test_rejects_roles_that_cannot_carry_a_name(self) -> None:
+        # Codex review on PR #1550: a non-empty role is not enough. `generic`,
+        # `presentation` and `none` prohibit naming, and an unrecognized token
+        # falls back to the implicit generic role — all four drop the label.
+        for role in ("generic", "presentation", "none", "bogus"):
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as tmp_dir:
+                root = Path(tmp_dir)
+                _write_file(
+                    root, "index.html", f'<div role="{role}" aria-label="x">a</div>'
+                )
+
+                errors = quality_gate.check_aria_naming_validity(root)
+
+                self.assertEqual(len(errors), 1)
+                self.assertIn(role, errors[0])
+
+    def test_resolves_only_the_first_role_token(self) -> None:
+        # ARIA takes the first token of a space-separated fallback list.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                '<div role="img group" aria-label="ok"></div>'
+                '<div role="bogus img" aria-label="dropped"></div>',
+            )
+
+            errors = quality_gate.check_aria_naming_validity(root)
+
+            self.assertEqual(len(errors), 1)
+            self.assertIn("bogus", errors[0])
 
     def test_allows_role_on_a_figure_without_a_caption(self) -> None:
         # Without a figcaption there is no caption semantics to discard, so

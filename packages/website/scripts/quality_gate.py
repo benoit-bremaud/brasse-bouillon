@@ -1199,6 +1199,33 @@ GENERIC_NAMEABLE_TAGS = frozenset({"div", "span"})
 #: Naming attributes that require a name-supporting role to have any effect.
 ARIA_NAMING_ATTRIBUTES = ("aria-label", "aria-labelledby")
 
+#: ARIA roles that BOTH support an accessible name and are actually assigned to
+#: generic containers in this project — an inventory of the committed pages
+#: returns exactly these three.
+#:
+#: Deliberately a **fail-closed allowlist** rather than a full ARIA registry.
+#: Merely requiring a non-empty `role` is not enough: `generic`, `presentation`
+#: and `none` *prohibit* naming, and an unrecognized token such as
+#: `role="bogus"` falls back to the implicit `generic` role. In all three cases
+#: the naming attribute is silently dropped, which is the exact defect this
+#: check exists to catch. A false positive here costs one word (add the role
+#: below); a silent bypass costs an accessibility regression in production.
+NAME_SUPPORTING_ROLES = frozenset({"group", "img", "status"})
+
+
+def _resolved_role(attrs: list[tuple[str, str | None]]) -> str:
+    """The element's effective `role` token, lowercased, or `""` when the
+    attribute is absent, empty or whitespace-only.
+
+    `role` accepts a space-separated fallback list in which the first token
+    wins, so only that token is resolved."""
+    for name, value in attrs:
+        if name != "role":
+            continue
+        tokens = (value or "").split()
+        return tokens[0].lower() if tokens else ""
+    return ""
+
 
 class _AriaNamingAuditor(HTMLParser):
     """Collects the two HTML-ARIA naming violations that shipped undetected in
@@ -1223,33 +1250,32 @@ class _AriaNamingAuditor(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = {name for name, _value in attrs}
-        # An EMPTY or whitespace-only `role` is not a role: per the HTML-AAM
-        # conflict-resolution rules an invalid token falls back to the implicit
-        # role, i.e. `generic` for div/span. Testing presence alone would let
-        # `<div role="" aria-label="x">` through while the label still does
-        # nothing, so resolve on the value.
-        has_role = any(
-            name == "role" and (value or "").strip() for name, value in attrs
-        )
+        role = _resolved_role(attrs)
         line = self.getpos()[0]
 
         if tag == "figure":
             self._open_figures.append(
-                {"has_role": has_role, "has_caption": False, "line": line}
+                {"has_role": bool(role), "has_caption": False, "line": line}
             )
         elif tag == "figcaption" and self._open_figures:
             self._open_figures[-1]["has_caption"] = True
 
-        if tag in GENERIC_NAMEABLE_TAGS and not has_role:
+        if tag in GENERIC_NAMEABLE_TAGS and role not in NAME_SUPPORTING_ROLES:
             for naming_attribute in ARIA_NAMING_ATTRIBUTES:
                 if naming_attribute in attributes:
+                    detail = (
+                        f'role="{role}" n\'accepte pas de nom accessible'
+                        if role
+                        else "aucun role (role=generic implicite)"
+                    )
                     self.violations.append(
                         (
                             line,
-                            f"<{tag}> porte {naming_attribute} sans role — "
-                            "role=generic n'accepte pas de nom accessible ; "
-                            "ajouter un role explicite ou utiliser un élément "
-                            "de sectionnement (section/nav/aside)",
+                            f"<{tag}> porte {naming_attribute} mais {detail} — "
+                            "l'étiquette est ignorée par les lecteurs d'écran ; "
+                            "utiliser un élément de sectionnement "
+                            "(section/nav/aside) ou un role de "
+                            f"{sorted(NAME_SUPPORTING_ROLES)}",
                         )
                     )
 

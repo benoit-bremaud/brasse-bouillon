@@ -7,12 +7,23 @@ suspended account would take the templates with it.
 
 ## Files
 
-| File | Brevo template | Status |
-|---|---|---|
-| `welcome-fr.html` | `Bienvenue - Waitlist FR` (id 6) | Active — sent by automation `Welcome message` (id 1) on contact added to list `Waitlist FR` (id 3) |
+| File | Brevo template | Template status | Actually sent? |
+|---|---|---|---|
+| `welcome-fr.html` | `Bienvenue - Waitlist FR` (id 6) | Active | **No — not yet** |
 
-The double opt-in confirmation (`DOI - Confirmation Waitlist FR`, id 1) is not
-yet mirrored here; it still exists only in Brevo.
+**The welcome e-mail is not live.** The template is saved and Active, but the
+automation meant to trigger it — `Welcome message` (id 1), on contact added to
+list `Waitlist FR` (id 3) — is **Inactive**, and its "Send an email" step is
+still undefined. A new subscriber therefore receives the double opt-in
+confirmation and nothing else. Two things must happen before the flow works:
+define the automation's email step, then activate the automation.
+
+An Active *template* only means "usable"; it never means "being sent". Only an
+Active *automation* sends.
+
+The double opt-in confirmation (`DOI - Confirmation Waitlist FR`, id 1) **is**
+live — it is the one e-mail subscribers currently receive. It is not yet
+mirrored here; it still exists only in Brevo.
 
 ## Editing procedure
 

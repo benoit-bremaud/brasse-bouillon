@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -59,7 +59,15 @@
   <tbody>
     <tr>
       <td align="center" style="padding:32px 12px;">
-        <table class="full" align="center" width="560" border="0" cellpadding="0" cellspacing="0" bgcolor="#fbf3da" style="width:560px;max-width:560px;background-color:#fbf3da;border:1px solid #e6cf95;border-radius:16px;">
+        <!-- Fluid card, capped at 560px. A fixed 560px width would overflow or
+             be clipped on a 320-430px phone viewport, so the width is a
+             percentage and `max-width` does the capping. Outlook for Windows
+             ignores max-width, hence the mso-only fixed-width wrapper: without
+             it the card would stretch to the whole Outlook window. -->
+        <!--[if mso]>
+        <table align="center" width="560" border="0" cellpadding="0" cellspacing="0"><tr><td>
+        <![endif]-->
+        <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#fbf3da" style="width:100%;max-width:560px;background-color:#fbf3da;border:1px solid #e6cf95;border-radius:16px;">
           <tbody>
             <tr><td height="36" width="100%" style="height:36px;line-height:36px;font-size:0;">&nbsp;</td></tr>
 
@@ -171,6 +179,9 @@
             <tr><td height="36" width="100%" style="height:36px;line-height:36px;font-size:0;">&nbsp;</td></tr>
           </tbody>
         </table>
+        <!--[if mso]>
+        </td></tr></table>
+        <![endif]-->
       </td>
     </tr>
   </tbody>

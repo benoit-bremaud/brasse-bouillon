@@ -1,0 +1,16 @@
+# Brasse-Bouillon — vulnerability disclosure (RFC 9116)
+#
+# Keep in sync with SECURITY.md at the repository root: this file must never
+# advertise a channel that policy does not describe. The contact below is the
+# project lead's mailbox, already published in SECURITY.md on a public repo —
+# this file adds no new disclosure. It is deliberately NOT
+# contact@brasse-bouillon.com: that address has no MX record and would bounce.
+#
+# Expires must stay in the future. An expired security.txt is treated as absent
+# by researchers and scanners, so renew this date before 2027-07-29.
+
+Contact: mailto:bbd.concept@gmail.com
+Expires: 2027-07-29T00:00:00.000Z
+Policy: https://github.com/benoit-bremaud/brasse-bouillon/blob/main/SECURITY.md
+Preferred-Languages: fr, en
+Canonical: https://brasse-bouillon.com/.well-known/security.txt

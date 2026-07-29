@@ -326,6 +326,13 @@ Sitemap: https://brasse-bouillon.com/sitemap.xml
 
     _write_file(base, "llms.txt", "# Brasse-Bouillon\n\n> Test summary.\n")
 
+    # RFC 9116 disclosure file. Required, so the shared fixture must provide it.
+    _write_file(
+        base,
+        ".well-known/security.txt",
+        "Contact: mailto:security@example.test\nExpires: 2027-07-29T00:00:00.000Z\n",
+    )
+
 
 def _stampable_fixture(base: Path) -> None:
     """Valid fixture + the build_i18n toolchain marker (so `check_legal_freshness`

@@ -192,6 +192,7 @@ REQUIRED_FILES = [
     "sitemap.xml",
     "robots.txt",
     "llms.txt",
+    ".well-known/security.txt",
     "_redirects",
     "feedback-widget.js",
     "chat-widget.js",

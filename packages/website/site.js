@@ -36,7 +36,7 @@
       newsletter: {
         endpointMissing: 'Endpoint newsletter non configuré.',
         sending: 'Inscription en cours…',
-        success: 'Super ! Ton inscription à la waitlist est confirmée.',
+        success: 'Merci ! Ton adresse est enregistrée. On te préviendra dès l’ouverture de la bêta.',
         http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
         http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
         http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
@@ -64,7 +64,7 @@
       newsletter: {
         endpointMissing: 'Newsletter endpoint is not configured.',
         sending: 'Signing you up…',
-        success: 'You’re in! Your waitlist spot is confirmed.',
+        success: 'Thanks! Your address is saved. We’ll let you know as soon as the beta opens.',
         http400: 'That email looks invalid or incomplete. Check it and try again.',
         http429: 'Too many attempts. Please wait a moment before trying again.',
         http5xx: 'The service is temporarily unavailable. Try again a bit later.',

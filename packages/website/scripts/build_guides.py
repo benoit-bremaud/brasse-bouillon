@@ -940,7 +940,7 @@ def _document(
   <meta name="twitter:image" content="{SITE_URL}/og-image.png?v=20260710">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260728">
+  <link rel="stylesheet" href="/site.css?v=20260729">
   {schema_markup}
 </head>
 <body class="guide-page">
@@ -949,7 +949,7 @@ def _document(
   {_site_header(guides_current=guides_current, english_canonical=english_canonical)}
 {main}
   {_site_footer()}
-  <script src="/site.js?v=20260728"></script>
+  <script src="/site.js?v=20260729"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>
@@ -1039,7 +1039,7 @@ def _english_document(
   <meta name="twitter:image" content="{SITE_URL}/og-image-en.png?v=20260713">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260728">
+  <link rel="stylesheet" href="/site.css?v=20260729">
   {schema_markup}
 </head>
 <body class="guide-page">
@@ -1048,7 +1048,7 @@ def _english_document(
   {_english_header(guides_current=guides_current, french_canonical=french_canonical)}
 {main}
   {_english_footer()}
-  <script src="/site.js?v=20260728"></script>
+  <script src="/site.js?v=20260729"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>

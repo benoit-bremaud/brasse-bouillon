@@ -3,6 +3,7 @@
 **Status**  Accepted
 **Date**    2026-07-29
 **Owners**  @benoit-bremaud
+**Amended** 2026-07-30 — D9 added: Turnstile anti-abuse challenge on the waitlist form, a documented exception to the ADR-0028 zero-third-party-script posture
 **Related** ADR-0014 (Cloudflare Pages hosting), ADR-0027 (website i18n), ADR-0003 (consent as a single source of truth), ADR-0028 (zero-footprint privacy posture)
 
 ---
@@ -142,6 +143,61 @@ The Brevo automation that sends the welcome e-mail stays **Inactive** until this
 endpoint is live, because until then nothing enters list 3 and activation could
 not be verified. Activating it is the last step of the rollout, followed by one
 real end-to-end subscription test.
+
+### D9 — The waitlist form is gated by Cloudflare Turnstile (amendment 2026-07-30)
+
+An adversarial security pass on the relay found one exploitable hole: nothing
+rate-limited the endpoint, and plus-tag addressing (`victim+1@gmail.com`,
+`victim+2@…`) defeats Brevo's per-address dedup. A `curl` loop could therefore
+mail-bomb a chosen third party **from our authenticated, DKIM-aligned domain**,
+exhaust the daily send quota — after which real visitors get a 502 — and expose
+the account to suspension for list-bombing. The damage that does not undo itself
+is the sending reputation.
+
+Two layers answer it, and both are needed:
+
+1. **A Cloudflare rate-limiting rule** on `POST /api/subscribe` (IP
+   characteristic, 3 requests / 10 s, Block). Deployed and verified: the 3rd
+   request in a burst of 8 returns 429. On the free plan the block duration is
+   pinned to the period, so this converts a burst into a slow drip — it does not
+   stop a patient script.
+2. **Turnstile**, verified server-side in the handler before any mail is sent.
+   This is what actually stops a script.
+
+**Accepted exceptions, stated plainly.** Turnstile is a third-party script, which
+`packages/website/CLAUDE.md` forbids and which the ADR-0028 zero-footprint
+posture was written to avoid. It is accepted here because (a) the vendor is
+Cloudflare, already the host and already a declared subprocessor, so no new
+party enters the picture; (b) the alternative is leaving a live abuse hole on the
+primary conversion path; and (c) the widget carries no visible string, so it adds
+nothing to the i18n surface. Consequences carried through in the same PR:
+`cookies(-en).html` now states that a strictly-necessary anti-fraud cookie may be
+set (exempt from prior consent, so no banner appears), `privacy(-en).html` names
+the purpose under the existing Cloudflare entry, and the `_headers` CSP note is
+corrected — the future policy must allow `challenges.cloudflare.com` in
+`script-src`, `connect-src` and `frame-src`, so the origin enumeration **grew**.
+
+**Pre-clearance is disabled** deliberately: it is the option that would issue a
+clearance cookie across the zone, and avoiding it keeps the cookie policy as
+short as it is.
+
+**Fail-closed, including on outage.** A missing secret, a missing token, a
+refused token, an unparseable answer, a timeout or an unreachable verifier all
+block the submission. A challenge that waves requests through when it cannot
+verify them is decoration. The cost is that a Cloudflare outage blocks signups;
+the visitor gets an honest error and can retry, whereas the opposite default
+would silently reopen the hole.
+
+**The testing sitekey cannot ship.** `check_turnstile_sitekey` in the quality gate
+rejects Cloudflare's documented test sitekeys on any page. They always pass the
+challenge, so shipping one would leave the widget visible and the protection
+inert with nothing failing to reveal it. This is what allowed the placeholder to
+be committed while the real widget was still being created: CI stays red until
+the real key lands.
+
+**What Turnstile does NOT do**, so the next reader does not over-trust it: it
+does not rate-limit, it does not stop a human abuser doing this by hand, and it
+does not protect the questionnaire form (still Formspree, out of scope here).
 
 ---
 

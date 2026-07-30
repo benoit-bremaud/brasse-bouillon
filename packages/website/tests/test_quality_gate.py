@@ -1469,5 +1469,51 @@ class AriaNamingValidityTests(unittest.TestCase):
             self.assertEqual(len(errors), 2)
 
 
+class TurnstileSitekeyTests(unittest.TestCase):
+    """The guard that lets a placeholder sitekey be committed but never shipped."""
+
+    def test_flags_each_documented_test_sitekey(self) -> None:
+        for test_key in quality_gate.TURNSTILE_TEST_SITEKEYS:
+            with self.subTest(sitekey=test_key):
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    root = Path(tmp_dir)
+                    _write_file(
+                        root,
+                        "index.html",
+                        f'<div class="cf-turnstile" data-sitekey="{test_key}"></div>',
+                    )
+
+                    errors = quality_gate.check_turnstile_sitekey(root)
+
+                    self.assertEqual(len(errors), 1)
+                    self.assertIn(test_key, errors[0])
+
+    def test_accepts_a_real_looking_sitekey(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(
+                root,
+                "index.html",
+                '<div class="cf-turnstile" data-sitekey="0x4AAAAAAB1cdEfGhIjKlMn"></div>',
+            )
+
+            self.assertEqual(quality_gate.check_turnstile_sitekey(root), [])
+
+    def test_scans_generated_guides_too(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            marker = f'data-sitekey="{quality_gate.TURNSTILE_TEST_SITEKEYS[0]}"'
+            _write_file(root, "en/guides/first-homebrew/index.html", marker)
+
+            self.assertEqual(len(quality_gate.check_turnstile_sitekey(root)), 1)
+
+    def test_ignores_a_page_without_any_widget(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            _write_file(root, "index.html", "<p>no widget here</p>")
+
+            self.assertEqual(quality_gate.check_turnstile_sitekey(root), [])
+
+
 if __name__ == "__main__":
     unittest.main()

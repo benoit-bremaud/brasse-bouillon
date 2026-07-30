@@ -1006,6 +1006,34 @@ def check_clean_seo_urls(root: Path = ROOT) -> list[str]:
     return errors
 
 
+#: Cloudflare's documented Turnstile testing sitekeys. They ALWAYS pass (or always
+#: fail) the challenge, which is exactly what makes them dangerous in production:
+#: shipping one would leave the widget visible and the protection inert, with
+#: nothing failing anywhere to reveal it. Blocking them here is what lets a
+#: placeholder be committed while the real key is still being created.
+TURNSTILE_TEST_SITEKEYS = (
+    "1x00000000000000000000AA",
+    "2x00000000000000000000AB",
+    "3x00000000000000000000FF",
+)
+
+
+def check_turnstile_sitekey(root: Path = ROOT) -> list[str]:
+    """No page may ship a Turnstile TESTING sitekey."""
+    errors: list[str] = []
+    for path in _all_html_paths(root):
+        content = path.read_text(encoding="utf-8")
+        for test_key in TURNSTILE_TEST_SITEKEYS:
+            if test_key in content:
+                rel_path = path.relative_to(root).as_posix()
+                errors.append(
+                    f"{rel_path}: sitekey Turnstile de TEST ({test_key}) — "
+                    "la protection anti-robot serait inerte en production ; "
+                    "remplacer par la vraie sitekey du widget"
+                )
+    return errors
+
+
 def check_no_external_fonts(root: Path = ROOT) -> list[str]:
     """Fonts are self-hosted (RGPD: no visitor IP sent to Google before
     consent). No HTML page or CSS file may reference the Google Fonts CDN —
@@ -1325,6 +1353,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_sitemap_policy(root))
     errors.extend(check_robots_policy(root))
     errors.extend(check_clean_seo_urls(root))
+    errors.extend(check_turnstile_sitekey(root))
     errors.extend(check_no_external_fonts(root))
     errors.extend(check_no_stale_host(root))
     errors.extend(check_og_image_dimensions(root))

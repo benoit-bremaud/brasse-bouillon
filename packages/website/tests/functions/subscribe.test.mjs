@@ -13,11 +13,44 @@ import { onRequest, onRequestPost } from '../../functions/api/subscribe.js';
 
 const API_KEY = 'test-key-never-real';
 
-/** Captures what the handler sent to Brevo, and controls what it gets back. */
-function stubFetch(reply) {
-  const calls = [];
+// Cloudflare's documented testing values. The dummy token is what a widget
+// built with the testing sitekey emits, and the testing secret is the only kind
+// that accepts it — a production secret rejects dummy tokens and vice versa.
+const TURNSTILE_SECRET = '1x0000000000000000000000000000000AA';
+const DUMMY_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX';
+
+const TURNSTILE_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+/** Turnstile calls made during the current test, in order. */
+let turnstileCalls = [];
+
+/**
+ * Stubs both outbound calls the handler can make.
+ *
+ * Returns the list of BREVO calls only — the assertion that matters almost
+ * everywhere is "did an address reach the provider", and keeping that the
+ * default reading stops the challenge check from quietly changing what every
+ * existing test means. Turnstile calls land in `turnstileCalls`.
+ *
+ * @param reply Brevo's answer: `{status, body}`, or an Error to throw.
+ * @param turnstile Turnstile's answer: an object to serialise, or an Error.
+ */
+function stubFetch(reply, turnstile = { success: true }) {
+  const brevoCalls = [];
+  turnstileCalls = [];
+
   globalThis.fetch = async (url, init) => {
-    calls.push({ url, init, body: init && init.body ? JSON.parse(init.body) : null });
+    if (url === TURNSTILE_URL) {
+      turnstileCalls.push({ url, init });
+      if (turnstile instanceof Error) throw turnstile;
+      return new Response(JSON.stringify(turnstile), { status: 200 });
+    }
+
+    brevoCalls.push({
+      url,
+      init,
+      body: init && init.body ? JSON.parse(init.body) : null
+    });
     if (reply instanceof Error) throw reply;
     // 204/304 are null-body statuses: constructing a Response with a body
     // throws, so the stub must respect that rather than fake a body.
@@ -26,7 +59,7 @@ function stubFetch(reply) {
       status: reply.status
     });
   };
-  return calls;
+  return brevoCalls;
 }
 
 const formRequest = (fields) => {
@@ -48,11 +81,16 @@ const jsonRequest = (payload) =>
 const validFields = {
   email: 'brasseur@example.com',
   newsletter_consent: 'accepted',
-  lang: 'fr'
+  lang: 'fr',
+  'cf-turnstile-response': DUMMY_TOKEN
 };
 
-const call = (request, env = { BREVO_API_KEY: API_KEY }) =>
-  onRequestPost({ request, env });
+const fullEnv = {
+  BREVO_API_KEY: API_KEY,
+  TURNSTILE_SECRET_KEY: TURNSTILE_SECRET
+};
+
+const call = (request, env = fullEnv) => onRequestPost({ request, env });
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -326,6 +364,7 @@ describe('guards whose failure would be a real bypass', () => {
     form.append('email', 'first@example.com');
     form.append('email', 'second@example.com');
     form.append('newsletter_consent', 'accepted');
+    form.append('cf-turnstile-response', DUMMY_TOKEN);
 
     await call(
       new Request('https://brasse-bouillon.com/api/subscribe', {
@@ -337,6 +376,127 @@ describe('guards whose failure would be a real bypass', () => {
     // Documents the FormData semantics we rely on; a refactor to getAll()
     // would change this and should have to say so.
     assert.equal(calls[0].body.email, 'second@example.com');
+  });
+});
+
+describe('anti-abuse challenge', () => {
+  it('verifies the token before sending anything, and only then subscribes', async () => {
+    const calls = stubFetch({ status: 201 });
+
+    await call(formRequest(validFields));
+
+    assert.equal(turnstileCalls.length, 1);
+    assert.equal(calls.length, 1);
+    const sent = turnstileCalls[0].init.body;
+    assert.equal(sent.get('secret'), TURNSTILE_SECRET);
+    assert.equal(sent.get('response'), DUMMY_TOKEN);
+    // The visitor's IP is deliberately not handed to a second endpoint.
+    assert.equal(sent.get('remoteip'), null);
+  });
+
+  it('refuses a submission with no token at all', async () => {
+    const calls = stubFetch({ status: 201 });
+    const { 'cf-turnstile-response': _omitted, ...withoutToken } = validFields;
+
+    const response = await call(formRequest(withoutToken));
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
+      ok: false,
+      error: 'challenge_required'
+    });
+    assert.equal(turnstileCalls.length, 0);
+    assert.equal(calls.length, 0);
+  });
+
+  it('refuses a token Cloudflare rejects', async () => {
+    const calls = stubFetch(
+      { status: 201 },
+      { success: false, 'error-codes': ['invalid-input-response'] }
+    );
+
+    const response = await call(formRequest(validFields));
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
+      ok: false,
+      error: 'challenge_failed'
+    });
+    // The whole point: no mail is sent for a failed challenge.
+    assert.equal(calls.length, 0);
+  });
+
+  it('refuses a replayed token', async () => {
+    const calls = stubFetch(
+      { status: 201 },
+      { success: false, 'error-codes': ['timeout-or-duplicate'] }
+    );
+
+    const response = await call(formRequest(validFields));
+
+    assert.equal(response.status, 400);
+    assert.equal(calls.length, 0);
+  });
+
+  it('fails closed when the verifier is unreachable', async () => {
+    const calls = stubFetch({ status: 201 }, new Error('network down'));
+
+    const response = await call(formRequest(validFields));
+
+    // A challenge that waves requests through when it cannot verify them is
+    // decoration. Blocking signups during a Cloudflare outage is the accepted
+    // cost of that stance.
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
+      ok: false,
+      error: 'challenge_failed'
+    });
+    assert.equal(calls.length, 0);
+  });
+
+  it('fails closed on a verifier answer that is not JSON', async () => {
+    const calls = stubFetch({ status: 201 });
+    globalThis.fetch = async (url) => {
+      if (url === TURNSTILE_URL) return new Response('<html>oops</html>', { status: 200 });
+      throw new Error('Brevo must not be called');
+    };
+
+    const response = await call(formRequest(validFields));
+
+    assert.equal(response.status, 400);
+    assert.equal(calls.length, 0);
+  });
+
+  it('fails closed when the challenge secret is not configured', async () => {
+    const calls = stubFetch({ status: 201 });
+
+    const response = await call(formRequest(validFields), {
+      BREVO_API_KEY: API_KEY
+    });
+
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { ok: false, error: 'unavailable' });
+    assert.equal(turnstileCalls.length, 0);
+    assert.equal(calls.length, 0);
+  });
+
+  it('rejects a truthy-but-wrong success value', async () => {
+    const calls = stubFetch({ status: 201 }, { success: 'true' });
+
+    // Strict === true: a string "true" is not a pass. Guards against a
+    // provider-shape change being read as approval.
+    const response = await call(formRequest(validFields));
+
+    assert.equal(response.status, 400);
+    assert.equal(calls.length, 0);
+  });
+
+  it('does not spend a challenge check on input it already knows is invalid', async () => {
+    stubFetch({ status: 201 });
+
+    await call(formRequest({ ...validFields, email: 'nope' }));
+
+    assert.equal(turnstileCalls.length, 0);
   });
 });
 
@@ -353,10 +513,15 @@ describe('provider and configuration failures', () => {
   it('fails closed when the secret is missing, without saying why', async () => {
     const calls = stubFetch({ status: 201 });
 
-    const response = await call(formRequest(validFields), {});
+    // Only the Brevo secret is missing: the challenge must still have been
+    // verified first, proving the order of the two gates.
+    const response = await call(formRequest(validFields), {
+      TURNSTILE_SECRET_KEY: TURNSTILE_SECRET
+    });
     const payload = await response.json();
 
     assert.equal(response.status, 503);
+    assert.equal(turnstileCalls.length, 1);
     assert.deepEqual(payload, { ok: false, error: 'unavailable' });
     assert.equal(calls.length, 0);
   });

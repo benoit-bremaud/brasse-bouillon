@@ -48,6 +48,13 @@
         success:
           'Presque fini ! Un e-mail de confirmation vient de partir : clique sur le lien pour valider ton inscription.',
         http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
+        // The anti-abuse check (ADR-0030 D9) can fail for reasons that have
+        // nothing to do with the address, so it needs its own wording: telling
+        // someone their e-mail is invalid when the widget merely expired would
+        // send them hunting for a typo that does not exist.
+        challengeRequired: 'Merci de valider la vérification anti-robot avant d’envoyer.',
+        challengeFailed: 'La vérification anti-robot a échoué ou a expiré. Recharge la page puis réessaie.',
+        consentRequired: 'Merci de cocher la case d’accord avant d’envoyer.',
         http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
         http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
         httpGeneric: 'Impossible d’enregistrer l’inscription pour le moment. Réessaie dans quelques minutes.',
@@ -132,7 +139,33 @@
     return checked >= minRequired;
   }
 
-  function resolveHttpErrorMessage(response, messages) {
+  /**
+   * Reads the `error` code our own endpoint returns (ADR-0030). Formspree does
+   * not send one, and a body may not be JSON at all, so every failure here is
+   * silent and falls back to the status-based wording below.
+   */
+  async function readErrorCode(response) {
+    try {
+      const payload = await response.clone().json();
+      return payload && typeof payload.error === 'string' ? payload.error : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  async function resolveHttpErrorMessage(response, messages) {
+    // A 400 can mean a bad address, a missing consent box, or a failed anti-bot
+    // check — three different things for the visitor to do about it. Prefer the
+    // endpoint's own code over guessing from the status.
+    const codeMessages = {
+      challenge_required: messages.challengeRequired,
+      challenge_failed: messages.challengeFailed,
+      consent_required: messages.consentRequired,
+      invalid_email: messages.http400
+    };
+    const byCode = codeMessages[await readErrorCode(response)];
+    if (byCode) return byCode;
+
     if (response.status === 400) return messages.http400;
     if (response.status === 429) return messages.http429;
     if (response.status >= 500 && response.status < 600) return messages.http5xx;
@@ -220,7 +253,7 @@
           return;
         }
 
-        setStatus(status, 'error', resolveHttpErrorMessage(response, messages));
+        setStatus(status, 'error', await resolveHttpErrorMessage(response, messages));
       } catch (error) {
         console.error('Form submission error:', error);
         setStatus(status, 'error', resolveCatchErrorMessage(error, messages));

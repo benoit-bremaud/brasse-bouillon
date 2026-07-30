@@ -19,6 +19,24 @@ const BREVO_DOI_TEMPLATE_ID = 1;
 const BREVO_DOI_ENDPOINT = 'https://api.brevo.com/v3/contacts/doubleOptinConfirmation';
 
 /**
+ * Turnstile's server-side validation endpoint. The widget's token proves a
+ * browser solved the challenge; only this call proves the token is genuine,
+ * unused, and issued for our own widget — the token alone is worthless.
+ *
+ * Why this exists on top of the Cloudflare rate-limiting rule: that rule is
+ * per-IP with a 10-second block on the free plan, so it turns a burst into a
+ * slow drip rather than stopping it. Plus-tag addressing (`victim+1@…`) defeats
+ * Brevo's dedup, so a patient script could still mail-bomb a third party from
+ * our authenticated domain and burn the daily quota. Turnstile is what actually
+ * stops a script (ADR-0030 D9).
+ */
+const TURNSTILE_VERIFY_ENDPOINT =
+  'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+/** Field name the Turnstile widget injects into the form (implicit rendering). */
+const TURNSTILE_TOKEN_FIELD = 'cf-turnstile-response';
+
+/**
  * Where Brevo sends the visitor after they click the confirmation link. This is
  * a REQUIRED parameter of the DOI endpoint, which is why `merci(-en).html`
  * exists at all (ADR-0030 D6). Keyed by the form's hidden `lang` field so an
@@ -37,6 +55,9 @@ const MAX_EMAIL_LENGTH = 254;
 
 /** Give up on Brevo rather than hold the visitor's request open indefinitely. */
 const BREVO_TIMEOUT_MS = 8000;
+
+/** Same idea for the challenge check, but tighter: it runs before Brevo. */
+const TURNSTILE_TIMEOUT_MS = 5000;
 
 /**
  * A legitimate submission is a few hundred bytes. Reject anything absurd before
@@ -108,6 +129,52 @@ const readField = (submission, name) =>
   typeof submission[name] === 'string' ? submission[name].trim() : '';
 
 /**
+ * Verifies the widget token with Cloudflare. Returns true only on an explicit
+ * `success: true`.
+ *
+ * Fails CLOSED on every other outcome, including a network error or a timeout:
+ * an anti-abuse check that lets requests through when it cannot reach its
+ * verifier is decoration. The cost of that choice is that a Cloudflare outage
+ * blocks signups — acceptable, because the visitor gets an honest error and can
+ * retry, whereas the opposite default would silently reopen the mail-bomb.
+ *
+ * `remoteip` is deliberately NOT sent. It is optional, it would add nothing to
+ * the decision here, and it would mean handing a visitor's IP to a second
+ * endpoint for no gain (RGPD data minimisation).
+ */
+async function verifyTurnstile(token, secret) {
+  const body = new FormData();
+  body.append('secret', secret);
+  body.append('response', token);
+
+  try {
+    const response = await fetch(TURNSTILE_VERIFY_ENDPOINT, {
+      method: 'POST',
+      body,
+      signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS)
+    });
+
+    const payload = await response.json();
+    if (payload && payload.success === true) {
+      return true;
+    }
+
+    // The error codes are Cloudflare's own vocabulary (`invalid-input-response`,
+    // `timeout-or-duplicate`, …) and contain nothing personal — safe and useful
+    // to log, since a systematic failure here would otherwise look like visitors
+    // simply not subscribing.
+    const codes = Array.isArray(payload && payload['error-codes'])
+      ? payload['error-codes'].join(',')
+      : 'none';
+    console.warn(`[subscribe] turnstile refused: ${codes}`);
+    return false;
+  } catch {
+    console.warn('[subscribe] turnstile unreachable');
+    return false;
+  }
+}
+
+/**
  * Brevo's documented error shape is `{ code, message }`. Never let a malformed
  * or empty error body throw here: we are already on the failure path, and a
  * second failure would turn a clean 502 into an unhandled exception.
@@ -169,6 +236,26 @@ export async function onRequestPost(context) {
   }
 
   const lang = readField(submission, 'lang') === 'en' ? 'en' : 'fr';
+
+  // Anti-abuse gate, placed AFTER the cheap local checks (no point spending a
+  // subrequest on a submission we already know is invalid) and BEFORE anything
+  // that sends mail. A missing secret fails closed for the same reason as the
+  // Brevo one: a challenge that cannot be verified must not be waved through.
+  const turnstileSecret = env.TURNSTILE_SECRET_KEY;
+  if (!turnstileSecret) {
+    logRejection('missing_turnstile_secret');
+    return jsonResponse(503, { ok: false, error: 'unavailable' });
+  }
+
+  const turnstileToken = readField(submission, TURNSTILE_TOKEN_FIELD);
+  if (!turnstileToken) {
+    logRejection('turnstile_token_missing');
+    return jsonResponse(400, { ok: false, error: 'challenge_required' });
+  }
+
+  if (!(await verifyTurnstile(turnstileToken, turnstileSecret))) {
+    return jsonResponse(400, { ok: false, error: 'challenge_failed' });
+  }
 
   const apiKey = env.BREVO_API_KEY;
   if (!apiKey) {

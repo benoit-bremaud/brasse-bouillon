@@ -349,6 +349,21 @@
             et notre <a href="/cookies" target="_blank" rel="noopener noreferrer">politique cookies</a>.
           </p>
 
+
+          <!-- Anti-abuse challenge (ADR-0030 D9). Without it, plus-tag
+               addressing (victim+1@…) defeats Brevo's dedup and a script can
+               mail-bomb a third party from our authenticated domain; the
+               Cloudflare rate-limiting rule only slows that down.
+               The sitekey is PUBLIC by design — it belongs in the markup.
+               `data-appearance="interaction-only"` keeps the widget invisible
+               until a visitor actually needs to interact, so the common case
+               shows nothing at all. No visible string, hence no i18n key; the
+               widget localises itself from the page's lang attribute. -->
+          <div
+            class="cf-turnstile"
+            data-sitekey="1x00000000000000000000AA"
+            data-appearance="interaction-only"
+          ></div>
           <div class="actions actions-compact">
             <button class="btn btn-primary" type="submit" data-i18n="newsletter.submit">Rejoindre la waitlist</button>
             <button class="btn btn-ghost btn-toggle" id="questionnaireToggleFr" type="button" aria-expanded="false" aria-controls="questionnaireFormFr" onclick="toggleQuestionnaire('fr')">
@@ -546,6 +561,11 @@
     </div>
   </aside>
 
+  <!-- Turnstile loader: third-party script, a documented exception to the
+       zero-footprint posture (ADR-0028) justified in ADR-0030 D9. Cloudflare
+       is already the host and a declared subprocessor, so no new vendor
+       enters the picture. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="site.js?v=20260730"></script>
   <script>
     // Language-neutral home bootstrap. All UI strings live in site.js catalogs;

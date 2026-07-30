@@ -343,14 +343,16 @@
                addressing (victim+1@…) defeats Brevo's dedup and a script can
                mail-bomb a third party from our authenticated domain; the
                Cloudflare rate-limiting rule only slows that down.
-               The sitekey is PUBLIC by design — it belongs in the markup.
+               The sitekey is PUBLIC by design — it belongs in the markup, and
+               the quality gate rejects Cloudflare's TEST sitekeys so a
+               placeholder can never ship inert (ADR-0030 D9).
                `data-appearance="interaction-only"` keeps the widget invisible
                until a visitor actually needs to interact, so the common case
                shows nothing at all. No visible string, hence no i18n key; the
                widget localises itself from the page's lang attribute. -->
           <div
             class="cf-turnstile"
-            data-sitekey="1x00000000000000000000AA"
+            data-sitekey="0x4AAAAAAEB44cTznXV7DhKS"
             data-appearance="interaction-only"
           ></div>
           <div class="actions actions-compact">

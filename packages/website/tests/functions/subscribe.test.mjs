@@ -322,6 +322,38 @@ describe('guards whose failure would be a real bypass', () => {
     assert.equal(calls.length, 0);
   });
 
+  it('enforces the size cap even with no Content-Length header', async () => {
+    const calls = stubFetch({ status: 201 });
+    // A streamed body carries no Content-Length: `Number(null)` is 0, so the
+    // header check alone would wave this through. The byte counter is the
+    // control, and this is the test that proves it.
+    const huge = new TextEncoder().encode('x'.repeat(9000));
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(huge);
+        controller.close();
+      }
+    });
+
+    const request = new Request('https://brasse-bouillon.com/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: stream,
+      duplex: 'half'
+    });
+    assert.equal(request.headers.get('Content-Length'), null);
+
+    const response = await call(request);
+
+    assert.equal(response.status, 413);
+    assert.deepEqual(await response.json(), {
+      ok: false,
+      error: 'payload_too_large'
+    });
+    assert.equal(calls.length, 0);
+    assert.equal(turnstileCalls.length, 0);
+  });
+
   for (const [label, body] of [
     ['null', 'null'],
     ['a bare string', '"brasseur@example.com"'],

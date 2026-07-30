@@ -7,7 +7,8 @@
 // environment variable set by the project owner, never committed (ADR-0030 D4).
 //
 // Deployed by `.github/workflows/website-deploy.yml`, which stages this
-// directory into the deployment root so `wrangler pages deploy` registers it.
+// directory NEXT TO the uploaded assets — not inside them — because that is
+// where wrangler looks for it (verified empirically; see the deploy step).
 // Route: POST /api/subscribe.
 
 /** Brevo list the confirmed contact joins — `Waitlist FR` (ADR-0030 D2). */
@@ -109,19 +110,65 @@ function jsonResponse(status, body) {
 
 const successResponse = () => jsonResponse(200, { ok: true });
 
+/** Thrown when the body exceeds MAX_BODY_BYTES; mapped to a 413. */
+class BodyTooLarge extends Error {}
+
+/**
+ * Reads the body while counting bytes, and gives up past the cap.
+ *
+ * `Content-Length` is optional and client-controlled — a chunked or streamed
+ * request simply omits it, and `Number(null)` is 0, which sails through any
+ * header-based check. So the cap has to be enforced on what is actually read,
+ * and the stream is cancelled the moment it is exceeded rather than after
+ * buffering the whole thing.
+ */
+async function readBoundedBody(request, maxBytes) {
+  if (!request.body) return new Uint8Array();
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      throw new BodyTooLarge();
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 /**
  * `site.js` posts a `FormData`, but accept JSON too so the endpoint stays
  * usable from a script or a test without pretending to be a browser form.
+ *
+ * The bounded bytes are re-wrapped in a `Response` purely to reuse the platform
+ * parsers: multipart is not something to hand-roll, and this way the size cap
+ * and the parsing stay independent of each other.
  */
 async function readSubmission(request) {
   const contentType = request.headers.get('Content-Type') || '';
+  const bytes = await readBoundedBody(request, MAX_BODY_BYTES);
+  const parser = new Response(bytes, { headers: { 'Content-Type': contentType } });
 
   if (contentType.includes('application/json')) {
-    const payload = await request.json();
+    const payload = await parser.json();
     return payload && typeof payload === 'object' ? payload : {};
   }
 
-  const form = await request.formData();
+  const form = await parser.formData();
   return Object.fromEntries(form.entries());
 }
 
@@ -191,6 +238,10 @@ async function readProviderFailure(response) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
+  // A declared length over the cap is refused without reading a single byte.
+  // This is an optimisation, NOT the control: the header is optional and
+  // client-controlled, so the real enforcement is the byte counter inside
+  // `readBoundedBody`.
   const declaredLength = Number(request.headers.get('Content-Length'));
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
     logRejection('body_too_large');
@@ -200,7 +251,11 @@ export async function onRequestPost(context) {
   let submission;
   try {
     submission = await readSubmission(request);
-  } catch {
+  } catch (error) {
+    if (error instanceof BodyTooLarge) {
+      logRejection('body_too_large');
+      return jsonResponse(413, { ok: false, error: 'payload_too_large' });
+    }
     // Malformed body — not something a real form produces.
     logRejection('malformed_body');
     return jsonResponse(400, { ok: false, error: 'invalid_request' });

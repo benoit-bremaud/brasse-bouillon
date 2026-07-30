@@ -86,16 +86,6 @@ jobs:
             mkdir -p _site/en
             cp -R "$src/en/guides" _site/en/guides
           fi
-          # Cloudflare Pages Functions. `wrangler pages deploy _site` compiles
-          # whatever it finds in `<deploy dir>/functions` into routes, so the
-          # directory MUST land at the deployment root — the `*.js` glob above
-          # is root-level only and never matches `functions/api/*.js`.
-          # Without this block `/api/subscribe` simply would not exist and the
-          # waitlist form would 404 (ADR-0030 D3).
-          if [ -d "$src/functions" ]; then
-            cp -R "$src/functions" _site/functions
-          fi
-
           # RFC 9116 vulnerability disclosure. A dot-prefixed directory is
           # matched by none of the globs above and is not a root scalar, so
           # /.well-known/security.txt would 404 without this explicit stage.
@@ -122,9 +112,10 @@ jobs:
           cp "$src/docs/ROADMAP.md" _site/docs/ROADMAP.md
 
           echo "::group::Deployment payload"
-          # Depth 3 so nested payload actually shows up — `functions/api/*.js`
-          # and `en/guides/<slug>/index.html` both sit at depth 3, and a listing
-          # that silently omits them cannot prove a deploy shipped them.
+          # Depth 3 so nested payload actually shows up — `en/guides/<slug>/
+          # index.html` sits at depth 3, and a listing that silently omits it
+          # cannot prove a deploy shipped it. (Pages Functions are deliberately
+          # NOT in `_site` — see the deploy step.)
           find _site -maxdepth 3 -type f | sort
           echo "::endgroup::"
 
@@ -147,6 +138,9 @@ jobs:
         run: |
           set -euo pipefail
           project=brasse-bouillon-website
+          # Each `run:` block is a separate shell — `src` from the staging step
+          # is NOT in scope, and `set -u` would abort on it.
+          src=packages/website
 
           # Create the project on first run. Tolerate ONLY the
           # "already exists" case — any other failure (auth, API outage,
@@ -161,6 +155,30 @@ jobs:
             fi
           fi
 
-          npx --yes wrangler@3 pages deploy _site \
+          # Pages Functions are NOT read from inside the uploaded asset
+          # directory. Verified empirically with `wrangler pages dev`: with the
+          # folder inside the assets dir wrangler prints
+          # "No Functions. Shimming..." and serves the file as a static asset;
+          # with it as a SIBLING of that dir, in the directory wrangler runs
+          # from, it prints "Compiled Worker successfully". So `functions/` is
+          # staged here, next to `_site/` — never into it. Getting this wrong
+          # does not fail the deploy: it silently ships a site whose
+          # /api/subscribe does not exist, which is why the assertion below
+          # exists (ADR-0030 D3).
+          if [ -d "$src/functions" ]; then
+            rm -rf functions
+            cp -R "$src/functions" functions
+          fi
+
+          out=$(npx --yes wrangler@3 pages deploy _site \
             --project-name="$project" \
-            --branch="$GITHUB_REF_NAME"
+            --branch="$GITHUB_REF_NAME" 2>&1)
+          echo "$out"
+
+          # The failure mode this guards against is silent by nature: a
+          # misplaced functions/ directory deploys "successfully" and only the
+          # waitlist form breaks, in production, with no red build anywhere.
+          if [ -d "$src/functions" ] && echo "$out" | grep -q "No Functions"; then
+            echo "::error::wrangler did not compile packages/website/functions — /api/subscribe would not exist. Check where the functions/ directory is staged relative to the wrangler working directory."
+            exit 1
+          fi

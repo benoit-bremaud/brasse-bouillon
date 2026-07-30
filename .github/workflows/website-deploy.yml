@@ -86,6 +86,14 @@ jobs:
             mkdir -p _site/en
             cp -R "$src/en/guides" _site/en/guides
           fi
+          # RFC 9116 vulnerability disclosure. A dot-prefixed directory is
+          # matched by none of the globs above and is not a root scalar, so
+          # /.well-known/security.txt would 404 without this explicit stage.
+          # Fail loudly (no existence guard): the quality gate lists the file as
+          # required, so a missing one is a defect, not an optional extra.
+          mkdir -p _site/.well-known
+          cp "$src/.well-known/security.txt" _site/.well-known/
+
           # Self-hosted webfonts (.woff2). Not matched by the extension globs
           # above, so the fonts/ directory is staged explicitly — without it
           # /fonts/*.woff2 would 404 and pages fall back to system fonts.

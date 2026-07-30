@@ -7,6 +7,7 @@ This script is intentionally dependency-free so it can run locally and in CI.
 from __future__ import annotations
 
 from html import unescape
+from html.parser import HTMLParser
 from collections import Counter
 from pathlib import Path
 import json
@@ -191,6 +192,7 @@ REQUIRED_FILES = [
     "sitemap.xml",
     "robots.txt",
     "llms.txt",
+    ".well-known/security.txt",
     "_redirects",
     "feedback-widget.js",
     "chat-widget.js",
@@ -719,7 +721,12 @@ def check_guide_structured_data(root: Path = ROOT) -> list[str]:
                 )
 
         procedure_match = re.search(
-            r'<div\s+class="guide-procedure"\s+id="([^"]+)".*?'
+            # Tag-agnostic on purpose: this check asserts the HowTo schema is
+            # backed by VISIBLE content, which the class identifies — not the
+            # element name. It matched `div` only, so switching the block to a
+            # `section` (required for its `aria-labelledby` to be valid) silently
+            # broke it.
+            r'<(?:section|div)\s+class="guide-procedure"\s+id="([^"]+)".*?'
             r"<h3[^>]*>(.*?)</h3>.*?<ol>(.*?)</ol>",
             content,
             flags=REGEX_FLAGS,
@@ -1178,6 +1185,133 @@ def check_hreflang_reciprocity(root: Path = ROOT) -> list[str]:
     return errors
 
 
+#: Elements that map to ARIA `role=generic`. Generic roles do not support an
+#: accessible name, so `aria-label` / `aria-labelledby` on them is invalid HTML
+#: and is discarded by assistive technology — the label silently does nothing.
+#:
+#: Known limitation, deliberate: HTML-AAM maps more elements to `generic`
+#: (`b`, `i`, `u`, `bdi`, `bdo`, `hgroup`, and a nameless `section`/`a`). Only the
+#: two that actually occurred in production are listed, rather than reimplementing
+#: a full role resolver for markup this generator never emits (ADR-0001: build for
+#: today). Extend the set if a guide author ever labels one of the others.
+GENERIC_NAMEABLE_TAGS = frozenset({"div", "span"})
+
+#: Naming attributes that require a name-supporting role to have any effect.
+ARIA_NAMING_ATTRIBUTES = ("aria-label", "aria-labelledby")
+
+#: ARIA roles that BOTH support an accessible name and are actually assigned to
+#: generic containers in this project — an inventory of the committed pages
+#: returns exactly these three.
+#:
+#: Deliberately a **fail-closed allowlist** rather than a full ARIA registry.
+#: Merely requiring a non-empty `role` is not enough: `generic`, `presentation`
+#: and `none` *prohibit* naming, and an unrecognized token such as
+#: `role="bogus"` falls back to the implicit `generic` role. In all three cases
+#: the naming attribute is silently dropped, which is the exact defect this
+#: check exists to catch. A false positive here costs one word (add the role
+#: below); a silent bypass costs an accessibility regression in production.
+NAME_SUPPORTING_ROLES = frozenset({"group", "img", "status"})
+
+
+def _resolved_role(attrs: list[tuple[str, str | None]]) -> str:
+    """The element's effective `role` token, lowercased, or `""` when the
+    attribute is absent, empty or whitespace-only.
+
+    `role` accepts a space-separated fallback list in which the first token
+    wins, so only that token is resolved."""
+    for name, value in attrs:
+        if name != "role":
+            continue
+        tokens = (value or "").split()
+        return tokens[0].lower() if tokens else ""
+    return ""
+
+
+class _AriaNamingAuditor(HTMLParser):
+    """Collects the two HTML-ARIA naming violations that shipped undetected in
+    the English guide renderer (19 W3C errors across 5 pages, audit 2026-07-29):
+
+    1. a `figure` holding a `figcaption` must not carry `role` — the caption is
+       already the figure's accessible name, and overriding the role discards
+       the caption's semantics;
+    2. `aria-label` / `aria-labelledby` on a roleless `div` / `span`.
+
+    Both are invalid markup that *looks* like an accessibility improvement while
+    doing nothing, which is why a human reviewer and the existing gate both
+    missed them. Kept as a parser rather than a regex because rule 1 depends on
+    element nesting, which a regex cannot see reliably.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.violations: list[tuple[int, str]] = []
+        # Stack, because a figure may legitimately nest inside another figure.
+        self._open_figures: list[dict[str, object]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = {name for name, _value in attrs}
+        role = _resolved_role(attrs)
+        line = self.getpos()[0]
+
+        if tag == "figure":
+            self._open_figures.append(
+                {"has_role": bool(role), "has_caption": False, "line": line}
+            )
+        elif tag == "figcaption" and self._open_figures:
+            self._open_figures[-1]["has_caption"] = True
+
+        if tag in GENERIC_NAMEABLE_TAGS and role not in NAME_SUPPORTING_ROLES:
+            for naming_attribute in ARIA_NAMING_ATTRIBUTES:
+                if naming_attribute in attributes:
+                    detail = (
+                        f'role="{role}" n\'accepte pas de nom accessible'
+                        if role
+                        else "aucun role (role=generic implicite)"
+                    )
+                    self.violations.append(
+                        (
+                            line,
+                            f"<{tag}> porte {naming_attribute} mais {detail} — "
+                            "l'étiquette est ignorée par les lecteurs d'écran ; "
+                            "utiliser un élément de sectionnement "
+                            "(section/nav/aside) ou un role de "
+                            f"{sorted(NAME_SUPPORTING_ROLES)}",
+                        )
+                    )
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag != "figure" or not self._open_figures:
+            return
+        figure = self._open_figures.pop()
+        if figure["has_role"] and figure["has_caption"]:
+            self.violations.append(
+                (
+                    int(figure["line"]),
+                    "<figure> contenant un <figcaption> ne doit pas porter "
+                    "role — la légende fournit déjà le nom accessible",
+                )
+            )
+
+
+def check_aria_naming_validity(root: Path = ROOT) -> list[str]:
+    """Every committed HTML page must be free of the invalid-ARIA naming
+    patterns described in `_AriaNamingAuditor`.
+
+    Deliberately an offline, stdlib-only structural check rather than a call to
+    the W3C validator in CI: no network dependency, no rate limit, no flake, and
+    it fails on the precise class of defect that reached production instead of
+    on generic markup noise. A full validator pass stays a manual audit step."""
+    errors: list[str] = []
+    for path in _all_html_paths(root):
+        auditor = _AriaNamingAuditor()
+        auditor.feed(path.read_text(encoding="utf-8"))
+        auditor.close()
+        relative_path = path.relative_to(root)
+        for line, message in auditor.violations:
+            errors.append(f"{relative_path}:{line}: {message}")
+    return errors
+
+
 def collect_errors(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     errors.extend(check_required_files(root))
@@ -1195,6 +1329,7 @@ def collect_errors(root: Path = ROOT) -> list[str]:
     errors.extend(check_no_stale_host(root))
     errors.extend(check_og_image_dimensions(root))
     errors.extend(check_hreflang_reciprocity(root))
+    errors.extend(check_aria_naming_validity(root))
     errors.extend(check_legal_freshness(root))
     errors.extend(check_i18n_home_generated(root))
     return errors

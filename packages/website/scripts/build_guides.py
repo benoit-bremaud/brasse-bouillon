@@ -940,7 +940,7 @@ def _document(
   <meta name="twitter:image" content="{SITE_URL}/og-image.png?v=20260710">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260728">
+  <link rel="stylesheet" href="/site.css?v=20260729">
   {schema_markup}
 </head>
 <body class="guide-page">
@@ -949,7 +949,7 @@ def _document(
   {_site_header(guides_current=guides_current, english_canonical=english_canonical)}
 {main}
   {_site_footer()}
-  <script src="/site.js?v=20260728"></script>
+  <script src="/site.js?v=20260729"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>
@@ -1039,7 +1039,7 @@ def _english_document(
   <meta name="twitter:image" content="{SITE_URL}/og-image-en.png?v=20260713">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/fonts.css?v=20260526">
-  <link rel="stylesheet" href="/site.css?v=20260728">
+  <link rel="stylesheet" href="/site.css?v=20260729">
   {schema_markup}
 </head>
 <body class="guide-page">
@@ -1048,7 +1048,7 @@ def _english_document(
   {_english_header(guides_current=guides_current, french_canonical=french_canonical)}
 {main}
   {_english_footer()}
-  <script src="/site.js?v=20260728"></script>
+  <script src="/site.js?v=20260729"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>
@@ -1349,19 +1349,28 @@ def _render_english_block(
               </div>
             </li>'''
             )
-        return f'''          <div class="guide-procedure" id="{escape(procedure_id, quote=True)}" aria-labelledby="{escape(procedure_id, quote=True)}Title">
+        # `<section>`, not `<div>`: the block is named by its own heading through
+        # `aria-labelledby`, and a `div` maps to role=generic, which does not
+        # support an accessible name — the attribute is invalid there and is
+        # dropped by assistive technology. A sectioning element carries the name.
+        return f'''          <section class="guide-procedure" id="{escape(procedure_id, quote=True)}" aria-labelledby="{escape(procedure_id, quote=True)}Title">
             <h3 id="{escape(procedure_id, quote=True)}Title">{title}</h3>
             <p>{description}</p>
             <ol>
 {"\n".join(rendered_steps)}
             </ol>
-          </div>'''
+          </section>'''
     if block_type == "illustrationPlaceholder":
         title = escape(_required_text(block, "title", "illustration placeholder"))
         description = escape(
             _required_text(block, "description", "illustration placeholder")
         )
-        return f"""          <figure class="guide-illustration-placeholder" data-illustration-status="planned" role="img" aria-label="Planned illustration: {title}">
+        # No `role="img"` / `aria-label` here: a `figure` holding a `figcaption`
+        # takes its accessible name from that caption, and overriding the figure
+        # role with `img` discards the caption's semantics (invalid per HTML-ARIA).
+        # The caption also carries strictly more than the old label did — the
+        # title AND the description — so dropping the attributes loses nothing.
+        return f"""          <figure class="guide-illustration-placeholder" data-illustration-status="planned">
             <div class="guide-illustration-placeholder__canvas" aria-hidden="true">
               <span>Illustration planned</span>
             </div>

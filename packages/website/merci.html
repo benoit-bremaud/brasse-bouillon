@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription confirmée - Brasse-Bouillon</title>
+  <meta name="description" content="Ton inscription à la liste d’attente Brasse-Bouillon est confirmée.">
+  <!-- Brevo redirects here after the visitor clicks the double opt-in link
+       (`redirectionUrl`, a required parameter — ADR-0030 D6). noindex because
+       this is a transactional dead-end: indexing a page that says "your
+       address is confirmed" would show it to people who confirmed nothing.
+       No canonical and no hreflang cluster, for the same reason — hreflang is
+       an indexing signal and is ignored on noindex pages. Mirrors 404.html.
+
+       Open Graph and Twitter Card tags are intentionally omitted, unlike every
+       public page (packages/website/CLAUDE.md § SEO): they exist to render a
+       preview when a URL is shared, and this URL is reached only from a personal
+       confirmation link — it is never crawled and has nothing to preview. Same
+       reasoning as 404.html, which also ships none. -->
+  <meta name="robots" content="noindex,follow">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="stylesheet" href="/fonts.css?v=20260709">
+  <link rel="stylesheet" href="/site.css?v=20260729">
+
+  <!-- Page-specific layout only; every colour and font comes from the
+       site.css design tokens (no hardcoded values). -->
+  <style>
+    .confirm-page {
+      min-height: 82vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+      text-align: center;
+    }
+    .confirm-card { max-width: 34rem; }
+    .confirm-logo { width: 120px; height: auto; margin: 0 auto 24px; display: block; }
+    .confirm-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      color: var(--ink);
+      margin: 0 0 16px;
+    }
+    .confirm-text {
+      color: var(--ink-soft);
+      font-size: 1.05rem;
+      line-height: 1.65;
+      margin: 0 auto 20px;
+      max-width: 30rem;
+    }
+    .confirm-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+    .confirm-cta {
+      display: inline-block;
+      background: var(--copper-deep);
+      color: var(--foam);
+      font-family: var(--font-body);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s var(--ease-out-soft), background 0.2s;
+    }
+    .confirm-cta:hover { background: var(--ink-soft); transform: translateY(-2px); }
+    .confirm-cta:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    .confirm-secondary {
+      display: inline-block;
+      color: var(--copper-deep);
+      font-weight: 600;
+      text-decoration: underline;
+      padding: 14px 8px;
+    }
+    .confirm-foot { margin-top: 40px; color: var(--muted); font-size: 0.9rem; }
+    .confirm-foot a { color: var(--copper-deep); }
+    @media (prefers-reduced-motion: reduce) {
+      .confirm-cta { transition: none; }
+      .confirm-cta:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="confirm-page">
+    <div class="confirm-card">
+      <img class="confirm-logo" src="/logo-mascot.png" width="120" height="120" alt="Mascotte officielle Brasse-Bouillon">
+      <h1 class="confirm-title">C’est confirmé, tu es sur la liste</h1>
+      <p class="confirm-text">
+        Ton adresse est enregistrée. Tu recevras un message dès l’ouverture de la
+        bêta — et rien d’autre entre-temps.
+      </p>
+      <p class="confirm-text">
+        En attendant, les guides de brassage sont déjà en ligne : le matériel,
+        les ingrédients, et le déroulé d’un premier brassin, expliqués pas à pas.
+      </p>
+      <div class="confirm-actions">
+        <a class="confirm-cta" href="/guides/">Lire les guides de brassage</a>
+        <a class="confirm-secondary" href="/">Retour à l’accueil</a>
+      </div>
+      <p class="confirm-foot">
+        <!-- Deliberately the site form, not contact@brasse-bouillon.com: the
+             domain has no MX record yet, so mail to that address bounces.
+             Advertising a dead contact channel is a real defect, and the privacy
+             policy already designates the form as THE channel — the two must
+             agree. Switch both to contact@ once a mailbox exists. -->
+        Une question ? Passe par le <a href="/#participerFr">formulaire du site</a>.
+        <br>
+        <span lang="en">Subscription confirmed. <a href="/merci-en">Read this page in English</a>.</span>
+      </p>
+    </div>
+  </main>
+</body>
+</html>

@@ -211,6 +211,23 @@ jobs:
             echo "No tests directory — skipping"
           fi
 
+      # The Pages Function that relays waitlist signups to Brevo (ADR-0030) is
+      # the only executable code in this otherwise static package, and the only
+      # place a secret is handled — so it is the one thing here that must not
+      # regress silently. Node's built-in runner covers it; no dependency is
+      # installed (`npm ci` would be pointless, the package has none).
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Run Pages Function tests
+        run: |
+          if [ -d tests/functions ]; then
+            npm run test:functions
+          else
+            echo "No functions tests — skipping"
+          fi
+
   # ============================================================================
   # Beer Encyclopedia: ruff lint + compile check + tests + coverage
   # ============================================================================

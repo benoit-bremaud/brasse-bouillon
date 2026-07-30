@@ -4,6 +4,7 @@
 **Date**    2026-07-10 (accepted 2026-07-10, after a 6-reviewer adversarial conception review folded in)
 **Amended** 2026-07-13 — D4 clause 1: footer switcher mirror dropped (maintainer UX review; sticky header keeps the primary switcher always visible)
 **Amended** 2026-07-28 — D6 added: English-first authoring for NEW educational content; D5 clause 2 qualified (`x-default` → FR for every FR/EN pair, → self for a single-locale EN page)
+**Amended** 2026-07-30 — D3 superseded for the waitlist form only: it now posts to the in-house `/api/subscribe` relay, not Formspree (ADR-0030). The `lang`-field mechanism D3 describes is unchanged and still load-bearing.
 **Owners**  @benoit-bremaud
 
 ---
@@ -202,10 +203,18 @@ recursive gate globs, `_site/` subfolder staging, and 4 legal-URL redirects on a
    link (currently `/index-en`, dead after the delete) → `/en`, and the "site
    form" link (currently `/#participerFr`, the FR home) → `/en#participer`.
 
-### D3 — EN forms reuse the FR Formspree endpoints
+### D3 — EN forms reuse the FR endpoints
 
-The EN home posts to the **same** Formspree endpoints (`mqaqqvab` newsletter,
-`xeellqan` questionnaire) with the existing hidden `lang` field set to `en` —
+> **Superseded in part on 2026-07-30 (ADR-0030).** The waitlist no longer posts
+> to Formspree `mqaqqvab` but to the same-origin `/api/subscribe` Pages
+> Function, which relays to Brevo's double opt-in flow. Everything else in this
+> decision stands, and the `lang` field became *more* load-bearing: the relay
+> reads it to pick the FR or EN confirmation-redirect page. The questionnaire
+> (`xeellqan`) is untouched.
+
+The EN home posts to the **same** endpoints (`mqaqqvab` newsletter — now
+`/api/subscribe`, `xeellqan` questionnaire) with the existing hidden `lang`
+field set to `en` —
 the discriminator is already in place on the FR forms. The form **status/error
 message tables currently live inline in `index.html`'s bottom `<script>`**; S1
 moves them into `site.js` / the catalog (D1 clause 3 decision) so they are

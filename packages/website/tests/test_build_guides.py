@@ -156,9 +156,9 @@ class BuildGuidesTests(unittest.TestCase):
         self.assertIn('"@type":"Article"', article_html)
         self.assertIn('"@type":"BreadcrumbList"', article_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', hub_html)
-        self.assertIn('<script src="/site.js?v=20260729"></script>', hub_html)
+        self.assertIn('<script src="/site.js?v=20260730"></script>', hub_html)
         self.assertIn('<div class="bubbles" aria-hidden="true"></div>', article_html)
-        self.assertIn('<script src="/site.js?v=20260729"></script>', article_html)
+        self.assertIn('<script src="/site.js?v=20260730"></script>', article_html)
         self.assertIn(
             '<a href="/guides/" aria-current="page">Guides</a>',
             hub_html,

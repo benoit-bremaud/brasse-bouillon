@@ -86,6 +86,16 @@ jobs:
             mkdir -p _site/en
             cp -R "$src/en/guides" _site/en/guides
           fi
+          # Cloudflare Pages Functions. `wrangler pages deploy _site` compiles
+          # whatever it finds in `<deploy dir>/functions` into routes, so the
+          # directory MUST land at the deployment root — the `*.js` glob above
+          # is root-level only and never matches `functions/api/*.js`.
+          # Without this block `/api/subscribe` simply would not exist and the
+          # waitlist form would 404 (ADR-0030 D3).
+          if [ -d "$src/functions" ]; then
+            cp -R "$src/functions" _site/functions
+          fi
+
           # RFC 9116 vulnerability disclosure. A dot-prefixed directory is
           # matched by none of the globs above and is not a root scalar, so
           # /.well-known/security.txt would 404 without this explicit stage.
@@ -112,7 +122,10 @@ jobs:
           cp "$src/docs/ROADMAP.md" _site/docs/ROADMAP.md
 
           echo "::group::Deployment payload"
-          find _site -maxdepth 2 -type f | sort
+          # Depth 3 so nested payload actually shows up — `functions/api/*.js`
+          # and `en/guides/<slug>/index.html` both sit at depth 3, and a listing
+          # that silently omits them cannot prove a deploy shipped them.
+          find _site -maxdepth 3 -type f | sort
           echo "::endgroup::"
 
       - name: Generate sitemap modification dates

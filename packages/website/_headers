@@ -1,7 +1,10 @@
 # Cloudflare Pages — response headers for every route.
 #
 # Security hardening from the 2026-07-09 audit (defense-in-depth for a
-# static marketing site: no auth, no cookies, no server-side code).
+# marketing site with no auth and no cookies). Since ADR-0030 the site is no
+# longer purely static: `functions/api/subscribe.js` runs server-side to relay
+# waitlist signups to Brevo. It is the only such route, it holds the only
+# secret, and it sets no cookie.
 #
 # Only the headers NOT already emitted by the Cloudflare edge are set here,
 # to avoid duplicate header lines. As of 2026-07-09, live responses (prod,
@@ -16,8 +19,11 @@
 #     *.brasse-bouillon.com subdomain audit first (includeSubDomains asserts
 #     every subdomain is HTTPS-only; preload is hard to reverse). Apex-only now.
 #   - Content-Security-Policy (issue #1032): needs origin enumeration (staging
-#     feedback/chat widgets on *.workers.dev + staging-api, Formspree; fonts
-#     are self-hosted) and a Report-Only rollout before enforcement, or it
+#     feedback/chat widgets on *.workers.dev + staging-api, Formspree for the
+#     questionnaire; fonts are self-hosted, and since ADR-0030 the waitlist
+#     posts same-origin to /api/subscribe — which SHRINKS the future
+#     `connect-src`, one less third-party origin to allow) and a Report-Only
+#     rollout before enforcement, or it
 #     would break staging. Prerequisite: move the inline <script>/onclick out
 #     of index.html.
 /*

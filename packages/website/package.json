@@ -2,5 +2,9 @@
   "name": "@brasse-bouillon/website",
   "version": "0.1.8",
   "private": true,
-  "description": "Brasse-Bouillon marketing website (static HTML/CSS/JS)"
+  "description": "Brasse-Bouillon marketing website (static HTML/CSS/JS)",
+  "type": "module",
+  "scripts": {
+    "test:functions": "node --test tests/functions/*.test.mjs"
+  }
 }

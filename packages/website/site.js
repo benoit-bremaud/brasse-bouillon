@@ -1,10 +1,16 @@
 (function (global) {
   'use strict';
 
-  // Formspree endpoints — shared by both languages (the hidden `lang` field is
-  // the discriminator, ADR-0027 D3), so they are language-neutral constants.
+  // Form endpoints — shared by both languages (the hidden `lang` field is the
+  // discriminator, ADR-0027 D3), so they are language-neutral constants.
+  //
+  // The two now differ in kind. The questionnaire still posts to Formspree,
+  // which forwards it to a mailbox. The waitlist posts to our own Pages
+  // Function, which relays it to Brevo's double opt-in flow (ADR-0030): the
+  // Brevo API key can never be exposed to the browser, so a server-side relay
+  // is structurally required. Being same-origin, it also needs no CORS.
   const QUESTIONNAIRE_ENDPOINT = 'https://formspree.io/f/xeellqan';
-  const NEWSLETTER_ENDPOINT = 'https://formspree.io/f/mqaqqvab';
+  const NEWSLETTER_ENDPOINT = '/api/subscribe';
   const GUIDE_BUBBLE_COUNT = 30;
   const DEW_SELECTOR =
     '.hero, .journey-step, .feature-card, .faq-item, .participate, ' +
@@ -36,7 +42,11 @@
       newsletter: {
         endpointMissing: 'Endpoint newsletter non configuré.',
         sending: 'Inscription en cours…',
-        success: 'Merci ! Ton adresse est enregistrée. On te préviendra dès l’ouverture de la bêta.',
+        // Double opt-in (ADR-0030 D2): at this point NOTHING is registered yet
+        // — the address only joins the list once the confirmation link is
+        // clicked. Claiming otherwise would repeat the over-promise #1550 fixed.
+        success:
+          'Presque fini ! Un e-mail de confirmation vient de partir : clique sur le lien pour valider ton inscription.',
         http400: 'Adresse email invalide ou incomplète. Vérifie puis réessaie.',
         http429: 'Trop de tentatives. Merci d’attendre un instant avant de réessayer.',
         http5xx: 'Le service est temporairement indisponible. Réessaie un peu plus tard.',
@@ -64,7 +74,8 @@
       newsletter: {
         endpointMissing: 'Newsletter endpoint is not configured.',
         sending: 'Signing you up…',
-        success: 'Thanks! Your address is saved. We’ll let you know as soon as the beta opens.',
+        success:
+          'Almost there! A confirmation e-mail is on its way — click the link in it to complete your signup.',
         http400: 'That email looks invalid or incomplete. Check it and try again.',
         http429: 'Too many attempts. Please wait a moment before trying again.',
         http5xx: 'The service is temporarily unavailable. Try again a bit later.',
@@ -141,8 +152,11 @@
   }
 
   /**
-   * Wires one Formspree form (questionnaire or newsletter) on a home page.
-   * Options: `formId` / `statusId` (DOM ids), `endpoint` (Formspree URL),
+   * Wires one form (questionnaire or newsletter) on a home page. Both post a
+   * `FormData` and expect a JSON-ish response, so the same handler serves the
+   * Formspree questionnaire and the in-house waitlist endpoint (ADR-0030).
+   * Options: `formId` / `statusId` (DOM ids), `endpoint` (absolute URL or a
+   * same-origin path),
    * `lang` ('fr' | 'en', defaults to 'fr'), `kind` ('questionnaire' |
    * 'newsletter' — selects the FORM_MESSAGES catalog entry), and optional
    * `checkboxLimits` / `requiredCheckboxGroups` constraint configs.
@@ -538,7 +552,7 @@
 
   /**
    * One-call bootstrap for a home page (FR `index.html` or the generated EN
-   * `en.html`). Wires the mobile menu and both Formspree forms for the given
+   * `en.html`). Wires the mobile menu and both home-page forms for the given
    * language, pulling every UI string from the catalogs above. The page's
    * inline <script> only needs `BBShared.initHome({ lang: 'fr' })`; build_i18n.py
    * swaps the `'fr'` literal to `'en'` (and the `…Fr` DOM ids to `…En`) when it

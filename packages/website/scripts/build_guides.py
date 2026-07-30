@@ -949,7 +949,7 @@ def _document(
   {_site_header(guides_current=guides_current, english_canonical=english_canonical)}
 {main}
   {_site_footer()}
-  <script src="/site.js?v=20260729"></script>
+  <script src="/site.js?v=20260730"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>
@@ -1048,7 +1048,7 @@ def _english_document(
   {_english_header(guides_current=guides_current, french_canonical=french_canonical)}
 {main}
   {_english_footer()}
-  <script src="/site.js?v=20260729"></script>
+  <script src="/site.js?v=20260730"></script>
   <script type="module" src="/feedback-widget.js?v=20260601"></script>
 </body>
 </html>

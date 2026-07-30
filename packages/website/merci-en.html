@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription confirmed - Brasse-Bouillon</title>
+  <meta name="description" content="Your Brasse-Bouillon waitlist subscription is confirmed.">
+  <!-- English twin of merci.html, reached when the double opt-in was started
+       from the English home (the form's hidden `lang` field selects the
+       redirect URL). noindex + no hreflang for the same reason as the FR page —
+       see the comment there and ADR-0030 D6. -->
+  <meta name="robots" content="noindex,follow">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+
+  <link rel="stylesheet" href="/fonts.css?v=20260709">
+  <link rel="stylesheet" href="/site.css?v=20260729">
+
+  <!-- Page-specific layout only; every colour and font comes from the
+       site.css design tokens (no hardcoded values). Kept identical to
+       merci.html so the twins cannot drift visually. -->
+  <style>
+    .confirm-page {
+      min-height: 82vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+      text-align: center;
+    }
+    .confirm-card { max-width: 34rem; }
+    .confirm-logo { width: 120px; height: auto; margin: 0 auto 24px; display: block; }
+    .confirm-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      color: var(--ink);
+      margin: 0 0 16px;
+    }
+    .confirm-text {
+      color: var(--ink-soft);
+      font-size: 1.05rem;
+      line-height: 1.65;
+      margin: 0 auto 20px;
+      max-width: 30rem;
+    }
+    .confirm-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+    .confirm-cta {
+      display: inline-block;
+      background: var(--copper-deep);
+      color: var(--foam);
+      font-family: var(--font-body);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s var(--ease-out-soft), background 0.2s;
+    }
+    .confirm-cta:hover { background: var(--ink-soft); transform: translateY(-2px); }
+    .confirm-cta:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    .confirm-secondary {
+      display: inline-block;
+      color: var(--copper-deep);
+      font-weight: 600;
+      text-decoration: underline;
+      padding: 14px 8px;
+    }
+    .confirm-foot { margin-top: 40px; color: var(--muted); font-size: 0.9rem; }
+    .confirm-foot a { color: var(--copper-deep); }
+    @media (prefers-reduced-motion: reduce) {
+      .confirm-cta { transition: none; }
+      .confirm-cta:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="confirm-page">
+    <div class="confirm-card">
+      <img class="confirm-logo" src="/logo-mascot.png" width="120" height="120" alt="Official Brasse-Bouillon mascot">
+      <h1 class="confirm-title">You’re on the list</h1>
+      <p class="confirm-text">
+        Your address is saved. We’ll email you as soon as the beta opens — and
+        nothing else in the meantime.
+      </p>
+      <p class="confirm-text">
+        Until then, the brewing guides are already online: equipment,
+        ingredients, and a first brew day walked through step by step.
+      </p>
+      <div class="confirm-actions">
+        <a class="confirm-cta" href="/en/guides/">Read the brewing guides</a>
+        <a class="confirm-secondary" href="/en">Back to the home page</a>
+      </div>
+      <p class="confirm-foot">
+        Questions? Write to <a href="mailto:contact@brasse-bouillon.com">contact@brasse-bouillon.com</a>.
+        <br>
+        <span lang="fr">Inscription confirmée. <a href="/merci">Lire cette page en français</a>.</span>
+      </p>
+    </div>
+  </main>
+</body>
+</html>

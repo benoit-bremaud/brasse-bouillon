@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.9](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.8...website-v0.1.9) (2026-07-30)
+
+
+### Features
+
+* **website:** publish brand mascot PNG and version email templates ([#1551](https://github.com/benoit-bremaud/brasse-bouillon/issues/1551)) ([5ad14ec](https://github.com/benoit-bremaud/brasse-bouillon/commit/5ad14ec71e21ac0da03c9272d2713cc3b4741249))
+* **website:** publish English brewing guide hub ([#1547](https://github.com/benoit-bremaud/brasse-bouillon/issues/1547)) ([6d95c0b](https://github.com/benoit-bremaud/brasse-bouillon/commit/6d95c0b5dfb9bff21d9af243ad3358419b9ae627))
+* **website:** relay waitlist signups to Brevo double opt-in ([#1552](https://github.com/benoit-bremaud/brasse-bouillon/issues/1552)) ([8c157c9](https://github.com/benoit-bremaud/brasse-bouillon/commit/8c157c91cd2efe89aaaa5eb2a372470c3c52e1cd))
+
+
+### Bug Fixes
+
+* **website:** audit follow-ups — invalid ARIA, honest signup message, security.txt ([#1550](https://github.com/benoit-bremaud/brasse-bouillon/issues/1550)) ([eecb2ec](https://github.com/benoit-bremaud/brasse-bouillon/commit/eecb2ecf178a6d3dd3e16103d21f46c32f4d85b7))
+
 ## [0.1.8](https://github.com/benoit-bremaud/brasse-bouillon/compare/website-v0.1.7...website-v0.1.8) (2026-07-27)
 
 

@@ -13,6 +13,13 @@ Tag lifecycle:
   always bump to the next version.
 - No tag reuse, ever.
 
+## [0.1.19-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.18-alpha1...mobile-app-v0.1.19-alpha1) (2026-07-30)
+
+
+### Features
+
+* **website:** publish English brewing guide hub ([#1547](https://github.com/benoit-bremaud/brasse-bouillon/issues/1547)) ([6d95c0b](https://github.com/benoit-bremaud/brasse-bouillon/commit/6d95c0b5dfb9bff21d9af243ad3358419b9ae627))
+
 ## [0.1.18-alpha1](https://github.com/benoit-bremaud/brasse-bouillon/compare/mobile-app-v0.1.17-alpha1...mobile-app-v0.1.18-alpha1) (2026-07-27)
 
 
